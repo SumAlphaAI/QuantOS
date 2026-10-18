@@ -421,6 +421,13 @@ async fn reference(
     {
         return e.response();
     }
+    if method == Method::POST
+        && uri.path() == "/v1/research-runs"
+        && let Some(host) = &state.operations
+        && let Err(e) = host.authorize_engine_input(&body, now)
+    {
+        return e.response();
+    }
     state.research.now = now;
     let mut pages = std::mem::take(&mut state.research.pages);
     let output = dispatch(

@@ -226,6 +226,34 @@ impl<K: ExecutionKernel> OperationsService<K> {
             },
         )
     }
+    /// Acknowledgement is operator workflow state, never source resolution.
+    pub fn unacknowledge_alert(
+        &self,
+        a: &AuthContext,
+        step: &VerifiedStepUp,
+        key: &str,
+        id: &ContentHash,
+        revision: u64,
+        now: DateTime<Utc>,
+    ) -> Result<Operation> {
+        self.change(
+            a,
+            step,
+            key,
+            "unacknowledge_alert",
+            &(id, revision),
+            now,
+            |s| {
+                let alert = s.alerts.get_mut(id).ok_or(Error::Denied)?;
+                if alert.revision != revision || !alert.acknowledged {
+                    return Err(Error::Conflict);
+                }
+                alert.acknowledged = false;
+                alert.revision += 1;
+                hash(alert)
+            },
+        )
+    }
     pub fn open_incident(
         &self,
         a: &AuthContext,

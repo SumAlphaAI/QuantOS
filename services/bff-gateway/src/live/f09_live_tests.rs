@@ -152,6 +152,7 @@ fn real_logout_db_write_matches_persistent_trace() {
     let state = Arc::new(LiveState {
         reconciliation: None,
         performance: None,
+        operations: None,
         strategy: None,
         consumed_step_proofs: Mutex::new(Default::default()),
         execution: None,

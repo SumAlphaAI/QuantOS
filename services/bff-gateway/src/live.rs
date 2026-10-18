@@ -1,6 +1,7 @@
 mod audit;
 mod execution;
 mod market;
+mod operations;
 mod performance;
 mod reconciliation;
 mod research;
@@ -32,6 +33,7 @@ struct LiveState {
     consumed_step_proofs: Mutex<std::collections::BTreeSet<String>>,
     reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
     performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
+    operations: Option<Arc<Mutex<crate::operations::OperationsHost>>>,
     strategy: Option<Arc<Mutex<crate::strategy::StrategyHost>>>,
     execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
     verifier: SupabaseAuthVerifier,
@@ -208,6 +210,35 @@ pub fn router_with_performance(
     reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
     performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
 ) -> anyhow::Result<Router> {
+    router_with_operations(
+        database_url,
+        project_url,
+        publishable_key,
+        terminal_origin,
+        environment,
+        observability,
+        execution,
+        strategy,
+        reconciliation,
+        performance,
+        None,
+    )
+}
+/// Live has no reference fallback and never promotes governance beyond F06.
+#[allow(clippy::too_many_arguments)]
+pub fn router_with_operations(
+    database_url: &str,
+    project_url: &str,
+    publishable_key: String,
+    terminal_origin: String,
+    environment: String,
+    observability: Arc<ServiceObservability>,
+    execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
+    strategy: Option<Arc<Mutex<crate::strategy::StrategyHost>>>,
+    reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
+    performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
+    operations: Option<Arc<Mutex<crate::operations::OperationsHost>>>,
+) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
         "live BFF requires an HTTPS Terminal origin"
@@ -220,6 +251,7 @@ pub fn router_with_performance(
     let state = Arc::new(LiveState {
         reconciliation,
         performance,
+        operations,
         execution,
         strategy,
         consumed_step_proofs: Mutex::new(Default::default()),
@@ -246,6 +278,7 @@ pub fn router_with_performance(
         .merge(strategy::routes())
         .merge(reconciliation::routes())
         .merge(performance::routes())
+        .merge(operations::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

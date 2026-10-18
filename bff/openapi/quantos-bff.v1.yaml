@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.11.0
+  version: 1.12.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -7059,6 +7059,2944 @@ paths:
           rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
         realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
         sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/operations/health:
+    get:
+      operationId: getServiceHealth
+      tags:
+        - operations
+      summary: getServiceHealth
+      parameters: []
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsHealth"
+              example:
+                service: service-x06
+                health: degraded
+                ready: false
+                objectVersion: "1"
+                sourceHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                asOf: 2026-10-18T11:00:00Z
+                expiresAt: 2026-10-18T11:00:30Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                latencyMs: 12
+                dlqDepth: 1
+                metricsHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                components:
+                  - name: execution
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: portfolio
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: risk
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: reconciliation
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/metrics:
+    get:
+      operationId: getServiceMetrics
+      tags:
+        - operations
+      summary: getServiceMetrics
+      parameters: []
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsHealth"
+              example:
+                service: service-x06
+                health: degraded
+                ready: false
+                objectVersion: "1"
+                sourceHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                asOf: 2026-10-18T11:00:00Z
+                expiresAt: 2026-10-18T11:00:30Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                latencyMs: 12
+                dlqDepth: 1
+                metricsHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                components:
+                  - name: execution
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: portfolio
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: risk
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+                  - name: reconciliation
+                    ready: true
+                    asOf: 2026-10-18T11:00:00Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/incidents:
+    get:
+      operationId: listIncidents
+      tags:
+        - operations
+      summary: listIncidents
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - open
+              - acknowledged
+              - resolved
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncidentPage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    incidentId: 11111111-1111-4111-8111-111111111111
+                    sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    alertId: 11111111-1111-4111-8111-111111111111
+                    status: open
+                    objectVersion: "0"
+                    openedSource: "1"
+                    asOf: 2026-10-18T11:00:00Z
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    mode: paper
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: openIncident
+      tags:
+        - operations
+      summary: openIncident
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncident"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                incidentId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                alertId: 11111111-1111-4111-8111-111111111111
+                status: open
+                objectVersion: "0"
+                openedSource: "1"
+                asOf: 2026-10-18T11:00:00Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsIncidentCreate"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              alertId: 11111111-1111-4111-8111-111111111111
+  /v1/operations/incidents/{incidentId}:
+    get:
+      operationId: getIncident
+      tags:
+        - operations
+      summary: getIncident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncident"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                incidentId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                alertId: 11111111-1111-4111-8111-111111111111
+                status: open
+                objectVersion: "0"
+                openedSource: "1"
+                asOf: 2026-10-18T11:00:00Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/incidents/{incidentId}/timeline:
+    get:
+      operationId: getIncidentTimeline
+      tags:
+        - operations
+      summary: getIncidentTimeline
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncidentTimeline"
+              example:
+                items:
+                  - eventId: 11111111-1111-4111-8111-111111111111
+                    occurredAt: 2026-10-18T11:00:00Z
+                    payload:
+                      id: 11111111-1111-4111-8111-111111111111
+                      incidentId: 11111111-1111-4111-8111-111111111111
+                      sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      alertId: 11111111-1111-4111-8111-111111111111
+                      status: open
+                      objectVersion: "0"
+                      openedSource: "1"
+                      asOf: 2026-10-18T11:00:00Z
+                      accountId: 11111111-1111-4111-8111-111111111111
+                      mode: paper
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/incidents/{incidentId}/ack:
+    post:
+      operationId: ackIncident
+      tags:
+        - operations
+      summary: ackIncident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncident"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                incidentId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                alertId: 11111111-1111-4111-8111-111111111111
+                status: open
+                objectVersion: "0"
+                openedSource: "1"
+                asOf: 2026-10-18T11:00:00Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/operations/incidents/{incidentId}/resolve:
+    post:
+      operationId: resolveIncident
+      tags:
+        - operations
+      summary: resolveIncident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsIncident"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                incidentId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                alertId: 11111111-1111-4111-8111-111111111111
+                status: open
+                objectVersion: "0"
+                openedSource: "1"
+                asOf: 2026-10-18T11:00:00Z
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/operations/runbook-actions:
+    get:
+      operationId: listRunbookActions
+      tags:
+        - operations
+      summary: listRunbookActions
+      parameters: []
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsRunbookActions"
+              example:
+                items:
+                  - actionId: inspect-health
+                    parameters: []
+                  - actionId: inspect-evidence
+                    parameters:
+                      - commandId
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/runbook-actions/{actionId}/prechecks:
+    get:
+      operationId: checkRunbookPreconditions
+      tags:
+        - operations
+      summary: checkRunbookPreconditions
+      parameters:
+        - name: commandId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: actionId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - inspect-health
+              - inspect-evidence
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsPrecheck"
+              example:
+                actionId: inspect-health
+                allowed: true
+                reason: allowed
+                sourceVersion: "1"
+                expiresAt: 2026-10-18T11:00:30Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/operations/runbook-actions/{actionId}/runs:
+    post:
+      operationId: runApprovedRunbookAction
+      tags:
+        - operations
+      summary: runApprovedRunbookAction
+      parameters:
+        - name: actionId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - inspect-health
+              - inspect-evidence
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsRunbookReceipt"
+              example:
+                operationId: 11111111-1111-4111-8111-111111111111
+                status: succeeded
+                sourceOperationRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                outcome:
+                  status: applied
+                  reference: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsRunbookExecute"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/admin/members:
+    get:
+      operationId: listMembers
+      tags:
+        - admin
+      summary: listMembers
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResourcePage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    kind: members
+                    objectVersion: "0"
+                    configVersion: "0"
+                    deleted: false
+                    protected: false
+                    spec:
+                      kind: member
+                      actorId: 11111111-1111-4111-8111-111111111111
+                      roleId: 11111111-1111-4111-8111-111111111111
+                      active: true
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: createMember
+      tags:
+        - admin
+      summary: createMember
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: members
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: member
+                  actorId: 11111111-1111-4111-8111-111111111111
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceMemberAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: member
+                actorId: 11111111-1111-4111-8111-111111111111
+                roleId: 11111111-1111-4111-8111-111111111111
+                active: true
+  /v1/admin/members/{resourceId}:
+    get:
+      operationId: getMember
+      tags:
+        - admin
+      summary: getMember
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: members
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: member
+                  actorId: 11111111-1111-4111-8111-111111111111
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  active: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: updateMember
+      tags:
+        - admin
+      summary: updateMember
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: members
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: member
+                  actorId: 11111111-1111-4111-8111-111111111111
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceMemberAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: member
+                actorId: 11111111-1111-4111-8111-111111111111
+                roleId: 11111111-1111-4111-8111-111111111111
+                active: true
+    delete:
+      operationId: deleteMember
+      tags:
+        - admin
+      summary: deleteMember
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: members
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: member
+                  actorId: 11111111-1111-4111-8111-111111111111
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/admin/roles:
+    get:
+      operationId: listRoles
+      tags:
+        - admin
+      summary: listRoles
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResourcePage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    kind: roles
+                    objectVersion: "0"
+                    configVersion: "0"
+                    deleted: false
+                    protected: false
+                    spec:
+                      kind: role
+                      name: safe-role
+                      baseRole: operator
+                      permissions:
+                        - ops.read
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: createRole
+      tags:
+        - admin
+      summary: createRole
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: roles
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: role
+                  name: bounded-role
+                  baseRole: operator
+                  permissions:
+                    - ops.read
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceRoleAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: role
+                name: safe-role
+                baseRole: operator
+                permissions:
+                  - ops.read
+  /v1/admin/roles/{resourceId}:
+    get:
+      operationId: getRole
+      tags:
+        - admin
+      summary: getRole
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: roles
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: role
+                  name: bounded-role
+                  baseRole: operator
+                  permissions:
+                    - ops.read
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: saveRole
+      tags:
+        - admin
+      summary: saveRole
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: roles
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: role
+                  name: bounded-role
+                  baseRole: operator
+                  permissions:
+                    - ops.read
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceRoleAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: role
+                name: safe-role
+                baseRole: operator
+                permissions:
+                  - ops.read
+    delete:
+      operationId: deleteRole
+      tags:
+        - admin
+      summary: deleteRole
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: roles
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: role
+                  name: bounded-role
+                  baseRole: operator
+                  permissions:
+                    - ops.read
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/admin/policies:
+    get:
+      operationId: listPolicies
+      tags:
+        - admin
+      summary: listPolicies
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResourcePage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    kind: policies
+                    objectVersion: "0"
+                    configVersion: "0"
+                    deleted: false
+                    protected: false
+                    spec:
+                      kind: policy
+                      name: safe-policy
+                      roleId: 11111111-1111-4111-8111-111111111111
+                      deniedCapabilities:
+                        - ops.operate
+                      active: false
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: createPolicy
+      tags:
+        - admin
+      summary: createPolicy
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: policies
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: policy
+                  name: bounded-policy
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  deniedCapabilities:
+                    - ops.operate
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernancePolicyAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: policy
+                name: safe-policy
+                roleId: 11111111-1111-4111-8111-111111111111
+                deniedCapabilities:
+                  - ops.operate
+                active: false
+  /v1/admin/policies/{resourceId}:
+    get:
+      operationId: getPolicy
+      tags:
+        - admin
+      summary: getPolicy
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: policies
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: policy
+                  name: bounded-policy
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  deniedCapabilities:
+                    - ops.operate
+                  active: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: savePolicy
+      tags:
+        - admin
+      summary: savePolicy
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: policies
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: policy
+                  name: bounded-policy
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  deniedCapabilities:
+                    - ops.operate
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernancePolicyAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: policy
+                name: safe-policy
+                roleId: 11111111-1111-4111-8111-111111111111
+                deniedCapabilities:
+                  - ops.operate
+                active: false
+    delete:
+      operationId: deletePolicy
+      tags:
+        - admin
+      summary: deletePolicy
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: policies
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: policy
+                  name: bounded-policy
+                  roleId: 11111111-1111-4111-8111-111111111111
+                  deniedCapabilities:
+                    - ops.operate
+                  active: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/admin/capabilities:
+    get:
+      operationId: listCapabilities
+      tags:
+        - admin
+      summary: listCapabilities
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResourcePage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    kind: capabilities
+                    objectVersion: "0"
+                    configVersion: "0"
+                    deleted: false
+                    protected: false
+                    spec:
+                      kind: capability
+                      name: ops.approve
+                      enabled: true
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: createCapability
+      tags:
+        - admin
+      summary: createCapability
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: capabilities
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: capability
+                  name: ops.approve
+                  enabled: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceCapabilityAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: capability
+                name: ops.approve
+                enabled: true
+  /v1/admin/capabilities/{resourceId}:
+    get:
+      operationId: getCapability
+      tags:
+        - admin
+      summary: getCapability
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: capabilities
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: capability
+                  name: ops.approve
+                  enabled: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: saveCapability
+      tags:
+        - admin
+      summary: saveCapability
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: capabilities
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: capability
+                  name: ops.approve
+                  enabled: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceCapabilityAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: capability
+                name: ops.approve
+                enabled: true
+    delete:
+      operationId: deleteCapability
+      tags:
+        - admin
+      summary: deleteCapability
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: capabilities
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: capability
+                  name: ops.approve
+                  enabled: true
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/admin/feature-flags:
+    get:
+      operationId: listFeatureFlags
+      tags:
+        - admin
+      summary: listFeatureFlags
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResourcePage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    kind: feature-flags
+                    objectVersion: "0"
+                    configVersion: "0"
+                    deleted: false
+                    protected: false
+                    spec:
+                      kind: flag
+                      name: ops-notices
+                      enabled: true
+                      rolloutPercent: 100
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    post:
+      operationId: createFeatureFlag
+      tags:
+        - admin
+      summary: createFeatureFlag
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "201":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: feature-flags
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: flag
+                  name: ops-notices
+                  enabled: true
+                  rolloutPercent: 100
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceFeatureFlagAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: flag
+                name: ops-notices
+                enabled: true
+                rolloutPercent: 100
+  /v1/admin/feature-flags/{resourceId}:
+    get:
+      operationId: getFeatureFlag
+      tags:
+        - admin
+      summary: getFeatureFlag
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: feature-flags
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: flag
+                  name: ops-notices
+                  enabled: true
+                  rolloutPercent: 100
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: saveFeatureFlag
+      tags:
+        - admin
+      summary: saveFeatureFlag
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: feature-flags
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: flag
+                  name: ops-notices
+                  enabled: true
+                  rolloutPercent: 100
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernanceFeatureFlagAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+              spec:
+                kind: flag
+                name: ops-notices
+                enabled: true
+                rolloutPercent: 100
+    delete:
+      operationId: deleteFeatureFlag
+      tags:
+        - admin
+      summary: deleteFeatureFlag
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminResource"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                kind: feature-flags
+                objectVersion: "0"
+                configVersion: "0"
+                deleted: false
+                protected: false
+                spec:
+                  kind: flag
+                  name: ops-notices
+                  enabled: true
+                  rolloutPercent: 100
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/alerts:
+    get:
+      operationId: listAlerts
+      tags:
+        - alerts
+      summary: listAlerts
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - unacked
+              - acked
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - critical
+              - warning
+              - info
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - risk
+              - order
+              - market
+              - reconciliation
+              - report
+              - system
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsAlertPage"
+              example:
+                items:
+                  - id: 11111111-1111-4111-8111-111111111111
+                    alertId: 11111111-1111-4111-8111-111111111111
+                    sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    rule: outbox_oldest_age
+                    severity: warning
+                    domain: system
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    mode: paper
+                    status: unacked
+                    active: true
+                    resolved: false
+                    objectVersion: "0"
+                    sourceVersion: "1"
+                    occurredAt: 2026-10-18T11:00:00Z
+                    asOf: 2026-10-18T11:00:00Z
+                    ackActor: null
+                    ackAt: null
+                    objectRef: /operations/health
+                    correlationId: 11111111-1111-4111-8111-111111111111
+                nextCursor: null
+                configVersion: "0"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/alerts/{alertId}:
+    get:
+      operationId: getAlert
+      tags:
+        - alerts
+      summary: getAlert
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsAlert"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                alertId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                rule: outbox_oldest_age
+                severity: warning
+                domain: system
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                status: unacked
+                active: true
+                resolved: false
+                objectVersion: "0"
+                sourceVersion: "1"
+                occurredAt: 2026-10-18T11:00:00Z
+                asOf: 2026-10-18T11:00:00Z
+                ackActor: null
+                ackAt: null
+                objectRef: /operations/health
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/alerts/{alertId}/ack:
+    post:
+      operationId: ackAlert
+      tags:
+        - alerts
+      summary: ackAlert
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsAlert"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                alertId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                rule: outbox_oldest_age
+                severity: warning
+                domain: system
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                status: unacked
+                active: true
+                resolved: false
+                objectVersion: "0"
+                sourceVersion: "1"
+                occurredAt: 2026-10-18T11:00:00Z
+                asOf: 2026-10-18T11:00:00Z
+                ackActor: null
+                ackAt: null
+                objectRef: /operations/health
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/alerts/{alertId}/unack:
+    post:
+      operationId: unackAlert
+      tags:
+        - alerts
+      summary: unackAlert
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsAlert"
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                alertId: 11111111-1111-4111-8111-111111111111
+                sourceRef: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                rule: outbox_oldest_age
+                severity: warning
+                domain: system
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                status: unacked
+                active: true
+                resolved: false
+                objectVersion: "0"
+                sourceVersion: "1"
+                occurredAt: 2026-10-18T11:00:00Z
+                asOf: 2026-10-18T11:00:00Z
+                ackActor: null
+                ackAt: null
+                objectRef: /operations/health
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsAction"
+            example:
+              reason: controlled administrative change
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+  /v1/alerts/subscriptions:
+    get:
+      operationId: getAlertSubscriptions
+      tags:
+        - alerts
+      summary: getAlertSubscriptions
+      parameters: []
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertSubscriptions"
+              example:
+                objectVersion: "0"
+                severities:
+                  - critical
+                  - warning
+                  - info
+                domains:
+                  - system
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+    put:
+      operationId: saveAlertSubscriptions
+      tags:
+        - alerts
+      summary: saveAlertSubscriptions
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Scoped real X06/F09 and versioned governance lease result; target persistence not admitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertSubscriptions"
+              example:
+                objectVersion: "0"
+                severities:
+                  - critical
+                  - warning
+                  - info
+                domains:
+                  - system
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveAlertSubscriptions"
+            example:
+              severities:
+                - critical
+              domains:
+                - system
+  /v1/alerts/stream:
+    get:
+      operationId: subscribeAlerts
+      tags:
+        - alerts
+      summary: subscribeAlerts
+      parameters:
+        - $ref: "#/components/parameters/AfterSequence"
+        - name: streamId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
+        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
 components:
   securitySchemes:
     cookieAuth:
@@ -9912,3 +12850,937 @@ components:
           enum:
             - application/json
         downloadExpiresAt: *a6
+    AdminMemberSpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - actorId
+        - roleId
+        - active
+      properties:
+        kind:
+          type: string
+          enum:
+            - member
+        actorId: &a7
+          $ref: "#/components/schemas/UUID"
+        roleId: *a7
+        active:
+          type: boolean
+    AdminRoleSpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - name
+        - baseRole
+        - permissions
+      properties:
+        kind:
+          type: string
+          enum:
+            - role
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[a-zA-Z0-9_.-]+$
+        baseRole:
+          type: string
+          enum:
+            - owner
+            - operator
+            - approver
+            - viewer
+            - service
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - ops.read
+              - ops.operate
+              - ops.approve
+              - admin.read
+              - admin.write
+              - alerts.read
+          maxItems: 6
+    AdminPolicySpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - name
+        - roleId
+        - deniedCapabilities
+        - active
+      properties:
+        kind:
+          type: string
+          enum:
+            - policy
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[a-zA-Z0-9_.-]+$
+        roleId:
+          $ref: "#/components/schemas/UUID"
+        deniedCapabilities:
+          type: array
+          items:
+            type: string
+            enum:
+              - ops.read
+              - ops.operate
+              - ops.approve
+              - admin.read
+              - admin.write
+              - alerts.read
+          maxItems: 6
+        active:
+          type: boolean
+    AdminCapabilitySpec:
+      oneOf:
+        - $ref: "#/components/schemas/AdminPermissionCapabilitySpec"
+        - $ref: "#/components/schemas/AdminEngineCapabilitySpec"
+    AdminFlagSpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - name
+        - enabled
+        - rolloutPercent
+      properties:
+        kind:
+          type: string
+          enum:
+            - flag
+        name:
+          type: string
+          enum:
+            - alerts-live-view
+            - incident-timeline
+            - admin-catalog-preview
+            - ops-notices
+        enabled:
+          type: boolean
+        rolloutPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+    AdminSpec:
+      oneOf:
+        - $ref: "#/components/schemas/AdminMemberSpec"
+        - $ref: "#/components/schemas/AdminRoleSpec"
+        - $ref: "#/components/schemas/AdminPolicySpec"
+        - $ref: "#/components/schemas/AdminCapabilitySpec"
+        - $ref: "#/components/schemas/AdminFlagSpec"
+    AdminResource:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required:
+            - id
+            - kind
+            - objectVersion
+            - configVersion
+            - deleted
+            - protected
+            - spec
+          properties:
+            id: &a13
+              $ref: "#/components/schemas/UUID"
+            kind:
+              type: string
+              enum:
+                - members
+            objectVersion: &a11
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            configVersion: *a11
+            deleted: &a12
+              type: boolean
+            protected: *a12
+            spec:
+              $ref: "#/components/schemas/AdminMemberSpec"
+            auditRef: *a13
+            correlationId: *a13
+        - type: object
+          additionalProperties: false
+          required:
+            - id
+            - kind
+            - objectVersion
+            - configVersion
+            - deleted
+            - protected
+            - spec
+          properties:
+            id: &a16
+              $ref: "#/components/schemas/UUID"
+            kind:
+              type: string
+              enum:
+                - roles
+            objectVersion: &a14
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            configVersion: *a14
+            deleted: &a15
+              type: boolean
+            protected: *a15
+            spec:
+              $ref: "#/components/schemas/AdminRoleSpec"
+            auditRef: *a16
+            correlationId: *a16
+        - type: object
+          additionalProperties: false
+          required:
+            - id
+            - kind
+            - objectVersion
+            - configVersion
+            - deleted
+            - protected
+            - spec
+          properties:
+            id: &a19
+              $ref: "#/components/schemas/UUID"
+            kind:
+              type: string
+              enum:
+                - policies
+            objectVersion: &a17
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            configVersion: *a17
+            deleted: &a18
+              type: boolean
+            protected: *a18
+            spec:
+              $ref: "#/components/schemas/AdminPolicySpec"
+            auditRef: *a19
+            correlationId: *a19
+        - type: object
+          additionalProperties: false
+          required:
+            - id
+            - kind
+            - objectVersion
+            - configVersion
+            - deleted
+            - protected
+            - spec
+          properties:
+            id: &a22
+              $ref: "#/components/schemas/UUID"
+            kind:
+              type: string
+              enum:
+                - capabilities
+            objectVersion: &a20
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            configVersion: *a20
+            deleted: &a21
+              type: boolean
+            protected: *a21
+            spec:
+              $ref: "#/components/schemas/AdminCapabilitySpec"
+            auditRef: *a22
+            correlationId: *a22
+        - type: object
+          additionalProperties: false
+          required:
+            - id
+            - kind
+            - objectVersion
+            - configVersion
+            - deleted
+            - protected
+            - spec
+          properties:
+            id: &a25
+              $ref: "#/components/schemas/UUID"
+            kind:
+              type: string
+              enum:
+                - feature-flags
+            objectVersion: &a23
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            configVersion: *a23
+            deleted: &a24
+              type: boolean
+            protected: *a24
+            spec:
+              $ref: "#/components/schemas/AdminFlagSpec"
+            auditRef: *a25
+            correlationId: *a25
+    GovernanceAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a7
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a7
+        spec:
+          $ref: "#/components/schemas/AdminSpec"
+    OpsAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a7
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a7
+    OpsIncidentCreate:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - alertId
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a7
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a7
+        alertId: *a7
+    OpsRunbookExecute:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a7
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a7
+        commandId: *a7
+    AlertSubscriptions:
+      type: object
+      additionalProperties: false
+      required:
+        - objectVersion
+        - severities
+        - domains
+      properties:
+        objectVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        severities:
+          type: array
+          items:
+            type: string
+            enum:
+              - critical
+              - warning
+              - info
+          maxItems: 3
+        domains:
+          type: array
+          items:
+            type: string
+            enum:
+              - risk
+              - order
+              - market
+              - reconciliation
+              - report
+              - system
+          maxItems: 6
+        auditRef: &a7
+          $ref: "#/components/schemas/UUID"
+        correlationId: *a7
+    SaveAlertSubscriptions:
+      type: object
+      additionalProperties: false
+      required:
+        - severities
+        - domains
+      properties:
+        severities:
+          type: array
+          items:
+            type: string
+            enum:
+              - critical
+              - warning
+              - info
+          maxItems: 3
+          minItems: 1
+        domains:
+          type: array
+          items:
+            type: string
+            enum:
+              - risk
+              - order
+              - market
+              - reconciliation
+              - report
+              - system
+          maxItems: 6
+          minItems: 1
+    OpsHealth:
+      type: object
+      additionalProperties: false
+      required:
+        - service
+        - health
+        - ready
+        - objectVersion
+        - sourceHash
+        - asOf
+        - expiresAt
+        - accountId
+        - mode
+        - latencyMs
+        - dlqDepth
+        - metricsHash
+        - components
+      properties:
+        service:
+          type: string
+          enum:
+            - service-x06
+        health:
+          type: string
+          enum:
+            - healthy
+            - degraded
+        ready: &a9
+          type: boolean
+        objectVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        sourceHash: &a8
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        asOf: &a7
+          type: string
+          format: date-time
+        expiresAt: *a7
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+        latencyMs:
+          type: integer
+          minimum: 0
+        dlqDepth:
+          type: integer
+          minimum: 0
+        metricsHash: *a8
+        components:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - name
+              - ready
+              - asOf
+            properties:
+              name:
+                type: string
+                enum:
+                  - execution
+                  - portfolio
+                  - risk
+                  - reconciliation
+              ready: *a9
+              asOf: *a7
+          maxItems: 4
+    OpsAlert:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - alertId
+        - sourceRef
+        - rule
+        - severity
+        - domain
+        - accountId
+        - mode
+        - status
+        - active
+        - resolved
+        - objectVersion
+        - sourceVersion
+        - occurredAt
+        - asOf
+        - ackActor
+        - ackAt
+        - objectRef
+        - correlationId
+      properties:
+        id: &a7
+          $ref: "#/components/schemas/UUID"
+        alertId: *a7
+        sourceRef:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        rule:
+          type: string
+          maxLength: 64
+        severity:
+          type: string
+          enum:
+            - critical
+            - warning
+            - info
+        domain:
+          type: string
+          enum:
+            - risk
+            - order
+            - market
+            - reconciliation
+            - report
+            - system
+        accountId: *a7
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+        status:
+          type: string
+          enum:
+            - unacked
+            - acked
+        active: &a8
+          type: boolean
+        resolved: *a8
+        objectVersion: &a9
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        sourceVersion: *a9
+        occurredAt: &a10
+          type: string
+          format: date-time
+        asOf: *a10
+        ackActor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        ackAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        objectRef:
+          type: string
+          enum:
+            - /operations/health
+        auditRef: *a7
+        correlationId: *a7
+    OpsIncident:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - incidentId
+        - sourceRef
+        - alertId
+        - status
+        - objectVersion
+        - openedSource
+        - asOf
+        - accountId
+        - mode
+      properties:
+        id: &a7
+          $ref: "#/components/schemas/UUID"
+        incidentId: *a7
+        sourceRef:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        alertId: *a7
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - resolved
+        objectVersion: &a8
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        openedSource: *a8
+        asOf:
+          type: string
+          format: date-time
+        accountId: *a7
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+        auditRef: *a7
+        correlationId: *a7
+    OpsPrecheck:
+      type: object
+      additionalProperties: false
+      required:
+        - actionId
+        - allowed
+        - reason
+        - sourceVersion
+        - expiresAt
+      properties:
+        actionId:
+          type: string
+          enum:
+            - inspect-health
+            - inspect-evidence
+        allowed:
+          type: boolean
+        reason:
+          type: string
+          enum:
+            - allowed
+            - source_evidence_unavailable
+        sourceVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        expiresAt:
+          type: string
+          format: date-time
+    OpsRunbookActions:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - actionId
+              - parameters
+            properties:
+              actionId:
+                type: string
+                enum:
+                  - inspect-health
+                  - inspect-evidence
+              parameters:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - commandId
+                maxItems: 1
+          maxItems: 2
+    OpsRunbookReceipt:
+      type: object
+      additionalProperties: false
+      required:
+        - operationId
+        - status
+        - sourceOperationRef
+        - outcome
+        - auditRef
+        - correlationId
+      properties:
+        operationId: &a8
+          $ref: "#/components/schemas/UUID"
+        status:
+          type: string
+          enum:
+            - succeeded
+        sourceOperationRef: &a7
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        outcome:
+          type: object
+          additionalProperties: false
+          required:
+            - status
+            - reference
+          properties:
+            status:
+              type: string
+              enum:
+                - applied
+            reference: *a7
+        auditRef: *a8
+        correlationId: *a8
+    AdminResourcePage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - configVersion
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminResource"
+          maxItems: 200
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        availableReviews:
+          type: array
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/AdminEngineCapabilitySpec"
+    OpsAlertPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - configVersion
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpsAlert"
+          maxItems: 200
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+    OpsIncidentPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+        - configVersion
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpsIncident"
+          maxItems: 200
+        nextCursor:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+    OpsIncidentTimeline:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - eventId
+              - occurredAt
+              - payload
+            properties:
+              eventId:
+                $ref: "#/components/schemas/UUID"
+              occurredAt:
+                type: string
+                format: date-time
+              payload:
+                $ref: "#/components/schemas/OpsIncident"
+              auditRef:
+                type: string
+                format: uuid
+              correlationId:
+                type: string
+                format: uuid
+          maxItems: 10000
+    GovernanceMemberAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a11
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a11
+        spec:
+          $ref: "#/components/schemas/AdminMemberSpec"
+    GovernanceRoleAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a11
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a11
+        spec:
+          $ref: "#/components/schemas/AdminRoleSpec"
+    GovernancePolicyAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a11
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a11
+        spec:
+          $ref: "#/components/schemas/AdminPolicySpec"
+    GovernanceCapabilityAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a11
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a11
+        spec:
+          $ref: "#/components/schemas/AdminCapabilitySpec"
+    GovernanceFeatureFlagAction:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+        - mfaChallengeRef
+        - reauthTokenRef
+        - spec
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mfaChallengeRef: &a11
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a11
+        spec:
+          $ref: "#/components/schemas/AdminFlagSpec"
+    AdminPermissionCapabilitySpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - name
+        - enabled
+      properties:
+        kind:
+          type: string
+          enum:
+            - capability
+        name:
+          type: string
+          enum:
+            - ops.read
+            - ops.operate
+            - ops.approve
+            - admin.read
+            - admin.write
+            - alerts.read
+        enabled:
+          type: boolean
+    AdminEngineCapabilitySpec:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - reviewId
+        - name
+        - version
+        - description
+        - enabled
+      properties:
+        kind:
+          type: string
+          enum:
+            - engine_capability
+        reviewId:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          maxLength: 512
+        enabled:
+          type: boolean

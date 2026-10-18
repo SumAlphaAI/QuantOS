@@ -1,0 +1,40 @@
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 132，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+FAIL  frozen operation has no page coverage reference: openIncident
+FAIL  frozen operation has no page coverage reference: ackIncident
+FAIL  frozen operation has no page coverage reference: resolveIncident
+FAIL  frozen operation has no page coverage reference: updateMember
+FAIL  frozen operation has no page coverage reference: deleteMember
+FAIL  frozen operation has no page coverage reference: deleteRole
+FAIL  frozen operation has no page coverage reference: deletePolicy
+FAIL  frozen operation has no page coverage reference: deleteCapability
+FAIL  frozen operation has no page coverage reference: deleteFeatureFlag
+FAIL  frozen operation has no page coverage reference: ackAlert
+FAIL  frozen operation has no page coverage reference: unackAlert
+
+11 BFF contract coverage failure(s).
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /Users/anray/.nvm/versions/node/v24.12.0/bin/node scripts/check-bff-contract-coverage.mjs
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-bff-fe-010-boundary.mjs:1:2048
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 37651,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.12.0

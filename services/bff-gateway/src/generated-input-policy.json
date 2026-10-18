@@ -1,5 +1,5 @@
 {
-  "version": "1.11.0",
+  "version": "1.12.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -3695,6 +3695,1383 @@
         "downloadExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "AdminMemberSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "actorId",
+        "roleId",
+        "active"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "member"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "roleId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminRoleSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "baseRole",
+        "permissions"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "role"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_.-]+$"
+        },
+        "baseRole": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver",
+            "viewer",
+            "service"
+          ]
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ops.read",
+              "ops.operate",
+              "ops.approve",
+              "admin.read",
+              "admin.write",
+              "alerts.read"
+            ]
+          },
+          "maxItems": 6
+        }
+      }
+    },
+    "AdminPolicySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "roleId",
+        "deniedCapabilities",
+        "active"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "policy"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_.-]+$"
+        },
+        "roleId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "deniedCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ops.read",
+              "ops.operate",
+              "ops.approve",
+              "admin.read",
+              "admin.write",
+              "alerts.read"
+            ]
+          },
+          "maxItems": 6
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminCapabilitySpec": {
+      "oneOf": [
+        {
+          "$ref": "#/components/schemas/AdminPermissionCapabilitySpec"
+        },
+        {
+          "$ref": "#/components/schemas/AdminEngineCapabilitySpec"
+        }
+      ]
+    },
+    "AdminFlagSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "enabled",
+        "rolloutPercent"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "flag"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "alerts-live-view",
+            "incident-timeline",
+            "admin-catalog-preview",
+            "ops-notices"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "rolloutPercent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "AdminSpec": {
+      "oneOf": [
+        {
+          "$ref": "#/components/schemas/AdminMemberSpec"
+        },
+        {
+          "$ref": "#/components/schemas/AdminRoleSpec"
+        },
+        {
+          "$ref": "#/components/schemas/AdminPolicySpec"
+        },
+        {
+          "$ref": "#/components/schemas/AdminCapabilitySpec"
+        },
+        {
+          "$ref": "#/components/schemas/AdminFlagSpec"
+        }
+      ]
+    },
+    "AdminResource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "members"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AdminMemberSpec"
+            },
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "roles"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AdminRoleSpec"
+            },
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "policies"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AdminPolicySpec"
+            },
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "capabilities"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AdminCapabilitySpec"
+            },
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "feature-flags"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AdminFlagSpec"
+            },
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        }
+      ]
+    },
+    "GovernanceAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminSpec"
+        }
+      }
+    },
+    "OpsAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "OpsIncidentCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "alertId"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "alertId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "OpsRunbookExecute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "AlertSubscriptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objectVersion",
+        "severities",
+        "domains"
+      ],
+      "properties": {
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "severities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          },
+          "maxItems": 3
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "risk",
+              "order",
+              "market",
+              "reconciliation",
+              "report",
+              "system"
+            ]
+          },
+          "maxItems": 6
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "SaveAlertSubscriptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severities",
+        "domains"
+      ],
+      "properties": {
+        "severities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 1
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "risk",
+              "order",
+              "market",
+              "reconciliation",
+              "report",
+              "system"
+            ]
+          },
+          "maxItems": 6,
+          "minItems": 1
+        }
+      }
+    },
+    "OpsHealth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "health",
+        "ready",
+        "objectVersion",
+        "sourceHash",
+        "asOf",
+        "expiresAt",
+        "accountId",
+        "mode",
+        "latencyMs",
+        "dlqDepth",
+        "metricsHash",
+        "components"
+      ],
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": [
+            "service-x06"
+          ]
+        },
+        "health": {
+          "type": "string",
+          "enum": [
+            "healthy",
+            "degraded"
+          ]
+        },
+        "ready": {
+          "type": "boolean"
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dlqDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "metricsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "ready",
+              "asOf"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "execution",
+                  "portfolio",
+                  "risk",
+                  "reconciliation"
+                ]
+              },
+              "ready": {
+                "type": "boolean"
+              },
+              "asOf": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "maxItems": 4
+        }
+      }
+    },
+    "OpsAlert": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "alertId",
+        "sourceRef",
+        "rule",
+        "severity",
+        "domain",
+        "accountId",
+        "mode",
+        "status",
+        "active",
+        "resolved",
+        "objectVersion",
+        "sourceVersion",
+        "occurredAt",
+        "asOf",
+        "ackActor",
+        "ackAt",
+        "objectRef",
+        "correlationId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "alertId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sourceRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rule": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "risk",
+            "order",
+            "market",
+            "reconciliation",
+            "report",
+            "system"
+          ]
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unacked",
+            "acked"
+          ]
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "resolved": {
+          "type": "boolean"
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ackActor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "ackAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "objectRef": {
+          "type": "string",
+          "enum": [
+            "/operations/health"
+          ]
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "OpsIncident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "incidentId",
+        "sourceRef",
+        "alertId",
+        "status",
+        "objectVersion",
+        "openedSource",
+        "asOf",
+        "accountId",
+        "mode"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "incidentId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sourceRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "alertId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "acknowledged",
+            "resolved"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "openedSource": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "OpsPrecheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionId",
+        "allowed",
+        "reason",
+        "sourceVersion",
+        "expiresAt"
+      ],
+      "properties": {
+        "actionId": {
+          "type": "string",
+          "enum": [
+            "inspect-health",
+            "inspect-evidence"
+          ]
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "source_evidence_unavailable"
+          ]
+        },
+        "sourceVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OpsRunbookActions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "actionId",
+              "parameters"
+            ],
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "enum": [
+                  "inspect-health",
+                  "inspect-evidence"
+                ]
+              },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "commandId"
+                  ]
+                },
+                "maxItems": 1
+              }
+            }
+          },
+          "maxItems": 2
+        }
+      }
+    },
+    "OpsRunbookReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operationId",
+        "status",
+        "sourceOperationRef",
+        "outcome",
+        "auditRef",
+        "correlationId"
+      ],
+      "properties": {
+        "operationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded"
+          ]
+        },
+        "sourceOperationRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "reference"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "applied"
+              ]
+            },
+            "reference": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "AdminResourcePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AdminResource"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "availableReviews": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/components/schemas/AdminEngineCapabilitySpec"
+          }
+        }
+      }
+    },
+    "OpsAlertPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/OpsAlert"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "OpsIncidentPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/OpsIncident"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "OpsIncidentTimeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "occurredAt",
+              "payload"
+            ],
+            "properties": {
+              "eventId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/OpsIncident"
+              },
+              "auditRef": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "correlationId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "maxItems": 10000
+        }
+      }
+    },
+    "GovernanceMemberAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminMemberSpec"
+        }
+      }
+    },
+    "GovernanceRoleAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminRoleSpec"
+        }
+      }
+    },
+    "GovernancePolicyAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminPolicySpec"
+        }
+      }
+    },
+    "GovernanceCapabilityAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminCapabilitySpec"
+        }
+      }
+    },
+    "GovernanceFeatureFlagAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "spec": {
+          "$ref": "#/components/schemas/AdminFlagSpec"
+        }
+      }
+    },
+    "AdminPermissionCapabilitySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "capability"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "ops.read",
+            "ops.operate",
+            "ops.approve",
+            "admin.read",
+            "admin.write",
+            "alerts.read"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminEngineCapabilitySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reviewId",
+        "name",
+        "version",
+        "description",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "engine_capability"
+          ]
+        },
+        "reviewId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "enabled": {
+          "type": "boolean"
         }
       }
     }
@@ -9685,6 +11062,2970 @@
         },
         "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
         "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/health",
+      "method": "GET",
+      "operationId": "getServiceHealth",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/metrics",
+      "method": "GET",
+      "operationId": "getServiceMetrics",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents",
+      "method": "GET",
+      "operationId": "listIncidents",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "open",
+              "acknowledged",
+              "resolved"
+            ]
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents",
+      "method": "POST",
+      "operationId": "openIncident",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsIncidentCreate"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "alertId": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents/{incidentId}",
+      "method": "GET",
+      "operationId": "getIncident",
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents/{incidentId}/timeline",
+      "method": "GET",
+      "operationId": "getIncidentTimeline",
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents/{incidentId}/ack",
+      "method": "POST",
+      "operationId": "ackIncident",
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/incidents/{incidentId}/resolve",
+      "method": "POST",
+      "operationId": "resolveIncident",
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/runbook-actions",
+      "method": "GET",
+      "operationId": "listRunbookActions",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/runbook-actions/{actionId}/prechecks",
+      "method": "GET",
+      "operationId": "checkRunbookPreconditions",
+      "parameters": [
+        {
+          "name": "commandId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "actionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "inspect-health",
+              "inspect-evidence"
+            ]
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/operations/runbook-actions/{actionId}/runs",
+      "method": "POST",
+      "operationId": "runApprovedRunbookAction",
+      "parameters": [
+        {
+          "name": "actionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "inspect-health",
+              "inspect-evidence"
+            ]
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsRunbookExecute"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/members",
+      "method": "GET",
+      "operationId": "listMembers",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/members",
+      "method": "POST",
+      "operationId": "createMember",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceMemberAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "member",
+          "actorId": "11111111-1111-4111-8111-111111111111",
+          "roleId": "11111111-1111-4111-8111-111111111111",
+          "active": true
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/members/{resourceId}",
+      "method": "GET",
+      "operationId": "getMember",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/members/{resourceId}",
+      "method": "PUT",
+      "operationId": "updateMember",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceMemberAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "member",
+          "actorId": "11111111-1111-4111-8111-111111111111",
+          "roleId": "11111111-1111-4111-8111-111111111111",
+          "active": true
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/members/{resourceId}",
+      "method": "DELETE",
+      "operationId": "deleteMember",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/roles",
+      "method": "GET",
+      "operationId": "listRoles",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/roles",
+      "method": "POST",
+      "operationId": "createRole",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceRoleAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "role",
+          "name": "safe-role",
+          "baseRole": "operator",
+          "permissions": [
+            "ops.read"
+          ]
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/roles/{resourceId}",
+      "method": "GET",
+      "operationId": "getRole",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/roles/{resourceId}",
+      "method": "PUT",
+      "operationId": "saveRole",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceRoleAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "role",
+          "name": "safe-role",
+          "baseRole": "operator",
+          "permissions": [
+            "ops.read"
+          ]
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/roles/{resourceId}",
+      "method": "DELETE",
+      "operationId": "deleteRole",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/policies",
+      "method": "GET",
+      "operationId": "listPolicies",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/policies",
+      "method": "POST",
+      "operationId": "createPolicy",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernancePolicyAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "policy",
+          "name": "safe-policy",
+          "roleId": "11111111-1111-4111-8111-111111111111",
+          "deniedCapabilities": [
+            "ops.operate"
+          ],
+          "active": false
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/policies/{resourceId}",
+      "method": "GET",
+      "operationId": "getPolicy",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/policies/{resourceId}",
+      "method": "PUT",
+      "operationId": "savePolicy",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernancePolicyAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "policy",
+          "name": "safe-policy",
+          "roleId": "11111111-1111-4111-8111-111111111111",
+          "deniedCapabilities": [
+            "ops.operate"
+          ],
+          "active": false
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/policies/{resourceId}",
+      "method": "DELETE",
+      "operationId": "deletePolicy",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/capabilities",
+      "method": "GET",
+      "operationId": "listCapabilities",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/capabilities",
+      "method": "POST",
+      "operationId": "createCapability",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceCapabilityAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "capability",
+          "name": "ops.approve",
+          "enabled": true
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "method": "GET",
+      "operationId": "getCapability",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "method": "PUT",
+      "operationId": "saveCapability",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceCapabilityAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "capability",
+          "name": "ops.approve",
+          "enabled": true
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "method": "DELETE",
+      "operationId": "deleteCapability",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/feature-flags",
+      "method": "GET",
+      "operationId": "listFeatureFlags",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/feature-flags",
+      "method": "POST",
+      "operationId": "createFeatureFlag",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceFeatureFlagAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "flag",
+          "name": "ops-notices",
+          "enabled": true,
+          "rolloutPercent": 100
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "method": "GET",
+      "operationId": "getFeatureFlag",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "method": "PUT",
+      "operationId": "saveFeatureFlag",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/GovernanceFeatureFlagAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "spec": {
+          "kind": "flag",
+          "name": "ops-notices",
+          "enabled": true,
+          "rolloutPercent": 100
+        }
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "method": "DELETE",
+      "operationId": "deleteFeatureFlag",
+      "parameters": [
+        {
+          "name": "resourceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts",
+      "method": "GET",
+      "operationId": "listAlerts",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "unacked",
+              "acked"
+            ]
+          }
+        },
+        {
+          "name": "severity",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        {
+          "name": "domain",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "risk",
+              "order",
+              "market",
+              "reconciliation",
+              "report",
+              "system"
+            ]
+          }
+        },
+        {
+          "name": "active",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "true",
+              "false"
+            ]
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/{alertId}",
+      "method": "GET",
+      "operationId": "getAlert",
+      "parameters": [
+        {
+          "name": "alertId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/{alertId}/ack",
+      "method": "POST",
+      "operationId": "ackAlert",
+      "parameters": [
+        {
+          "name": "alertId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/{alertId}/unack",
+      "method": "POST",
+      "operationId": "unackAlert",
+      "parameters": [
+        {
+          "name": "alertId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/OpsAction"
+      },
+      "bodyExample": {
+        "reason": "controlled administrative change",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/subscriptions",
+      "method": "GET",
+      "operationId": "getAlertSubscriptions",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/subscriptions",
+      "method": "PUT",
+      "operationId": "saveAlertSubscriptions",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/SaveAlertSubscriptions"
+      },
+      "bodyExample": {
+        "severities": [
+          "critical"
+        ],
+        "domains": [
+          "system"
+        ]
+      },
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/alerts/stream",
+      "method": "GET",
+      "operationId": "subscribeAlerts",
+      "parameters": [
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        },
+        {
+          "name": "streamId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused",
+        "capability": "ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution",
+        "pagination": "Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only",
+        "idempotency": "Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again",
+        "version": "If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA",
+        "audit": "Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 200,
+          "rate": "Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration"
+        },
+        "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
+        "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
       },
       "authenticated": true
     }

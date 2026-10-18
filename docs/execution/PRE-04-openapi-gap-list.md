@@ -17,12 +17,12 @@
 | GAP-08 | C08 | 已发布：listApprovals、getApproval、decideApproval；未发布：无 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
 | GAP-09 | C09 | 已发布：submitTradeCommand、listOrders、getOrder、requestOrderCancel、subscribeOrder；未发布：无 | P11、P19、P20 | X03、X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
 | GAP-10 | C10 | 已发布：searchAuditEvents、getEvidenceChain、createExport、getExportStatus、cancelExport、getExportDownload；未发布：无 | P04、P07、P09、P10、P11、P12、P13、P14、P22、P23 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Closed |
-| GAP-11 | C11 | 已发布：无；未发布：getServiceHealth、listIncidents、getIncident、listMembers、listPolicies、listCapabilities、listFeatureFlags、runApprovedRunbookAction、updateMember、savePolicy、saveCapability、saveFeatureFlag | P13、P14 | F06、F09、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
+| GAP-11 | C11 | 已发布36操作，详见OpenAPI1.12.0与catalog（health/metrics、incident、Runbook、五类治理CRUD） | P13/P14 | F09/X06/F06 | P1 | FEP-6/G6 | BFF-FE-010 | IMPLEMENTED_ENGINEERING；目标持久/完整UI未验收 |
 | GAP-12 | C12 | 已发布：getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries、saveWatchlist、subscribeQuotes、subscribeCandles；未发布：无 | P18、P19、P20 | R01、R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Closed |
 | GAP-13 | C13 | 已发布：无；未发布：getOrderCapabilities、getTradePreflight、subscribeTradePreflight | P20 | X01、X02、X03、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
 | GAP-14 | C14 | 已发布：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getPerformanceReport、getReportDownload、downloadPerformanceReport | P21 | X01、X05、C15 | P1 | FEP-4/G4 | BFF-FE-008 | IMPLEMENTED_ENGINEERING；目标/完整UI未验收 |
 | GAP-15 | C15 | 已发布：无；未发布：listReconciliationRuns、getReconciliationRun、listReconciliationBreaks、getReconciliationBreak、listLedgerEntries、requestReconciliationRerun、subscribeReconciliationRun | P11、P21、P22 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Open |
-| GAP-16 | C16 | 已发布：无；未发布：listAlerts、getAlert、getAlertSubscriptions、ackAlert、unackAlert、saveAlertSubscriptions、subscribeAlerts | P02、P13、P23 | F09、X05、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
+| GAP-16 | C16 | 已发布listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAlertSubscriptions、subscribeAlerts | P02/P13/P23 | F09/X06 | P1 | FEP-6/G6 | BFF-FE-010 | IMPLEMENTED_ENGINEERING；目标持久/完整UI未验收 |
 | GAP-17 | C17 | 已发布：getProfile、saveProfile、getNotificationPrefs、saveNotificationPrefs、getSecuritySettings、listSessions、revokeSession、subscribeSessionRevocations、listDevices、revokeDevice、setupMfa、revokeMfaFactor、listDownloads、getPlatformCapabilities；未发布：无 | P15、P17 | F06、F09、L03 | P0 | FEP-1/G1（一期 Web P15/P17） | BFF-FE-001/011 | Closed |
 
 ## 统一基线（GAP-00，BFF-FE-000 本体）

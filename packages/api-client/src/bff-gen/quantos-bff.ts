@@ -1401,6 +1401,465 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/operations/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getServiceHealth */
+        get: operations["getServiceHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getServiceMetrics */
+        get: operations["getServiceMetrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listIncidents */
+        get: operations["listIncidents"];
+        put?: never;
+        /** openIncident */
+        post: operations["openIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/incidents/{incidentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getIncident */
+        get: operations["getIncident"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/incidents/{incidentId}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getIncidentTimeline */
+        get: operations["getIncidentTimeline"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/incidents/{incidentId}/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ackIncident */
+        post: operations["ackIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/incidents/{incidentId}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** resolveIncident */
+        post: operations["resolveIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/runbook-actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listRunbookActions */
+        get: operations["listRunbookActions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/runbook-actions/{actionId}/prechecks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** checkRunbookPreconditions */
+        get: operations["checkRunbookPreconditions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/runbook-actions/{actionId}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** runApprovedRunbookAction */
+        post: operations["runApprovedRunbookAction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listMembers */
+        get: operations["listMembers"];
+        put?: never;
+        /** createMember */
+        post: operations["createMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/members/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getMember */
+        get: operations["getMember"];
+        /** updateMember */
+        put: operations["updateMember"];
+        post?: never;
+        /** deleteMember */
+        delete: operations["deleteMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listRoles */
+        get: operations["listRoles"];
+        put?: never;
+        /** createRole */
+        post: operations["createRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/roles/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getRole */
+        get: operations["getRole"];
+        /** saveRole */
+        put: operations["saveRole"];
+        post?: never;
+        /** deleteRole */
+        delete: operations["deleteRole"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listPolicies */
+        get: operations["listPolicies"];
+        put?: never;
+        /** createPolicy */
+        post: operations["createPolicy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/policies/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getPolicy */
+        get: operations["getPolicy"];
+        /** savePolicy */
+        put: operations["savePolicy"];
+        post?: never;
+        /** deletePolicy */
+        delete: operations["deletePolicy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listCapabilities */
+        get: operations["listCapabilities"];
+        put?: never;
+        /** createCapability */
+        post: operations["createCapability"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/capabilities/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getCapability */
+        get: operations["getCapability"];
+        /** saveCapability */
+        put: operations["saveCapability"];
+        post?: never;
+        /** deleteCapability */
+        delete: operations["deleteCapability"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/feature-flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listFeatureFlags */
+        get: operations["listFeatureFlags"];
+        put?: never;
+        /** createFeatureFlag */
+        post: operations["createFeatureFlag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/feature-flags/{resourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getFeatureFlag */
+        get: operations["getFeatureFlag"];
+        /** saveFeatureFlag */
+        put: operations["saveFeatureFlag"];
+        post?: never;
+        /** deleteFeatureFlag */
+        delete: operations["deleteFeatureFlag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listAlerts */
+        get: operations["listAlerts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts/{alertId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getAlert */
+        get: operations["getAlert"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts/{alertId}/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ackAlert */
+        post: operations["ackAlert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts/{alertId}/unack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** unackAlert */
+        post: operations["unackAlert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getAlertSubscriptions */
+        get: operations["getAlertSubscriptions"];
+        /** saveAlertSubscriptions */
+        put: operations["saveAlertSubscriptions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/alerts/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeAlerts */
+        get: operations["subscribeAlerts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2350,6 +2809,310 @@ export interface components {
             mediaType: "application/json";
             /** Format: date-time */
             downloadExpiresAt: string;
+        };
+        AdminMemberSpec: {
+            /** @enum {string} */
+            kind: "member";
+            actorId: components["schemas"]["UUID"];
+            roleId: components["schemas"]["UUID"];
+            active: boolean;
+        };
+        AdminRoleSpec: {
+            /** @enum {string} */
+            kind: "role";
+            name: string;
+            /** @enum {string} */
+            baseRole: "owner" | "operator" | "approver" | "viewer" | "service";
+            permissions: ("ops.read" | "ops.operate" | "ops.approve" | "admin.read" | "admin.write" | "alerts.read")[];
+        };
+        AdminPolicySpec: {
+            /** @enum {string} */
+            kind: "policy";
+            name: string;
+            roleId: components["schemas"]["UUID"];
+            deniedCapabilities: ("ops.read" | "ops.operate" | "ops.approve" | "admin.read" | "admin.write" | "alerts.read")[];
+            active: boolean;
+        };
+        AdminCapabilitySpec: components["schemas"]["AdminPermissionCapabilitySpec"] | components["schemas"]["AdminEngineCapabilitySpec"];
+        AdminFlagSpec: {
+            /** @enum {string} */
+            kind: "flag";
+            /** @enum {string} */
+            name: "alerts-live-view" | "incident-timeline" | "admin-catalog-preview" | "ops-notices";
+            enabled: boolean;
+            rolloutPercent: number;
+        };
+        AdminSpec: components["schemas"]["AdminMemberSpec"] | components["schemas"]["AdminRoleSpec"] | components["schemas"]["AdminPolicySpec"] | components["schemas"]["AdminCapabilitySpec"] | components["schemas"]["AdminFlagSpec"];
+        AdminResource: {
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            kind: "members";
+            objectVersion: string;
+            configVersion: string;
+            deleted: boolean;
+            protected: boolean;
+            spec: components["schemas"]["AdminMemberSpec"];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        } | {
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            kind: "roles";
+            objectVersion: string;
+            configVersion: string;
+            deleted: boolean;
+            protected: boolean;
+            spec: components["schemas"]["AdminRoleSpec"];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        } | {
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            kind: "policies";
+            objectVersion: string;
+            configVersion: string;
+            deleted: boolean;
+            protected: boolean;
+            spec: components["schemas"]["AdminPolicySpec"];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        } | {
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            kind: "capabilities";
+            objectVersion: string;
+            configVersion: string;
+            deleted: boolean;
+            protected: boolean;
+            spec: components["schemas"]["AdminCapabilitySpec"];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        } | {
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            kind: "feature-flags";
+            objectVersion: string;
+            configVersion: string;
+            deleted: boolean;
+            protected: boolean;
+            spec: components["schemas"]["AdminFlagSpec"];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        };
+        GovernanceAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminSpec"];
+        };
+        OpsAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+        };
+        OpsIncidentCreate: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            alertId: components["schemas"]["UUID"];
+        };
+        OpsRunbookExecute: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            commandId?: components["schemas"]["UUID"];
+        };
+        AlertSubscriptions: {
+            objectVersion: string;
+            severities: ("critical" | "warning" | "info")[];
+            domains: ("risk" | "order" | "market" | "reconciliation" | "report" | "system")[];
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        };
+        SaveAlertSubscriptions: {
+            severities: ("critical" | "warning" | "info")[];
+            domains: ("risk" | "order" | "market" | "reconciliation" | "report" | "system")[];
+        };
+        OpsHealth: {
+            /** @enum {string} */
+            service: "service-x06";
+            /** @enum {string} */
+            health: "healthy" | "degraded";
+            ready: boolean;
+            objectVersion: string;
+            sourceHash: string;
+            /** Format: date-time */
+            asOf: string;
+            /** Format: date-time */
+            expiresAt: string;
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            latencyMs: number;
+            dlqDepth: number;
+            metricsHash: string;
+            components: {
+                /** @enum {string} */
+                name: "execution" | "portfolio" | "risk" | "reconciliation";
+                ready: boolean;
+                /** Format: date-time */
+                asOf: string;
+            }[];
+        };
+        OpsAlert: {
+            id: components["schemas"]["UUID"];
+            alertId: components["schemas"]["UUID"];
+            sourceRef: string;
+            rule: string;
+            /** @enum {string} */
+            severity: "critical" | "warning" | "info";
+            /** @enum {string} */
+            domain: "risk" | "order" | "market" | "reconciliation" | "report" | "system";
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            /** @enum {string} */
+            status: "unacked" | "acked";
+            active: boolean;
+            resolved: boolean;
+            objectVersion: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: date-time */
+            asOf: string;
+            /** Format: uuid */
+            ackActor: string | null;
+            /** Format: date-time */
+            ackAt: string | null;
+            /** @enum {string} */
+            objectRef: "/operations/health";
+            auditRef?: components["schemas"]["UUID"];
+            correlationId: components["schemas"]["UUID"];
+        };
+        OpsIncident: {
+            id: components["schemas"]["UUID"];
+            incidentId: components["schemas"]["UUID"];
+            sourceRef: string;
+            alertId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            status: "open" | "acknowledged" | "resolved";
+            objectVersion: string;
+            openedSource: string;
+            /** Format: date-time */
+            asOf: string;
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        };
+        OpsPrecheck: {
+            /** @enum {string} */
+            actionId: "inspect-health" | "inspect-evidence";
+            allowed: boolean;
+            /** @enum {string} */
+            reason: "allowed" | "source_evidence_unavailable";
+            sourceVersion: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        OpsRunbookActions: {
+            items: {
+                /** @enum {string} */
+                actionId: "inspect-health" | "inspect-evidence";
+                parameters: "commandId"[];
+            }[];
+        };
+        OpsRunbookReceipt: {
+            operationId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            status: "succeeded";
+            sourceOperationRef: string;
+            outcome: {
+                /** @enum {string} */
+                status: "applied";
+                reference: string;
+            };
+            auditRef: components["schemas"]["UUID"];
+            correlationId: components["schemas"]["UUID"];
+        };
+        AdminResourcePage: {
+            items: components["schemas"]["AdminResource"][];
+            /** Format: uuid */
+            nextCursor: string | null;
+            configVersion: string;
+            availableReviews?: components["schemas"]["AdminEngineCapabilitySpec"][];
+        };
+        OpsAlertPage: {
+            items: components["schemas"]["OpsAlert"][];
+            /** Format: uuid */
+            nextCursor: string | null;
+            configVersion: string;
+        };
+        OpsIncidentPage: {
+            items: components["schemas"]["OpsIncident"][];
+            /** Format: uuid */
+            nextCursor: string | null;
+            configVersion: string;
+        };
+        OpsIncidentTimeline: {
+            items: {
+                eventId: components["schemas"]["UUID"];
+                /** Format: date-time */
+                occurredAt: string;
+                payload: components["schemas"]["OpsIncident"];
+                /** Format: uuid */
+                auditRef?: string;
+                /** Format: uuid */
+                correlationId?: string;
+            }[];
+        };
+        GovernanceMemberAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminMemberSpec"];
+        };
+        GovernanceRoleAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminRoleSpec"];
+        };
+        GovernancePolicyAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminPolicySpec"];
+        };
+        GovernanceCapabilityAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminCapabilitySpec"];
+        };
+        GovernanceFeatureFlagAction: {
+            reason: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            spec: components["schemas"]["AdminFlagSpec"];
+        };
+        AdminPermissionCapabilitySpec: {
+            /** @enum {string} */
+            kind: "capability";
+            /** @enum {string} */
+            name: "ops.read" | "ops.operate" | "ops.approve" | "admin.read" | "admin.write" | "alerts.read";
+            enabled: boolean;
+        };
+        AdminEngineCapabilitySpec: {
+            /** @enum {string} */
+            kind: "engine_capability";
+            reviewId: components["schemas"]["UUID"];
+            name: string;
+            version: string;
+            description: string;
+            enabled: boolean;
         };
     };
     responses: {
@@ -7087,6 +7850,2436 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["PerformanceReportDocument"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getServiceHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "service": "service-x06",
+                     *       "health": "degraded",
+                     *       "ready": false,
+                     *       "objectVersion": "1",
+                     *       "sourceHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "expiresAt": "2026-10-18T11:00:30Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "latencyMs": 12,
+                     *       "dlqDepth": 1,
+                     *       "metricsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "components": [
+                     *         {
+                     *           "name": "execution",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "portfolio",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "risk",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "reconciliation",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsHealth"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getServiceMetrics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "service": "service-x06",
+                     *       "health": "degraded",
+                     *       "ready": false,
+                     *       "objectVersion": "1",
+                     *       "sourceHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "expiresAt": "2026-10-18T11:00:30Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "latencyMs": 12,
+                     *       "dlqDepth": 1,
+                     *       "metricsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "components": [
+                     *         {
+                     *           "name": "execution",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "portfolio",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "risk",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         },
+                     *         {
+                     *           "name": "reconciliation",
+                     *           "ready": true,
+                     *           "asOf": "2026-10-18T11:00:00Z"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsHealth"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listIncidents: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+                status?: "open" | "acknowledged" | "resolved";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *           "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "alertId": "11111111-1111-4111-8111-111111111111",
+                     *           "status": "open",
+                     *           "objectVersion": "0",
+                     *           "openedSource": "1",
+                     *           "asOf": "2026-10-18T11:00:00Z",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "mode": "paper"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncidentPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    openIncident: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "alertId": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsIncidentCreate"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "open",
+                     *       "objectVersion": "0",
+                     *       "openedSource": "1",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncident"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                incidentId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "open",
+                     *       "objectVersion": "0",
+                     *       "openedSource": "1",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncident"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getIncidentTimeline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                incidentId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "eventId": "11111111-1111-4111-8111-111111111111",
+                     *           "occurredAt": "2026-10-18T11:00:00Z",
+                     *           "payload": {
+                     *             "id": "11111111-1111-4111-8111-111111111111",
+                     *             "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *             "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "alertId": "11111111-1111-4111-8111-111111111111",
+                     *             "status": "open",
+                     *             "objectVersion": "0",
+                     *             "openedSource": "1",
+                     *             "asOf": "2026-10-18T11:00:00Z",
+                     *             "accountId": "11111111-1111-4111-8111-111111111111",
+                     *             "mode": "paper"
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncidentTimeline"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    ackIncident: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                incidentId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "open",
+                     *       "objectVersion": "0",
+                     *       "openedSource": "1",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncident"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    resolveIncident: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                incidentId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "incidentId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "open",
+                     *       "objectVersion": "0",
+                     *       "openedSource": "1",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsIncident"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listRunbookActions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "actionId": "inspect-health",
+                     *           "parameters": []
+                     *         },
+                     *         {
+                     *           "actionId": "inspect-evidence",
+                     *           "parameters": [
+                     *             "commandId"
+                     *           ]
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsRunbookActions"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    checkRunbookPreconditions: {
+        parameters: {
+            query?: {
+                commandId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path: {
+                actionId: "inspect-health" | "inspect-evidence";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "actionId": "inspect-health",
+                     *       "allowed": true,
+                     *       "reason": "allowed",
+                     *       "sourceVersion": "1",
+                     *       "expiresAt": "2026-10-18T11:00:30Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsPrecheck"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    runApprovedRunbookAction: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                actionId: "inspect-health" | "inspect-evidence";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsRunbookExecute"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "operationId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "succeeded",
+                     *       "sourceOperationRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "outcome": {
+                     *         "status": "applied",
+                     *         "reference": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsRunbookReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listMembers: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "kind": "members",
+                     *           "objectVersion": "0",
+                     *           "configVersion": "0",
+                     *           "deleted": false,
+                     *           "protected": false,
+                     *           "spec": {
+                     *             "kind": "member",
+                     *             "actorId": "11111111-1111-4111-8111-111111111111",
+                     *             "roleId": "11111111-1111-4111-8111-111111111111",
+                     *             "active": true
+                     *           }
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResourcePage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "member",
+                 *         "actorId": "11111111-1111-4111-8111-111111111111",
+                 *         "roleId": "11111111-1111-4111-8111-111111111111",
+                 *         "active": true
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceMemberAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "members",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "member",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "members",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "member",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "active": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    updateMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "member",
+                 *         "actorId": "11111111-1111-4111-8111-111111111111",
+                 *         "roleId": "11111111-1111-4111-8111-111111111111",
+                 *         "active": true
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceMemberAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "members",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "member",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    deleteMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "members",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "member",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listRoles: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "kind": "roles",
+                     *           "objectVersion": "0",
+                     *           "configVersion": "0",
+                     *           "deleted": false,
+                     *           "protected": false,
+                     *           "spec": {
+                     *             "kind": "role",
+                     *             "name": "safe-role",
+                     *             "baseRole": "operator",
+                     *             "permissions": [
+                     *               "ops.read"
+                     *             ]
+                     *           }
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResourcePage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createRole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "role",
+                 *         "name": "safe-role",
+                 *         "baseRole": "operator",
+                 *         "permissions": [
+                 *           "ops.read"
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceRoleAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "roles",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "role",
+                     *         "name": "bounded-role",
+                     *         "baseRole": "operator",
+                     *         "permissions": [
+                     *           "ops.read"
+                     *         ]
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "roles",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "role",
+                     *         "name": "bounded-role",
+                     *         "baseRole": "operator",
+                     *         "permissions": [
+                     *           "ops.read"
+                     *         ]
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    saveRole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "role",
+                 *         "name": "safe-role",
+                 *         "baseRole": "operator",
+                 *         "permissions": [
+                 *           "ops.read"
+                 *         ]
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceRoleAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "roles",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "role",
+                     *         "name": "bounded-role",
+                     *         "baseRole": "operator",
+                     *         "permissions": [
+                     *           "ops.read"
+                     *         ]
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    deleteRole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "roles",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "role",
+                     *         "name": "bounded-role",
+                     *         "baseRole": "operator",
+                     *         "permissions": [
+                     *           "ops.read"
+                     *         ]
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listPolicies: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "kind": "policies",
+                     *           "objectVersion": "0",
+                     *           "configVersion": "0",
+                     *           "deleted": false,
+                     *           "protected": false,
+                     *           "spec": {
+                     *             "kind": "policy",
+                     *             "name": "safe-policy",
+                     *             "roleId": "11111111-1111-4111-8111-111111111111",
+                     *             "deniedCapabilities": [
+                     *               "ops.operate"
+                     *             ],
+                     *             "active": false
+                     *           }
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResourcePage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createPolicy: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "policy",
+                 *         "name": "safe-policy",
+                 *         "roleId": "11111111-1111-4111-8111-111111111111",
+                 *         "deniedCapabilities": [
+                 *           "ops.operate"
+                 *         ],
+                 *         "active": false
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernancePolicyAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "policies",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "policy",
+                     *         "name": "bounded-policy",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "deniedCapabilities": [
+                     *           "ops.operate"
+                     *         ],
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getPolicy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "policies",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "policy",
+                     *         "name": "bounded-policy",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "deniedCapabilities": [
+                     *           "ops.operate"
+                     *         ],
+                     *         "active": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    savePolicy: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "policy",
+                 *         "name": "safe-policy",
+                 *         "roleId": "11111111-1111-4111-8111-111111111111",
+                 *         "deniedCapabilities": [
+                 *           "ops.operate"
+                 *         ],
+                 *         "active": false
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernancePolicyAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "policies",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "policy",
+                     *         "name": "bounded-policy",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "deniedCapabilities": [
+                     *           "ops.operate"
+                     *         ],
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    deletePolicy: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "policies",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "policy",
+                     *         "name": "bounded-policy",
+                     *         "roleId": "11111111-1111-4111-8111-111111111111",
+                     *         "deniedCapabilities": [
+                     *           "ops.operate"
+                     *         ],
+                     *         "active": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listCapabilities: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "kind": "capabilities",
+                     *           "objectVersion": "0",
+                     *           "configVersion": "0",
+                     *           "deleted": false,
+                     *           "protected": false,
+                     *           "spec": {
+                     *             "kind": "capability",
+                     *             "name": "ops.approve",
+                     *             "enabled": true
+                     *           }
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResourcePage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createCapability: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "capability",
+                 *         "name": "ops.approve",
+                 *         "enabled": true
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceCapabilityAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "capabilities",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "capability",
+                     *         "name": "ops.approve",
+                     *         "enabled": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getCapability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "capabilities",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "capability",
+                     *         "name": "ops.approve",
+                     *         "enabled": true
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    saveCapability: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "capability",
+                 *         "name": "ops.approve",
+                 *         "enabled": true
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceCapabilityAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "capabilities",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "capability",
+                     *         "name": "ops.approve",
+                     *         "enabled": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    deleteCapability: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "capabilities",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "capability",
+                     *         "name": "ops.approve",
+                     *         "enabled": true
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listFeatureFlags: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "kind": "feature-flags",
+                     *           "objectVersion": "0",
+                     *           "configVersion": "0",
+                     *           "deleted": false,
+                     *           "protected": false,
+                     *           "spec": {
+                     *             "kind": "flag",
+                     *             "name": "ops-notices",
+                     *             "enabled": true,
+                     *             "rolloutPercent": 100
+                     *           }
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResourcePage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createFeatureFlag: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "flag",
+                 *         "name": "ops-notices",
+                 *         "enabled": true,
+                 *         "rolloutPercent": 100
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceFeatureFlagAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "feature-flags",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "flag",
+                     *         "name": "ops-notices",
+                     *         "enabled": true,
+                     *         "rolloutPercent": 100
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getFeatureFlag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "feature-flags",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "flag",
+                     *         "name": "ops-notices",
+                     *         "enabled": true,
+                     *         "rolloutPercent": 100
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    saveFeatureFlag: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "spec": {
+                 *         "kind": "flag",
+                 *         "name": "ops-notices",
+                 *         "enabled": true,
+                 *         "rolloutPercent": 100
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["GovernanceFeatureFlagAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "feature-flags",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "flag",
+                     *         "name": "ops-notices",
+                     *         "enabled": true,
+                     *         "rolloutPercent": 100
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    deleteFeatureFlag: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "kind": "feature-flags",
+                     *       "objectVersion": "0",
+                     *       "configVersion": "0",
+                     *       "deleted": false,
+                     *       "protected": false,
+                     *       "spec": {
+                     *         "kind": "flag",
+                     *         "name": "ops-notices",
+                     *         "enabled": true,
+                     *         "rolloutPercent": 100
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AdminResource"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listAlerts: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                sort?: "id:asc" | "id:desc";
+                accountId?: components["schemas"]["UUID"];
+                status?: "unacked" | "acked";
+                severity?: "critical" | "warning" | "info";
+                domain?: "risk" | "order" | "market" | "reconciliation" | "report" | "system";
+                active?: "true" | "false";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "11111111-1111-4111-8111-111111111111",
+                     *           "alertId": "11111111-1111-4111-8111-111111111111",
+                     *           "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "rule": "outbox_oldest_age",
+                     *           "severity": "warning",
+                     *           "domain": "system",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "mode": "paper",
+                     *           "status": "unacked",
+                     *           "active": true,
+                     *           "resolved": false,
+                     *           "objectVersion": "0",
+                     *           "sourceVersion": "1",
+                     *           "occurredAt": "2026-10-18T11:00:00Z",
+                     *           "asOf": "2026-10-18T11:00:00Z",
+                     *           "ackActor": null,
+                     *           "ackAt": null,
+                     *           "objectRef": "/operations/health",
+                     *           "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "configVersion": "0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsAlertPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alertId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "rule": "outbox_oldest_age",
+                     *       "severity": "warning",
+                     *       "domain": "system",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "status": "unacked",
+                     *       "active": true,
+                     *       "resolved": false,
+                     *       "objectVersion": "0",
+                     *       "sourceVersion": "1",
+                     *       "occurredAt": "2026-10-18T11:00:00Z",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "ackActor": null,
+                     *       "ackAt": null,
+                     *       "objectRef": "/operations/health",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsAlert"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    ackAlert: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                alertId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "rule": "outbox_oldest_age",
+                     *       "severity": "warning",
+                     *       "domain": "system",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "status": "unacked",
+                     *       "active": true,
+                     *       "resolved": false,
+                     *       "objectVersion": "0",
+                     *       "sourceVersion": "1",
+                     *       "occurredAt": "2026-10-18T11:00:00Z",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "ackActor": null,
+                     *       "ackAt": null,
+                     *       "objectRef": "/operations/health",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsAlert"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    unackAlert: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                alertId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "controlled administrative change",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpsAction"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "11111111-1111-4111-8111-111111111111",
+                     *       "alertId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "rule": "outbox_oldest_age",
+                     *       "severity": "warning",
+                     *       "domain": "system",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "status": "unacked",
+                     *       "active": true,
+                     *       "resolved": false,
+                     *       "objectVersion": "0",
+                     *       "sourceVersion": "1",
+                     *       "occurredAt": "2026-10-18T11:00:00Z",
+                     *       "asOf": "2026-10-18T11:00:00Z",
+                     *       "ackActor": null,
+                     *       "ackAt": null,
+                     *       "objectRef": "/operations/health",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OpsAlert"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAlertSubscriptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "objectVersion": "0",
+                     *       "severities": [
+                     *         "critical",
+                     *         "warning",
+                     *         "info"
+                     *       ],
+                     *       "domains": [
+                     *         "system"
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AlertSubscriptions"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    saveAlertSubscriptions: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "severities": [
+                 *         "critical"
+                 *       ],
+                 *       "domains": [
+                 *         "system"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["SaveAlertSubscriptions"];
+            };
+        };
+        responses: {
+            /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "objectVersion": "0",
+                     *       "severities": [
+                     *         "critical",
+                     *         "warning",
+                     *         "info"
+                     *       ],
+                     *       "domains": [
+                     *         "system"
+                     *       ],
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AlertSubscriptions"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeAlerts: {
+        parameters: {
+            query?: {
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+                streamId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
                 };
             };
             401: components["responses"]["Unauthorized"];

@@ -1,8 +1,28 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "operations": [
+    {
+      "operationId": "ackAlert",
+      "method": "POST",
+      "path": "/v1/alerts/{alertId}/ack",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "OpsAlert",
+      "sse": false
+    },
+    {
+      "operationId": "ackIncident",
+      "method": "POST",
+      "path": "/v1/operations/incidents/{incidentId}/ack",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncident",
+      "sse": false
+    },
     {
       "operationId": "cancelExport",
       "method": "POST",
@@ -24,6 +44,16 @@
       "sse": false
     },
     {
+      "operationId": "checkRunbookPreconditions",
+      "method": "GET",
+      "path": "/v1/operations/runbook-actions/{actionId}/prechecks",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsPrecheck",
+      "sse": false
+    },
+    {
       "operationId": "createBacktest",
       "method": "POST",
       "path": "/v1/backtests",
@@ -31,6 +61,16 @@
         "strategy"
       ],
       "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "createCapability",
+      "method": "POST",
+      "path": "/v1/admin/capabilities",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -44,6 +84,26 @@
       "sse": false
     },
     {
+      "operationId": "createFeatureFlag",
+      "method": "POST",
+      "path": "/v1/admin/feature-flags",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "createMember",
+      "method": "POST",
+      "path": "/v1/admin/members",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
       "operationId": "createPerformanceReport",
       "method": "POST",
       "path": "/v1/performance/reports",
@@ -51,6 +111,16 @@
         "performance"
       ],
       "responseSchema": "PerformanceReport",
+      "sse": false
+    },
+    {
+      "operationId": "createPolicy",
+      "method": "POST",
+      "path": "/v1/admin/policies",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -74,6 +144,16 @@
       "sse": false
     },
     {
+      "operationId": "createRole",
+      "method": "POST",
+      "path": "/v1/admin/roles",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
       "operationId": "decideApproval",
       "method": "POST",
       "path": "/v1/approvals/{approvalId}/decisions",
@@ -81,6 +161,56 @@
         "approval"
       ],
       "responseSchema": "Approval",
+      "sse": false
+    },
+    {
+      "operationId": "deleteCapability",
+      "method": "DELETE",
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "deleteFeatureFlag",
+      "method": "DELETE",
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "deleteMember",
+      "method": "DELETE",
+      "path": "/v1/admin/members/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "deletePolicy",
+      "method": "DELETE",
+      "path": "/v1/admin/policies/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "deleteRole",
+      "method": "DELETE",
+      "path": "/v1/admin/roles/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -101,6 +231,26 @@
         "risk"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "getAlert",
+      "method": "GET",
+      "path": "/v1/alerts/{alertId}",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "OpsAlert",
+      "sse": false
+    },
+    {
+      "operationId": "getAlertSubscriptions",
+      "method": "GET",
+      "path": "/v1/alerts/subscriptions",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "AlertSubscriptions",
       "sse": false
     },
     {
@@ -154,6 +304,16 @@
       "sse": false
     },
     {
+      "operationId": "getCapability",
+      "method": "GET",
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
       "operationId": "getContext",
       "method": "GET",
       "path": "/v1/context",
@@ -204,6 +364,36 @@
       "sse": false
     },
     {
+      "operationId": "getFeatureFlag",
+      "method": "GET",
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "getIncident",
+      "method": "GET",
+      "path": "/v1/operations/incidents/{incidentId}",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncident",
+      "sse": false
+    },
+    {
+      "operationId": "getIncidentTimeline",
+      "method": "GET",
+      "path": "/v1/operations/incidents/{incidentId}/timeline",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncidentTimeline",
+      "sse": false
+    },
+    {
       "operationId": "getMarketCatalog",
       "method": "GET",
       "path": "/v1/markets/catalog",
@@ -211,6 +401,16 @@
         "market"
       ],
       "responseSchema": "MarketCatalog",
+      "sse": false
+    },
+    {
+      "operationId": "getMember",
+      "method": "GET",
+      "path": "/v1/admin/members/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -291,6 +491,16 @@
         "settings"
       ],
       "responseSchema": "BrowserCapabilityPolicy",
+      "sse": false
+    },
+    {
+      "operationId": "getPolicy",
+      "method": "GET",
+      "path": "/v1/admin/policies/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -394,6 +604,16 @@
       "sse": false
     },
     {
+      "operationId": "getRole",
+      "method": "GET",
+      "path": "/v1/admin/roles/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
       "operationId": "getSecuritySettings",
       "method": "GET",
       "path": "/v1/settings/security",
@@ -401,6 +621,26 @@
         "settings"
       ],
       "responseSchema": "SecuritySettings",
+      "sse": false
+    },
+    {
+      "operationId": "getServiceHealth",
+      "method": "GET",
+      "path": "/v1/operations/health",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsHealth",
+      "sse": false
+    },
+    {
+      "operationId": "getServiceMetrics",
+      "method": "GET",
+      "path": "/v1/operations/metrics",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsHealth",
       "sse": false
     },
     {
@@ -454,6 +694,16 @@
       "sse": false
     },
     {
+      "operationId": "listAlerts",
+      "method": "GET",
+      "path": "/v1/alerts",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "OpsAlertPage",
+      "sse": false
+    },
+    {
       "operationId": "listApprovals",
       "method": "GET",
       "path": "/v1/approvals",
@@ -461,6 +711,16 @@
         "approval"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listCapabilities",
+      "method": "GET",
+      "path": "/v1/admin/capabilities",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResourcePage",
       "sse": false
     },
     {
@@ -494,6 +754,26 @@
       "sse": false
     },
     {
+      "operationId": "listFeatureFlags",
+      "method": "GET",
+      "path": "/v1/admin/feature-flags",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResourcePage",
+      "sse": false
+    },
+    {
+      "operationId": "listIncidents",
+      "method": "GET",
+      "path": "/v1/operations/incidents",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncidentPage",
+      "sse": false
+    },
+    {
       "operationId": "listLedgerEntries",
       "method": "GET",
       "path": "/v1/ledger/entries",
@@ -504,6 +784,16 @@
       "sse": false
     },
     {
+      "operationId": "listMembers",
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResourcePage",
+      "sse": false
+    },
+    {
       "operationId": "listOrders",
       "method": "GET",
       "path": "/v1/orders",
@@ -511,6 +801,16 @@
         "execution"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listPolicies",
+      "method": "GET",
+      "path": "/v1/admin/policies",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResourcePage",
       "sse": false
     },
     {
@@ -564,6 +864,26 @@
       "sse": false
     },
     {
+      "operationId": "listRoles",
+      "method": "GET",
+      "path": "/v1/admin/roles",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResourcePage",
+      "sse": false
+    },
+    {
+      "operationId": "listRunbookActions",
+      "method": "GET",
+      "path": "/v1/operations/runbook-actions",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsRunbookActions",
+      "sse": false
+    },
+    {
       "operationId": "listSessions",
       "method": "GET",
       "path": "/v1/settings/sessions",
@@ -601,6 +921,16 @@
         "session"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "openIncident",
+      "method": "POST",
+      "path": "/v1/operations/incidents",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncident",
       "sse": false
     },
     {
@@ -664,6 +994,16 @@
       "sse": false
     },
     {
+      "operationId": "resolveIncident",
+      "method": "POST",
+      "path": "/v1/operations/incidents/{incidentId}/resolve",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsIncident",
+      "sse": false
+    },
+    {
       "operationId": "revokeDevice",
       "method": "DELETE",
       "path": "/v1/settings/trusted-devices/{deviceId}",
@@ -694,6 +1034,16 @@
       "sse": false
     },
     {
+      "operationId": "runApprovedRunbookAction",
+      "method": "POST",
+      "path": "/v1/operations/runbook-actions/{actionId}/runs",
+      "tags": [
+        "operations"
+      ],
+      "responseSchema": "OpsRunbookReceipt",
+      "sse": false
+    },
+    {
       "operationId": "runStaticCheck",
       "method": "POST",
       "path": "/v1/strategies/{strategyId}/static-checks",
@@ -701,6 +1051,36 @@
         "strategy"
       ],
       "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "saveAlertSubscriptions",
+      "method": "PUT",
+      "path": "/v1/alerts/subscriptions",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "AlertSubscriptions",
+      "sse": false
+    },
+    {
+      "operationId": "saveCapability",
+      "method": "PUT",
+      "path": "/v1/admin/capabilities/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "saveFeatureFlag",
+      "method": "PUT",
+      "path": "/v1/admin/feature-flags/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -714,6 +1094,16 @@
       "sse": false
     },
     {
+      "operationId": "savePolicy",
+      "method": "PUT",
+      "path": "/v1/admin/policies/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
       "operationId": "saveProfile",
       "method": "PUT",
       "path": "/v1/settings/profile",
@@ -721,6 +1111,16 @@
         "settings"
       ],
       "responseSchema": "ProfileSettings",
+      "sse": false
+    },
+    {
+      "operationId": "saveRole",
+      "method": "PUT",
+      "path": "/v1/admin/roles/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
       "sse": false
     },
     {
@@ -792,6 +1192,16 @@
       ],
       "responseSchema": "AsyncAccepted",
       "sse": false
+    },
+    {
+      "operationId": "subscribeAlerts",
+      "method": "GET",
+      "path": "/v1/alerts/stream",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": null,
+      "sse": true
     },
     {
       "operationId": "subscribeBacktestRun",
@@ -892,6 +1302,26 @@
       ],
       "responseSchema": null,
       "sse": true
+    },
+    {
+      "operationId": "unackAlert",
+      "method": "POST",
+      "path": "/v1/alerts/{alertId}/unack",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "OpsAlert",
+      "sse": false
+    },
+    {
+      "operationId": "updateMember",
+      "method": "PUT",
+      "path": "/v1/admin/members/{resourceId}",
+      "tags": [
+        "admin"
+      ],
+      "responseSchema": "AdminResource",
+      "sse": false
     }
   ]
 }

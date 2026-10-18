@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.11.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.12.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -831,6 +831,295 @@ export const PerformanceDownloadSchema = z.object({
   "downloadExpiresAt": z.string().datetime({ offset: true }),
 }).strict();
 
+export const AdminMemberSpecSchema = z.object({
+  "kind": z.literal("member"),
+  "actorId": z.lazy(() => UUIDSchema),
+  "roleId": z.lazy(() => UUIDSchema),
+  "active": z.boolean(),
+}).strict();
+
+export const AdminRoleSpecSchema = z.object({
+  "kind": z.literal("role"),
+  "name": z.string().regex(new RegExp("^[a-zA-Z0-9_.-]+$")).min(1).max(64),
+  "baseRole": z.enum(["owner","operator","approver","viewer","service"]),
+  "permissions": z.array(z.enum(["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"])).max(6),
+}).strict();
+
+export const AdminPolicySpecSchema = z.object({
+  "kind": z.literal("policy"),
+  "name": z.string().regex(new RegExp("^[a-zA-Z0-9_.-]+$")).min(1).max(64),
+  "roleId": z.lazy(() => UUIDSchema),
+  "deniedCapabilities": z.array(z.enum(["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"])).max(6),
+  "active": z.boolean(),
+}).strict();
+
+export const AdminCapabilitySpecSchema = z.union([z.lazy(() => AdminPermissionCapabilitySpecSchema), z.lazy(() => AdminEngineCapabilitySpecSchema)]);
+
+export const AdminFlagSpecSchema = z.object({
+  "kind": z.literal("flag"),
+  "name": z.enum(["alerts-live-view","incident-timeline","admin-catalog-preview","ops-notices"]),
+  "enabled": z.boolean(),
+  "rolloutPercent": z.number().int().min(0).max(100),
+}).strict();
+
+export const AdminSpecSchema = z.union([z.lazy(() => AdminMemberSpecSchema), z.lazy(() => AdminRoleSpecSchema), z.lazy(() => AdminPolicySpecSchema), z.lazy(() => AdminCapabilitySpecSchema), z.lazy(() => AdminFlagSpecSchema)]);
+
+export const AdminResourceSchema = z.union([z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "kind": z.literal("members"),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "deleted": z.boolean(),
+  "protected": z.boolean(),
+  "spec": z.lazy(() => AdminMemberSpecSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict(), z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "kind": z.literal("roles"),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "deleted": z.boolean(),
+  "protected": z.boolean(),
+  "spec": z.lazy(() => AdminRoleSpecSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict(), z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "kind": z.literal("policies"),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "deleted": z.boolean(),
+  "protected": z.boolean(),
+  "spec": z.lazy(() => AdminPolicySpecSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict(), z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "kind": z.literal("capabilities"),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "deleted": z.boolean(),
+  "protected": z.boolean(),
+  "spec": z.lazy(() => AdminCapabilitySpecSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict(), z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "kind": z.literal("feature-flags"),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "deleted": z.boolean(),
+  "protected": z.boolean(),
+  "spec": z.lazy(() => AdminFlagSpecSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict()]);
+
+export const GovernanceActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminSpecSchema),
+}).strict();
+
+export const OpsActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const OpsIncidentCreateSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "alertId": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const OpsRunbookExecuteSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "commandId": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
+export const AlertSubscriptionsSchema = z.object({
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "severities": z.array(z.enum(["critical","warning","info"])).max(3),
+  "domains": z.array(z.enum(["risk","order","market","reconciliation","report","system"])).max(6),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
+export const SaveAlertSubscriptionsSchema = z.object({
+  "severities": z.array(z.enum(["critical","warning","info"])).min(1).max(3),
+  "domains": z.array(z.enum(["risk","order","market","reconciliation","report","system"])).min(1).max(6),
+}).strict();
+
+export const OpsHealthSchema = z.object({
+  "service": z.literal("service-x06"),
+  "health": z.enum(["healthy","degraded"]),
+  "ready": z.boolean(),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "asOf": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "latencyMs": z.number().int().min(0),
+  "dlqDepth": z.number().int().min(0),
+  "metricsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "components": z.array(z.object({
+  "name": z.enum(["execution","portfolio","risk","reconciliation"]),
+  "ready": z.boolean(),
+  "asOf": z.string().datetime({ offset: true }),
+}).strict()).max(4),
+}).strict();
+
+export const OpsAlertSchema = z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "alertId": z.lazy(() => UUIDSchema),
+  "sourceRef": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "rule": z.string().max(64),
+  "severity": z.enum(["critical","warning","info"]),
+  "domain": z.enum(["risk","order","market","reconciliation","report","system"]),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "status": z.enum(["unacked","acked"]),
+  "active": z.boolean(),
+  "resolved": z.boolean(),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "occurredAt": z.string().datetime({ offset: true }),
+  "asOf": z.string().datetime({ offset: true }),
+  "ackActor": z.union([z.string().uuid(), z.null()]),
+  "ackAt": z.union([z.string().datetime({ offset: true }), z.null()]),
+  "objectRef": z.literal("/operations/health"),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const OpsIncidentSchema = z.object({
+  "id": z.lazy(() => UUIDSchema),
+  "incidentId": z.lazy(() => UUIDSchema),
+  "sourceRef": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "alertId": z.lazy(() => UUIDSchema),
+  "status": z.enum(["open","acknowledged","resolved"]),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "openedSource": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "asOf": z.string().datetime({ offset: true }),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
+export const OpsPrecheckSchema = z.object({
+  "actionId": z.enum(["inspect-health","inspect-evidence"]),
+  "allowed": z.boolean(),
+  "reason": z.enum(["allowed","source_evidence_unavailable"]),
+  "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "expiresAt": z.string().datetime({ offset: true }),
+}).strict();
+
+export const OpsRunbookActionsSchema = z.object({
+  "items": z.array(z.object({
+  "actionId": z.enum(["inspect-health","inspect-evidence"]),
+  "parameters": z.array(z.literal("commandId")).max(1),
+}).strict()).max(2),
+}).strict();
+
+export const OpsRunbookReceiptSchema = z.object({
+  "operationId": z.lazy(() => UUIDSchema),
+  "status": z.literal("succeeded"),
+  "sourceOperationRef": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "outcome": z.object({
+  "status": z.literal("applied"),
+  "reference": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+}).strict(),
+  "auditRef": z.lazy(() => UUIDSchema),
+  "correlationId": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const AdminResourcePageSchema = z.object({
+  "items": z.array(z.lazy(() => AdminResourceSchema)).max(200),
+  "nextCursor": z.union([z.string().uuid(), z.null()]),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "availableReviews": z.array(z.lazy(() => AdminEngineCapabilitySpecSchema)).max(1000).optional(),
+}).strict();
+
+export const OpsAlertPageSchema = z.object({
+  "items": z.array(z.lazy(() => OpsAlertSchema)).max(200),
+  "nextCursor": z.union([z.string().uuid(), z.null()]),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+}).strict();
+
+export const OpsIncidentPageSchema = z.object({
+  "items": z.array(z.lazy(() => OpsIncidentSchema)).max(200),
+  "nextCursor": z.union([z.string().uuid(), z.null()]),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+}).strict();
+
+export const OpsIncidentTimelineSchema = z.object({
+  "items": z.array(z.object({
+  "eventId": z.lazy(() => UUIDSchema),
+  "occurredAt": z.string().datetime({ offset: true }),
+  "payload": z.lazy(() => OpsIncidentSchema),
+  "auditRef": z.string().uuid().optional(),
+  "correlationId": z.string().uuid().optional(),
+}).strict()).max(10000),
+}).strict();
+
+export const GovernanceMemberActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminMemberSpecSchema),
+}).strict();
+
+export const GovernanceRoleActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminRoleSpecSchema),
+}).strict();
+
+export const GovernancePolicyActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminPolicySpecSchema),
+}).strict();
+
+export const GovernanceCapabilityActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminCapabilitySpecSchema),
+}).strict();
+
+export const GovernanceFeatureFlagActionSchema = z.object({
+  "reason": z.string().min(1).max(256),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "spec": z.lazy(() => AdminFlagSpecSchema),
+}).strict();
+
+export const AdminPermissionCapabilitySpecSchema = z.object({
+  "kind": z.literal("capability"),
+  "name": z.enum(["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"]),
+  "enabled": z.boolean(),
+}).strict();
+
+export const AdminEngineCapabilitySpecSchema = z.object({
+  "kind": z.literal("engine_capability"),
+  "reviewId": z.lazy(() => UUIDSchema),
+  "name": z.string().min(1).max(160),
+  "version": z.string().min(1).max(64),
+  "description": z.string().max(512),
+  "enabled": z.boolean(),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -912,6 +1201,36 @@ export const bffZodSchemas = {
   PerformanceReport: PerformanceReportSchema,
   PerformanceReportDocument: PerformanceReportDocumentSchema,
   PerformanceDownload: PerformanceDownloadSchema,
+  AdminMemberSpec: AdminMemberSpecSchema,
+  AdminRoleSpec: AdminRoleSpecSchema,
+  AdminPolicySpec: AdminPolicySpecSchema,
+  AdminCapabilitySpec: AdminCapabilitySpecSchema,
+  AdminFlagSpec: AdminFlagSpecSchema,
+  AdminSpec: AdminSpecSchema,
+  AdminResource: AdminResourceSchema,
+  GovernanceAction: GovernanceActionSchema,
+  OpsAction: OpsActionSchema,
+  OpsIncidentCreate: OpsIncidentCreateSchema,
+  OpsRunbookExecute: OpsRunbookExecuteSchema,
+  AlertSubscriptions: AlertSubscriptionsSchema,
+  SaveAlertSubscriptions: SaveAlertSubscriptionsSchema,
+  OpsHealth: OpsHealthSchema,
+  OpsAlert: OpsAlertSchema,
+  OpsIncident: OpsIncidentSchema,
+  OpsPrecheck: OpsPrecheckSchema,
+  OpsRunbookActions: OpsRunbookActionsSchema,
+  OpsRunbookReceipt: OpsRunbookReceiptSchema,
+  AdminResourcePage: AdminResourcePageSchema,
+  OpsAlertPage: OpsAlertPageSchema,
+  OpsIncidentPage: OpsIncidentPageSchema,
+  OpsIncidentTimeline: OpsIncidentTimelineSchema,
+  GovernanceMemberAction: GovernanceMemberActionSchema,
+  GovernanceRoleAction: GovernanceRoleActionSchema,
+  GovernancePolicyAction: GovernancePolicyActionSchema,
+  GovernanceCapabilityAction: GovernanceCapabilityActionSchema,
+  GovernanceFeatureFlagAction: GovernanceFeatureFlagActionSchema,
+  AdminPermissionCapabilitySpec: AdminPermissionCapabilitySpecSchema,
+  AdminEngineCapabilitySpec: AdminEngineCapabilitySpecSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -1562,6 +1881,264 @@ export const bffResponseSchemas = {
   },
   "downloadPerformanceReport": {
     "200": z.lazy(() => PerformanceReportDocumentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getServiceHealth": {
+    "200": z.lazy(() => OpsHealthSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getServiceMetrics": {
+    "200": z.lazy(() => OpsHealthSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listIncidents": {
+    "200": z.lazy(() => OpsIncidentPageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "openIncident": {
+    "201": z.lazy(() => OpsIncidentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getIncident": {
+    "200": z.lazy(() => OpsIncidentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getIncidentTimeline": {
+    "200": z.lazy(() => OpsIncidentTimelineSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "ackIncident": {
+    "200": z.lazy(() => OpsIncidentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "resolveIncident": {
+    "200": z.lazy(() => OpsIncidentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listRunbookActions": {
+    "200": z.lazy(() => OpsRunbookActionsSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "checkRunbookPreconditions": {
+    "200": z.lazy(() => OpsPrecheckSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "runApprovedRunbookAction": {
+    "200": z.lazy(() => OpsRunbookReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listMembers": {
+    "200": z.lazy(() => AdminResourcePageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createMember": {
+    "201": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getMember": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "updateMember": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "deleteMember": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listRoles": {
+    "200": z.lazy(() => AdminResourcePageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createRole": {
+    "201": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getRole": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "saveRole": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "deleteRole": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listPolicies": {
+    "200": z.lazy(() => AdminResourcePageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createPolicy": {
+    "201": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getPolicy": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "savePolicy": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "deletePolicy": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listCapabilities": {
+    "200": z.lazy(() => AdminResourcePageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createCapability": {
+    "201": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getCapability": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "saveCapability": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "deleteCapability": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listFeatureFlags": {
+    "200": z.lazy(() => AdminResourcePageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createFeatureFlag": {
+    "201": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getFeatureFlag": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "saveFeatureFlag": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "deleteFeatureFlag": {
+    "200": z.lazy(() => AdminResourceSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listAlerts": {
+    "200": z.lazy(() => OpsAlertPageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAlert": {
+    "200": z.lazy(() => OpsAlertSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "ackAlert": {
+    "200": z.lazy(() => OpsAlertSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "unackAlert": {
+    "200": z.lazy(() => OpsAlertSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAlertSubscriptions": {
+    "200": z.lazy(() => AlertSubscriptionsSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "saveAlertSubscriptions": {
+    "200": z.lazy(() => AlertSubscriptionsSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeAlerts": {
+    "200": z.undefined(),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),

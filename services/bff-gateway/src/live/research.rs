@@ -179,7 +179,20 @@ async fn handle(
     let path = uri.path().to_owned();
     let c = identity.0;
     let database = state.database_url.clone();
+    let operations = state.operations.clone();
     let result = tokio::task::spawn_blocking(move || {
+        // Hold the same governance lease through the workflow transaction so a
+        // concurrent revocation cannot cross capability admission and enqueue.
+        let ops = operations
+            .as_ref()
+            .map(|h| h.lock().map_err(|_| Fault::unavailable()))
+            .transpose()?;
+        if method == Method::POST
+            && path == "/v1/research-runs"
+            && let Some(host) = &ops
+        {
+            host.authorize_engine_input(&body, Utc::now())?;
+        }
         let scope = scope(&c);
         let mut repo = PgPages::connect(database, &c)?;
         research::dispatch(

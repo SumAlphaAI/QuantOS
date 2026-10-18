@@ -10,6 +10,7 @@ import {check as checkG0} from './g0-development.mjs';
 import {validateA2} from './bff-fe-001-development.mjs';
 import {validateAudit} from './bff-fe-007-development.mjs';
 import {check as checkProviderA2} from './provider-a2-development.mjs';
+import {check as checkBff010} from './bff-fe-010-development.mjs';
 import {check as checkBff008} from './bff-fe-008-development.mjs';
 import {check as checkBff009} from './bff-fe-009-development.mjs';
 import {check as checkProviderA4} from './provider-a4-development.mjs';
@@ -29,6 +30,7 @@ const validators = {
   'PROVIDER:A2': () => checkProviderA2(),
   'PROVIDER:A3': () => checkProviderA3(),
   'PROVIDER:A4': () => checkProviderA4(),
+  'FE:BFF-FE-010': () => checkBff010(),
   'FE:BFF-FE-008': () => checkBff008(),
   'FE:BFF-FE-009': () => checkBff009(),
   'FE:BFF-FE-006': () => checkBff006(),
@@ -38,7 +40,7 @@ const validators = {
 };
 
 const ciAliases = {
-  'bff-fe-008':'FE:BFF-FE-008', 'bff-fe-009':'FE:BFF-FE-009', 'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
+  'bff-fe-010':'FE:BFF-FE-010', 'bff-fe-008':'FE:BFF-FE-008', 'bff-fe-009':'FE:BFF-FE-009', 'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
   fep0: 'FE:FEP-0', g0: 'FRONTEND-GATE:G0',
   'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'provider-a4':'PROVIDER:A4', 'provider-a3': 'PROVIDER:A3', 'bff-fe-004':'FE:BFF-FE-004', 'bff-fe-006':'FE:BFF-FE-006', 'bff-fe-003': 'FE:BFF-FE-003', 'bff-fe-005': 'FE:BFF-FE-005',
 };
@@ -63,6 +65,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
     'check:bff-fe-001:development': 'node scripts/bff-fe-001-development.mjs',
     'check:bff-fe-007:development': 'node scripts/bff-fe-007-development.mjs',
     'check:provider-a2': 'node scripts/provider-a2-development.mjs',
+    'check:bff-fe-010':'node scripts/bff-fe-010-development.mjs --ready',
     'check:bff-fe-008':'node scripts/bff-fe-008-development.mjs --ready',
     'check:bff-fe-009':'node scripts/bff-fe-009-development.mjs --ready',
     'check:provider-a4':'node scripts/provider-a4-development.mjs --ready',

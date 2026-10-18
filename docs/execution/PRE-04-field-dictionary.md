@@ -343,17 +343,12 @@
 
 ## 12. C11 Ops/Admin
 
-| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
-|---|---|---|---|---|---|
-| service / health / latencyMs | string / enum{healthy, degraded, down} / int32 | 是 | planned-model:ServiceHealth（F09） | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.0 |
-| dlqDepth | int32 | 是 | planned-model:ServiceHealth（F05 DLQ） | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.1 |
-| incidentId / actionId | uuid / string（白名单枚举） | 是 | planned-model:Incident（仅批准 actionId） | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.2 |
-| configVersion | version | 是 | planned-model:AdminView | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.3 |
-| memberId / role | uuid / string | 是 | planned-model:AdminMember（F06 RBAC） | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.4 |
-| capability / flag | string / string + rollout 配置 | 是 | proto:engine.v1.Capability / planned-model:FlagView | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.5 |
-| auditRef | uuid（correlationId） | 是 | planned-model:AdminView | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C11.plannedFields.6 |
+当前工程发布：OpsHealth、OpsIncident、OpsIncidentTimeline、OpsPrecheck、OpsRunbookReceipt、AdminResource及五类typed Spec/action。health/metrics含service、health、ready、latencyMs、dlqDepth、accountId/mode、asOf/expiresAt、sourceHash/metricsHash；仅安全结构化观测，无raw detail/labels。incident含UUID与X06 sourceRef、alertId、status、objectVersion、openedSource、asOf；timeline append-only。Runbook只有inspect-health/inspect-evidence与typed commandId。
 
-尚未发布 operation：getServiceHealth、listIncidents、getIncident、listMembers、listPolicies、listCapabilities、listFeatureFlags、runApprovedRunbookAction、updateMember、savePolicy、saveCapability、saveFeatureFlag；责任任务 BFF-FE-010。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+治理资源id UUID、kind、objectVersion/configVersion、deleted/protected、严格kind/spec联合；member spec含actorId/roleId/active，role含name/baseRole/permissions，policy含name/roleId/deniedCapabilities/active，capability分为权限目录kind=capability（name/enabled）和已签名Engine能力kind=engine_capability（reviewId/name/version/description/enabled）；capability列表可含availableReviews，仅列owner已验签且未过期的安全元数据，浏览器不得创建review；未准入/撤销/过期能力拒绝Research工作流。flag含name/enabled/rolloutPercent。写入auditRef/correlationId；原始owner注入记录没有伪造F05写事件。If-Match冲突返回currentVersion；删除tombstone。F06能力上限、最后管理员/本人/同user别名与protected resource保护。治理当前为受控租约，目标身份表持久写回未准入。
+
+发布list/get/create/update/delete五类治理资源、health/metrics、incident list/get/timeline/open/ack/resolve、Runbook list/precheck/run共36操作，具体operationId由C11 catalog与OpenAPI1.12.0生成；完整UI/目标联调NOT_RUN。
+
 
 ## 13. C12 Market/Candle
 
@@ -465,18 +460,10 @@
 
 ## 17. C16 Alert/Notification
 
-| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
-|---|---|---|---|---|---|
-| alertId | uuid | 是 | planned-model:Alert（F09/X05/X06） | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.0 |
-| severity | enum{info, warning, critical} | 是 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.1 |
-| domain | enum{risk, order, market, reconciliation, report, system} | 是 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.2 |
-| accountRef / venueRef | uuid / enum:VenueKind | opt | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.3 |
-| status | enum{unacked, acked}（ack≠resolved） | 是 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.4 |
-| occurredAt / asOf | rfc3339 | 是 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.5 |
-| objectRef / correlationId | string / uuid | 是 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.6 |
-| ackActor / ackAt | ActorRef / rfc3339 | acked 后必填 | planned-model:Alert | PLANNED：BFF-FE-010 冻结后同步 wire 映射 | planned:C16.plannedFields.7 |
+当前工程发布OpsAlert：alertId/id UUID、sourceRef内容hash、rule、severity、domain、accountId/mode、status unacked/acked、active、resolved、objectVersion/sourceVersion、occurredAt/asOf、ackActor/ackAt nullable、objectRef与correlationId。acked必须有ack身份/时间，unacked为空；ack/unack不改变resolved；source repair来自真实X06 observer。
 
-尚未发布 operation：listAlerts、getAlert、getAlertSubscriptions、ackAlert、unackAlert、saveAlertSubscriptions、subscribeAlerts；责任任务 BFF-FE-010。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAlertSubscriptions、subscribeAlerts七操作；订阅含objectVersion及severity/domain集合，SSE用完整StreamEvent、typed OpsAlert payload、subscriber streamId及过滤后连续sequence。当前权限/订阅/游标绑定与gap/陈旧/撤权拒绝，禁止乐观resolved。目标持久通知/完整UI NOT_RUN。
+
 
 ## 18. C17 Settings/Browser Platform
 

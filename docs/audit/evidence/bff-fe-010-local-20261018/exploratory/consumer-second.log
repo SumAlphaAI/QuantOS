@@ -1,0 +1,95 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m packages/api-client/tests/bff-transport.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 533[2mms[22m[39m
+ [31m❯[39m tests/contract/bff-remediation.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 282[2mms[22m[39m
+     [32m✓[39m preserves strategy maps and open extension data while rejecting forbidden fields[32m 23[2mms[22m[39m
+[31m     [31m×[31m all attached request/success examples validate against their operation schemas[39m[32m 218[2mms[22m[39m
+     [32m✓[39m request contracts reject forged context, missing headers and unsafe sort/filter[32m 0[2mms[22m[39m
+     [32m✓[39m valid cookie succeeds; bearer-only and malformed writes fail through real MSW handlers[32m 19[2mms[22m[39m
+     [32m✓[39m rejects provider response schema, header, status and sensitive-field drift[32m 1[2mms[22m[39m
+     [32m✓[39m requires conflict version, rate retry and matching error correlation without debug extensions[32m 7[2mms[22m[39m
+     [32m✓[39m mock enforces CSRF origin and preserves idempotent replay while rejecting changed payload[32m 11[2mms[22m[39m
+   [32m✓[39m checks successful accepted envelope correlation on every replay[32m 0[2mms[22m[39m
+     [32m✓[39m preserves unissued auditRef and end cursor null but refuses arbitrary object/number substitutes[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/operations-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1953[2mms[22m[39m
+   [33m[2m✓[22m[39m generated client recovers one governance write and consumes authoritative alert facts without optimistic resolution [33m 1930[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mall attached request/success examples validate against their operation schemas
+[31m[1mAssertionError[22m: createMember: expected [ …(45) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec/kind: must be equal to one of the allowed values",[39m
+[31m+   "/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must have required property 'deniedCapabilities'",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec/kind: must be equal to one of the allowed values",[39m
+[31m+   "/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must have required property 'enabled'",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec/name: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must have required property 'reviewId'",[39m
+[31m+   "/spec: must have required property 'version'",[39m
+[31m+   "/spec: must have required property 'description'",[39m
+[31m+   "/spec: must have required property 'enabled'",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must match exactly one schema in oneOf",[39m
+[31m+   "/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec: must have required property 'enabled'",[39m
+[31m+   "/spec: must have required property 'rolloutPercent'",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec: must NOT have additional properties",[39m
+[31m+   "/spec/kind: must be equal to one of the allowed values",[39m
+[31m+   "/spec/name: must be equal to one of the allowed values",[39m
+[31m+   ": must match exactly one schema in oneOf",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/contract/bff-remediation.test.ts:[2m27:50[22m[39m
+    [90m 25|[39m     [35mif[39m([33m![39m[36m/^2/[39m[33m.[39m[34mtest[39m(status)[33m||[39m[33m![39mr[33m.[39mcontent[33m?.[39m[[32m"application/json"[39m])[35mcontinue[39m[33m;[39m
+    [90m 26|[39m     const result=Response.json(r.content["application/json"].example,{…
+    [90m 27|[39m     [34mexpect[39m([35mawait[39m [34mvalidateResponse[39m(id[33m,[39mresult)[33m,[39mid)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m 28|[39m    }
+    [90m 29|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m43 passed[39m[22m[90m (44)[39m
+[2m   Start at [22m 20:10:55
+[2m   Duration [22m 2.30s[2m (transform 451ms, setup 0ms, import 1.58s, tests 3.01s, environment 0ms)[22m
+

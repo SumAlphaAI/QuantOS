@@ -52,11 +52,19 @@ async fn main() -> anyhow::Result<()> {
         .await
         .context("live BFF initialization failed")??
     } else {
-        if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("shadow") {
-            BffProvider::shadow_reference().router()
+        let provider = if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("shadow") {
+            BffProvider::shadow_reference()
         } else {
-            BffProvider::default().router()
+            BffProvider::default()
+        };
+        if env::var("QUANTOS_BFF_REFERENCE_OPS_FEED").as_deref() == Ok("clear-once") {
+            let feed = provider.clone();
+            tokio::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+                let _ = feed.renew_operations_reference().await;
+            });
         }
+        provider.router()
     };
     println!(
         r#"{{"service":"bff-gateway","ready":true,"mode":"{}","address":"{address}"}}"#,

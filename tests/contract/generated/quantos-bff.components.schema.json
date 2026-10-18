@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.11.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.12.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -3697,6 +3697,1383 @@
         "downloadExpiresAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "AdminMemberSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "actorId",
+        "roleId",
+        "active"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "member"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "roleId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminRoleSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "baseRole",
+        "permissions"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "role"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_.-]+$"
+        },
+        "baseRole": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver",
+            "viewer",
+            "service"
+          ]
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ops.read",
+              "ops.operate",
+              "ops.approve",
+              "admin.read",
+              "admin.write",
+              "alerts.read"
+            ]
+          },
+          "maxItems": 6
+        }
+      }
+    },
+    "AdminPolicySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "roleId",
+        "deniedCapabilities",
+        "active"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "policy"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_.-]+$"
+        },
+        "roleId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "deniedCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ops.read",
+              "ops.operate",
+              "ops.approve",
+              "admin.read",
+              "admin.write",
+              "alerts.read"
+            ]
+          },
+          "maxItems": 6
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminCapabilitySpec": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AdminPermissionCapabilitySpec"
+        },
+        {
+          "$ref": "#/$defs/AdminEngineCapabilitySpec"
+        }
+      ]
+    },
+    "AdminFlagSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "enabled",
+        "rolloutPercent"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "flag"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "alerts-live-view",
+            "incident-timeline",
+            "admin-catalog-preview",
+            "ops-notices"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "rolloutPercent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "AdminSpec": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AdminMemberSpec"
+        },
+        {
+          "$ref": "#/$defs/AdminRoleSpec"
+        },
+        {
+          "$ref": "#/$defs/AdminPolicySpec"
+        },
+        {
+          "$ref": "#/$defs/AdminCapabilitySpec"
+        },
+        {
+          "$ref": "#/$defs/AdminFlagSpec"
+        }
+      ]
+    },
+    "AdminResource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "members"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/$defs/AdminMemberSpec"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "roles"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/$defs/AdminRoleSpec"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "policies"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/$defs/AdminPolicySpec"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "capabilities"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/$defs/AdminCapabilitySpec"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "objectVersion",
+            "configVersion",
+            "deleted",
+            "protected",
+            "spec"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/UUID"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "feature-flags"
+              ]
+            },
+            "objectVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "configVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "protected": {
+              "type": "boolean"
+            },
+            "spec": {
+              "$ref": "#/$defs/AdminFlagSpec"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            },
+            "correlationId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        }
+      ]
+    },
+    "GovernanceAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminSpec"
+        }
+      }
+    },
+    "OpsAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "OpsIncidentCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "alertId"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "alertId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "OpsRunbookExecute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "AlertSubscriptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objectVersion",
+        "severities",
+        "domains"
+      ],
+      "properties": {
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "severities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          },
+          "maxItems": 3
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "risk",
+              "order",
+              "market",
+              "reconciliation",
+              "report",
+              "system"
+            ]
+          },
+          "maxItems": 6
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "SaveAlertSubscriptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severities",
+        "domains"
+      ],
+      "properties": {
+        "severities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 1
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "risk",
+              "order",
+              "market",
+              "reconciliation",
+              "report",
+              "system"
+            ]
+          },
+          "maxItems": 6,
+          "minItems": 1
+        }
+      }
+    },
+    "OpsHealth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "health",
+        "ready",
+        "objectVersion",
+        "sourceHash",
+        "asOf",
+        "expiresAt",
+        "accountId",
+        "mode",
+        "latencyMs",
+        "dlqDepth",
+        "metricsHash",
+        "components"
+      ],
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": [
+            "service-x06"
+          ]
+        },
+        "health": {
+          "type": "string",
+          "enum": [
+            "healthy",
+            "degraded"
+          ]
+        },
+        "ready": {
+          "type": "boolean"
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dlqDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "metricsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "ready",
+              "asOf"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "execution",
+                  "portfolio",
+                  "risk",
+                  "reconciliation"
+                ]
+              },
+              "ready": {
+                "type": "boolean"
+              },
+              "asOf": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "maxItems": 4
+        }
+      }
+    },
+    "OpsAlert": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "alertId",
+        "sourceRef",
+        "rule",
+        "severity",
+        "domain",
+        "accountId",
+        "mode",
+        "status",
+        "active",
+        "resolved",
+        "objectVersion",
+        "sourceVersion",
+        "occurredAt",
+        "asOf",
+        "ackActor",
+        "ackAt",
+        "objectRef",
+        "correlationId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/UUID"
+        },
+        "alertId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sourceRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rule": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "risk",
+            "order",
+            "market",
+            "reconciliation",
+            "report",
+            "system"
+          ]
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unacked",
+            "acked"
+          ]
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "resolved": {
+          "type": "boolean"
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ackActor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "ackAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "objectRef": {
+          "type": "string",
+          "enum": [
+            "/operations/health"
+          ]
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "OpsIncident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "incidentId",
+        "sourceRef",
+        "alertId",
+        "status",
+        "objectVersion",
+        "openedSource",
+        "asOf",
+        "accountId",
+        "mode"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/UUID"
+        },
+        "incidentId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sourceRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "alertId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "acknowledged",
+            "resolved"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "openedSource": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "OpsPrecheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionId",
+        "allowed",
+        "reason",
+        "sourceVersion",
+        "expiresAt"
+      ],
+      "properties": {
+        "actionId": {
+          "type": "string",
+          "enum": [
+            "inspect-health",
+            "inspect-evidence"
+          ]
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "source_evidence_unavailable"
+          ]
+        },
+        "sourceVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OpsRunbookActions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "actionId",
+              "parameters"
+            ],
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "enum": [
+                  "inspect-health",
+                  "inspect-evidence"
+                ]
+              },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "commandId"
+                  ]
+                },
+                "maxItems": 1
+              }
+            }
+          },
+          "maxItems": 2
+        }
+      }
+    },
+    "OpsRunbookReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operationId",
+        "status",
+        "sourceOperationRef",
+        "outcome",
+        "auditRef",
+        "correlationId"
+      ],
+      "properties": {
+        "operationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded"
+          ]
+        },
+        "sourceOperationRef": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "reference"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "applied"
+              ]
+            },
+            "reference": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "AdminResourcePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AdminResource"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "availableReviews": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/AdminEngineCapabilitySpec"
+          }
+        }
+      }
+    },
+    "OpsAlertPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OpsAlert"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "OpsIncidentPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor",
+        "configVersion"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OpsIncident"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "OpsIncidentTimeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eventId",
+              "occurredAt",
+              "payload"
+            ],
+            "properties": {
+              "eventId": {
+                "$ref": "#/$defs/UUID"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "payload": {
+                "$ref": "#/$defs/OpsIncident"
+              },
+              "auditRef": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "correlationId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "maxItems": 10000
+        }
+      }
+    },
+    "GovernanceMemberAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminMemberSpec"
+        }
+      }
+    },
+    "GovernanceRoleAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminRoleSpec"
+        }
+      }
+    },
+    "GovernancePolicyAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminPolicySpec"
+        }
+      }
+    },
+    "GovernanceCapabilityAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminCapabilitySpec"
+        }
+      }
+    },
+    "GovernanceFeatureFlagAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "mfaChallengeRef",
+        "reauthTokenRef",
+        "spec"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "spec": {
+          "$ref": "#/$defs/AdminFlagSpec"
+        }
+      }
+    },
+    "AdminPermissionCapabilitySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "capability"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "ops.read",
+            "ops.operate",
+            "ops.approve",
+            "admin.read",
+            "admin.write",
+            "alerts.read"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AdminEngineCapabilitySpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reviewId",
+        "name",
+        "version",
+        "description",
+        "enabled"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "engine_capability"
+          ]
+        },
+        "reviewId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "enabled": {
+          "type": "boolean"
         }
       }
     }

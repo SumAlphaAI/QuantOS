@@ -1,7 +1,7 @@
 //! C06–C09/C13. Page references never carry executable payloads. All execution
 //! passes through the X03 issuer and X04 gateway. This host is process local;
 //! loss of its lease must stop admission, never rebuild a command from a browser.
-mod reference_seed;
+pub(crate) mod reference_seed;
 use crate::research::{Fault, Result, digest};
 use axum::{
     Router,

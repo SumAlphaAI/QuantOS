@@ -49,7 +49,7 @@ function specimen(schema: Schema): unknown {
 
 describe("published BFF runtime response coverage", () => {
   it("validates populated specimens for every component and rejects invalid types", () => {
-    expect(Object.keys(bffZodSchemas)).toHaveLength(80);
+    expect(Object.keys(bffZodSchemas)).toHaveLength(110);
     for (const [name, schema] of Object.entries(bffZodSchemas)) {
       const value = specimen(components.$defs[name]);
       expect(schema.safeParse(value).success, name).toBe(true);
@@ -58,7 +58,7 @@ describe("published BFF runtime response coverage", () => {
   });
 
   it("rejects malformed success/error payloads for all published operations", () => {
-    expect(Object.keys(bffResponseSchemas)).toHaveLength(89);
+    expect(Object.keys(bffResponseSchemas)).toHaveLength(132);
     for (const [operation, responses] of Object.entries(bffResponseSchemas)) {
       for (const [status, schema] of Object.entries(responses)) {
         if (status === "204") expect(schema.safeParse(undefined).success).toBe(true);

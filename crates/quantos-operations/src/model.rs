@@ -76,7 +76,8 @@ impl VerifiedStepUp {
             expires_at,
         })
     }
-    pub(crate) fn check(&self, a: &AuthContext, now: DateTime<Utc>) -> Result<()> {
+    /// Recheck the trusted assertion against the current exact caller and clock.
+    pub fn check(&self, a: &AuthContext, now: DateTime<Utc>) -> Result<()> {
         if self.auth_hash != hash(a)? || self.verified_at > now || now >= self.expires_at {
             return Err(Error::Stale);
         }

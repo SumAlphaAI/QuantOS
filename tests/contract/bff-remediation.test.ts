@@ -16,8 +16,8 @@ describe("A1 OpenAPI semantic remediation",()=>{
  it("all attached request/success examples validate against their operation schemas",async()=>{
   for(const [id,op]of operations) {
    if(op.requestBody) {
-    const request=new Request('http://localhost:4010'+op.path.replace(/\{[^}]+\}/g,uuid),{method:op.method,headers:{...headers,"X-Reauth-Token-Ref":uuid},body:JSON.stringify(op.requestBody.content["application/json"].example)});
-    const params=Object.fromEntries((op.parameters??[]).filter((p: {in?:string})=>p.in==="path").map((p: {name:string})=>[p.name,uuid]));
+    const params=Object.fromEntries((op.parameters??[]).filter((p: {in?:string})=>p.in==="path").map((p: {name:string;schema?:{enum?:string[]}})=>[p.name,p.schema?.enum?.[0]??uuid]));
+    const request=new Request('http://localhost:4010'+op.path.replace(/\{([^}]+)\}/g,(_:string,key:string)=>params[key]),{method:op.method,headers:{...headers,"X-Reauth-Token-Ref":uuid},body:JSON.stringify(op.requestBody.content["application/json"].example)});
     expect((await validateRequest(id,request,params)).issues,id).toEqual([]);
    }
    for(const [status,response]of Object.entries(op.responses)) {
@@ -46,7 +46,7 @@ describe("A1 OpenAPI semantic remediation",()=>{
   expect((await validateResponse('getSession',Response.json({}, {headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).length).toBeGreaterThan(0);
   expect((await validateResponse('getSession',Response.json(loadFixture('session/default.json')))).some((i:string)=>i.includes('header'))).toBe(true);
   expect((await validateResponse('getSession',Response.json({...loadFixture('session/default.json'),venueApiKey:'synthetic'},{headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).some((i:string)=>i.includes('敏感'))).toBe(true);
-  expect(openapi.info.version).toBe('1.11.0');
+  expect(openapi.info.version).toBe('1.12.0');
  });
  it("requires conflict version, rate retry and matching error correlation without debug extensions",async()=>{
   const envelope={code:'VERSION_CONFLICT',message:'stale',correlationId:uuid};

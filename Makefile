@@ -78,6 +78,8 @@ bff-contract-check:
 	pnpm test:bff-fe-009
 	pnpm check:bff-fe-008:ci
 	pnpm test:bff-fe-008
+	pnpm check:bff-fe-010:ci
+	pnpm test:bff-fe-010
 	pnpm test:provider-a4
 
 bff-provider-test:
@@ -907,3 +909,7 @@ check-bff-fe-009:
 .PHONY: check-bff-fe-008
 check-bff-fe-008:
 	pnpm check:bff-fe-008
+
+.PHONY: check-bff-fe-010
+check-bff-fe-010:
+	pnpm check:bff-fe-010

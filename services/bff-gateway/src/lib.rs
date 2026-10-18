@@ -1,6 +1,7 @@
 mod audit_core;
-pub mod reconciliation;
+pub mod operations;
 pub mod performance;
+pub mod reconciliation;
 pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -58,6 +59,7 @@ struct ProviderData {
     reference_shadow: bool,
     reconciliation: Option<reconciliation::ReconciliationHost>,
     performance: Option<performance::PerformanceHost>,
+    operations: Option<operations::OperationsHost>,
     strategy: Option<strategy::StrategyHost>,
     consumed_step_proofs: std::collections::BTreeSet<String>,
     execution: Option<execution::ExecutionService>,
@@ -97,6 +99,7 @@ impl Default for ProviderData {
             strategy: None,
             reconciliation: None,
             performance: None,
+            operations: None,
             consumed_step_proofs: Default::default(),
             research,
             market,
@@ -193,6 +196,16 @@ impl BffProvider {
             })),
         }
     }
+    /// Explicit synthetic reference observer feed; unavailable on live state.
+    pub async fn renew_operations_reference(&self) -> anyhow::Result<()> {
+        let mut state = self.data.lock().await;
+        let now = state.now();
+        let shadow = state.reference_shadow;
+        let host = state
+            .operations
+            .get_or_insert_with(|| operations::reference::seed(shadow, now));
+        operations::reference::renew(host, shadow, now, false)
+    }
     /// Deterministic time advancement for loopback reference-provider regressions.
     pub async fn advance_reference_time(&self, elapsed: Duration) {
         self.data.lock().await.clock_offset += elapsed;
@@ -212,6 +225,7 @@ impl BffProvider {
             .merge(strategy::reference_routes())
             .merge(reconciliation::reference_routes())
             .merge(performance::reference_routes())
+            .merge(operations::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))
@@ -379,6 +393,22 @@ async fn authenticate(
         matches!(id, VIEWER_SESSION | "session-approver" | "session-owner")
             || state.sessions.contains_key(id)
     });
+    if matches!(
+        session,
+        Some(CURRENT_SESSION | "session-owner" | "session-approver")
+    ) && let Some(ops) = &state.operations
+    {
+        if ops.poisoned {
+            return Err(research::Fault::unavailable().response());
+        }
+        if !ops.context_current(session.unwrap(), state.reference_shadow) {
+            return Err(error(
+                StatusCode::UNAUTHORIZED,
+                "IDENTITY_CHANGED",
+                "Identity changed; reauthenticate.",
+            ));
+        }
+    }
     if !active
         || state.now() >= state.session_expires_at
         || (session == Some(CURRENT_SESSION) && !state.session_active)
@@ -575,6 +605,15 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
     } else {
         json!(["settings.read"])
     };
+    let mut capabilities = capabilities.as_array().unwrap().clone();
+    for c in operations::reference_capabilities(
+        cookies(headers)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or(""),
+    ) {
+        capabilities.push(json!(c));
+    }
     json!({
         "actorId":execution::reference_actor(cookies(headers).get("quantos_session").copied().unwrap_or("")),
         "tenantId":"22222222-2222-4222-8222-222222222222",
@@ -594,6 +633,18 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
     let mut payload = session_payload(&headers, state.session_expires_at);
     if state.reference_shadow {
         payload["mode"] = json!("shadow");
+    }
+    if let Some(ops) = &state.operations {
+        let sid = cookies(&headers)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or("");
+        let allowed = ops.effective_reference_capabilities(sid, state.reference_shadow);
+        payload["capabilities"].as_array_mut().unwrap().retain(|v| {
+            v.as_str().is_none_or(|s| {
+                !operations::is_governed_capability(s) || allowed.iter().any(|c| c == s)
+            })
+        });
     }
     response(StatusCode::OK, payload, &correlation)
 }

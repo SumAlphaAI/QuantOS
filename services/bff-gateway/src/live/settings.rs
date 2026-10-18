@@ -157,12 +157,13 @@ pub(super) async fn authorized(
     let raw_hash = hash(&raw);
     let hash_for_db = raw_hash.clone();
     let context = tokio::task::spawn_blocking(move || {
-        let context = state
+        let mut context = state
             .middleware
             .lock()
             .map_err(|_| ApiError::unavailable())?
             .load_bff_session_context(&raw, None)
             .map_err(|e| ApiError::new(auth_status(e), "UNAUTHENTICATED"))?;
+        if let Some(ops)=&state.operations {ops.lock().map_err(|_|ApiError::unavailable())?.restrict_identity(&mut context.auth).map_err(|e|ApiError::new(e.0,e.1))?;}
         let mut store = state.a2.lock().map_err(|_| ApiError::unavailable())?;
         let row = store.client.query_typed_opt(
             "update quantos.bff_session_details set last_active_at=now() where session_hash=$1 returning csrf_hash",

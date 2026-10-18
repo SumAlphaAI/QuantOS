@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.11.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.12.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -11,27 +11,47 @@ export type BffMockResolver = (context: BffMockResolverContext) => Response | Pr
 export type BffMockResolvers = Partial<Record<BffOperationId, BffMockResolver>>;
 
 export type BffOperationId =
+  | "ackAlert"
+  | "ackIncident"
   | "cancelExport"
   | "cancelResearchRun"
+  | "checkRunbookPreconditions"
   | "createBacktest"
+  | "createCapability"
   | "createExport"
+  | "createFeatureFlag"
+  | "createMember"
   | "createPerformanceReport"
+  | "createPolicy"
   | "createRelease"
   | "createResearchRun"
+  | "createRole"
   | "decideApproval"
+  | "deleteCapability"
+  | "deleteFeatureFlag"
+  | "deleteMember"
+  | "deletePolicy"
+  | "deleteRole"
   | "downloadPerformanceReport"
   | "engageKillSwitch"
+  | "getAlert"
+  | "getAlertSubscriptions"
   | "getApproval"
   | "getArtifact"
   | "getArtifactAttachment"
   | "getBacktest"
   | "getCandleSeries"
+  | "getCapability"
   | "getContext"
   | "getDataSnapshot"
   | "getEvidenceChain"
   | "getExportDownload"
   | "getExportStatus"
+  | "getFeatureFlag"
+  | "getIncident"
+  | "getIncidentTimeline"
   | "getMarketCatalog"
+  | "getMember"
   | "getNotificationPrefs"
   | "getOrder"
   | "getOrderCapabilities"
@@ -40,6 +60,7 @@ export type BffOperationId =
   | "getPerformanceSeries"
   | "getPerformanceSummary"
   | "getPlatformCapabilities"
+  | "getPolicy"
   | "getPortfolio"
   | "getProfile"
   | "getProposal"
@@ -50,39 +71,58 @@ export type BffOperationId =
   | "getReportStatus"
   | "getResearchRun"
   | "getRiskView"
+  | "getRole"
   | "getSecuritySettings"
+  | "getServiceHealth"
+  | "getServiceMetrics"
   | "getSession"
   | "getStrategyDraft"
   | "getTradePreflight"
   | "getVenueQuotes"
   | "getWatchlist"
+  | "listAlerts"
   | "listApprovals"
+  | "listCapabilities"
   | "listDataSnapshots"
   | "listDevices"
   | "listDownloads"
+  | "listFeatureFlags"
+  | "listIncidents"
   | "listLedgerEntries"
+  | "listMembers"
   | "listOrders"
+  | "listPolicies"
   | "listProposals"
   | "listReconciliationBreaks"
   | "listReconciliationRuns"
   | "listReleases"
   | "listResearchRuns"
+  | "listRoles"
+  | "listRunbookActions"
   | "listSessions"
   | "listStrategies"
   | "logout"
   | "mfaChallenge"
+  | "openIncident"
   | "reauth"
   | "releaseKillSwitch"
   | "requestOrderCancel"
   | "requestReconciliationRerun"
   | "requestReleaseRollback"
   | "requestRiskEvaluation"
+  | "resolveIncident"
   | "revokeDevice"
   | "revokeMfaFactor"
   | "revokeSession"
+  | "runApprovedRunbookAction"
   | "runStaticCheck"
+  | "saveAlertSubscriptions"
+  | "saveCapability"
+  | "saveFeatureFlag"
   | "saveNotificationPrefs"
+  | "savePolicy"
   | "saveProfile"
+  | "saveRole"
   | "saveStrategyDraft"
   | "saveWatchlist"
   | "searchAuditEvents"
@@ -90,6 +130,7 @@ export type BffOperationId =
   | "submitAccessRequest"
   | "submitReleaseApproval"
   | "submitTradeCommand"
+  | "subscribeAlerts"
   | "subscribeBacktestRun"
   | "subscribeCandles"
   | "subscribeOrder"
@@ -99,7 +140,9 @@ export type BffOperationId =
   | "subscribeReconciliationRun"
   | "subscribeResearchRun"
   | "subscribeSessionRevocations"
-  | "subscribeTradePreflight";
+  | "subscribeTradePreflight"
+  | "unackAlert"
+  | "updateMember";
 
 function missingResolver(operationId: BffOperationId): Response {
   return HttpResponse.json(
@@ -113,6 +156,16 @@ export function createGeneratedBffHandlers(
   baseUrl = "http://localhost:4010",
 ) {
   return [
+  http.post(`${baseUrl}/v1/alerts/:alertId/ack`, async ({ request, params }) => {
+    const resolver = resolvers.ackAlert;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("ackAlert");
+  }),
+  http.post(`${baseUrl}/v1/operations/incidents/:incidentId/ack`, async ({ request, params }) => {
+    const resolver = resolvers.ackIncident;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("ackIncident");
+  }),
   http.post(`${baseUrl}/v1/exports/:exportId/cancel`, async ({ request, params }) => {
     const resolver = resolvers.cancelExport;
     if (resolver) return resolver({ request, params });
@@ -123,20 +176,45 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("cancelResearchRun");
   }),
+  http.get(`${baseUrl}/v1/operations/runbook-actions/:actionId/prechecks`, async ({ request, params }) => {
+    const resolver = resolvers.checkRunbookPreconditions;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("checkRunbookPreconditions");
+  }),
   http.post(`${baseUrl}/v1/backtests`, async ({ request, params }) => {
     const resolver = resolvers.createBacktest;
     if (resolver) return resolver({ request, params });
     return missingResolver("createBacktest");
+  }),
+  http.post(`${baseUrl}/v1/admin/capabilities`, async ({ request, params }) => {
+    const resolver = resolvers.createCapability;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createCapability");
   }),
   http.post(`${baseUrl}/v1/exports`, async ({ request, params }) => {
     const resolver = resolvers.createExport;
     if (resolver) return resolver({ request, params });
     return missingResolver("createExport");
   }),
+  http.post(`${baseUrl}/v1/admin/feature-flags`, async ({ request, params }) => {
+    const resolver = resolvers.createFeatureFlag;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createFeatureFlag");
+  }),
+  http.post(`${baseUrl}/v1/admin/members`, async ({ request, params }) => {
+    const resolver = resolvers.createMember;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createMember");
+  }),
   http.post(`${baseUrl}/v1/performance/reports`, async ({ request, params }) => {
     const resolver = resolvers.createPerformanceReport;
     if (resolver) return resolver({ request, params });
     return missingResolver("createPerformanceReport");
+  }),
+  http.post(`${baseUrl}/v1/admin/policies`, async ({ request, params }) => {
+    const resolver = resolvers.createPolicy;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createPolicy");
   }),
   http.post(`${baseUrl}/v1/releases`, async ({ request, params }) => {
     const resolver = resolvers.createRelease;
@@ -148,10 +226,40 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("createResearchRun");
   }),
+  http.post(`${baseUrl}/v1/admin/roles`, async ({ request, params }) => {
+    const resolver = resolvers.createRole;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createRole");
+  }),
   http.post(`${baseUrl}/v1/approvals/:approvalId/decisions`, async ({ request, params }) => {
     const resolver = resolvers.decideApproval;
     if (resolver) return resolver({ request, params });
     return missingResolver("decideApproval");
+  }),
+  http.delete(`${baseUrl}/v1/admin/capabilities/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.deleteCapability;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("deleteCapability");
+  }),
+  http.delete(`${baseUrl}/v1/admin/feature-flags/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.deleteFeatureFlag;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("deleteFeatureFlag");
+  }),
+  http.delete(`${baseUrl}/v1/admin/members/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.deleteMember;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("deleteMember");
+  }),
+  http.delete(`${baseUrl}/v1/admin/policies/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.deletePolicy;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("deletePolicy");
+  }),
+  http.delete(`${baseUrl}/v1/admin/roles/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.deleteRole;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("deleteRole");
   }),
   http.get(`${baseUrl}/v1/performance/reports/:reportId/content`, async ({ request, params }) => {
     const resolver = resolvers.downloadPerformanceReport;
@@ -162,6 +270,16 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.engageKillSwitch;
     if (resolver) return resolver({ request, params });
     return missingResolver("engageKillSwitch");
+  }),
+  http.get(`${baseUrl}/v1/alerts/:alertId`, async ({ request, params }) => {
+    const resolver = resolvers.getAlert;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAlert");
+  }),
+  http.get(`${baseUrl}/v1/alerts/subscriptions`, async ({ request, params }) => {
+    const resolver = resolvers.getAlertSubscriptions;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAlertSubscriptions");
   }),
   http.get(`${baseUrl}/v1/approvals/:approvalId`, async ({ request, params }) => {
     const resolver = resolvers.getApproval;
@@ -188,6 +306,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getCandleSeries");
   }),
+  http.get(`${baseUrl}/v1/admin/capabilities/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.getCapability;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getCapability");
+  }),
   http.get(`${baseUrl}/v1/context`, async ({ request, params }) => {
     const resolver = resolvers.getContext;
     if (resolver) return resolver({ request, params });
@@ -213,10 +336,30 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getExportStatus");
   }),
+  http.get(`${baseUrl}/v1/admin/feature-flags/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.getFeatureFlag;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getFeatureFlag");
+  }),
+  http.get(`${baseUrl}/v1/operations/incidents/:incidentId`, async ({ request, params }) => {
+    const resolver = resolvers.getIncident;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getIncident");
+  }),
+  http.get(`${baseUrl}/v1/operations/incidents/:incidentId/timeline`, async ({ request, params }) => {
+    const resolver = resolvers.getIncidentTimeline;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getIncidentTimeline");
+  }),
   http.get(`${baseUrl}/v1/markets/catalog`, async ({ request, params }) => {
     const resolver = resolvers.getMarketCatalog;
     if (resolver) return resolver({ request, params });
     return missingResolver("getMarketCatalog");
+  }),
+  http.get(`${baseUrl}/v1/admin/members/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.getMember;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getMember");
   }),
   http.get(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
     const resolver = resolvers.getNotificationPrefs;
@@ -257,6 +400,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getPlatformCapabilities;
     if (resolver) return resolver({ request, params });
     return missingResolver("getPlatformCapabilities");
+  }),
+  http.get(`${baseUrl}/v1/admin/policies/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.getPolicy;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPolicy");
   }),
   http.get(`${baseUrl}/v1/portfolio`, async ({ request, params }) => {
     const resolver = resolvers.getPortfolio;
@@ -308,10 +456,25 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getRiskView");
   }),
+  http.get(`${baseUrl}/v1/admin/roles/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.getRole;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getRole");
+  }),
   http.get(`${baseUrl}/v1/settings/security`, async ({ request, params }) => {
     const resolver = resolvers.getSecuritySettings;
     if (resolver) return resolver({ request, params });
     return missingResolver("getSecuritySettings");
+  }),
+  http.get(`${baseUrl}/v1/operations/health`, async ({ request, params }) => {
+    const resolver = resolvers.getServiceHealth;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getServiceHealth");
+  }),
+  http.get(`${baseUrl}/v1/operations/metrics`, async ({ request, params }) => {
+    const resolver = resolvers.getServiceMetrics;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getServiceMetrics");
   }),
   http.get(`${baseUrl}/v1/session`, async ({ request, params }) => {
     const resolver = resolvers.getSession;
@@ -338,10 +501,20 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getWatchlist");
   }),
+  http.get(`${baseUrl}/v1/alerts`, async ({ request, params }) => {
+    const resolver = resolvers.listAlerts;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listAlerts");
+  }),
   http.get(`${baseUrl}/v1/approvals`, async ({ request, params }) => {
     const resolver = resolvers.listApprovals;
     if (resolver) return resolver({ request, params });
     return missingResolver("listApprovals");
+  }),
+  http.get(`${baseUrl}/v1/admin/capabilities`, async ({ request, params }) => {
+    const resolver = resolvers.listCapabilities;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listCapabilities");
   }),
   http.get(`${baseUrl}/v1/data-snapshots`, async ({ request, params }) => {
     const resolver = resolvers.listDataSnapshots;
@@ -358,15 +531,35 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("listDownloads");
   }),
+  http.get(`${baseUrl}/v1/admin/feature-flags`, async ({ request, params }) => {
+    const resolver = resolvers.listFeatureFlags;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listFeatureFlags");
+  }),
+  http.get(`${baseUrl}/v1/operations/incidents`, async ({ request, params }) => {
+    const resolver = resolvers.listIncidents;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listIncidents");
+  }),
   http.get(`${baseUrl}/v1/ledger/entries`, async ({ request, params }) => {
     const resolver = resolvers.listLedgerEntries;
     if (resolver) return resolver({ request, params });
     return missingResolver("listLedgerEntries");
   }),
+  http.get(`${baseUrl}/v1/admin/members`, async ({ request, params }) => {
+    const resolver = resolvers.listMembers;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listMembers");
+  }),
   http.get(`${baseUrl}/v1/orders`, async ({ request, params }) => {
     const resolver = resolvers.listOrders;
     if (resolver) return resolver({ request, params });
     return missingResolver("listOrders");
+  }),
+  http.get(`${baseUrl}/v1/admin/policies`, async ({ request, params }) => {
+    const resolver = resolvers.listPolicies;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listPolicies");
   }),
   http.get(`${baseUrl}/v1/proposals`, async ({ request, params }) => {
     const resolver = resolvers.listProposals;
@@ -393,6 +586,16 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("listResearchRuns");
   }),
+  http.get(`${baseUrl}/v1/admin/roles`, async ({ request, params }) => {
+    const resolver = resolvers.listRoles;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listRoles");
+  }),
+  http.get(`${baseUrl}/v1/operations/runbook-actions`, async ({ request, params }) => {
+    const resolver = resolvers.listRunbookActions;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listRunbookActions");
+  }),
   http.get(`${baseUrl}/v1/settings/sessions`, async ({ request, params }) => {
     const resolver = resolvers.listSessions;
     if (resolver) return resolver({ request, params });
@@ -412,6 +615,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.mfaChallenge;
     if (resolver) return resolver({ request, params });
     return missingResolver("mfaChallenge");
+  }),
+  http.post(`${baseUrl}/v1/operations/incidents`, async ({ request, params }) => {
+    const resolver = resolvers.openIncident;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("openIncident");
   }),
   http.post(`${baseUrl}/v1/auth/reauth`, async ({ request, params }) => {
     const resolver = resolvers.reauth;
@@ -443,6 +651,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("requestRiskEvaluation");
   }),
+  http.post(`${baseUrl}/v1/operations/incidents/:incidentId/resolve`, async ({ request, params }) => {
+    const resolver = resolvers.resolveIncident;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("resolveIncident");
+  }),
   http.delete(`${baseUrl}/v1/settings/trusted-devices/:deviceId`, async ({ request, params }) => {
     const resolver = resolvers.revokeDevice;
     if (resolver) return resolver({ request, params });
@@ -458,20 +671,50 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("revokeSession");
   }),
+  http.post(`${baseUrl}/v1/operations/runbook-actions/:actionId/runs`, async ({ request, params }) => {
+    const resolver = resolvers.runApprovedRunbookAction;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("runApprovedRunbookAction");
+  }),
   http.post(`${baseUrl}/v1/strategies/:strategyId/static-checks`, async ({ request, params }) => {
     const resolver = resolvers.runStaticCheck;
     if (resolver) return resolver({ request, params });
     return missingResolver("runStaticCheck");
+  }),
+  http.put(`${baseUrl}/v1/alerts/subscriptions`, async ({ request, params }) => {
+    const resolver = resolvers.saveAlertSubscriptions;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveAlertSubscriptions");
+  }),
+  http.put(`${baseUrl}/v1/admin/capabilities/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.saveCapability;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveCapability");
+  }),
+  http.put(`${baseUrl}/v1/admin/feature-flags/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.saveFeatureFlag;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveFeatureFlag");
   }),
   http.put(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
     const resolver = resolvers.saveNotificationPrefs;
     if (resolver) return resolver({ request, params });
     return missingResolver("saveNotificationPrefs");
   }),
+  http.put(`${baseUrl}/v1/admin/policies/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.savePolicy;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("savePolicy");
+  }),
   http.put(`${baseUrl}/v1/settings/profile`, async ({ request, params }) => {
     const resolver = resolvers.saveProfile;
     if (resolver) return resolver({ request, params });
     return missingResolver("saveProfile");
+  }),
+  http.put(`${baseUrl}/v1/admin/roles/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.saveRole;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveRole");
   }),
   http.put(`${baseUrl}/v1/strategies/:strategyId/draft`, async ({ request, params }) => {
     const resolver = resolvers.saveStrategyDraft;
@@ -507,6 +750,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.submitTradeCommand;
     if (resolver) return resolver({ request, params });
     return missingResolver("submitTradeCommand");
+  }),
+  http.get(`${baseUrl}/v1/alerts/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeAlerts;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeAlerts");
   }),
   http.get(`${baseUrl}/v1/backtests/:runId/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeBacktestRun;
@@ -557,6 +805,16 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeTradePreflight;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeTradePreflight");
+  }),
+  http.post(`${baseUrl}/v1/alerts/:alertId/unack`, async ({ request, params }) => {
+    const resolver = resolvers.unackAlert;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("unackAlert");
+  }),
+  http.put(`${baseUrl}/v1/admin/members/:resourceId`, async ({ request, params }) => {
+    const resolver = resolvers.updateMember;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("updateMember");
   }),
   ];
 }
