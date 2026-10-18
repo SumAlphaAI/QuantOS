@@ -1,3 +1,5 @@
+> 2026-10-18 当前入口说明：本页以下为历史全闭包规程。依据最新[AGENTS.md](../../AGENTS.md)，功能开发不再默认重跑整条依赖。A2使用[A2_SCOPE_LOCAL规程](provider-a2-functional-admission.md)，BFF-FE-003使用[BFF003_SCOPE_LOCAL规程](bff-fe-003-functional-admission.md)；`make bff003-local-check`已路由当前scoped门禁。旧“任何输入变化重跑闭包”和五回执发布描述不适用于当前开发准入；旧profile/回执仅保留原范围，其unit tests验证历史元数据及当前策略拒绝替换，不执行40节点campaign。完整联调/发布另按阶段授权执行。
+
 # A2、R1 与 A3 页面本地功能准入
 
 四个消费者使用独立的 A2_LOCAL（17 节点）、R1_LOCAL（27 节点）、BFF003_LOCAL（40 节点）和 BFF005_LOCAL（40 节点）profile。A3_EXECUTION 只运行 42 节点并集，不发布 PROVIDER:A3 READY。完整闭包由当前执行计划计算；共同检查只执行一次，子索引从同一源码、同次实际执行派生，再分别递归验证。上游组件仅作为消费者限定的 LOCAL_READY 投影，不登记上游独立 READY。

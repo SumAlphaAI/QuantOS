@@ -64,23 +64,31 @@ for(const mutation of ['none','rehashed failed suite','rehashed incomplete produ
 
 // Exercise the real static post-publication validator; mocked verifyAfter alone cannot
 // detect stale receipt registrations. Synthetic receipts prove shape only, never execution.
-test('all consumer registrations match the static stage contract',()=>{
+test('legacy registrations retain exact history while scoped replacements are explicit',()=>{
  const scopes=JSON.parse(readFileSync('scripts/development-plan-order-policy.json')).stageContract.local_dependency_receipts,nodes=unitNodes();
+ const replaced={
+  'PROVIDER:A2':{profile:'A2_SCOPE_LOCAL',schema:'quantos-a2-aggregate-functional-development/v1',manifest:'audit/evidence/provider-a2-local-20261018/manifest.json'},
+  'FE:BFF-FE-003':{profile:'BFF003_SCOPE_LOCAL',schema:'quantos-bff003-scoped-functional-development/v1',manifest:'audit/evidence/bff-fe-003-local-20261018/manifest.json'},
+ };
  for(const [profile,{owner}]of Object.entries(registrations)){
-  assert.equal(scopes[owner].profile,profile);assert.equal(scopes[owner].manifest,manifest(profile).slice(5));assert.equal(scopes[owner].schema,schema);assert.deepEqual(scopes[owner].prerequisites,nodes.get(owner).dependencies);
+  const current=scopes[owner],expected=replaced[owner]??{profile,manifest:manifest(profile).slice(5),schema};
+  assert.deepEqual({profile:current.profile,manifest:current.manifest,schema:current.schema},expected);
+  assert.deepEqual(current.prerequisites,nodes.get(owner).dependencies);
+  if(replaced[owner])assert.notEqual(current.manifest,manifest(profile).slice(5),'old evidence cannot impersonate current scope');
  }
 });
-test('five local publication passes real plan order without upstream READY',()=>{
+test('superseded five-receipt publication fails current plan order and restores evidence files',()=>{
  const dir=mkdtempSync(resolve(tmpdir(),'research-publication-order-')),paths=['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'];
  const saved=new Map(paths.map(p=>[p,unassessedPlan(readFileSync(p,'utf8'))])),parsed=validatePlans(...paths.map(p=>saved.get(p))).tasks,nodes=unitNodes();
  // Static historical checkpoint links need only exist in this isolated shape fixture.
  for(const text of saved.values())for(const match of text.matchAll(/```json\n([\s\S]*?)\n```/g)){const record=JSON.parse(match[1]);for(const ref of record.checkpoint_id?record.evidence:[])if(!/^https:\/\//.test(ref)){const path=resolve(dir,'docs',ref);mkdirSync(dirname(path),{recursive:true});writeFileSync(path,'SYNTHETIC STATIC SHAPE ONLY; NO EXECUTION\n');}}
  try{
-  const report=publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>{if(b===null){saved.delete(p);rmSync(resolve(dir,p),{force:true});}else{saved.set(p,b);mkdirSync(dirname(resolve(dir,p)),{recursive:true});writeFileSync(resolve(dir,p),b);}},verifyAfter:()=>{
+  const before=new Map(saved);
+  assert.throws(()=>publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>{if(b===null){saved.delete(p);rmSync(resolve(dir,p),{force:true});}else{saved.set(p,b);mkdirSync(dirname(resolve(dir,p)),{recursive:true});writeFileSync(resolve(dir,p),b);}},verifyAfter:()=>{
    const tasks=parsed.map(n=>({...n,stage_gate:nodes.get((n.task_type==='CORE'?'CORE:':'FE:')+n.task_id).stage_gate}));
    return validatePlanOrder(...paths.map(p=>saved.get(p)),tasks.filter(n=>n.task_type==='CORE'),tasks.filter(n=>n.task_type!=='CORE'),{root:dir});
-  }});
-  assert.equal(report.stage_status_counts.READY,5);assert.equal(report.stage_status_counts.BLOCKED,0);assert.equal(nodes.get('PROVIDER:A3').stage_gate.status,'READY');assert.equal(nodes.get('CORE:R01').stage_gate.status,'NOT_ASSESSED');
+  }}),/declared manifest/);
+  assert.deepEqual(saved,before);for(const profile of Object.keys(registrations))assert.equal(saved.has(manifest(profile)),false);assert.equal(nodes.get('CORE:R01').stage_gate.status,'NOT_ASSESSED');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
 

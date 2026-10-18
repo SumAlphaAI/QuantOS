@@ -1,0 +1,119 @@
+✔ A2_LOCAL admits only complete scoped functionality (28.871959ms)
+✔ R1_LOCAL admits only complete scoped functionality (19.218541ms)
+✔ BFF003_LOCAL admits only complete scoped functionality (19.151ms)
+✔ BFF005_LOCAL admits only complete scoped functionality (18.342209ms)
+✔ A3_LOCAL admits only complete scoped functionality (66.857625ms)
+✔ reject another owner (15.507584ms)
+✔ reject formal self approval (15.485083ms)
+✔ reject production (15.19125ms)
+✔ reject target claim (15.664166ms)
+✔ reject performance claim (15.005833ms)
+✔ reject external claim (15.037584ms)
+✔ reject failed status (14.937375ms)
+✔ reject unregistered profile (14.612041ms)
+✔ reject altered scope (15.666458ms)
+✔ reject missing dependency (15.109708ms)
+✔ reject published upstream instead of projection (15.212792ms)
+✔ reject forged dependency (14.975834ms)
+✔ reject mixed SHA (14.957667ms)
+✔ reject partial closure (15.486416ms)
+✔ reject wrong local owner (14.60975ms)
+✔ reject failed local proof (14.964916ms)
+✔ reject changed index (15.092875ms)
+✔ reject swapped functional manifest (14.964083ms)
+✔ reject lost release command (15.737916ms)
+✔ reject target passed (14.600708ms)
+✔ reject lost handoff (14.951625ms)
+✔ reject release obligation removed (15.201291ms)
+✔ local profiles cannot execute target or network SCA checks (15.368292ms)
+✔ local environment strips database and production credentials (0.153792ms)
+✔ publication is transactional if post-write validation fails (143.914042ms)
+✔ partial profile publication rejected before writing (0.117875ms)
+✔ release performance thresholds retained and development CI diagnostic only (0.181375ms)
+✔ reassessment root and closure agree with consumer receipt true (859.972375ms)
+✔ reassessment root and closure agree with consumer receipt false (501.158333ms)
+✔ functional F04 proves corpus equality while release retains timing rejection (0.210583ms)
+✔ legacy digest normalization preserves checksum and rejects malformed data (0.148042ms)
+✔ all local profiles defer performance commands (161.412875ms)
+✔ R04 artifact validates actual historical fixture: none (9.178833ms)
+✔ R04 artifact validates actual historical fixture: rehashed failed suite (2.20475ms)
+✔ R04 artifact validates actual historical fixture: rehashed incomplete product (7.228208ms)
+✔ R04 artifact validates actual historical fixture: changed log (1.884542ms)
+✖ all consumer registrations match the static stage contract (16.072666ms)
+✖ five local publication passes real plan order without upstream READY (168.333542ms)
+✔ A3 rejects missing consumer (64.796958ms)
+✔ A3 rejects duplicated consumer (63.294959ms)
+✔ A3 rejects wrong consumer path (63.482833ms)
+✔ A3 rejects changed consumer bytes (64.183708ms)
+✔ A3 rejects rehashed mixed candidate (65.323666ms)
+✔ A3 rejects consumer not READY (64.293583ms)
+✔ A3 rejects consumer gate digest (62.771291ms)
+✔ A3 rejects consumer formal promotion (64.678334ms)
+✔ A3 execution union cannot publish aggregate admission (62.753792ms)
+✔ aggregate CLI loads without a cyclic module hang and refuses execution profile (137.285292ms)
+✔ all five publication indexes must come from the same candidate (147.206584ms)
+✔ atomic publication verifies real aggregate consumer hashes before and after writing (502.820041ms)
+✔ execution union contains the complete TP02 local proof (15.571833ms)
+✔ aggregate publication preserves an independent TP02 Gate (148.335042ms)
+ℹ tests 57
+ℹ suites 0
+ℹ pass 55
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4036.010542
+
+✖ failing tests:
+
+test at scripts/research-local-gate.test.mjs:67:1
+✖ all consumer registrations match the static stage contract (16.072666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'A2_SCOPE_LOCAL'
+  - 'A2_LOCAL'
+        ^
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:70:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'A2_SCOPE_LOCAL',
+    expected: 'A2_LOCAL',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/research-local-gate.test.mjs:73:1
+✖ five local publication passes real plan order without upstream READY (168.333542ms)
+  AssertionError [ERR_ASSERTION]: R03 local gate must use its declared manifest
+  + actual - expected
+  
+    [
+  +   'audit/evidence/provider-a3-local-20261013/bff003-local.json'
+  -   'audit/evidence/bff-fe-003-local-20261018/manifest.json'
+    ]
+  
+      at usesLocalDependencies (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:85:9)
+      at validatePlanOrder (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:147:50)
+      at verifyAfter (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:81:11)
+      at publish (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.mjs:61:135)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:79:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'audit/evidence/provider-a3-local-20261013/bff003-local.json' ],
+    expected: [ 'audit/evidence/bff-fe-003-local-20261018/manifest.json' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

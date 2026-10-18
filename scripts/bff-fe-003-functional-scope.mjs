@@ -9,7 +9,7 @@ const c=(id,command,reason)=>({id,command,reason,timeoutMs:600000});
 export const checks=[
  c('contract',['node','scripts/check-bff-fe-003-boundary.mjs'],'Nine C03/C04 API owner, auth/CSRF/idempotency and direct persistent scheduling/snapshot/artifact/F05 bridge static boundaries'),
  c('generated',['node','scripts/check-bff-generated.mjs'],'Current OpenAPI/client/schema/MSW consistency at the directly consumed A1 boundary; no A1 gate re-admission'),
- c('contract-negative',['node','--test','scripts/bff-fe-003-development.test.mjs'],'Preserve legacy strict source/log/target refusal behavior; fixture receipt validation only, no historical closure execution'),
+ c('contract-negative',['node','--test','scripts/bff-fe-003-development.test.mjs','scripts/research-local-gate.test.mjs'],'Preserve legacy strict source/log/target and superseded-registration/publication refusal in isolated unit fixtures; never execute historical closure'),
  c('research',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','research::'],'Current Research/reference and live pure authority/scope/evidence tests, including audit linkage, canonical artifact binding and reference-clock refusal'),
  c('runtime',['cargo','test','--locked','--offline','-p','quantos-runtime','--lib','research::tests'],'Direct R03/R04 semantic input hashes, idempotent schedule/checkpoint/artifact replay and canonical engine encoding; no whole runtime gate'),
  c('source-policy',['cargo','test','--locked','--offline','-p','quantos-storage','--lib','provenance::tests'],'Direct R02 server approval identity/time/purpose/license and revocation boundaries using in-memory source policy'),
