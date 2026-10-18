@@ -213,21 +213,26 @@ pub(crate) fn validate_events(
     for e in events {
         if e.normalized_symbol != i.canonical_symbol
             || e.provider != i.provider
-            || e.dataset.is_empty()
-            || e.license_label.is_empty()
-            || e.approval_reference.is_empty()
-            || e.approval_version.is_empty()
+            || e.dataset.trim().is_empty()
+            || e.license_label.trim().is_empty()
+            || e.approval_reference.trim().is_empty()
+            || e.approval_version.trim().is_empty()
             || e.event_time > now
+            || e.received_at > now
+            || e.received_at < e.event_time
+            || e.source_tick_id.trim().is_empty()
+            || e.source_tick_id.len() > 256
             || e.quality == MarketDataQuality::Failed
             || e.sequence == 0
+            || e.sequence > 9_007_199_254_740_991
         {
             return Err(Fault(StatusCode::UNPROCESSABLE_ENTITY, "DATA_BLOCKED"));
         }
         if e.event_kind != MarketEventKind::TickRecorded {
             continue;
         }
-        if e.price.is_none()
-            || e.volume.is_none()
+        if e.price.is_none_or(|p| p.value() <= Decimal::ZERO)
+            || e.volume.is_none_or(|v| v.value() <= Decimal::ZERO)
             || quantos_core::Quantity::parse_str(&e.raw_price).ok() != e.price
             || quantos_core::Quantity::parse_str(&e.raw_volume).ok() != e.volume
         {
@@ -272,10 +277,13 @@ pub(crate) fn book_quote(
         || book.normalized_symbol != i.canonical_symbol
         || book.event_time > now
         || book.quality == MarketDataQuality::Failed
-        || book.license_label.is_empty()
-        || book.approval_reference.is_empty()
-        || book.approval_version.is_empty()
-        || book.dataset.is_empty()
+        || book.license_label.trim().is_empty()
+        || book.approval_reference.trim().is_empty()
+        || book.approval_version.trim().is_empty()
+        || book.dataset.trim().is_empty()
+        || book.source_tick_id.trim().is_empty()
+        || book.source_tick_id.len() > 256
+        || book.sequence > 9_007_199_254_740_991
     {
         return Err(Fault(StatusCode::UNPROCESSABLE_ENTITY, "DATA_BLOCKED"));
     }
@@ -672,6 +680,22 @@ async fn reference(
         ))
     })();
     match result {
+        Ok(Output::Json(status, payload)) if method == Method::PUT && status == StatusCode::OK => {
+            // The provider lock binds the successful command and its single audit fact.
+            let id = &payload["auditRef"];
+            if !state.audits.iter().any(|e| &e["eventId"] == id) {
+                let redacted =
+                    crate::audit_core::redacted(&json!({"status":"saved","outcome":"succeeded"}));
+                let fact = json!({"auditRef":id,"eventId":id,"correlationId":payload["correlationId"],"causationId":id,
+                    "sequence":state.audits.iter().filter(|e|e.get("eventId").is_some()).count()+1,
+                    "kind":"market.watchlist.save","actor":"reference-current","objectRef":"market:watchlist:reference-current",
+                    "occurredAt":now,"redactionApplied":true,"redactedPayload":redacted,
+                    "payloadHash":crate::audit_core::payload_hash(&redacted),"route":"/markets",
+                    "retentionUntil":now+Duration::days(365)});
+                state.audits.push(fact);
+            }
+            Output::Json(status, payload).response()
+        }
         Ok(v) => v.response(),
         Err(e) => e.response(),
     }

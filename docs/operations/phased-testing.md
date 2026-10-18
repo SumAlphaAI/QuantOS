@@ -35,3 +35,5 @@ CORE-GATE:X3-SERVICE采用`make x3-service-assess-local`明列17组当前服务�
 PROVIDER:A2使用16组当前功能汇总检查及5项激活入口，见[A2规程](provider-a2-functional-admission.md)。重新执行当前26操作HTTP、两类provider/consumer及身份注销对导出的拒绝边界；两原确认/回执以原SHA核对，不拼接历史READY。F05/A1只查直接消费边界，不执行旧全依赖闭包；旧变异仅参考原hash，未改Rust运行时不重复变异campaign。共享输入变化撤回007独立READY，汇总只归属PROVIDER:A2，完整联调与发布分别NOT_RUN。
 
 FE:BFF-FE-003采用[BFF003_SCOPE_LOCAL规程](bff-fe-003-functional-admission.md)的19组当前功能/直接影响检查与4个激活入口。新增Research审计事实、reference时钟拒绝及Artifact hash一致性修复，直接回归共享A2 provider和实际生成consumer；F07/F08/R02/R03/R04/R1-SERVICE只覆盖具体消费边界与本机UDS路径，不调度旧40节点闭包。A2独立READY撤回，原确认保留原SHA，完整UI联调、目标持久worker/数据库/Storage与发布分别NOT_RUN。
+
+FE:BFF-FE-005采用[BFF005_SCOPE_LOCAL规程](bff-fe-005-functional-admission.md)的18组检查与5个激活入口；直接检查R01时钟/盘口及R02审批/snapshot边界，watchlist共享审计变化直接回归A2两provider。七项市场API与真实生成consumer/基本Chromium不代表完整UI/API联调；不调度旧40节点闭包或Research Engine测试。BFF003原稿用户确认绑定原SHA，共享输入变化撤回其独立READY；完整联调/发布和实时来源健康另验。

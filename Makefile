@@ -588,7 +588,7 @@ tp01-d-local-check:
 tp01-d-release-check:
 	node scripts/tp01-d-local-gate.mjs --release
 
-.PHONY: research-local-check r1-local-check a2-local-check bff003-local-check bff005-local-check research-local-assess provider-a3-local-check provider-a3-local-assess r01-release-performance
+.PHONY: research-local-check r1-local-check a2-local-check bff003-local-check bff005-local-check bff005-assess-local research-local-assess provider-a3-local-check provider-a3-local-assess r01-release-performance
 research-local-check:
 	node --test scripts/research-local-gate.test.mjs
 	node scripts/research-local-gate.mjs A2_LOCAL
@@ -605,7 +605,9 @@ bff003-local-check:
 bff003-assess-local:
 	node scripts/record-bff-fe-003-functional.mjs $(ATTEMPT)
 bff005-local-check:
-	node scripts/research-local-gate.mjs BFF005_LOCAL
+	pnpm check:bff-fe-005:development
+bff005-assess-local:
+	node scripts/record-bff-fe-005-functional.mjs $(ATTEMPT)
 research-local-assess:
 	node scripts/record-research-local.mjs $(ATTEMPT)
 r01-release-performance:

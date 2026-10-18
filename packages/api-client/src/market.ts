@@ -35,6 +35,9 @@ export class MarketSeriesRecovery {
     const d = this.dimensions;
     if (s.canonicalSymbol !== d.symbol || s.venue !== d.venue || s.productType !== d.product ||
         s.interval !== d.interval || s.timezone !== d.timezone || s.replaceSeries !== true ||
+        s.instrumentId !== `${d.venue}:${d.product}:${d.symbol}` || s.provenance.venue !== d.venue ||
+        !s.provenance.license.trim() || !s.provenance.source.trim() ||
+        !s.provenance.approvalRef.trim() || !s.provenance.approvalVersion.trim() ||
         s.sequence !== e.sequence || this.streamId && e.streamId !== this.streamId) {
       throw new Error("market stream dimensions changed; refresh required");
     }

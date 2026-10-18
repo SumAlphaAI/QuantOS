@@ -68,6 +68,7 @@ test('legacy registrations retain exact history while scoped replacements are ex
  const scopes=JSON.parse(readFileSync('scripts/development-plan-order-policy.json')).stageContract.local_dependency_receipts,nodes=unitNodes();
  const replaced={
   'PROVIDER:A2':{profile:'A2_SCOPE_LOCAL',schema:'quantos-a2-aggregate-functional-development/v1',manifest:'audit/evidence/provider-a2-local-20261018/manifest.json'},
+  'FE:BFF-FE-005':{profile:'BFF005_SCOPE_LOCAL',schema:'quantos-bff005-scoped-functional-development/v1',manifest:'audit/evidence/bff-fe-005-local-20261018/manifest.json'},
   'FE:BFF-FE-003':{profile:'BFF003_SCOPE_LOCAL',schema:'quantos-bff003-scoped-functional-development/v1',manifest:'audit/evidence/bff-fe-003-local-20261018/manifest.json'},
  };
  for(const [profile,{owner}]of Object.entries(registrations)){

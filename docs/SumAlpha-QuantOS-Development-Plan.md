@@ -1,4 +1,5 @@
-> 当前工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
+> 当前 BFF-FE-005 / A3 复核按 AGENTS.md 采用 BFF005_SCOPE_LOCAL 七项 C12 功能与直接影响范围；A2/BFF003 原确认仅批准原稿原范围。旧闭包 READY 不改绑；共享输入变化撤回 BFF003 独立 Gate。当前功能、完整联调及发布分别记录，后两者 NOT_RUN；见[规程](./operations/bff-fe-005-functional-admission.md)。
+> 历史工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
 
 > 历史工程结果（PROVIDER:A2，2026-10-18）：冻结3f0c9bd5，781输入/16组当前功能与直接边界、5项激活入口PASS；Node223、Rust35、consumer/契约82，26操作/55条真实HTTP及26项限定控制点PASS。仅A2_SCOPE_LOCAL汇总DEVELOPMENT READY；BFF-FE-001/007原用户确认CONFIRMED且保持各自源码/范围，本汇总确认PENDING。52,575个历史文件未改，两轮失败保留；各API/F05/A1独立Gate不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/PROVIDER-A2-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-003 / A3当前功能复核。
 
@@ -546,9 +547,9 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "FE:BFF-FE-005": {
-      "profile": "BFF005_LOCAL",
-      "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/provider-a3-local-20261013/bff005-local.json",
+      "profile": "BFF005_SCOPE_LOCAL",
+      "schema": "quantos-bff005-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-005-local-20261018/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "CORE:R01",
@@ -1608,7 +1609,7 @@ flowchart TD
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点
 
-本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL分别校验17/27/40/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。
+本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 2026-10-17后以AGENTS.md为准：当前功能与直接影响范围验证，不默认递归全闭包。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包仅原范围参考；A2_SCOPE_LOCAL/BFF003_SCOPE_LOCAL/BFF005_SCOPE_LOCAL分别评估自身当前功能，绑定冻结源码、实际日志与产物，不自动授予上游独立READY。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。
 
 ```json
 {
@@ -1630,7 +1631,7 @@ flowchart TD
     "CORE:R03",
     "CORE:R04"
   ],
-  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL分别校验17/27/40/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。",
+  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 2026-10-17后以AGENTS.md为准：当前功能与直接影响范围验证，不默认递归全闭包。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包仅原范围参考；A2_SCOPE_LOCAL/BFF003_SCOPE_LOCAL/BFF005_SCOPE_LOCAL分别评估自身当前功能，绑定冻结源码、实际日志与产物，不自动授予上游独立READY。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

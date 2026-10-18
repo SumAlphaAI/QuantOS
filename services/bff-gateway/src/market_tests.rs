@@ -534,3 +534,95 @@ fn book_history_deduplicates_exact_records_and_rejects_conflicting_identity_or_s
         7
     );
 }
+
+#[test]
+fn current_function_trade_integrity_rejects_invalid_receipt_identity_and_zero_price() {
+    let f = Fixture::default();
+    let i = &f.catalog[0];
+    let now = Utc::now();
+    for change in [
+        "future_receipt",
+        "receipt_before_event",
+        "empty_identity",
+        "zero_price",
+        "zero_volume",
+        "blank_license",
+    ] {
+        let mut events = f.events[&i.id()].clone();
+        match change {
+            "future_receipt" => events[0].received_at = now + Duration::seconds(1),
+            "receipt_before_event" => {
+                events[0].received_at = events[0].event_time - Duration::nanoseconds(1)
+            }
+            "empty_identity" => events[0].source_tick_id = " ".into(),
+            "zero_price" => {
+                events[0].raw_price = "0".into();
+                events[0].price = Some(quantos_core::Quantity::parse_str("0").unwrap());
+            }
+            "zero_volume" => {
+                events[0].raw_volume = "0".into();
+                events[0].volume = Some(quantos_core::Quantity::parse_str("0").unwrap());
+            }
+            _ => events[0].license_label = " ".into(),
+        }
+        assert!(quote(i, &events, now).is_err(), "{change}");
+        assert!(candles(i, &events, &selected(), now).is_err(), "{change}");
+    }
+}
+#[test]
+fn current_function_book_rejects_blank_authority_and_unsafe_sequence() {
+    let f = Fixture::default();
+    let i = &f.catalog[0];
+    let now = Utc::now();
+    let mut book = f.books[&i.id()].clone();
+    book.approval_reference = " ".into();
+    assert!(book_quote(i, &book, &[], now).is_err());
+    book = f.books[&i.id()].clone();
+    book.sequence = 9_007_199_254_740_992;
+    assert!(book_quote(i, &book, &[], now).is_err());
+    let mut rows = f.events[&i.id()].clone();
+    rows[0].sequence = 9_007_199_254_740_992;
+    assert!(replay("a", "candle", i, &rows, &selected(), now).is_err());
+}
+#[tokio::test]
+async fn current_function_watchlist_audit_resolves_and_retries_append_once() {
+    let p = crate::BffProvider::default();
+    let key = Uuid::new_v4();
+    let input = json!({"instrumentIds":["binance:spot:BTC/USDT"]});
+    let (code, saved) = call(
+        &p,
+        "PUT",
+        "/v1/markets/watchlist",
+        Some(input.clone()),
+        key,
+        "watchlist-0",
+    )
+    .await;
+    assert_eq!(code, 200);
+    assert_eq!(
+        call(
+            &p,
+            "PUT",
+            "/v1/markets/watchlist",
+            Some(input),
+            key,
+            "watchlist-0"
+        )
+        .await
+        .1,
+        saved
+    );
+    let data = p.data.lock().await;
+    let facts = data
+        .audits
+        .iter()
+        .filter(|a| a["eventId"] == saved["auditRef"])
+        .collect::<Vec<_>>();
+    assert_eq!(facts.len(), 1);
+    assert_eq!(facts[0]["kind"], "market.watchlist.save");
+    assert_eq!(facts[0]["correlationId"], saved["correlationId"]);
+    assert_eq!(
+        facts[0]["payloadHash"],
+        crate::audit_core::payload_hash(&facts[0]["redactedPayload"])
+    );
+}

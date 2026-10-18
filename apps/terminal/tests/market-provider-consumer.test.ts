@@ -1,0 +1,31 @@
+import { spawn, type ChildProcess } from "node:child_process";
+import { createServer } from "node:net";
+import { resolve } from "node:path";
+import { beforeAll, afterAll, expect, it } from "vitest";
+import { createBffClient, parseBffResponse, MarketSeriesRecovery, type MarketDimensions, type SseEventEnvelope } from "@sumalpha/api-client";
+import { loadEvidenceChain } from "../src/audit/gateway";
+let child:ChildProcess,origin:string,lose=false;
+const csrf="csrf-token-0000000000000001",dimensions:MarketDimensions={symbol:"BTC/USDT",venue:"binance",product:"spot",interval:"1m",timezone:"UTC"};
+const transport:typeof fetch=async(input,init)=>{const req=new Request(input,init);req.headers.set("cookie",`quantos_session=session-current; quantos_csrf=${csrf}`);req.headers.set("origin","http://localhost:3190");const res=await fetch(req);if(lose&&req.method==="PUT"){lose=false;await res.body?.cancel();throw Error("synthetic response lost after commit");}return res;};
+beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(resolve("target/debug/bff-gateway"),[],{env:{NODE_ENV:"test",PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const t=setTimeout(()=>reject(Error("reference startup timeout")),30000);child.once("error",e=>{clearTimeout(t);reject(e);});child.once("exit",()=>{clearTimeout(t);reject(Error("reference exited"));});child.stdout?.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(t);resolve();}});});},35000);
+afterAll(async()=>{if(child&&child.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}});
+it("generated market consumers recover lost watchlist replies, resolve audit and replace streams without mixing dimensions",async()=>{
+ const client=createBffClient({baseUrl:origin,fetch:transport,timeoutMs:10000});
+ const catalog=await client.GET("/v1/markets/catalog");parseBffResponse("getMarketCatalog",200,catalog.data);expect(catalog.data!.items.length).toBe(4);
+ const current=await client.GET("/v1/markets/watchlist");expect(current.data?.objectVersion).toBe("watchlist-0");
+ const key=crypto.randomUUID(),body={instrumentIds:["binance:spot:BTC/USDT"]},header={"Idempotency-Key":key,"X-Request-Id":crypto.randomUUID(),"X-CSRF-Token":csrf,"If-Match":"watchlist-0"};
+ const save=()=>client.PUT("/v1/markets/watchlist",{body,params:{header}});lose=true;await expect(save()).rejects.toMatchObject({code:"NETWORK",outcomeUnknown:true});
+ const saved=await save();expect(saved.response.status).toBe(200);expect(saved.data?.auditRef).toBeTruthy();
+ const retries=await Promise.all(Array.from({length:6},save));expect(retries.every(r=>JSON.stringify(r.data)===JSON.stringify(saved.data))).toBe(true);
+ const chain=await loadEvidenceChain(origin,saved.data!.correlationId!,{},transport);expect(chain.items).toHaveLength(1);expect(chain.items[0]?.eventId).toBe(saved.data!.auditRef);
+ const changed=await client.PUT("/v1/markets/watchlist",{body:{instrumentIds:[]},params:{header}});expect(changed.response.status).toBe(409);
+ const stale=await client.PUT("/v1/markets/watchlist",{body,params:{header:{...header,"Idempotency-Key":crypto.randomUUID()}}});expect(stale.response.status).toBe(409);
+ for(const venue of ["binance","coinbase"]as const){const r=await client.GET("/v1/markets/quotes",{params:{query:{symbol:dimensions.symbol,venue,product:"spot"}}});parseBffResponse("getVenueQuotes",200,r.data);const v=r.data!;expect(v.items[0]?.provenance.venue).toBe(venue);expect(v.items[0]?.executable).toBe(false);}
+ const historical=await client.GET("/v1/markets/candles",{params:{query:dimensions}});parseBffResponse("getCandleSeries",200,historical.data);expect(historical.data!.replaceSeries).toBe(true);
+ const recovery=new MarketSeriesRecovery(dimensions,"reference-current");
+ const frames=async(url:string)=>{const r=await transport(url);expect(r.status).toBe(200);return(await r.text()).split("\n").filter(l=>l.startsWith("data: ")).map(l=>JSON.parse(l.slice(6))as SseEventEnvelope);};
+ const first=(await frames(recovery.url(origin)))[0]!;expect(recovery.apply(first)).toBe("applied");expect(recovery.apply(first)).toBe("ignored");expect(await frames(recovery.url(origin))).toEqual([]);
+ const quote=await client.GET("/v1/markets/quotes/stream",{params:{query:dimensions},parseAs:"text"});expect(quote.response.status).toBe(200);
+ const switched=new MarketSeriesRecovery({...dimensions,venue:"coinbase"},"reference-current");const other=(await frames(switched.url(origin)))[0]!;expect(()=>recovery.apply(other)).toThrow();expect(switched.apply(other)).toBe("applied");expect(switched.snapshot?.venue).toBe("coinbase");
+ const revoked=await transport(origin+"/v1/auth/logout",{method:"POST",headers:{"x-csrf-token":csrf}});expect(revoked.status).toBe(204);const resume=await transport(recovery.url(origin));expect(resume.status).toBe(401);recovery.revoke();expect(recovery.snapshot).toBeUndefined();expect(()=>recovery.apply(first)).toThrow("permission revoked");
+},20000);

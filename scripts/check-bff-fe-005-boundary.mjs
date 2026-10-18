@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';import {readFileSync}from'node:fs';import YAML from'yaml';import{operations}from'./bff-fe-005-evidence.mjs';
+const read=p=>readFileSync(p,'utf8'),api=YAML.parse(read('bff/openapi/quantos-bff.v1.yaml')),catalog=YAML.parse(read('bff/page-operation-catalog.yaml'));
+assert.equal(catalog.contracts.C12.ownerTask,'BFF-FE-005');assert.deepEqual(catalog.contracts.C12.plannedOperations,[]);assert.deepEqual([...catalog.contracts.C12.publishedOperations].sort(),[...operations].sort());
+const specs=new Map();for(const item of Object.values(api.paths))for(const[method,op]of Object.entries(item))if(op?.operationId)specs.set(op.operationId,{method,op});
+for(const id of operations){const s=specs.get(id);assert(s);assert(s.op.responses['401']&&s.op.responses['403']);assert(!s.op.security||s.op.security.some(s=>s.cookieAuth));if(s.method==='put')for(const name of ['CsrfToken','IdempotencyKey','ClientRequestId','IfMatch'])assert(s.op.parameters.some(p=>p.$ref?.endsWith('/'+name)),id+' '+name);}
+const live=read('services/bff-gateway/src/live/market.rs');for(const token of ['TrustedIdentity','load_authorized_snapshot','policy','validate_event','market_event_range','tenant_id=$1','market::validate_events','market::validate_books','market.watchlist.save','pg_advisory_xact_lock','scope(c)','reset_for_fault'])assert(live.includes(token),'direct live boundary absent '+token);
+const bridge=read('supabase/migrations/20261006130000_bff_settings_audit_bridge.sql');assert(bridge.includes('after insert on quantos.bff_settings_audits'));assert(bridge.includes('audit_entries'));
+const sql=read('supabase/migrations/20261013090000_bff_market_pages.sql');assert(sql.includes('enable row level security'));assert(sql.includes('bff_market_watchlist_commands'));
+console.log('BFF005 direct boundary PASS: 7 C12 operations; R01 lineage, R02 cold source authority, trusted session and F05 watchlist audit static only; target NOT_RUN');

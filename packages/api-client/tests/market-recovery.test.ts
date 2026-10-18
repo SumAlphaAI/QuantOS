@@ -18,3 +18,12 @@ it("rejects a different venue, interval, stream or corrupt payload before cache 
 it("reset freezes the chart and discards cursor; permission revocation clears it permanently",()=>{
  const r=new MarketSeriesRecovery(d,"a");r.apply(event());expect(r.apply({...event(2),payload:{type:"market_reset"}})).toBe("reset");expect(r.snapshot).toBeDefined();expect(r.cursor.afterSequence).toBe(0);r.apply(event(5));expect(r.apply({...event(6),payload:{type:"permission_revoked"}})).toBe("reset");expect(r.snapshot).toBeUndefined();expect(()=>r.apply(event(7))).toThrow("permission revoked");
 });
+it("rejects schema-valid cross-resource provenance before mutating series or cursor",()=>{
+ const r=new MarketSeriesRecovery(d,"a");r.apply(event());const original=r.snapshot,cursor=r.cursor;
+ for(const payload of [{...series,instrumentId:"coinbase:spot:BTC/USDT",sequence:2},{...series,provenance:{...series.provenance,venue:"coinbase"},sequence:2},{...series,provenance:{...series.provenance,license:" "},sequence:2}]){
+  expect(()=>r.apply({...event(2),payload})).toThrow();expect(r.snapshot).toEqual(original);expect(r.cursor).toEqual(cursor);
+ }
+});
+it("rejects lossy unsafe integer sequences before cache mutation",()=>{
+ const r=new MarketSeriesRecovery(d,"a");expect(()=>r.apply(event(Number.MAX_SAFE_INTEGER+1))).toThrow();expect(r.cursor.afterSequence).toBe(0);expect(r.snapshot).toBeUndefined();
+});

@@ -10,6 +10,7 @@ import {check as checkG0} from './g0-development.mjs';
 import {validateA2} from './bff-fe-001-development.mjs';
 import {validateAudit} from './bff-fe-007-development.mjs';
 import {check as checkProviderA2} from './provider-a2-development.mjs';
+import {check as checkBff005} from './bff-fe-005-development.mjs';
 import {check as checkBff003} from './bff-fe-003-development.mjs';
 
 const validators = {
@@ -21,12 +22,13 @@ const validators = {
   'FE:BFF-FE-007': () => validateAudit(),
   'PROVIDER:A2': () => checkProviderA2(),
   'FE:BFF-FE-003': () => checkBff003(),
+  'FE:BFF-FE-005': () => checkBff005(),
 };
 
 const ciAliases = {
   'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
   fep0: 'FE:FEP-0', g0: 'FRONTEND-GATE:G0',
-  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'bff-fe-003': 'FE:BFF-FE-003',
+  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'bff-fe-003': 'FE:BFF-FE-003', 'bff-fe-005': 'FE:BFF-FE-005',
 };
 export function validateCiWiring(read = path => readFileSync(resolve(import.meta.dirname, '..', path), 'utf8')) {
   const pkg = JSON.parse(read('package.json'));

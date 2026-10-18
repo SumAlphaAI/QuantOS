@@ -1,3 +1,5 @@
+> BFF-FE-005 当前功能使用 [BFF005_SCOPE_LOCAL 规程](bff-fe-005-functional-admission.md)与当前严格入口；下述历史全闭包不作为开发默认要求。
+
 > 2026-10-18 当前入口说明：本页以下为历史全闭包规程。依据最新[AGENTS.md](../../AGENTS.md)，功能开发不再默认重跑整条依赖。A2使用[A2_SCOPE_LOCAL规程](provider-a2-functional-admission.md)，BFF-FE-003使用[BFF003_SCOPE_LOCAL规程](bff-fe-003-functional-admission.md)；`make bff003-local-check`已路由当前scoped门禁。旧“任何输入变化重跑闭包”和五回执发布描述不适用于当前开发准入；旧profile/回执仅保留原范围，其unit tests验证历史元数据及当前策略拒绝替换，不执行40节点campaign。完整联调/发布另按阶段授权执行。
 
 # A2、R1 与 A3 页面本地功能准入

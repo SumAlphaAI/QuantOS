@@ -1,4 +1,5 @@
-> 当前工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
+> 当前 BFF-FE-005 / A3 复核按 AGENTS.md 采用 BFF005_SCOPE_LOCAL 七项 C12 功能与直接影响范围；A2/BFF003 原确认仅批准原稿原范围。旧闭包 READY 不改绑；共享输入变化撤回 BFF003 独立 Gate。当前功能、完整联调及发布分别记录，后两者 NOT_RUN；见[规程](./operations/bff-fe-005-functional-admission.md)。
+> 历史工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
 
 > 历史工程结果（PROVIDER:A2，2026-10-18）：冻结3f0c9bd5，781输入/16组当前功能与直接边界、5项激活入口PASS；Node223、Rust35、consumer/契约82，26操作/55条真实HTTP及26项限定控制点PASS。仅A2_SCOPE_LOCAL汇总DEVELOPMENT READY；BFF-FE-001/007原用户确认CONFIRMED且保持各自源码/范围，本汇总确认PENDING。52,575个历史文件未改，两轮失败保留；各API/F05/A1独立Gate不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/PROVIDER-A2-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-003 / A3当前功能复核。
 
@@ -469,9 +470,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "FE:BFF-FE-005": {
-      "profile": "BFF005_LOCAL",
-      "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/provider-a3-local-20261013/bff005-local.json",
+      "profile": "BFF005_SCOPE_LOCAL",
+      "schema": "quantos-bff005-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-005-local-20261018/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "CORE:R01",
@@ -1254,7 +1255,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:68e268ea33256dff7c43eb9202984f9a071eac0467204a5ac4b7f96a145de399","evidence":["audit/evidence/bff-fe-003-local-20261018/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1321,7 +1322,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 }
 ```
 
-当前聚合工程回执：`A3_LOCAL` 绑定 BFF003/BFF005/A2 三份已发布回执及 42 节点完整功能闭包；140/140 组 PASS，DEVELOPMENT READY。正式检查点仍 NOT_STARTED，外部/性能 RELEASE NOT_RUN。见[聚合验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
+历史聚合工程回执（2026-10-13，当前未重授）：`A3_LOCAL` 绑定 BFF003/BFF005/A2 三份已发布回执及 42 节点完整功能闭包；140/140 组 PASS，DEVELOPMENT READY。正式检查点仍 NOT_STARTED，外部/性能 RELEASE NOT_RUN。见[聚合验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 #### 迭代 A4：页面 API 开发与 provider 功能验证
 

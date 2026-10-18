@@ -1,0 +1,87 @@
+fatal: git cat-file: could not get object info
+✖ synthetic receiver admits seven current operations without granting upstream READY (14.960083ms)
+✔ source drift rejected (17.207417ms)
+✔ missing check rejected (13.50325ms)
+✔ duplicate check rejected (13.075625ms)
+✔ fake command rejected (12.728167ms)
+✔ timeout rejected (12.783625ms)
+✔ exit failure rejected (13.467709ms)
+✔ signal rejected (12.781125ms)
+✔ spawn error rejected (12.702417ms)
+✔ elapsed rejected (12.847291ms)
+✔ hash rejected (12.871208ms)
+✔ path rejected (12.651583ms)
+✔ attempt rejected (13.489625ms)
+✔ borrowed READY rejected (12.593917ms)
+✔ reference binding rejected (12.468291ms)
+✔ old confirmation promoted rejected (12.527792ms)
+✔ recursive scope rejected (12.380042ms)
+✔ upstream rejected (12.388166ms)
+✔ integration rejected (13.087166ms)
+✔ release rejected (12.043417ms)
+✔ production rejected (12.317542ms)
+✔ database rejected (12.428542ms)
+✔ external rejected (12.551916ms)
+✔ self approval rejected (12.305708ms)
+✔ runtime rejected (12.266959ms)
+✔ artifact rejected (12.795959ms)
+✔ coverage missing rejected (12.23125ms)
+✔ coverage duplicate rejected (12.205125ms)
+✔ old target reused rejected (12.323ms)
+✔ handoff rejected (12.293666ms)
+✔ no successful API artifact rejected despite matching hash (12.498583ms)
+✔ missing denial artifact rejected despite matching hash (12.608625ms)
+✔ missing quality refusal artifact rejected despite matching hash (12.483125ms)
+✔ schema issue artifact rejected despite matching hash (12.461583ms)
+✔ HTTP failure artifact rejected despite matching hash (12.45775ms)
+✔ unexpected API artifact rejected despite matching hash (12.373083ms)
+✔ empty/ignored assertions rejected gate-tests (12.397708ms)
+✔ empty/ignored assertions rejected market (12.715042ms)
+✔ empty/ignored assertions rejected source-policy (12.141375ms)
+✔ empty/ignored assertions rejected consumers (12.345917ms)
+✔ default verifier cannot bypass frozen Git source (17.241375ms)
+✔ credential allowlist remains offline single-job nonproduction (0.220208ms)
+✔ mandatory CI wiring cannot be bypassed (11.638416ms)
+✔ publication restores both receipt and plan after activated check fails (14.530458ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 43
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3715.894833
+
+✖ failing tests:
+
+test at scripts/bff-fe-005-functional-gate.test.mjs:21:1
+✖ synthetic receiver admits seven current operations without granting upstream READY (14.960083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'FE:BFF-FE-001',
+  +   'FE:BFF-FE-007',
+  +   'CORE:F07',
+  +   'CORE:F08',
+  -   'CORE:R01',
+      'CORE:R02',
+  +   'CORE:R03',
+  +   'CORE:R04',
+      'CORE-GATE:R1-SERVICE',
+      'PROVIDER:A2'
+    ]
+  
+      at verify (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-005-functional-gate.mjs:52:243)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-005-functional-gate.test.mjs:21:104)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'CORE:F07', 'CORE:F08', 'CORE:R02', 'CORE:R03', 'CORE:R04', 'CORE-GATE:R1-SERVICE', 'PROVIDER:A2' ],
+    expected: [ 'FE:BFF-FE-001', 'CORE:R01', 'CORE:R02', 'CORE-GATE:R1-SERVICE', 'PROVIDER:A2' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
