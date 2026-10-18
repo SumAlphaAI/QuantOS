@@ -20,7 +20,7 @@
     "businessIntegration": "NOT_RUN",
     "releaseAcceptance": "NOT_RUN"
   },
-  "observedSourceCommit": "d0c8e719e1b92b479d3b2550d4a798009d1be075",
+  "observedSourceCommit": "aeab72a52cdd861312366abadbbf56c2fccb6784",
   "inputs": {
     "schema": "quantos-bff003-functional-inputs/v1",
     "inputs": [
@@ -787,7 +787,7 @@
       {
         "path": "docs/operations/bff-fe-003-functional-admission.md",
         "role": "code",
-        "sha256": "sha256:e6c58df017d1278ec45c9b65b113e5187f16e3b3179d9868569ce223135f2a40"
+        "sha256": "sha256:6e43892b3d843d53a32195ec384ae7ffc23e615cea95bb3395fa9df45d7aa2d9"
       },
       {
         "path": "docs/operations/bff-fe-007-functional-admission.md",
@@ -1682,7 +1682,7 @@
       {
         "path": "scripts/bff-fe-003-functional-scope.mjs",
         "role": "code",
-        "sha256": "sha256:e801426106c40710c918f132314464b50005fcbba166dfa3f56841e991590fa3"
+        "sha256": "sha256:1f57975b7b843abe1b54a3bd1ac9fc576edd6a083f2477485643e4b44796b445"
       },
       {
         "path": "scripts/bff-fe-005-development.mjs",
@@ -3362,7 +3362,7 @@
       {
         "path": "scripts/research-local-gate.test.mjs",
         "role": "test",
-        "sha256": "sha256:327d804b58a4b214ee2b86c073781afffaec9671b988d14e83c1bf4ad06d6c99"
+        "sha256": "sha256:cfddfc58dcd1933c980b04493f1478f5dc2d127c2d0c8b9e0b0de380c6318c44"
       },
       {
         "path": "scripts/research-local-products.mjs",
@@ -4944,9 +4944,10 @@
         "command": [
           "node",
           "--test",
-          "scripts/bff-fe-003-development.test.mjs"
+          "scripts/bff-fe-003-development.test.mjs",
+          "scripts/research-local-gate.test.mjs"
         ],
-        "reason": "Preserve legacy strict source/log/target refusal behavior; fixture receipt validation only, no historical closure execution",
+        "reason": "Preserve legacy strict source/log/target and superseded-registration/publication refusal in isolated unit fixtures; never execute historical closure",
         "timeoutMs": 600000
       },
       {
@@ -5208,7 +5209,7 @@
         "rebindHistoricalResults": false
       }
     },
-    "inputDigest": "sha256:5171dfcce7ee3983487858f77ed1ae297c3047dc952805e73555bfd7d01705b6"
+    "inputDigest": "sha256:c6c3b0a3311912d97672fc5394c3db20bf1b54b8b4fbbc653a5898908b76ac2b"
   },
   "planInput": {
     "closes_core": [],
@@ -5350,7 +5351,7 @@
     ],
     "upstreamAdmission": "NOT_CLAIMED"
   },
-  "attempt": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02",
+  "attempt": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03",
   "checks": [
     {
       "id": "contract",
@@ -5360,15 +5361,15 @@
       ],
       "reason": "Nine C03/C04 API owner, auth/CSRF/idempotency and direct persistent scheduling/snapshot/artifact/F05 bridge static boundaries",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:28:47.595Z",
-      "completedAt": "2026-10-18T03:28:47.749Z",
+      "startedAt": "2026-10-18T03:39:51.182Z",
+      "completedAt": "2026-10-18T03:39:51.336Z",
       "elapsedMs": 154,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/contract.log",
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/contract.log",
       "logSha256": "sha256:da1d5195fc6fa4ff4e94211bca97ff2997fa59d601aeb2b5c4f061e6ab71edb4"
     },
     {
@@ -5379,36 +5380,37 @@
       ],
       "reason": "Current OpenAPI/client/schema/MSW consistency at the directly consumed A1 boundary; no A1 gate re-admission",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:28:47.750Z",
-      "completedAt": "2026-10-18T03:28:48.135Z",
-      "elapsedMs": 385,
+      "startedAt": "2026-10-18T03:39:51.336Z",
+      "completedAt": "2026-10-18T03:39:51.799Z",
+      "elapsedMs": 463,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/generated.log",
-      "logSha256": "sha256:f8d8909ebf4cb435364e480fe8c07a25b769f0ea4b61ca61bd27b1f9598d46f5"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/generated.log",
+      "logSha256": "sha256:6ae8e2552d16443caa467c26ec22715f716d6a6158206409d0aacbcd80a67af5"
     },
     {
       "id": "contract-negative",
       "command": [
         "node",
         "--test",
-        "scripts/bff-fe-003-development.test.mjs"
+        "scripts/bff-fe-003-development.test.mjs",
+        "scripts/research-local-gate.test.mjs"
       ],
-      "reason": "Preserve legacy strict source/log/target refusal behavior; fixture receipt validation only, no historical closure execution",
+      "reason": "Preserve legacy strict source/log/target and superseded-registration/publication refusal in isolated unit fixtures; never execute historical closure",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:28:48.136Z",
-      "completedAt": "2026-10-18T03:28:48.596Z",
-      "elapsedMs": 461,
+      "startedAt": "2026-10-18T03:39:51.799Z",
+      "completedAt": "2026-10-18T03:39:55.054Z",
+      "elapsedMs": 3255,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/contract-negative.log",
-      "logSha256": "sha256:2172b9755ee2d651176c7214d6c4c007dec658823199c4fb2f4851aac48cbaeb"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/contract-negative.log",
+      "logSha256": "sha256:061d27ba5ab5c3f93f3a6dda1ff21a7cb0c5a995f7d78e425dda475d2afb1422"
     },
     {
       "id": "research",
@@ -5424,16 +5426,16 @@
       ],
       "reason": "Current Research/reference and live pure authority/scope/evidence tests, including audit linkage, canonical artifact binding and reference-clock refusal",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:28:48.597Z",
-      "completedAt": "2026-10-18T03:29:12.075Z",
-      "elapsedMs": 23478,
+      "startedAt": "2026-10-18T03:39:55.054Z",
+      "completedAt": "2026-10-18T03:40:00.914Z",
+      "elapsedMs": 5860,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/research.log",
-      "logSha256": "sha256:e092d6ffaa44522c2a1843c5022ab7b6695157761bff9e6093bfe05eeb23709f"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+      "logSha256": "sha256:73327d561f458615b0fcf812230dec1cf19bdb5f8351821f010f59a965b790f3"
     },
     {
       "id": "runtime",
@@ -5449,16 +5451,16 @@
       ],
       "reason": "Direct R03/R04 semantic input hashes, idempotent schedule/checkpoint/artifact replay and canonical engine encoding; no whole runtime gate",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:29:12.075Z",
-      "completedAt": "2026-10-18T03:29:12.236Z",
-      "elapsedMs": 161,
+      "startedAt": "2026-10-18T03:40:00.914Z",
+      "completedAt": "2026-10-18T03:40:11.571Z",
+      "elapsedMs": 10657,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/runtime.log",
-      "logSha256": "sha256:2c1bf7bf9d29c6dae82cc623d6c0046a68815aff0a657a25d534eb38871b85a7"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/runtime.log",
+      "logSha256": "sha256:98081bec0011e5f409fb31e6317d4fd3250139e670c9f18a7b97223b32c05cd2"
     },
     {
       "id": "source-policy",
@@ -5474,16 +5476,16 @@
       ],
       "reason": "Direct R02 server approval identity/time/purpose/license and revocation boundaries using in-memory source policy",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:29:12.237Z",
-      "completedAt": "2026-10-18T03:30:23.911Z",
-      "elapsedMs": 71674,
+      "startedAt": "2026-10-18T03:40:11.571Z",
+      "completedAt": "2026-10-18T03:41:03.293Z",
+      "elapsedMs": 51722,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/source-policy.log",
-      "logSha256": "sha256:db07f899ab66b6c51846fdffa73b484246b458d85204b394416026644fd3937a"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/source-policy.log",
+      "logSha256": "sha256:f148a1fa1837a027f20840348a522654488255f3be847f8bde17200f3a02f7b0"
     },
     {
       "id": "snapshot-expiry",
@@ -5499,16 +5501,16 @@
       ],
       "reason": "Direct R02 snapshot hash/quality/expiry rejection consumed by Research; no PostgreSQL acceptance or unrelated 300-fixture campaign",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:30:23.911Z",
-      "completedAt": "2026-10-18T03:30:24.065Z",
-      "elapsedMs": 154,
+      "startedAt": "2026-10-18T03:41:03.293Z",
+      "completedAt": "2026-10-18T03:41:03.442Z",
+      "elapsedMs": 149,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/snapshot-expiry.log",
-      "logSha256": "sha256:41ddd1d597dcc1d99ad39c2f81bd6255a270ff4e1167b1971c688642a6d5670d"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/snapshot-expiry.log",
+      "logSha256": "sha256:a0a1f792395d2b7e0a0cfcf33e3038da908f190eb1fd30bac890e1513b2bd647"
     },
     {
       "id": "engine-policy",
@@ -5524,15 +5526,15 @@
       ],
       "reason": "Direct F08 signed engine registration boundary for approved RD-Agent use, without all manager or upstream tests",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:30:24.065Z",
-      "completedAt": "2026-10-18T03:30:36.393Z",
-      "elapsedMs": 12328,
+      "startedAt": "2026-10-18T03:41:03.442Z",
+      "completedAt": "2026-10-18T03:41:13.803Z",
+      "elapsedMs": 10361,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/engine-policy.log",
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/engine-policy.log",
       "logSha256": "sha256:9e0658534ca7ddd5f2fe7164167882861f41c4803f0ab9a9a83ab62bd4f477f6"
     },
     {
@@ -5550,16 +5552,16 @@
       ],
       "reason": "Direct F07/R03/R04 actual local Runtime→EngineManager→Python fixture RD-Agent UDS execution/cancellation/artifact evidence only",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:30:36.393Z",
-      "completedAt": "2026-10-18T03:30:49.755Z",
-      "elapsedMs": 13362,
+      "startedAt": "2026-10-18T03:41:13.803Z",
+      "completedAt": "2026-10-18T03:41:23.971Z",
+      "elapsedMs": 10168,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/orchestration.log",
-      "logSha256": "sha256:d211713b596e558cb1ea2f998e84f6cf968a682f21f339277ba4f1e8eab58586"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/orchestration.log",
+      "logSha256": "sha256:149b20d34b637088e4e97d1fd044b45f5fbdd896e8bb7d3d4bfebe204f6a3139"
     },
     {
       "id": "a2-boundary",
@@ -5577,36 +5579,36 @@
       ],
       "reason": "Reference Research now appends into shared audit/session state: recheck both directly affected A2 providers; not its full aggregate or upstream closure",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:30:49.755Z",
-      "completedAt": "2026-10-18T03:32:56.823Z",
-      "elapsedMs": 127068,
+      "startedAt": "2026-10-18T03:41:23.971Z",
+      "completedAt": "2026-10-18T03:41:50.009Z",
+      "elapsedMs": 26038,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/a2-boundary.log",
-      "logSha256": "sha256:df2b836cb722fff02f99e4d3f906863ba1d4aeadb66a8d4757eb7ced4efd98b4"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/a2-boundary.log",
+      "logSha256": "sha256:602cb68007b3ca2ddff4e30a827a6892f768f107af2e4b78e7c062fef514cce3"
     },
     {
       "id": "http",
       "command": [
         "node",
         "scripts/test-bff-fe-003-http.mjs",
-        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/reference-http.json"
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/reference-http.json"
       ],
       "reason": "Actual local Rust nine-operation HTTP, each401/403, quality/license refusal, pagination/replay/409 and C10 linkage; synthetic artifact explicitly labeled",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:32:56.824Z",
-      "completedAt": "2026-10-18T03:32:58.074Z",
-      "elapsedMs": 1250,
+      "startedAt": "2026-10-18T03:41:50.010Z",
+      "completedAt": "2026-10-18T03:41:51.623Z",
+      "elapsedMs": 1613,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/http.log",
-      "logSha256": "sha256:0dc7f26255dec9107438016d969e5dd309b4e37495b2f1ccd1b943682d901fca"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log",
+      "logSha256": "sha256:1ad9f84adc1b10bed5eea807ce88998106376ce2638fa4204044945633a2a41f"
     },
     {
       "id": "consumers",
@@ -5626,16 +5628,16 @@
       ],
       "reason": "Generated Research consumers, resource/status/hash binding, actual lost-response recovery/replay and terminal revocation; shared A2 consumer regression only",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:32:58.074Z",
-      "completedAt": "2026-10-18T03:33:32.530Z",
-      "elapsedMs": 34456,
+      "startedAt": "2026-10-18T03:41:51.623Z",
+      "completedAt": "2026-10-18T03:42:11.247Z",
+      "elapsedMs": 19624,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/consumers.log",
-      "logSha256": "sha256:57cf9daf51253b7cdb9cf2daec2196aa4cea7c39f20d8444bbd94f12e3bf43ed"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log",
+      "logSha256": "sha256:ddc599b4878f8e11b6b8538a61d6e1644f4e5a9862b251393ef569299151c857"
     },
     {
       "id": "types",
@@ -5649,15 +5651,15 @@
       ],
       "reason": "Compile current generated Research consumer and affected terminal API helpers against unchanged OpenAPI",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:33:32.530Z",
-      "completedAt": "2026-10-18T03:33:34.352Z",
-      "elapsedMs": 1822,
+      "startedAt": "2026-10-18T03:42:11.248Z",
+      "completedAt": "2026-10-18T03:42:12.885Z",
+      "elapsedMs": 1637,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/types.log",
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/types.log",
       "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
     },
     {
@@ -5672,15 +5674,15 @@
       ],
       "reason": "Static validation of new public Research consumer boundary and tests; no unrelated web builds",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:33:34.353Z",
-      "completedAt": "2026-10-18T03:33:35.833Z",
-      "elapsedMs": 1480,
+      "startedAt": "2026-10-18T03:42:12.885Z",
+      "completedAt": "2026-10-18T03:42:14.326Z",
+      "elapsedMs": 1441,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/lint.log",
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/lint.log",
       "logSha256": "sha256:eb15fc98c8f1bb5bdc954879cf828f73694786fb55fdd848d7514afb23fd0f89"
     },
     {
@@ -5699,16 +5701,16 @@
       ],
       "reason": "Rust static checks for the changed shared Research module, without all targets or full workspace analysis",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:33:35.834Z",
-      "completedAt": "2026-10-18T03:36:09.709Z",
-      "elapsedMs": 153875,
+      "startedAt": "2026-10-18T03:42:14.327Z",
+      "completedAt": "2026-10-18T03:42:14.617Z",
+      "elapsedMs": 290,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/clippy.log",
-      "logSha256": "sha256:63fe4a7e834182f087a8f6d26037a42033f095b44fdf905a0116cbeabdc68f5e"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/clippy.log",
+      "logSha256": "sha256:732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd"
     },
     {
       "id": "confirmation",
@@ -5721,16 +5723,16 @@
       ],
       "reason": "Actual original A2 user confirmation, immutable document/receipt/source binding and target/release/self-approval refusal",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:36:09.709Z",
-      "completedAt": "2026-10-18T03:36:11.422Z",
-      "elapsedMs": 1713,
+      "startedAt": "2026-10-18T03:42:14.618Z",
+      "completedAt": "2026-10-18T03:42:16.247Z",
+      "elapsedMs": 1629,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/confirmation.log",
-      "logSha256": "sha256:71af40cbaa67f7746c0d131121a872d5d723868b7fbc160a7085c8148c11ed61"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/confirmation.log",
+      "logSha256": "sha256:d0c112016aee7a9ff3e83f658719ae9b5a7d8f2a3ac4e079652ab1d4a16f5e06"
     },
     {
       "id": "gate-tests",
@@ -5741,16 +5743,16 @@
       ],
       "reason": "Current source/log/API evidence binding, direct references without borrowed READY, activated publication rollback and missing assertions refusal",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:36:11.423Z",
-      "completedAt": "2026-10-18T03:36:14.780Z",
-      "elapsedMs": 3357,
+      "startedAt": "2026-10-18T03:42:16.247Z",
+      "completedAt": "2026-10-18T03:42:19.587Z",
+      "elapsedMs": 3340,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/gate-tests.log",
-      "logSha256": "sha256:ac6a2f2c3c319d3e3d07327e5e2e2d70af4bbcb7bd4d808de2839104fb1ac448"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/gate-tests.log",
+      "logSha256": "sha256:9733b6f901ae492973497cdc4ddc44969657aeed274198c817278dd7e04f9484"
     },
     {
       "id": "plan-policy",
@@ -5762,16 +5764,16 @@
       ],
       "reason": "New task-only profile and mandatory CI dispatch preserve stage/dependency semantics without recursive historical READY",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:36:14.780Z",
-      "completedAt": "2026-10-18T03:36:15.286Z",
-      "elapsedMs": 506,
+      "startedAt": "2026-10-18T03:42:19.588Z",
+      "completedAt": "2026-10-18T03:42:20.088Z",
+      "elapsedMs": 500,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/plan-policy.log",
-      "logSha256": "sha256:0b80007e33c1751b1e38eff9b52399b8ded998d9440b980d735fb48dd510a16e"
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plan-policy.log",
+      "logSha256": "sha256:289455c6705f478dfcaec34d157569abda7ff62794a89565dd8dbb4d7c178451"
     },
     {
       "id": "plans",
@@ -5781,22 +5783,22 @@
       ],
       "reason": "Current core/frontend plans and actual scoped gate agree; complete integration/release and target obligations remain separate",
       "timeoutMs": 600000,
-      "startedAt": "2026-10-18T03:36:15.287Z",
-      "completedAt": "2026-10-18T03:36:15.340Z",
-      "elapsedMs": 53,
+      "startedAt": "2026-10-18T03:42:20.088Z",
+      "completedAt": "2026-10-18T03:42:20.140Z",
+      "elapsedMs": 52,
       "exitCode": 0,
       "signal": null,
       "errorCode": null,
       "timedOut": false,
       "status": "PASS",
-      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/logs/plans.log",
+      "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plans.log",
       "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
     }
   ],
   "artifacts": [
     {
       "name": "reference-http.json",
-      "path": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-02/reference-http.json",
+      "path": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/reference-http.json",
       "sha256": "sha256:3203fec25d1d19a5b05b090361011cfe995575228edc98e0af44a67d2b82fbcd"
     }
   ],

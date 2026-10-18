@@ -1,0 +1,237 @@
+{
+  "schema": "quantos-bff003-current-local-controls/v1",
+  "scope": "26 current local controls; no historical or target acceptance promoted",
+  "pass": 26,
+  "total": 26,
+  "records": [
+    {
+      "id": "C01",
+      "requirement": "九项C03/C04当前owner/API/schema及成功覆盖",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/contract.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/generated.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C02",
+      "requirement": "A2原回执/源码/日志/用户确认，保持原范围",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/confirmation.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/gate-tests.log"
+      ]
+    },
+    {
+      "id": "C03",
+      "requirement": "九项直接前置及分阶段策略，不借上游READY",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plan-policy.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plans.log"
+      ]
+    },
+    {
+      "id": "C04",
+      "requirement": "Research创建/cancel/statusRef资源绑定",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "C05",
+      "requirement": "同键并发创建/取消唯一状态与副作用",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "C06",
+      "requirement": "丢失创建响应后同键恢复，无重复run",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "C07",
+      "requirement": "当前时钟deadline/精确snapshot窗口到期与溢出拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log"
+      ]
+    },
+    {
+      "id": "C08",
+      "requirement": "质量/许可/未知attachment调度前拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C09",
+      "requirement": "服务端审批identity/time/purpose与撤销策略",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/source-policy.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/snapshot-expiry.log"
+      ]
+    },
+    {
+      "id": "C10",
+      "requirement": "输入伪造/非法budget/未知资源拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C11",
+      "requirement": "九API逐项401/403及CSRF/Origin",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C12",
+      "requirement": "游标scope/query绑定、快照分页和过期拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C13",
+      "requirement": "SSE稳定ID/严格sequence/ahead拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C14",
+      "requirement": "生成consumer重复/乱序/gap/断线恢复/资源隔离",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "C15",
+      "requirement": "注销后401和SSE终态关闭，不消费积压",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C16",
+      "requirement": "Research auditRef加入C10链且同键只写一次",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C17",
+      "requirement": "Artifact metadata/附件同一canonical内容hash及Audit定位",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "C18",
+      "requirement": "live adapter pure授权、作用域与evidence稳定映射",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/research.log"
+      ]
+    },
+    {
+      "id": "C19",
+      "requirement": "R03/R04语义hash/幂等checkpoint与Artifact重放",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/runtime.log"
+      ]
+    },
+    {
+      "id": "C20",
+      "requirement": "F08未签/改签Engine注册拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/engine-policy.log"
+      ]
+    },
+    {
+      "id": "C21",
+      "requirement": "实际Runtime→Manager→Python fixture RD-Agent UDS十次与取消",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/orchestration.log"
+      ]
+    },
+    {
+      "id": "C22",
+      "requirement": "共享Audit/session状态变化后的A2直接回归",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/a2-boundary.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "C23",
+      "requirement": "types/lint/clippy限定静态检查",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/types.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/lint.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/clippy.log"
+      ]
+    },
+    {
+      "id": "C24",
+      "requirement": "源码/命令/日志/产物绑定及发布失败回滚",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/gate-tests.log"
+      ]
+    },
+    {
+      "id": "C25",
+      "requirement": "四项激活入口与阶段单独记账",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plan-policy.log",
+        "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-03/logs/plans.log"
+      ]
+    },
+    {
+      "id": "C26",
+      "requirement": "历史保全与失败不转PASS",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/bff-fe-003-local-20261018/history-preservation.json"
+      ]
+    }
+  ]
+}
