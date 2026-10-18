@@ -10,7 +10,7 @@ BFF006_SCOPE_LOCAL 依据当前 AGENTS.md，核对 C06–C09/C13 的 20 项 API�
 
 列表使用 actor/路径/查询/期限绑定的不可变分页快照。事件以资源维度的 v1 sequence/eventId 回放；重连带 afterSequence，未来游标拒绝；消费者忽略重复，gap 保留已确认状态，禁止将 202 写入 Order；撤权清除缓存。当前流是有界回放/重连协议，持续 UI 订阅、跨实例广播与持久游标由功能联调/发布验证。日志、命令引用、分页和事实数量均有界；触顶拒绝，不悄悄丢失事实。
 
-Reference 仅 loopback，明确自有合成数据、fixture cookie 和测试 MFA。独立 fixture approver/owner 仅获 MFA 和当前执行面受控路径；A2 其他写路径保持原规则。默认 live 没有 execution host，返回 503；`router_with_execution` 只能由可信 owner 显式装配同一进程租约，使用 F06 TrustedIdentity 与 A2 近期认证记录，数据库审计提交失败将租约 poison，拒绝后续操作。该适配器尚未在真实数据库运行。Shadow host 允许投影、preflight 和 kill control，禁止命令/审批执行与任何 venue submit；Paper 内核也不连接 venue。
+Reference Context 与执行 host 使用同一固定 tenant/workspace/account 和相同 requester/独立 approver/owner actor，capabilities 仅为提示，真实权限仍由 host/领域模块校验。Paper GTD 到期后，撤单202只表示请求受理，事实为 expired/拒绝，不得显示 cancelled。Reference 仅 loopback，明确自有合成数据、fixture cookie 和测试 MFA。独立 fixture approver/owner 仅获 MFA 和当前执行面受控路径；A2 其他写路径保持原规则。默认 live 没有 execution host，返回 503；`router_with_execution` 只能由可信 owner 显式装配同一进程租约，使用 F06 TrustedIdentity 与 A2 近期认证记录，数据库审计提交失败将租约 poison，拒绝后续操作。该适配器尚未在真实数据库运行。Shadow host 允许投影、preflight 和 kill control，禁止命令/审批执行与任何 venue submit；Paper 内核也不连接 venue。
 
 `scripts/bff-fe-006-functional-scope.mjs` 明列当前功能与直接回归原因：新 host；直接 X02/X03/X04/TP07 测试；共享 CSRF/MFA/Audit 的 A2 两套 provider；20 API 当前实际 HTTP/schema/401/403、1000 重试、基本 Chromium；真实 generated consumer 丢回复恢复与事实 reducer；生成/兼容性、types/lint/clippy、确认/门禁/计划。没有全仓、递归上游或三轮构建；与本次 API 变更无关的历史 X04 十万事件体量重放显式过滤，NOT_RUN，不借用旧结果。
 

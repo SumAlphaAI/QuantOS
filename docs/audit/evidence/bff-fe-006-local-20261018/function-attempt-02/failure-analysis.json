@@ -1,0 +1,11 @@
+{
+  "schema":"quantos-a4-failure-analysis/v1",
+  "sourceCommit":"e3cb9dca52551847d20876a57160dc69e248626d",
+  "status":"FAIL_PRESERVED",
+  "actualFailure":"real_modules_approve_issue_submit_cancel_and_thousand_replays expected cancelled, observed expired at command TTL plus one second",
+  "cause":"Incorrect test expectation: PaperKernel uses signed-command GTD as order expiry; a late cancellation emits expiry and rejected cancellation facts. 202 means accepted request only.",
+  "repair":"Keep before-expiry successful cancellation and 1000-repeat assertions; add a separate after-expiry control-reference/rejected cancellation/idempotent recovery/no TTL renewal case. No production behavior or contract weakened.",
+  "completedChecks":3,
+  "passedChecks":2,
+  "formalAccepted":false
+}

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-006-boundary.mjs"
+    ],
+    "reason": "Current C06-C09/C13 twenty operations and direct owner/module/authority/no-venue boundary, generated coverage and compatibility only",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T06:47:39.607Z",
+    "completedAt": "2026-10-18T06:47:39.979Z",
+    "elapsedMs": 370,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-02/logs/contract.log",
+    "logSha256": "sha256:be0a68109480c079f2912be2d78c4c807323e1931c7088084a62729c9047af2a"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Current additive OpenAPI1.8.0 all six generated client/Zod/schema/MSW/provider inputs match exactly",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T06:47:39.980Z",
+    "completedAt": "2026-10-18T06:47:40.416Z",
+    "elapsedMs": 436,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-02/logs/generated.log",
+    "logSha256": "sha256:9cfa34ae983311474865eb0b18fcf3a5e6690cd4b13fe782ce8811c5ab12253e"
+  },
+  {
+    "id": "execution",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "execution::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "reason": "New real X01-X04 host/projections, approval/risk/ref/cancel, seven families, 1000 concurrent HTTP replay, filled trace and Shadow refusal",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T06:47:40.417Z",
+    "completedAt": "2026-10-18T06:51:33.499Z",
+    "elapsedMs": 233082,
+    "exitCode": 101,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-02/logs/execution.log",
+    "logSha256": "sha256:0fe06af553840c2555589c943663637b32d4257cb164d3aac64b04c652ed8190"
+  }
+]

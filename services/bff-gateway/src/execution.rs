@@ -118,6 +118,14 @@ fn stable_id(s: &str) -> Uuid {
     b[8] = (b[8] & 63) | 128;
     Uuid::from_bytes(b)
 }
+/// Same server-owned reference identities are used by Context and execution.
+pub(crate) fn reference_actor(session: &str) -> quantos_core::ActorId {
+    quantos_core::ActorId::from_uuid(match session {
+        "session-approver" => stable_id("reference-independent-approver"),
+        "session-owner" => stable_id("reference-owner"),
+        _ => Uuid::parse_str("11111111-1111-4111-8111-111111111111").expect("owned actor"),
+    })
+}
 impl ExecutionService {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -1188,12 +1196,11 @@ async fn reference(
     match session.as_str() {
         crate::CURRENT_SESSION => {}
         "session-approver" => {
-            auth.actor_id =
-                quantos_core::ActorId::from_uuid(stable_id("reference-independent-approver"));
+            auth.actor_id = reference_actor(&session);
             auth.role = Role::Approver;
         }
         "session-owner" => {
-            auth.actor_id = quantos_core::ActorId::from_uuid(stable_id("reference-owner"));
+            auth.actor_id = reference_actor(&session);
             auth.role = Role::Owner;
         }
         _ => auth.role = Role::Viewer,

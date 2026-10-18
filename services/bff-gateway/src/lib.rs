@@ -529,13 +529,19 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
             "settings.read",
             "settings.write",
             "audit:read",
-            "audit:export"
+            "audit:export",
+            "execution.operate"
         ])
+    } else if matches!(
+        cookies(headers).get("quantos_session").copied(),
+        Some("session-approver" | "session-owner")
+    ) {
+        json!(["settings.read", "execution.operate", "strategy.approve"])
     } else {
         json!(["settings.read"])
     };
     json!({
-        "actorId":"11111111-1111-4111-8111-111111111111",
+        "actorId":execution::reference_actor(cookies(headers).get("quantos_session").copied().unwrap_or("")),
         "tenantId":"22222222-2222-4222-8222-222222222222",
         "workspaceId":"33333333-3333-4333-8333-333333333333",
         "accountId":"44444444-4444-4444-8444-444444444444",

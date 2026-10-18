@@ -32,7 +32,7 @@ fn series_start() -> DateTime<Utc> {
 
 fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
     DataSnapshotRecord::new(
-        TenantId::new(),
+        TenantId::from_uuid(uuid::Uuid::parse_str("22222222-2222-4222-8222-222222222222").unwrap()),
         DataSnapshotInput {
             schema_name: "DataSnapshot".to_owned(),
             schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
@@ -117,14 +117,20 @@ pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
     let now = request.candidate.clock;
     let auth = AuthContext {
         tenant_id: request.snapshot.tenant_id,
-        actor_id: ActorId::new(),
+        actor_id: ActorId::from_uuid(
+            uuid::Uuid::parse_str("11111111-1111-4111-8111-111111111111").unwrap(),
+        ),
         user_id: uuid::Uuid::now_v7(),
-        workspace_id: WorkspaceId::new(),
+        workspace_id: WorkspaceId::from_uuid(
+            uuid::Uuid::parse_str("33333333-3333-4333-8333-333333333333").unwrap(),
+        ),
         workspace_slug: "s03".into(),
         workspace_name: "S03 owned fixture".into(),
         role: Role::Operator,
         mode: RunMode::Paper,
-        account_id: Some(AccountId::new()),
+        account_id: Some(AccountId::from_uuid(
+            uuid::Uuid::parse_str("44444444-4444-4444-8444-444444444444").unwrap(),
+        )),
         capabilities: BTreeSet::from([
             Capability::parse(Capability::STRATEGY_WRITE).unwrap(),
             Capability::parse(Capability::STRATEGY_APPROVE).unwrap(),

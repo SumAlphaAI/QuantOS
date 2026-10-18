@@ -94,7 +94,6 @@ fn real_modules_approve_issue_submit_cancel_and_thousand_replays() {
         )
     }
     assert_eq!(s.downstream_counts(), (Some(1), Some(0)));
-    let now = now + Duration::seconds(6);
     assert_eq!(
         s.order(id, now).unwrap()["cancelCommandRef"],
         body["commandRef"]
@@ -879,4 +878,41 @@ fn retry_recovers_same_reserved_approval_without_consuming_another_proof() {
         2
     );
     assert_eq!(s.downstream_counts().0, Some(0));
+}
+
+#[test]
+fn expired_order_control_ref_recovers_without_renewing_submit() {
+    let mut s = ExecutionService::reference();
+    let now = Utc::now();
+    let (a, _) = actors(&s);
+    let (_, _, approval) = approved(&mut s, now);
+    let body = json!({"commandRef":approval["commandRef"]});
+    let ack = call(
+        &mut s,
+        &a,
+        "/v1/commands",
+        body.clone(),
+        &headers(None),
+        now,
+    )
+    .unwrap()
+    .1;
+    let oid = Uuid::parse_str(ack["jobId"].as_str().unwrap()).unwrap();
+    let later = now + Duration::seconds(6);
+    assert_eq!(
+        s.order(oid, later).unwrap()["cancelCommandRef"],
+        body["commandRef"]
+    );
+    let h = headers(None);
+    let path = format!("/v1/orders/{oid}/cancel-requests");
+    let r = call(&mut s, &a, &path, body.clone(), &h, later).unwrap();
+    assert_eq!(r.0, StatusCode::ACCEPTED);
+    assert_eq!(r.1["status"], "cancel_requested");
+    assert_eq!(s.order(oid, later).unwrap()["status"], "expired");
+    assert_eq!(
+        call(&mut s, &a, &path, body.clone(), &h, later).unwrap().1,
+        r.1
+    );
+    assert!(call(&mut s, &a, "/v1/commands", body, &headers(None), later).is_err());
+    assert_eq!(s.downstream_counts(), (Some(1), Some(1)));
 }
