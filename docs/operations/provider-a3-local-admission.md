@@ -1,3 +1,5 @@
+> PROVIDER:A3当前功能使用[A3_SCOPE_LOCAL规程](provider-a3-functional-admission.md)，下述全闭包仅保留历史原范围，不作为开发默认入口。
+
 # PROVIDER:A3 本地聚合开发验收
 
 依据前端开发执行计划 A3 窗口，`A3_LOCAL` 验证 BFF003 Research/Snapshot/Artifact、BFF005 Market 和 A2 Identity/Settings/Audit 的当前源码功能闭包。`A3_EXECUTION` 只执行共同检查，不能发布 READY。

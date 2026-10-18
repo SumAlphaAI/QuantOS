@@ -557,6 +557,57 @@ impl Default for Fixture {
         }
     }
 }
+impl Fixture {
+    /// Explicit synthetic reference snapshots, not R02 database/source approvals.
+    /// Freeze the same retained trade/book facts referenced by each instrument.
+    pub fn snapshot_fixtures(&self) -> BTreeMap<Uuid, Value> {
+        self.catalog
+            .iter()
+            .map(|i| {
+                let rows = &self.events[&i.id()];
+                let book = &self.books[&i.id()];
+                let start = rows
+                    .iter()
+                    .map(|e| e.event_time)
+                    .min()
+                    .unwrap_or(book.event_time);
+                let end = rows
+                    .iter()
+                    .map(|e| e.event_time)
+                    .chain([book.event_time])
+                    .max()
+                    .unwrap();
+                let captured = rows
+                    .iter()
+                    .map(|e| e.received_at)
+                    .chain([book.received_at])
+                    .max()
+                    .unwrap();
+                let now = Utc::now();
+                let validated =
+                    book_quote(i, book, rows, now).is_ok() && validate_events(i, rows, now).is_ok();
+                let quality = if !validated {
+                    "failed"
+                } else if book.quality != MarketDataQuality::Passed
+                    || rows.iter().any(|e| e.quality != MarketDataQuality::Passed)
+                {
+                    "degraded"
+                } else {
+                    "verified"
+                };
+                (
+                    i.snapshot_id,
+                    json!({"snapshotId":i.snapshot_id,"schemaVersion":"v1",
+                "window":crate::research::snapshot_window(start,end),
+                "sources":[format!("synthetic-reference:{}:{}",i.provider,i.canonical_symbol)],
+                "quality":quality,"qualityBlocked":quality!="verified",
+                "contentHash":digest(&json!(["quantos-a3-reference-snapshot/v1",i,rows,book])),
+                "licenseLabel":book.license_label,"capturedAt":captured,"maxAgeSeconds":2}),
+                )
+            })
+            .collect()
+    }
+}
 pub(crate) fn reference_routes() -> Router<Arc<Mutex<crate::ProviderData>>> {
     Router::new()
         .route("/v1/markets/catalog", get(reference))

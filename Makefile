@@ -625,9 +625,9 @@ research-release-performance-smokes:
 	QUANTOS_RELEASE_PERFORMANCE=1 engines/.venv/bin/python -m pytest engines/tests/ -k p95 -q
 
 provider-a3-local-check:
-	node scripts/research-local-gate.mjs A3_LOCAL
+	pnpm check:provider-a3:development
 provider-a3-local-assess:
-	node scripts/record-research-local.mjs $(ATTEMPT)
+	node scripts/record-provider-a3-functional.mjs $(ATTEMPT)
 
 .PHONY: tp02-assess-local tp02-local-check tp02-release-check
 tp02-assess-local:

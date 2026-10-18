@@ -1,4 +1,5 @@
-> 当前工程结果（FE:BFF-FE-005/A3，2026-10-18）：冻结e171fb7c，814输入/18组当前功能与直接边界、5个激活入口PASS；Node229、Rust52、consumer/契约57，7操作/50条实际HTTP及基本Chromium通过。仅BFF005_SCOPE_LOCAL DEVELOPMENT READY，24项限定控制点PASS；BFF003原稿确认CONFIRMED/独立Gate因共享变化撤回，A2原确认保持原SHA。52,760个历史文件未改；五前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本轮用户确认PENDING。见[报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)。下一可执行PROVIDER:A3当前功能汇总。
+> 当前PROVIDER:A3功能汇总按AGENTS.md限定当前16操作/直接影响范围，核对BFF003/BFF005/A2原确认与回执，不执行旧42节点闭包，不改绑历史READY；共享输入变化撤回BFF005独立Gate，完整联调/发布分别NOT_RUN。
+> 历史工程结果（FE:BFF-FE-005/A3，2026-10-18）：冻结e171fb7c，814输入/18组当前功能与直接边界、5个激活入口PASS；Node229、Rust52、consumer/契约57，7操作/50条实际HTTP及基本Chromium通过。仅BFF005_SCOPE_LOCAL DEVELOPMENT READY，24项限定控制点PASS；BFF003原稿确认CONFIRMED/独立Gate因共享变化撤回，A2原确认保持原SHA。52,760个历史文件未改；五前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本轮用户确认PENDING。见[报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)。下一可执行PROVIDER:A3当前功能汇总。
 > 历史工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
 
 > 历史工程结果（PROVIDER:A2，2026-10-18）：冻结3f0c9bd5，781输入/16组当前功能与直接边界、5项激活入口PASS；Node223、Rust35、consumer/契约82，26操作/55条真实HTTP及26项限定控制点PASS。仅A2_SCOPE_LOCAL汇总DEVELOPMENT READY；BFF-FE-001/007原用户确认CONFIRMED且保持各自源码/范围，本汇总确认PENDING。52,575个历史文件未改，两轮失败保留；各API/F05/A1独立Gate不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/PROVIDER-A2-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-003 / A3当前功能复核。
@@ -483,9 +484,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "PROVIDER:A3": {
-      "profile": "A3_LOCAL",
-      "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/provider-a3-local-20261013/a3-local.json",
+      "profile": "A3_SCOPE_LOCAL",
+      "schema": "quantos-a3-aggregate-functional-development/v1",
+      "manifest": "audit/evidence/provider-a3-local-20261018/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-003",
         "FE:BFF-FE-005",
@@ -1278,7 +1279,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-005`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:99648db853605526c2332d788c102124c4101e8f7b43b861f9943d46d7fe87a5","evidence":["audit/evidence/bff-fe-005-local-20261018/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1296,11 +1297,11 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 历史工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF005_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 <a id="acceptance-provider-a3"></a>
-当前功能复核（2026-10-18）：见[当前报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)及[完整确认稿](./audit/evidence/bff-fe-005-local-20261018/confirmation-draft.md)。仅本任务scoped READY，功能联调/发布与当前用户确认独立待办；旧闭包仅原范围参考。
+原功能回执（2026-10-18）：见[原报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)及[原完整稿](./audit/evidence/bff-fe-005-local-20261018/confirmation-draft.md)。本轮用户已确认原稿，绑定e171fb7c源码/20a53f0e回执，见[独立确认账本](./audit/evidence/bff-fe-005-confirmation-20261018/user-confirmation.json)。共享输入变化撤回BFF005独立READY，原证据保持原字节；完整联调/发布不由原稿批准。
 
 ##### PROVIDER:A3：验收检查点
 
-A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
+A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。 2026-10-17后按AGENTS.md以A3_SCOPE_LOCAL核对当前16操作、直接影响范围及BFF003/BFF005/A2三原确认与回执；不默认递归全部依赖、不拼接旧READY、不重授上游独立Gate。DEVELOPMENT、完整INTEGRATION与RELEASE分别记账，目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1311,7 +1312,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-005",
     "PROVIDER:A2"
   ],
-  "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+  "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。 2026-10-17后按AGENTS.md以A3_SCOPE_LOCAL核对当前16操作、直接影响范围及BFF003/BFF005/A2三原确认与回执；不默认递归全部依赖、不拼接旧READY、不重授上游独立Gate。DEVELOPMENT、完整INTEGRATION与RELEASE分别记账，目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

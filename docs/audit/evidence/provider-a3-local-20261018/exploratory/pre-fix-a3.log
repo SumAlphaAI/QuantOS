@@ -1,0 +1,25 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.96s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-74a0b53826ca6b0c)
+
+running 2 tests
+test a3_tests::current_aggregate_market_snapshot_resolves_and_drives_research_with_stale_refusal ... FAILED
+test a3_tests::current_aggregate_research_watchlist_retries_share_unique_audit_facts ... ok
+
+failures:
+
+---- a3_tests::current_aggregate_market_snapshot_resolves_and_drives_research_with_stale_refusal stdout ----
+
+thread 'a3_tests::current_aggregate_market_snapshot_resolves_and_drives_research_with_stale_refusal' (1294726) panicked at services/bff-gateway/src/a3_tests.rs:13:69:
+assertion `left == right` failed: quote snapshot cannot resolve: {"code":"NOT_FOUND","correlationId":"01a14d35-00c9-7730-803c-fd625df2e6e9","message":"Research request could not be completed."}
+  left: 404
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    a3_tests::current_aggregate_market_snapshot_resolves_and_drives_research_with_stale_refusal
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 58 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p bff-gateway --lib`

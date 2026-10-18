@@ -76,9 +76,13 @@ struct ProviderData {
 
 impl Default for ProviderData {
     fn default() -> Self {
+        // Reference composition must resolve the snapshot IDs emitted by market APIs.
+        let market = market::Fixture::default();
+        let mut research = research::Fixture::default();
+        research.snapshots.extend(market.snapshot_fixtures());
         Self {
-            research: research::Fixture::default(),
-            market: market::Fixture::default(),
+            research,
+            market,
             session_active: true,
             clock_offset: Duration::zero(),
             session_expires_at: Utc::now() + Duration::minutes(5),
@@ -1804,3 +1808,6 @@ fn push_event(data: &mut ProviderData, kind: &str, object_id: &str) {
         "payloadVersion":"v1","payload":{"type":kind,"objectId":object_id}
     }));
 }
+
+#[cfg(test)]
+mod a3_tests;
