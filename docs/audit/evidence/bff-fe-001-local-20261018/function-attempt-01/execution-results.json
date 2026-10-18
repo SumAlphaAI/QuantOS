@@ -1,0 +1,202 @@
+[
+  {
+    "id": "semantics",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-001.mjs"
+    ],
+    "reason": "Current twenty C01/C17 operations, filtered live policy and reference provider/consumer regressions; target database separate",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:55:29.702Z",
+    "completedAt": "2026-10-18T01:56:29.128Z",
+    "elapsedMs": 59425,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/semantics.log",
+    "logSha256": "sha256:3f43bef1717c5b293136ec6fe7f96ee605774e99a74936d6150f103437e5accd"
+  },
+  {
+    "id": "contract-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-001-gate-negative.mjs",
+      "scripts/bff-fe-001-development.test.mjs"
+    ],
+    "reason": "Current schema/CSRF/version/recent-auth/SSE/audit contract and historical strict receipt refusal, without recursive execution",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:56:29.129Z",
+    "completedAt": "2026-10-18T01:57:09.682Z",
+    "elapsedMs": 40553,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/contract-negative.log",
+    "logSha256": "sha256:0b3f80d66b47c31e924315282bdf590f3aacf1c79cb9be28891e5350663e0b16"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "A1 direct boundary: compare all six generated client/schema/MSW/input policy files against current pinned OpenAPI",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:09.682Z",
+    "completedAt": "2026-10-18T01:57:10.116Z",
+    "elapsedMs": 434,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:e080736b2bb91def7db0cc5652d40c64ea4494fa373840fdc14a46859b146326"
+  },
+  {
+    "id": "f06",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-auth",
+      "--lib"
+    ],
+    "reason": "Direct F06 trust projection: verified subject/role/MFA/expiry and TLS URL policy; actual Supabase or IdP not executed",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:10.116Z",
+    "completedAt": "2026-10-18T01:57:15.689Z",
+    "elapsedMs": 5573,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/f06.log",
+    "logSha256": "sha256:3d42dee8464881b962c4125ce5452248f73d45a1d8adbf62e1b3eaa1553f1c12"
+  },
+  {
+    "id": "session",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "live::tests"
+    ],
+    "reason": "Direct F06 cookie/context/origin and account-neutral errors, no upstream gate or target login",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:15.689Z",
+    "completedAt": "2026-10-18T01:57:15.864Z",
+    "elapsedMs": 175,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/session.log",
+    "logSha256": "sha256:c80b362e64420b41afbe032bf58c08066c33f9b4cc0ba253bfcfc4376c0fc9c7"
+  },
+  {
+    "id": "cors",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "live::cors_tests"
+    ],
+    "reason": "Current credentialed recent-auth contract headers and untrusted-origin refusal at the F06 boundary",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:15.864Z",
+    "completedAt": "2026-10-18T01:57:16.013Z",
+    "elapsedMs": 149,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/cors.log",
+    "logSha256": "sha256:6bcd670b484623a326fcc4b166068906b56e019e58e7c9ce0bd2e9889bc79218"
+  },
+  {
+    "id": "http",
+    "command": [
+      "node",
+      "scripts/test-bff-provider-contract.mjs",
+      "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/reference-http.json",
+      "--identity-only"
+    ],
+    "reason": "Actual Rust loopback HTTP validates all twenty C01/C17 successful response schemas and forged actor refusal; excludes audit/export task",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:16.013Z",
+    "completedAt": "2026-10-18T01:57:22.404Z",
+    "elapsedMs": 6391,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/http.log",
+    "logSha256": "sha256:44ed14cf84377baded47b76836784ced1f6f84fc2c52e5384aebc734e009a819"
+  },
+  {
+    "id": "consumers",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/ui104-settings.test.ts",
+      "apps/terminal/tests/a2-provider-consumer.test.ts",
+      "packages/api-client/tests",
+      "tests/contract"
+    ],
+    "reason": "Real Rust HTTP through auth/settings generated consumers plus shared SSE gap/replay/401/403 terminal recovery and transport/schema tests",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:57:22.404Z",
+    "completedAt": "2026-10-18T01:57:39.407Z",
+    "elapsedMs": 17003,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/consumers.log",
+    "logSha256": "sha256:8e3733f23b988db5b3c2ffb1ffcfbae0e552644c679341e16f8d6076df53f47f"
+  },
+  {
+    "id": "mutations",
+    "command": [
+      "node",
+      "scripts/test-bff-fe-001-mutations.mjs",
+      "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/mutations"
+    ],
+    "reason": "Nine actual isolated source mutations must fail business assertions for CSRF/MFA/expiry/revocation, including queued unauthorized SSE replay",
+    "timeoutMs": 1800000,
+    "startedAt": "2026-10-18T01:57:39.407Z",
+    "completedAt": "2026-10-18T01:57:39.694Z",
+    "elapsedMs": 287,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/bff-fe-001-local-20261018/function-attempt-01/logs/mutations.log",
+    "logSha256": "sha256:a1aed125bc3fd12bad26645a078b5e78b1c0b970aa5780e78f13fcf33fb95c77"
+  }
+]

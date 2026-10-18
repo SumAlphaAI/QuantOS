@@ -25,6 +25,7 @@ try{
   const {code,signal}=await new Promise(resolve=>{active.once('error',e=>{errorCode=e.code??'SPAWN_ERROR';resolve({code:null,signal:null});});active.once('close',(code,signal)=>resolve({code,signal}));});
   clearTimeout(timer);await new Promise(resolve=>output.end(resolve));active=null;
   const row={...check,startedAt,completedAt:new Date().toISOString(),elapsedMs:Date.now()-start,exitCode:code,signal,errorCode,timedOut,status:interrupted?'INTERRUPTED':code===0&&!signal&&!errorCode&&!timedOut?'PASS':'FAIL',log,logSha256:digest(readFileSync(log))};rows.push(row);
+  if(check.id==='semantics')for(const file of ['semantics.json',...Array.from({length:3},(_,i)=>'semantics-'+i+'.log')])if(existsSync('artifacts/bff-fe-001/'+file))cpSync('artifacts/bff-fe-001/'+file,attempt+'/'+file);
   writeFileSync(attempt+'/execution-results.json',JSON.stringify(rows,null,2)+'\n');console.log(check.id,row.status,row.elapsedMs+'ms');assert.equal(row.status,'PASS');
  }
  if(interrupted)throw Error('execution interrupted '+interrupted);
