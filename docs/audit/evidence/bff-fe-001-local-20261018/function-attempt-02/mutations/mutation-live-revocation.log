@@ -1,0 +1,31 @@
+
+running 1 test
+test live::settings_policy::tests::revoked_delivery_is_terminal ... FAILED
+
+failures:
+
+---- live::settings_policy::tests::revoked_delivery_is_terminal stdout ----
+
+thread 'live::settings_policy::tests::revoked_delivery_is_terminal' (622190) panicked at services/bff-gateway/src/live/settings_policy.rs:197:9:
+assertion failed: !delivery_authorized(false)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    live::settings_policy::tests::revoked_delivery_is_terminal
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 46 filtered out; finished in 0.00s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-a2-mutants-y1WUgp/services/bff-gateway)
+warning: unused variable: `authorized`
+  --> services/bff-gateway/src/live/settings_policy.rs:76:35
+   |
+76 | pub(super) fn delivery_authorized(authorized: bool) -> bool {
+   |                                   ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_authorized`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bff-gateway` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.26s
+     Running unittests src/lib.rs (target/bff-fe-001-mutants/debug/deps/bff_gateway-74a0b53826ca6b0c)
+error: test failed, to rerun pass `-p bff-gateway --lib`

@@ -1,0 +1,156 @@
+{
+  "schema": "quantos-a2-identity-review-controls/v1",
+  "sourceCommit": "855300213db81476f7fd61cd21f5439364fee8c0",
+  "scope": "FE:BFF-FE-001 current function; no recursive dependency acceptance",
+  "controls": [
+    {
+      "id": "A01",
+      "control": "A1 receipt verification before source changes",
+      "evidence": "preflight/a1-before-change.json",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A02",
+      "control": "CORE:F06 direct trusted identity projection / expiry / TLS",
+      "evidence": "function-attempt-02/logs/f06.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A03",
+      "control": "20 published C01/C17 operation HTTP success schemas",
+      "evidence": "function-attempt-02/reference-http.json",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A04",
+      "control": "Current OpenAPI/client/Zod/schema/MSW/input-policy equality",
+      "evidence": "function-attempt-02/logs/generated.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A05",
+      "control": "401/403/404 account-neutral denial",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A06",
+      "control": "Cookie, origin, CSRF / trusted CORS",
+      "evidence": "function-attempt-02/logs/cors.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A07",
+      "control": "Context actor/tenant server-owned and forged input denial",
+      "evidence": "function-attempt-02/reference-http.json",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A08",
+      "control": "MFA challenge rate-limit / fresh single use / bound session",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A09",
+      "control": "Recent-auth expiry and protected security operations",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A10",
+      "control": "Current session and last verified MFA factor protection",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A11",
+      "control": "Profile and notification writable roundtrip",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A12",
+      "control": "Stale version refusal and currentVersion / no mutation",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A13",
+      "control": "Same-key replay / changed body or resource conflict",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A14",
+      "control": "Concurrent one version winner / one audit / same-key one effect",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A15",
+      "control": "AuditRef and response correlation for accepted operations",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A16",
+      "control": "Revoked stream refuses backlog before any delivery",
+      "evidence": "function-attempt-02/semantics-1.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A17",
+      "control": "Actual Rust HTTP through generated auth/settings consumers",
+      "evidence": "function-attempt-02/logs/consumers.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A18",
+      "control": "Lost stream replay, gap/dedupe and resume checkpoint",
+      "evidence": "function-attempt-02/logs/consumers.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A19",
+      "control": "401/403 terminal reducer + cancel / no reconnect",
+      "evidence": "function-attempt-02/logs/consumers.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A20",
+      "control": "Bounded transport, cancellation and uncertain write no retry",
+      "evidence": "function-attempt-02/logs/consumers.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A21",
+      "control": "Nine actual source mutations rejected by business assertions",
+      "evidence": "function-attempt-02/mutations/mutations.json",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A22",
+      "control": "TypeScript and lint",
+      "evidence": "function-attempt-02/logs/types.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A23",
+      "control": "Immutable-source scoped receipt / refusal / atomic activation",
+      "evidence": "function-attempt-02/logs/gate-tests.log",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    },
+    {
+      "id": "A24",
+      "control": "Plan/CI policy and byte-preserved audit history",
+      "evidence": "history-preservation.json",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE"
+    }
+  ],
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "businessIntegration": "NOT_RUN",
+  "releaseAcceptance": "NOT_RUN",
+  "status": "24/24 PASS_CURRENT_FUNCTION_SCOPE"
+}
