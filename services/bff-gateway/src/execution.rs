@@ -27,6 +27,7 @@ use quantos_portfolio::{
 use quantos_risk::{RiskVerdict, guard::*};
 use quantos_runtime::signal_proposal::TradeProposalRecord;
 use quantos_strategy::release::StrategyRelease;
+pub(crate) use reference_seed::release_fixture as reference_release;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -66,6 +67,7 @@ struct Cursor {
 /// An injected live host must retain this same lease until durable recovery is admitted.
 pub struct ExecutionService {
     auth: AuthContext,
+    pub(crate) linked_approvals: Vec<Value>,
     input: RiskInputSnapshot,
     projection: InMemoryPortfolioProjection,
     applied_fills: BTreeSet<String>,
@@ -153,6 +155,7 @@ impl ExecutionService {
             "trusted Paper resource binding required"
         );
         Ok(Self {
+            linked_approvals: Vec::new(),
             auth,
             input,
             projection,
@@ -672,12 +675,13 @@ impl ExecutionService {
                     return Ok((StatusCode::OK, self.page(a, path, q, rows, now)?));
                 }
                 "/v1/approvals" => {
-                    let rows = self
+                    let mut rows = self
                         .proposals
                         .values()
                         .filter(|p| p.approval.is_some())
                         .map(|p| self.approval_page(p, now))
                         .collect::<Result<Vec<_>>>()?;
+                    rows.extend(self.linked_approvals.clone());
                     return Ok((StatusCode::OK, self.page(a, path, q, rows, now)?));
                 }
                 "/v1/orders" => {
@@ -1189,6 +1193,20 @@ async fn reference(
     } else {
         None
     };
+    let proof = proof.filter(|p| !state.consumed_step_proofs.contains(p));
+    let strategy_auth = crate::strategy::reference_auth(&session);
+    let linked = state
+        .strategy
+        .as_ref()
+        .map(|s| s.approvals(&strategy_auth, now))
+        .unwrap_or_default();
+    let strategy_approval = uri.path().starts_with("/v1/approvals/")
+        && uri
+            .path()
+            .split('/')
+            .nth(3)
+            .and_then(|s| Uuid::parse_str(s).ok())
+            .is_some_and(|id| state.strategy.as_ref().is_some_and(|s| s.owns_approval(id)));
     let service = state
         .execution
         .get_or_insert_with(ExecutionService::reference);
@@ -1206,19 +1224,38 @@ async fn reference(
         _ => auth.role = Role::Viewer,
     };
     let now = Utc::now() + elapsed;
-    let result = service.handle(
-        &auth,
-        &session,
-        &method,
-        uri.path(),
-        &q,
-        &headers,
-        &body,
-        proof,
-        now,
-    );
+    service.linked_approvals = linked;
+    let consumed_proof = proof.clone();
+    let result = if strategy_approval {
+        state.strategy.as_mut().unwrap().handle(
+            &strategy_auth,
+            &session,
+            &method,
+            uri.path(),
+            &q,
+            &headers,
+            &body,
+            proof,
+            now,
+        )
+    } else {
+        service.handle(
+            &auth,
+            &session,
+            &method,
+            uri.path(),
+            &q,
+            &headers,
+            &body,
+            proof,
+            now,
+        )
+    };
     match result {
         Ok((status, v)) => {
+            if let Some(proof) = consumed_proof {
+                state.consumed_step_proofs.insert(proof);
+            }
             if method == Method::POST
                 && !state.audits.iter().any(|a| a["auditRef"] == v["auditRef"])
             {
@@ -1258,12 +1295,21 @@ async fn reference(
             }
             let mut body = json!({"code":e.1,"message":"Execution request refused.","correlationId":correlation});
             if e.1 == "VERSION_CONFLICT" {
-                body["currentVersion"] = json!(
+                body["currentVersion"] = if strategy_approval {
                     state
-                        .execution
+                        .strategy
                         .as_ref()
-                        .and_then(|s| s.current_version(uri.path()))
-                );
+                        .and_then(|s| s.current(&strategy_auth, uri.path()))
+                        .map(|v| v["objectVersion"].clone())
+                        .unwrap_or(Value::Null)
+                } else {
+                    json!(
+                        state
+                            .execution
+                            .as_ref()
+                            .and_then(|s| s.current_version(uri.path()))
+                    )
+                };
             }
             crate::response(e.0, body, &correlation)
         }

@@ -1,0 +1,54 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [31m❯[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 20[2mms[22m[39m
+     [32m✓[39m validates populated specimens for every component and rejects invalid types[32m 15[2mms[22m[39m
+[31m     [31m×[31m rejects malformed success/error payloads for all published operations[39m[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/strategy-recovery.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 183[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/strategy-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1704[2mms[22m[39m
+[31m   [31m×[31m generated consumer preserves draft conflicts, replays lost backtest response, resolves artifact and independently approves release[39m[33m 1683[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/strategy-provider-consumer.test.ts[2m > [22mgenerated consumer preserves draft conflicts, replays lost backtest response, resolves artifact and independently approves release
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m apps/terminal/tests/strategy-provider-consumer.test.ts:[2m15:511[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/bff-response.test.ts[2m > [22mpublished BFF runtime response coverage[2m > [22mrejects malformed success/error payloads for all published operations
+[31m[1mAssertionError[22m: expected [ 'getSession', 'getContext', …(72) ] to have a length of 73 but got 74[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 73[39m
+[31m+ 74[39m
+
+[36m [2m❯[22m packages/api-client/tests/bff-response.test.ts:[2m58:45[22m[39m
+    [90m 56|[39m
+    [90m 57|[39m   it("rejects malformed success/error payloads for all published opera…
+    [90m 58|[39m     [34mexpect[39m([33mObject[39m[33m.[39m[34mkeys[39m(bffResponseSchemas))[33m.[39m[34mtoHaveLength[39m([34m73[39m)[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m 59|[39m     for (const [operation, responses] of Object.entries(bffResponseSch…
+    [90m 60|[39m       [35mfor[39m ([35mconst[39m [status[33m,[39m schema] [35mof[39m [33mObject[39m[33m.[39m[34mentries[39m(responses)) {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m32 passed[39m[22m[90m (34)[39m
+[2m   Start at [22m 15:59:50
+[2m   Duration [22m 2.08s[2m (transform 556ms, setup 0ms, import 1.62s, tests 2.08s, environment 0ms)[22m
+

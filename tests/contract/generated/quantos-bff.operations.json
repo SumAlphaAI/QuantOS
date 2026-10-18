@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -652,6 +652,16 @@
       ],
       "responseSchema": "AsyncAccepted",
       "sse": false
+    },
+    {
+      "operationId": "subscribeBacktestRun",
+      "method": "GET",
+      "path": "/v1/backtests/{runId}/stream",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": null,
+      "sse": true
     },
     {
       "operationId": "subscribeCandles",

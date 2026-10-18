@@ -124,6 +124,48 @@ async fn handle(
     if let Err(e) = quota {
         return e.response();
     }
+    if uri.path().starts_with("/v1/artifacts/")
+        && let Some(host) = state.strategy.clone()
+    {
+        let artifact = uri
+            .path()
+            .split('/')
+            .nth(3)
+            .and_then(|s| Uuid::parse_str(s).ok());
+        if let Some(id) = artifact {
+            let state_copy = state.clone();
+            let identity_copy = identity.clone();
+            let attachment = uri.path().ends_with("/attachment");
+            let path = uri.path().to_owned();
+            let result = tokio::task::spawn_blocking(move || -> Result<Option<Value>> {
+                let host = host.lock().map_err(|_| Fault::unavailable())?;
+                let Some(mut value) = host.artifact(&identity_copy.0.auth, id, attachment)? else {
+                    return Ok(None);
+                };
+                value["auditRef"] = json!(Uuid::now_v7());
+                value["correlationId"] = json!(Uuid::now_v7());
+                let mut db = state_copy.a2.lock().map_err(|_| Fault::unavailable())?;
+                let mut tx = db.client.transaction().map_err(|_| Fault::unavailable())?;
+                super::audit::execution_log(
+                    &mut tx,
+                    &identity_copy,
+                    &path,
+                    &value,
+                    &json!({"reason":"strategy report read"}),
+                )
+                .map_err(|_| Fault::unavailable())?;
+                tx.commit().map_err(|_| Fault::unavailable())?;
+                Ok(Some(value))
+            })
+            .await;
+            match result {
+                Ok(Ok(Some(v))) => return crate::execution::output(StatusCode::OK, v),
+                Ok(Ok(None)) => {}
+                Ok(Err(e)) => return e.response(),
+                Err(_) => return Fault::unavailable().response(),
+            }
+        }
+    }
     if uri.path().ends_with("/stream") {
         return stream(
             state,

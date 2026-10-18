@@ -165,8 +165,10 @@ pub(crate) async fn guard(
     );
     if op["authenticated"] == true {
         let result = if write {
-            if op["policy"]["owner"] == "BFF-FE-006"
-                || matches!(op["operationId"].as_str(), Some("mfaChallenge" | "reauth"))
+            if matches!(
+                op["policy"]["owner"].as_str(),
+                Some("BFF-FE-006" | "BFF-FE-004")
+            ) || matches!(op["operationId"].as_str(), Some("mfaChallenge" | "reauth"))
             {
                 crate::execution::reference_step_guard(request.headers(), &data).await
             } else {

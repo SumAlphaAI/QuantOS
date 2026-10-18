@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.8.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.9.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -36,6 +36,12 @@ export const ErrorEnvelopeSchema = z.object({
   "fieldErrors": z.record(z.string(), z.string()).optional(),
   "retryAfter": z.number().int().min(0).describe("秒").optional(),
   "currentVersion": z.string().describe("409 时返回，供客户端 diff").optional(),
+  "conflictDiff": z.object({
+  "files": z.record(z.string(), z.string()),
+  "parameters": z.object({
+
+}).passthrough(),
+}).strict().optional(),
 }).strict();
 
 export const PageSchema = z.object({
@@ -339,6 +345,10 @@ export const StrategyDraftSchema = z.object({
 
 }).passthrough(),
   "updatedAt": z.lazy(() => DateTimeSchema),
+  "dataSnapshotId": z.lazy(() => UUIDSchema).optional(),
+  "artifactRefs": z.array(z.object({
+
+}).passthrough()).optional(),
 }).passthrough();
 
 export const BacktestReportSchema = z.object({
@@ -349,6 +359,8 @@ export const BacktestReportSchema = z.object({
   "metrics": z.record(z.string(), z.lazy(() => DecimalValueSchema)),
   "leakViolations": z.array(z.string()).describe("泄漏检查失败规则码（非空阻断 Release）"),
   "reportArtifactId": z.lazy(() => UUIDSchema),
+  "objectVersion": z.string().optional(),
+  "reportHash": z.string().optional(),
 }).passthrough();
 
 export const StrategyReleaseSchema = z.object({
@@ -365,6 +377,12 @@ export const StrategyReleaseSchema = z.object({
   "allowedTargets": z.array(z.enum(["paper","shadow","assisted_live"])).describe("服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行"),
   "approvalState": z.enum(["none","pending","approved","rejected","expired"]),
   "createdAt": z.lazy(() => DateTimeSchema),
+  "objectVersion": z.string().optional(),
+  "contentHash": z.string().optional(),
+  "expiresAt": z.lazy(() => DateTimeSchema).optional(),
+  "approvalTimeline": z.array(z.object({
+
+}).passthrough()).optional(),
 }).passthrough();
 
 export const PositionSchema = z.object({
@@ -441,6 +459,8 @@ export const ApprovalSchema = z.object({
   "issuanceState": z.enum(["not_issued","consumed"]).optional(),
   "decision": z.enum(["approve","reject","request_info"]).optional(),
   "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "kind": z.string().optional(),
+  "objectRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const FillSchema = z.object({
@@ -1237,6 +1257,12 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "subscribeTradePreflight": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeBacktestRun": {
     "200": z.undefined(),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),

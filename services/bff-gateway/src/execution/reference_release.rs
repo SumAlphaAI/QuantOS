@@ -100,7 +100,14 @@ pub fn honest_request() -> BacktestRequest {
 pub fn payload() -> Value {
     json!({"artifact_type":"StrategyDraftArtifact","release_eligible":true,"static_check":{"passed":true,"findings":[]},"strategy":{"rule":"momentum","rule_source":"momentum(close, lookback=6)","parameters":{"lookback":6,"entry_threshold_bps":20,"exit_threshold_bps":-10,"max_position_notional":"1000","universe":["BTCUSDT"]}}})
 }
-pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
+pub(crate) fn material(
+    payload: &Value,
+) -> (
+    AuthContext,
+    DraftService,
+    BacktestRequest,
+    Vec<DraftArtifactRef>,
+) {
     let mut request = honest_request();
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let git = std::process::Command::new("git")
@@ -157,6 +164,11 @@ pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
         artifacts,
         SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now)).unwrap(),
     );
+    (auth, drafts, request, vec![reference])
+}
+pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
+    let (auth, drafts, request, refs) = material(payload);
+    let now = request.candidate.clock;
     let draft = drafts.create(&auth, "S03 strategy", now).unwrap();
     drafts
         .save(
@@ -165,7 +177,7 @@ pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
                 draft_id: draft.draft_id,
                 parameters: payload["strategy"].clone(),
                 data_snapshot_id: Some(request.snapshot.snapshot_id),
-                artifact_refs: vec![reference],
+                artifact_refs: refs,
                 base_version: 0,
                 save_kind: DraftSaveKind::Manual,
                 saved_at: now,

@@ -1,6 +1,6 @@
 // Owned real-module fixture, derived from X03 tests; no upstream/target services.
 #[path = "reference_release.rs"]
-mod release_fixture;
+pub(crate) mod release_fixture;
 use chrono::{DateTime, Duration, Utc};
 use quantos_auth::AuthContext;
 use quantos_core::ActorId;

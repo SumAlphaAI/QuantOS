@@ -55,7 +55,7 @@ describe("published BFF runtime response coverage", () => {
   });
 
   it("rejects malformed success/error payloads for all published operations", () => {
-    expect(Object.keys(bffResponseSchemas)).toHaveLength(73);
+    expect(Object.keys(bffResponseSchemas)).toHaveLength(74);
     for (const [operation, responses] of Object.entries(bffResponseSchemas)) {
       for (const [status, schema] of Object.entries(responses)) {
         if (status === "204") expect(schema.safeParse(undefined).success).toBe(true);

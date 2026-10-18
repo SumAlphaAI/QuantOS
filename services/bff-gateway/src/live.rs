@@ -4,6 +4,7 @@ mod market;
 mod research;
 mod settings;
 mod settings_policy;
+mod strategy;
 
 use std::{
     collections::BTreeMap,
@@ -26,6 +27,8 @@ use tower_http::cors::CorsLayer;
 use uuid::Uuid;
 
 struct LiveState {
+    consumed_step_proofs: Mutex<std::collections::BTreeSet<String>>,
+    strategy: Option<Arc<Mutex<crate::strategy::StrategyHost>>>,
     execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
     verifier: SupabaseAuthVerifier,
     middleware: Mutex<GatewayAuthMiddleware>,
@@ -126,6 +129,29 @@ pub fn router_with_execution(
     observability: Arc<ServiceObservability>,
     execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
 ) -> anyhow::Result<Router> {
+    router_with_hosts(
+        database_url,
+        project_url,
+        publishable_key,
+        terminal_origin,
+        environment,
+        observability,
+        execution,
+        None,
+    )
+}
+/// Owner-injected strategy lease, separate from HTTP payloads and default startup.
+#[allow(clippy::too_many_arguments)]
+pub fn router_with_hosts(
+    database_url: &str,
+    project_url: &str,
+    publishable_key: String,
+    terminal_origin: String,
+    environment: String,
+    observability: Arc<ServiceObservability>,
+    execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
+    strategy: Option<Arc<Mutex<crate::strategy::StrategyHost>>>,
+) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
         "live BFF requires an HTTPS Terminal origin"
@@ -137,6 +163,8 @@ pub fn router_with_execution(
     let cors = cors_layer(HeaderValue::from_str(&terminal_origin)?);
     let state = Arc::new(LiveState {
         execution,
+        strategy,
+        consumed_step_proofs: Mutex::new(Default::default()),
         verifier: SupabaseAuthVerifier::new(project_url, publishable_key.clone())?,
         a2: Mutex::new(settings::A2Store::new(database_url)?),
         database_url: database_url.to_owned(),
@@ -157,6 +185,7 @@ pub fn router_with_execution(
         .merge(research::routes())
         .merge(market::routes())
         .merge(execution::routes())
+        .merge(strategy::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

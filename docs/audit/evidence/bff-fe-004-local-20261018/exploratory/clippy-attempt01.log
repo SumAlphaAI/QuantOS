@@ -1,0 +1,78 @@
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: this looks like an `else if` but the `else` is missing
+   --> services/bff-gateway/src/live/strategy.rs:138:185
+    |
+138 | ...().is_err(){service.poisoned=true;return Err(Fault::unavailable())}if let Some(proof)=used{consumed.insert(proof);}Ok((s,v))}).await.m...
+    |                                                                       ^
+    |
+    = note: to remove this lint, add the missing `else` or add a new line before the second `if`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#possible_missing_else
+    = note: `-D clippy::possible-missing-else` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::possible_missing_else)]`
+
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/strategy.rs:758:5
+    |
+758 | /     if m != Method::GET {
+759 | |         if let Err(r) = crate::execution::reference_step_guard(&h, &data).await {
+760 | |             return r;
+761 | |         }
+762 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+758 ~     if m != Method::GET
+759 ~         && let Err(r) = crate::execution::reference_step_guard(&h, &data).await {
+760 |             return r;
+761 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/strategy.rs:823:13
+    |
+823 | /             if e.1 == "VERSION_CONFLICT" {
+824 | |                 if let Some(d) = state
+825 | |                     .strategy
+826 | |                     .as_ref()
+...   |
+835 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+823 ~             if e.1 == "VERSION_CONFLICT"
+824 ~                 && let Some(d) = state
+825 |                     .strategy
+...
+833 |                     }
+834 ~                 }
+    |
+
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/live/strategy.rs:93:13
+    |
+ 93 | /             if e.1 == "VERSION_CONFLICT" {
+ 94 | |                 if let Some(d) = error_host
+ 95 | |                     .lock()
+ 96 | |                     .ok()
+...   |
+105 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+ 93 ~             if e.1 == "VERSION_CONFLICT"
+ 94 ~                 && let Some(d) = error_host
+ 95 |                     .lock()
+...
+103 |                     }
+104 ~                 }
+    |
+
+error: could not compile `bff-gateway` (lib) due to 4 previous errors

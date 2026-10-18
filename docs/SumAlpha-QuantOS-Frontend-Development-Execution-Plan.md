@@ -1,4 +1,4 @@
-> 当前工程结果（FE:BFF-FE-006 / A4，2026-10-18）：冻结590f1f8f，899输入/16组与5入口PASS；Rust78、Node146、consumer48、20API/1085实际HTTP及基本Chromium通过，新增consumer行/分支100%。仅BFF006_SCOPE_LOCAL DEVELOPMENT READY；十直接前置不重授，A3原稿确认CONFIRMED且不扩范围。本次用户确认PENDING，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[报告](./audit/BFF-FE-006-functional-review-2026-10-18.md)及[完整确认稿](./audit/evidence/bff-fe-006-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-004 / A4。
+> 当前执行（FE:BFF-FE-004 / A4，2026-10-18）：FE006原稿用户确认已登记CONFIRMED，仅原590f1f8f/aeaef3f范围；本轮Strategy/Backtest/Release按影响范围实施与测试中。九直接前置referenceOnly，不拼接历史READY；FE006共享源已变更，其当前阶段撤回NOT_ASSESSED，原证据保留。完整联调/发布NOT_RUN，runtimeAdmission=DENIED。
 
 > 历史工程结果（PROVIDER:A3，2026-10-18）：冻结4580bac1，837输入/18组当前汇总与直接边界、7个激活入口PASS；Node265、Rust74、consumer/契约68，16操作/93条实际HTTP和基本Chromium通过。仅A3_SCOPE_LOCAL DEVELOPMENT READY，24控制点PASS，三原确认CONFIRMED且保持原SHA；BFF005独立READY因共享变化撤回，三直接前置不重授。52830个原audit/gate文件未改，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总用户确认PENDING。见[报告](./audit/PROVIDER-A3-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-006 / A4。
 > 历史工程结果（FE:BFF-FE-005/A3，2026-10-18）：冻结e171fb7c，814输入/18组当前功能与直接边界、5个激活入口PASS；Node229、Rust52、consumer/契约57，7操作/50条实际HTTP及基本Chromium通过。仅BFF005_SCOPE_LOCAL DEVELOPMENT READY，24项限定控制点PASS；BFF003原稿确认CONFIRMED/独立Gate因共享变化撤回，A2原确认保持原SHA。52,760个历史文件未改；五前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本轮用户确认PENDING。见[报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)。下一可执行PROVIDER:A3当前功能汇总。
@@ -847,6 +847,23 @@
         "PROVIDER:A3"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-004": {
+      "profile": "BFF004_SCOPE_LOCAL",
+      "schema": "quantos-bff004-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-004-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:S04",
+        "PROVIDER:A3"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1357,7 +1374,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-006`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:47953f464627e705e74d05ce09b3aa3bdf45e1c90608dd2432e5a914ec8f960f","evidence":["audit/evidence/bff-fe-006-local-20261018/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -1382,7 +1399,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

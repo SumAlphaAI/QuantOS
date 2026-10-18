@@ -1,0 +1,1 @@
+export const operations=['listStrategies','getStrategyDraft','saveStrategyDraft','runStaticCheck','createBacktest','getBacktest','subscribeBacktestRun','listReleases','createRelease','getRelease','submitReleaseApproval','requestReleaseRollback'];

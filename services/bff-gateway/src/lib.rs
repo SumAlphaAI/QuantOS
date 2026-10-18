@@ -1,4 +1,5 @@
 mod audit_core;
+pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
 pub mod execution;
@@ -52,6 +53,8 @@ struct MfaWindow {
 
 #[derive(Debug)]
 struct ProviderData {
+    strategy: Option<strategy::StrategyHost>,
+    consumed_step_proofs: std::collections::BTreeSet<String>,
     execution: Option<execution::ExecutionService>,
     research: research::Fixture,
     market: market::Fixture,
@@ -85,6 +88,8 @@ impl Default for ProviderData {
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
             execution: None,
+            strategy: None,
+            consumed_step_proofs: Default::default(),
             research,
             market,
             session_active: true,
@@ -187,6 +192,7 @@ impl BffProvider {
             .merge(research::reference_routes())
             .merge(market::reference_routes())
             .merge(execution::reference_routes())
+            .merge(strategy::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))
@@ -530,7 +536,8 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
             "settings.write",
             "audit:read",
             "audit:export",
-            "execution.operate"
+            "execution.operate",
+            "strategy.write"
         ])
     } else if matches!(
         cookies(headers).get("quantos_session").copied(),

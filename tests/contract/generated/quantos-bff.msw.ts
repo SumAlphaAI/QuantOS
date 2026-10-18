@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.8.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.9.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -76,6 +76,7 @@ export type BffOperationId =
   | "submitAccessRequest"
   | "submitReleaseApproval"
   | "submitTradeCommand"
+  | "subscribeBacktestRun"
   | "subscribeCandles"
   | "subscribeOrder"
   | "subscribePortfolio"
@@ -421,6 +422,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.submitTradeCommand;
     if (resolver) return resolver({ request, params });
     return missingResolver("submitTradeCommand");
+  }),
+  http.get(`${baseUrl}/v1/backtests/:runId/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeBacktestRun;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeBacktestRun");
   }),
   http.get(`${baseUrl}/v1/markets/candles/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeCandles;

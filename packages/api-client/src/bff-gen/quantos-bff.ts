@@ -1129,6 +1129,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/backtests/{runId}/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bounded resource-scoped immutable backtest journal; reconnect afterSequence, future sequence409 */
+        get: operations["subscribeBacktestRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1181,6 +1198,14 @@ export interface components {
             retryAfter?: number;
             /** @description 409 时返回，供客户端 diff */
             currentVersion?: string;
+            conflictDiff?: {
+                files: {
+                    [key: string]: string;
+                };
+                parameters: {
+                    [key: string]: unknown;
+                };
+            };
         };
         Page: {
             items: unknown[];
@@ -1511,8 +1536,14 @@ export interface components {
             files: {
                 [key: string]: string;
             };
-            parameters: Record<string, never>;
+            parameters: {
+                [key: string]: unknown;
+            };
             updatedAt: components["schemas"]["DateTime"];
+            dataSnapshotId?: components["schemas"]["UUID"];
+            artifactRefs?: {
+                [key: string]: unknown;
+            }[];
         };
         BacktestReport: {
             runId: components["schemas"]["UUID"];
@@ -1525,6 +1556,8 @@ export interface components {
             /** @description 泄漏检查失败规则码（非空阻断 Release） */
             leakViolations: string[];
             reportArtifactId: components["schemas"]["UUID"];
+            objectVersion?: string;
+            reportHash?: string;
         };
         StrategyRelease: {
             releaseId: components["schemas"]["UUID"];
@@ -1533,13 +1566,19 @@ export interface components {
             sourceDigest: string;
             imageDigest: string;
             parameterHash: string;
-            parameters: Record<string, never>;
+            parameters: {
+                [key: string]: unknown;
+            };
             snapshotId: components["schemas"]["UUID"];
             /** @description 服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行 */
             allowedTargets: ("paper" | "shadow" | "assisted_live")[];
             /** @enum {string} */
             approvalState: "none" | "pending" | "approved" | "rejected" | "expired";
             createdAt: components["schemas"]["DateTime"];
+            objectVersion?: string;
+            contentHash?: string;
+            expiresAt?: components["schemas"]["DateTime"];
+            approvalTimeline?: Record<string, never>[];
         };
         Position: {
             symbol: string;
@@ -1628,6 +1667,8 @@ export interface components {
             /** @enum {string} */
             decision?: "approve" | "reject" | "request_info";
             auditRef?: components["schemas"]["UUID"];
+            kind?: string;
+            objectRef?: components["schemas"]["UUID"];
         };
         Fill: {
             fillId: components["schemas"]["UUID"];
@@ -3369,7 +3410,9 @@ export interface operations {
                     files: {
                         [key: string]: string;
                     };
-                    parameters: Record<string, never>;
+                    parameters: {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -3616,7 +3659,9 @@ export interface operations {
                     objectVersion: string;
                     /** Format: uuid */
                     backtestRunId: string;
-                    parameters: Record<string, never>;
+                    parameters: {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -5437,6 +5482,37 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description SSE 事件流 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeBacktestRun: {
+        parameters: {
+            query?: {
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+            };
+            header?: never;
+            path: {
+                runId: string;
+            };
             cookie?: never;
         };
         requestBody?: never;

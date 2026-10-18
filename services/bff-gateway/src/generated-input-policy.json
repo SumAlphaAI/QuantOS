@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0",
+  "version": "1.9.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -143,6 +143,26 @@
         "currentVersion": {
           "type": "string",
           "description": "409 时返回，供客户端 diff"
+        },
+        "conflictDiff": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "files",
+            "parameters"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -1421,10 +1441,21 @@
           }
         },
         "parameters": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true
         },
         "updatedAt": {
           "$ref": "#/components/schemas/DateTime"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "artifactRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
         }
       }
     },
@@ -1467,6 +1498,12 @@
         },
         "reportArtifactId": {
           "$ref": "#/components/schemas/UUID"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "reportHash": {
+          "type": "string"
         }
       }
     },
@@ -1505,7 +1542,8 @@
           "type": "string"
         },
         "parameters": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true
         },
         "snapshotId": {
           "$ref": "#/components/schemas/UUID"
@@ -1534,6 +1572,21 @@
         },
         "createdAt": {
           "$ref": "#/components/schemas/DateTime"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "approvalTimeline": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       }
     },
@@ -1865,6 +1918,12 @@
           ]
         },
         "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "objectRef": {
           "$ref": "#/components/schemas/UUID"
         }
       }
@@ -4600,7 +4659,8 @@
             }
           },
           "parameters": {
-            "type": "object"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -4961,7 +5021,8 @@
             "format": "uuid"
           },
           "parameters": {
-            "type": "object"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -7548,6 +7609,57 @@
         "expression": "not applicable",
         "cache": "no-store",
         "freshness": "Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/backtests/{runId}/stream",
+      "method": "GET",
+      "operationId": "subscribeBacktestRun",
+      "parameters": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
         "idempotency": "not applicable: read-only",
         "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
         "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",

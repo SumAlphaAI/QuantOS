@@ -1,0 +1,36 @@
+Scope: 2 of 8 workspace projects
+packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+packages/api-client typecheck: Done
+apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+apps/terminal typecheck: src/auth/bff.ts(28,25): error TS2322: Type '{ code: string; message: string; correlationId: string; fieldErrors?: Record<string, string> | undefined; retryAfter?: number | undefined; currentVersion?: string | undefined; conflictDiff?: { ...; } | undefined; }' is not assignable to type 'Partial<{ code: string; message: string; correlationId: string; fieldErrors?: { [key: string]: string; } | undefined; retryAfter?: number | undefined; currentVersion?: string | undefined; conflictDiff?: { ...; } | undefined; }>'.
+apps/terminal typecheck:   Types of property 'conflictDiff' are incompatible.
+apps/terminal typecheck:     Type '{ files: Record<string, string>; parameters: { [x: string]: unknown; }; } | undefined' is not assignable to type '{ files: { [key: string]: string; }; parameters: Record<string, never>; } | undefined'.
+apps/terminal typecheck:       Type '{ files: Record<string, string>; parameters: { [x: string]: unknown; }; }' is not assignable to type '{ files: { [key: string]: string; }; parameters: Record<string, never>; }'.
+apps/terminal typecheck:         Types of property 'parameters' are incompatible.
+apps/terminal typecheck:           Type '{ [x: string]: unknown; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:             'string' index signatures are incompatible.
+apps/terminal typecheck:               Type 'unknown' is not assignable to type 'never'.
+apps/terminal typecheck: src/strategy/gateway.ts(8,27): error TS2322: Type '{ [x: string]: unknown; strategyId: string; objectVersion: string; files: Record<string, string>; parameters: { [x: string]: unknown; }; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: { ...; }[] | undefined; }' is not assignable to type '{ strategyId: string; objectVersion: string; files: { [key: string]: string; }; parameters: Record<string, never>; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: Record<...>[] | undefined; }'.
+apps/terminal typecheck:   Types of property 'parameters' are incompatible.
+apps/terminal typecheck:     Type '{ [x: string]: unknown; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:       'string' index signatures are incompatible.
+apps/terminal typecheck:         Type 'unknown' is not assignable to type 'never'.
+apps/terminal typecheck: src/strategy/gateway.ts(14,202): error TS2322: Type '{ [x: string]: unknown; strategyId: string; objectVersion: string; files: Record<string, string>; parameters: { [x: string]: unknown; }; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: { ...; }[] | undefined; }' is not assignable to type '{ strategyId: string; objectVersion: string; files: { [key: string]: string; }; parameters: Record<string, never>; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: Record<...>[] | undefined; }'.
+apps/terminal typecheck:   Types of property 'parameters' are incompatible.
+apps/terminal typecheck:     Type '{ [x: string]: unknown; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:       'string' index signatures are incompatible.
+apps/terminal typecheck:         Type 'unknown' is not assignable to type 'never'.
+apps/terminal typecheck: src/strategy/gateway.ts(15,148): error TS2322: Type '{ [x: string]: unknown; strategyId: string; objectVersion: string; files: Record<string, string>; parameters: { [x: string]: unknown; }; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: { ...; }[] | undefined; }' is not assignable to type '{ strategyId: string; objectVersion: string; files: { [key: string]: string; }; parameters: Record<string, never>; updatedAt: string; dataSnapshotId?: string | undefined; artifactRefs?: Record<...>[] | undefined; }'.
+apps/terminal typecheck:   Types of property 'parameters' are incompatible.
+apps/terminal typecheck:     Type '{ [x: string]: unknown; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:       'string' index signatures are incompatible.
+apps/terminal typecheck:         Type 'unknown' is not assignable to type 'never'.
+apps/terminal typecheck: src/strategy/gateway.ts(15,211): error TS2322: Type '{ [x: string]: unknown; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:   'string' index signatures are incompatible.
+apps/terminal typecheck:     Type 'unknown' is not assignable to type 'never'.
+apps/terminal typecheck: tests/strategy-recovery.test.ts(5,135): error TS2322: Type 'number' is not assignable to type 'never'.
+apps/terminal typecheck: tests/strategy-recovery.test.ts(5,867): error TS2322: Type 'number' is not assignable to type 'never'.
+apps/terminal typecheck: Failed
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2

@@ -71,6 +71,8 @@ bff-contract-check:
 	pnpm check:bff-fe-007:ci
 	pnpm test:ci-stage-disposition
 	pnpm test:bff-fe-007:development
+	pnpm check:bff-fe-004:ci
+	pnpm test:bff-fe-004
 
 bff-provider-test:
 	cargo test -p bff-gateway

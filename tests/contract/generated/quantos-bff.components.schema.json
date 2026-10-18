@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.8.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.9.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -145,6 +145,26 @@
         "currentVersion": {
           "type": "string",
           "description": "409 时返回，供客户端 diff"
+        },
+        "conflictDiff": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "files",
+            "parameters"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -1423,10 +1443,21 @@
           }
         },
         "parameters": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true
         },
         "updatedAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "artifactRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
         }
       }
     },
@@ -1469,6 +1500,12 @@
         },
         "reportArtifactId": {
           "$ref": "#/$defs/UUID"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "reportHash": {
+          "type": "string"
         }
       }
     },
@@ -1507,7 +1544,8 @@
           "type": "string"
         },
         "parameters": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true
         },
         "snapshotId": {
           "$ref": "#/$defs/UUID"
@@ -1536,6 +1574,21 @@
         },
         "createdAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "approvalTimeline": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       }
     },
@@ -1867,6 +1920,12 @@
           ]
         },
         "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "objectRef": {
           "$ref": "#/$defs/UUID"
         }
       }

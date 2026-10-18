@@ -2,14 +2,14 @@
 
 > 任务：PRE-01 遗留项 1 / 执行计划第 5.7 节"逐页接口覆盖 Gate"
 > 版本：1.5  日期：2026-10-05（仓库引用复核；不代表 provider/staging 运行）
-> 状态：**73 个 published operation 已由 OpenAPI 1.8.0 生成；其余 operationId 仅为 A1 planned 基线，仍由 A3–A6 交付 schema/path/provider**
+> 状态：**74 个 published operation 已由 OpenAPI 1.9.0 生成；其余 operationId 仅为 A1 planned 基线，仍由 A3–A6 交付 schema/path/provider**
 
 ## 1. 回填前提与当前状态
 
 - 执行计划 5.7 要求：每个页面开发前建立一行 Page API Coverage 记录；每个 `UI-Pxx` 必须可追踪到 operationId。
-- **版本化 [quantos-bff.v1.yaml](../../bff/openapi/quantos-bff.v1.yaml) 当前为 1.8.0，73 个 operationId 已发布并生成 client/schema/MSW。**
+- **版本化 [quantos-bff.v1.yaml](../../bff/openapi/quantos-bff.v1.yaml) 当前为 1.9.0，74 个 operationId 已发布并生成 client/schema/MSW。**
 - [page-operation-catalog.yaml](../../bff/page-operation-catalog.yaml) 冻结 C01–C17 与一期 22 页的 operationId 命名；`planned` 只关闭命名和追踪缺口，不代表 OpenAPI schema、provider 或 staging 已交付。
-- C02/C11–C16 及 C04/C05 的未发布扩展按 catalog 的逐 operation `planned` 状态交付；C10 已发布，不再整体列作未发布域。`published` 仅表示契约/生成物发布，新页面开发须 G0 DEVELOPMENT 与 PROVIDER:ALL 阶段 READY；Integrated 须满足对应任务的 INTEGRATION 门禁，正式 staging/签署按 RELEASE 执行。
+- C02/C11–C16 的未发布扩展按 catalog 的逐 operation `planned` 状态交付；C10 已发布，不再整体列作未发布域。`published` 仅表示契约/生成物发布，新页面开发须 G0 DEVELOPMENT 与 PROVIDER:ALL 阶段 READY；Integrated 须满足对应任务的 INTEGRATION 门禁，正式 staging/签署按 RELEASE 执行。
 - 任何一行缺少稳定 operationId 或仍为占位符时，对应 `UI-Pxx` DoR 阻断。
 
 错误码集合统一基线（各页均适用，页面特有补充在备注列）：`401 / 403 / 404 / 409 / 422 / 429 / 5xx / stream-abort`。
@@ -27,8 +27,8 @@
 | P03 | `/research`、`/research/new` | listResearchRuns、getResearchRun | createResearchRun、cancelResearchRun | 无（创建后转 P04 订阅） | 研/开创建；其他只读 | deadlineAt、capturedAt/maxAgeSeconds | 1.7.0 | 1.7.0（generated only） | BFF TL | 2026-10-05（仓库引用；历史 2026-08-14） |
 | P04 | `/research/:runId`、`/artifacts/:artifactId` | getResearchRun、getArtifact；getArtifactAttachment（published 1.7.0） | cancelResearchRun；createExport（published） | subscribeResearchRun（SSE，afterSequence） | 资源级授权 | capturedAt、maxAgeSeconds | 1.7.0 | 1.7.0（published only） | BFF TL | 2026-10-05（仓库引用） |
 | P05 | `/data-snapshots`、`/data-snapshots/:snapshotId` | listDataSnapshots、getDataSnapshot | 无（下载已授权元数据复用 getDataSnapshot 响应，不调用审计导出） | subscribeAlerts（planned，C16；质量告警，快照本身不可变） | 研/开/风；资源级只读 | capturedAt、maxAgeSeconds、qualityBlocked | 1.7.0 + planned / BFF-FE-003/010 | 1.7.0（published only） | BFF TL | 2026-10-05（仓库命名） |
-| P06 | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | listStrategies、getStrategyDraft | saveStrategyDraft（If-Match→409）、runStaticCheck | 无（回测状态经 P07） | 开编辑；其他只读 | objectVersion、updatedAt | 1.7.0 | 1.7.0（generated only） | BFF TL | 2026-10-05（仓库引用；历史 2026-08-14） |
-| P07 | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | getBacktest、listReleases、getRelease | createBacktest、createRelease、submitReleaseApproval、requestReleaseRollback | subscribeBacktestRun（planned；发布前以 getBacktest 轮询） | 开；风/审批按动作 | reportArtifactId、objectVersion、allowedTargets | 1.7.0 + planned / BFF-FE-004 | 1.7.0（published only） | BFF TL | 2026-10-05（仓库引用） |
+| P06 | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | listStrategies、getStrategyDraft | saveStrategyDraft（If-Match→409）、runStaticCheck | 无（回测状态经 P07） | 开编辑；其他只读 | objectVersion、updatedAt | 1.9.0（A4本机功能；完整UI/目标未验） | 1.7.0（generated only） | BFF TL | 2026-10-05（仓库引用；历史 2026-08-14） |
+| P07 | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | getBacktest、listReleases、getRelease | createBacktest、createRelease、submitReleaseApproval、requestReleaseRollback | subscribeBacktestRun（有限journal/续传；polling恢复） | 开；风/审批按动作 | reportArtifactId、objectVersion、allowedTargets | 1.9.0 / BFF-FE-004 | 1.9.0（A4本机功能；完整UI/目标未验） | BFF TL | 2026-10-05（仓库引用） |
 | P08 | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | getPortfolio、getRiskView | engageKillSwitch、releaseKillSwitch | subscribePortfolio（含 kill switch 广播） | 交/风；kill switch 授权风控+MFA | asOf、stale | 1.8.0 / BFF-FE-006 | 1.8.0（A4本机功能；完整UI/目标未验） | BFF TL | 2026-10-18（本机功能；保留原2026-10-05引用范围） |
 | P09 | `/proposals`、`/proposals/:proposalId` | listProposals、getProposal | requestRiskEvaluation | subscribeProposal | 交/风/审；资源级 | expiresAt、contextHash、objectVersion | 1.8.0 / BFF-FE-006 | 1.8.0（A4本机功能；完整UI/目标未验） | BFF TL | 2026-10-18（本机功能；保留原2026-10-05引用范围） |
 | P10 | `/approvals`、`/approvals/:approvalId` | listApprovals、getApproval | decideApproval（+mfaChallenge/reauth） | 无（拉取式；操作前强制刷新） | 风（审批人）；禁自批 | expiresAt、objectVersion、decidedAt | 1.8.0 / BFF-FE-006 | 1.8.0（A4本机功能；完整UI/目标未验） | BFF TL | 2026-10-18（本机功能；保留原2026-10-05引用范围） |

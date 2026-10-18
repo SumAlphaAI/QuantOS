@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.8.0
+  version: 1.9.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -2225,6 +2225,7 @@ paths:
                     type: string
                 parameters:
                   type: object
+                  additionalProperties: true
               additionalProperties: false
             example:
               files: {}
@@ -2591,6 +2592,7 @@ paths:
                   format: uuid
                 parameters:
                   type: object
+                  additionalProperties: true
               additionalProperties: false
             example:
               strategyId: 11111111-1111-4111-8111-111111111111
@@ -5540,6 +5542,61 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/backtests/{runId}/stream:
+    get:
+      operationId: subscribeBacktestRun
+      tags:
+        - strategy
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/AfterSequence"
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/StreamEvent"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-004
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      summary: Bounded resource-scoped immutable backtest journal; reconnect afterSequence, future sequence409
 components:
   securitySchemes:
     cookieAuth:
@@ -5884,6 +5941,20 @@ components:
         currentVersion:
           type: string
           description: 409 时返回，供客户端 diff
+        conflictDiff:
+          type: object
+          properties:
+            files:
+              type: object
+              additionalProperties:
+                type: string
+            parameters:
+              type: object
+              additionalProperties: true
+          required:
+            - files
+            - parameters
+          additionalProperties: false
       additionalProperties: false
     Page:
       type: object
@@ -6803,8 +6874,16 @@ components:
             type: string
         parameters:
           type: object
+          additionalProperties: true
         updatedAt:
           $ref: "#/components/schemas/DateTime"
+        dataSnapshotId:
+          $ref: "#/components/schemas/UUID"
+        artifactRefs:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
     BacktestReport:
       type: object
       required:
@@ -6835,6 +6914,10 @@ components:
           description: 泄漏检查失败规则码（非空阻断 Release）
         reportArtifactId:
           $ref: "#/components/schemas/UUID"
+        objectVersion:
+          type: string
+        reportHash:
+          type: string
     StrategyRelease:
       type: object
       required:
@@ -6864,6 +6947,7 @@ components:
           type: string
         parameters:
           type: object
+          additionalProperties: true
         snapshotId:
           $ref: "#/components/schemas/UUID"
         allowedTargets:
@@ -6885,6 +6969,16 @@ components:
             - expired
         createdAt:
           $ref: "#/components/schemas/DateTime"
+        objectVersion:
+          type: string
+        contentHash:
+          type: string
+        expiresAt:
+          $ref: "#/components/schemas/DateTime"
+        approvalTimeline:
+          type: array
+          items:
+            type: object
     Position:
       type: object
       required:
@@ -7125,6 +7219,10 @@ components:
             - reject
             - request_info
         auditRef:
+          $ref: "#/components/schemas/UUID"
+        kind:
+          type: string
+        objectRef:
           $ref: "#/components/schemas/UUID"
     Fill:
       type: object
