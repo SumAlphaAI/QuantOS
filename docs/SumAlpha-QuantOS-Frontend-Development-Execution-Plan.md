@@ -1,4 +1,6 @@
-> 当前工程结果（PROVIDER:A5，2026-10-18）：冻结a036f73b，1087输入/17组当前汇总与直接影响、8实际入口PASS；Rust72、Node196、consumer/契约47，58操作/584条当前HTTP和三个基本Chromium通过，24限定控制PASS。同一Shadow provider验证账本/冻结报表、独立告警来源、三域同键并发与丢回复恢复/唯一F05根、撤权和过期拒绝。仅A5_SCOPE_LOCAL DEVELOPMENT READY；009/008/010及A4原确认CONFIRMED并保持原SHA，四前置不重授READY，BFF010独立当前撤回。53,577原audit/gate文件保持；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总确认PENDING。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/provider-a5-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
+> 用户确认（PROVIDER:A5，2026-10-18）：项目用户已确认完整稿，确认门禁CONFIRMED；仅绑定原DEVELOPMENT功能汇总源码a036f73baaae984386e43b5eec0294fdfe44c031与原回执提交e41e65fda773c85d4e9734e0111eff9eb6188d8e。本阶段评审ACCEPTED，formalAccepted=false、runtimeAdmission=DENIED，完整联调/发布仍NOT_RUN；原稿及技术回执保持原字节。见[原始确认](./audit/evidence/provider-a5-confirmation-20261018/user-confirmation.json)与[确认门禁](./audit/evidence/provider-a5-confirmation-20261018/gate.json)。本次未启动A6。
+
+> 当前工程结果（PROVIDER:A5，2026-10-18）：冻结a036f73b，1087输入/17组当前汇总与直接影响、8实际入口PASS；Rust72、Node196、consumer/契约47，58操作/584条当前HTTP和三个基本Chromium通过，24限定控制PASS。同一Shadow provider验证账本/冻结报表、独立告警来源、三域同键并发与丢回复恢复/唯一F05根、撤权和过期拒绝。仅A5_SCOPE_LOCAL DEVELOPMENT READY；009/008/010及A4原确认CONFIRMED并保持原SHA，四前置不重授READY，BFF010独立当前撤回。53,577原audit/gate文件保持；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总原范围确认CONFIRMED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/provider-a5-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
 
 > 历史工程结果（FE:BFF-FE-010/A5，2026-10-18）：冻结5d41b7fb，1058输入/18组当前功能与直接影响、6实际入口PASS；Rust48、Node172、consumer/契约44，43个C11/C16操作/287条HTTP与基本Chromium通过，24限定控制PASS。真实X06/F09、五类治理、签名Engine能力准入、incident职责分离、ack/unack、幂等F05/游标/SSE完成。仅BFF010_SCOPE_LOCAL DEVELOPMENT READY；BFF008原稿本次CONFIRMED，A4/BFF009原确认保持原SHA，七前置不重授READY，BFF008独立当前撤回。53,439原audit/gate文件保持；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本任务确认PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/bff-fe-010-local-20261018/confirmation-draft.md)。下一可执行PROVIDER:A5当前功能汇总。
 
@@ -1582,12 +1584,14 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "PROVIDER:A4"
   ],
   "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "IN_REVIEW",
+  "review_status": "ACCEPTED",
   "source_commit": "a036f73baaae984386e43b5eec0294fdfe44c031",
   "evidence": [
     "audit/evidence/provider-a5-local-20261018/manifest.json",
     "audit/evidence/provider-a5-local-20261018/confirmation-draft.md",
-    "audit/PROVIDER-A5-functional-review-2026-10-18.md"
+    "audit/PROVIDER-A5-functional-review-2026-10-18.md",
+    "audit/evidence/provider-a5-confirmation-20261018/approval.json",
+    "audit/evidence/provider-a5-confirmation-20261018/gate.json"
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
