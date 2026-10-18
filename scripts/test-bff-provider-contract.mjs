@@ -80,7 +80,7 @@ try {
  const invalid=await call(auditOnly?'createExport':'saveProfile',{...(auditOnly?exportBody:operations.get('saveProfile').requestBody.content['application/json'].example),actorId:uuid},true);
  if(invalid.response.status!==422)throw Error('Reference provider accepted forged actor');
  if(auditOnly){
-  for(const id of scope)for(const[cookie,status]of [['',401],['quantos_session=session-viewer; quantos_csrf=csrf-token-0000000000000001',403]])await call(id,id==='createExport'?exportBody:undefined,false,status,{cookie});
+  for(const id of scope)for(const[cookie,status]of [['',401],['quantos_session=session-viewer; quantos_csrf=csrf-token-0000000000000001',403]])await call(id,id==='createExport'?exportBody:undefined,status===401,status,{cookie});
   exportId='eeeeeeee-1111-4111-8111-111111111111';await call('getExportDownload',undefined,false,410);
  }
  await call('logout');
