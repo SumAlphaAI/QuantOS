@@ -6,6 +6,7 @@ export const nodeId='PREPARATION:P0',profile='P0_LOCAL';
 export const prerequisites=Array.from({length:6},(_,i)=>`FE:PRE-0${i+1}`);
 export const policy=JSON.parse(readFileSync(root+'/scripts/development-testing-policy.json'));
 const check=(id,command,reason)=>({id,command,reason,timeoutMs:['web-poc','clean-web'].includes(id)?1200000:300000});
+export const cleanWebCommands=[['install','--offline','--frozen-lockfile','--ignore-scripts'],['--filter','@sumalpha/website','build'],['--filter','@sumalpha/terminal','build'],['--filter','@sumalpha/config','test'],['--filter','@sumalpha/ui','test'],['check:pre03:web'],['check:client-secrets']];
 export const checks=[
  check('pre01',['node','scripts/check-pre01.mjs'],'Current thirty-page, seven-state requirements, route permissions, story and owner traceability'),
  check('pre01-negative',['node','--test','scripts/tests/check-pre01.test.mjs'],'Direct requirement, role, API-version and G0 owner/deadline refusal tests'),
@@ -42,7 +43,7 @@ export function webEnvironment(){return {...environment(),NEXT_PUBLIC_SITE_ORIGI
 export function validateScope(){assert.equal(policy.development.defaultScope,'FUNCTION_AND_IMPACT');assert.equal(policy.development.recursiveDependencyRevalidation,false);assert(checks.every(c=>c.reason.length>30));assert(!checks.some(c=>c.command.includes('--workspace')||c.command.includes('install')));}
 export function snapshot(){
  validateScope();const nodes=nodesFromPlans();
- const selectors=['AGENTS.md','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','.nvmrc','tsconfig.base.json','eslint.config.mjs','apps/terminal/','apps/website/','packages/','scripts/','tests/','playwright*.config.ts','vitest*.config.ts','env/','.github/workflows/','bff/','proto/','docs/execution/','docs/adr/','docs/gate-records/G0-*','docs/operations/phased-testing.md','docs/operations/p0-functional-admission.md','services/bff-gateway/src/','services/bff-gateway/tests/auth_settings_provider.rs','services/bff-gateway/tests/audit_export_provider.rs','rust-toolchain.toml','Makefile'];
+ const selectors=['AGENTS.md','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','patches/','.nvmrc','tsconfig.base.json','eslint.config.mjs','apps/terminal/','apps/website/','packages/','scripts/','tests/','playwright*.config.ts','vitest*.config.ts','env/','.github/workflows/','bff/','proto/','docs/execution/','docs/adr/','docs/gate-records/G0-*','docs/operations/phased-testing.md','docs/operations/p0-functional-admission.md','services/bff-gateway/src/','services/bff-gateway/tests/auth_settings_provider.rs','services/bff-gateway/tests/audit_export_provider.rs','rust-toolchain.toml','Makefile'];
  const artifacts=Object.values(JSON.parse(readFileSync(root+'/docs/execution/PRE-04-inventory-baseline.json')).implementations).flatMap(e=>e.artifacts.map(a=>a.path));
  const inputs=inventory([...selectors,...artifacts]);assert(!inputs.some(i=>/(?:^|\/)\.env(?!\.example$)/.test(i.path)),'private dotenv must not enter evidence');
  const normative=[nodeId,...prerequisites,'FE:BFF-FE-000'].map(id=>({nodeId:id,planInput:planInput(nodes.get(id))}));
