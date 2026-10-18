@@ -5,7 +5,7 @@ import {root,inventory,digest,nodesFromPlans,planInput} from './provider-a1-rece
 export const nodeId='PREPARATION:P0',profile='P0_LOCAL';
 export const prerequisites=Array.from({length:6},(_,i)=>`FE:PRE-0${i+1}`);
 export const policy=JSON.parse(readFileSync(root+'/scripts/development-testing-policy.json'));
-const check=(id,command,reason)=>({id,command,reason,timeoutMs:id==='web-poc'?1200000:300000});
+const check=(id,command,reason)=>({id,command,reason,timeoutMs:['web-poc','clean-web'].includes(id)?1200000:300000});
 export const checks=[
  check('pre01',['node','scripts/check-pre01.mjs'],'Current thirty-page, seven-state requirements, route permissions, story and owner traceability'),
  check('pre01-negative',['node','--test','scripts/tests/check-pre01.test.mjs'],'Direct requirement, role, API-version and G0 owner/deadline refusal tests'),
@@ -26,6 +26,7 @@ export const checks=[
  check('a1-inventory',['node','scripts/check-bff-fe-000.mjs'],'A1 prerequisite inspection only: seventeen contract groups and published/planned operation coverage; no A1 admission'),
  check('critical-coverage',['pnpm','coverage:critical'],'PRE06 baseline six security/authorization policies retain per-file 100 percent branches on actual execution'),
  check('web-poc',['node','scripts/p0-web-poc.mjs'],'Fresh one-round website/Terminal/Storybook builds, current-source route PoC, Chromium visual/axe/OIDC and client-secret scan'),
+ check('clean-web',['node','scripts/p0-clean-web.mjs'],'PRE03 explicit clean-workspace requirement: frozen offline cached bootstrap, fresh dual Web build, config/UI tests and route smoke within thirty minutes; no core dependency closure'),
  check('gate-tests',['node','--test','scripts/p0-functional-gate.test.mjs'],'Current functional receipt must reject source/log/command drift, historical READY, false phase promotion and unsafe paths'),
  check('formal-gate-negative',['node','--test','scripts/p0-acceptance-negative.mjs'],'Keep existing formal same-SHA F06/P0 acceptance independent and fail closed'),
  check('plan-policy',['node','--test','scripts/development-plan-order-negative.mjs'],'Direct new local profile registration preserves plan stage/order and reference-only prerequisite rules'),

@@ -936,11 +936,11 @@
     "audit/PREPARATION-P0-remediation-2026-10-02.md"
   ],
   "stage_gate": {
-    "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
-  }
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "input_digest": null,
+  "evidence": []
+}
 }
 ```
 
