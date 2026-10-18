@@ -2,7 +2,7 @@
 
 仅聚合 C05–C09/C13 共32项当前本机API；三个直接前置 BFF-FE-006/004、PROVIDER:A3 原确认与原回执按原源码/原稿/hash核对，不授予独立新候选READY。原历史文件、失败和中断不重写；本次A4确认PENDING，由项目用户后续确认，不代用户批准。
 
-按最新AGENTS.md执行16组当前功能/必要编译静态/实际影响回归。真实同一BFF实例组合Strategy/Trade两类审批、独立MFA/proof单次消费、幂等丢回复恢复、当前风险/kill/stale拒绝、Paper取消和Order事实、Backtest journal/A3 Artifact/F05根链、混合列表冻结分页、异常租约隔离。配置策略宿主被隔离时，公共审批列表必须503，不静默输出部分或过时策略审批事实；普通独立执行路径不因此扩大为无关宿主依赖。只有execution权限时不读取未获准的策略事实；只有strategy读取权限或未配置execution宿主时，策略审批列表独立查询，不能为读策略审批被迫获授execution权限。live使用同一checked projection，真实Auth/数据库执行NOT_RUN。
+按最新AGENTS.md执行16组当前功能/必要编译静态/实际影响回归。真实同一BFF实例组合Strategy/Trade两类审批、独立MFA/proof单次消费、幂等丢回复恢复、当前风险/kill/stale拒绝、Paper取消和Order事实、Backtest journal/A3 Artifact/F05根链、混合列表冻结分页、异常租约隔离。冻结分页绑定当前角色和能力集合，任一变化使旧游标失效，不能在策略读取撤权后回放旧策略记录；数据快照冻结不冻结权限。配置策略宿主被隔离时，公共审批列表必须503，不静默输出部分或过时策略审批事实；普通独立执行路径不因此扩大为无关宿主依赖。只有execution权限时不读取未获准的策略事实；只有strategy读取权限或未配置execution宿主时，策略审批列表独立查询，不能为读策略审批被迫获授execution权限。live使用同一checked projection，真实Auth/数据库执行NOT_RUN。
 
 HTTP父探针重新执行execution20、strategy12两个当前源码API探针，绑定实际命令/退出码/时间/子文件hash/source/逐项schema/成功401403以及各1000重试和基本Chromium；不调用子Gate，也不把历史子回执合并为当前PASS。另有新同实例Rust与generated consumer组合证据。两个consumer模块逐文件行>=80%、关键分支100%。真实模块调用和新当前API证据属于本功能汇总，不等于完整业务/UI联调。
 

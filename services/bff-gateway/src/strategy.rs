@@ -305,7 +305,18 @@ impl StrategyHost {
         }
         let mut query = q.clone();
         query.remove("cursor");
-        let binding = digest(&json!([scope(a), a.actor_id, session, path, query]));
+        let binding = digest(&json!([
+            scope(a),
+            a.actor_id,
+            session,
+            path,
+            query,
+            format!("{:?}", a.role),
+            a.capabilities
+                .iter()
+                .map(|c| c.as_str())
+                .collect::<Vec<_>>()
+        ]));
         self.cursors.retain(|_, c| c.expires > now);
         let (rows, offset) = if let Some(v) = q.get("cursor") {
             let c = self

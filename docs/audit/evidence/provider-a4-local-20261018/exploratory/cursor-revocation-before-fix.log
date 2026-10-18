@@ -1,0 +1,22 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.26s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-88eb96143f0565cb)
+
+running 1 test
+test a4_tests::mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay ... FAILED
+
+failures:
+
+---- a4_tests::mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay stdout ----
+
+thread 'a4_tests::mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay' (2474366) panicked at services/bff-gateway/src/a4_tests.rs:446:5:
+revoked strategy capability leaked frozen strategy approval: Ok((200, Object {"items": Array [Object {"approvalId": String("25614408-4003-4930-b5d1-b9b7e65f8e01"), "correlationId": String("01a14e31-2fbf-7c52-950a-3081ad8287f5"), "expired": Bool(false), "expiresAt": String("2026-10-19T08:46:37.331953Z"), "kind": String("strategy_release"), "objectRef": String("01a14e31-2fb4-79a1-9830-13d891a595f4"), "objectVersion": String("0"), "originator": String("11111111-1111-4111-8111-111111111111"), "requestedAt": String("2026-10-18T08:46:48.767009Z"), "requester": String("11111111-1111-4111-8111-111111111111"), "status": String("pending"), "timeline": Array [Object {"action": String("submitted"), "actorId": String("11111111-1111-4111-8111-111111111111"), "correlationId": String("01a14e31-2fbf-7c52-950a-3081ad8287f5"), "occurredAt": String("2026-10-18T08:46:48.767009Z")}]}]}))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    a4_tests::mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 100 filtered out; finished in 2.90s
+
+error: test failed, to rerun pass `-p bff-gateway --lib`

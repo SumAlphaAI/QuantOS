@@ -520,14 +520,18 @@ impl ExecutionService {
         mut rows: Vec<Value>,
         now: DateTime<Utc>,
     ) -> Result<Value> {
-        let actor = format!(
-            "{}:{}:{}:{:?}:{}",
+        let actor = digest(&json!([
             a.tenant_id,
             a.actor_id,
             a.workspace_id,
             a.account_id,
-            a.mode.as_str()
-        );
+            a.mode.as_str(),
+            format!("{:?}", a.role),
+            a.capabilities
+                .iter()
+                .map(|c| c.as_str())
+                .collect::<Vec<_>>()
+        ]));
         let mut query = q.clone();
         let cursor = query.remove("cursor");
         let query = digest(&json!([path, query]));

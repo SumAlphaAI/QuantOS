@@ -383,3 +383,68 @@ async fn strategy_only_reader_lists_own_approval_without_execution_grant() {
         .unwrap();
     assert_eq!(v["items"][0]["approvalId"], a["jobId"]);
 }
+
+#[tokio::test]
+async fn mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay() {
+    let p = BffProvider::default();
+    let (_, _, s) = strategy_pending(&p).await;
+    let (_, t) = risk_pending(&p, Uuid::new_v4()).await;
+    let direction = if s["jobId"].as_str().unwrap() > t["jobId"].as_str().unwrap() {
+        "asc"
+    } else {
+        "desc"
+    };
+    let mut q = std::collections::BTreeMap::from([
+        ("sort".into(), format!("approvalId:{direction}")),
+        ("pageSize".into(), "1".into()),
+    ]);
+    let mut auth = strategy::reference_auth(CURRENT_SESSION);
+    auth.capabilities.insert(
+        quantos_policy::Capability::parse(quantos_policy::Capability::EXECUTION_OPERATE).unwrap(),
+    );
+    let mut state = p.data.lock().await;
+    let linked = state
+        .strategy
+        .as_ref()
+        .unwrap()
+        .checked_approvals(&auth, Utc::now())
+        .unwrap();
+    let service = state.execution.as_mut().unwrap();
+    service.linked_approvals = linked;
+    let (_, first) = service
+        .handle(
+            &auth,
+            "trusted-session",
+            &axum::http::Method::GET,
+            "/v1/approvals",
+            &q,
+            &axum::http::HeaderMap::new(),
+            &json!({}),
+            None,
+            Utc::now(),
+        )
+        .unwrap();
+    assert_eq!(first["items"][0]["approvalId"], t["jobId"]);
+    q.insert(
+        "cursor".into(),
+        first["nextCursor"].as_str().unwrap().into(),
+    );
+    auth.capabilities
+        .retain(|c| c.as_str() == quantos_policy::Capability::EXECUTION_OPERATE);
+    service.linked_approvals.clear();
+    let replay = service.handle(
+        &auth,
+        "trusted-session",
+        &axum::http::Method::GET,
+        "/v1/approvals",
+        &q,
+        &axum::http::HeaderMap::new(),
+        &json!({}),
+        None,
+        Utc::now(),
+    );
+    assert!(
+        replay.is_err(),
+        "revoked strategy capability leaked frozen strategy approval: {replay:?}"
+    );
+}
