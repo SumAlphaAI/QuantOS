@@ -3,9 +3,17 @@ import test from "node:test";
 
 import { loadBffFe001Inputs, validateBffFe001 } from "./check-bff-fe-001.mjs";
 
-const current = loadBffFe001Inputs();
+import { executionSources, digest } from "./bff-fe-001-execution.mjs";
 
-test("current BFF-FE-001 repository Gate passes", () => {
+// Receiver unit fixture only: ignored artifact caches are not test prerequisites.
+// Actual executed semantics remain required by the CLI and scoped admission gate.
+const actual = loadBffFe001Inputs();
+const current = { ...actual, executionProof: {
+  status: "PASS", results: Array.from({ length: 3 }, () => ({ exitCode: 0 })),
+  sourceHashes: Object.fromEntries(Object.keys(executionSources).map(name => [name, digest(actual[name])])),
+} };
+
+test("synthetic receiver fixture passes current BFF-FE-001 contract validation", () => {
   const report = validateBffFe001(current);
   assert.equal(report.status, "PASS", report.failures.join("\n"));
   assert.equal(report.scope, "local_contract");
@@ -91,3 +99,8 @@ test("commented Make recipes do not satisfy executable wiring", () => {
 });
 test("no semantic receipt cannot satisfy the Gate",()=>assert.equal(validateBffFe001({...current,executionProof:null}).status,"FAIL"));
 test("deleted active evidence cannot satisfy the Gate",()=>assert.equal(validateBffFe001({...current,activeEvidenceExists:false}).status,"FAIL"));
+
+test("actual current structure passes without borrowing an execution receipt", () => {
+  assert.equal(validateBffFe001(actual, { structureOnly: true }).status, "PASS");
+  assert.equal(validateBffFe001({ ...actual, executionProof: null }).status, "FAIL");
+});

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-contract-coverage.mjs"
+    ],
+    "reason": "Current C01/C17/C10 operation ownership, OpenAPI schema, permission/error and published implementation inventory",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T02:52:40.469Z",
+    "completedAt": "2026-10-18T02:52:40.595Z",
+    "elapsedMs": 122,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a2-local-20261018/function-attempt-01/logs/contract.log",
+    "logSha256": "sha256:c06b1dc8cbc754ce5a9aa439802a5a5883cc9fd5e09f593307c8f51c42183ad3"
+  },
+  {
+    "id": "contract-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/provider-a2-development.test.mjs",
+      "scripts/bff-fe-007-gate-negative.mjs",
+      "scripts/bff-fe-001-gate-negative.mjs"
+    ],
+    "reason": "Historical strict modes retain rejection guarantees while scoped aggregate never borrows historical target READY",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T02:52:40.595Z",
+    "completedAt": "2026-10-18T02:52:43.734Z",
+    "elapsedMs": 3139,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/provider-a2-local-20261018/function-attempt-01/logs/contract-negative.log",
+    "logSha256": "sha256:756c705e27f7a4294e6315d159cbfea8b9d33852e76ff052bbbaf2bf2336d5b0"
+  }
+]

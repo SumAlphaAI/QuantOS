@@ -1,0 +1,93 @@
+✖ current BFF-FE-001 repository Gate passes (5.7775ms)
+✔ CSRF deletion is rejected (5.431875ms)
+✔ bearer session regression is rejected (4.68325ms)
+✔ recent-auth deletion is rejected (5.514167ms)
+✔ idempotency deletion is rejected (3.682125ms)
+✔ last-factor protection deletion is rejected (3.854709ms)
+✔ resource-hiding 404 deletion is rejected (4.092292ms)
+✔ revocation replay deletion is rejected (4.869625ms)
+✔ security audit reference deletion is rejected (3.838459ms)
+✔ dependency regression is rejected (2.770125ms)
+✔ provider changes invalidate executed evidence (2.439125ms)
+✔ providerTests changes invalidate executed evidence (2.429ms)
+✔ authClient changes invalidate executed evidence (2.377291ms)
+✔ settingsClient changes invalidate executed evidence (2.956791ms)
+✔ liveProvider changes invalidate executed evidence (2.232709ms)
+✔ frontendWorkflow commands in comments do not count as CI (2.451ms)
+✔ ciWorkflow commands in comments do not count as CI (2.349166ms)
+✔ disabled CI steps cannot satisfy the Gate (2.32ms)
+✔ outdated inventory cannot satisfy the active evidence Gate (2.361833ms)
+✔ commented Make recipes do not satisfy executable wiring (3.025ms)
+✔ no semantic receipt cannot satisfy the Gate (2.274875ms)
+✔ deleted active evidence cannot satisfy the Gate (2.102417ms)
+✔ current BFF-FE-007 repository Gate passes (0.897834ms)
+✔ redaction attestation deletion is rejected (1.770041ms)
+✔ evidence cursor deletion is rejected (1.260792ms)
+✔ export capability regression is rejected (1.279916ms)
+✔ CSRF deletion is rejected (1.262708ms)
+✔ recent-auth deletion is rejected (1.31425ms)
+✔ idempotency deletion is rejected (1.268083ms)
+✔ expired download response deletion is rejected (1.218167ms)
+✔ download URL leakage through status is rejected (1.3425ms)
+✔ watermark deletion is rejected (1.405625ms)
+✔ dependency regression is rejected (0.298ms)
+✔ A2 admits all 26 APIs only after three strict dependency validations (143.499917ms)
+✔ A1 manifest impersonates A2 is rejected (88.617125ms)
+✔ child manifest impersonates A2 is rejected (84.588792ms)
+✔ formal acceptance is falsely inherited is rejected (80.437084ms)
+✔ own failure is rejected (78.817708ms)
+✔ residual issue is rejected (81.24225ms)
+✔ unsafe evidence directory is rejected (75.672875ms)
+✔ missing dependency is rejected (75.31ms)
+✔ dependency not READY is rejected (80.300875ms)
+✔ dependency digest changed is rejected (85.403416ms)
+✔ dependency bytes substituted is rejected (128.506166ms)
+✔ recursive semantic failure is rejected (79.277ms)
+✔ normative input changed is rejected (78.391875ms)
+✔ normative plan changed is rejected (77.843917ms)
+✔ missing API coverage is rejected (120.498208ms)
+✔ duplicated API coverage is rejected (113.269167ms)
+✔ target receipt substituted is rejected (111.733792ms)
+✔ failed target API is rejected (109.866458ms)
+✔ all target operations denied is rejected (111.646ms)
+✔ planned API counted as implementation is rejected (121.052667ms)
+✔ catalog scope omitted is rejected (115.831ms)
+✔ wrong API owner is rejected (114.497834ms)
+✔ executed check absent is rejected (119.304833ms)
+✔ failed execution is rejected (109.963ms)
+✔ log substituted is rejected (113.545208ms)
+✔ negative tests not executed is rejected (111.850125ms)
+✔ negative tests failed is rejected (111.081625ms)
+✔ mandatory CI removed is rejected (79.459208ms)
+✔ mandatory CI disabled is rejected (81.290583ms)
+✔ mandatory CI conditional is rejected (80.074417ms)
+✔ current Makefile/package retain strict admission and CI validates its disposition (0.862042ms)
+ℹ tests 64
+ℹ suites 0
+ℹ pass 63
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3113.155458
+
+✖ failing tests:
+
+test at scripts/bff-fe-001-gate-negative.mjs:8:1
+✖ current BFF-FE-001 repository Gate passes (5.7775ms)
+  AssertionError [ERR_ASSERTION]: execution proof matches current provider
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-001-gate-negative.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

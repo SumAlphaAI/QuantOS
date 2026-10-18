@@ -11,3 +11,5 @@
 `pnpm check:provider-a2` 与 `pnpm check:provider-a2:ci`会识别当前scoped manifest并执行严格内容校验；旧target与A2_LOCAL入口保留原用途。单独静态coverage、旧结果或NOT_ASSESSED的CI disposition不能替代当前汇总准入。
 
 functionImplementation=PASS仅限本机当前功能；businessIntegration/releaseAcceptance=NOT_RUN、formalAccepted=false、runtimeAdmission=DENIED。真实Supabase/Auth/RLS/跨租户持久事务、worker lease进程重启、私有对象与一次性票据、完整UI链、部署、性能、长稳和同SHA hosted CI在联调/发布另验。本汇总确认稿须项目用户后续明确确认；两原确认不自动批准汇总。
+
+首次冻结尝试因F001负向单测读取被忽略的旧`artifacts`执行缓存而失败。修复将其明确为源码摘要绑定的synthetic receiver fixture，增加当前structure通过且缺执行证明仍拒绝的用例；CLI与当前汇总对真实执行证明的要求不变。失败日志完整保存，修复后使用新源码/新attempt重跑当前范围。
