@@ -1,0 +1,31 @@
+
+running 1 test
+test export_evidence_uses_an_independent_causal_root_and_stable_response_correlation ... FAILED
+
+failures:
+
+---- export_evidence_uses_an_independent_causal_root_and_stable_response_correlation stdout ----
+
+thread 'export_evidence_uses_an_independent_causal_root_and_stable_response_correlation' (824201) panicked at services/bff-gateway/tests/audit_export_provider.rs:788:5:
+assertion failed: entries.iter().all(|e| e["causationId"] == entries[0]["eventId"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    export_evidence_uses_an_independent_causal_root_and_stable_response_correlation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.02s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-audit-mutants-bheLrN/services/bff-gateway)
+warning: unused variable: `cause`
+    --> services/bff-gateway/src/lib.rs:1511:9
+     |
+1511 |     let cause = data
+     |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_cause`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bff-gateway` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.12s
+     Running tests/audit_export_provider.rs (target/bff-fe-007-mutants/debug/deps/audit_export_provider-c6937154e04ec6f9)
+error: test failed, to rerun pass `-p bff-gateway --test audit_export_provider`

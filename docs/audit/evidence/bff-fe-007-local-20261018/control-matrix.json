@@ -1,0 +1,176 @@
+{
+  "schema": "quantos-a2-audit-current-controls/v1",
+  "sourceCommit": "7d0fc3664904627972e3d82559eabd4405c0a9f2",
+  "scope": "CURRENT_LOCAL_FUNCTION_ONLY; historical31 target controls not rebound",
+  "controls": [
+    {
+      "id": "AU01",
+      "control": "Original explicit user confirmation immutable request/document/receipt",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "../bff-fe-001-confirmation-20261018/user-confirmation.json"
+    },
+    {
+      "id": "AU02",
+      "control": "Identity receipt valid before shared source changes",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "preflight/identity-before-change.json"
+    },
+    {
+      "id": "AU03",
+      "control": "A1 generated client/schema/MSW/policy equality",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/generated.log"
+    },
+    {
+      "id": "AU04",
+      "control": "F05 provenance and tenant replay contract",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/f05-tenant.log"
+    },
+    {
+      "id": "AU05",
+      "control": "F05 checkpoint resume contract",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/f05-recovery.log"
+    },
+    {
+      "id": "AU06",
+      "control": "Six current C10 operation schemas and ownership",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/contract.log"
+    },
+    {
+      "id": "AU07",
+      "control": "Six-operation HTTP401/403 matrix",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "AU08",
+      "control": "Resource-hiding404 and denied-object responses",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU09",
+      "control": "CSRF/recent-auth and mutation permission boundary",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU10",
+      "control": "Conservative nested/free-text redaction",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/audit-core.log"
+    },
+    {
+      "id": "AU11",
+      "control": "Canonical JSON payload hash",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/audit-core.log"
+    },
+    {
+      "id": "AU12",
+      "control": "Independent export correlation and causal root",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU13",
+      "control": "Stable HTTP response/audit correlation on replay",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU14",
+      "control": "Evidence chain ordering, pagination and completeness",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU15",
+      "control": "Server filters, sort and UTC bounds",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU16",
+      "control": "Opaque cursor query/operation binding and tamper refusal",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU17",
+      "control": "Snapshot pagination no-repeat/no-omission and cursor expiry",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU18",
+      "control": "Normalized intent ordering, duplicate/range refusal",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/audit-core.log"
+    },
+    {
+      "id": "AU19",
+      "control": "Create replay / changed intent conflict without effects",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU20",
+      "control": "Concurrent same-key create/cancel one job and audit effect",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU21",
+      "control": "Lost response recovered with original idempotency key",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/consumers.log"
+    },
+    {
+      "id": "AU22",
+      "control": "Cancel replay and terminal-state/download refusal",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU23",
+      "control": "Status read does not generate; retention transitions once",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/provider.log"
+    },
+    {
+      "id": "AU24",
+      "control": "Short lease/retention/current expired410 refusal",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "AU25",
+      "control": "JSONL/CSV/PDF encoding and watermark integrity",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/audit-core.log"
+    },
+    {
+      "id": "AU26",
+      "control": "Consumer resource ID binding and bounded cancellation",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/logs/consumers.log"
+    },
+    {
+      "id": "AU27",
+      "control": "Eight real source mutations rejected by business assertions",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "function-attempt-02/mutations/mutations.json"
+    },
+    {
+      "id": "AU28",
+      "control": "Compile/lint/scoped source and evidence gates / history",
+      "status": "PASS_CURRENT_FUNCTION_SCOPE",
+      "evidence": "history-preservation.json"
+    }
+  ],
+  "formalAccepted": false
+}
