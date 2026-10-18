@@ -12,8 +12,8 @@ BFF006_SCOPE_LOCAL 依据当前 AGENTS.md，核对 C06–C09/C13 的 20 项 API�
 
 Reference 仅 loopback，明确自有合成数据、fixture cookie 和测试 MFA。独立 fixture approver/owner 仅获 MFA 和当前执行面受控路径；A2 其他写路径保持原规则。默认 live 没有 execution host，返回 503；`router_with_execution` 只能由可信 owner 显式装配同一进程租约，使用 F06 TrustedIdentity 与 A2 近期认证记录，数据库审计提交失败将租约 poison，拒绝后续操作。该适配器尚未在真实数据库运行。Shadow host 允许投影、preflight 和 kill control，禁止命令/审批执行与任何 venue submit；Paper 内核也不连接 venue。
 
-`scripts/bff-fe-006-functional-scope.mjs` 明列当前功能与直接回归原因：新 host；直接 X02/X03/X04/TP07 测试；共享 CSRF/MFA/Audit 的 A2 两套 provider；20 API 当前实际 HTTP/schema/401/403、1000 重试、基本 Chromium；真实 generated consumer 丢回复恢复与事实 reducer；生成/兼容性、types/lint/clippy、确认/门禁/计划。没有全仓、递归上游或三轮构建。
+`scripts/bff-fe-006-functional-scope.mjs` 明列当前功能与直接回归原因：新 host；直接 X02/X03/X04/TP07 测试；共享 CSRF/MFA/Audit 的 A2 两套 provider；20 API 当前实际 HTTP/schema/401/403、1000 重试、基本 Chromium；真实 generated consumer 丢回复恢复与事实 reducer；生成/兼容性、types/lint/clippy、确认/门禁/计划。没有全仓、递归上游或三轮构建；与本次 API 变更无关的历史 X04 十万事件体量重放显式过滤，NOT_RUN，不借用旧结果。
 
-冻结后运行 `make bff006-local-assess ATTEMPT=docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-NN`；失败/超时/中断保留为新 attempt，不修改旧回执。只有所有组与源码/输入/产物绑定检查通过，才原子发布当前 manifest 和 FE:BFF-FE-006 stage_gate；五个实际入口验证失败则回滚发布文件。`pnpm check:bff-fe-006:development` 是严格准入，mandatory CI disposition 不得把 NOT_ASSESSED 解释为已准入。
+源码校验保留全部 Git blob/hash/规范输入核对，按16MiB分批传输，避免继承清单超过单次缓冲上限；不跳过任何输入。冻结后运行 `make bff006-local-assess ATTEMPT=docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-NN`；失败/超时/中断保留为新 attempt，不修改旧回执。只有所有组与源码/输入/产物绑定检查通过，才原子发布当前 manifest 和 FE:BFF-FE-006 stage_gate；五个实际入口验证失败则回滚发布文件。`pnpm check:bff-fe-006:development` 是严格准入，mandatory CI disposition 不得把 NOT_ASSESSED 解释为已准入。
 
 功能实现、完整业务联调和发布分别记账。实际 Supabase/Auth/RLS/持久事务、跨实例/进程重启恢复、生产密钥、持续可信数据 feed、完整 UI/G5/FEP5、安全/容量/长稳/同 SHA hosted CI 与部署全部 NOT_RUN；durable execution lease/restart 接入未实施，禁止默认开启。尚不能用本机 READY 放行 runtime 或生产。formalAccepted=false、runtimeAdmission=DENIED。新完整确认稿待用户确认，不使用生产凭据、不建本地数据库、不推送或外部发布。
