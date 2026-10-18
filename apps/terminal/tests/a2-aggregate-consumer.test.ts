@@ -57,7 +57,8 @@ it("joins identity and audit consumers in one session: causal export evidence an
   expect((await getControlledExportDownload(origin, job.exportId, transport)).watermarked).toBe(true);
   const chain = await loadEvidenceChain(origin, job.correlationId, {}, transport);
   expect(chain.items[0]?.eventId).toBe(job.auditRef);
-  expect(chain.items.every(event => event.correlationId === job.correlationId)).toBe(true);
+  expect(chain.correlationId).toBe(job.correlationId);
+  expect(chain.items.every(event => event.causationId === job.auditRef && event.objectRef === job.exportId)).toBe(true);
   const reducer = new SseStreamReducer();
   const controller = new AbortController();
   let dropped = false;

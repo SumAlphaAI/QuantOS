@@ -13,3 +13,5 @@
 functionImplementation=PASS仅限本机当前功能；businessIntegration/releaseAcceptance=NOT_RUN、formalAccepted=false、runtimeAdmission=DENIED。真实Supabase/Auth/RLS/跨租户持久事务、worker lease进程重启、私有对象与一次性票据、完整UI链、部署、性能、长稳和同SHA hosted CI在联调/发布另验。本汇总确认稿须项目用户后续明确确认；两原确认不自动批准汇总。
 
 首次冻结尝试因F001负向单测读取被忽略的旧`artifacts`执行缓存而失败。修复将其明确为源码摘要绑定的synthetic receiver fixture，增加当前structure通过且缺执行证明仍拒绝的用例；CLI与当前汇总对真实执行证明的要求不变。失败日志完整保存，修复后使用新源码/新attempt重跑当前范围。
+
+第二次尝试完成当前55条HTTP及35项Rust验证后，新增组合consumer错误地读取`EvidenceChainNode.correlationId`而失败：契约将correlationId定义在EvidenceChainPage，节点提供eventId/causationId/objectRef。修正测试按page correlation与节点根/对象归属验证，未扩展API或更改运行时。原失败与macOS dyld启动延迟采样保留；新attempt独立执行，不把第二轮部分PASS拼入最终回执。
