@@ -1,0 +1,154 @@
+{
+  "schema": "quantos-bff010-local-controls/v1",
+  "sourceCommit": "5d41b7fbdb7453205dec534dd368094cfaabd1a8",
+  "scope": "bounded local process lease, real core module behavior and loopback provider/consumer; target database/durability/complete UI NOT_RUN",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "BFF008用户原答复/完整原稿/源码/回执确认；A4与BFF009原确认保留",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-confirmation-20261018/gate.json"
+    },
+    {
+      "id": "C02",
+      "control": "七直接前置原版本与日志/产物核对；仅referenceOnly",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/preflight/direct-references.json"
+    },
+    {
+      "id": "C03",
+      "control": "当前功能与直接影响18组；无递归全闭包/全仓/三轮构建",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/execution-results.json"
+    },
+    {
+      "id": "C04",
+      "control": "C11 36与C16 7操作/页面登记/132操作110schema",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/contract.log"
+    },
+    {
+      "id": "C05",
+      "control": "六类生成client/Zod/schema/MSW/input产物精确一致",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/generated.log"
+    },
+    {
+      "id": "C06",
+      "control": "真实X06/F09来源权限、数值metrics/安全组件、raw信息脱敏",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C07",
+      "control": "30秒健康租约、陈旧Runbook与流拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C08",
+      "control": "五类治理CRUD/版本冲突/tombstone/引用保护",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C09",
+      "control": "最后独立管理员、本人及同user别名自治理拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C10",
+      "control": "F06权限上限与跨页面撤权；不可自造Owner/Service角色",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C11",
+      "control": "typed deny policy与安全flag白名单，不能关闭kill/risk/RLS",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C12",
+      "control": "签名Engine审核/metadata绑定/独立准入/过期与撤销拒绝Research",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C13",
+      "control": "MFA/reauth caller及有效期精确复验，错误proof无部分更新",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C14",
+      "control": "40并发治理唯一回执，1000 native精确回放；当前权限先验",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C15",
+      "control": "100 HTTP原键恢复与意图冲突；一个F05审计根及可查链",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C16",
+      "control": "全部43 API成功/401/403/请求响应schema",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C17",
+      "control": "真实X06 ack/unack CAS；ack不改变source active/resolved",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/core-alerts.log"
+    },
+    {
+      "id": "C18",
+      "control": "incident新来源修复/独立Approver resolve/复发重开/追加timeline",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/core-incidents.log"
+    },
+    {
+      "id": "C19",
+      "control": "Runbook白名单/真实证据预检；拒绝shell/改账/任意命令/venue submit",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/core-runbook.log"
+    },
+    {
+      "id": "C20",
+      "control": "冻结分页与当前身份/session/query/config/有效期绑定",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/operations.log"
+    },
+    {
+      "id": "C21",
+      "control": "过滤后SSE连续序列/租约/订阅绑定、gap与恢复拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C22",
+      "control": "共享F06 Auth/settings与F05 audit/export直接回归",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/a2-boundary.log"
+    },
+    {
+      "id": "C23",
+      "control": "真实生成consumer丢回复恢复/事实校验/撤权；基本Chromium",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/reference-http.json"
+    },
+    {
+      "id": "C24",
+      "control": "Gate/CI fail-closed、当前源码与日志hash、原子发布回滚",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-local-20261018/function-attempt-02/logs/gate-tests.log"
+    }
+  ],
+  "targetDatabase": "NOT_RUN",
+  "targetTransactionRollback": "NOT_RUN",
+  "formalAccepted": false
+}
