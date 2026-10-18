@@ -1,0 +1,232 @@
+{
+  "schema": "quantos-a2-current-local-controls/v1",
+  "scope": "26 bounded current local controls; no historical target controls promoted",
+  "pass": 26,
+  "total": 26,
+  "records": [
+    {
+      "id": "A2-01",
+      "requirement": "26项当前API成功、owner/catalog/OpenAPI逐项一致",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/contract.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "A2-02",
+      "requirement": "两原回执的Git源码/日志/产物摘要及范围核对",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/confirmation.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/gate-tests.log"
+      ]
+    },
+    {
+      "id": "A2-03",
+      "requirement": "两原用户确认保持原稿/原源码，不批准当前汇总",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/confirmation.log"
+      ]
+    },
+    {
+      "id": "A2-04",
+      "requirement": "A1生成client/schema/Zod/MSW输出一致",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/generated.log"
+      ]
+    },
+    {
+      "id": "A2-05",
+      "requirement": "F05 append-only/provenance/outbox静态直接边界",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/f05-static.log"
+      ]
+    },
+    {
+      "id": "A2-06",
+      "requirement": "F05 tenant/provenance重放隔离",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/f05-tenant.log"
+      ]
+    },
+    {
+      "id": "A2-07",
+      "requirement": "F05 checkpoint恢复语义",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/f05-recovery.log"
+      ]
+    },
+    {
+      "id": "A2-08",
+      "requirement": "当前身份认证与只读权限拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-09",
+      "requirement": "CSRF/Origin输入拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/contract-negative.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log"
+      ]
+    },
+    {
+      "id": "A2-10",
+      "requirement": "MFA/reauth有效期、单次消费与最后因子保护",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log"
+      ]
+    },
+    {
+      "id": "A2-11",
+      "requirement": "设置版本冲突与当前版本回执",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-12",
+      "requirement": "幂等意图/并发唯一执行及单次审计",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-13",
+      "requirement": "SSE丢连接恢复/sequence/撤销终止且无积压泄漏",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-14",
+      "requirement": "同会话身份/导出组合及注销后双方拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "A2-15",
+      "requirement": "六Audit操作逐项401/403矩阵",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "A2-16",
+      "requirement": "保守脱敏、canonical hash与水印编码",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/audit-core.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log"
+      ]
+    },
+    {
+      "id": "A2-17",
+      "requirement": "独立导出因果根/auditRef/节点对象归属",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-18",
+      "requirement": "分页快照/游标绑定、过期拒绝及去重",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-19",
+      "requirement": "丢失创建响应的同键恢复，无重复副作用",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-20",
+      "requirement": "改变导出意图/取消对象均409",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "A2-21",
+      "requirement": "过期状态一次转换与下载410/取消幂等",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/provider.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/http.log"
+      ]
+    },
+    {
+      "id": "A2-22",
+      "requirement": "consumer资源ID/HTTPS租约/超时取消/schema拒绝",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/consumers.log"
+      ]
+    },
+    {
+      "id": "A2-23",
+      "requirement": "受影响包类型与静态lint",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/types.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/lint.log"
+      ]
+    },
+    {
+      "id": "A2-24",
+      "requirement": "源码/命令/退出/日志绑定、门禁负向及发布失败回滚",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/gate-tests.log"
+      ]
+    },
+    {
+      "id": "A2-25",
+      "requirement": "真实development/CI/原确认/plan激活入口与独立阶段",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/plan-policy.log",
+        "docs/audit/evidence/provider-a2-local-20261018/function-attempt-03/logs/plans.log"
+      ]
+    },
+    {
+      "id": "A2-26",
+      "requirement": "全部原历史证据保留，失败不转PASS",
+      "status": "PASS",
+      "evidence": [
+        "docs/audit/evidence/provider-a2-local-20261018/history-preservation.json"
+      ]
+    }
+  ]
+}
