@@ -11,3 +11,5 @@
 `pnpm check:bff-fe-003:development`、`make bff003-local-check`识别当前scoped回执；强制CI使用`pnpm check:bff-fe-003:ci`校验当前任务disposition和严格内容。旧target/historical入口和research-local闭包回执保留原用途，不能代替当前任务准入。
 
 工具使用固定pnpm10.20.0、公开local-mock白名单、cargo locked/offline单job；Python仅既有.venv的确定性fixture，无网络工具。禁止生产凭据、目标库、私有Storage、本地数据库和外部发布。INTEGRATION/RELEASE分别NOT_RUN，包括真实PostgreSQL/RLS/跨作用域并发、持久worker/lease/恢复、真实Engine授权/隔离、私有Storage、完整UI/API链、部署/性能/长稳/同SHA hosted CI；runtimeAdmission=DENIED、formalAccepted=false。当前完整确认稿待项目用户明确回复；A2原确认不批准当前任务。
+
+冻结0eec7e6a的首轮执行在源码复核发现亚秒有效期缺口后于source-policy步骤安全中断，已完成结果和SIGTERM/INTERRUPTED、启动采样保留，不拼入最终回执。修复将整秒截断改为capture/window-end的完整时间deadline与checked overflow拒绝，新增边界等值、超期1ns和溢出测试；19组范围不扩大，用新源码/新attempt独立记录。

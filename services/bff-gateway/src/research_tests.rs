@@ -593,3 +593,26 @@ async fn current_function_artifact_metadata_and_attachment_bind_identical_conten
     assert_eq!(status, 200);
     assert_eq!(chain["items"][0]["eventId"], attachment["auditRef"]);
 }
+
+#[test]
+fn current_function_snapshot_expiry_preserves_subsecond_window_and_overflow_boundaries() {
+    let mut fixture = Fixture::default();
+    let now = fixture.now;
+    let id = uuid(SNAPSHOT).unwrap();
+    let snapshot = fixture.snapshots.get_mut(&id).unwrap();
+    snapshot["window"]["start"] = json!(now - Duration::hours(3));
+    snapshot["capturedAt"] = json!(now - Duration::hours(1));
+    snapshot["window"]["end"] = json!(now - Duration::hours(1));
+    assert_eq!(fixture.snapshot(id).unwrap()["qualityBlocked"], false);
+    fixture.snapshots.get_mut(&id).unwrap()["capturedAt"] =
+        json!(now - Duration::hours(1) - Duration::nanoseconds(1));
+    assert_eq!(fixture.snapshot(id).unwrap()["qualityBlocked"], true);
+    let snapshot = fixture.snapshots.get_mut(&id).unwrap();
+    snapshot["capturedAt"] = json!(now);
+    snapshot["window"]["end"] = json!(now - Duration::hours(1) - Duration::nanoseconds(1));
+    assert_eq!(fixture.snapshot(id).unwrap()["qualityBlocked"], true);
+    let snapshot = fixture.snapshots.get_mut(&id).unwrap();
+    snapshot["window"]["end"] = json!(now);
+    snapshot["maxAgeSeconds"] = json!(i64::MAX);
+    assert_eq!(fixture.snapshot(id).unwrap()["qualityBlocked"], true);
+}

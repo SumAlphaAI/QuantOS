@@ -556,7 +556,20 @@ impl Repository for Fixture {
             .is_some_and(|(captured, max_age)| {
                 max_age >= 0
                     && captured <= self.now
-                    && self.now.signed_duration_since(captured).num_seconds() <= max_age
+                    && Duration::try_seconds(max_age).is_some_and(|age| {
+                        captured
+                            .checked_add_signed(age)
+                            .is_some_and(|deadline| self.now <= deadline)
+                            && value["window"]["end"]
+                                .as_str()
+                                .and_then(|v| DateTime::parse_from_rfc3339(v).ok())
+                                .is_some_and(|end| {
+                                    end <= captured
+                                        && end
+                                            .checked_add_signed(age)
+                                            .is_some_and(|deadline| self.now <= deadline)
+                                })
+                    })
             });
         value["qualityBlocked"] = json!(
             value["qualityBlocked"] != false

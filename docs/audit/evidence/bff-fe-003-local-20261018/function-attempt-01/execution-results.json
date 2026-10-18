@@ -1,0 +1,135 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-003-boundary.mjs"
+    ],
+    "reason": "Nine C03/C04 API owner, auth/CSRF/idempotency and direct persistent scheduling/snapshot/artifact/F05 bridge static boundaries",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:23:29.684Z",
+    "completedAt": "2026-10-18T03:23:29.846Z",
+    "elapsedMs": 161,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/contract.log",
+    "logSha256": "sha256:da1d5195fc6fa4ff4e94211bca97ff2997fa59d601aeb2b5c4f061e6ab71edb4"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Current OpenAPI/client/schema/MSW consistency at the directly consumed A1 boundary; no A1 gate re-admission",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:23:29.847Z",
+    "completedAt": "2026-10-18T03:23:30.348Z",
+    "elapsedMs": 501,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:c2e5d529e0ec3500475f413c397a03fd4cefa092a917e7754056ed7d33704d6e"
+  },
+  {
+    "id": "contract-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-003-development.test.mjs"
+    ],
+    "reason": "Preserve legacy strict source/log/target refusal behavior; fixture receipt validation only, no historical closure execution",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:23:30.348Z",
+    "completedAt": "2026-10-18T03:23:30.831Z",
+    "elapsedMs": 483,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/contract-negative.log",
+    "logSha256": "sha256:fe7383bae9dceec46e6889b5e264a5c0d7c893d0ab08e3e43de1ee454e4e83e7"
+  },
+  {
+    "id": "research",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "research::"
+    ],
+    "reason": "Current Research/reference and live pure authority/scope/evidence tests, including audit linkage, canonical artifact binding and reference-clock refusal",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:23:30.831Z",
+    "completedAt": "2026-10-18T03:27:17.101Z",
+    "elapsedMs": 226270,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/research.log",
+    "logSha256": "sha256:eaff6ec8a6e7e9b331652b49ab8e1ee6c5a8e5a909f8f1f93a8837ebf1e7b1f8"
+  },
+  {
+    "id": "runtime",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--lib",
+      "research::tests"
+    ],
+    "reason": "Direct R03/R04 semantic input hashes, idempotent schedule/checkpoint/artifact replay and canonical engine encoding; no whole runtime gate",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:27:17.102Z",
+    "completedAt": "2026-10-18T03:27:27.415Z",
+    "elapsedMs": 10313,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/runtime.log",
+    "logSha256": "sha256:aab1dcd1b2b4623142d776b6dad653bceee582aca9cbb88a77ac3a81ac0f316f"
+  },
+  {
+    "id": "source-policy",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--lib",
+      "provenance::tests"
+    ],
+    "reason": "Direct R02 server approval identity/time/purpose/license and revocation boundaries using in-memory source policy",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T03:27:27.416Z",
+    "completedAt": "2026-10-18T03:27:59.783Z",
+    "elapsedMs": 32367,
+    "exitCode": null,
+    "signal": "SIGTERM",
+    "errorCode": null,
+    "timedOut": false,
+    "status": "INTERRUPTED",
+    "log": "docs/audit/evidence/bff-fe-003-local-20261018/function-attempt-01/logs/source-policy.log",
+    "logSha256": "sha256:3d9fe8c471eb31ebaf3c0f0ea01b6d02ad58e4419d21d75c60e83bd365c3c412"
+  }
+]
