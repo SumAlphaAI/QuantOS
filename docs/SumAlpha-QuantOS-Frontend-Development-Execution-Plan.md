@@ -1,3 +1,5 @@
+> 当前任务（2026-10-18）：PREPARATION:P0 按最新 AGENTS.md 复核 PRE-01–PRE-06 与 A1 前置；使用 P0_LOCAL 功能入口，不递归重验无关上游、不拼接历史READY。功能准入、联调、发布及正式确认独立记录。共享门禁输入变化后，X3-SERVICE 独立READY撤回为NOT_ASSESSED，原2026-10-18证据保留原范围。见[规程](./operations/p0-functional-admission.md)。
+
 > 当前执行（CORE:X05，2026-10-17）：源码4f527da8的15组当前功能/直接影响检查全部PASS；四域对账、20类定位、无venue submit边界、CAS/复验关闭与journal恢复通过。仅X05_LOCAL功能DEVELOPMENT READY；真实10交易日/28组目标/完整联调与发布NOT_RUN、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X05-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
@@ -743,6 +745,20 @@
         "CORE:X04",
         "CORE:X05",
         "SERVICE:X06"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PREPARATION:P0": {
+      "profile": "P0_LOCAL",
+      "schema": "quantos-p0-functional-development/v1",
+      "manifest": "audit/evidence/p0-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }

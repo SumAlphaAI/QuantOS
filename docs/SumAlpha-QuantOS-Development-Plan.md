@@ -1,3 +1,5 @@
+> 当前任务（2026-10-18）：PREPARATION:P0 按最新 AGENTS.md 复核 PRE-01–PRE-06 与 A1 前置；使用 P0_LOCAL 功能入口，不递归重验无关上游、不拼接历史READY。功能准入、联调、发布及正式确认独立记录。共享门禁输入变化后，X3-SERVICE 独立READY撤回为NOT_ASSESSED，原2026-10-18证据保留原范围。见[规程](./operations/p0-functional-admission.md)。
+
 > 当前执行（CORE:X05，2026-10-17）：源码4f527da8的15组当前功能/直接影响检查全部PASS；四域对账、20类定位、无venue submit边界、CAS/复验关闭与journal恢复通过。仅X05_LOCAL功能DEVELOPMENT READY；真实10交易日/28组目标/完整联调与发布NOT_RUN、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X05-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
@@ -820,6 +822,20 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:X04",
         "CORE:X05",
         "SERVICE:X06"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PREPARATION:P0": {
+      "profile": "P0_LOCAL",
+      "schema": "quantos-p0-functional-development/v1",
+      "manifest": "audit/evidence/p0-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -2134,17 +2150,15 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "audit/evidence/x3-service-local-20261018/confirmation-draft.md"
   ],
   "stage_gate": {
-    "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:85cb27da7f4ef1046e163fc1aeccbdf121ec60bc8197fbeddd35dd2cd94b0fdc",
-    "evidence": [
-      "audit/evidence/x3-service-local-20261018/manifest.json"
-    ]
-  }
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "input_digest": null,
+  "evidence": []
+}
 }
 ```
 
-X3-SERVICE当前工程复核：2026-10-18，源码cd196195的17组功能组合/直接影响检查全部PASS，Rust41项（LLVM另执行5项）、Node89项；真实Paper事实/X01与独立Shadow账本一致，20类差异定位并完成62条关联异常的证明/ack/关闭/复发；32次命令及32次对账重放唯一，kill双人恢复、陈旧/撤权/期限拒绝、无venue submit。修复零异币费用的只读适配冲突，非零异币仍拒绝。X3-SERVICE_LOCAL仅DEVELOPMENT READY，九项依赖NOT_REVALIDATED/referenceOnly，businessIntegration/releaseAcceptance=NOT_RUN，正式确认PENDING，runtimeAdmission=DENIED；52,016个历史验收文件原样保留。见[报告](./audit/X3-SERVICE-local-admission-2026-10-18.md)及[待确认文稿](./audit/evidence/x3-service-local-20261018/confirmation-draft.md)。下一建议PREPARATION:P0当前功能准入核对，随后FE:BFF-FE-000/A1；不跳过前置，不直接宣称CORE:X06或X3完整业务联调已通过。
+X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）：2026-10-18，源码cd196195的17组功能组合/直接影响检查全部PASS，Rust41项（LLVM另执行5项）、Node89项；真实Paper事实/X01与独立Shadow账本一致，20类差异定位并完成62条关联异常的证明/ack/关闭/复发；32次命令及32次对账重放唯一，kill双人恢复、陈旧/撤权/期限拒绝、无venue submit。修复零异币费用的只读适配冲突，非零异币仍拒绝。X3-SERVICE_LOCAL仅DEVELOPMENT READY，九项依赖NOT_REVALIDATED/referenceOnly，businessIntegration/releaseAcceptance=NOT_RUN，正式确认PENDING，runtimeAdmission=DENIED；52,016个历史验收文件原样保留。见[报告](./audit/X3-SERVICE-local-admission-2026-10-18.md)及[待确认文稿](./audit/evidence/x3-service-local-20261018/confirmation-draft.md)。下一建议PREPARATION:P0当前功能准入核对，随后FE:BFF-FE-000/A1；不跳过前置，不直接宣称CORE:X06或X3完整业务联调已通过。
 
 <a id="execution-business-total"></a>
 ## 9. 全量 API 后的 Web 与业务功能联调 Gate
