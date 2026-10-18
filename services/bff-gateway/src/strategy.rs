@@ -856,6 +856,11 @@ async fn reference(
                     json!({"actor":a.actor_id,"outcome":"accepted"}),
                 );
                 if let Some(e) = state.audits.last_mut() {
+                    let original = e["auditRef"].clone();
+                    if e["causationId"] == original {
+                        e["causationId"] = v["auditRef"].clone();
+                    }
+                    e["route"] = json!(uri.path());
                     e["auditRef"] = v["auditRef"].clone();
                     e["eventId"] = v["auditRef"].clone();
                     e["actor"] = json!(a.actor_id);

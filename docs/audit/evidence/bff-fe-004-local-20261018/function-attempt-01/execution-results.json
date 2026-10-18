@@ -1,0 +1,94 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-004-boundary.mjs"
+    ],
+    "reason": "Twelve C05 APIs, additive stream/provenance/409 conflict contract and owner trust/no external publish boundary",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T08:04:38.815Z",
+    "completedAt": "2026-10-18T08:04:39.237Z",
+    "elapsedMs": 422,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-004-local-20261018/function-attempt-01/logs/contract.log",
+    "logSha256": "sha256:1b442a5095ec1d5360a363ebc4d64d0955c52573b1881b05523937def2c8dd45"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Current OpenAPI1.9.0 and all six generated client/Zod/schema/MSW/Rust-input-policy artifacts match exactly",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T08:04:39.238Z",
+    "completedAt": "2026-10-18T08:04:39.662Z",
+    "elapsedMs": 424,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-004-local-20261018/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:c70fd5453c0a00c859cd745a2886ea80719ccb835d9bfee603f36b2518595526"
+  },
+  {
+    "id": "strategy",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "strategy::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "reason": "New real S01/S02/S03/S04 adapter: CAS/no overwrite, pinned backtests/artifacts, approval roles/proof/recovery, cursor and expiry",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T08:04:39.662Z",
+    "completedAt": "2026-10-18T08:05:36.400Z",
+    "elapsedMs": 56738,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-004-local-20261018/function-attempt-01/logs/strategy.log",
+    "logSha256": "sha256:fa4886590ad899125b259c7cb389ef0dcda06381c90cbd3bdf9a026e059415e9"
+  },
+  {
+    "id": "execution-direct",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "execution::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "reason": "Affected FE006 common approvals routing, shared step-up consumption and reference material refactor only; no X3 upstream gate",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T08:05:36.400Z",
+    "completedAt": "2026-10-18T08:06:05.541Z",
+    "elapsedMs": 29141,
+    "exitCode": null,
+    "signal": "SIGTERM",
+    "errorCode": null,
+    "timedOut": false,
+    "status": "INTERRUPTED",
+    "log": "docs/audit/evidence/bff-fe-004-local-20261018/function-attempt-01/logs/execution-direct.log",
+    "logSha256": "sha256:f1682d10d669ca225a16b6ac9745420340ef98e5e11763868282da3f5f8324df"
+  }
+]

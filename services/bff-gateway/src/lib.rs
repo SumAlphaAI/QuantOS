@@ -543,7 +543,16 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
         cookies(headers).get("quantos_session").copied(),
         Some("session-approver" | "session-owner")
     ) {
-        json!(["settings.read", "execution.operate", "strategy.approve"])
+        if cookies(headers).get("quantos_session").copied() == Some("session-owner") {
+            json!([
+                "settings.read",
+                "execution.operate",
+                "strategy.approve",
+                "strategy.write"
+            ])
+        } else {
+            json!(["settings.read", "execution.operate", "strategy.approve"])
+        }
     } else {
         json!(["settings.read"])
     };

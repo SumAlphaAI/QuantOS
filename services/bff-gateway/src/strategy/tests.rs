@@ -764,3 +764,22 @@ async fn self_approval_is_rejected_even_when_actor_has_approver_capability() {
         .unwrap_err();
     assert_eq!(e.1, "SELF_APPROVAL_FORBIDDEN");
 }
+#[tokio::test]
+async fn strategy_audit_roots_and_response_ids_form_closed_evidence_chain() {
+    let (p, r, d) = setup().await;
+    let accepted = backtest(&r, &d).await;
+    let state = p.data.lock().await;
+    let rows = state
+        .audits
+        .iter()
+        .filter(|a| a["correlationId"] == accepted["correlationId"])
+        .collect::<Vec<_>>();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0]["eventId"], accepted["auditRef"]);
+    assert_eq!(rows[0]["causationId"], accepted["auditRef"]);
+    assert_eq!(rows[0]["route"], "/v1/backtests");
+    assert_eq!(
+        rows[0]["actor"],
+        reference_auth(crate::CURRENT_SESSION).actor_id.to_string()
+    );
+}
