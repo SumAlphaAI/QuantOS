@@ -1,0 +1,642 @@
+{
+  "schema": "quantos-bff009-functional-review/v1",
+  "nodeId": "FE:BFF-FE-009",
+  "status": "PASS",
+  "gate": "BFF009_SCOPE_LOCAL DEVELOPMENT READY",
+  "sourceCommit": "15d1fd65eb358c3363ccb75c36eca5fd3bb5784b",
+  "inputDigest": "sha256:8acf79efeee29906de92ad0fa873dcedbfe56338c3c3f5862cd3f9a814428e55",
+  "inputs": 989,
+  "checks": [
+    {
+      "id": "contract",
+      "command": [
+        "node",
+        "scripts/check-bff-fe-009-boundary.mjs"
+      ],
+      "reason": "Seven C15 API/owner/readonly-ledger contracts and existing compatibility/page register; no old component gates",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:25:53.798Z",
+      "completedAt": "2026-10-18T10:25:54.247Z",
+      "elapsedMs": 449,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/contract.log",
+      "logSha256": "sha256:ded1e099f55b1ee7d464434bed104f46739e2016c750104884a0dff82db90d2d"
+    },
+    {
+      "id": "generated",
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "reason": "OpenAPI1.10.0 six exact client/Zod/schema/MSW/input artifacts,81operations72schemas",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:25:54.248Z",
+      "completedAt": "2026-10-18T10:25:54.760Z",
+      "elapsedMs": 513,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/generated.log",
+      "logSha256": "sha256:46cfa2388cc49bcf5bbedcd0866681686362244248ccf7f078d3b4ff530b63ae"
+    },
+    {
+      "id": "reconciliation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "reconciliation::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Actual X05 host, scope/readonly ledger/closure facts, concurrent unique rerun/recovery, current mode separation/cursor/revocation/stale/poison/stream",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:25:54.761Z",
+      "completedAt": "2026-10-18T10:26:31.462Z",
+      "elapsedMs": 36701,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "logSha256": "sha256:ef63dc9c784d46ed3377154570013c388e3c1bb8677d43ecc9775bec4a563600"
+    },
+    {
+      "id": "x05-direct",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-reconcile",
+        "--test",
+        "x05_flow",
+        "--test",
+        "x05_sources"
+      ],
+      "reason": "Direct real owner API:20 difference families, CAS closure/journal/source proof/decimal adapters; no X05 gate, external soak or full X3 suite",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:26:31.462Z",
+      "completedAt": "2026-10-18T10:29:51.100Z",
+      "elapsedMs": 199638,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/x05-direct.log",
+      "logSha256": "sha256:9688d18a8aa28bb4ed5642a108f7b7dd8f0ac2d83f6eb59f4c4ead66d747221e"
+    },
+    {
+      "id": "a2-boundary",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "reason": "Changed reference Context and added F05 mutation roots: authenticated sessions, logout/recovery/redaction and audit/export direct regression",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:29:51.100Z",
+      "completedAt": "2026-10-18T10:31:39.048Z",
+      "elapsedMs": 107948,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/a2-boundary.log",
+      "logSha256": "sha256:f6e748814930ab655894b171ebe0e40ebbf909347abbc8a01e97caff2ba8f938"
+    },
+    {
+      "id": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--bin",
+        "bff-gateway"
+      ],
+      "reason": "Build actual reference binary for HTTP/generated consumer/Chromium, explicit Shadow context; default live no injected host503",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:31:39.049Z",
+      "completedAt": "2026-10-18T10:31:39.206Z",
+      "elapsedMs": 157,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/build.log",
+      "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+    },
+    {
+      "id": "http",
+      "command": [
+        "node",
+        "scripts/test-bff-fe-009-http.mjs",
+        "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/reference-http.json"
+      ],
+      "reason": "All7 current C15 success401403/schema,100 rerun retries, readonly injection/version/pagination/evidence/stream/logout and basic Chromium",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:31:39.207Z",
+      "completedAt": "2026-10-18T10:31:40.859Z",
+      "elapsedMs": 1652,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/http.log",
+      "logSha256": "sha256:32952680d831473bcd943d1933f968c7a95257ba5fc7438ca6cd90dcb2d99b36"
+    },
+    {
+      "id": "consumers",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "apps/terminal/tests/reconciliation-provider-consumer.test.ts",
+        "packages/api-client/tests/bff-response.test.ts",
+        "packages/api-client/tests/bff-transport.test.ts",
+        "packages/api-client/tests/sse-poc.test.ts",
+        "tests/contract",
+        "--coverage",
+        "--coverage.provider=v8",
+        "--coverage.include=apps/terminal/src/reconciliation/gateway.ts",
+        "--coverage.reporter=json-summary",
+        "--coverage.reportsDirectory=docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/consumer-coverage"
+      ],
+      "reason": "Actual generated client loss recovery, authoritative X05 facts/F05 refs, append-only ledger, stream resume/gap/revocation, updated shared response/schema contract",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:31:40.859Z",
+      "completedAt": "2026-10-18T10:32:00.224Z",
+      "elapsedMs": 19365,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/consumers.log",
+      "logSha256": "sha256:83532c38fa6bd72323a758978fc69a0a21e09b3d82839631bc586b6e53936632"
+    },
+    {
+      "id": "types",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "typecheck"
+      ],
+      "reason": "Compile added C15 generated client and consumer with pinned dependencies",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:00.224Z",
+      "completedAt": "2026-10-18T10:32:02.945Z",
+      "elapsedMs": 2721,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/types.log",
+      "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "lint"
+      ],
+      "reason": "Changed generated API and C15 consumer static checks",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:02.945Z",
+      "completedAt": "2026-10-18T10:32:04.572Z",
+      "elapsedMs": 1627,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/lint.log",
+      "logSha256": "sha256:eb15fc98c8f1bb5bdc954879cf828f73694786fb55fdd848d7514afb23fd0f89"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "reason": "Native static checks for X05 page adapter and live/ref owner wiring",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:04.572Z",
+      "completedAt": "2026-10-18T10:32:19.553Z",
+      "elapsedMs": 14981,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/clippy.log",
+      "logSha256": "sha256:25eaa6d2cfe98049ecf020ad6432f34abe38ba7cae6719b0dfa888b99900b7f0"
+    },
+    {
+      "id": "confirmation",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a4-confirmation.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "reason": "A4 raw user reply/original draft/source/receipt only; C15 current confirmation PENDING",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:19.553Z",
+      "completedAt": "2026-10-18T10:32:24.459Z",
+      "elapsedMs": 4906,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/confirmation.log",
+      "logSha256": "sha256:be130e84892d22ff9f9cf30cdc5532bebaa460782794af4df03198d8edb710f7"
+    },
+    {
+      "id": "gate-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-009-functional-gate.test.mjs"
+      ],
+      "reason": "Current source/check/HTTP/schema/coverage/refs drift, phase promotion and atomic checkpoint rollback refusals",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:24.460Z",
+      "completedAt": "2026-10-18T10:32:25.242Z",
+      "elapsedMs": 782,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/gate-tests.log",
+      "logSha256": "sha256:9959e1537094be0b89036579a6bb13dc8286f6b97ee23732e29a592957c163bc"
+    },
+    {
+      "id": "plan-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "reason": "BFF009-only scoped admission and mandatory CI disposition, five reference-only dependencies",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:25.243Z",
+      "completedAt": "2026-10-18T10:32:25.779Z",
+      "elapsedMs": 536,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/plan-policy.log",
+      "logSha256": "sha256:0139a7205ee3de3805e2da2622ead914c182a15d81a392192dd2f6c6f8b8fbeb"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "reason": "Two plan stage/profile requirements match; full UI/target/release NOT_RUN",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-18T10:32:25.779Z",
+      "completedAt": "2026-10-18T10:32:25.841Z",
+      "elapsedMs": 62,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    }
+  ],
+  "entrypoints": [
+    {
+      "id": "development",
+      "command": [
+        "node",
+        "scripts/bff-fe-009-development.mjs",
+        "--ready"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "elapsedMs": 8436,
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/entrypoints/development.log",
+      "logSha256": "sha256:96c136268159557a57d41a90d6c0501330b29e1a676d59ece5a5fda9cac634af"
+    },
+    {
+      "id": "ci",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "FE:BFF-FE-009"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "elapsedMs": 8643,
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/entrypoints/ci.log",
+      "logSha256": "sha256:2b6a3c586f5b916e2b4e9584d3ad3020fb0b300c9e40ef92ca2cef7b37543daf"
+    },
+    {
+      "id": "a4-confirmation",
+      "command": [
+        "node",
+        "scripts/provider-a4-confirmation.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "elapsedMs": 604,
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/entrypoints/a4-confirmation.log",
+      "logSha256": "sha256:80a41cce31868a0223e279bcd91fccca4baa0b1aded8d371e9b89d167c560a33"
+    },
+    {
+      "id": "prerequisites",
+      "command": [
+        "node",
+        "scripts/reassess-bff-fe-009-prerequisites.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "elapsedMs": 1539,
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/entrypoints/prerequisites.log",
+      "logSha256": "sha256:6b35c60dda1a1eddbedbc4869cd2e2605abdde93770546c984cccf2ff3fa59e8"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "elapsedMs": 62,
+      "log": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/entrypoints/plans.log",
+      "logSha256": "sha256:d49c0da9185a8edae8c18a9c9d0b9ea2c955b582c460c73d181cbb328a487d43"
+    }
+  ],
+  "counts": {
+    "checkGroups": 15,
+    "activatedEntrypoints": 5,
+    "rust": {
+      "reconciliation": 14,
+      "x05-direct": 18,
+      "a2-boundary": 29
+    },
+    "rustTotal": 61,
+    "node": {
+      "confirmation": 29,
+      "gate-tests": 44,
+      "plan-policy": 72
+    },
+    "nodeTotal": 145,
+    "consumer": 44,
+    "consumerFiles": 7,
+    "ownedOperations": 7,
+    "httpRecords": 147,
+    "httpStatusCodes": {
+      "200": 22,
+      "422": 2,
+      "409": 5,
+      "404": 1,
+      "202": 101,
+      "401": 8,
+      "403": 7,
+      "204": 1
+    },
+    "exactHttpRetries": 100,
+    "nativeExactRetries": 1000,
+    "concurrentHttpRetries": 40,
+    "browserProbes": 1
+  },
+  "coverage": {
+    "total": {
+      "lines": {
+        "total": 20,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 37,
+        "covered": 37,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 23,
+        "covered": 23,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": "Unknown"
+      }
+    },
+    "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/reconciliation/gateway.ts": {
+      "lines": {
+        "total": 20,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 37,
+        "covered": 37,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 23,
+        "covered": 23,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "references": {
+    "baselineCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+    "receipts": [
+      {
+        "nodeId": "FE:BFF-FE-006",
+        "path": "docs/audit/evidence/bff-fe-006-local-20261018/manifest.json",
+        "sha256": "sha256:47953f464627e705e74d05ce09b3aa3bdf45e1c90608dd2432e5a914ec8f960f",
+        "receiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+        "sourceCommit": "590f1f8f4f3561e38e1900adc3764a515fbdef1d",
+        "checksVerified": 16,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "FE:BFF-FE-007",
+        "path": "docs/audit/evidence/bff-fe-007-local-20261018/manifest.json",
+        "sha256": "sha256:c54a9d52f47394d3fa21fd162d3fbcf99085a344d66b629ccc2c081dfb5c6f41",
+        "receiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+        "sourceCommit": "7d0fc3664904627972e3d82559eabd4405c0a9f2",
+        "checksVerified": 17,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "CORE:X05",
+        "path": "docs/audit/evidence/x05-local-20261017/manifest.json",
+        "sha256": "sha256:f51130a2afe4c33a343f7130bb61d154299a8fd34ecb65b39a1005bd3801a811",
+        "receiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+        "sourceCommit": "4f527da80861bb1421c621a520ae1fb5a56917ff",
+        "checksVerified": 15,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "CORE-GATE:X3-SERVICE",
+        "path": "docs/audit/evidence/x3-service-local-20261018/manifest.json",
+        "sha256": "sha256:85cb27da7f4ef1046e163fc1aeccbdf121ec60bc8197fbeddd35dd2cd94b0fdc",
+        "receiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+        "sourceCommit": "cd1961951e583a70cd1a5bfbd97f5457d3ba1f57",
+        "checksVerified": 17,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "PROVIDER:A4",
+        "path": "docs/audit/evidence/provider-a4-local-20261018/manifest.json",
+        "sha256": "sha256:2205abd36fbefbca933dfe682276267a15c25657aab4d8c7e31bc3627688b3fa",
+        "receiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+        "sourceCommit": "c9deac5b465c2146a1dfd0c316cbe47607f20451",
+        "checksVerified": 16,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      }
+    ],
+    "a4Confirmation": {
+      "status": "CONFIRMED",
+      "approver": "ProjectUser",
+      "nodeId": "PROVIDER:A4",
+      "approvedSourceCommit": "c9deac5b465c2146a1dfd0c316cbe47607f20451",
+      "approvedReceiptCommit": "5bab565973ae847e4d4410959c43c6a509f15bf1",
+      "scopeAdmission": "FUNCTION_ONLY",
+      "formalAccepted": false,
+      "runtimeAdmission": "DENIED",
+      "currentHeadAcceptance": "NOT_CLAIMED",
+      "upstreamAdmission": "NOT_CLAIMED"
+    },
+    "upstreamAdmission": "NOT_CLAIMED"
+  },
+  "phaseStatus": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "scope": {
+    "phase": "FUNCTION_DEVELOPMENT",
+    "recursiveDependencyRevalidation": false,
+    "wholeWorkspace": false,
+    "threeIndependentBuilds": false,
+    "dependencyAdmission": "NOT_CLAIMED"
+  },
+  "risks": [
+    {
+      "id": "context-source-boundary",
+      "status": "BOUNDED_LOCAL_ONLY",
+      "scope": "X05原生Shadow授权；Paper订单/成交为owner观察输入，Order/Fill source_record不冒充当前BFF订单，Alert是x05_exception而非未实现的C16 Alert API"
+    },
+    {
+      "id": "durable-target",
+      "status": "NOT_RUN",
+      "scope": "真实Supabase/Auth/MFA/RLS/Storage、持久事务、跨实例/重启恢复；进程内host丢失或审计失败隔离后不得恢复成有效写租约"
+    },
+    {
+      "id": "full-integration",
+      "status": "NOT_RUN",
+      "scope": "真实Paper/Shadow feed、来源许可/撤权、连续10实际交易日Shadow与日终闭环、P11/P21/P22/G5/FEP-5完整UI/API链"
+    },
+    {
+      "id": "numeric-boundary",
+      "status": "OPEN_INHERITED_BOUNDARY",
+      "scope": "X05定点Decimal输出，X01 f64来源/固定quote与非零异币费用拒绝仍保留，字符串序列化不提升上游计算精度"
+    },
+    {
+      "id": "release",
+      "status": "NOT_RUN",
+      "scope": "目标安全/性能/容量/长稳/部署、同SHA hosted CI、正式发布；目标专用自动化NOT_IMPLEMENTED"
+    },
+    {
+      "id": "human-confirmation",
+      "status": "PENDING",
+      "scope": "新BFF009完整稿待用户确认，formalAccepted=false，runtimeAdmission=DENIED"
+    }
+  ],
+  "confirmation": "PENDING",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "production": false,
+  "externalPublished": false,
+  "runtimeAdmission": "DENIED",
+  "nextExecutableTask": "FE:BFF-FE-008 / A5：Performance 与报表 API"
+}

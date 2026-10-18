@@ -1,0 +1,228 @@
+{
+  "schema": "quantos-bff009-control-matrix/v1",
+  "sourceCommit": "15d1fd65eb358c3363ccb75c36eca5fd3bb5784b",
+  "inputDigest": "sha256:8acf79efeee29906de92ad0fa873dcedbfe56338c3c3f5862cd3f9a814428e55",
+  "controls": [
+    {
+      "control": "C15 owned contract",
+      "checkId": "contract",
+      "assertion": "7 C15 operations",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/contract.log",
+      "verifiedBehavior": "Seven published owned APIs,81total/72schemas; no edit-ledger operation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Generated strict nullable",
+      "checkId": "consumers",
+      "assertion": "bff-remediation.test.ts",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/consumers.log",
+      "verifiedBehavior": "Nullable auditRef/cursor/hash retain actual types and reject object/number/invalid hash substitutes",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Real X05 and immutable ledger",
+      "checkId": "reconciliation",
+      "assertion": "real_x05_run_and_immutable_ledger_projections ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Real ReconciliationService report hash; original entries retain exact fields and Decimal strings",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Original retry recovery",
+      "checkId": "reconciliation",
+      "assertion": "original_retry_recovers_without_rerun_even_after_source_expiry ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "1000 exact retries after source expiry retain receipt/core journal; Unicode100-character reason accepted",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Version and stale snapshot refusal",
+      "checkId": "reconciliation",
+      "assertion": "version_race_and_stale_sources_cannot_change_core_journal ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "CAS/source snapshot age rejects with no core journal/run mutation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Trusted scope authorization",
+      "checkId": "reconciliation",
+      "assertion": "tenant_workspace_account_mode_role_capability_are_authoritative ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Tenant/workspace/account/mode/role/capability checked from trusted context",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "No browser book or closure",
+      "checkId": "reconciliation",
+      "assertion": "no_ledger_edit_or_browser_source_or_closure_injection ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "HTTP cannot inject cash/input/status/closure or edit ledger",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Actual closure/day approval",
+      "checkId": "reconciliation",
+      "assertion": "breaks_reflect_only_real_core_acknowledgement_and_verified_closure ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Only actual ack/fresh repair/verified closure/day-close hash allows non-provisional output; journal appended",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Frozen pages and current authority",
+      "checkId": "reconciliation",
+      "assertion": "frozen_page_rejects_role_capability_session_query_and_expiry_changes ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Opaque cursor binds session, current roles/grants/query and expiration",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Run journal safety",
+      "checkId": "reconciliation",
+      "assertion": "journal_resume_gap_staleness_and_poison_refuse_false_success ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "SSE resume/gap/source lease expiry and poisoned host refusals",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Trusted input renewal",
+      "checkId": "reconciliation",
+      "assertion": "untrusted_source_renewal_is_rejected_and_report_unchanged ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Foreign scope/future observation rejected; original input retained",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Concurrent unique rerun/F05",
+      "checkId": "reconciliation",
+      "assertion": "concurrent_http_retries_have_one_run_and_closed_f05_root ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "40 actual concurrent gateway retries yield one run and one closed F05 root; encoded hash member resolves",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Session and logout",
+      "checkId": "reconciliation",
+      "assertion": "denied_session_no_capability_and_logout_cannot_read_or_rerun ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Missing/viewer/approver sessions refused; logout prevents reads/reconnect",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Explicit mode separation",
+      "checkId": "reconciliation",
+      "assertion": "explicit_context_never_crosses_shadow_into_paper_dispatch_or_strategy ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Context says Shadow; Paper/Strategy routes cannot create execution hosts in Shadow reference; Paper C15 denied",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Bounded read quota",
+      "checkId": "reconciliation",
+      "assertion": "bounded_cursor_abuse_returns_retry_envelope_without_ledger_mutation ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "1001 cursor requests cause429 with retry envelope and no ledger/run mutation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Original day binding",
+      "checkId": "reconciliation",
+      "assertion": "rerun_cannot_silently_switch_the_original_day_and_owner_feed_keeps_history ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/reconciliation.log",
+      "verifiedBehavior": "Trusted owner feed can append another day; original run rerun cannot silently switch day; history retained",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Twenty differences/direct core",
+      "checkId": "x05-direct",
+      "assertion": "x05_twenty_differences_are_located_with_source_proof_within_fifteen_minutes ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/x05-direct.log",
+      "verifiedBehavior": "20 classes, source CAS/closure/journal/refusal and controlled clocks; not real target SLA/soak",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Actual source adapters",
+      "checkId": "x05-direct",
+      "assertion": "x05_actual_x03_x04_x01_read_models_adapt_without_any_kernel_invocation ... ok",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/x05-direct.log",
+      "verifiedBehavior": "Direct X03/X04/X01 read-model adapter proof and exact ledger arithmetic; no kernel invocation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Shared Context/auth/audit",
+      "checkId": "a2-boundary",
+      "assertion": null,
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/a2-boundary.log",
+      "verifiedBehavior": "29 actual direct Auth/settings and audit/export regressions, including permissions/CSRF/idempotency/recovery",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Actual generated consumer",
+      "checkId": "consumers",
+      "assertion": "reconciliation-provider-consumer.test.ts",
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/consumers.log",
+      "verifiedBehavior": "Loss after commit recovers original key;202 not terminal fact; immutable ledger/exception/evidence/stream/logout",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Provider conformance/browser",
+      "checkId": "http",
+      "assertion": null,
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/http.log",
+      "verifiedBehavior": "Every owned success401403/schema,100exact retries, typed filters/sort/day, version conflict, no-ledger route and basic Chromium",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Candidate/phase integrity",
+      "checkId": "gate-tests",
+      "assertion": null,
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/gate-tests.log",
+      "verifiedBehavior": "44 refusal/rollback tests for source,commands,logs,HTTP,coverage,old references and phase promotion",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Original A4 confirmation",
+      "checkId": "confirmation",
+      "assertion": null,
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/confirmation.log",
+      "verifiedBehavior": "Original c9deac5b/5bab5659 draft and source/receipt/raw user reply verified; no current A4 admission",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Mandatory stage wiring",
+      "checkId": "plan-policy",
+      "assertion": null,
+      "evidence": "docs/audit/evidence/bff-fe-009-local-20261018/function-attempt-01/logs/plan-policy.log",
+      "verifiedBehavior": "72 policy/CI negative cases and5 actual entrypoints; only own stage published, all5 dependencies referenceOnly",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "liveAuditFailureDurability": "STATIC_WIRING_AND_HOST_QUARANTINE_ONLY_TARGET_NOT_RUN",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}

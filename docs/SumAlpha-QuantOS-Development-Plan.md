@@ -1,4 +1,4 @@
-> 当前执行（FE:BFF-FE-009/A5，2026-10-18）：A4原完整稿已登记CONFIRMED，仅c9deac5b/5bab5659原范围。C15七项API按X05可信输入/只读账本/受控重跑实现与影响范围验证中；共享契约变化后A4独立当前READY撤回，原确认回执保留。完整联调/目标/发布NOT_RUN，runtimeAdmission=DENIED。
+> 当前工程结果（FE:BFF-FE-009/A5，2026-10-18）：冻结15d1fd65，989输入/15组当前功能与直接影响、5个实际入口PASS；Rust61、Node145、consumer/契约44，C15七操作/147条当前HTTP和基本Chromium通过，24控制点PASS。只读账本/真实X05闭环事实、受控幂等重跑、day绑定/关闭证明及撤权恢复完成。仅BFF009_SCOPE_LOCAL DEVELOPMENT READY；A4原确认CONFIRMED且保留c9deac5b/5bab5659范围，五前置不重授READY。53,247历史文件保持，探索失败保留；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本任务用户确认PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/bff-fe-009-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-008 / A5。
 
 > 历史工程结果（PROVIDER:A4，2026-10-18）：冻结c9deac5b，953输入/16组当前汇总与直接影响、7个实际入口PASS；Rust69、Node180、consumer/契约53，32操作/2153条当前HTTP和两个基本Chromium通过。修复公共审批隔离/最小权限与撤权游标，24控制点PASS。仅A4_SCOPE_LOCAL DEVELOPMENT READY；FE006/FE004/A3原确认CONFIRMED但独立当前Gate不重授。53,148个原audit/gate文件保持，失败/中断保留；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总用户确认PENDING。见[报告](./audit/PROVIDER-A4-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/provider-a4-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-009 / A5。
 
