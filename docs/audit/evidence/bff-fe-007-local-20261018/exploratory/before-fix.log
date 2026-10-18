@@ -1,0 +1,37 @@
+
+running 6 tests
+test export_evidence_uses_an_independent_causal_root_and_stable_response_correlation ... FAILED
+test expired_export_status_transitions_once_and_denies_fresh_cancel_and_download ... FAILED
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test concurrent_export_create_and_cancel_replay_one_job_and_one_audit_effect ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+test export_commands_reject_changed_intents_before_audit_or_cancellation ... ok
+
+failures:
+
+---- export_evidence_uses_an_independent_causal_root_and_stable_response_correlation stdout ----
+
+thread 'export_evidence_uses_an_independent_causal_root_and_stable_response_correlation' (764642) panicked at services/bff-gateway/tests/audit_export_provider.rs:721:5:
+assertion `left != right` failed: export must not pollute the source domain evidence chain
+  left: "aaaaaaaa-1111-4111-8111-111111111111"
+ right: "aaaaaaaa-1111-4111-8111-111111111111"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- expired_export_status_transitions_once_and_denies_fresh_cancel_and_download stdout ----
+
+thread 'expired_export_status_transitions_once_and_denies_fresh_cancel_and_download' (764639) panicked at services/bff-gateway/tests/audit_export_provider.rs:753:9:
+assertion `left == right` failed
+  left: String("ready")
+ right: "expired"
+
+
+failures:
+    expired_export_status_transitions_once_and_denies_fresh_cancel_and_download
+    export_evidence_uses_an_independent_causal_root_and_stable_response_correlation
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.02s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.11s
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-c6937154e04ec6f9)
+error: test failed, to rerun pass `-p bff-gateway --test audit_export_provider`

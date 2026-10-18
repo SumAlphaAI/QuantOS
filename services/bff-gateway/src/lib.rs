@@ -1508,6 +1508,12 @@ fn record_audit_action(
     redacted_payload: Value,
 ) -> String {
     let audit_ref = Uuid::now_v7().to_string();
+    let cause = data
+        .audits
+        .iter()
+        .find(|entry| entry["correlationId"] == correlation && entry.get("eventId").is_some())
+        .map(|entry| entry["eventId"].clone())
+        .unwrap_or_else(|| json!(audit_ref));
     let sequence = data
         .audits
         .iter()
@@ -1516,7 +1522,7 @@ fn record_audit_action(
         + 1;
     let redacted_payload = audit_core::redacted(&redacted_payload);
     data.audits.push(json!({
-        "auditRef":audit_ref,"eventId":Uuid::now_v7(),"correlationId":correlation,
+        "auditRef":audit_ref,"eventId":audit_ref,"correlationId":correlation,"causationId":cause,
         "sequence":sequence,"kind":action,"actor":"audit-user","objectRef":object_ref,
         "occurredAt":data.now().to_rfc3339(),"redactionApplied":true,
         "redactedPayload":redacted_payload,"payloadHash":audit_core::payload_hash(&redacted_payload),
@@ -1556,7 +1562,10 @@ async fn create_export(
     };
     let mut state = data.lock().await;
     match command.replay(&state) {
-        Ok(Some(existing)) => return response(StatusCode::ACCEPTED, existing, &correlation_id()),
+        Ok(Some(existing)) => {
+            let correlation = existing["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, existing, &correlation);
+        }
         Err(response) => return *response,
         Ok(None) => {}
     }
@@ -1569,7 +1578,7 @@ async fn create_export(
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
     let export_id = Uuid::now_v7().to_string();
-    let correlation = input.scope.correlation_ids[0].clone();
+    let correlation = Uuid::now_v7().to_string();
     let audit_ref = record_audit_action(
         &mut state,
         "export.created",
@@ -1614,8 +1623,28 @@ async fn create_export(
         json!({"status":"ready"}),
     );
     command.save(&mut state, payload.clone());
-    let response_correlation = correlation_id();
-    response(StatusCode::ACCEPTED, payload, &response_correlation)
+    response(StatusCode::ACCEPTED, payload, &correlation)
+}
+
+// Reference state mirrors live retention handling; reads never execute generation.
+fn expire_reference_export(state: &mut ProviderData, export_id: &str) -> Option<Value> {
+    let mut job = state.exports.get(export_id)?.clone();
+    let retention = chrono::DateTime::parse_from_rfc3339(job["retentionUntil"].as_str().unwrap())
+        .unwrap()
+        .with_timezone(&Utc);
+    if retention <= state.now() && !matches!(job["status"].as_str(), Some("expired" | "cancelled"))
+    {
+        job["status"] = json!("expired");
+        state.exports.insert(export_id.to_owned(), job.clone());
+        record_audit_action(
+            state,
+            "export.expired",
+            job["correlationId"].as_str().unwrap(),
+            export_id,
+            json!({"status":"expired"}),
+        );
+    }
+    Some(job)
 }
 
 async fn get_export_status(
@@ -1627,13 +1656,8 @@ async fn get_export_status(
         return response;
     }
     let mut state = data.lock().await;
-    let payload = {
-        let Some(job) = state.exports.get_mut(&export_id) else {
-            return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
-        };
-        // Status reads do not execute generation.
-
-        job.clone()
+    let Some(payload) = expire_reference_export(&mut state, &export_id) else {
+        return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     };
     let job_correlation = payload["correlationId"]
         .as_str()
@@ -1645,7 +1669,7 @@ async fn get_export_status(
         &export_id,
         json!({"status":payload["status"]}),
     );
-    let correlation = correlation_id();
+    let correlation = job_correlation.to_owned();
     response(StatusCode::OK, payload, &correlation)
 }
 
@@ -1669,10 +1693,14 @@ async fn cancel_export(
     };
     let mut state = data.lock().await;
     match command.replay(&state) {
-        Ok(Some(existing)) => return response(StatusCode::ACCEPTED, existing, &correlation_id()),
+        Ok(Some(existing)) => {
+            let correlation = existing["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, existing, &correlation);
+        }
         Err(response) => return *response,
         Ok(None) => {}
     }
+    expire_reference_export(&mut state, &export_id);
     let payload = {
         let Some(job) = state.exports.get_mut(&export_id) else {
             return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
@@ -1700,7 +1728,7 @@ async fn cancel_export(
     payload["auditRef"] = json!(audit_ref);
     state.exports.insert(export_id, payload.clone());
     command.save(&mut state, payload.clone());
-    let correlation = correlation_id();
+    let correlation = payload["correlationId"].as_str().unwrap().to_owned();
     response(StatusCode::ACCEPTED, payload, &correlation)
 }
 
@@ -1713,7 +1741,7 @@ async fn get_export_download(
         return response;
     }
     let mut state = data.lock().await;
-    let Some(job) = state.exports.get(&export_id).cloned() else {
+    let Some(job) = expire_reference_export(&mut state, &export_id) else {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     };
     if job["status"] == "expired" {
@@ -1764,7 +1792,7 @@ async fn get_export_download(
         "sizeBytes":bytes.len(),"mediaType":media_type,"watermarked":true,
         "retentionUntil":job["retentionUntil"],"auditRef":audit_ref
     });
-    let correlation = correlation_id();
+    let correlation = job_correlation.to_owned();
     response(StatusCode::OK, payload, &correlation)
 }
 

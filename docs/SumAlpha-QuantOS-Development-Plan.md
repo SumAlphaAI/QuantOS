@@ -1,4 +1,6 @@
-> 当前工程结果（FE:BFF-FE-001 / A2，2026-10-18）：冻结85530021，727个功能输入、14组当前功能/直接边界及3项激活入口PASS；Node167、Rust34、消费者/契约128、9类真实源码变异拒绝，20操作/21条HTTP与24项限定控制点PASS。仅A2_IDENTITY_LOCAL任务DEVELOPMENT READY，A1/F06/PROVIDER:A2/G1/FEP-1不重授READY；完整联调/发布NOT_RUN、用户确认PENDING、runtimeAdmission=DENIED。保留首轮工具FAIL与52,392个历史文件。见[当前报告](./audit/BFF-FE-001-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-007当前功能复核。
+> 当前范围（2026-10-18）：FE:BFF-FE-007/A2 Audit与导出API当前功能复核，仅C10六操作与F05/A1/身份直接边界。BFF-FE-001原85530021/4f261e67完整确认稿已获项目用户确认并通过门禁，见[原始确认](./audit/evidence/bff-fe-001-confirmation-20261018/user-confirmation.json)；确认不放行新HEAD/完整联调/发布。共享C10输入变化后BFF-FE-001独立READY撤回，原范围证据和确认保留。见[当前规程](./operations/bff-fe-007-functional-admission.md)。
+
+> 历史工程结果（FE:BFF-FE-001 / A2，2026-10-18）：冻结85530021，727个功能输入、14组当前功能/直接边界及3项激活入口PASS；Node167、Rust34、消费者/契约128、9类真实源码变异拒绝，20操作/21条HTTP与24项限定控制点PASS。仅A2_IDENTITY_LOCAL任务DEVELOPMENT READY，A1/F06/PROVIDER:A2/G1/FEP-1不重授READY；完整联调/发布NOT_RUN、用户确认PENDING、runtimeAdmission=DENIED。保留首轮工具FAIL与52,392个历史文件。见[当前报告](./audit/BFF-FE-001-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-007当前功能复核。
 
 > 当前前端功能复核（2026-10-18）：FE:BFF-FE-001/A2仅消费CORE:F06身份/会话直接边界及A1契约输入，不递归重验F06及上游；功能/完整联调/发布独立。A1共享输入变化后独立READY撤回，变更前回执保留参考；见[规程](./operations/bff-fe-001-functional-admission.md)。
 
@@ -880,6 +882,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "FE:BFF-FE-000",
         "CORE:F06",
+        "PROVIDER:A1"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-007": {
+      "profile": "A2_AUDIT_LOCAL",
+      "schema": "quantos-a2-audit-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-007-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-001",
+        "CORE:F05",
         "PROVIDER:A1"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"

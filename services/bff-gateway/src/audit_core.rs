@@ -249,3 +249,100 @@ pub(crate) fn artifact(format: &str, watermark: &str, events: &[Value]) -> (Vec<
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn input() -> ExportInput {
+        serde_json::from_value(json!({"scope":{"correlationIds":["aaaaaaaa-1111-4111-8111-111111111111"]},"format":"jsonl","reason":"Controlled evidence review","watermark":"Restricted audit","retentionDays":7})).unwrap()
+    }
+    #[test]
+    fn normalized_scope_is_order_independent_and_rejects_duplicate_or_reversed_bounds() {
+        let mut a = input();
+        a.scope
+            .correlation_ids
+            .push("bbbbbbbb-1111-4111-8111-111111111111".into());
+        a.scope.event_kinds = Some(vec!["z".into(), "a".into()]);
+        let mut b = a.clone();
+        b.scope.correlation_ids.reverse();
+        b.scope.event_kinds.as_mut().unwrap().reverse();
+        assert_eq!(
+            serde_json::to_value(a.normalize().unwrap()).unwrap(),
+            serde_json::to_value(b.normalize().unwrap()).unwrap()
+        );
+        let mut duplicate = input();
+        duplicate
+            .scope
+            .correlation_ids
+            .push(duplicate.scope.correlation_ids[0].clone());
+        assert!(duplicate.normalize().is_err());
+        let mut reverse = input();
+        reverse.scope.start_at = Some("2026-10-02T00:00:00Z".into());
+        reverse.scope.end_at = Some("2026-10-01T00:00:00Z".into());
+        assert!(reverse.normalize().is_err());
+    }
+    #[test]
+    fn redaction_excludes_unknown_nested_and_free_text_and_hashes_canonical_bytes() {
+        let raw = json!({"reason":"SYNTHETIC_PRIVATE","watermark":"SYNTHETIC_PRIVATE","unknown":{"password":"SYNTHETIC_PRIVATE"},"scope":{"correlationIds":["private"]},"retentionDays":7,"status":"ready"});
+        let clean = redacted(&raw);
+        assert!(!clean.to_string().contains("SYNTHETIC_PRIVATE"));
+        assert!(clean.get("unknown").is_none());
+        assert!(clean.get("scope").is_none());
+        assert_eq!(clean["reason"], "[REDACTED]");
+        assert_eq!(
+            payload_hash(&clean),
+            format!(
+                "sha256:{}",
+                digest(&quantos_core::canonical_json_bytes(&clean).unwrap())
+            )
+        );
+    }
+    #[test]
+    fn scope_filters_apply_correlation_kind_and_utc_time_bounds_together() {
+        let mut input = input();
+        input.scope.event_kinds = Some(vec!["order.created".into()]);
+        input.scope.start_at = Some("2026-10-01T01:00:00+01:00".into());
+        input.scope.end_at = Some("2026-10-01T00:00:01Z".into());
+        let input = input.normalize().unwrap();
+        let event = json!({"correlationId":input.scope.correlation_ids[0],"kind":"order.created","occurredAt":"2026-10-01T00:00:00Z"});
+        assert!(input.includes(&event));
+        for patch in [
+            json!({"kind":"fill.recorded"}),
+            json!({"occurredAt":"2026-10-01T00:00:02Z"}),
+            json!({"correlationId":"bbbbbbbb-1111-4111-8111-111111111111"}),
+        ] {
+            let mut changed = event.clone();
+            for (k, v) in patch.as_object().unwrap() {
+                changed[k] = v.clone();
+            }
+            assert!(!input.includes(&changed));
+        }
+    }
+    #[test]
+    fn jsonl_csv_pdf_artifacts_include_watermark_and_attested_redacted_data() {
+        let watermark = watermark("SYNTHETIC_PRIVATE");
+        let clean = redacted(&json!({"reason":"SYNTHETIC_PRIVATE"}));
+        for (format, media) in [
+            ("jsonl", "application/x-ndjson"),
+            ("csv", "text/csv"),
+            ("pdf", "application/pdf"),
+        ] {
+            let (bytes, actual) = artifact(format, &watermark, std::slice::from_ref(&clean));
+            let text = String::from_utf8(bytes).unwrap();
+            assert_eq!(actual, media);
+            assert!(text.contains(&watermark));
+            assert!(!text.contains("SYNTHETIC_PRIVATE"));
+            assert!(text.contains("REDACTED"));
+            if format == "jsonl" {
+                assert_eq!(text.lines().count(), 2);
+                for line in text.lines() {
+                    serde_json::from_str::<Value>(line).unwrap();
+                }
+            }
+            if format == "pdf" {
+                assert!(text.starts_with("%PDF-1.4"));
+                assert!(text.ends_with("%%EOF\n"));
+            }
+        }
+    }
+}

@@ -1,4 +1,4 @@
-import { createBffClient, parseBffResponse, bffZodSchemas, type BffOperationId } from "@sumalpha/api-client";
+import { createBffClient, parseBffResponse, bffZodSchemas, type BffOperationId, type BffRequestOptions } from "@sumalpha/api-client";
 import type { BffComponents, BffOperations } from "@sumalpha/api-client";
 
 export type AuditSearch = NonNullable<BffOperations["searchAuditEvents"]["parameters"]["query"]>;
@@ -30,13 +30,17 @@ function failure(operation: string, result: { response: Response; error?: { corr
   return new AuditGatewayError(message, operation, status, result.error?.correlationId);
 }
 
-function required<T>(operation: BffOperationId, result: {data?: T; error?: unknown; response: Response}): T {
+function required<T>(operation: BffOperationId, result: {data?: T; error?: unknown; response: Response}, expectedId?: string): T {
   if (result.data === undefined) {
     const checked = bffZodSchemas.ErrorEnvelope.safeParse(result.error);
     throw failure(operation, {response: result.response, error: checked.success ? checked.data : undefined});
   }
   try {
     const value = parseBffResponse(operation, result.response.status, result.data) as T;
+    if (expectedId) {
+      const identity = operation === "getEvidenceChain" ? (value as EvidenceChainPage).correlationId : (value as ExportJob).exportId;
+      if (identity !== expectedId) throw Error("Mismatched response resource");
+    }
     if (operation === "getExportDownload") {
       const meta = value as ExportDownloadMetadata;
       const url = new URL(meta.downloadUrl);
@@ -54,8 +58,9 @@ export async function searchAuditEvents(
   origin: string,
   query: AuditSearch,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<AuditEventPage> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/audit/events", { params: { query } });
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).GET("/v1/audit/events", { params: { query } });
   return required("searchAuditEvents", result);
 }
 
@@ -64,11 +69,12 @@ export async function loadEvidenceChain(
   correlationId: string,
   query: Pick<AuditSearch, "cursor" | "pageSize"> = {},
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<EvidenceChainPage> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/audit/evidence-chains/{correlationId}", {
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).GET("/v1/audit/evidence-chains/{correlationId}", {
     params: { path: { correlationId }, query },
   });
-  return required("getEvidenceChain", result);
+  return required("getEvidenceChain", result, correlationId);
 }
 
 export async function createControlledExport(
@@ -78,17 +84,18 @@ export async function createControlledExport(
   csrfToken: string,
   reauthTokenRef: string,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<ExportJob> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).POST("/v1/exports", {
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).POST("/v1/exports", {
     body,
     params: { header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } },
   });
   return required("createExport", result);
 }
 
-export async function loadExportStatus(origin: string, exportId: string, fetchImpl: typeof fetch = fetch): Promise<ExportJob> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/exports/{exportId}", { params: { path: { exportId } } });
-  return required("getExportStatus", result);
+export async function loadExportStatus(origin: string, exportId: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}): Promise<ExportJob> {
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).GET("/v1/exports/{exportId}", { params: { path: { exportId } } });
+  return required("getExportStatus", result, exportId);
 }
 
 export async function cancelControlledExport(
@@ -98,23 +105,25 @@ export async function cancelControlledExport(
   csrfToken: string,
   reauthTokenRef: string,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<ExportJob> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).POST("/v1/exports/{exportId}/cancel", {
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).POST("/v1/exports/{exportId}/cancel", {
     params: {
       path: { exportId },
       header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef },
     },
   });
-  return required("cancelExport", result);
+  return required("cancelExport", result, exportId);
 }
 
 export async function getControlledExportDownload(
   origin: string,
   exportId: string,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<ExportDownloadMetadata> {
-  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/exports/{exportId}/download", {
+  const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).GET("/v1/exports/{exportId}/download", {
     params: { path: { exportId } },
   });
-  return required("getExportDownload", result);
+  return required("getExportDownload", result, exportId);
 }

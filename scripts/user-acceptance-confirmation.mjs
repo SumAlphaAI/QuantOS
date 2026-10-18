@@ -27,3 +27,17 @@ export function validateUserConfirmation(approval,request,readBytes=readConfirma
  assert.deepEqual(draft.reviewDimensions,request.reviewDimensions,'confirmation review dimensions missing');
  return {status:'CONFIRMED',approver:'ProjectUser'};
 }
+
+// Explicit compatibility path for a user-confirmed, already committed prose
+// draft. Never edit the approved prose or use this path for RELEASE admission.
+export function validateCommittedProseConfirmation(approval, request, {readBytes=readConfirmationFile, committedBytes}={}) {
+ confirmationPolicy();assert.equal(request.stage,'DEVELOPMENT','prose confirmation is function-only');assert.match(request.sourceCommit,/^[a-f0-9]{40}$/);assert.match(request.inputsDigest,/^sha256:[a-f0-9]{64}$/);assert.deepEqual(request.reviewDimensions,reviewDimensions);
+ safeConfirmationPath(approval.record);const bytes=readBytes(approval.record);assert.equal(bytesDigest(bytes),approval.recordSha256);const r=JSON.parse(bytes);
+ assert.equal(r.schema,'quantos-user-acceptance-confirmation/v1');assert.equal(r.mode,confirmationMode);assert.equal(r.decision,'CONFIRMED');assert.equal(r.approver,'ProjectUser');assert(r.identity?.trim());assert.deepEqual(r.request,request);
+ assert(Number.isFinite(Date.parse(r.confirmedAt))&&Date.parse(r.confirmedAt)>Date.parse('2026-10-05T00:00:00+08:00')&&Date.parse(r.confirmedAt)<=Date.now());
+ assert.equal(r.confirmationSource?.kind,'USER_MESSAGE');assert(r.confirmationSource.text?.trim());assert(r.confirmationSource.documentReference?.startsWith('./evidence/'));assert(r.confirmationSource.text.includes(r.confirmationSource.documentReference));
+ assert.equal(r.documentFormat,'IMMUTABLE_COMMITTED_PROSE');safeConfirmationPath(r.document);assert(r.document.endsWith(r.confirmationSource.documentReference.slice(2)));assert.match(r.documentCommit,/^[a-f0-9]{40}$/);assert.equal(typeof committedBytes,'function','immutable document reader required');
+ const doc=readBytes(r.document);assert.equal(bytesDigest(doc),r.documentSha256);assert.deepEqual(doc,committedBytes(r.documentCommit,r.document),'confirmed original draft changed');
+ assert.equal(r.scopeAdmission,'FUNCTION_ONLY');assert.equal(r.formalAccepted,false);assert.equal(r.releaseAccepted,false);assert.equal(r.runtimeAdmission,'DENIED');
+ return {status:'CONFIRMED',approver:'ProjectUser',scopeAdmission:'FUNCTION_ONLY',formalAccepted:false,runtimeAdmission:'DENIED'};
+}

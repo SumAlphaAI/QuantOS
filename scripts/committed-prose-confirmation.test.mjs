@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {bytesDigest,reviewDimensions,validateCommittedProseConfirmation,validateUserConfirmation} from './user-acceptance-confirmation.mjs';
+import {verifyConfirmation,verifyOriginalSource} from './bff-fe-001-confirmation.mjs';
+function fixture(){
+ const document='docs/audit/evidence/unit/confirmation-draft.md',record='docs/audit/evidence/unit/record.json',doc=Buffer.from('SYNTHETIC approved prose; not actual human approval');
+ const request={nodeId:'FE:UNIT',stage:'DEVELOPMENT',sourceCommit:'a'.repeat(40),inputsDigest:bytesDigest('unit'),reviewDimensions};
+ const value={schema:'quantos-user-acceptance-confirmation/v1',mode:'AGENT_DRAFT_USER_CONFIRMATION',decision:'CONFIRMED',approver:'ProjectUser',identity:'SYNTHETIC receiver fixture',confirmedAt:new Date().toISOString(),request,document,documentSha256:bytesDigest(doc),documentFormat:'IMMUTABLE_COMMITTED_PROSE',documentCommit:'b'.repeat(40),confirmationSource:{kind:'USER_MESSAGE',text:'SYNTHETIC confirm ./evidence/unit/confirmation-draft.md',documentReference:'./evidence/unit/confirmation-draft.md'},scopeAdmission:'FUNCTION_ONLY',formalAccepted:false,releaseAccepted:false,runtimeAdmission:'DENIED'};
+ const files=new Map([[document,doc]]),approval={record};const store=()=>{const raw=Buffer.from(JSON.stringify(value));files.set(record,raw);approval.recordSha256=bytesDigest(raw);};store();
+ const options={readBytes:p=>files.get(p),committedBytes:(commit,path)=>{assert.equal(commit,'b'.repeat(40));assert.equal(path,document);return doc;}};
+ return {value,request,approval,files,options,store,validate:()=>validateCommittedProseConfirmation(approval,request,options)};
+}
+test('explicit prose compatibility validates only immutable function scope',()=>assert.equal(fixture().validate().status,'CONFIRMED'));
+for(const[name,mutate]of [['Codex approval',f=>f.value.approver='Codex'],['no reply',f=>f.value.confirmationSource.text=''],['wrong source',f=>f.value.confirmationSource.kind='WORKFLOW_CHANGE'],['wrong document reference',f=>f.value.confirmationSource.documentReference='./evidence/other.md'],['pending',f=>f.value.decision='PENDING'],['future timestamp',f=>f.value.confirmedAt='2099-01-01T00:00:00Z'],['scope changed',f=>f.value.request={...f.request,inputsDigest:bytesDigest('changed')}],['stage changed',f=>f.value.request={...f.request,stage:'RELEASE'}],['formal promotion',f=>f.value.formalAccepted=true],['release promotion',f=>f.value.releaseAccepted=true],['runtime promotion',f=>f.value.runtimeAdmission='GRANTED'],['unsafe draft',f=>f.value.document='docs/../secret'],['document modified and rehashed',f=>{const bytes=Buffer.from('changed');f.files.set(f.value.document,bytes);f.value.documentSha256=bytesDigest(bytes);} ]])test(name+' refused',()=>{const f=fixture();mutate(f);f.store();assert.throws(f.validate);});
+test('default strict JSON checker still refuses a prose draft',()=>{const f=fixture();assert.throws(()=>validateUserConfirmation(f.approval,f.request,f.options.readBytes),/request missing/);});
+test('prose RELEASE cannot enter compatibility path',()=>{const f=fixture();f.request.stage='RELEASE';f.store();assert.throws(f.validate);});
+test('original BFF-FE-001 user reply validates its frozen receipt without current READY regrant',()=>{const result=verifyConfirmation();assert.equal(result.status,'CONFIRMED');assert.equal(result.formalAccepted,false);assert.equal(result.currentHeadAcceptance,'NOT_CLAIMED');assert.equal(result.upstreamAdmission,'NOT_CLAIMED');});
+test('confirmed original prose retained pending wording as historical draft bytes',()=>{const record=JSON.parse(readFileSync('docs/audit/evidence/bff-fe-001-confirmation-20261018/user-confirmation.json'));assert.equal(record.decision,'CONFIRMED');assert(readFileSync(record.document,'utf8').includes('状态：PENDING'));});
+
+test('original normative scope drift refuses even if current stage registry differs',()=>{const r=JSON.parse(readFileSync('docs/audit/evidence/bff-fe-001-local-20261018/manifest.json'));r.inputs.normative[0].planInput.requirement+=' changed';assert.throws(()=>verifyOriginalSource(r.inputs,r.observedSourceCommit),/original normative scope changed/);});

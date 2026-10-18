@@ -120,3 +120,24 @@ it("validates every success schema and rejects unsafe download leases", async ()
  const valid=(async()=>new Response(JSON.stringify(metadata),{headers:{"content-type":"application/json"}})) as typeof fetch;expect(await getControlledExportDownload("https://bff.example",EXPORT_ID,valid)).toEqual(metadata);
  const unsafe=(async()=>new Response(JSON.stringify({items:[{redactionApplied:false}]}),{headers:{"content-type":"application/json"}})) as typeof fetch;await expect(searchAuditEvents("https://bff.example",{},unsafe)).rejects.toBeInstanceOf(AuditGatewayError);
 });
+
+it("binds chain, status, cancel and download responses to the requested resource", async () => {
+  const other="99999999-2222-4333-8444-555555555555";
+  const chain=(async()=>Response.json({correlationId:other,items:[],complete:true})) as typeof fetch;
+  await expect(loadEvidenceChain("https://bff.example",CORRELATION_ID,{},chain)).rejects.toBeInstanceOf(AuditGatewayError);
+  const job=(async()=>Response.json({...exportJob("cancelled"),exportId:other},{status:202})) as typeof fetch;
+  await expect(cancelControlledExport("https://bff.example",EXPORT_ID,"key","csrf","reauth",job)).rejects.toBeInstanceOf(AuditGatewayError);
+  const status=(async()=>Response.json({...exportJob("queued"),exportId:other})) as typeof fetch;
+  await expect(loadExportStatus("https://bff.example",EXPORT_ID,status)).rejects.toBeInstanceOf(AuditGatewayError);
+  const download=(async()=>Response.json({exportId:other,downloadUrl:"https://bff.example/ticket",expiresAt:new Date(Date.now()+30_000).toISOString(),retentionUntil:new Date(Date.now()+86_400_000).toISOString(),sha256:"a".repeat(64),sizeBytes:10,mediaType:"application/x-ndjson",watermarked:true,auditRef:AUDIT_REF})) as typeof fetch;
+  await expect(getControlledExportDownload("https://bff.example",EXPORT_ID,download)).rejects.toBeInstanceOf(AuditGatewayError);
+});
+
+it("bounds uncertain export writes, supports cancellation and never retries automatically", async () => {
+  let calls=0;let signal:AbortSignal|undefined;
+  const stalled=(async (_:unknown,init?:RequestInit)=>{calls++;signal=init?.signal??undefined;return new Promise<Response>(()=>{});}) as typeof fetch;
+  await expect(createControlledExport("https://bff.example",{scope:{correlationIds:[CORRELATION_ID]},format:"jsonl",reason:"Regulatory review",watermark:"audit",retentionDays:7},"key","csrf","reauth",stalled,{timeoutMs:10})).rejects.toMatchObject({code:"TIMEOUT",outcomeUnknown:true});
+  expect(calls).toBe(1);expect(signal?.aborted).toBe(true);
+  const controller=new AbortController();controller.abort();
+  await expect(loadExportStatus("https://bff.example",EXPORT_ID,stalled,{signal:controller.signal})).rejects.toMatchObject({code:"CANCELLED"});expect(calls).toBe(1);
+});

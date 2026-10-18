@@ -31,7 +31,9 @@ export function validateEvidence(m,{inputs,plan,dependencies,read,validateDepend
  return {nodeId:m.nodeId,status:'READY',formalAccepted:false,operations:6};
 }
 export function validateAudit({nodes=nodesFromPlans(),record}={}) {
- const n=nodes.get('FE:BFF-FE-007');const gate=record??n.stage_gate;assert.equal(gate.status,'READY');assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1);
+ const n=nodes.get('FE:BFF-FE-007');const gate=record??n.stage_gate;
+ if(gate.evidence?.[0]?.startsWith('audit/evidence/bff-fe-007-local-')){assert.equal(record,undefined,'custom scoped override forbidden');return JSON.parse(execFileSync(process.execPath,[resolve(root,'scripts/bff-fe-007-functional-gate.mjs'),'--ready'],{cwd:root,encoding:'utf8'}));}
+assert.equal(gate.status,'READY');assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1);
  const path='docs/'+gate.evidence[0];assert(path.startsWith('docs/audit/evidence/bff-fe-007-remediation-20261006/'));const bytes=readFileSync(confined(path));assert.equal(digest(bytes),gate.input_digest);
  return validateEvidence(JSON.parse(bytes),{inputs:inventory(selectors),plan:planInput(n),dependencies:new Map(n.dependencies.map(id=>[id,nodes.get(id).stage_gate])),read:p=>readFileSync(confined(p)),validateDependency:id=>id==='FE:BFF-FE-001'?validateA2({nodes}):validateReceipt(id,{nodes})});
 }

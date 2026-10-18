@@ -708,3 +708,307 @@ async fn redaction_hashes_and_retention_are_enforced_by_business_calls() {
         StatusCode::GONE
     );
 }
+
+#[tokio::test]
+async fn export_evidence_uses_an_independent_causal_root_and_stable_response_correlation() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let created = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "root",
+            &grant,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    let header = created.headers()["x-correlation-id"]
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let job = json_body(created).await;
+    let root = job["correlationId"].as_str().unwrap();
+    assert_ne!(
+        root, CORRELATION,
+        "export must not pollute the source domain evidence chain"
+    );
+    assert_eq!(header, root);
+    let replay = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "root",
+            &grant,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(replay.headers()["x-correlation-id"], root);
+    assert_eq!(json_body(replay).await, job);
+    let id = job["exportId"].as_str().unwrap();
+    for path in [
+        format!("/v1/exports/{id}"),
+        format!("/v1/exports/{id}/download"),
+    ] {
+        let response = router
+            .clone()
+            .oneshot(authenticated("GET", &path, None))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers()["x-correlation-id"], root);
+    }
+    let cancelled = router
+        .clone()
+        .oneshot(export_mutation(
+            &format!("/v1/exports/{id}/cancel"),
+            "root-cancel",
+            &grant,
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(cancelled.headers()["x-correlation-id"], root);
+    let chain = json_body(
+        router
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/audit/evidence-chains/{root}"),
+                None,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let entries = chain["items"].as_array().unwrap();
+    assert_eq!(entries.len(), 5);
+    assert_eq!(entries[0]["eventId"], job["auditRef"]);
+    assert!(
+        entries
+            .iter()
+            .all(|e| e["causationId"] == entries[0]["eventId"])
+    );
+    assert!(
+        entries
+            .windows(2)
+            .all(|p| p[0]["sequence"].as_u64() < p[1]["sequence"].as_u64())
+    );
+}
+
+#[tokio::test]
+async fn expired_export_status_transitions_once_and_denies_fresh_cancel_and_download() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let job = json_body(
+        router
+            .clone()
+            .oneshot(export_mutation(
+                "/v1/exports",
+                "expiry-state",
+                &grant,
+                Some(export_body()),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let id = job["exportId"].as_str().unwrap();
+    provider.advance_reference_time(Duration::days(8)).await;
+    provider.renew_reference_session().await;
+    for _ in 0..2 {
+        let status = json_body(
+            router
+                .clone()
+                .oneshot(authenticated("GET", &format!("/v1/exports/{id}"), None))
+                .await
+                .unwrap(),
+        )
+        .await;
+        assert_eq!(status["status"], "expired");
+    }
+    assert_eq!(provider.audit_action_count("export.expired").await, 1);
+    let grant = recent_auth(&router).await;
+    assert_eq!(
+        router
+            .clone()
+            .oneshot(export_mutation(
+                &format!("/v1/exports/{id}/cancel"),
+                "expired-cancel",
+                &grant,
+                None
+            ))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::CONFLICT
+    );
+    assert_eq!(
+        router
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/exports/{id}/download"),
+                None
+            ))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::GONE
+    );
+    assert_eq!(provider.audit_action_count("export.created").await, 1);
+    assert_eq!(provider.audit_action_count("export.expired").await, 1);
+}
+
+#[tokio::test]
+async fn concurrent_export_create_and_cancel_replay_one_job_and_one_audit_effect() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let (a, b) = tokio::join!(
+        router.clone().oneshot(export_mutation(
+            "/v1/exports",
+            "concurrent-create",
+            &grant,
+            Some(export_body())
+        )),
+        router.clone().oneshot(export_mutation(
+            "/v1/exports",
+            "concurrent-create",
+            &grant,
+            Some(export_body())
+        ))
+    );
+    let (a, b) = (json_body(a.unwrap()).await, json_body(b.unwrap()).await);
+    assert_eq!(a, b);
+    assert_eq!(provider.audit_action_count("export.created").await, 1);
+    let path = format!("/v1/exports/{}/cancel", a["exportId"].as_str().unwrap());
+    let (a, b) = tokio::join!(
+        router
+            .clone()
+            .oneshot(export_mutation(&path, "concurrent-cancel", &grant, None)),
+        router
+            .clone()
+            .oneshot(export_mutation(&path, "concurrent-cancel", &grant, None))
+    );
+    assert_eq!(json_body(a.unwrap()).await, json_body(b.unwrap()).await);
+    assert_eq!(provider.audit_action_count("export.cancelled").await, 1);
+}
+
+#[tokio::test]
+async fn all_six_audit_operations_require_authentication_and_capability() {
+    let router = BffProvider::default().router();
+    let grant = recent_auth(&router).await;
+    for (method, path, body) in [
+        ("GET", "/v1/audit/events".to_owned(), None),
+        (
+            "GET",
+            format!("/v1/audit/evidence-chains/{CORRELATION}"),
+            None,
+        ),
+        ("POST", "/v1/exports".to_owned(), Some(export_body())),
+        ("GET", format!("/v1/exports/{EXPIRED_EXPORT}"), None),
+        ("POST", format!("/v1/exports/{EXPIRED_EXPORT}/cancel"), None),
+        (
+            "GET",
+            format!("/v1/exports/{EXPIRED_EXPORT}/download"),
+            None,
+        ),
+    ] {
+        for (cookie, status) in [
+            (None, StatusCode::UNAUTHORIZED),
+            (Some(VIEWER_COOKIE), StatusCode::FORBIDDEN),
+        ] {
+            let mut req = if method == "POST" {
+                export_mutation(&path, "auth-matrix", &grant, body.clone())
+            } else {
+                authenticated(method, &path, None)
+            };
+            if let Some(cookie) = cookie {
+                req.headers_mut().insert("cookie", cookie.parse().unwrap());
+            } else {
+                req.headers_mut().remove("cookie");
+            }
+            assert_eq!(
+                router.clone().oneshot(req).await.unwrap().status(),
+                status,
+                "{method} {path}"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn audit_snapshot_replay_has_no_duplicates_and_cursor_expiry_fails_closed() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let first = json_body(
+        router
+            .clone()
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/audit/events?correlationId={CORRELATION}&pageSize=3"),
+                None,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let mut ids = first["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["eventId"].as_str().unwrap().to_owned())
+        .collect::<Vec<_>>();
+    let token = first["nextCursor"].as_str().unwrap();
+    let grant = recent_auth(&router).await;
+    router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "during-snapshot",
+            &grant,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    let mut cursor = Some(token.to_owned());
+    while let Some(token) = cursor {
+        let next = json_body(
+            router
+                .clone()
+                .oneshot(authenticated(
+                    "GET",
+                    &format!(
+                        "/v1/audit/events?correlationId={CORRELATION}&pageSize=3&cursor={token}"
+                    ),
+                    None,
+                ))
+                .await
+                .unwrap(),
+        )
+        .await;
+        for event in next["items"].as_array().unwrap() {
+            let id = event["eventId"].as_str().unwrap().to_owned();
+            assert!(!ids.contains(&id));
+            ids.push(id);
+        }
+        cursor = next["nextCursor"].as_str().map(str::to_owned);
+    }
+    assert_eq!(ids.len(), 8);
+    provider.advance_reference_time(Duration::minutes(6)).await;
+    provider.renew_reference_session().await;
+    assert_eq!(
+        router
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/audit/events?correlationId={CORRELATION}&pageSize=3&cursor={token}"),
+                None
+            ))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::UNPROCESSABLE_ENTITY
+    );
+}

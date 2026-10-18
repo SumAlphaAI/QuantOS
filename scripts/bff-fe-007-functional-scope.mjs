@@ -1,0 +1,38 @@
+// C10 current function and justified F05/A1/identity boundaries; never upstream gate execution.
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {relative,dirname} from 'node:path';
+import {root,inventory,digest,nodesFromPlans,planInput} from './provider-a1-receipts.mjs';
+export {environment} from './a1-functional-scope.mjs';
+export const nodeId='FE:BFF-FE-007',profile='A2_AUDIT_LOCAL';
+export const prerequisites=['FE:BFF-FE-001','CORE:F05','PROVIDER:A1'];
+const c=(id,command,reason)=>({id,command,reason,timeoutMs:id==='mutations'?1800000:600000});
+export const checks=[
+ c('contract',['node','scripts/check-bff-fe-007.mjs'],'Current six C10 operations, audit/export capabilities, immutable/redacted evidence and bounded cursor/download contracts'),
+ c('contract-negative',['node','--test','scripts/bff-fe-007-gate-negative.mjs','scripts/bff-fe-007-development.test.mjs'],'Current contract and historical strict evidence refusal regressions; old target evidence never grants current READY'),
+ c('generated',['node','scripts/check-bff-generated.mjs'],'A1 direct boundary: all six generated OpenAPI/client/Zod/schema/MSW/input-policy outputs match current source'),
+ c('f05-static',['node','scripts/check-f05.mjs'],'Direct F05 append-only/provenance/tenant/correlation/causation/outbox snapshot inspection; no database execution or upstream admission'),
+ c('f05-tenant',['cargo','test','--locked','--offline','-p','quantos-event','--lib','provenance_is_required_and_replay_filters_the_tenant_boundary'],'Direct F05 consumed identity/provenance and tenant-scoped replay behavior in the in-memory contract; target PostgreSQL remains separate'),
+ c('f05-recovery',['cargo','test','--locked','--offline','-p','quantos-event','--lib','projection_can_resume_after_restart_from_checkpoint'],'Direct F05 consumed sequence/checkpoint restart semantics only, without full event or database acceptance campaign'),
+ c('provider',['cargo','test','--locked','--offline','-p','bff-gateway','--test','audit_export_provider','--test','auth_settings_provider'],'Actual C10 evidence/permissions/redaction/cursors/exports plus direct identity regression for shared reference lib.rs changes'),
+ c('audit-core',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','audit_core::tests'],'Shared live/reference pure normalization, scope filters, canonical redaction/hash and jsonl/csv/pdf watermark encoding behavior'),
+ c('http',['node','scripts/test-bff-provider-contract.mjs','{attempt}/reference-http.json','--audit-only'],'Actual Rust loopback six-operation success and 401/403 matrix, expired download and changed-intent refusal; identity calls are setup only'),
+ c('consumers',['pnpm','exec','vitest','run','apps/terminal/tests/audit-gateway.test.ts','apps/terminal/tests/audit-provider-consumer.test.ts','packages/api-client/tests/bff-response.test.ts','packages/api-client/tests/bff-transport.test.ts','tests/contract'],'Actual Rust HTTP through audit consumers, lost-create-response same-key recovery, resource binding, timeout/cancellation and schema/error contract regressions'),
+ c('mutations',['node','scripts/test-bff-fe-007-mutations.mjs','{attempt}/mutations'],'Eight actual isolated source mutations must fail named business assertions for scope/redaction/hash/cursor/retention/causal roots/expiry state'),
+ c('types',['pnpm','--filter','@sumalpha/api-client','--filter','@sumalpha/terminal','typecheck'],'Changed audit consumer options/resource validation and integration tests compile against current generated types'),
+ c('lint',['pnpm','--filter','@sumalpha/api-client','--filter','@sumalpha/terminal','lint'],'Static validation of changed audit gateway and generated-client consumer tests, without unrelated application builds'),
+ c('confirmation',['node','--test','scripts/user-acceptance-confirmation.test.mjs','scripts/committed-prose-confirmation.test.mjs'],'Original BFF-FE-001 explicit user reply, immutable approved prose/receipt/source and default JSON/RELEASE refusal behavior'),
+ c('gate-tests',['node','--test','scripts/bff-fe-007-functional-gate.test.mjs'],'Current source/log/command/artifact binding, pending current confirmation, no borrowed READY and activated publication rollback'),
+ c('plan-policy',['node','--test','scripts/development-plan-order-negative.mjs','scripts/ci-stage-disposition.test.mjs'],'Explicit task-only local profile and CI dispatch preserve stage/order/admission invariants without full dependency revalidation'),
+ c('plans',['node','scripts/check-development-plans.mjs'],'Both development plans and policy agree on scoped C10 function status and independent integration/release obligations')
+];
+export const commands=attempt=>checks.map(c=>({...c,command:c.command.map(s=>s.replace('{attempt}',attempt))}));
+export function snapshot(){
+ const policy=JSON.parse(readFileSync(root+'/scripts/development-testing-policy.json'));assert.equal(policy.development.recursiveDependencyRevalidation,false);assert.equal(policy.development.defaultScope,'FUNCTION_AND_IMPACT');assert(!checks.some(c=>c.command.includes('--workspace')));
+ const meta=JSON.parse(execFileSync('cargo',['metadata','--locked','--offline','--no-deps','--format-version','1'],{encoding:'utf8',maxBuffer:8*1024*1024})),packages=new Map(meta.packages.map(p=>[p.name,p])),seen=new Set();function visit(n){const p=packages.get(n);if(!p||seen.has(n))return;seen.add(n);for(const d of p.dependencies)if(d.kind!=='dev'||n==='bff-gateway'||n==='quantos-event')visit(d.name);}visit('bff-gateway');visit('quantos-event');
+ const rust=[...seen].flatMap(n=>{const p=relative(root,dirname(packages.get(n).manifest_path));return[p+'/Cargo.toml',p+'/src/'];});
+ const inputs=inventory([...rust,'services/bff-gateway/','crates/quantos-event/tests/postgres_persistence.rs','services/replay-cli/src/main.rs','AGENTS.md','Cargo.toml','Cargo.lock','rust-toolchain.toml','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','patches/','.nvmrc','tsconfig.base.json','eslint.config.mjs','bff/','packages/api-client/','packages/config/','apps/terminal/src/auth/','apps/terminal/src/audit/','apps/terminal/tests/auth-bff.test.ts','apps/terminal/tests/ui104-settings.test.ts','apps/terminal/tests/audit-gateway.test.ts','apps/terminal/tests/audit-provider-consumer.test.ts','apps/terminal/package.json','apps/terminal/tsconfig.json','tests/contract/','scripts/','env/local-mock.env.example','Makefile','.github/workflows/','supabase/migrations/20260921090000_f05_ledger_integrity_and_replay.sql','supabase/migrations/20261006*bff*.sql','docs/execution/BFF-FE-007-summary.md','docs/gate-records/acceptance-confirmation-policy.json','docs/gate-records/user-acceptance-confirmation-workflow.md','docs/audit/evidence/bff-fe-001-local-20261018/manifest.json','docs/audit/evidence/bff-fe-001-local-20261018/confirmation-draft.md','docs/audit/evidence/bff-fe-001-confirmation-20261018/user-confirmation.json','docs/audit/evidence/bff-fe-001-confirmation-20261018/approval.json','docs/audit/evidence/bff-fe-007-local-20261018/preflight/identity-before-change.json','docs/audit/evidence/bff-fe-007-local-20261018/preflight/baseline.json','docs/operations/phased-testing.md','docs/operations/committed-prose-confirmation.md','docs/operations/bff-fe-007-functional-admission.md']);
+ assert(!inputs.some(i=>/(?:^|\/)\.env(?!\.example$)/.test(i.path)));
+ const nodes=nodesFromPlans(),normative=[nodeId,...prerequisites].map(id=>({nodeId:id,planInput:planInput(nodes.get(id))}));return {schema:'quantos-a2-audit-functional-inputs/v1',inputs,normative,checks,policy,inputDigest:digest(JSON.stringify({inputs,normative,checks,policy}))};
+}
