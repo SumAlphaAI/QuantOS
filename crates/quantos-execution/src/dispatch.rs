@@ -323,6 +323,10 @@ impl<K: ExecutionKernel> SignedExecutionGateway<K> {
             .with_current_command(self.consumer, auth, command, sources, now, || Ok(()))
     }
     #[must_use]
+    /// Actual owner-configured boundary limits, without kernel or command access.
+    pub fn boundary_limits(&self) -> Option<GatewayLimits> {
+        self.gateway.lock().ok().map(|g| g.boundary_limits())
+    }
     pub fn downstream_submission_count(&self) -> Option<usize> {
         self.gateway
             .lock()

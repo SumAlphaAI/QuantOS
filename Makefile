@@ -879,3 +879,9 @@ x3-service-release-check:
 	node scripts/x3-service-local-gate.mjs --release
 
 .PHONY: bff003-assess-local
+
+.PHONY: bff006-local-check bff006-local-assess
+bff006-local-check:
+	pnpm check:bff-fe-006:development
+bff006-local-assess:
+	node scripts/record-bff-fe-006-functional.mjs $(ATTEMPT)

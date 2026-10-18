@@ -1,4 +1,5 @@
 mod audit;
+mod execution;
 mod market;
 mod research;
 mod settings;
@@ -25,6 +26,7 @@ use tower_http::cors::CorsLayer;
 use uuid::Uuid;
 
 struct LiveState {
+    execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
     verifier: SupabaseAuthVerifier,
     middleware: Mutex<GatewayAuthMiddleware>,
     terminal_origin: String,
@@ -103,6 +105,27 @@ pub fn router(
     environment: String,
     observability: Arc<ServiceObservability>,
 ) -> anyhow::Result<Router> {
+    router_with_execution(
+        database_url,
+        project_url,
+        publishable_key,
+        terminal_origin,
+        environment,
+        observability,
+        None,
+    )
+}
+/// Explicit trusted owner composition. Default startup does not seed a Paper account.
+#[allow(clippy::too_many_arguments)]
+pub fn router_with_execution(
+    database_url: &str,
+    project_url: &str,
+    publishable_key: String,
+    terminal_origin: String,
+    environment: String,
+    observability: Arc<ServiceObservability>,
+    execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
+) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
         "live BFF requires an HTTPS Terminal origin"
@@ -113,6 +136,7 @@ pub fn router(
     );
     let cors = cors_layer(HeaderValue::from_str(&terminal_origin)?);
     let state = Arc::new(LiveState {
+        execution,
         verifier: SupabaseAuthVerifier::new(project_url, publishable_key.clone())?,
         a2: Mutex::new(settings::A2Store::new(database_url)?),
         database_url: database_url.to_owned(),
@@ -132,6 +156,7 @@ pub fn router(
         .merge(audit::routes())
         .merge(research::routes())
         .merge(market::routes())
+        .merge(execution::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

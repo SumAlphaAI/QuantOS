@@ -263,6 +263,9 @@ pub struct ExecutionGateway<K: ExecutionKernel> {
 }
 
 impl<K: ExecutionKernel> ExecutionGateway<K> {
+    pub(crate) fn boundary_limits(&self) -> GatewayLimits {
+        self.limits.clone()
+    }
     #[must_use]
     pub fn new(limits: GatewayLimits, kernel: K) -> Self {
         Self {

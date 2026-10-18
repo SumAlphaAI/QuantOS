@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0",
+  "version": "1.8.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -182,6 +182,9 @@
           ]
         },
         "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "auditRef": {
           "$ref": "#/components/schemas/UUID"
         }
       }
@@ -1648,6 +1651,12 @@
         "correlationId": {
           "$ref": "#/components/schemas/UUID",
           "description": "Trace reference for control actions; also supplied in response headers."
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
         }
       }
     },
@@ -1773,6 +1782,22 @@
         },
         "objectVersion": {
           "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "awaiting_approval",
+            "approved",
+            "command_ready",
+            "request_info",
+            "rejected",
+            "expired",
+            "submitted"
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
         }
       }
     },
@@ -1819,6 +1844,27 @@
           "description": "批准后签发的短时 TradeCommand 引用"
         },
         "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandExpiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "issuanceState": {
+          "type": "string",
+          "enum": [
+            "not_issued",
+            "consumed"
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject",
+            "request_info"
+          ]
+        },
+        "auditRef": {
           "$ref": "#/components/schemas/UUID"
         }
       }
@@ -1950,6 +1996,52 @@
         },
         "submittedAt": {
           "$ref": "#/components/schemas/DateTime"
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "proposalHash",
+            "riskDecisionId",
+            "approvalId",
+            "commandId",
+            "releaseId",
+            "snapshotHash",
+            "portfolioHash",
+            "factHashes"
+          ],
+          "properties": {
+            "proposalHash": {
+              "type": "string"
+            },
+            "riskDecisionId": {
+              "type": "string"
+            },
+            "approvalId": {
+              "type": "string"
+            },
+            "commandId": {
+              "type": "string"
+            },
+            "releaseId": {
+              "type": "string"
+            },
+            "snapshotHash": {
+              "type": "string"
+            },
+            "portfolioHash": {
+              "type": "string"
+            },
+            "factHashes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "cancelCommandRef": {
+          "$ref": "#/components/schemas/UUID",
+          "description": "Server-owned order control reference for authenticated requester cancellation; does not renew the original submit TTL or grant submit authority."
         }
       }
     },
@@ -2484,6 +2576,128 @@
           "enum": [
             "trade_events"
           ]
+        }
+      }
+    },
+    "OrderCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "mode",
+        "canSubmit",
+        "canCancel",
+        "venueSubmit",
+        "quantityScale",
+        "priceScale",
+        "maxQuantity",
+        "maxNotional"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "canSubmit": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        },
+        "venueSubmit": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "quantityScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "priceScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "maxQuantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "maxNotional": {
+          "$ref": "#/components/schemas/DecimalValue"
+        }
+      }
+    },
+    "TradePreflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposalId",
+        "accountId",
+        "mode",
+        "contextHash",
+        "objectVersion",
+        "asOf",
+        "expiresAt",
+        "verdict",
+        "hitRules",
+        "executable"
+      ],
+      "properties": {
+        "proposalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "approval_required",
+            "deny"
+          ]
+        },
+        "hitRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "executable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
         }
       }
     }
@@ -7199,6 +7413,150 @@
           "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
         },
         "realtime": "dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/order-capabilities",
+      "method": "GET",
+      "operationId": "getOrderCapabilities",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/trade-preflight",
+      "method": "GET",
+      "operationId": "getTradePreflight",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "proposalId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/trade-preflight/stream",
+      "method": "GET",
+      "operationId": "subscribeTradePreflight",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "proposalId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
         "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
       },
       "authenticated": true

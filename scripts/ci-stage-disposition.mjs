@@ -10,6 +10,7 @@ import {check as checkG0} from './g0-development.mjs';
 import {validateA2} from './bff-fe-001-development.mjs';
 import {validateAudit} from './bff-fe-007-development.mjs';
 import {check as checkProviderA2} from './provider-a2-development.mjs';
+import {check as checkBff006} from './bff-fe-006-development.mjs';
 import {check as checkProviderA3} from './provider-a3-development.mjs';
 import {check as checkBff005} from './bff-fe-005-development.mjs';
 import {check as checkBff003} from './bff-fe-003-development.mjs';
@@ -23,6 +24,7 @@ const validators = {
   'FE:BFF-FE-007': () => validateAudit(),
   'PROVIDER:A2': () => checkProviderA2(),
   'PROVIDER:A3': () => checkProviderA3(),
+  'FE:BFF-FE-006': () => checkBff006(),
   'FE:BFF-FE-003': () => checkBff003(),
   'FE:BFF-FE-005': () => checkBff005(),
 };
@@ -30,7 +32,7 @@ const validators = {
 const ciAliases = {
   'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
   fep0: 'FE:FEP-0', g0: 'FRONTEND-GATE:G0',
-  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'provider-a3': 'PROVIDER:A3', 'bff-fe-003': 'FE:BFF-FE-003', 'bff-fe-005': 'FE:BFF-FE-005',
+  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'provider-a3': 'PROVIDER:A3', 'bff-fe-006':'FE:BFF-FE-006', 'bff-fe-003': 'FE:BFF-FE-003', 'bff-fe-005': 'FE:BFF-FE-005',
 };
 export function validateCiWiring(read = path => readFileSync(resolve(import.meta.dirname, '..', path), 'utf8')) {
   const pkg = JSON.parse(read('package.json'));
@@ -54,6 +56,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
     'check:bff-fe-007:development': 'node scripts/bff-fe-007-development.mjs',
     'check:provider-a2': 'node scripts/provider-a2-development.mjs',
     'check:provider-a3': 'node scripts/provider-a3-development.mjs',
+    'check:bff-fe-006': 'node scripts/bff-fe-006-development.mjs --ready',
     'check:bff-fe-003': 'node scripts/bff-fe-003-development.mjs',
   };
   for (const [key, value] of Object.entries(strict)) assert.equal(pkg.scripts[key], value, `${key}: strict admission command changed`);

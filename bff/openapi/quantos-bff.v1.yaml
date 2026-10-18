@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.7.0
+  version: 1.8.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -2895,7 +2895,7 @@ paths:
                 positions: []
                 pnl:
                   currencyCode: USD
-                  units: x
+                  units: "0"
                   nanos: 0
                 exposure: "1"
           headers:
@@ -5344,6 +5344,202 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/order-capabilities:
+    get:
+      operationId: getOrderCapabilities
+      tags:
+        - execution
+      summary: getOrderCapabilities
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderCapabilities"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                canSubmit: true
+                canCancel: true
+                venueSubmit: false
+                quantityScale: 4
+                priceScale: 2
+                maxQuantity: "10000"
+                maxNotional: "250000"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/trade-preflight:
+    get:
+      operationId: getTradePreflight
+      tags:
+        - execution
+      summary: getTradePreflight
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: proposalId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradePreflight"
+              example:
+                proposalId: 11111111-1111-4111-8111-111111111111
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                contextHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                objectVersion: "0"
+                asOf: 2026-10-18T00:00:00Z
+                expiresAt: 2026-10-18T00:01:00Z
+                verdict: approval_required
+                hitRules:
+                  - Approval
+                executable: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/trade-preflight/stream:
+    get:
+      operationId: subscribeTradePreflight
+      tags:
+        - execution
+      summary: subscribeTradePreflight
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: proposalId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/AfterSequence"
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/StreamEvent"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Trusted current X01/X02/X03 tuple; contextHash is a freshness binding, not authority; Paper only; no venue submit.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 components:
   securitySchemes:
     cookieAuth:
@@ -5715,6 +5911,8 @@ components:
             - accepted
             - cancel_requested
         correlationId:
+          $ref: "#/components/schemas/UUID"
+        auditRef:
           $ref: "#/components/schemas/UUID"
     AuditedAsyncAccepted:
       allOf:
@@ -6769,6 +6967,10 @@ components:
         correlationId:
           $ref: "#/components/schemas/UUID"
           description: Trace reference for control actions; also supplied in response headers.
+        objectVersion:
+          type: string
+        auditRef:
+          $ref: "#/components/schemas/UUID"
     Signal:
       type: object
       required:
@@ -6861,6 +7063,19 @@ components:
           description: 恒 false（A02；schema 层强制）
         objectVersion:
           type: string
+        status:
+          type: string
+          enum:
+            - active
+            - awaiting_approval
+            - approved
+            - command_ready
+            - request_info
+            - rejected
+            - expired
+            - submitted
+        correlationId:
+          $ref: "#/components/schemas/UUID"
     Approval:
       type: object
       required:
@@ -6895,6 +7110,21 @@ components:
           $ref: "#/components/schemas/UUID"
           description: 批准后签发的短时 TradeCommand 引用
         correlationId:
+          $ref: "#/components/schemas/UUID"
+        commandExpiresAt:
+          $ref: "#/components/schemas/DateTime"
+        issuanceState:
+          type: string
+          enum:
+            - not_issued
+            - consumed
+        decision:
+          type: string
+          enum:
+            - approve
+            - reject
+            - request_info
+        auditRef:
           $ref: "#/components/schemas/UUID"
     Fill:
       type: object
@@ -6991,6 +7221,39 @@ components:
           $ref: "#/components/schemas/UUID"
         submittedAt:
           $ref: "#/components/schemas/DateTime"
+        evidence:
+          type: object
+          required:
+            - proposalHash
+            - riskDecisionId
+            - approvalId
+            - commandId
+            - releaseId
+            - snapshotHash
+            - portfolioHash
+            - factHashes
+          properties:
+            proposalHash:
+              type: string
+            riskDecisionId:
+              type: string
+            approvalId:
+              type: string
+            commandId:
+              type: string
+            releaseId:
+              type: string
+            snapshotHash:
+              type: string
+            portfolioHash:
+              type: string
+            factHashes:
+              type: array
+              items:
+                type: string
+        cancelCommandRef:
+          $ref: "#/components/schemas/UUID"
+          description: Server-owned order control reference for authenticated requester cancellation; does not renew the original submit TTL or grant submit authority.
     ResearchAccepted:
       allOf:
         - $ref: "#/components/schemas/AsyncAccepted"
@@ -7358,3 +7621,93 @@ components:
         aggregation:
           enum:
             - trade_events
+    OrderCapabilities:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - mode
+        - canSubmit
+        - canCancel
+        - venueSubmit
+        - quantityScale
+        - priceScale
+        - maxQuantity
+        - maxNotional
+      properties:
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+        canSubmit:
+          type: boolean
+        canCancel:
+          type: boolean
+        venueSubmit:
+          type: boolean
+          enum:
+            - false
+        quantityScale:
+          type: integer
+          minimum: 0
+          maximum: 18
+        priceScale:
+          type: integer
+          minimum: 0
+          maximum: 18
+        maxQuantity:
+          $ref: "#/components/schemas/DecimalValue"
+        maxNotional:
+          $ref: "#/components/schemas/DecimalValue"
+    TradePreflight:
+      type: object
+      additionalProperties: false
+      required:
+        - proposalId
+        - accountId
+        - mode
+        - contextHash
+        - objectVersion
+        - asOf
+        - expiresAt
+        - verdict
+        - hitRules
+        - executable
+      properties:
+        proposalId:
+          $ref: "#/components/schemas/UUID"
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+        contextHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        objectVersion:
+          type: string
+        asOf:
+          $ref: "#/components/schemas/DateTime"
+        expiresAt:
+          $ref: "#/components/schemas/DateTime"
+        verdict:
+          type: string
+          enum:
+            - allow
+            - approval_required
+            - deny
+        hitRules:
+          type: array
+          items:
+            type: string
+        executable:
+          type: boolean
+          enum:
+            - false
+        correlationId:
+          $ref: "#/components/schemas/UUID"

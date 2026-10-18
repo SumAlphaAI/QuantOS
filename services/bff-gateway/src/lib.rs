@@ -1,6 +1,7 @@
 mod audit_core;
 use std::{collections::BTreeMap, sync::Arc};
 
+pub mod execution;
 mod input_contract;
 pub mod live;
 mod market;
@@ -29,6 +30,7 @@ const EXPIRED_EXPORT: &str = "eeeeeeee-1111-4111-8111-111111111111";
 
 #[derive(Debug, Clone)]
 struct ReauthGrant {
+    challenge_ref: String,
     expires_at: chrono::DateTime<Utc>,
     session: String,
 }
@@ -50,6 +52,7 @@ struct MfaWindow {
 
 #[derive(Debug)]
 struct ProviderData {
+    execution: Option<execution::ExecutionService>,
     research: research::Fixture,
     market: market::Fixture,
     session_active: bool,
@@ -81,6 +84,7 @@ impl Default for ProviderData {
         let mut research = research::Fixture::default();
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
+            execution: None,
             research,
             market,
             session_active: true,
@@ -182,6 +186,7 @@ impl BffProvider {
         Router::new()
             .merge(research::reference_routes())
             .merge(market::reference_routes())
+            .merge(execution::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))
@@ -345,7 +350,10 @@ async fn authenticate(
 ) -> Result<(), Response> {
     let session = cookies(headers).get("quantos_session").copied();
     let state = data.lock().await;
-    let active = session.is_some_and(|id| id == VIEWER_SESSION || state.sessions.contains_key(id));
+    let active = session.is_some_and(|id| {
+        matches!(id, VIEWER_SESSION | "session-approver" | "session-owner")
+            || state.sessions.contains_key(id)
+    });
     if !active
         || state.now() >= state.session_expires_at
         || (session == Some(CURRENT_SESSION) && !state.session_active)
@@ -559,7 +567,7 @@ async fn mfa_challenge(
     headers: HeaderMap,
     Json(input): Json<MfaInput>,
 ) -> Response {
-    if let Err(response) = mutation_guard(&headers, &data).await {
+    if let Err(response) = execution::reference_step_guard(&headers, &data).await {
         return response;
     }
     let session = cookies(&headers)
@@ -635,7 +643,7 @@ async fn reauth(
     headers: HeaderMap,
     Json(input): Json<ReauthInput>,
 ) -> Response {
-    if let Err(response) = mutation_guard(&headers, &data).await {
+    if let Err(response) = execution::reference_step_guard(&headers, &data).await {
         return response;
     }
     let mut state = data.lock().await;
@@ -671,6 +679,7 @@ async fn reauth(
     state.reauth_grants.insert(
         token.clone(),
         ReauthGrant {
+            challenge_ref: input.challenge_ref.clone(),
             expires_at,
             session,
         },

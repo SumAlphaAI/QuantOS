@@ -1,4 +1,6 @@
-> 当前工程结果（PROVIDER:A3，2026-10-18）：冻结4580bac1，837输入/18组当前汇总与直接边界、7个激活入口PASS；Node265、Rust74、consumer/契约68，16操作/93条实际HTTP和基本Chromium通过。仅A3_SCOPE_LOCAL DEVELOPMENT READY，24控制点PASS，三原确认CONFIRMED且保持原SHA；BFF005独立READY因共享变化撤回，三直接前置不重授。52830个原audit/gate文件未改，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总用户确认PENDING。见[报告](./audit/PROVIDER-A3-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-006 / A4。
+> 当前执行（FE:BFF-FE-006 / A4，2026-10-18）：PROVIDER:A3 原完整确认稿已登记为 CONFIRMED，仅原4580bac/93d66ad范围；A4二十API按影响范围实现和复核中，当前stage NOT_ASSESSED，不拼接历史READY。见[规程](./operations/bff-fe-006-functional-admission.md)；完整联调/发布与runtime另验。
+
+> 历史工程结果（PROVIDER:A3，2026-10-18）：冻结4580bac1，837输入/18组当前汇总与直接边界、7个激活入口PASS；Node265、Rust74、consumer/契约68，16操作/93条实际HTTP和基本Chromium通过。仅A3_SCOPE_LOCAL DEVELOPMENT READY，24控制点PASS，三原确认CONFIRMED且保持原SHA；BFF005独立READY因共享变化撤回，三直接前置不重授。52830个原audit/gate文件未改，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总用户确认PENDING。见[报告](./audit/PROVIDER-A3-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-006 / A4。
 > 历史工程结果（FE:BFF-FE-005/A3，2026-10-18）：冻结e171fb7c，814输入/18组当前功能与直接边界、5个激活入口PASS；Node229、Rust52、consumer/契约57，7操作/50条实际HTTP及基本Chromium通过。仅BFF005_SCOPE_LOCAL DEVELOPMENT READY，24项限定控制点PASS；BFF003原稿确认CONFIRMED/独立Gate因共享变化撤回，A2原确认保持原SHA。52,760个历史文件未改；五前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本轮用户确认PENDING。见[报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)。下一可执行PROVIDER:A3当前功能汇总。
 > 历史工程结果（FE:BFF-FE-003/A3，2026-10-18）：冻结aeab72a5，911输入/19组当前功能与直接边界、4项激活入口PASS；Node237、Rust63、consumer/契约60，9操作/43条真实HTTP（逐项401/403）及26项限定控制点PASS。仅BFF003_SCOPE_LOCAL任务DEVELOPMENT READY；A2原确认CONFIRMED并保持3f0c9bd5/013c20e8范围，本任务确认PENDING。52,654个历史文件未改；九前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[当前报告](./audit/BFF-FE-003-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-005 / A3当前功能复核。
 
@@ -902,6 +904,24 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "FE:BFF-FE-001",
         "CORE:F05",
         "PROVIDER:A1"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-006": {
+      "profile": "BFF006_SCOPE_LOCAL",
+      "schema": "quantos-bff006-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-006-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A3"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }

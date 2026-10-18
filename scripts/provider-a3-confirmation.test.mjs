@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {verifyConfirmation} from './provider-a3-confirmation.mjs';
+import {digest} from './provider-a1-receipts.mjs';
+const approvalPath='docs/audit/evidence/provider-a3-confirmation-20261018/approval.json',approval=JSON.parse(readFileSync(approvalPath)),record=JSON.parse(readFileSync(approval.record));
+test('actual user reply confirms original JSON draft only',()=>{const r=verifyConfirmation();assert.equal(r.status,'CONFIRMED');assert.equal(r.currentHeadAcceptance,'NOT_CLAIMED');assert.equal(r.formalAccepted,false);});
+for(const[name,mutate]of [['self approval',r=>r.approver='Codex'],['other source',r=>r.request.sourceCommit='b'.repeat(40)],['wrong digest',r=>r.documentSha256='bad'],['other receipt',r=>r.approvedTechnicalManifest.sha256='bad'],['other commit',r=>r.documentCommit='a'.repeat(40)],['empty user message',r=>r.confirmationSource.text=''],['release promotion',r=>r.releaseAccepted=true],['runtime promotion',r=>r.runtimeAdmission='GRANTED'],['future time',r=>r.confirmedAt='2099-01-01T00:00:00Z']])test(name+' rejected even with updated record hash',()=>{const r=structuredClone(record);mutate(r);const b=Buffer.from(JSON.stringify(r)),a=Buffer.from(JSON.stringify({...approval,recordSha256:digest(b)}));assert.throws(()=>verifyConfirmation({read:p=>p===approval.record?b:p===approvalPath?a:readFileSync(p)}));});
+test('approved original draft bytes cannot be rewritten',()=>assert.throws(()=>verifyConfirmation({read:p=>p===record.document?Buffer.from('changed'):readFileSync(p)})));
+test('original source verification cannot be bypassed by default',()=>assert.throws(()=>verifyConfirmation({sourceVerifier:()=>{throw Error('original source changed');}})));

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.7.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.8.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -184,6 +184,9 @@
           ]
         },
         "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "auditRef": {
           "$ref": "#/$defs/UUID"
         }
       }
@@ -1650,6 +1653,12 @@
         "correlationId": {
           "$ref": "#/$defs/UUID",
           "description": "Trace reference for control actions; also supplied in response headers."
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
         }
       }
     },
@@ -1775,6 +1784,22 @@
         },
         "objectVersion": {
           "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "awaiting_approval",
+            "approved",
+            "command_ready",
+            "request_info",
+            "rejected",
+            "expired",
+            "submitted"
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
         }
       }
     },
@@ -1821,6 +1846,27 @@
           "description": "批准后签发的短时 TradeCommand 引用"
         },
         "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandExpiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "issuanceState": {
+          "type": "string",
+          "enum": [
+            "not_issued",
+            "consumed"
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject",
+            "request_info"
+          ]
+        },
+        "auditRef": {
           "$ref": "#/$defs/UUID"
         }
       }
@@ -1952,6 +1998,52 @@
         },
         "submittedAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "proposalHash",
+            "riskDecisionId",
+            "approvalId",
+            "commandId",
+            "releaseId",
+            "snapshotHash",
+            "portfolioHash",
+            "factHashes"
+          ],
+          "properties": {
+            "proposalHash": {
+              "type": "string"
+            },
+            "riskDecisionId": {
+              "type": "string"
+            },
+            "approvalId": {
+              "type": "string"
+            },
+            "commandId": {
+              "type": "string"
+            },
+            "releaseId": {
+              "type": "string"
+            },
+            "snapshotHash": {
+              "type": "string"
+            },
+            "portfolioHash": {
+              "type": "string"
+            },
+            "factHashes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "cancelCommandRef": {
+          "$ref": "#/$defs/UUID",
+          "description": "Server-owned order control reference for authenticated requester cancellation; does not renew the original submit TTL or grant submit authority."
         }
       }
     },
@@ -2486,6 +2578,128 @@
           "enum": [
             "trade_events"
           ]
+        }
+      }
+    },
+    "OrderCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "mode",
+        "canSubmit",
+        "canCancel",
+        "venueSubmit",
+        "quantityScale",
+        "priceScale",
+        "maxQuantity",
+        "maxNotional"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "canSubmit": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        },
+        "venueSubmit": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "quantityScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "priceScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "maxQuantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "maxNotional": {
+          "$ref": "#/$defs/DecimalValue"
+        }
+      }
+    },
+    "TradePreflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposalId",
+        "accountId",
+        "mode",
+        "contextHash",
+        "objectVersion",
+        "asOf",
+        "expiresAt",
+        "verdict",
+        "hitRules",
+        "executable"
+      ],
+      "properties": {
+        "proposalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "approval_required",
+            "deny"
+          ]
+        },
+        "hitRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "executable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
         }
       }
     }

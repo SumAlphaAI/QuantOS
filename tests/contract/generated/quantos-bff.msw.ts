@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.7.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.8.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -32,6 +32,7 @@ export type BffOperationId =
   | "getMarketCatalog"
   | "getNotificationPrefs"
   | "getOrder"
+  | "getOrderCapabilities"
   | "getPlatformCapabilities"
   | "getPortfolio"
   | "getProfile"
@@ -42,6 +43,7 @@ export type BffOperationId =
   | "getSecuritySettings"
   | "getSession"
   | "getStrategyDraft"
+  | "getTradePreflight"
   | "getVenueQuotes"
   | "getWatchlist"
   | "listApprovals"
@@ -80,7 +82,8 @@ export type BffOperationId =
   | "subscribeProposal"
   | "subscribeQuotes"
   | "subscribeResearchRun"
-  | "subscribeSessionRevocations";
+  | "subscribeSessionRevocations"
+  | "subscribeTradePreflight";
 
 function missingResolver(operationId: BffOperationId): Response {
   return HttpResponse.json(
@@ -199,6 +202,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getOrder");
   }),
+  http.get(`${baseUrl}/v1/order-capabilities`, async ({ request, params }) => {
+    const resolver = resolvers.getOrderCapabilities;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getOrderCapabilities");
+  }),
   http.get(`${baseUrl}/v1/platform/browser-capabilities`, async ({ request, params }) => {
     const resolver = resolvers.getPlatformCapabilities;
     if (resolver) return resolver({ request, params });
@@ -248,6 +256,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getStrategyDraft;
     if (resolver) return resolver({ request, params });
     return missingResolver("getStrategyDraft");
+  }),
+  http.get(`${baseUrl}/v1/trade-preflight`, async ({ request, params }) => {
+    const resolver = resolvers.getTradePreflight;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getTradePreflight");
   }),
   http.get(`${baseUrl}/v1/markets/quotes`, async ({ request, params }) => {
     const resolver = resolvers.getVenueQuotes;
@@ -443,6 +456,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeSessionRevocations;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeSessionRevocations");
+  }),
+  http.get(`${baseUrl}/v1/trade-preflight/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeTradePreflight;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeTradePreflight");
   }),
   ];
 }

@@ -234,6 +234,10 @@ impl RiskGuard {
     fn capable(auth: &AuthContext, cap: &str) -> bool {
         auth.capabilities.iter().any(|c| c.as_str() == cap)
     }
+    /// Read-only configured limits for trusted owner capability projections.
+    pub fn policy(&self) -> &RiskPolicy {
+        &self.0.policy
+    }
     pub fn revision(&self) -> Result<u64, GuardError> {
         Ok(self.lock()?.revision)
     }

@@ -1,0 +1,52 @@
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/execution.rs:330:9
+    |
+330 | /         if let Some((id, cmd)) = &p.command {
+331 | |             if now < cmd.expires_at {
+332 | |                 v["commandRef"] = json!(id);
+333 | |                 v["commandExpiresAt"] = json!(cmd.expires_at);
+334 | |             }
+335 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+330 ~         if let Some((id, cmd)) = &p.command
+331 ~             && now < cmd.expires_at {
+332 |                 v["commandRef"] = json!(id);
+333 |                 v["commandExpiresAt"] = json!(cmd.expires_at);
+334 ~             }
+    |
+
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/execution.rs:496:9
+    |
+496 | /         if let Some(account) = q
+497 | |             .get("accountId")
+498 | |             .map(String::as_str)
+499 | |             .or_else(|| body["accountId"].as_str())
+...   |
+504 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+499 ~             .or_else(|| body["accountId"].as_str())
+500 ~             && Some(account) != self.auth.account_id.map(|v| v.to_string()).as_deref() {
+501 |                 return Err(Fault::hidden());
+502 ~             }
+    |
+
+error: could not compile `bff-gateway` (lib) due to 2 previous errors

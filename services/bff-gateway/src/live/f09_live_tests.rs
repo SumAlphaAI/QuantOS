@@ -150,6 +150,7 @@ fn real_logout_db_write_matches_persistent_trace() {
     );
     let origin = "https://f09-trace.example.invalid";
     let state = Arc::new(LiveState {
+        execution: None,
         verifier: SupabaseAuthVerifier::new(&project_url, "unused-test-key".into())
             .expect("Auth verifier config"),
         middleware: Mutex::new(GatewayAuthMiddleware::connect(&database_url).expect("BFF DB")),

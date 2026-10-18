@@ -1078,6 +1078,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/order-capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getOrderCapabilities */
+        get: operations["getOrderCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/trade-preflight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getTradePreflight */
+        get: operations["getTradePreflight"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/trade-preflight/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeTradePreflight */
+        get: operations["subscribeTradePreflight"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1141,6 +1192,7 @@ export interface components {
             /** @enum {string} */
             status: "accepted" | "cancel_requested";
             correlationId: components["schemas"]["UUID"];
+            auditRef?: components["schemas"]["UUID"];
         };
         AuditedAsyncAccepted: components["schemas"]["AsyncAccepted"] & {
             auditRef: components["schemas"]["UUID"];
@@ -1518,6 +1570,8 @@ export interface components {
             };
             /** @description Trace reference for control actions; also supplied in response headers. */
             correlationId?: components["schemas"]["UUID"];
+            objectVersion?: string;
+            auditRef?: components["schemas"]["UUID"];
         };
         Signal: {
             signalId: components["schemas"]["UUID"];
@@ -1551,6 +1605,9 @@ export interface components {
              */
             executable: false;
             objectVersion: string;
+            /** @enum {string} */
+            status?: "active" | "awaiting_approval" | "approved" | "command_ready" | "request_info" | "rejected" | "expired" | "submitted";
+            correlationId?: components["schemas"]["UUID"];
         };
         Approval: {
             approvalId: components["schemas"]["UUID"];
@@ -1565,6 +1622,12 @@ export interface components {
             /** @description 批准后签发的短时 TradeCommand 引用 */
             commandRef?: components["schemas"]["UUID"];
             correlationId: components["schemas"]["UUID"];
+            commandExpiresAt?: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            issuanceState?: "not_issued" | "consumed";
+            /** @enum {string} */
+            decision?: "approve" | "reject" | "request_info";
+            auditRef?: components["schemas"]["UUID"];
         };
         Fill: {
             fillId: components["schemas"]["UUID"];
@@ -1596,6 +1659,18 @@ export interface components {
             mode: components["schemas"]["RuntimeMode"];
             correlationId: components["schemas"]["UUID"];
             submittedAt: components["schemas"]["DateTime"];
+            evidence?: {
+                proposalHash: string;
+                riskDecisionId: string;
+                approvalId: string;
+                commandId: string;
+                releaseId: string;
+                snapshotHash: string;
+                portfolioHash: string;
+                factHashes: string[];
+            };
+            /** @description Server-owned order control reference for authenticated requester cancellation; does not renew the original submit TTL or grant submit authority. */
+            cancelCommandRef?: components["schemas"]["UUID"];
         };
         ResearchAccepted: components["schemas"]["AsyncAccepted"] & {
             statusRef: string;
@@ -1713,6 +1788,35 @@ export interface components {
             replaceSeries: true;
             /** @enum {unknown} */
             aggregation: "trade_events";
+        };
+        OrderCapabilities: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            canSubmit: boolean;
+            canCancel: boolean;
+            /** @enum {boolean} */
+            venueSubmit: false;
+            quantityScale: number;
+            priceScale: number;
+            maxQuantity: components["schemas"]["DecimalValue"];
+            maxNotional: components["schemas"]["DecimalValue"];
+        };
+        TradePreflight: {
+            proposalId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            contextHash: string;
+            objectVersion: string;
+            asOf: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            verdict: "allow" | "approval_required" | "deny";
+            hitRules: string[];
+            /** @enum {boolean} */
+            executable: false;
+            correlationId?: components["schemas"]["UUID"];
         };
     };
     responses: {
@@ -3730,7 +3834,7 @@ export interface operations {
                      *       "positions": [],
                      *       "pnl": {
                      *         "currencyCode": "USD",
-                     *         "units": "x",
+                     *         "units": "0",
                      *         "nanos": 0
                      *       },
                      *       "exposure": "1"
@@ -5232,6 +5336,125 @@ export interface operations {
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getOrderCapabilities: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "canSubmit": true,
+                     *       "canCancel": true,
+                     *       "venueSubmit": false,
+                     *       "quantityScale": 4,
+                     *       "priceScale": 2,
+                     *       "maxQuantity": "10000",
+                     *       "maxNotional": "250000"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OrderCapabilities"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getTradePreflight: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+                proposalId: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "proposalId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "objectVersion": "0",
+                     *       "asOf": "2026-10-18T00:00:00Z",
+                     *       "expiresAt": "2026-10-18T00:01:00Z",
+                     *       "verdict": "approval_required",
+                     *       "hitRules": [
+                     *         "Approval"
+                     *       ],
+                     *       "executable": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["TradePreflight"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeTradePreflight: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+                proposalId: components["schemas"]["UUID"];
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description SSE 事件流 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             default: components["responses"]["ServerError"];
         };
     };

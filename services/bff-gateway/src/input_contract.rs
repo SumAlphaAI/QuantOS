@@ -165,7 +165,13 @@ pub(crate) async fn guard(
     );
     if op["authenticated"] == true {
         let result = if write {
-            mutation_guard(request.headers(), &data).await
+            if op["policy"]["owner"] == "BFF-FE-006"
+                || matches!(op["operationId"].as_str(), Some("mfaChallenge" | "reauth"))
+            {
+                crate::execution::reference_step_guard(request.headers(), &data).await
+            } else {
+                mutation_guard(request.headers(), &data).await
+            }
         } else {
             authenticate(request.headers(), &data).await
         };

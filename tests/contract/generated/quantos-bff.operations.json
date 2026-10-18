@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -214,6 +214,16 @@
       "sse": false
     },
     {
+      "operationId": "getOrderCapabilities",
+      "method": "GET",
+      "path": "/v1/order-capabilities",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "OrderCapabilities",
+      "sse": false
+    },
+    {
       "operationId": "getPlatformCapabilities",
       "method": "GET",
       "path": "/v1/platform/browser-capabilities",
@@ -311,6 +321,16 @@
         "strategy"
       ],
       "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "getTradePreflight",
+      "method": "GET",
+      "path": "/v1/trade-preflight",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "TradePreflight",
       "sse": false
     },
     {
@@ -699,6 +719,16 @@
       "path": "/v1/settings/sessions/stream",
       "tags": [
         "settings"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeTradePreflight",
+      "method": "GET",
+      "path": "/v1/trade-preflight/stream",
+      "tags": [
+        "execution"
       ],
       "responseSchema": null,
       "sse": true

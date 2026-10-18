@@ -68,6 +68,28 @@ fn log(
     tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$6,$7,$8)", &[&id,c.auth.tenant_id.as_uuid(),c.auth.actor_id.as_uuid(),&c.user_id,&correlation,&cause,&action,&details])?;
     Ok(id)
 }
+/// A4 owner writes into the same F05 audit source queried by Audit APIs.
+/// Stable server-minted auditRef makes successful HTTP replay append exactly once.
+pub(super) fn execution_log(
+    tx: &mut Transaction<'_>,
+    identity: &TrustedIdentity,
+    action: &str,
+    body: &Value,
+    input_details: &Value,
+) -> Result<(), ApiError> {
+    scope(tx, identity)?;
+    let id = uuid(body["auditRef"].as_str().ok_or_else(invalid)?)?;
+    let correlation = uuid(body["correlationId"].as_str().ok_or_else(invalid)?)?;
+    let c = &identity.0;
+    let clean = audit_core::redacted(
+        &json!({"outcome":"accepted","operation":action,"reason":input_details["reason"],"decision":input_details["decision"]}),
+    );
+    let details = json!({"objectRef":action,"redactedPayload":clean,"payloadHash":audit_core::payload_hash(&clean),"redactionPolicy":"audit-v1","workspaceId":c.auth.workspace_id,"accountId":c.auth.account_id});
+    let cause = cause(tx, correlation, id)?;
+    tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$6,$7,$8) on conflict(id) do nothing",&[&id,c.auth.tenant_id.as_uuid(),c.auth.actor_id.as_uuid(),&c.user_id,&correlation,&cause,&action,&details])?;
+    Ok(())
+}
+
 fn permission(
     tx: &mut Transaction<'_>,
     identity: &TrustedIdentity,

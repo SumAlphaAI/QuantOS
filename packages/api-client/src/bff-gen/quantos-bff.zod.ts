@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.7.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.8.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -47,6 +47,7 @@ export const AsyncAcceptedSchema = z.object({
   "jobId": z.lazy(() => UUIDSchema),
   "status": z.enum(["accepted","cancel_requested"]),
   "correlationId": z.lazy(() => UUIDSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const AuditedAsyncAcceptedSchema = z.intersection(z.lazy(() => AsyncAcceptedSchema), z.object({
@@ -393,6 +394,8 @@ export const RiskViewSchema = z.object({
   "at": z.lazy(() => DateTimeSchema).optional(),
 }).passthrough(),
   "correlationId": z.lazy(() => UUIDSchema).optional(),
+  "objectVersion": z.string().optional(),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const SignalSchema = z.object({
@@ -421,6 +424,8 @@ export const TradeProposalSchema = z.object({
   "expiresAt": z.lazy(() => DateTimeSchema),
   "executable": z.literal(false).describe("恒 false（A02；schema 层强制）"),
   "objectVersion": z.string(),
+  "status": z.enum(["active","awaiting_approval","approved","command_ready","request_info","rejected","expired","submitted"]).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const ApprovalSchema = z.object({
@@ -432,6 +437,10 @@ export const ApprovalSchema = z.object({
   "signature": z.string().describe("批准后服务端签名").optional(),
   "commandRef": z.lazy(() => UUIDSchema).optional(),
   "correlationId": z.lazy(() => UUIDSchema),
+  "commandExpiresAt": z.lazy(() => DateTimeSchema).optional(),
+  "issuanceState": z.enum(["not_issued","consumed"]).optional(),
+  "decision": z.enum(["approve","reject","request_info"]).optional(),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const FillSchema = z.object({
@@ -462,6 +471,17 @@ export const OrderSchema = z.object({
   "mode": z.lazy(() => RuntimeModeSchema),
   "correlationId": z.lazy(() => UUIDSchema),
   "submittedAt": z.lazy(() => DateTimeSchema),
+  "evidence": z.object({
+  "proposalHash": z.string(),
+  "riskDecisionId": z.string(),
+  "approvalId": z.string(),
+  "commandId": z.string(),
+  "releaseId": z.string(),
+  "snapshotHash": z.string(),
+  "portfolioHash": z.string(),
+  "factHashes": z.array(z.string()),
+}).passthrough().optional(),
+  "cancelCommandRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const ResearchAcceptedSchema = z.intersection(z.lazy(() => AsyncAcceptedSchema), z.object({
@@ -573,6 +593,32 @@ export const CandleSeriesSchema = z.object({
   "aggregation": z.literal("trade_events"),
 }).strict();
 
+export const OrderCapabilitiesSchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "canSubmit": z.boolean(),
+  "canCancel": z.boolean(),
+  "venueSubmit": z.literal(false),
+  "quantityScale": z.number().int().min(0).max(18),
+  "priceScale": z.number().int().min(0).max(18),
+  "maxQuantity": z.lazy(() => DecimalValueSchema),
+  "maxNotional": z.lazy(() => DecimalValueSchema),
+}).strict();
+
+export const TradePreflightSchema = z.object({
+  "proposalId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "objectVersion": z.string(),
+  "asOf": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "verdict": z.enum(["allow","approval_required","deny"]),
+  "hitRules": z.array(z.string()),
+  "executable": z.literal(false),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -636,6 +682,8 @@ export const bffZodSchemas = {
   MarketWatchlist: MarketWatchlistSchema,
   SaveMarketWatchlist: SaveMarketWatchlistSchema,
   CandleSeries: CandleSeriesSchema,
+  OrderCapabilities: OrderCapabilitiesSchema,
+  TradePreflight: TradePreflightSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -1172,6 +1220,26 @@ export const bffResponseSchemas = {
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "422": z.lazy(() => ErrorEnvelopeSchema),
     "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getOrderCapabilities": {
+    "200": z.lazy(() => OrderCapabilitiesSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getTradePreflight": {
+    "200": z.lazy(() => TradePreflightSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeTradePreflight": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;
