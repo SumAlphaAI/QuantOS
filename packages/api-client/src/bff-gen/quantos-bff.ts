@@ -6738,7 +6738,7 @@ export interface operations {
                      *       },
                      *       "provisional": true,
                      *       "reportId": "11111111-1111-4111-8111-111111111111",
-                     *       "status": "succeeded",
+                     *       "status": "queued",
                      *       "reportVersion": "1",
                      *       "createdAt": "2026-10-18T08:00:00Z",
                      *       "expiresAt": "2026-10-18T08:15:00Z",

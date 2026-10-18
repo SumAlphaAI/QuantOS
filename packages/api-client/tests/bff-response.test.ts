@@ -36,6 +36,7 @@ function specimen(schema: Schema): unknown {
     if (schema.format === "uri") return "https://example.invalid/resource";
     if (schema.pattern === "^[A-Z]{3}$") return "USD";
     if (schema.pattern?.startsWith("^/v1/research-runs/")) return "/v1/research-runs/" + uuid;
+    if (schema.pattern?.startsWith("^/v1/performance/reports/")) return `/v1/performance/reports/${uuid}/content?ticket=${uuid}`;
     if (schema.pattern?.includes("sha256:")) return "sha256:" + "a".repeat(64);
     if (schema.pattern?.includes("a-f0-9")) return "a".repeat(64);
     if (schema.pattern?.includes("2[0-3]")) return "12:00";

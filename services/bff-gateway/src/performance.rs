@@ -7,7 +7,7 @@ use axum::{
     body::Bytes,
     extract::{OriginalUri, Query, State},
     http::{HeaderMap, Method, StatusCode},
-    response::{IntoResponse, Response},
+    response::Response,
     routing::{get, post},
 };
 use chrono::{DateTime, Datelike, Duration, Months, TimeZone, Utc};
@@ -616,15 +616,7 @@ async fn reference(
     }
 }
 pub(crate) fn output(s: StatusCode, v: Value) -> Response {
-    let mut r = (
-        s,
-        [
-            ("content-type", "application/json"),
-            ("cache-control", "private, no-store"),
-        ],
-        serde_json::to_vec(&v).expect("JSON"),
-    )
-        .into_response();
+    let mut r = crate::response(s, v, &Uuid::now_v7().to_string());
     if s == StatusCode::TOO_MANY_REQUESTS {
         r.headers_mut().insert("retry-after", "60".parse().unwrap());
     }

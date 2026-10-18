@@ -1,0 +1,41 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m packages/api-client/tests/bff-transport.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [31m❯[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 41[2mms[22m[39m
+[31m     [31m×[31m validates populated specimens for every component and rejects invalid types[39m[32m 22[2mms[22m[39m
+     [32m✓[39m rejects malformed success/error payloads for all published operations[32m 18[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/performance-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 85[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 235[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 536[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m43 passed[39m[22m[90m (44)[39m
+[2m   Start at [22m 19:20:45
+[2m   Duration [22m 823ms[2m (transform 631ms, setup 0ms, import 1.77s, tests 1.08s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/bff-response.test.ts[2m > [22mpublished BFF runtime response coverage[2m > [22mvalidates populated specimens for every component and rejects invalid types
+[31m[1mAssertionError[22m: PerformanceDownload: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m packages/api-client/tests/bff-response.test.ts:[2m54:53[22m[39m
+    [90m 52|[39m     [35mfor[39m ([35mconst[39m [name[33m,[39m schema] [35mof[39m [33mObject[39m[33m.[39m[34mentries[39m(bffZodSchemas)) {
+    [90m 53|[39m       [35mconst[39m value [33m=[39m [34mspecimen[39m(components[33m.[39m$defs[name])[33m;[39m
+    [90m 54|[39m       [34mexpect[39m(schema[33m.[39m[34msafeParse[39m(value)[33m.[39msuccess[33m,[39m name)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                                                     [31m^[39m
+    [90m 55|[39m       [34mexpect[39m(schema[33m.[39m[34msafeParse[39m([35mnull[39m)[33m.[39msuccess[33m,[39m name)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 56|[39m     }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
