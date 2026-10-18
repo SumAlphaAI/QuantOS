@@ -1,0 +1,157 @@
+{
+  "schema": "quantos-p0-functional-summary/v1",
+  "sourceCommit": "538afeef3c056bd98d84d610375ed4b807c7634b",
+  "manifestDigest": "sha256:192a6a441d5e0260989642b67088fa734e5fb9bd823dfa6d3c79e0e42aae1ee9",
+  "status": "READY",
+  "admission": "A1_ONLY",
+  "checks": 24,
+  "nodeCounts": {
+    "pre01-negative": 43,
+    "pre02-negative": 27,
+    "pre03-negative": 29,
+    "pre04-negative": 38,
+    "pre05-negative": 10,
+    "pre06-negative": 17,
+    "gate-tests": 39,
+    "formal-gate-negative": 16,
+    "plan-policy": 44
+  },
+  "nodeExecutionCount": 263,
+  "vitest": {
+    "config-unit": 26,
+    "ui-unit": 19,
+    "contract": 28,
+    "critical-coverage": 198
+  },
+  "skipped": [
+    {
+      "id": "TP03_UI_PROBE",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TP04_UI_PROBE",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TP05_UI_PROBE",
+      "status": "NOT_RUN"
+    }
+  ],
+  "coverage": {
+    "files": 6,
+    "lines": 100,
+    "branches": 100,
+    "functions": 100,
+    "statements": 100
+  },
+  "browser": {
+    "terminalOidc": 11,
+    "website": 8,
+    "engine": "chromium",
+    "visual": "PASS",
+    "axe": "PASS"
+  },
+  "webPoc": {
+    "schema": "quantos-p0-web-poc/v1",
+    "status": "PASS",
+    "sourceCommit": "538afeef3c056bd98d84d610375ed4b807c7634b",
+    "builds": {
+      "website": {
+        "schema": "quantos-pre03-build/v1",
+        "app": "website",
+        "sourceDigest": "789f971dee6cbf04a9a029e9fdddfc862c771e7d28c4339fccf78f510a20c932",
+        "output": "export",
+        "buildId": "website-538afeef3c056bd98d84d610375ed4b807c7634b"
+      },
+      "terminal": {
+        "schema": "quantos-pre03-build/v1",
+        "app": "terminal",
+        "sourceDigest": "789f971dee6cbf04a9a029e9fdddfc862c771e7d28c4339fccf78f510a20c932",
+        "output": "export",
+        "buildId": "terminal-538afeef3c056bd98d84d610375ed4b807c7634b"
+      }
+    },
+    "elapsedMs": 25875,
+    "bootstrap": "NOT_RUN_EXISTING_LOCKED_DEPENDENCIES",
+    "browsers": [
+      "chromium"
+    ],
+    "storybook": "BUILT",
+    "externalPublished": false,
+    "clientSecrets": "PASS",
+    "outputScope": "LOCAL_EPHEMERAL",
+    "publicConfiguration": {
+      "NEXT_PUBLIC_QUANTOS_ENV": "local-mock",
+      "NEXT_PUBLIC_QUANTOS_MOCK_ENABLED": "true",
+      "NEXT_PUBLIC_SITE_ORIGIN": "http://localhost:3196",
+      "NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN": "http://localhost:3190",
+      "NEXT_PUBLIC_QUANTOS_BFF_ORIGIN": "http://localhost:4010",
+      "NEXT_PUBLIC_QUANTOS_OIDC_ISSUER": "https://mock.idp.local",
+      "NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID": "quantos-terminal-local",
+      "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI": "http://localhost:3190/auth/callback",
+      "NEXT_PUBLIC_QUANTOS_DEFAULT_MODE": "paper",
+      "NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET": "off",
+      "NEXT_PUBLIC_QUANTOS_OBS_ENABLED": "false",
+      "NEXT_PUBLIC_QUANTOS_SENTRY_DSN": ""
+    },
+    "sourceInventoryDigest": "sha256:34e7255259559bdbd50bcd38156b6f946bd6793676015f34cda809d9aa9993bc"
+  },
+  "cleanWeb": {
+    "schema": "quantos-p0-clean-web/v1",
+    "status": "PASS",
+    "sourceCommit": "538afeef3c056bd98d84d610375ed4b807c7634b",
+    "commands": [
+      [
+        "install",
+        "--offline",
+        "--frozen-lockfile",
+        "--ignore-scripts"
+      ],
+      [
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      [
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      [
+        "--filter",
+        "@sumalpha/config",
+        "test"
+      ],
+      [
+        "--filter",
+        "@sumalpha/ui",
+        "test"
+      ],
+      [
+        "check:pre03:web"
+      ],
+      [
+        "check:client-secrets"
+      ]
+    ],
+    "elapsedMs": 27980,
+    "bootstrap": "FROZEN_OFFLINE_IGNORE_SCRIPTS",
+    "cache": "EXISTING_PNPM_STORE",
+    "initialNodeModules": "ABSENT",
+    "privateDotenv": "ABSENT",
+    "webRoutes": 2,
+    "externalPublished": false,
+    "networkInstall": false,
+    "emptyDownloadCacheAcceptance": "NOT_CLAIMED"
+  },
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "formalAccepted": false,
+  "confirmation": "PENDING",
+  "runtimeAdmission": "DENIED",
+  "databaseExecution": false,
+  "externalPublished": false
+}

@@ -1,0 +1,95 @@
+✔ synthetic receiver validates shape while granting A1 only (13.686791ms)
+✔ historical input rejects (18.436333ms)
+✔ missing check rejects (14.29475ms)
+✔ reordered checks rejects (12.65775ms)
+✔ fake command rejects (12.886917ms)
+✔ failed check rejects (13.12725ms)
+✔ timeout rejects (12.823208ms)
+✔ interruption rejects (12.6205ms)
+✔ negative elapsed rejects (16.66575ms)
+✔ corrupt log rejects (12.734125ms)
+✔ unsafe log rejects (12.316625ms)
+✔ unsafe attempt rejects (12.7575ms)
+✔ historical READY dependency rejects (12.627834ms)
+✔ upstream admission rejects (12.259542ms)
+✔ recursive campaign rejects (12.888875ms)
+✔ release promotion rejects (12.228042ms)
+✔ integration promotion rejects (12.086417ms)
+✔ extra admission rejects (12.721291ms)
+✔ runtime admission rejects (12.104875ms)
+✔ formal signature rejects (12.166125ms)
+✔ database claim rejects (12.199958ms)
+✔ production claim rejects (12.063917ms)
+✔ external publish rejects (12.160458ms)
+✔ dropped release handoff rejects (12.814042ms)
+✔ actual execution proof rejects pre01-negative s=>s.replaceAll('tests 1','tests 0').replaceAll('pass 1','pass 0') (12.57025ms)
+✔ actual execution proof rejects config-unit s=>s.replace('Tests 1 passed','No tests found') (12.562416ms)
+✔ actual execution proof rejects web-poc s=>s.replaceAll(source,'b'.repeat(40)) (12.725542ms)
+✔ actual execution proof rejects web-poc s=>s.replace('"clientSecrets":"PASS"','"clientSecrets":"FAIL"') (12.307708ms)
+✔ actual execution proof rejects web-poc s=>s.replace('"built_route_checks": 2','"built_route_checks": 0') (14.005833ms)
+✔ actual execution proof rejects sabotage ()=> 'PASS' (12.689875ms)
+✔ environment drops private caller credentials and uses public mock profile (0.236625ms)
+✖ source binder rejects a changed committed blob (33.674667ms)
+✔ publication preserves historical formal acceptance and rolls back on failed postcheck (14.518083ms)
+✔ six current-scope references do not assign independent upstream READY (70.032958ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 33
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1149.851083
+
+✖ failing tests:
+
+test at scripts/p0-functional-gate.test.mjs:26:1
+✖ source binder rejects a changed committed blob (33.674667ms)
+  AssertionError [ERR_ASSERTION]: stage contract differs from required policy
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      dependency_basis: 'stage_gate',
+      early_required: [
+        'contracts',
+        'data-integrity',
+  ...
+        },
+  -     'PREPARATION:P0': {
+  -       manifest: 'audit/evidence/p0-local-20261018/manifest.json',
+  -       prerequisites: [
+  -         'FE:PRE-01',
+  -         'FE:PRE-02',
+  -         'FE:PRE-03',
+  -         'FE:PRE-04',
+  -         'FE:PRE-05',
+  -         'FE:PRE-06'
+  -       ],
+  -       profile: 'P0_LOCAL',
+  -       release_checkpoint: 'RELEASE-GATE:BETA',
+  -       schema: 'quantos-p0-functional-development/v1'
+  -     },
+        'PROVIDER:A2': {
+          manifest: 'audit/evidence/provider-a3-local-20261013/a2-local.json',
+          prerequisites: [
+            'FE:BFF-FE-001',
+            'FE:BFF-FE-007',
+  
+      at validatePlanOrder (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:106:10)
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:180:21)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at verifySource (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/p0-functional-gate.mjs:19:226)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/p0-functional-gate.test.mjs:26:264)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { schema: 'quantos-plan-stages/v1', dependency_basis: 'stage_gate', early_required: [ 'contracts', 'data-integrity', 'authorization', 'idempotency-recovery', 'deadline-semantics' ], release_required: [ 'performance', 'soak', 'deployment', 'same-sha-ci', 'release-authorization', 'r03-supabase-target-acceptance', 'supabase-target-acceptance', 'external-environment-acceptance' ], release_checkpoints: [ 'RELEASE-GATE:BETA', 'RELEASE-GATE:LIVE-READINESS' ], local_dependency_receipts: { 'CORE:R03': [Object], 'CORE-GATE:F0': [Object], 'CORE:TP03': [Object], 'CORE:TP04': [Object], 'CORE:TP01-C': [Object], 'CORE:TP01-D': [Object], 'PROVIDER:A2': [Object], 'CORE-GATE:R1-SERVICE': [Object], 'FE:BFF-FE-003': [Object], 'FE:BFF-FE-005': [Object], 'PROVIDER:A3': [Object], 'CORE:TP02': [Object], 'CORE:TP01-E': [Object], 'CORE:TP01-F': [Object], 'CORE:TP01-G': [Object], 'SERVICE:TP01': [Object], 'CORE:S01': [Object], 'CORE:TP06': [Object], 'CORE:S02': [Object], 'CORE:S03': [Object], 'SERVICE:S04': [Object], 'EVALUATION:TP07': [Object], 'EVALUATION:TP12': [Object], 'CORE-GATE:S2-SERVICE': [Object], 'CORE:X01': [Object], 'CORE:X02': [Object], 'CORE:X03': [Object], 'CORE:TP07': [Object], 'CORE:X04': [Object], 'CORE:X05': [Object], 'CORE:TP12': [Object], 'SERVICE:X06': [Object], 'CORE-GATE:X3-SERVICE': [Object] } },
+    expected: { schema: 'quantos-plan-stages/v1', dependency_basis: 'stage_gate', early_required: [ 'contracts', 'data-integrity', 'authorization', 'idempotency-recovery', 'deadline-semantics' ], release_required: [ 'performance', 'soak', 'deployment', 'same-sha-ci', 'release-authorization', 'r03-supabase-target-acceptance', 'supabase-target-acceptance', 'external-environment-acceptance' ], release_checkpoints: [ 'RELEASE-GATE:BETA', 'RELEASE-GATE:LIVE-READINESS' ], local_dependency_receipts: { 'CORE:R03': [Object], 'CORE-GATE:F0': [Object], 'CORE:TP03': [Object], 'CORE:TP04': [Object], 'CORE:TP01-C': [Object], 'CORE:TP01-D': [Object], 'PROVIDER:A2': [Object], 'CORE-GATE:R1-SERVICE': [Object], 'FE:BFF-FE-003': [Object], 'FE:BFF-FE-005': [Object], 'PROVIDER:A3': [Object], 'CORE:TP02': [Object], 'CORE:TP01-E': [Object], 'CORE:TP01-F': [Object], 'CORE:TP01-G': [Object], 'SERVICE:TP01': [Object], 'CORE:S01': [Object], 'CORE:TP06': [Object], 'CORE:S02': [Object], 'CORE:S03': [Object], 'SERVICE:S04': [Object], 'EVALUATION:TP07': [Object], 'EVALUATION:TP12': [Object], 'CORE-GATE:S2-SERVICE': [Object], 'CORE:X01': [Object], 'CORE:X02': [Object], 'CORE:X03': [Object], 'CORE:TP07': [Object], 'CORE:X04': [Object], 'CORE:X05': [Object], 'CORE:TP12': [Object], 'SERVICE:X06': [Object], 'CORE-GATE:X3-SERVICE': [Object], 'PREPARATION:P0': [Object] } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

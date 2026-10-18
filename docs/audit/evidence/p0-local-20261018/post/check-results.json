@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ready",
+    "command": [
+      "node",
+      "scripts/p0-functional-gate.mjs",
+      "--ready"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/p0-local-20261018/post/ready.log",
+    "logSha256": "sha256:c15c7c48f427f693aa589378dbfdfee36ec3f97309492f6b01f69b802c9c2e7f"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/p0-local-20261018/post/plans.log",
+    "logSha256": "sha256:d49c0da9185a8edae8c18a9c9d0b9ea2c955b582c460c73d181cbb328a487d43"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/p0-functional-gate.mjs",
+      "--release"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "status": "REFUSED_AS_EXPECTED",
+    "log": "docs/audit/evidence/p0-local-20261018/post/release-refusal.log",
+    "logSha256": "sha256:8707b335c0b2e3df084848a5c01be56bcc2bddb60cbeeb41358e36b698107fe2"
+  },
+  {
+    "id": "formal-refusal",
+    "command": [
+      "node",
+      "scripts/check-p0-acceptance.mjs",
+      "--candidate",
+      "538afeef3c056bd98d84d610375ed4b807c7634b"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "status": "REFUSED_AS_EXPECTED",
+    "log": "docs/audit/evidence/p0-local-20261018/post/formal-refusal.log",
+    "logSha256": "sha256:2fe12efb868209343733f40ede4ef49f02c17562a45dcb66807f85eceb40a5f1"
+  }
+]

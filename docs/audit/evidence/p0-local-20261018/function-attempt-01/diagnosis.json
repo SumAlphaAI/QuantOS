@@ -1,0 +1,17 @@
+{
+  "status": "FAIL",
+  "class": "POC_PROFILE_ORIGIN_MISMATCH",
+  "sourceCommit": "75dcf0fb1a8b2bccda67c277a5bd91a3e0154f60",
+  "detail": "Public example callback uses localhost:3100 while actual Playwright static server is localhost:3190; two successful OIDC callback paths navigate to the unserved example origin. Nine browser cases passed, two failed. Keep exact logs and traces; do not change product redirect/security rules.",
+  "fix": "Use explicit public mock PoC website3196/Terminal3190/callback3190 configuration consistently for fresh builds and browser execution.",
+  "additionalHarnessIssue": "Vitest logs contain ANSI controls; strip controls only for parsing after verifying raw-log digest.",
+  "unexecuted": [
+    "website-browser",
+    "client-secrets-post",
+    "gate-tests",
+    "formal-gate-negative",
+    "plan-policy",
+    "plans",
+    "published-gate"
+  ]
+}
