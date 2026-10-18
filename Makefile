@@ -73,6 +73,8 @@ bff-contract-check:
 	pnpm test:bff-fe-007:development
 	pnpm check:bff-fe-004:ci
 	pnpm test:bff-fe-004
+	pnpm check:provider-a4:ci
+	pnpm test:provider-a4
 
 bff-provider-test:
 	cargo test -p bff-gateway
@@ -887,3 +889,9 @@ bff006-local-check:
 	pnpm check:bff-fe-006:development
 bff006-local-assess:
 	node scripts/record-bff-fe-006-functional.mjs $(ATTEMPT)
+
+.PHONY: provider-a4-local-check provider-a4-local-assess
+provider-a4-local-check:
+	pnpm check:provider-a4:development
+provider-a4-local-assess:
+	node scripts/record-provider-a4-functional.mjs $(ATTEMPT)

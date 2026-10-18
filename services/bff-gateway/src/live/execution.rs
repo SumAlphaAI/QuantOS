@@ -55,6 +55,27 @@ async fn handle(
         )
         .await;
     }
+    // Strategy readers do not acquire execution capability merely to read their
+    // own approval kind. Keep domain authority and host availability independent.
+    if uri.path() == "/v1/approvals"
+        && (state.execution.is_none()
+            || !context
+                .auth
+                .capabilities
+                .iter()
+                .any(|c| c.as_str() == quantos_policy::Capability::EXECUTION_OPERATE))
+    {
+        return super::strategy::approval(
+            TrustedIdentity(context, session),
+            state,
+            uri.path().to_owned(),
+            q,
+            method,
+            headers,
+            bytes,
+        )
+        .await;
+    }
     // Authenticated unsupported host is unavailable, never a successful empty page.
     let host = state
         .execution
@@ -71,7 +92,7 @@ async fn handle(
     let resource_path = uri.path().to_owned();
     let result=tokio::task::spawn_blocking(move||->Result<(StatusCode,Value)>{
         let mut service=host.lock().map_err(|_|Fault::unavailable())?;
-        service.linked_approvals=state.strategy.as_ref().and_then(|s|s.lock().ok()).map(|s|s.approvals(&context.auth,Utc::now())).unwrap_or_default();
+        service.linked_approvals=if uri.path()=="/v1/approvals"{match &state.strategy{Some(s)=>s.lock().map_err(|_|Fault::unavailable())?.checked_approvals(&context.auth,Utc::now())?,None=>Vec::new()}}else{Vec::new()};
         if method!=Method::POST {return service.handle(&context.auth,&session,&method,uri.path(),&q,&headers,&body,None,Utc::now())}
         // Same host mutex serializes proof reservation, domain mutation and response
         // publication. A failed database commit quarantines the lease. A replacement

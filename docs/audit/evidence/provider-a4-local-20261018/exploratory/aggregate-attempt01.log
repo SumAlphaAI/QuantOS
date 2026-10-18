@@ -1,0 +1,35 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 42s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-88eb96143f0565cb)
+
+running 4 tests
+test a4_tests::execution_proof_cannot_be_reused_for_strategy_and_exact_retry_recovers ... ok
+test a4_tests::mixed_approvals_have_distinct_authority_and_frozen_pagination ... FAILED
+test a4_tests::poisoned_strategy_host_cannot_publish_successful_mixed_approval_page ... FAILED
+test a4_tests::simultaneous_domain_retries_preserve_two_unique_audit_roots ... ok
+
+failures:
+
+---- a4_tests::mixed_approvals_have_distinct_authority_and_frozen_pagination stdout ----
+
+thread 'a4_tests::mixed_approvals_have_distinct_authority_and_frozen_pagination' (2362832) panicked at services/bff-gateway/src/a4_tests.rs:39:5:
+assertion `left == right` failed: {"code":"INVALID_REQUEST","correlationId":"01a14e25-41de-7ce3-90d3-e1445747f1ea","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- a4_tests::poisoned_strategy_host_cannot_publish_successful_mixed_approval_page stdout ----
+
+thread 'a4_tests::poisoned_strategy_host_cannot_publish_successful_mixed_approval_page' (2362873) panicked at services/bff-gateway/src/a4_tests.rs:318:5:
+assertion `left == right` failed: quarantined strategy must not silently publish approval facts: {"items":[{"approvalId":"01a14e25-4d58-7971-b8de-b9b95fd8004a","correlationId":"01a14e25-4d4c-7590-80b1-e2c0fce7a1e2","expiresAt":"2026-10-18T08:34:41.030491Z","issuanceState":"not_issued","objectVersion":"0","originator":"11111111-1111-4111-8111-111111111111","status":"pending"},{"approvalId":"500019c8-b8d5-4ad9-8ed2-5b447caf3a7c","correlationId":"01a14e25-4799-7002-a7ab-251de1c65a8a","expired":false,"expiresAt":"2026-10-19T08:33:31.030491Z","kind":"strategy_release","objectRef":"01a14e25-4791-7123-981e-ad24eb510b2a","objectVersion":"0","originator":"11111111-1111-4111-8111-111111111111","requestedAt":"2026-10-18T08:33:48.441280Z","requester":"11111111-1111-4111-8111-111111111111","status":"pending","timeline":[{"action":"submitted","actorId":"11111111-1111-4111-8111-111111111111","correlationId":"01a14e25-4799-7002-a7ab-251de1c65a8a","occurredAt":"2026-10-18T08:33:48.441280Z"}]}]}
+  left: 200
+ right: 503
+
+
+failures:
+    a4_tests::mixed_approvals_have_distinct_authority_and_frozen_pagination
+    a4_tests::poisoned_strategy_host_cannot_publish_successful_mixed_approval_page
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 95 filtered out; finished in 11.79s
+
+error: test failed, to rerun pass `-p bff-gateway --lib`

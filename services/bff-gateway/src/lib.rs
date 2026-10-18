@@ -1842,3 +1842,6 @@ fn push_event(data: &mut ProviderData, kind: &str, object_id: &str) {
 
 #[cfg(test)]
 mod a3_tests;
+
+#[cfg(test)]
+mod a4_tests;

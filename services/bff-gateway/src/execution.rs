@@ -1195,11 +1195,19 @@ async fn reference(
     };
     let proof = proof.filter(|p| !state.consumed_step_proofs.contains(p));
     let strategy_auth = crate::strategy::reference_auth(&session);
-    let linked = state
-        .strategy
-        .as_ref()
-        .map(|s| s.approvals(&strategy_auth, now))
-        .unwrap_or_default();
+    let linked = if uri.path() == "/v1/approvals" {
+        match state
+            .strategy
+            .as_ref()
+            .map(|s| s.checked_approvals(&strategy_auth, now))
+            .transpose()
+        {
+            Ok(rows) => rows.unwrap_or_default(),
+            Err(e) => return e.response(),
+        }
+    } else {
+        Vec::new()
+    };
     let strategy_approval = uri.path().starts_with("/v1/approvals/")
         && uri
             .path()

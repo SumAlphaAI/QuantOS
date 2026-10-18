@@ -62,7 +62,7 @@ test('unsupported nodes cannot become CI stage gates', () => {
 test('reading current plan dispositions does not alter lifecycle or evidence', () => {
   const original = nodesFromPlans(), before = JSON.stringify([...original]);
   const nodes = structuredClone(original);
-  for (const id of ['PROVIDER:A1', 'CORE-GATE:F0', 'FE:FEP-0', 'FRONTEND-GATE:G0', 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A2', 'FE:BFF-FE-003', 'FE:BFF-FE-005', 'PROVIDER:A3', 'FE:BFF-FE-006', 'FE:BFF-FE-004']) {
+  for (const id of ['PROVIDER:A1', 'CORE-GATE:F0', 'FE:FEP-0', 'FRONTEND-GATE:G0', 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A2', 'FE:BFF-FE-003', 'FE:BFF-FE-005', 'PROVIDER:A3', 'FE:BFF-FE-006', 'FE:BFF-FE-004', 'PROVIDER:A4']) {
     nodes.get(id).stage_gate = {stage: 'DEVELOPMENT', status: 'NOT_ASSESSED', input_digest: null, evidence: []};
     const result = checkDisposition(id, {nodes});
     assert.equal(result.status, 'NOT_ASSESSED'); assert.equal(result.admitted, false);
@@ -95,3 +95,5 @@ test('market disposition invokes strict validator and propagates failure',()=>{c
 test('A3 aggregate disposition propagates strict evidence failures',()=>{const f=fixture('PROVIDER:A3','READY');assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);f.options.validate=()=>({status:'READY'});assert.equal(checkDisposition(f.id,f.options).admitted,true);});
 
 test("strategy disposition invokes strict current verifier",()=>{const f=fixture("FE:BFF-FE-004","READY");assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);f.options.validate=()=>({status:"READY"});assert.equal(checkDisposition(f.id,f.options).admitted,true);});
+
+test("A4 disposition invokes strict aggregate verifier",()=>{const f=fixture("PROVIDER:A4","READY");assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);f.options.validate=()=>({status:"READY"});assert.equal(checkDisposition(f.id,f.options).admitted,true);});

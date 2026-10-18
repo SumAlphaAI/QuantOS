@@ -322,6 +322,9 @@ impl StrategyHost {
                     || !matches!(
                         v[0],
                         "strategyId"
+                            | "approvalId"
+                            | "originator"
+                            | "status"
                             | "name"
                             | "releaseId"
                             | "backtestReportArtifactId"
@@ -344,6 +347,10 @@ impl StrategyHost {
                 || !matches!(
                     v[0],
                     "strategyId"
+                        | "approvalId"
+                        | "originator"
+                        | "expiresAt"
+                        | "status"
                         | "name"
                         | "updatedAt"
                         | "releaseId"
@@ -380,6 +387,20 @@ impl StrategyHost {
             result["nextCursor"] = json!(id)
         }
         Ok(result)
+    }
+    /// Shared pages cannot silently omit or publish facts from a quarantined lease.
+    pub(crate) fn checked_approvals(
+        &self,
+        a: &AuthContext,
+        now: DateTime<Utc>,
+    ) -> Result<Vec<Value>> {
+        if !(can(a, Capability::STRATEGY_WRITE) || can(a, Capability::STRATEGY_APPROVE)) {
+            return Ok(Vec::new());
+        }
+        if self.poisoned {
+            return Err(Fault::unavailable());
+        }
+        Ok(self.approvals(a, now))
     }
     pub(crate) fn approvals(&self, a: &AuthContext, now: DateTime<Utc>) -> Vec<Value> {
         self.approvals
@@ -468,6 +489,10 @@ impl StrategyHost {
         let correlation = Uuid::now_v7();
         let mut status = StatusCode::OK;
         let mut out = match (m.as_str(), parts.as_slice()) {
+            ("GET", ["v1", "approvals"]) => {
+                let rows = self.checked_approvals(a, now)?;
+                self.page(a, session, path, q, rows, now)?
+            }
             ("GET", ["v1", "strategies"]) => {
                 let rows=self.drafts.values().filter(|d|d.scope==scope(a)).map(|d|json!({"strategyId":d.page["strategyId"],"name":d.page["name"],"updatedAt":d.page["updatedAt"]})).collect();
                 self.page(a, session, path, q, rows, now)?

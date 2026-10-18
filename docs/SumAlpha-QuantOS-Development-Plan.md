@@ -1,4 +1,4 @@
-> 当前工程结果（FE:BFF-FE-004 / A4，2026-10-18）：冻结8172d825，925输入/17组与5入口PASS；Rust93、Node160、consumer52、十二API/1068实际HTTP、1000幂等及基本Chromium通过，新增consumer行/分支100%。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；A3与FE006原确认CONFIRMED，九直接前置referenceOnly，FE006当前NOT_ASSESSED。当前确认PENDING，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。见[报告](./audit/BFF-FE-004-functional-review-2026-10-18.md)及[完整确认稿](./audit/evidence/bff-fe-004-local-20261018/confirmation-draft.md)。下一可执行PROVIDER:A4 当前功能汇总复核。
+> 当前执行（PROVIDER:A4，2026-10-18）：FE004原稿用户确认已登记CONFIRMED，仅原8172d825/0a5f959f范围；FE006及A3原确认与回执已核对。当前32项API汇总按影响范围验证中，三个直接前置referenceOnly；组件当前独立READY撤回NOT_ASSESSED，原记录保留。完整UI/业务联调和发布NOT_RUN，runtimeAdmission=DENIED。
 
 > 历史工程结果（PROVIDER:A3，2026-10-18）：冻结4580bac1，837输入/18组当前汇总与直接边界、7个激活入口PASS；Node265、Rust74、consumer/契约68，16操作/93条实际HTTP和基本Chromium通过。仅A3_SCOPE_LOCAL DEVELOPMENT READY，24控制点PASS，三原确认CONFIRMED且保持原SHA；BFF005独立READY因共享变化撤回，三直接前置不重授。52830个原audit/gate文件未改，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总用户确认PENDING。见[报告](./audit/PROVIDER-A3-functional-review-2026-10-18.md)。下一可执行FE:BFF-FE-006 / A4。
 > 历史工程结果（FE:BFF-FE-005/A3，2026-10-18）：冻结e171fb7c，814输入/18组当前功能与直接边界、5个激活入口PASS；Node229、Rust52、consumer/契约57，7操作/50条实际HTTP及基本Chromium通过。仅BFF005_SCOPE_LOCAL DEVELOPMENT READY，24项限定控制点PASS；BFF003原稿确认CONFIRMED/独立Gate因共享变化撤回，A2原确认保持原SHA。52,760个历史文件未改；五前置不重授READY，完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本轮用户确认PENDING。见[报告](./audit/BFF-FE-005-functional-review-2026-10-18.md)。下一可执行PROVIDER:A3当前功能汇总。
@@ -938,6 +938,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:S03",
         "CORE-GATE:X3-SERVICE",
         "SERVICE:S04",
+        "PROVIDER:A3"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A4": {
+      "profile": "A4_SCOPE_LOCAL",
+      "schema": "quantos-a4-aggregate-functional-development/v1",
+      "manifest": "audit/evidence/provider-a4-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-004",
         "PROVIDER:A3"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
