@@ -1,4 +1,6 @@
-> 当前工程结果（PREPARATION:P0，2026-10-18）：冻结538afeef，1054个功能输入、24组当前功能/直接影响检查PASS；Node263项、配置26/UI19/契约28、关键策略198 PASS/3显式跳过，六策略四维覆盖100%；Chromium Terminal/OIDC11与官网8 PASS。干净Web workspace以既有pnpm store离线frozen安装、双Web构建、配置/UI测试及双路由PoC用时27.98秒。仅P0_LOCAL DEVELOPMENT READY / A1_ONLY，六PRE独立Gate不重授READY；完整联调/发布NOT_RUN、正式确认PENDING、runtimeAdmission=DENIED。旧正式P0/F06及52,098个历史审计/门禁文件保留。见[本轮报告](./audit/PREPARATION-P0-functional-admission-2026-10-18.md)与[待确认文稿](./audit/evidence/p0-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-000/A1当前功能复核，不直接进入页面或发布。
+> 当前任务（2026-10-18）：FE:BFF-FE-000 / A1 当前功能复核；仅直接前置边界、契约/生成client-schema-MSW与G0/FEP-0工程冻结范围，完整联调/发布独立。共享功能输入变化后P0独立READY撤回，538afeef原范围及证据保留；本轮不递归重验或重授P0/F03/F05/F06/F0/六PRE。
+
+> 历史工程结果（PREPARATION:P0，2026-10-18）：冻结538afeef，1054个功能输入、24组当前功能/直接影响检查PASS；Node263项、配置26/UI19/契约28、关键策略198 PASS/3显式跳过，六策略四维覆盖100%；Chromium Terminal/OIDC11与官网8 PASS。干净Web workspace以既有pnpm store离线frozen安装、双Web构建、配置/UI测试及双路由PoC用时27.98秒。仅P0_LOCAL DEVELOPMENT READY / A1_ONLY，六PRE独立Gate不重授READY；完整联调/发布NOT_RUN、正式确认PENDING、runtimeAdmission=DENIED。旧正式P0/F06及52,098个历史审计/门禁文件保留。见[本轮报告](./audit/PREPARATION-P0-functional-admission-2026-10-18.md)与[待确认文稿](./audit/evidence/p0-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-000/A1当前功能复核，不直接进入页面或发布。
 
 > 本轮范围（2026-10-18）：PREPARATION:P0 按最新 AGENTS.md 复核 PRE-01–PRE-06 与 A1 前置；使用 P0_LOCAL 功能入口，不递归重验无关上游、不拼接历史READY。功能准入、联调、发布及正式确认独立记录。共享门禁输入变化后，X3-SERVICE 独立READY撤回为NOT_ASSESSED，原2026-10-18证据保留原范围。见[规程](./operations/p0-functional-admission.md)。
 
@@ -763,6 +765,30 @@
         "FE:PRE-06"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-000": {
+      "profile": "A1_SCOPE_LOCAL",
+      "schema": "quantos-a1-scoped-development/v1",
+      "manifest": "audit/evidence/a1-local-20261018/a1.json",
+      "prerequisites": [
+        "FE:PRE-04",
+        "FE:PRE-06",
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06",
+        "PREPARATION:P0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A1": {
+      "profile": "A1_SCOPE_LOCAL",
+      "schema": "quantos-a1-scoped-development/v1",
+      "manifest": "audit/evidence/a1-local-20261018/provider-a1.json",
+      "prerequisites": [
+        "FE:BFF-FE-000",
+        "PREPARATION:P0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -939,11 +965,9 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:192a6a441d5e0260989642b67088fa734e5fb9bd823dfa6d3c79e0e42aae1ee9",
-    "evidence": [
-      "audit/evidence/p0-local-20261018/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1098,7 +1122,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
-- 验收边界：`pnpm check:fep0` 消费 CORE-GATE:F0、六 PRE 与当前 G0 的完整功能 manifest、执行日志/产物及递归证据；八项 READY 才能登记里程碑 READY。`pnpm check:fep0:engineering` 可核验唯一剩余 G0 用户确认的 BLOCKED 工程回执，不构成准入。
+- 验收边界：按最新 AGENTS.md 复核当前工程运行时、设计、接口、环境及测试冻结范围；CORE-GATE:F0、六 PRE 与当前 G0 保留八项直接依赖，不在开发阶段默认递归复验。`pnpm check:fep0:engineering` 可验证当前A1范围的工程冻结证明，不能代替FEP-0独立准入；`pnpm check:fep0` 仍要求当前G0范围确认及明确的本里程碑准入，不拼接历史READY或旧确认。
 - 主要后端依赖：CORE-GATE:F0
 - 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。

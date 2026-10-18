@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {parse} from 'yaml';
 import {nodesFromPlans, validateReceipt} from './provider-a1-receipts.mjs';
 import {check as checkFep0} from './fep0-development.mjs';
@@ -11,7 +12,7 @@ import {validateAudit} from './bff-fe-007-development.mjs';
 import {check as checkProviderA2} from './provider-a2-development.mjs';
 
 const validators = {
-  'PROVIDER:A1': () => {validateReceipt('PROVIDER:A1'); return {status: 'READY'};},
+  'PROVIDER:A1': () => {if(nodesFromPlans().get('PROVIDER:A1').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const r=JSON.parse(execFileSync(process.execPath,[resolve(import.meta.dirname,'a1-functional-gate.mjs'),'--provider-ready'],{encoding:'utf8'}));assert.equal(r.stageGate,'READY');return {status:'READY',engineeringStatus:'PASS'};}validateReceipt('PROVIDER:A1'); return {status: 'READY'};},
   'CORE-GATE:F0': () => {validateReceipt('CORE-GATE:F0'); return {status: 'READY'};},
   'FE:FEP-0': requireReady => checkFep0({requireReady}),
   'FRONTEND-GATE:G0': requireReady => checkG0({requireReady}),

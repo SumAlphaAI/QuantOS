@@ -53,8 +53,11 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
  const policy=context?.policy??JSON.parse(readFileSync('bff/a1-review-policy.json'));
  const inputsDigest=context?.inputsDigest??sha256(Buffer.concat([readFileSync('bff/openapi/quantos-bff.v1.yaml'),readFileSync('packages/api-client/src/bff-gen/quantos-bff.zod.ts')]));
  if(stage==='development') {
+  const {nodesFromPlans}=await import('./provider-a1-receipts.mjs');
+  if(nodesFromPlans().get('FE:BFF-FE-000').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const {verifyPublished}=await import('./a1-functional-gate.mjs');console.log(JSON.stringify(verifyPublished(),null,2));}else {
   const result=validateA1Stage(stage,{policy,development:validateBffFe000(loadBffFe000Inputs())});
   console.log(JSON.stringify({...result,...selection,sourceCommit:sha,inputsDigest},null,2));if(result.status!=='PASS')process.exitCode=1;
+ }
  }else {
  const evidenceRoot=realpathSync('docs/audit/evidence');
  const reader=path=>{const file=realpathSync(resolve(path));if(!file.startsWith(evidenceRoot+sep))throw Error('Receipt evidence must be under docs/audit/evidence');return readFileSync(file);};

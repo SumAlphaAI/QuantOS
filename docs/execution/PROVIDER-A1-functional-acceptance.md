@@ -1,5 +1,9 @@
 # PROVIDER:A1 功能验收规程
 
+2026-10-18 当前开发默认按最新AGENTS.md与[当前功能复核规程](../operations/a1-functional-admission.md)执行：`pnpm assess:a1:functional`冻结源码后只跑A1自身及直接影响，`pnpm check:a1:functional`/`pnpm check:provider-a1`验证本轮内容回执。P0/F03/F05/F06不递归重验，不拼接历史READY；G0/FEP-0工程范围验证与当前用户确认/独立阶段准入分别记录。
+
+## 历史2026-10-05完整闭包规程（保留原适用范围，非当前开发默认）
+
 依据执行计划第 2.1 节，在 DEVELOPMENT 对当前实现与依赖闭包生成内容绑定回执，发布性能、长稳、staging、同 SHA 托管 CI 和联合签署由 RELEASE 收口。
 
 `pnpm assess:provider-a1` 从干净源码提交执行 `scripts/provider-a1-policy.json` 的全部必需命令，记录日志、环境、输入清单、依赖清单、范围和遗留项；当前检查点闭包共 14 节点。独立命令继续记录执行结果，任何失败都阻止 READY。实际数据库检查只读取 `.env.local` 的既有 Supabase 配置；Web 构建使用受控 `env/local-mock.env.example` 公开变量与 3190 callback 覆盖，不写入本地环境文件。F01 必须执行 bootstrap（每次可复现构建包含）、全仓 lint/test 与三个全新源码/安装/产物目录的 Rust、Python、TypeScript 构建；F04 必须测量行/区域覆盖率及 nightly 分支覆盖率。F05 执行八项数据/租约/幂等恢复、1 万事件生产消费者收敛、实际 Storage/PostgreSQL 与只读 RLS 检查；1,000 次并发副作用唯一性包含在八项测试中。F06 使用既有目标入口。所有数据库操作不执行 provision、migration/reset 或本地数据库。F01 三次构建及 F06 先使用仓外证据目录运行，完成后再写入本轮审计日志，以满足干净源码要求。

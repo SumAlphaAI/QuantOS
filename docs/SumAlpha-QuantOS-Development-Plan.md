@@ -1,4 +1,6 @@
-> 当前工程结果（PREPARATION:P0，2026-10-18）：冻结538afeef，1054个功能输入、24组当前功能/直接影响检查PASS；Node263项、配置26/UI19/契约28、关键策略198 PASS/3显式跳过，六策略四维覆盖100%；Chromium Terminal/OIDC11与官网8 PASS。干净Web workspace以既有pnpm store离线frozen安装、双Web构建、配置/UI测试及双路由PoC用时27.98秒。仅P0_LOCAL DEVELOPMENT READY / A1_ONLY，六PRE独立Gate不重授READY；完整联调/发布NOT_RUN、正式确认PENDING、runtimeAdmission=DENIED。旧正式P0/F06及52,098个历史审计/门禁文件保留。见[本轮报告](./audit/PREPARATION-P0-functional-admission-2026-10-18.md)与[待确认文稿](./audit/evidence/p0-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-000/A1当前功能复核，不直接进入页面或发布。
+> 当前任务（2026-10-18）：FE:BFF-FE-000 / A1 当前功能复核；仅直接前置边界、契约/生成client-schema-MSW与G0/FEP-0工程冻结范围，完整联调/发布独立。共享功能输入变化后P0独立READY撤回，538afeef原范围及证据保留；本轮不递归重验或重授P0/F03/F05/F06/F0/六PRE。
+
+> 历史工程结果（PREPARATION:P0，2026-10-18）：冻结538afeef，1054个功能输入、24组当前功能/直接影响检查PASS；Node263项、配置26/UI19/契约28、关键策略198 PASS/3显式跳过，六策略四维覆盖100%；Chromium Terminal/OIDC11与官网8 PASS。干净Web workspace以既有pnpm store离线frozen安装、双Web构建、配置/UI测试及双路由PoC用时27.98秒。仅P0_LOCAL DEVELOPMENT READY / A1_ONLY，六PRE独立Gate不重授READY；完整联调/发布NOT_RUN、正式确认PENDING、runtimeAdmission=DENIED。旧正式P0/F06及52,098个历史审计/门禁文件保留。见[本轮报告](./audit/PREPARATION-P0-functional-admission-2026-10-18.md)与[待确认文稿](./audit/evidence/p0-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-000/A1当前功能复核，不直接进入页面或发布。
 
 > 本轮范围（2026-10-18）：PREPARATION:P0 按最新 AGENTS.md 复核 PRE-01–PRE-06 与 A1 前置；使用 P0_LOCAL 功能入口，不递归重验无关上游、不拼接历史READY。功能准入、联调、发布及正式确认独立记录。共享门禁输入变化后，X3-SERVICE 独立READY撤回为NOT_ASSESSED，原2026-10-18证据保留原范围。见[规程](./operations/p0-functional-admission.md)。
 
@@ -838,6 +840,30 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "FE:PRE-04",
         "FE:PRE-05",
         "FE:PRE-06"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-000": {
+      "profile": "A1_SCOPE_LOCAL",
+      "schema": "quantos-a1-scoped-development/v1",
+      "manifest": "audit/evidence/a1-local-20261018/a1.json",
+      "prerequisites": [
+        "FE:PRE-04",
+        "FE:PRE-06",
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06",
+        "PREPARATION:P0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A1": {
+      "profile": "A1_SCOPE_LOCAL",
+      "schema": "quantos-a1-scoped-development/v1",
+      "manifest": "audit/evidence/a1-local-20261018/provider-a1.json",
+      "prerequisites": [
+        "FE:BFF-FE-000",
+        "PREPARATION:P0"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
