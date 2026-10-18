@@ -1,0 +1,87 @@
+{
+  "schema": "quantos-x3-service-repair-coverage/v1",
+  "status": "PASS",
+  "criterion": "REPAIR_LINES_EXECUTED_WITH_POSITIVE_NEGATIVE_BEHAVIORS",
+  "branchCoverage": "NOT_MEASURED",
+  "sourceCommit": "151b3a958e1cb6ed679b0760dcdf1eb4638c687e",
+  "commands": [
+    [
+      "cargo",
+      "llvm-cov",
+      "--no-report",
+      "--offline",
+      "--locked",
+      "-p",
+      "execution-gateway",
+      "--test",
+      "x3_service",
+      "--",
+      "--nocapture"
+    ],
+    [
+      "cargo",
+      "llvm-cov",
+      "report",
+      "--json",
+      "--output-path",
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/x3-service-local-20261018/preflight/coverage-04/coverage.raw.json"
+    ]
+  ],
+  "raw": "coverage.raw.json",
+  "rawSha256": "sha256:9413746da210c71df7bc21e2cf2c985edcd3b1182dd3fe9df72fe77d73a1349f",
+  "logSha256": "sha256:2e9eeb8d2474beb2872c649b301071d000706b7105c39c3eae6207b8b7861e7c",
+  "repairedLines": [
+    {
+      "marker": "let fee = f",
+      "line": 611,
+      "count": 8
+    },
+    {
+      "marker": "if f.command_id != o.command_id",
+      "line": 615,
+      "count": 8
+    },
+    {
+      "marker": "return Err(Error::Invalid(\"X04 fill quote or command binding\"));",
+      "line": 618,
+      "count": 2
+    }
+  ],
+  "fileSummaryInformational": {
+    "branches": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "functions": {
+      "count": 31,
+      "covered": 27,
+      "percent": 87.09677419354838
+    },
+    "instantiations": {
+      "count": 90,
+      "covered": 27,
+      "percent": 30
+    },
+    "lines": {
+      "count": 600,
+      "covered": 547,
+      "percent": 91.16666666666666
+    },
+    "regions": {
+      "count": 819,
+      "covered": 736,
+      "notcovered": 83,
+      "percent": 89.86568986568987
+    }
+  },
+  "databaseExecution": false,
+  "performanceAccepted": false
+}

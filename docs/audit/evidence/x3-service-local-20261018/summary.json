@@ -1,0 +1,154 @@
+{
+  "schema": "quantos-x3-service-local-summary/v1",
+  "sourceCommit": "cd1961951e583a70cd1a5bfbd97f5457d3ba1f57",
+  "baselineCommit": "151b3a958e1cb6ed679b0760dcdf1eb4638c687e",
+  "nodeId": "CORE-GATE:X3-SERVICE",
+  "profile": "X3-SERVICE_LOCAL",
+  "stageGate": "READY",
+  "engineeringStatus": "PASS",
+  "localServiceComposition": "PASS",
+  "checks": 17,
+  "uniqueRustBehaviorAndCompileContracts": 41,
+  "aggregateTests": 5,
+  "additionalInstrumentedAggregateTests": 5,
+  "nodeTests": 89,
+  "gateNegativeTests": 45,
+  "planPolicyTests": 44,
+  "differenceClasses": 20,
+  "closedRelatedCases": 62,
+  "concurrentCommandReplays": 32,
+  "concurrentReconciliationReplays": 32,
+  "monetaryOracle": {
+    "schema": "quantos-x3-service-golden/v1",
+    "openingCash": "1000000",
+    "tradeQuantity": "10",
+    "tradePrice": "100",
+    "fee": "0",
+    "expectedCash": "999000",
+    "expectedBtcQuantity": "1010",
+    "expectedEthQuantity": "4000",
+    "expectedGrossExposure": "501000",
+    "expectedPnl": "0"
+  },
+  "repairedLineCoverage": [
+    {
+      "marker": "let fee = f",
+      "line": 611,
+      "count": 4
+    },
+    {
+      "marker": "if f.command_id != o.command_id",
+      "line": 615,
+      "count": 4
+    },
+    {
+      "marker": "return Err(Error::Invalid(\"X04 fill quote or command binding\"));",
+      "line": 618,
+      "count": 1
+    }
+  ],
+  "branchCoverage": "NOT_MEASURED",
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "formalAccepted": false,
+  "confirmation": "PENDING",
+  "runtimeAdmission": "DENIED",
+  "checkpointDurability": "PROCESS_LOCAL_ONLY",
+  "venueAuthority": "NOT_GRANTED",
+  "databaseExecution": false,
+  "externalPublished": false,
+  "dependencies": [
+    {
+      "nodeId": "CORE-GATE:S2-SERVICE",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X01",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X02",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X03",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:TP07",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:TP12",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X04",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X05",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "SERVICE:X06",
+      "status": "NOT_REVALIDATED",
+      "owner": "CORE-GATE:X3-SERVICE",
+      "referenceOnly": true
+    }
+  ],
+  "releaseTargets": [
+    {
+      "id": "inherited",
+      "target": "All S2 and X01-X05/TP07/TP12/SERVICE:X06 target obligations remain independent NOT_RUN; no historical READY admission",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "integration",
+      "target": "CORE:X06/G4/G5/G6 pages/BFF full business-chain and workspace integration; TP12 full review after actual TP07 integration",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "identity-durability",
+      "target": "Actual Supabase identity/MFA/capabilities/RLS, durable ledger/outbox/audit/approval/kill atomicity and cross-process/cross-instance crash recovery",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "observations-isolation",
+      "target": "Real market/financial/reconciliation observers, credentials/OS egress isolation and restricted checkpoint/trace governance",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "continuous-targets",
+      "target": "Ten actual trading days Shadow, actual unexplained end-of-day breaks=0, load P95, deployment/canary/rollback and sustained measurements",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "release",
+      "target": "Frozen same-SHA actual target security/performance/soak/deployment/hosted CI plus ProjectUser formal acceptance",
+      "status": "NOT_RUN"
+    }
+  ],
+  "manifestSha256": "sha256:85cb27da7f4ef1046e163fc1aeccbdf121ec60bc8197fbeddd35dd2cd94b0fdc",
+  "historicalFilesPreserved": 52016,
+  "nextExecutableTask": "PREPARATION:P0 current functional admission, then FE:BFF-FE-000 (A1)"
+}

@@ -1,0 +1,27 @@
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.09s
+     Running tests/x3_service.rs (target/debug/deps/x3_service-22eced209c6a4858)
+
+running 5 tests
+X3_SERVICE_EVIDENCE={"data":{"nonzeroForeignFee":"REFUSED","sourceFacts":3,"tamperedPortfolio":"REFUSED","venueSubmitPath":"ABSENT","wrongAnchor":"REFUSED","zeroForeignFee":"ACCEPTED_WITHOUT_FX"},"id":"source-binding","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... ok
+X3_SERVICE_EVIDENCE={"data":{"freshHealthRequired":true,"killRefusedBoth":true,"paperSubmitsAfterResume":1,"resumeConsumptions":1,"sameUserApproval":"REFUSED","shadowFillsAfterResume":1,"venueSubmitPath":"ABSENT"},"id":"kill-recovery","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... ok
+
+thread 'x3_service_twenty_breaks_require_proof_ack_repair_and_reopen' (147796) panicked at services/execution-gateway/tests/x3_service.rs:332:43:
+called `Result::unwrap()` on an `Err` value: Conflict
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... FAILED
+X3_SERVICE_EVIDENCE={"data":{"actualSource":"sha256:733bc8609e1325fa2ead9a9f9432624f1ad2f1bd19b4d348dbe0ec0297be3d5a","auditHead":"sha256:3c23ec3bb76589bf265443b3dac1e8c2bf8194d422c7f356d6063eaf979af6a4","btcQuantity":"1010","cash":"999000","command":"01a14c75-02f7-7533-bd7c-cba05f977db9","duplicates":0,"expectedSource":"sha256:e09c79ea5bcdc11fda3206e25202871d50dbfbeb2e8baba6107aae8dc185064f","fills":1,"goldenSha256":"sha256:6efd8e3cd31ff5a23f9ecb3b47352dd50d05db45342dfadc009da286e72ff621","paperSubmits":1,"recoveryIo":0,"report":"sha256:7891be6ed60236958b7ecfec325908b193b5b679c54f8a7deee1cb074cad6566","shadowSubmitCalls":0,"venueSubmitPath":"ABSENT"},"id":"chain","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... ok
+X3_SERVICE_EVIDENCE={"data":{"paperSubmits":0,"shadowFills":0,"sideEffects":0,"sourceOrAuthorityClasses":5},"id":"refusals","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... ok
+
+failures:
+
+failures:
+    x3_service_twenty_breaks_require_proof_ack_repair_and_reopen
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.45s
+
+error: test failed, to rerun pass `-p execution-gateway --test x3_service`

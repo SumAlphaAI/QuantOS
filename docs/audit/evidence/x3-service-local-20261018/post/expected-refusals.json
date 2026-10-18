@@ -1,0 +1,48 @@
+{
+  "schema": "quantos-x3-service-expected-refusals/v1",
+  "checks": [
+    {
+      "id": "release-refusal",
+      "command": [
+        "node",
+        "scripts/x3-service-local-gate.mjs",
+        "--release"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 121,
+      "log": "docs/audit/evidence/x3-service-local-20261018/post/release-refusal.log",
+      "logSha256": "sha256:5311df919df21f80443b794500c5d162806c471f7bccc09132d2170e8f5deda7"
+    },
+    {
+      "id": "target-refusal",
+      "command": [
+        "node",
+        "scripts/x3-service-target-check.mjs"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 23,
+      "log": "docs/audit/evidence/x3-service-local-20261018/post/target-refusal.log",
+      "logSha256": "sha256:7af7d3d066dc105e43ea02a95970a6797f002bdb162d69f712317d9eaede5e41"
+    },
+    {
+      "id": "upstream-runtime-refusal",
+      "command": [
+        "python3",
+        "scripts/tp12-boundary-review.py",
+        "--runtime"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 43,
+      "log": "docs/audit/evidence/x3-service-local-20261018/post/upstream-runtime-refusal.log",
+      "logSha256": "sha256:2b8c6c8b691fc913f1b6d3b9aafae75da37e1b166238ca828a6a1b6ba3288dbd"
+    }
+  ],
+  "releaseAcceptance": "NOT_RUN",
+  "formalAccepted": false
+}

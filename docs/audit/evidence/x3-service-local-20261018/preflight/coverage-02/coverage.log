@@ -1,0 +1,21 @@
+
+running 5 tests
+X3_SERVICE_EVIDENCE={"data":{"nonzeroForeignFee":"REFUSED","sourceFacts":3,"tamperedPortfolio":"REFUSED","venueSubmitPath":"ABSENT","wrongAnchor":"REFUSED","zeroForeignFee":"ACCEPTED_WITHOUT_FX"},"id":"source-binding","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... ok
+X3_SERVICE_EVIDENCE={"data":{"freshHealthRequired":true,"killRefusedBoth":true,"paperSubmitsAfterResume":1,"resumeConsumptions":1,"sameUserApproval":"REFUSED","shadowFillsAfterResume":1,"venueSubmitPath":"ABSENT"},"id":"kill-recovery","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... ok
+X3_SERVICE_EVIDENCE={"data":{"actualSource":"sha256:1d1af92926f576eaf69b4fbac0197d601a92b03ebeb5c497812ebc55ec20b0b1","auditHead":"sha256:15dc13addae551fa7b16ed22118da6adf8c195f5c0ec5db468bacb3d5235e1e5","btcQuantity":"1010","cash":"999000","command":"01a14c76-30d0-78f2-ba93-eacb04b3785b","duplicates":0,"expectedSource":"sha256:7773cc33c5a58677a9c0c8e36a4e891e8fe837ab130eac12a5f202671ef81fa4","fills":1,"goldenSha256":"sha256:6efd8e3cd31ff5a23f9ecb3b47352dd50d05db45342dfadc009da286e72ff621","paperSubmits":1,"recoveryIo":0,"report":"sha256:8f5f7395830f6f2aa7d2f290169733f34b354c8c64ed3799ef5e3849ce39e77f","shadowSubmitCalls":0,"venueSubmitPath":"ABSENT"},"id":"chain","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... ok
+X3_SERVICE_EVIDENCE={"data":{"casesClosed":62,"classes":20,"latencyScope":"CONTROLLED_CLOCK_NOT_TARGET_SLA","located":20,"recurrence":"REOPENED","unprovenClose":"REFUSED","venueSubmitPath":"ABSENT"},"id":"twenty-breaks","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... ok
+X3_SERVICE_EVIDENCE={"data":{"paperSubmits":0,"shadowFills":0,"sideEffects":0,"sourceOrAuthorityClasses":5},"id":"refusals","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.93s
+
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.37s
+     Running tests/x3_service.rs (target/llvm-cov-target/debug/deps/x3_service-22eced209c6a4858)
+
+    Finished report saved to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/x3-service-local-20261018/preflight/coverage-02/coverage.raw.json

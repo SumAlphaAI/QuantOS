@@ -1,0 +1,39 @@
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.99s
+     Running tests/x3_service.rs (target/debug/deps/x3_service-22eced209c6a4858)
+
+running 5 tests
+
+thread 'x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source' (73423) panicked at services/execution-gateway/tests/x3_service.rs:39:97:
+called `Result::unwrap()` on an `Err` value: Invalid("X04 fill quote or command binding")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... FAILED
+
+thread 'x3_service_paper_shadow_reconcile_concurrent_recovery_clean' (73425) panicked at services/execution-gateway/tests/x3_service.rs:39:97:
+called `Result::unwrap()` on an `Err` value: Invalid("X04 fill quote or command binding")
+test x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... FAILED
+
+thread 'x3_service_twenty_breaks_require_proof_ack_repair_and_reopen' (73427) panicked at services/execution-gateway/tests/x3_service.rs:39:97:
+called `Result::unwrap()` on an `Err` value: Invalid("X04 fill quote or command binding")
+test x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... FAILED
+
+thread 'x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover' (73424) panicked at services/execution-gateway/tests/x3_service.rs:149:126:
+called `Result::unwrap()` on an `Err` value: Conflict
+test x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... FAILED
+
+thread 'x3_service_stale_sources_and_revocation_refuse_paper_and_shadow' (73426) panicked at services/execution-gateway/tests/x3_service.rs:131:9:
+expiry
+test x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... FAILED
+
+failures:
+
+failures:
+    x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source
+    x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover
+    x3_service_paper_shadow_reconcile_concurrent_recovery_clean
+    x3_service_stale_sources_and_revocation_refuse_paper_and_shadow
+    x3_service_twenty_breaks_require_proof_ack_repair_and_reopen
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.36s
+
+error: test failed, to rerun pass `-p execution-gateway --test x3_service`

@@ -2126,17 +2126,25 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "SERVICE:X06"
   ],
   "required_scope": "X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
-  "source_commit": null,
-  "evidence": [],
+  "review_status": "IN_REVIEW",
+  "source_commit": "cd1961951e583a70cd1a5bfbd97f5457d3ba1f57",
+  "evidence": [
+    "audit/X3-SERVICE-local-admission-2026-10-18.md",
+    "audit/evidence/x3-service-local-20261018/manifest.json",
+    "audit/evidence/x3-service-local-20261018/confirmation-draft.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:85cb27da7f4ef1046e163fc1aeccbdf121ec60bc8197fbeddd35dd2cd94b0fdc",
+    "evidence": [
+      "audit/evidence/x3-service-local-20261018/manifest.json"
+    ]
   }
 }
 ```
+
+X3-SERVICE当前工程复核：2026-10-18，源码cd196195的17组功能组合/直接影响检查全部PASS，Rust41项（LLVM另执行5项）、Node89项；真实Paper事实/X01与独立Shadow账本一致，20类差异定位并完成62条关联异常的证明/ack/关闭/复发；32次命令及32次对账重放唯一，kill双人恢复、陈旧/撤权/期限拒绝、无venue submit。修复零异币费用的只读适配冲突，非零异币仍拒绝。X3-SERVICE_LOCAL仅DEVELOPMENT READY，九项依赖NOT_REVALIDATED/referenceOnly，businessIntegration/releaseAcceptance=NOT_RUN，正式确认PENDING，runtimeAdmission=DENIED；52,016个历史验收文件原样保留。见[报告](./audit/X3-SERVICE-local-admission-2026-10-18.md)及[待确认文稿](./audit/evidence/x3-service-local-20261018/confirmation-draft.md)。下一建议PREPARATION:P0当前功能准入核对，随后FE:BFF-FE-000/A1；不跳过前置，不直接宣称CORE:X06或X3完整业务联调已通过。
 
 <a id="execution-business-total"></a>
 ## 9. 全量 API 后的 Web 与业务功能联调 Gate

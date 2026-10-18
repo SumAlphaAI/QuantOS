@@ -1,0 +1,18 @@
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.17s
+     Running tests/x3_service.rs (target/debug/deps/x3_service-22eced209c6a4858)
+
+running 5 tests
+X3_SERVICE_EVIDENCE={"data":{"nonzeroForeignFee":"REFUSED","sourceFacts":3,"tamperedPortfolio":"REFUSED","venueSubmitPath":"ABSENT","wrongAnchor":"REFUSED","zeroForeignFee":"ACCEPTED_WITHOUT_FX"},"id":"source-binding","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... ok
+X3_SERVICE_EVIDENCE={"data":{"freshHealthRequired":true,"killRefusedBoth":true,"paperSubmitsAfterResume":1,"resumeConsumptions":1,"sameUserApproval":"REFUSED","shadowFillsAfterResume":1,"venueSubmitPath":"ABSENT"},"id":"kill-recovery","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... ok
+X3_SERVICE_EVIDENCE={"data":{"actualSource":"sha256:6cbe2a2fa244329815931afe860721cc6681bb4e0c9bc0217a34451a50b2ac51","auditHead":"sha256:66e1696453f0626f647eba3fcac57a804b15cd48d52db6893ce106d5e3d58f04","btcQuantity":"1010","cash":"999000","command":"01a14c76-0556-7e62-bdad-fe6251b6bae8","duplicates":0,"expectedSource":"sha256:46a6dd95da8c808f46645c0250a0d624a012a0e9801b9a02fb21184dbdb5f47d","fills":1,"goldenSha256":"sha256:6efd8e3cd31ff5a23f9ecb3b47352dd50d05db45342dfadc009da286e72ff621","paperSubmits":1,"recoveryIo":0,"report":"sha256:d8755f62823bba84f356b4a05360894e973d82db03e6c7da9686363c189a8521","shadowSubmitCalls":0,"venueSubmitPath":"ABSENT"},"id":"chain","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... ok
+X3_SERVICE_EVIDENCE={"data":{"casesClosed":62,"classes":20,"latencyScope":"CONTROLLED_CLOCK_NOT_TARGET_SLA","located":20,"recurrence":"REOPENED","unprovenClose":"REFUSED","venueSubmitPath":"ABSENT"},"id":"twenty-breaks","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... ok
+X3_SERVICE_EVIDENCE={"data":{"paperSubmits":0,"shadowFills":0,"sideEffects":0,"sourceOrAuthorityClasses":5},"id":"refusals","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.39s
+

@@ -1,0 +1,58 @@
+    Blocking waiting for file lock on build directory
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+error: duplicated attribute
+ --> services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/mod.rs:1:10
+  |
+1 | #![allow(dead_code)]
+  |          ^^^^^^^^^
+  |
+note: first defined here
+ --> services/execution-gateway/tests/x3_service.rs:3:9
+  |
+3 | #[allow(dead_code)]
+  |         ^^^^^^^^^
+help: remove this attribute
+ --> services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/mod.rs:1:10
+  |
+1 | #![allow(dead_code)]
+  |          ^^^^^^^^^
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#duplicated_attributes
+  = note: `-D clippy::duplicated-attributes` implied by `-D warnings`
+  = help: to override `-D warnings` add `#[allow(clippy::duplicated_attributes)]`
+
+error: file is loaded as a module multiple times: `services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/../../../quantos-execution/tests/support/tp07_fixture.rs`
+ --> services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/mod.rs:2:1
+  |
+2 |  / #[path = "../../../quantos-execution/tests/support/tp07_fixture.rs"]
+3 |  | pub mod fixture;
+  |  |________________^ first loaded here
+  |
+ ::: services/execution-gateway/tests/../../../crates/quantos-operations/tests/support/mod.rs:2:1
+  |
+2 | /  #[path = "../../../quantos-execution/tests/support/tp07_fixture.rs"]
+3 | |  #[allow(dead_code)]
+4 | |  mod fixture;
+  | |_____________^ loaded again here
+  |
+  = help: replace all but one `mod` item with `use` items
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#duplicate_mod
+  = note: `-D clippy::duplicate-mod` implied by `-D warnings`
+  = help: to override `-D warnings` add `#[allow(clippy::duplicate_mod)]`
+
+error: file is loaded as a module multiple times: `services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/../../../quantos-execution/tests/support/../../../quantos-strategy/tests/support/release_fixture.rs`
+ --> services/execution-gateway/tests/../../../crates/quantos-reconcile/tests/support/../../../quantos-execution/tests/support/tp07_fixture.rs:2:1
+  |
+3 |   mod release_fixture;
+  |                      ^ first loaded here
+  |
+ ::: services/execution-gateway/tests/../../../crates/quantos-operations/tests/support/../../../quantos-execution/tests/support/tp07_fixture.rs:2:1
+  |
+2 | / #[path = "../../../quantos-strategy/tests/support/release_fixture.rs"]
+3 | | mod release_fixture;
+  | |____________________^ loaded again here
+  |
+  = help: replace all but one `mod` item with `use` items
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#duplicate_mod
+
+error: could not compile `execution-gateway` (test "x3_service") due to 3 previous errors

@@ -1,0 +1,16 @@
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+error[E0433]: failed to resolve: use of undeclared type `OrderStatus`
+   --> services/execution-gateway/tests/x3_service.rs:624:64
+    |
+624 |         OrderStatusMismatch => input.actual.orders[0].status = OrderStatus::Cancelled,
+    |                                                                ^^^^^^^^^^^ use of undeclared type `OrderStatus`
+    |
+help: consider importing one of these enums
+    |
+  6 + use quantos_execution::paper::OrderStatus;
+    |
+  6 + use quantos_reconcile::model::OrderStatus;
+    |
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `execution-gateway` (test "x3_service") due to 1 previous error

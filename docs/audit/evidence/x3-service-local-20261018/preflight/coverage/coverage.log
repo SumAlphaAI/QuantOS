@@ -1,0 +1,33 @@
+
+running 5 tests
+X3_SERVICE_EVIDENCE={"data":{"nonzeroForeignFee":"REFUSED","sourceFacts":3,"tamperedPortfolio":"REFUSED","venueSubmitPath":"ABSENT","wrongAnchor":"REFUSED","zeroForeignFee":"ACCEPTED_WITHOUT_FX"},"id":"source-binding","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... ok
+X3_SERVICE_EVIDENCE={"data":{"freshHealthRequired":true,"killRefusedBoth":true,"paperSubmitsAfterResume":1,"resumeConsumptions":1,"sameUserApproval":"REFUSED","shadowFillsAfterResume":1,"venueSubmitPath":"ABSENT"},"id":"kill-recovery","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... ok
+test x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... FAILED
+X3_SERVICE_EVIDENCE={"data":{"actualSource":"sha256:74a228a0251d48002744aee3d41bd0fa8abd58216de4cc18203e03ea847ac0da","auditHead":"sha256:b02c6f819a85d7c5db91340b059e954cee63b12f1a17e6149ae82b62eaf259b5","btcQuantity":"1010","cash":"999000","command":"01a14c74-c27e-72a0-a349-21424d433b5e","duplicates":0,"expectedSource":"sha256:baa688164b321f88cb86a66dc50c03e9b0818c940ad123320917a545be9f1669","fills":1,"goldenSha256":"sha256:6efd8e3cd31ff5a23f9ecb3b47352dd50d05db45342dfadc009da286e72ff621","paperSubmits":1,"recoveryIo":0,"report":"sha256:9b613548bf07999caac2fab676ab3ec496660930fc49ea5452b4cba03140ef69","shadowSubmitCalls":0,"venueSubmitPath":"ABSENT"},"id":"chain","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... ok
+X3_SERVICE_EVIDENCE={"data":{"paperSubmits":0,"shadowFills":0,"sideEffects":0,"sourceOrAuthorityClasses":5},"id":"refusals","schema":"quantos-x3-service-behavior/v1"}
+test x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... ok
+
+failures:
+
+failures:
+    x3_service_twenty_breaks_require_proof_ack_repair_and_reopen
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.12s
+
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.21s
+     Running tests/x3_service.rs (target/llvm-cov-target/debug/deps/x3_service-22eced209c6a4858)
+
+thread 'x3_service_twenty_breaks_require_proof_ack_repair_and_reopen' (147026) panicked at services/execution-gateway/tests/x3_service.rs:332:43:
+called `Result::unwrap()` on an `Err` value: Conflict
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p execution-gateway --test x3_service`
+error: process didn't exit successfully: `/Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/bin/cargo test --manifest-path /Users/anray/Documents/project/SumAlpha/QuantOS/Cargo.toml --target-dir /Users/anray/Documents/project/SumAlpha/QuantOS/target/llvm-cov-target --offline --locked -p execution-gateway --test x3_service -- --nocapture` (exit status: 101)
