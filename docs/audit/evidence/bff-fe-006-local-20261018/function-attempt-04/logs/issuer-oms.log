@@ -1,0 +1,43 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/tp07_dispatch.rs (target/debug/deps/tp07_dispatch-001d0c68f566c650)
+
+running 8 tests
+test tp07_kill_cas_cannot_interleave_current_validation_and_kernel_submission ... ok
+test tp07_boundary_rejection_has_no_side_effect_and_allows_corrected_retry ... ok
+test tp07_x03_paper_consumption_replay_and_owned_events ... ok
+test tp07_replays_recheck_current_risk_identity_expiry_release_and_kill ... ok
+test tp07_consumed_approval_is_bound_to_the_same_command_and_never_reconsumed ... ok
+test tp07_independent_gateway_cannot_reconsume_a_claimed_or_uncertain_x03_command ... ok
+test tp07_uncertain_submission_and_invalid_events_are_quarantined_without_retry ... ok
+test tp07_one_thousand_concurrent_x03_consumers_submit_once ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.18s
+
+     Running tests/x03_authority.rs (target/debug/deps/x03_authority-632cf57cd5fbf1b3)
+
+running 8 tests
+test x03_approval_cas_rejection_cancellation_expiry_and_originator_separation ... ok
+test x03_proposal_bytes_quantity_scope_and_configuration_are_not_client_authority ... ok
+test x03_real_modules_issue_replay_signatures_and_audit ... ok
+test x03_conflicting_requester_proposal_decision_and_source_changes_fail_closed ... ok
+test x03_risk_lock_kill_linearization_and_other_issuer_cannot_double_consume ... ok
+test x03_seven_rejections_and_recovery_do_not_consume_approval ... ok
+test x03_failed_transaction_does_not_reserve_consumer_and_kill_waits_for_commit ... ok
+test x03_one_thousand_concurrent_requests_one_signed_command_one_consumption ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.88s
+
+     Running tests/x04_oms.rs (target/debug/deps/x04_oms-34302ecae2177a34)
+
+running 8 tests
+test x04_legacy_state_rejects_illegal_fill_without_partial_mutation ... ok
+test x04_nautilus_owned_wire_maps_ack_partial_fill_cancel_reject_and_expiry ... ok
+test x04_atomic_event_batch_keeps_fact_prefix_and_projection_on_illegal_terminal_fill ... ok
+test x04_fact_replay_rejects_tampering_gap_reorder_and_duplicate_facts ... ok
+test x04_uncertain_missing_or_uncorrelated_cancel_is_audited_without_retry ... ok
+test x04_replay_rejects_rehashed_illegal_order_and_cancel_facts ... ok
+test x04_cancel_control_rejects_forgery_scope_revocation_unknown_and_other_consumer ... ok
+test x04_signed_cancel_remains_available_after_expiry_and_kill_and_replays_once ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.61s
+

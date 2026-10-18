@@ -1,0 +1,62 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m packages/api-client/tests/bff-transport.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [31m❯[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 6[2mms[22m[39m
+[31m     [31m×[31m validates populated specimens for every component and rejects invalid types[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m rejects malformed success/error payloads for all published operations[39m[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/execution-recovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 183[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 539[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/execution-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1702[2mms[22m[39m
+   [33m[2m✓[22m[39m actual generated consumer performs independent MFA approval, lost-reply recovery, confirmed order facts and cancellation [33m 1681[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/bff-response.test.ts[2m > [22mpublished BFF runtime response coverage[2m > [22mvalidates populated specimens for every component and rejects invalid types
+[31m[1mAssertionError[22m: expected [ 'UUID', 'DateTime', …(62) ] to have a length of 62 but got 64[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 62[39m
+[31m+ 64[39m
+
+[36m [2m❯[22m packages/api-client/tests/bff-response.test.ts:[2m49:40[22m[39m
+    [90m 47|[39m [34mdescribe[39m([32m"published BFF runtime response coverage"[39m[33m,[39m () [33m=>[39m {
+    [90m 48|[39m   it("validates populated specimens for every component and rejects in…
+    [90m 49|[39m     [34mexpect[39m([33mObject[39m[33m.[39m[34mkeys[39m(bffZodSchemas))[33m.[39m[34mtoHaveLength[39m([34m62[39m)[33m;[39m
+    [90m   |[39m                                        [31m^[39m
+    [90m 50|[39m     [35mfor[39m ([35mconst[39m [name[33m,[39m schema] [35mof[39m [33mObject[39m[33m.[39m[34mentries[39m(bffZodSchemas)) {
+    [90m 51|[39m       [35mconst[39m value [33m=[39m [34mspecimen[39m(components[33m.[39m$defs[name])[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/bff-response.test.ts[2m > [22mpublished BFF runtime response coverage[2m > [22mrejects malformed success/error payloads for all published operations
+[31m[1mAssertionError[22m: expected [ 'getSession', 'getContext', …(71) ] to have a length of 70 but got 73[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 70[39m
+[31m+ 73[39m
+
+[36m [2m❯[22m packages/api-client/tests/bff-response.test.ts:[2m58:45[22m[39m
+    [90m 56|[39m
+    [90m 57|[39m   it("rejects malformed success/error payloads for all published opera…
+    [90m 58|[39m     [34mexpect[39m([33mObject[39m[33m.[39m[34mkeys[39m(bffResponseSchemas))[33m.[39m[34mtoHaveLength[39m([34m70[39m)[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m 59|[39m     for (const [operation, responses] of Object.entries(bffResponseSch…
+    [90m 60|[39m       [35mfor[39m ([35mconst[39m [status[33m,[39m schema] [35mof[39m [33mObject[39m[33m.[39m[34mentries[39m(responses)) {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m46 passed[39m[22m[90m (48)[39m
+[2m   Start at [22m 15:09:42
+[2m   Duration [22m 2.04s[2m (transform 499ms, setup 0ms, import 1.57s, tests 2.63s, environment 0ms)[22m
+
