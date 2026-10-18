@@ -1,0 +1,17 @@
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/test-bff-fe-006-http.mjs:19
+ browser=await chromium.launch({headless:true});const context=await browser.newContext();await context.addCookies([{name:'quantos_session',value:'session-current',url:base,httpOnly:true}]);const page=await context.newPage();await page.goto(base+'/v1/portfolio?accountId='+accountId);const observed=await page.evaluate(async({accountId,orderId})=>{const cap=await(await fetch('/v1/order-capabilities?accountId='+accountId,{credentials:'include',cache:'no-store'})).json();const order=await(await fetch('/v1/orders/'+orderId,{credentials:'include',cache:'no-store'})).json();return{cap,order}},{accountId,orderId});assert.equal(observed.cap.venueSubmit,false);assert.equal(observed.order.status,'cancelled');assert.equal(observed.order.fills.length,0);browserResult={status:'PASS',scope:'basic Chromium API cookie/read/order projection; complete UI NOT_RUN',venueSubmit:false,confirmedState:observed.order.status};await context.close();await browser.close();browser=null;
+                                                      ^
+
+SyntaxError: Identifier 'context' has already been declared
+    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:111:18)
+    at #translate (node:internal/modules/esm/loader:473:20)
+    at afterLoad (node:internal/modules/esm/loader:529:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:534:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:571:36)
+    at afterResolve (node:internal/modules/esm/loader:624:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:630:12)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:649:32)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+
+Node.js v24.12.0
