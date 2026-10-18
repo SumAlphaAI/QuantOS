@@ -1,0 +1,107 @@
+{
+  "schema": "quantos-bff004-control-matrix/v1",
+  "sourceCommit": "8172d825e90c6f7ff63f1107cd002b94a0983c8b",
+  "controls": [
+    {
+      "control": "C05 strategy/draft CAS",
+      "test": "concurrent_edit_is_unique_and_returns_current_diff",
+      "evidence": "Thirty edits, exactly one success;409 authoritative version/files/parameters; no overwrite",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Idempotency/recovery",
+      "test": "lost_save_response_replays_original_and_changed_intent_conflicts",
+      "evidence": "100 local retries no duplicate audit;1000 real HTTP backtest retries preserve exact job/receipt; changed intent409",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Trusted data/artifact/static boundary",
+      "test": "edited_untrusted_source_fails_static_and_backtest",
+      "evidence": "Browser code/validation/target injection and snapshot mismatch denied; fixed trusted Artifact and data snapshot",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "S02/S03 provenance",
+      "test": "real_draft_backtest_release_and_a3_artifact_binding",
+      "evidence": "Real core proof, version/parameter/source/image/runtime/report hash; A3 locatable reportArtifactId",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "C08 independent approval",
+      "test": "self_approval_is_rejected_even_when_actor_has_approver_capability",
+      "evidence": "Self approval forbidden even with capability; current version/MFA/proof/actor; no TradeCommand for release",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Cross-domain proof single use",
+      "test": "verified_proof_is_single_use_across_strategy_and_execution",
+      "evidence": "One verified proof cannot authorize strategy then execution; exact successful retry remains idempotent",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Expiry/reconnect",
+      "test": "approval_expires_at_core_ttl_and_reconnect_revocation_is_terminal",
+      "evidence": "Core approval TTL, expired sources/release, revoked stream reconnect401",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Scoped pages",
+      "test": "scoped_cursor_preserves_snapshot_and_rejects_changed_query",
+      "evidence": "Opaque cursor tied actor/session/tenant/workspace/query/expiry, bounded pages",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Report stream",
+      "test": "HTTP subscribeBacktestRun + strategy-recovery.test.ts",
+      "evidence": "Resource journal resume/de-duplicate/gap/lease/revocation;202 does not set succeeded",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Rollback",
+      "test": "rollback_requires_prior_approved_same_strategy_release",
+      "evidence": "Same strategy, approved source/earlier approved target; request receipt only, no deployment",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "F05 audit chain",
+      "test": "strategy_audit_roots_and_response_ids_form_closed_evidence_chain",
+      "evidence": "Stable response auditRef equals closed root event/causation; actor/route/hash; A2 denial/redaction regression",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Host isolation",
+      "test": "trusted_report_owner_seam_checks_scope_attachment_hash_and_poison",
+      "evidence": "Same owner lease/workspace, canonical attachment hash; poisoned host503, live no-host503",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Frontend",
+      "test": "strategy-provider-consumer.test.ts + strategy-recovery.test.ts",
+      "evidence": "Generated client loss recovery, conflict keeps edits, explicit merge, facts from reports, targets need fresh approved release",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Candidate/evidence",
+      "test": "bff-fe-004-functional-gate.test.mjs",
+      "evidence": "Frozen925 inputs,17groups/5entrypoints,48 refusal cases, no historical READY or self approval",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "formalAccepted": false
+}
