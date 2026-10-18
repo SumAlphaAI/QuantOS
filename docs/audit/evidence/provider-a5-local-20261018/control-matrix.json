@@ -1,0 +1,154 @@
+{
+  "schema": "quantos-a5-local-controls/v1",
+  "sourceCommit": "a036f73baaae984386e43b5eec0294fdfe44c031",
+  "scope": "bounded current58 API function aggregate only; full business/target/release NOT_RUN",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "BFF010原用户答复/原稿/原源码/回执确认",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-010-confirmation-20261018/gate.json"
+    },
+    {
+      "id": "C02",
+      "control": "BFF009/BFF008/A4三原确认保持原SHA",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/preflight/direct-references.json"
+    },
+    {
+      "id": "C03",
+      "control": "四回执原输入/日志/产物/实际入口hash；仅referenceOnly",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/preflight/direct-references.json"
+    },
+    {
+      "id": "C04",
+      "control": "17组当前功能与直接影响，无上游全Gate/全仓/三轮构建",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/execution-results.json"
+    },
+    {
+      "id": "C05",
+      "control": "58 C11/C14/C15/C16接口契约/页面/权限登记",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/contract.log"
+    },
+    {
+      "id": "C06",
+      "control": "OpenAPI1.12.0六生成物、132操作110schema一致",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/generated.log"
+    },
+    {
+      "id": "C07",
+      "control": "同一Shadow provider组合，不把独立来源当跨域业务证明",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C08",
+      "control": "C15旧账本/事实追加保留，无改账入口",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/reconciliation.log"
+    },
+    {
+      "id": "C09",
+      "control": "X01/C15实际book与估值/账本版本同源",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/performance.log"
+    },
+    {
+      "id": "C10",
+      "control": "差异/覆盖/日结证明判断provisional，报表冻结不随重跑覆盖",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C11",
+      "control": "X06/F09来源修复不关闭C15差异/不伪造已对账P&L",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C12",
+      "control": "三域同键并发独立回执；40精确恢复，各一F05根",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C13",
+      "control": "真实生成client三域丢回复恢复原结果",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/consumers.log"
+    },
+    {
+      "id": "C14",
+      "control": "58操作逐项成功/401/403/请求响应schema",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/aggregate-http.json"
+    },
+    {
+      "id": "C15",
+      "control": "成员撤权拒绝三域旧请求/冻结游标/下载ticket/stream",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C16",
+      "control": "source及下载有效期/陈旧Runbook与流拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C17",
+      "control": "quarantine拒绝当前对账/财务事实，不伪造告警解决",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/aggregate.log"
+    },
+    {
+      "id": "C18",
+      "control": "C15实际关闭证明、day绑定、分页及stream恢复",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/reconciliation.log"
+    },
+    {
+      "id": "C19",
+      "control": "C14受限方法/币种/期间/fees/coverage/原字节hash",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/performance.log"
+    },
+    {
+      "id": "C20",
+      "control": "C11治理CRUD/最后管理员读写/MFA期限/SoD",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/operations.log"
+    },
+    {
+      "id": "C21",
+      "control": "Engine签名审核/精确metadata/撤销过期拒绝Research",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/operations.log"
+    },
+    {
+      "id": "C22",
+      "control": "三个域各100 HTTP原键重试与审计链，sharedAuth/F05回归",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/aggregate-http.json"
+    },
+    {
+      "id": "C23",
+      "control": "三个helper行分支100%及三组基本Chromium",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/consumer-coverage/coverage-summary.json"
+    },
+    {
+      "id": "C24",
+      "control": "候选/日志/子产物/范围漂移拒绝、CI严格入口与原子发布回滚",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261018/function-attempt-01/logs/gate-tests.log"
+    }
+  ],
+  "targetDatabase": "NOT_RUN",
+  "targetTransactionRollback": "NOT_RUN",
+  "formalAccepted": false
+}
