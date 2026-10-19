@@ -7202,6 +7202,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7289,6 +7291,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7376,6 +7380,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7477,6 +7483,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7532,6 +7540,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7587,6 +7597,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7698,6 +7710,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7760,6 +7774,8 @@ export interface operations {
             /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7869,6 +7885,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7930,6 +7948,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -7998,6 +8018,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8062,6 +8084,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8103,6 +8127,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8142,6 +8168,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8209,6 +8237,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8270,6 +8300,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8309,6 +8341,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8352,6 +8386,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8406,6 +8442,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8448,6 +8486,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8519,6 +8559,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8562,6 +8604,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8629,6 +8673,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8692,6 +8738,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8739,6 +8787,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8814,6 +8864,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8859,6 +8911,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8930,6 +8984,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -8995,6 +9051,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9044,6 +9102,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9121,6 +9181,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9167,6 +9229,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9240,6 +9304,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9306,6 +9372,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9356,6 +9424,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9425,6 +9495,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9467,6 +9539,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9532,6 +9606,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9594,6 +9670,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9640,6 +9718,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9711,6 +9791,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9754,6 +9836,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9821,6 +9905,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9884,6 +9970,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9935,6 +10023,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -9989,6 +10079,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -10057,6 +10149,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -10126,6 +10220,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -10173,6 +10269,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -10232,6 +10330,8 @@ export interface operations {
             /** @description Scoped real X06/F09 and versioned governance lease result; target persistence not admitted */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {

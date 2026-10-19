@@ -686,13 +686,11 @@ mod tests {
     ) {
         let mut request = crate::backtest::tests::honest_request();
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let git = std::process::Command::new("git")
-            .args(["rev-parse", "HEAD"])
-            .current_dir(&root)
-            .output()
-            .unwrap();
-        assert!(git.status.success());
-        request.candidate.source_commit = String::from_utf8(git.stdout).unwrap().trim().into();
+        request.candidate.source_commit = quantos_core::fixture_source::fixture_source_commit(
+            &root,
+            std::env::var("GITHUB_SHA").ok().as_deref(),
+        )
+        .expect("owned fixture requires a checkout HEAD or frozen archive SHA");
         request.candidate.image_digest =
             ContentHash::sha256_bytes(&std::fs::read(std::env::current_exe().unwrap()).unwrap());
         request.candidate.runtime_digest =

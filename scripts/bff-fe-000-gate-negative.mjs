@@ -8,7 +8,7 @@ const current = loadBffFe000Inputs();
 test("current BFF-FE-000 repository Gate passes", () => {
   const report = validateBffFe000(current);
   assert.equal(report.status, "PASS", report.failures.join("\n"));
-  assert.deepEqual([report.contracts, report.pages, report.publishedOperations], [17, 22, 70]);
+  assert.deepEqual([report.contracts, report.pages, report.publishedOperations], [17, 22, current.manifest.operations.length]);
 });
 
 test("missing phase-one page mapping is rejected", () => {
@@ -26,7 +26,7 @@ test("published operation drift is rejected", () => {
 });
 
 test("planned operation traceability deletion is rejected", () => {
-  const coverage = current.coverage.replace("getCommandSummary", "removedCommandSummary");
+  const coverage = current.coverage.replaceAll("getCommandSummary", "removedCommandSummary");
   const report = validateBffFe000({ ...current, coverage });
   assert(report.failures.includes("planned operation getCommandSummary is traceable from Page API Coverage"));
 });
@@ -58,4 +58,30 @@ test("generated Zod export deletion is rejected", () => {
   const apiClientIndex = current.apiClientIndex.replace('export { bffZodSchemas } from "./bff-gen/quantos-bff.zod.js";', "");
   const report = validateBffFe000({ ...current, apiClientIndex });
   assert(report.failures.includes("API client exports generated Zod schemas"));
+});
+
+test("new-domain success headers remain mandatory", () => {
+  for (const path of ["/v1/performance/summary", "/v1/operations/health", "/v1/admin/members", "/v1/alerts"]) {
+    for (const header of ["X-Correlation-Id", "Cache-Control"]) {
+      const openapi = structuredClone(current.openapi);
+      const operation = openapi.paths[path].get;
+      delete operation.responses["200"].headers[header];
+      assert(validateBffFe000({ ...current, openapi }).failures.includes(`${operation.operationId}/200 correlation/cache headers`));
+    }
+  }
+});
+
+test("named pagination cannot lose declared filters or bounded sort", () => {
+  for (const mutate of [
+    op => { op.parameters = op.parameters.filter(p => p.name !== "status"); },
+    op => { delete op["x-quantos-policy"].filter; },
+    op => { op["x-quantos-policy"].filter = ["invented"]; },
+    op => { op.parameters.find(p => p.name === "sort").schema.enum.push("arbitrary"); },
+    op => { op.parameters.find(p => p.name === "status").schema = { type: "string" }; },
+    op => { op.parameters.push({ in: "query", name: "filter", schema: { type: "string" } }); },
+  ]) {
+    const openapi = structuredClone(current.openapi);
+    mutate(openapi.paths["/v1/alerts"].get);
+    assert(validateBffFe000({ ...current, openapi }).failures.includes("listAlerts bounded sort/filter policy"));
+  }
 });

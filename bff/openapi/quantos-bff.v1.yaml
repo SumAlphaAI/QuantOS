@@ -5684,10 +5684,14 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "not applicable: single resource or bounded member-owned collection"
+        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
+          - status
+          - day
         expression: not applicable
         cache: no-store
         freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
@@ -5700,6 +5704,7 @@ paths:
           rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+        filterSyntax: named-query-parameters
   /v1/reconciliation/runs/{runId}:
     get:
       operationId: getReconciliationRun
@@ -5866,10 +5871,15 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "not applicable: single resource or bounded member-owned collection"
+        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
+          - status
+          - runId
+          - day
         expression: not applicable
         cache: no-store
         freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
@@ -5882,6 +5892,7 @@ paths:
           rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+        filterSyntax: named-query-parameters
   /v1/reconciliation/breaks/{breakId}:
     get:
       operationId: getReconciliationBreak
@@ -6054,10 +6065,16 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "not applicable: single resource or bounded member-owned collection"
+        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
+          - runId
+          - side
+          - kind
+          - day
         expression: not applicable
         cache: no-store
         freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
@@ -6070,6 +6087,7 @@ paths:
           rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+        filterSyntax: named-query-parameters
   /v1/reconciliation/runs/{runId}/reruns:
     post:
       operationId: requestReconciliationRerun
@@ -6302,6 +6320,14 @@ paths:
                     pnl: "10"
                 precision: X01 f64 validated against X05 Decimal
                 venueSubmit: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6437,6 +6463,14 @@ paths:
                     pnl: "10"
                 precision: X01 f64 validated against X05 Decimal
                 venueSubmit: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6572,6 +6606,14 @@ paths:
                     pnl: "10"
                 precision: X01 f64 validated against X05 Decimal
                 venueSubmit: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6640,6 +6682,14 @@ paths:
                 correlationId: 11111111-1111-4111-8111-111111111111
                 auditRef: 11111111-1111-4111-8111-111111111111
                 supersededBy: null
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6724,6 +6774,14 @@ paths:
                 correlationId: 11111111-1111-4111-8111-111111111111
                 auditRef: 11111111-1111-4111-8111-111111111111
                 supersededBy: null
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6839,6 +6897,14 @@ paths:
                       pnl: "10"
                   precision: X01 f64 validated against X05 Decimal
                   venueSubmit: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -6914,6 +6980,14 @@ paths:
                 sizeBytes: 1000
                 mediaType: application/json
                 downloadExpiresAt: 2026-10-18T08:01:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7034,6 +7108,14 @@ paths:
                       pnl: "10"
                   precision: X01 f64 validated against X05 Decimal
                   venueSubmit: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7099,6 +7181,14 @@ paths:
                   - name: reconciliation
                     ready: true
                     asOf: 2026-10-18T11:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7164,6 +7254,14 @@ paths:
                   - name: reconciliation
                     ready: true
                     asOf: 2026-10-18T11:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7241,6 +7339,14 @@ paths:
                     mode: paper
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7251,10 +7357,13 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
+          - status
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -7267,6 +7376,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: openIncident
       tags:
@@ -7297,6 +7407,14 @@ paths:
                 mode: paper
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7363,6 +7481,14 @@ paths:
                 asOf: 2026-10-18T11:00:00Z
                 accountId: 11111111-1111-4111-8111-111111111111
                 mode: paper
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7422,6 +7548,14 @@ paths:
                       asOf: 2026-10-18T11:00:00Z
                       accountId: 11111111-1111-4111-8111-111111111111
                       mode: paper
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7483,6 +7617,14 @@ paths:
                 mode: paper
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7554,6 +7696,14 @@ paths:
                 mode: paper
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7610,6 +7760,14 @@ paths:
                   - actionId: inspect-evidence
                     parameters:
                       - commandId
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7668,6 +7826,14 @@ paths:
                 reason: allowed
                 sourceVersion: "1"
                 expiresAt: 2026-10-18T11:00:30Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7728,6 +7894,14 @@ paths:
                   reference: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7807,6 +7981,14 @@ paths:
                       active: true
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7817,10 +7999,12 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -7833,6 +8017,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: createMember
       tags:
@@ -7864,6 +8049,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7935,6 +8128,14 @@ paths:
                   actorId: 11111111-1111-4111-8111-111111111111
                   roleId: 11111111-1111-4111-8111-111111111111
                   active: true
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -7996,6 +8197,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8072,6 +8281,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8152,6 +8369,14 @@ paths:
                         - ops.read
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8162,10 +8387,12 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -8178,6 +8405,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: createRole
       tags:
@@ -8210,6 +8438,14 @@ paths:
                     - ops.read
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8283,6 +8519,14 @@ paths:
                   baseRole: operator
                   permissions:
                     - ops.read
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8345,6 +8589,14 @@ paths:
                     - ops.read
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8423,6 +8675,14 @@ paths:
                     - ops.read
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8504,6 +8764,14 @@ paths:
                       active: false
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8514,10 +8782,12 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -8530,6 +8800,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: createPolicy
       tags:
@@ -8563,6 +8834,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8638,6 +8917,14 @@ paths:
                   deniedCapabilities:
                     - ops.operate
                   active: true
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8701,6 +8988,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8781,6 +9076,14 @@ paths:
                   active: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8859,6 +9162,14 @@ paths:
                       enabled: true
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8869,10 +9180,12 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -8885,6 +9198,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: createCapability
       tags:
@@ -8915,6 +9229,14 @@ paths:
                   enabled: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -8984,6 +9306,14 @@ paths:
                   kind: capability
                   name: ops.approve
                   enabled: true
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9044,6 +9374,14 @@ paths:
                   enabled: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9118,6 +9456,14 @@ paths:
                   enabled: true
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9197,6 +9543,14 @@ paths:
                       rolloutPercent: 100
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9207,10 +9561,12 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -9223,6 +9579,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
     post:
       operationId: createFeatureFlag
       tags:
@@ -9254,6 +9611,14 @@ paths:
                   rolloutPercent: 100
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9325,6 +9690,14 @@ paths:
                   name: ops-notices
                   enabled: true
                   rolloutPercent: 100
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9386,6 +9759,14 @@ paths:
                   rolloutPercent: 100
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9462,6 +9843,14 @@ paths:
                   rolloutPercent: 100
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9586,6 +9975,14 @@ paths:
                     correlationId: 11111111-1111-4111-8111-111111111111
                 nextCursor: null
                 configVersion: "0"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9596,10 +9993,16 @@ paths:
         owner: BFF-FE-010
         auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
         capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
-        pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
-          - id
-        filter: []
+          - id:asc
+          - id:desc
+        filter:
+          - accountId
+          - status
+          - severity
+          - domain
+          - active
         expression: not applicable
         cache: no-store
         freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
@@ -9612,6 +10015,7 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+        filterSyntax: named-query-parameters
   /v1/alerts/{alertId}:
     get:
       operationId: getAlert
@@ -9651,6 +10055,14 @@ paths:
                 ackAt: null
                 objectRef: /operations/health
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9720,6 +10132,14 @@ paths:
                 objectRef: /operations/health
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9799,6 +10219,14 @@ paths:
                 objectRef: /operations/health
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9856,6 +10284,14 @@ paths:
                   - info
                 domains:
                   - system
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9908,6 +10344,14 @@ paths:
                   - system
                 auditRef: 11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":

@@ -36,7 +36,14 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
   check(p&&policy.requiredOperationPolicy.every(k=>p[k]!==undefined),`${op.operationId} complete policy`);
   if(parameters.some(p=>p.name==='cursor')) {
    if(op.operationId==='getEvidenceChain')check(!parameters.some(p=>['sort','filter'].includes(p.name))&&p?.sortFilterNotApplicable==='Evidence chain preserves causation order; filtering would remove required nodes', 'evidence chain explicitly preserves causation order');
-   else check(parameters.some(p=>p.name==='sort')&&parameters.some(p=>p.name==='filter')&&p?.sort?.length&&p?.filter?.length,`${op.operationId} bounded sort/filter policy`);
+   else if(p?.filterSyntax==='named-query-parameters') {
+    const sort=parameters.find(p=>p.in==='query'&&p.name==='sort');
+    const filters=parameters.filter(p=>p.in==='query'&&!['cursor','pageSize','sort'].includes(p.name));
+    const bounded=parameter=>{const schema=resolve(parameter.schema);return schema?.type==='string'&&(schema.enum?.length>0||['uuid','date'].includes(schema.format));};
+    check(sort?.schema?.type==='string'&&JSON.stringify(sort?.schema?.enum)===JSON.stringify(p.sort)&&p.sort?.length>0&&filters.length>0&&Array.isArray(p.filter)&&
+      filters.every(bounded)&&JSON.stringify(filters.map(p=>p.name).sort())===JSON.stringify([...(p.filter??[])].sort())&&
+      new Set(p.filter).size===p.filter.length&&!parameters.some(p=>p.name==='filter'),`${op.operationId} bounded sort/filter policy`);
+   } else check(parameters.some(p=>p.name==='sort')&&parameters.some(p=>p.name==='filter')&&p?.sort?.length&&p?.filter?.length,`${op.operationId} bounded sort/filter policy`);
   }
   for(const [status,raw]of Object.entries(op.responses??{})) {
     const response=resolve(raw);

@@ -1,0 +1,60 @@
+✔ current BFF-FE-000 repository Gate passes (5.534ms)
+✔ missing phase-one page mapping is rejected (3.781042ms)
+✔ published operation drift is rejected (2.877667ms)
+✖ planned operation traceability deletion is rejected (7.416708ms)
+✔ shared idempotency baseline deletion is rejected (7.110833ms)
+✔ dependency regression is rejected (2.723667ms)
+✔ error correlation header deletion is rejected (5.463125ms)
+✔ generated Zod export deletion is rejected (2.733458ms)
+✔ new-domain success headers remain mandatory (36.722875ms)
+✔ named pagination cannot lose declared filters or bounded sort (26.35ms)
+✔ missing staging permits development readiness and never claims formal acceptance (1.684667ms)
+✔ stage deferral cannot bypass engineering failures, final receipt requirements or unknown stages (0.082666ms)
+✔ final review command cannot be rewired to the development stage (8.238958ms)
+✔ current semantic A1 gate passes (6.590208ms)
+✔ rejects cookie semantic regression (7.181958ms)
+✔ rejects idempotency semantic regression (5.812583ms)
+✔ rejects sort semantic regression (6.419292ms)
+✔ rejects page semantic regression (5.298209ms)
+✔ rejects ci semantic regression (6.123042ms)
+✔ rejects decimal semantic regression (4.507375ms)
+✔ rejects version semantic regression (4.719791ms)
+✔ rejects csrf semantic regression (5.161ms)
+✔ exact registered security correction is accepted only within its window (19.777167ms)
+✔ unregistered breaking type, enum or missing baseline fails closed (41.581541ms)
+✔ new required parameters and constraints cannot silently bypass compatibility (0.880125ms)
+✔ absent, invented and reference-only staging receipts never close A1 (0.574792ms)
+✔ final receipt requires technical evidence plus one input-bound user confirmation (1.225709ms)
+✔ optional property within an existing allOf is additive, required changes are rejected (0.095208ms)
+✔ referenced watchlist request schema must still close untrusted fields (4.16875ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 28
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.377667
+
+✖ failing tests:
+
+test at scripts/bff-fe-000-gate-negative.mjs:28:1
+✖ planned operation traceability deletion is rejected (7.416708ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(report.failures.includes("planned operation getCommandSummary is traceable from Page API Coverage"))
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-000-gate-negative.mjs:31:3)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

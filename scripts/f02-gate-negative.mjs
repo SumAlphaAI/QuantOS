@@ -27,9 +27,9 @@ test('real Gitleaks positive control and GitHub/Slack leaks',t=>{
  }
 });
 test('historical digest exceptions do not waive fresh credentials in audit JSON',t=>{
+ for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json']) {
  const d=fixture(t);pass(run('git',['init','-q'],d));
- const dir=path.join(d,'docs/audit/evidence/secret-probe');fs.mkdirSync(dir,{recursive:true});
- const file=path.join(dir,'manifest.json');
+ const file=path.join(d,relativePath);fs.mkdirSync(path.dirname(file),{recursive:true});
  const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],d));};
  const scan=()=>run('bash',[path.join(repo,'scripts/check-secrets.sh')],repo,{QUANTOS_GATE_ROOT:d});
  fs.writeFileSync(file,JSON.stringify({scope:'public fixture'},null,2)+'\n');commit();pass(scan());
@@ -39,6 +39,7 @@ test('historical digest exceptions do not waive fresh credentials in audit JSON'
  reject(scan(),/leaks found/i);
  fs.writeFileSync(file,JSON.stringify({openapiDigest:sha(Buffer.from('unreviewed digest control'))},null,2)+'\n');commit();
  reject(scan(),/leaks found/i);
+ }
 });
 test('RLS baseline rejects policy deletion and late disabling with recovery',t=>{
  const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});

@@ -1,6 +1,7 @@
 pub mod clock;
 pub mod error;
 pub mod fixture;
+pub mod fixture_source;
 pub mod id;
 pub mod precision;
 pub mod versioning;

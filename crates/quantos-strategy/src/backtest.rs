@@ -1115,13 +1115,11 @@ pub(crate) mod tests {
         let payload = &payloads[0];
         let mut request = honest_request();
         // Capture the actual frozen Git candidate; image/runtime are explicit owned local fixture digests.
-        let git = Command::new("git")
-            .args(["rev-parse", "HEAD"])
-            .current_dir(&root)
-            .output()
-            .unwrap();
-        assert!(git.status.success());
-        request.candidate.source_commit = String::from_utf8(git.stdout).unwrap().trim().to_owned();
+        request.candidate.source_commit = quantos_core::fixture_source::fixture_source_commit(
+            &root,
+            std::env::var("GITHUB_SHA").ok().as_deref(),
+        )
+        .expect("owned fixture requires a checkout HEAD or frozen archive SHA");
         request.candidate.image_digest =
             ContentHash::sha256_bytes(&std::fs::read(std::env::current_exe().unwrap()).unwrap());
         request.candidate.runtime_digest=ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
