@@ -1,0 +1,43 @@
+{
+  "schema": "quantos-bff004-post-publication/v1",
+  "sourceCommit": "20d65a86efaebccb60abf7cfc896b6a6edd77033",
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "check:bff-fe-004:development"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/bff-fe-004-local-20261019/final-development.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/bff-fe-004-local-20261019/final-plans.json"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2024",
+        "services/bff-gateway/src/strategy.rs",
+        "services/bff-gateway/src/strategy/tests.rs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}

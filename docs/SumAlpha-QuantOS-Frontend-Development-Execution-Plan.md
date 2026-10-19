@@ -1,3 +1,5 @@
+> 当前工程结果（FE:BFF-FE-004/A4，2026-10-19）：冻结20d65a86，1032输入、18组与5本机入口PASS；Rust104、Node184、consumer/契约54，12 API/1068条HTTP、1000重试和基本Chromium通过。修复首次送审事实被重写、迟到保存回复丢编辑/版本回退；保留原稿与全部历史。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；九前置不重授READY，FE006原20261019稿用户CONFIRMED但独立当前Gate仍NOT_ASSESSED，完整联调/发布NOT_RUN，runtimeAdmission=DENIED，新稿PENDING。见[报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)。下一可执行PROVIDER:A4当前汇总。
+
 > 当前阶段修正（2026-10-19，CI 657a67b8）：BFF-FE-006 当前输入已偏离 aad08dd5 的冻结回执，stage_gate 恢复 NOT_ASSESSED；以下工程结果仅为原 SHA 历史记录。原 manifest、日志和确认稿保持原样，当前功能直接回归继续执行，不因 CI 修复重授 READY 或触发十前置全量复验。见[第五轮 CI 修复](./audit/ci-remediation-round5-2026-10-19.md)。
 
 > 2026-10-19 用户确认：FE:BFF-FE-006 的20261019完整稿已由用户在本会话确认，只绑定aad08dd5源码及2404a7df原稿/回执；[独立确认账本](./audit/evidence/bff-fe-006-confirmation-20261019/user-confirmation.json)，确认门禁CONFIRMED。原稿及技术回执不改字节，不代表当前HEAD、上游、联调/发布或runtime准入。
@@ -1480,7 +1482,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-004`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:92fb789a7c91ef7db34cc1f75edc622937f53cf88806e5652d8e74e4884994a6","evidence":["audit/evidence/bff-fe-004-local-20261019/manifest.json"]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04"]
 - closes_core: []
@@ -1492,6 +1494,8 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 领域接口背景：S01–S04 有 Strategy/Backtest/Release 能力，缺完整页面 API 与编辑冲突模型
 - 覆盖契约/页面：C05/C08；P06/P07
 - 目标阶段与验收：FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝
+
+当前2026-10-19功能交付：20d65a86冻结候选18组/5入口PASS；首次送审事实及在途编辑/版本保护完成，BFF004_SCOPE_LOCAL READY，完整联调/发布NOT_RUN。见[当前报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[新完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)，确认PENDING；原历史与九前置独立Gate不改绑。
 
 <a id="acceptance-provider-a4"></a>
 ##### PROVIDER:A4：验收检查点
