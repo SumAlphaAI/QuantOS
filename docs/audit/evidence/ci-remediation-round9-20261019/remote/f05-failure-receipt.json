@@ -1,0 +1,28 @@
+{
+  "schema": "quantos-f05-acceptance/v1",
+  "status": "FAIL",
+  "passed": false,
+  "targetClass": "disposable-loopback-postgresql",
+  "source": "36fab92aa235c41d83b03c64b37321fa242b44fb",
+  "dirty": false,
+  "migrationDigest": "sha256:dd1c9c9ef5692b1c77cd033233fa61599dec85b3506bafcb63969ce843c5dc9c",
+  "startedAt": "2026-10-19T10:45:42.722Z",
+  "acceptance": {
+    "eventCount": 10000,
+    "concurrentDeliveryAttempts": 1000,
+    "correlationLookupBudgetSeconds": 5,
+    "rlsRoles": [
+      "anon",
+      "authenticated",
+      "service_role"
+    ],
+    "storageRoundTrip": "not-applicable"
+  },
+  "checks": [
+    "fresh migration rebuild",
+    "RLS, FORCE RLS, policy and privileged-path catalog checks",
+    "fencing, tenant replay, append-only, dead-letter replay, realtime recovery, 1,000 concurrency and 10,000-event consistency"
+  ],
+  "error": "cargo test -p quantos-storage --test postgres_persistence --locked -- --test-threads=1 --nocapture failed",
+  "completedAt": "2026-10-19T10:45:57.827Z"
+}

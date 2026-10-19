@@ -241,7 +241,8 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
             let result = PgStorageStore::connect(candidate.as_str());
             assert_eq!(
                 result.is_ok(),
-                !matches!(mode, Some("require" | "verify-full"))
+                matches!(mode, Some("disable")),
+                "Storage requires TLS unless plaintext is explicitly selected; mode {mode:?} must not downgrade"
             );
         }
     }

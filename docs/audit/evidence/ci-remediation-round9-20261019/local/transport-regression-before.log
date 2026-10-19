@@ -1,0 +1,34 @@
+✖ disposable F05 workflow consumers explicitly select their plaintext PostgreSQL transport (7.259542ms)
+✔ acknowledgements cannot be reduced to record-id updates (0.091583ms)
+✔ append-only protection covers update delete truncate and cascade deletion (0.066458ms)
+✔ tenantless correlation and replay APIs are absent (0.067125ms)
+✔ nightly branch gate rejects fabricated, empty and below-threshold reports (104.815042ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.835459
+
+✖ failing tests:
+
+test at scripts/f05-gate-negative.mjs:13:1
+✖ disposable F05 workflow consumers explicitly select their plaintext PostgreSQL transport (7.259542ms)
+  AssertionError [ERR_ASSERTION]: .github/workflows/ci.yml plaintext fixture must not depend on adapter TLS defaults
+  
+  null !== 'disable'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f05-gate-negative.mjs:22:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 'disable',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

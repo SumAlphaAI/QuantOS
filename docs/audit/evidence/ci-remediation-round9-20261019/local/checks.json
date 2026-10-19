@@ -1,0 +1,87 @@
+{
+  "schema": "quantos-ci-scoped-checks/v1",
+  "baseCommit": "36fab92aa235c41d83b03c64b37321fa242b44fb",
+  "candidateBinding": "Enclosing commit and manifest inputs; user AGENTS.md changes excluded.",
+  "checks": [
+    {
+      "command": "node --test scripts/f05-gate-negative.mjs (new regression before fix)",
+      "status": "EXPECTED_FAIL",
+      "passed": 4,
+      "failed": 1,
+      "log": "transport-regression-before.log"
+    },
+    {
+      "command": "node scripts/check-f05.mjs",
+      "status": "PASS_SOURCE_WIRING_ONLY",
+      "log": "f05-source-gate.log"
+    },
+    {
+      "command": "node --test scripts/f05-gate-negative.mjs scripts/f05-coverage.test.mjs",
+      "status": "PASS",
+      "passed": 8,
+      "failed": 0,
+      "log": "f05-regressions.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p quantos-storage --lib",
+      "status": "PASS",
+      "passed": 22,
+      "failed": 0,
+      "log": "storage-library-tests.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p quantos-storage --test postgres_persistence --no-run",
+      "status": "PASS_COMPILE_ONLY",
+      "databaseExecuted": false,
+      "log": "storage-integration-compile.log"
+    },
+    {
+      "command": "workflow URL clone, Node pg Client configuration, db-cli buildClientConfig",
+      "status": "PASS_CONFIGURATION_ONLY",
+      "connectionAttempted": false,
+      "log": "fixture-url-propagation.json"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "status": "PASS",
+      "log": "rust-format.log"
+    },
+    {
+      "command": "node --check scripts/f05-gate-negative.mjs",
+      "status": "PASS"
+    },
+    {
+      "command": "node scripts/check-development-plan-order.mjs",
+      "status": "PASS",
+      "log": "plan-order.log"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS",
+      "log": "diff-check.log"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "status": "PASS",
+      "commits": 645,
+      "leaks": 0,
+      "log": "history-secret-scan.log"
+    },
+    {
+      "command": "git diff --cached --check; git diff --cached --no-ext-diff --unified=0 | gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "status": "PASS",
+      "leaks": 0,
+      "log": "staged-secret-scan.log"
+    }
+  ],
+  "notRun": [
+    "Any PostgreSQL/Supabase execution on this machine",
+    "Complete make f05-check and F05 coverage",
+    "Full F05 database test execution after fix",
+    "Whole workspace tests",
+    "Clean-room rebuild",
+    "Hosted CI for enclosing commit until user push",
+    "Release acceptance",
+    "Push"
+  ]
+}

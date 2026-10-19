@@ -25,7 +25,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       QUANTOS_SKIP_ENV: "1"
-      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres?sslmode=disable
       GITLEAKS_BIN: ${{ github.workspace }}/artifacts/tools/gitleaks
       QUANTOS_BFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}

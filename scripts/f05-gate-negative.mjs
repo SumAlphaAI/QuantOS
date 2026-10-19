@@ -5,9 +5,24 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { parse } from 'yaml';
 
 const postgres = readFileSync('crates/quantos-event/src/pg.rs', 'utf8');
 const migration = readFileSync('supabase/migrations/20260921090000_f05_ledger_integrity_and_replay.sql', 'utf8');
+
+test('disposable F05 workflow consumers explicitly select their plaintext PostgreSQL transport', () => {
+  for (const filename of ['.github/workflows/ci.yml', '.github/workflows/f05-event-nightly.yml']) {
+    const workflow = parse(readFileSync(filename, 'utf8'));
+    const consumers = Object.values(workflow.jobs).filter(job => job.steps.some(step => /\bmake f05-db-(?:check|coverage)\b/.test(step.run ?? '')));
+    assert.ok(consumers.length, `${filename} must retain its F05 database Gate`);
+    for (const job of consumers) {
+      assert.match(job.services.postgres.image, /^postgres:/);
+      const target = new URL(job.env.F02_PG_ADMIN_URL);
+      assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(target.hostname));
+      assert.equal(target.searchParams.get('sslmode'), 'disable', `${filename} plaintext fixture must not depend on adapter TLS defaults`);
+    }
+  }
+});
 
 test('acknowledgements cannot be reduced to record-id updates', () => {
   for (const predicate of [
