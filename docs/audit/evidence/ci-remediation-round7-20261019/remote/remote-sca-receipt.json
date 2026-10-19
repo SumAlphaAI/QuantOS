@@ -1,0 +1,147 @@
+{
+  "status": "FAIL",
+  "passed": false,
+  "scope": "all runtime, dev, build and security dependencies; includes independent Desktop Rust lock",
+  "source": "b80fbda8b3a5e6c2fd31ef0cfbf7927ce0516d7f",
+  "dirty": false,
+  "lockDigests": {
+    "Cargo.lock": "7efc9e786024d754dd56a1d654b8a1d836dfabe937e271317fdc03d572057501",
+    "pnpm-lock.yaml": "5e64ea8d5c6adc3d47d6233d46ed96b67bda0d1817b985a931c3c8be4c3fe0a9",
+    "engines/uv.lock": "8f9e8ce7f28710653ab72ac5b18d5db93d2ebf21beaf304e5409be71e5fa2a58",
+    "apps/terminal-desktop/src-tauri/Cargo.lock": "be99df0c1e077f33775578b59d56f8fb2f0bc0f81d4fa138164233ef321eef17"
+  },
+  "startedAt": "2026-10-19T08:07:57.985Z",
+  "scanners": {
+    "npm": {
+      "status": "PASS",
+      "findings": [
+        {
+          "ecosystem": "npm",
+          "id": "GHSA-vfj7-8cjw-p6xm",
+          "package": "braces",
+          "version": "3.0.3",
+          "severity": "high",
+          "waived": false,
+          "backportVerified": true
+        }
+      ]
+    },
+    "pypi": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo": {
+      "status": "FAIL",
+      "findings": [
+        {
+          "ecosystem": "cargo",
+          "id": "RUSTSEC-2026-0346",
+          "aliases": [
+            "GHSA-c8m5-c952-6cm4"
+          ],
+          "package": "rustls",
+          "version": "0.23.45",
+          "severity": "vulnerability",
+          "waived": false
+        },
+        {
+          "ecosystem": "cargo",
+          "id": "RUSTSEC-2026-0347",
+          "aliases": [
+            "GHSA-vp88-798v-h67f"
+          ],
+          "package": "rustls",
+          "version": "0.23.45",
+          "severity": "vulnerability",
+          "waived": false
+        },
+        {
+          "ecosystem": "cargo",
+          "id": "RUSTSEC-2026-0348",
+          "aliases": [
+            "GHSA-h2v8-394m-p7vv"
+          ],
+          "package": "rustls",
+          "version": "0.23.45",
+          "severity": "vulnerability",
+          "waived": false
+        },
+        {
+          "ecosystem": "cargo",
+          "id": "RUSTSEC-2026-0349",
+          "aliases": [
+            "GHSA-w44r-93j7-qv28"
+          ],
+          "package": "rustls",
+          "version": "0.23.45",
+          "severity": "vulnerability",
+          "waived": false
+        }
+      ]
+    },
+    "cargo-desktop": {
+      "status": "PASS",
+      "findings": [],
+      "maintenanceWarnings": [
+        {
+          "id": "RUSTSEC-2024-0370",
+          "package": "proc-macro-error",
+          "version": "1.0.4",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0081",
+          "package": "unic-char-property",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0075",
+          "package": "unic-char-range",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0080",
+          "package": "unic-common",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0100",
+          "package": "unic-ucd-ident",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0098",
+          "package": "unic-ucd-version",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        }
+      ]
+    }
+  },
+  "bracesBackport": {
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces",
+    "version": "3.0.3",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamPatchedVersion": null,
+    "patchSha256": "42bc2b75ecce13c9e695565d1b5dc53f733add034542c2e13f57db4cceeb9b87",
+    "files": 10,
+    "tests": {
+      "stringCases": 18,
+      "astCases": 6,
+      "compatibilityCases": 5
+    }
+  },
+  "glibBackport": {
+    "advisory": "RUSTSEC-2024-0429",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamFix": "https://github.com/gtk-rs/gtk-rs-core/pull/1343",
+    "files": 120
+  },
+  "error": "Unwaived dependency vulnerabilities",
+  "completedAt": "2026-10-19T08:08:04.261Z"
+}

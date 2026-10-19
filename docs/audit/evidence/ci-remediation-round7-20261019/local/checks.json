@@ -1,0 +1,89 @@
+{
+  "schema": "quantos-ci-scoped-checks/v1",
+  "baseCommit": "b80fbda8b3a5e6c2fd31ef0cfbf7927ce0516d7f",
+  "candidateBinding": "Enclosing Git commit; source differs from base only by the rustls lock update and this new audit package.",
+  "checks": [
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p quantos-auth -p quantos-storage -p quantos-strategy --lib",
+      "status": "PASS",
+      "passed": 57,
+      "failed": 0,
+      "ignored": 2,
+      "log": "local/library-consumers.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p market-ingestor --bin market-ingestor",
+      "status": "PASS",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "log": "local/market-consumer.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p bff-gateway --test auth_settings_provider --test audit_export_provider",
+      "status": "PASS",
+      "passed": 29,
+      "failed": 0,
+      "ignored": 0,
+      "log": "local/bff-consumers.log"
+    },
+    {
+      "command": "make sca-check",
+      "status": "PASS",
+      "backportTestsPassed": 9,
+      "scanners": [
+        "npm",
+        "pypi",
+        "cargo",
+        "cargo-desktop"
+      ],
+      "log": "local/sca-check.log"
+    },
+    {
+      "command": "cargo deny --locked check licenses bans sources",
+      "status": "PASS",
+      "log": "local/rust-policy.log.gz"
+    },
+    {
+      "command": "node scripts/check-sca-waivers.mjs",
+      "status": "PASS",
+      "log": "local/waivers.log"
+    },
+    {
+      "command": "node scripts/check-development-plan-order.mjs",
+      "status": "PASS",
+      "log": "local/plan-order.log"
+    },
+    {
+      "command": "cargo metadata --locked --offline --no-deps --format-version 1",
+      "status": "PASS",
+      "log": "local/cargo-metadata-summary.json"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "status": "PASS",
+      "commits": 643,
+      "leaks": 0,
+      "log": "local/history-secret-scan.log"
+    },
+    {
+      "command": "git diff --check; git diff --cached --check",
+      "status": "PASS",
+      "log": "local/diff-check.log"
+    },
+    {
+      "command": "git diff --cached --no-ext-diff --unified=0 | gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "status": "PASS",
+      "leaks": 0,
+      "log": "local/staged-secret-scan.log"
+    }
+  ],
+  "notRun": [
+    "Target PostgreSQL/Supabase acceptance",
+    "Real remote TLS integration",
+    "Whole workspace tests",
+    "Full clean-room rebuild",
+    "Release/performance acceptance",
+    "Hosted CI for enclosing commit until user push"
+  ]
+}

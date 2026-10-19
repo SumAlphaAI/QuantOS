@@ -1,0 +1,88 @@
+   Compiling rustls v0.23.46
+   Compiling tokio-rustls v0.26.4
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling hyper-rustls v0.27.9
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling reqwest v0.13.4
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5m 41s
+     Running unittests src/lib.rs (target/debug/deps/quantos_auth-3ae41934e967a429)
+
+running 6 tests
+test tests::user_request_context_can_represent_primary_workspace_session ... ok
+test tests::auth_context_projects_policy_context ... ok
+test tests::application_urls_require_certificate_verification ... ok
+test tests::verified_claims_bind_subject_role_mfa_and_expiry ... ok
+test tests::malformed_bearer_is_rejected_without_an_auth_request ... ok
+test tests::well_formed_bearer_still_requires_remote_verification ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-603ddb80af1347aa)
+
+running 22 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test provenance::tests::actual_identity_time_quality_and_purpose_are_required ... ok
+test provenance::tests::revoked_expired_ambiguous_or_empty_approvals_never_authorize ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test pg::connection_tests::verify_full_loads_the_configured_ca_before_network_access ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-531ddde94c7a9a58)
+
+running 31 tests
+test generated::tests::unsupported_rules_are_rejected ... ok
+test pg::release_row_tests::s03_legacy_null_workspace_returns_error_instead_of_panicking ... ignored, requires separately authorized Supabase connection; never local database acceptance
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test generated::tests::forged_static_flags_and_source_never_adapt_and_integer_min_does_not_panic ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test backtest::tests::s02_generated_universe_and_notional_are_effective_constraints ... ok
+test release::tests::s03_targets_exclude_assisted_live_and_unknown_json ... ok
+test backtest::tests::s02_analytic_roundtrip_costs_and_terminal_mark_reconcile ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test service::tests::service_s04_clock_is_sampled_under_service_lock ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test tests::s01_parameter_fixture_roundtrip_and_canonical_hash ... ok
+test tests::s01_validation_rechecks_artifacts_and_expiry_and_rejected_saves_are_atomic ... ok
+test tests::s01_workspace_and_tenant_isolation_cover_read_save_and_validation ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test backtest::tests::s02_candidate_parameters_clock_and_report_bytes_are_bound ... ok
+test tests::fifty_stale_edits_and_retries_preserve_all_versions ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test tests::s01_fifty_parallel_edit_groups_use_atomic_compare_and_save ... ok
+test backtest::tests::s02_hundred_malformed_inputs_fail_and_valid_retry_recovers ... ok
+test generated::tests::tp06_owned_python_process_artifacts_feed_actual_backtest_and_block_release ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+test release::tests::s03_dedupe_and_content_conflict_are_deterministic ... ok
+test release::tests::s03_scope_capability_hash_expiry_and_tampering_fail_closed ... ok
+test release::tests::s03_concurrent_approval_and_deployment_are_atomic_and_idempotent ... ok
+test release::tests::s03_hundred_unverified_or_unapproved_deployments_are_rejected ... ok
+test release::tests::s03_owned_process_backtest_release_reject_recover_and_consume ... ok
+test backtest::tests::s02_owned_process_s01_artifact_to_ten_replays_reject_and_recover ... ok
+
+test result: ok. 29 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.84s
+
