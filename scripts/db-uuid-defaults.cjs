@@ -9,6 +9,7 @@ const explicitKeys = new Set([
   'bff_devices.device_id',
   'bff_reauth_grants.grant_ref',
   'bff_security_commands.idempotency_key',
+  'bff_market_watchlist_commands.idempotency_key',
   'bff_settings_audits.audit_ref',
 ]);
 function assertUuidDefaults(rows) {

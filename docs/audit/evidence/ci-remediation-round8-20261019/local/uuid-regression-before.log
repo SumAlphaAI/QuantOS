@@ -1,0 +1,25 @@
+✔ exact BFF business identities may require an explicit UUID (0.750083ms)
+✖ watchlist command idempotency is caller-supplied and scoped, without a random default (0.224458ms)
+✔ exceptions never permit another key or a broad BFF table prefix (0.162375ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.27275
+
+✖ failing tests:
+
+test at scripts/db-uuid-defaults.test.cjs:19:1
+✖ watchlist command idempotency is caller-supplied and scoped, without a random default (0.224458ms)
+  Error: UUID primary-key columns must define database defaults: bff_market_watchlist_commands.idempotency_key
+      at assertUuidDefaults (/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/db-uuid-defaults.cjs:16:29)
+      at TestContext.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/db-uuid-defaults.test.cjs:29:3)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)

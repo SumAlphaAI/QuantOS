@@ -1,0 +1,94 @@
+{
+  "schema": "quantos-ci-scoped-checks/v1",
+  "baseCommit": "7f7b4b44b4e1507d36444032e00dfd4115b73252",
+  "candidateBinding": "Enclosing commit and manifest input hashes; user AGENTS.md working copy changes are excluded from commit.",
+  "checks": [
+    {
+      "command": "node --test scripts/db-uuid-defaults.test.cjs",
+      "status": "EXPECTED_FAIL_BEFORE_FIX",
+      "passed": 2,
+      "failed": 1,
+      "log": "uuid-regression-before.log"
+    },
+    {
+      "command": "node --test scripts/db-uuid-defaults.test.cjs scripts/db-migration-sql.test.cjs",
+      "status": "PASS",
+      "passed": 9,
+      "failed": 0,
+      "log": "uuid-migration-tests.log"
+    },
+    {
+      "command": "node scripts/test-quality-gates.mjs",
+      "environment": "Node 24.12.0, pinned pnpm 10.20.0, existing uv cache access",
+      "status": "PASS",
+      "passed": 52,
+      "failed": 0,
+      "log": "quality-self-tests.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test --locked -p bff-gateway --lib watchlist",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0,
+      "filteredOut": 147,
+      "log": "watchlist-consumer-tests.log"
+    },
+    {
+      "command": "node scripts/check-rls-baseline.mjs",
+      "status": "PASS_STATIC_ONLY",
+      "tables": 59,
+      "log": "rls-preflight.log"
+    },
+    {
+      "command": "node scripts/check-development-plan-order.mjs",
+      "status": "PASS",
+      "log": "plan-order.log"
+    },
+    {
+      "command": "node --check (3 changed scripts)",
+      "status": "PASS"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "status": "PASS",
+      "commits": 644,
+      "leaks": 0,
+      "log": "history-secret-scan.log"
+    },
+    {
+      "command": "git diff --check; git diff --cached --check",
+      "status": "PASS",
+      "log": "diff-check.log"
+    },
+    {
+      "command": "git diff --cached --no-ext-diff --unified=0 | gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "status": "PASS",
+      "leaks": 0,
+      "log": "staged-secret-scan.log"
+    }
+  ],
+  "attempts": [
+    {
+      "log": "quality-self-tests-interrupted.log",
+      "status": "INTERRUPTED_NOT_PASS",
+      "cause": "global pnpm 11.21.0 lint wrapper stalled"
+    },
+    {
+      "log": "quality-self-tests-cache-denied.log",
+      "status": "FAIL",
+      "passed": 49,
+      "failed": 3,
+      "cause": "sandbox denied existing uv cache access"
+    }
+  ],
+  "notRun": [
+    "Any PostgreSQL/Supabase execution on this machine",
+    "Whole workspace tests",
+    "Clean-room rebuild",
+    "F02/F05 database acceptance after this fix",
+    "Packaging/download after database gate",
+    "Hosted CI for enclosing commit until user push",
+    "Release acceptance",
+    "Push"
+  ]
+}
