@@ -1,0 +1,138 @@
+✖ current full phase-one inventory passes (17.36475ms)
+✔ missing Gap is rejected (11.454875ms)
+✔ undecided realtime dependency is rejected (10.133083ms)
+✔ deleted required actorId field is rejected (8.869625ms)
+✔ nonexistent field source is rejected (9.093167ms)
+✔ wrong field type and optionality are rejected (7.779917ms)
+✔ generated operation deletion is rejected (7.405166ms)
+✔ generated method and path drift are rejected (14.74725ms)
+✔ same-count schema rename is rejected (5.778125ms)
+✔ schema required and enum drift are rejected (14.156042ms)
+✔ same-count Proto message rename is rejected (7.151916ms)
+✔ removed Proto declaration is rejected (7.685416ms)
+✔ same-count JSON Schema replacement is rejected (7.3145ms)
+✔ duplicate contract row is rejected before Map collapse (7.534ms)
+✔ duplicate Gap row is rejected before Map collapse (7.013833ms)
+✔ nonexistent role owner is rejected (7.175333ms)
+✔ nonexistent backend task is rejected (7.28675ms)
+✔ nonexistent BFF task is rejected (6.981875ms)
+✔ unknown Gap page is rejected (7.47975ms)
+✔ each missing website P0 page is rejected (33.971875ms)
+✔ missing auxiliary risk/audit/order contract is rejected (21.742625ms)
+✖ closing partly published Gap is rejected (7.137042ms)
+✖ omitting planned operation is rejected (2.401375ms)
+✔ unpublished Inventory Fixture cannot claim Implemented (7.37475ms)
+✖ generated-only contract cannot claim Integrated (2.394625ms)
+✔ missing provider evidence is rejected (7.172791ms)
+✔ changed provider receipt is rejected (7.643708ms)
+✔ missing Inventory Fixture is rejected (6.814583ms)
+✔ Desktop contamination is rejected by Web inventory (6.89175ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (14.808458ms)
+✔ removed referenced core task is rejected (7.353292ms)
+✔ catalog source drift is rejected (7.827667ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (26.450375ms)
+✔ each missing implementation evidence category is rejected (81.598333ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (6.674125ms)
+✔ another contract receipt cannot substitute for required evidence (6.749584ms)
+✔ unknown task suffixes are rejected in both backend task columns (41.809916ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (14.553875ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 34
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 650.501458
+
+✖ failing tests:
+
+test at scripts/pre04-gate-negative.mjs:17:1
+✖ current full phase-one inventory passes (17.36475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      17,
+      17,
+      23,
+  +   692
+  -   459
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:20:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 17, 17, 23, 692 ],
+    expected: [ 17, 17, 23, 459 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/pre04-gate-negative.mjs:51:1
+✖ closing partly published Gap is rejected (7.137042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'PASS' !== 'FAIL'
+  
+      at rejected (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:9:10)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:51:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'PASS',
+    expected: 'FAIL',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/pre04-gate-negative.mjs:52:1
+✖ omitting planned operation is rejected (2.401375ms)
+  AssertionError [ERR_ASSERTION]: fixture mutation must match 未发布：subscribeBacktestRun
+      at change (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:5:35)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:52:78
+      at rejected (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:7:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:52:54)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/pre04-gate-negative.mjs:54:1
+✖ generated-only contract cannot claim Integrated (2.394625ms)
+  AssertionError [ERR_ASSERTION]: fixture mutation must match Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结）
+      at change (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:5:35)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:54:89
+      at rejected (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:7:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:54:63)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

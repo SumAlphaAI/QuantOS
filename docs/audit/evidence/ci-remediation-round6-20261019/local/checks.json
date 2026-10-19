@@ -1,0 +1,117 @@
+{
+  "schema": "quantos-ci-remediation-checks/v1",
+  "baseCommit": "cb6d81b0870a8fc6f347b714c5cb3a5ccad88c27",
+  "toolchain": {
+    "node": "24.12.0",
+    "pnpm": "10.20.0",
+    "cargoLlvmCov": "0.8.7",
+    "gitleaks": "8.28.0",
+    "platform": "macOS local; not hosted Linux"
+  },
+  "checks": [
+    {
+      "command": "pnpm check:pre04",
+      "exitCode": 0,
+      "result": "17 contracts / 17 gaps / 23 P0 units / 692 fields / 132 operations / 110 schemas",
+      "log": "pre04-pnpm-entry.log"
+    },
+    {
+      "command": "pnpm test:pre04",
+      "exitCode": 0,
+      "result": "45 tests, 0 skips",
+      "log": "pre04-pnpm-tests.log"
+    },
+    {
+      "command": "node --test scripts/pre04-gate-negative.mjs scripts/rust-critical-coverage-policy.test.mjs scripts/with-fresh-coverage-target.test.mjs",
+      "exitCode": 0,
+      "result": "61 tests, 0 skips",
+      "log": "scoped-gates-final-v3.log"
+    },
+    {
+      "command": "node scripts/test-quality-gates.mjs",
+      "exitCode": 0,
+      "result": "49 tests, 0 skips; temporary SQL text tests only, no database connection",
+      "log": "quality-gate-self-tests.log"
+    },
+    {
+      "command": "node --test scripts/tests/check-pre01.test.mjs scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs",
+      "exitCode": 0,
+      "result": "63 tests, 0 skips",
+      "log": "inventory-regressions.log"
+    },
+    {
+      "command": "node scripts/check-pre01.mjs",
+      "exitCode": 0,
+      "log": "pre01-check.log"
+    },
+    {
+      "command": "node scripts/check-pre06.mjs",
+      "exitCode": 0,
+      "log": "pre06-check.log"
+    },
+    {
+      "command": "cargo llvm-cov <critical 3 packages + execution-gateway consumer tests> --exclude-from-report execution-gateway --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only --locked --offline",
+      "exitCode": 1,
+      "result": "Existing instrumented target contained outdated source mappings: 8645 lines; FAIL retained, not admissible as current-source evidence",
+      "log": "critical-coverage.log"
+    },
+    {
+      "command": "cargo llvm-cov report --package <selected packages> --exclude-from-report execution-gateway --json",
+      "exitCode": 1,
+      "result": "Tool rejected an option unsupported by report subcommand; no success inferred",
+      "log": "coverage-report.log"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=<fresh scratch>/coverage-target CARGO_BUILD_JOBS=1 cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --package execution-gateway --exclude-from-report execution-gateway --all-features --fail-under-lines 90 --fail-under-regions 85 --json --output-path <scratch>/critical-coverage-fresh.json --locked --offline",
+      "exitCode": 0,
+      "result": "121 tests / 0 failures / 2 existing release-performance ignored; 6455 lines 94.84%; 9265 regions 92.95%",
+      "log": "critical-coverage-fresh.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 CARGO_NET_OFFLINE=true node scripts/with-fresh-coverage-target.mjs cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --package execution-gateway --exclude-from-report execution-gateway --locked --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only",
+      "exitCode": 0,
+      "result": "Exact final Makefile combined command: 94.84% lines / 92.95% regions, original 21 files and denominator retained",
+      "log": "critical-coverage-entrypoint.log"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "exitCode": 0,
+      "log": "plans-final.log"
+    },
+    {
+      "command": "git diff --no-ext-diff --unified=0 | gitleaks stdin <pinned config>",
+      "exitCode": 1,
+      "result": "One public OpenAPI SHA digest false positive; changed metadata representation, no allowlist added",
+      "log": "source-patch-secret-scan.log"
+    },
+    {
+      "command": "git diff --no-ext-diff --unified=0 | gitleaks stdin <pinned config>",
+      "exitCode": 0,
+      "result": "No leaks after typed source digest rows; full staged patch rechecked before commit",
+      "log": "source-patch-secret-scan-final.log"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "exitCode": 0,
+      "result": "642 commits / 0 leaks",
+      "log": "history-secret-scan.log"
+    },
+    {
+      "command": "git diff --cached --no-ext-diff --unified=0 | artifacts/tools/gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "exitCode": 0,
+      "result": "No leaks in complete staged source/docs/evidence patch",
+      "log": "staged-secret-scan.log"
+    }
+  ],
+  "historicalBaseline": {
+    "path": "docs/execution/PRE-04-inventory-baseline.json",
+    "gitCommit": "cb6d81b0870a8fc6f347b714c5cb3a5ccad88c27",
+    "blobSha256": "sha256:46d1f668e4f55d589e380c451f5f05950118839ca3395e13c1a69283b806ce34",
+    "copy": "pre04-baseline-original.json.gz"
+  },
+  "notRun": [
+    "New-SHA hosted CI",
+    "Whole workspace tests and full F01 rebuild in this round",
+    "True branch coverage, release performance, target database, deployment and formal acceptance"
+  ]
+}

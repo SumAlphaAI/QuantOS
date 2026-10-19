@@ -197,9 +197,12 @@ coverage-python:
 coverage-web:
 	pnpm coverage:web
 
+# The process protocol's existing integration tests live in execution-gateway.
+# Run that consumer too; retain only the original three critical crates in the
+# combined report, so extra service lines cannot dilute the 90/85 thresholds.
 coverage-rust:
 	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only
-	cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only
+	node scripts/with-fresh-coverage-target.mjs cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --package execution-gateway --exclude-from-report execution-gateway --locked --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only
 
 coverage-rust-branch:
 	cargo llvm-cov --package quantos-core --all-features --release --branch --json --output-path target/f04-branch-coverage.json

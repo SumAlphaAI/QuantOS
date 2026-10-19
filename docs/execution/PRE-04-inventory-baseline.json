@@ -1,10 +1,8 @@
 {
-  "schema": "quantos-pre04-baseline/v1",
-  "version": "1.6",
-  "date": "2026-10-13",
+  "schema": "quantos-pre04-baseline/v2",
+  "version": "1.7",
+  "date": "2026-10-19",
   "reviewedSourceSha": null,
-  "openapiDigest": "654daf4aba6827d5f8275db402323c752b42d0fabed715eecaa13ad12b72f71b",
-  "catalogDigest": "d37258a30159d8ec438fd249f97b1a0109408937a87b81fe525f69621e40d468",
   "protoDigests": [
     "2655e561849dc08be5bfa5738daf8aedf348f59f30e994d969062147d22170b7",
     "2a2f048fb6ae82deb0a62041e5ce02fe6b1067f21364c0e8fd4e0a8bd2d202d7",
@@ -169,7 +167,8 @@
       "owners": "BFF TL + Runtime owner（F07）",
       "protoCoverage": "部分（ResearchArtifact；EngineService 流为服务级）",
       "models": [
-        "ResearchRun"
+        "ResearchRun",
+        "ResearchAccepted"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -193,7 +192,8 @@
       "protoCoverage": "对象级（DataSnapshot/ResearchArtifact/DataSourceRef/DataQuality）",
       "models": [
         "DataSnapshot",
-        "Artifact"
+        "Artifact",
+        "ArtifactAttachment"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -365,61 +365,35 @@
         "F09",
         "X06"
       ],
-      "owners": "BFF TL + Ops owner（F09）",
-      "protoCoverage": "无（页面模型新增；Capability 可复用 engine.v1）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "service / health / latencyMs",
-          "type": "string / enum{healthy, degraded, down} / int32",
-          "required": "是",
-          "domain": "planned-model:ServiceHealth（F09）"
-        },
-        {
-          "name": "dlqDepth",
-          "type": "int32",
-          "required": "是",
-          "domain": "planned-model:ServiceHealth（F05 DLQ）"
-        },
-        {
-          "name": "incidentId / actionId",
-          "type": "uuid / string（白名单枚举）",
-          "required": "是",
-          "domain": "planned-model:Incident（仅批准 actionId）"
-        },
-        {
-          "name": "configVersion",
-          "type": "version",
-          "required": "是",
-          "domain": "planned-model:AdminView"
-        },
-        {
-          "name": "memberId / role",
-          "type": "uuid / string",
-          "required": "是",
-          "domain": "planned-model:AdminMember（F06 RBAC）"
-        },
-        {
-          "name": "capability / flag",
-          "type": "string / string + rollout 配置",
-          "required": "是",
-          "domain": "proto:engine.v1.Capability / planned-model:FlagView"
-        },
-        {
-          "name": "auditRef",
-          "type": "uuid（correlationId）",
-          "required": "是",
-          "domain": "planned-model:AdminView"
-        }
+      "owners": "BFF TL + Ops/Auth owner（F06/F09/X06）",
+      "protoCoverage": "部分（Capability 可复用 engine.v1；OpsHealth/Incident/AdminSpec 页面模型以 OpenAPI 为准）",
+      "models": [
+        "AdminResourcePage",
+        "GovernanceCapabilityAction",
+        "GovernanceFeatureFlagAction",
+        "GovernanceMemberAction",
+        "GovernancePolicyAction",
+        "GovernanceRoleAction",
+        "OpsAction",
+        "OpsHealth",
+        "OpsIncident",
+        "OpsIncidentCreate",
+        "OpsIncidentPage",
+        "OpsIncidentTimeline",
+        "OpsPrecheck",
+        "OpsRunbookActions",
+        "OpsRunbookExecute",
+        "OpsRunbookReceipt"
       ],
+      "plannedFields": [],
       "priority": "P1",
       "stage": "FEP-6/G6",
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "service health、incident list/get、member/policy/capability/flag query",
-        "approved runbook actionId、治理 CRUD（版本化、双人审批）",
-        "health/alert 广播"
+        "health/metrics、incident list/get/timeline、五类治理 list/get",
+        "typed 安全 Runbook 预检/运行；member/role/policy/capability/flag CRUD",
+        "incident/alert 同源事实"
       ]
     },
     "C12": {
@@ -437,7 +411,9 @@
         "VenueQuote",
         "CandleSeries",
         "MarketWatchlist",
-        "SaveMarketWatchlist"
+        "SaveMarketWatchlist",
+        "MarketCatalog",
+        "VenueQuotes"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -463,51 +439,11 @@
       ],
       "owners": "BFF TL + Execution owner（X03）",
       "protoCoverage": "部分（复用 trading.v1 对象；缺 preflight 模型）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "accountId / mode",
-          "type": "uuid / enum:RuntimeMode",
-          "required": "是",
-          "domain": "planned-model:PreflightView"
-        },
-        {
-          "name": "venueOptions",
-          "type": "VenueOption[]（health, asOf, supportedIntents:enum:OrderIntentType[]）",
-          "required": "是",
-          "domain": "planned-model:PreflightView（单 venue 时只读）"
-        },
-        {
-          "name": "balanceRef / positionRef",
-          "type": "uuid（快照引用）",
-          "required": "是",
-          "domain": "planned-model:PreflightView（X01 读模型）"
-        },
-        {
-          "name": "quoteRef",
-          "type": "uuid + asOf:rfc3339",
-          "required": "是",
-          "domain": "planned-model:PreflightView（C12 报价快照）"
-        },
-        {
-          "name": "limitImpact",
-          "type": "object{limitId:uuid, before:decimal, after:decimal}[]",
-          "required": "是",
-          "domain": "planned-model:PreflightView（X02）"
-        },
-        {
-          "name": "objectVersion",
-          "type": "version",
-          "required": "是",
-          "domain": "planned-model:PreflightView"
-        },
-        {
-          "name": "blockingReasons",
-          "type": "string[]（稳定机器码）",
-          "required": "是",
-          "domain": "planned-model:PreflightView"
-        }
+      "models": [
+        "OrderCapabilities",
+        "TradePreflight"
       ],
+      "plannedFields": [],
       "priority": "P0",
       "stage": "FEP-5/G5",
       "inventoryFixtures": [],
@@ -525,72 +461,23 @@
         "X05"
       ],
       "owners": "BFF TL + Portfolio owner（X01）",
-      "protoCoverage": "无（缺 Performance/Report 消息；MoneyValue/DecimalValue 可复用）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "accountId / currency",
-          "type": "uuid / string（ISO 4217）",
-          "required": "是",
-          "domain": "planned-model:PerformanceView"
-        },
-        {
-          "name": "method",
-          "type": "enum{twr, mwr, simple}",
-          "required": "是",
-          "domain": "planned-model:PerformanceView（标注口径与适用条件）"
-        },
-        {
-          "name": "ledgerVersion / valuationSnapshotId",
-          "type": "version / uuid",
-          "required": "是",
-          "domain": "planned-model:PerformanceView（X01/X05）"
-        },
-        {
-          "name": "coverage",
-          "type": "TimeWindow",
-          "required": "是",
-          "domain": "proto:common.v1.TimeWindow"
-        },
-        {
-          "name": "asOf",
-          "type": "rfc3339",
-          "required": "是",
-          "domain": "planned-model:PerformanceView"
-        },
-        {
-          "name": "pnl / return / drawdown / fees",
-          "type": "money / decimal / decimal / money",
-          "required": "是",
-          "domain": "planned-model:PerformanceView"
-        },
-        {
-          "name": "provisional",
-          "type": "bool",
-          "required": "是",
-          "domain": "planned-model:PerformanceView（未对账强制 true）"
-        },
-        {
-          "name": "period / reportVersion",
-          "type": "enum{week, month, quarter, year} + 自然/滚动 / version",
-          "required": "是",
-          "domain": "planned-model:ReportJob"
-        },
-        {
-          "name": "supersededBy",
-          "type": "uuid",
-          "required": "opt",
-          "domain": "planned-model:ReportJob"
-        }
+      "protoCoverage": "部分（MoneyValue/DecimalValue 可复用；PerformanceView/Report/Document/Download 以 OpenAPI 为准）",
+      "models": [
+        "PerformanceDownload",
+        "PerformanceQuery",
+        "PerformanceReport",
+        "PerformanceReportDocument",
+        "PerformanceView"
       ],
+      "plannedFields": [],
       "priority": "P1",
       "stage": "FEP-4/G4",
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "performance summary/series/attribution",
-        "report create/poll/download（异步 job）",
-        "报表完成通知（经 C16）"
+        "summary/series/attribution、report get/status/grant/content",
+        "report create（冻结版本）、本进程 job 轮询",
+        "无（报表完成通知经 C16，未作目标联调验收）"
       ]
     },
     "C15": {
@@ -600,57 +487,15 @@
       ],
       "owners": "BFF TL + Recon owner（X05）",
       "protoCoverage": "无（缺 ReconRun/Break/LedgerEntry 消息）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "runId / accountId / venue",
-          "type": "uuid / uuid / enum:VenueKind",
-          "required": "是",
-          "domain": "planned-model:ReconRun（X05）"
-        },
-        {
-          "name": "window / ledgerVersion",
-          "type": "TimeWindow / version",
-          "required": "是",
-          "domain": "planned-model:ReconRun"
-        },
-        {
-          "name": "status",
-          "type": "enum:matched / investigating / resolved（+missing_data）",
-          "required": "是",
-          "domain": "planned-model:ReconRun（tokens 状态枚举对齐）"
-        },
-        {
-          "name": "breakId",
-          "type": "uuid",
-          "required": "是",
-          "domain": "planned-model:ReconBreak"
-        },
-        {
-          "name": "internalValue / externalValue",
-          "type": "decimal",
-          "required": "是",
-          "domain": "planned-model:ReconBreak（不可前端改写）"
-        },
-        {
-          "name": "reason",
-          "type": "string（稳定机器码）",
-          "required": "是",
-          "domain": "planned-model:ReconBreak"
-        },
-        {
-          "name": "evidenceRefs",
-          "type": "EvidenceRef[]",
-          "required": "是",
-          "domain": "proto:common.v1.EvidenceRef"
-        },
-        {
-          "name": "rerunRequestedBy / rerunIdempotencyKey",
-          "type": "ActorRef / idempotency-key",
-          "required": "重跑时必填",
-          "domain": "planned-model:ReconRun"
-        }
+      "models": [
+        "LedgerEntryPage",
+        "ReconciliationBreak",
+        "ReconciliationBreakPage",
+        "ReconciliationRerun",
+        "ReconciliationRun",
+        "ReconciliationRunPage"
       ],
+      "plannedFields": [],
       "priority": "P0",
       "stage": "FEP-5/G5",
       "inventoryFixtures": [],
@@ -668,67 +513,24 @@
         "X05",
         "X06"
       ],
-      "owners": "BFF TL + Observability owner（F09）",
-      "protoCoverage": "无（缺 Alert 消息；EventKind 可参考）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "alertId",
-          "type": "uuid",
-          "required": "是",
-          "domain": "planned-model:Alert（F09/X05/X06）"
-        },
-        {
-          "name": "severity",
-          "type": "enum{info, warning, critical}",
-          "required": "是",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "domain",
-          "type": "enum{risk, order, market, reconciliation, report, system}",
-          "required": "是",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "accountRef / venueRef",
-          "type": "uuid / enum:VenueKind",
-          "required": "opt",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "status",
-          "type": "enum{unacked, acked}（ack≠resolved）",
-          "required": "是",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "occurredAt / asOf",
-          "type": "rfc3339",
-          "required": "是",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "objectRef / correlationId",
-          "type": "string / uuid",
-          "required": "是",
-          "domain": "planned-model:Alert"
-        },
-        {
-          "name": "ackActor / ackAt",
-          "type": "ActorRef / rfc3339",
-          "required": "acked 后必填",
-          "domain": "planned-model:Alert"
-        }
+      "owners": "BFF TL + Ops owner（F09/X05/X06）",
+      "protoCoverage": "部分（EventKind 可参考；OpsAlert/AlertSubscriptions/StreamEvent 以 OpenAPI 为准）",
+      "models": [
+        "AlertSubscriptions",
+        "OpsAction",
+        "OpsAlert",
+        "OpsAlertPage",
+        "SaveAlertSubscriptions"
       ],
+      "plannedFields": [],
       "priority": "P1",
       "stage": "FEP-6/G6",
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "alert list/get、subscriptions",
-        "ack/unack（不代表 resolved）、subscription save",
-        "alert stream（授权/去重/限速）"
+        "alert list/get、subscriptions get",
+        "ack/unack（不改变 resolved）、save subscriptions",
+        "subscribeAlerts（授权事实/去重/恢复）"
       ]
     },
     "C17": {
@@ -794,7 +596,7 @@
     ],
     "P05": [
       "C04 snapshot list/get",
-      "C16 数据质量告警订阅 saveSubscription（planned）",
+      "C16 saveAlertSubscriptions（严重级别/既有领域筛选；数据质量源联调未验）",
       "无（快照不可变；告警经全局 C16）"
     ],
     "P06": [
@@ -805,7 +607,7 @@
     "P07": [
       "C05 backtest/release get + C08 approval get + C10 audit/evidence chain",
       "C05 backtest/release create/rollback + C08 decide + C10 export",
-      "C05 backtest stream（planned subscribeBacktestRun）"
+      "C05 backtest stream（subscribeBacktestRun 已发布）"
     ],
     "P08": [
       "C06 portfolio/risk",
@@ -839,7 +641,7 @@
     ],
     "P18": [
       "C12 catalog/quote",
-      "C12 watchlist save + C16 alert subscription save（planned）",
+      "C12 watchlist save + C16 saveAlertSubscriptions（market 域筛选；真实告警源联调未验）",
       "C12 quote realtime"
     ],
     "P19": [
@@ -889,11 +691,11 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
+          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
-          "sha256": "1bd09cf9f6c6eb515496ecdc62f10e9432340b11b0852127f49ccc3eaf4e4b98"
+          "sha256": "e9817293b2f9b873eafe5131c459b1e021a876fbef3af8550371984c56bb47a3"
         },
         {
           "path": "docs/audit/BFF-FE-001-acceptance-evidence-2026-09-16.md",
@@ -907,11 +709,11 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
+          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
-          "sha256": "1bd09cf9f6c6eb515496ecdc62f10e9432340b11b0852127f49ccc3eaf4e4b98"
+          "sha256": "e9817293b2f9b873eafe5131c459b1e021a876fbef3af8550371984c56bb47a3"
         },
         {
           "path": "docs/audit/BFF-FE-001-acceptance-evidence-2026-09-16.md",
@@ -925,11 +727,11 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
+          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
         },
         {
           "path": "services/bff-gateway/tests/audit_export_provider.rs",
-          "sha256": "b95a1cefdfe36a66273effcd04b9c1612af48afdc9b9eda246a1612c51887bca"
+          "sha256": "e399eed143f2dae47d2a6aea921dfb70fd94add298b23d24226bf194e801ce22"
         },
         {
           "path": "docs/audit/BFF-FE-007-acceptance-evidence-2026-09-16.md",
@@ -944,11 +746,11 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/market.rs",
-          "sha256": "59b8df91e004df59a15f7c0f99ec99f0e86fbd3c5c313d0a1829d6607da0387c"
+          "sha256": "65600afe6c15275b5d977e22e0e00d14f55bdb0d6307b2045e3f6880e1b0eae6"
         },
         {
           "path": "services/bff-gateway/src/market_tests.rs",
-          "sha256": "94a65f2417c34518e809c817f5b1923d8fcfa508e73f4dbc553734573ad510d9"
+          "sha256": "8b2ff799fc7ec4c54a47acc37f84bb9fc781a6829f92b9ff0e12bf065642aa15"
         },
         {
           "path": "docs/execution/BFF-FE-005-summary.md",
@@ -1505,8 +1307,25 @@
     "scope": "A1 security contract corrections; local engineering only; historical reviewedSourceSha retained",
     "evidence": "docs/audit/BFF-FE-000-remediation-validation-2026-10-03.md"
   },
-  "revisionEvidence": "docs/audit/BFF-FE-001-remediation-2026-10-03.md",
-  "revisionScope": "Current BFF1.6 engineering inventory; historical receipts preserved; no target or formal acceptance",
+  "revisionEvidence": "docs/audit/ci-remediation-round6-2026-10-19.md",
+  "revisionScope": "Current API1.12 inventory and wire/domain/planned mapping only; source/test hashes describe current files; historical receipts stay original-source references, not current acceptance",
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
-  "sourceBinding": "Current source digests; candidate SHA and actual executions bound by research-local admission; no formal confirmation"
+  "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
+  "openapiInventory": {
+    "version": "1.12.0",
+    "operations": 132,
+    "schemas": 110
+  },
+  "sourceDigests": [
+    {
+      "path": "bff/openapi/quantos-bff.v1.yaml",
+      "representation": "parsed-json",
+      "sha256": "0aeb21e9705de55f7be0b108318409e6c8c8a593d94d689e51192fba99d0f83a"
+    },
+    {
+      "path": "bff/page-operation-catalog.yaml",
+      "representation": "parsed-json",
+      "sha256": "b8c0b1f4b72df5deac1bdc02be8be96ab14597d04d1713204d540ee7f87b9145"
+    }
+  ]
 }

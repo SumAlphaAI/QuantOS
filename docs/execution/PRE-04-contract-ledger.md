@@ -1,10 +1,12 @@
 # PRE-04 契约台账：C01–C17 接口盘点
 
-> 任务：PRE-04 接口盘点（FEP-0）  版本：1.2  日期：2026-10-02
+> 任务：PRE-04 接口盘点（FEP-0）  版本：1.7  日期：2026-10-19
 > 依据：执行计划第 5 节；开发计划 F03/F05–F09、R02–R04、S01–S04、X01–X06、L01–L03；现有 proto/api-client 盘点
 > 配套：[OpenAPI gap list](./PRE-04-openapi-gap-list.md)、[字段字典](./PRE-04-field-dictionary.md)、[Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md)
 
-## 1. 现有覆盖盘点（2026-10-02 核查）
+> 本次只同步契约盘点：当前 source/test 摘要用于检测文件漂移；historical receipt 保持原 SHA/原范围，不证明当前实现验收。Contract Mocked 为本清单保证下限，已有工程实现详见各领域原报告，不由此表重授 READY。
+
+## 1. 现有覆盖盘点（2026-10-19 同步）
 
 | 资产 | 现状 | 可用于页面契约的程度 |
 |---|---|---|
@@ -13,7 +15,7 @@
 | `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 50 个 JSON Schema（F03 新增 DeploymentTarget、StrategyRelease） | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 9 方法、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| `bff/openapi/quantos-bff.v1.yaml` | 1.7.0，70 个 operation、62 个 schema；覆盖 C01/C03–C10，并覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、70-operation manifest 与 MSW handlers；C01/C10/C17 Web 有本地参考 provider；C02/C11–C16 及 C05 实时能力仍由 catalog 的38个 planned operation 承接 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.12.0，132 个 operation、110 个 schema；C01/C03–C17 已发布，C02 保留 2 个 planned operation | 同源生成 client/schema/132-operation manifest/MSW；本表登记当前源文件，本地与目标实现验收、历史回执仍各自独立，不由清单更新授予 |
 
 ## 2. 契约台账（C01–C17）
 
@@ -23,20 +25,20 @@
 |---|---|---|---|---|---|---|---|---|
 | C01 Session/Context | session、workspace/account context、capabilities | reauth、MFA challenge、logout、access request | 权限/capability 变更断开通知 | F06、L03 | 部分（CommandMetadata/ActorRef/RuntimeMode；缺 Session/Context 消息） | GAP-01 | BFF TL + Auth owner（F06） | Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT） |
 | C02 Command Center | command summary 聚合 | 无（只读聚合页，设计决策） | authorized event projection | F09、R03、X01、X02、X03、X04、X05、X06 | 无（页面聚合模型新增） | GAP-02 | BFF TL + Observability owner（F09） | Inventory Fixture（未发布 OpenAPI；不得升级 Implemented） |
-| C03 Research Runtime | research list/get | create（幂等）、cancel | SSE stream/replay（sequence/afterSequence） | F07、F08、R03、U01 | 部分（ResearchArtifact；EngineService 流为服务级） | GAP-03 | BFF TL + Runtime owner（F07） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C04 Snapshot/Artifact | snapshot list/get、artifact/attachment get | 无（只读，设计决策；导出走 C10） | 无（快照不可变，设计决策） | R02、R03、F05 | 对象级（DataSnapshot/ResearchArtifact/DataSourceRef/DataQuality） | GAP-04 | BFF TL + Data owner（R02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C05 Strategy | strategy list、draft get、backtest get、release list/get | draft save（expectedVersion/409）、static check、backtest create、release create、approval submit、rollback request | backtest queue/run stream | S01、S02、S03、S04 | 对象级（StrategyRelease/Signal/DeploymentTarget；缺 Draft/Backtest 页面模型） | GAP-05 | BFF TL + Strategy owner（S01–S04） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C06 Portfolio/Risk | portfolio/risk query | kill switch（DangerConfirm+MFA+签名） | authorized portfolio/risk projection、kill switch 广播 | X01、X02 | 对象级（Position；缺 Portfolio/Risk 读模型消息） | GAP-06 | BFF TL + Risk owner（X02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C07 Proposal/Risk Evaluation | proposal list/get | request evaluation（proposal/version/context hash） | proposal 状态 stream | R04、X02 | 对象级（TradeProposal/RiskDecision/RiskVerdict；counter_views 已增补） | GAP-07 | BFF TL + Risk owner（X02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C08 Approval/MFA | approval list/get | decide（签名+MFA challenge ref）、reauth | 无（拉取式，决策：操作前强制刷新版本/有效期） | F06、X03、L03 | 部分（RiskDecision；缺 Approval 消息） | GAP-08 | BFF TL + Auth owner（F06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
-| C09 Command/Order | order list/get | submit command ref（Idempotency-Key）、cancel request | order event stream（sequence） | X03、X04、L01 | 对象级（TradeCommand/Order/Fill/OrderStatus） | GAP-09 | BFF TL + Execution owner（X03/X04） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结） |
+| C03 Research Runtime | research list/get | create（幂等）、cancel | SSE stream/replay（sequence/afterSequence） | F07、F08、R03、U01 | 部分（ResearchArtifact；EngineService 流为服务级） | GAP-03 | BFF TL + Runtime owner（F07） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C04 Snapshot/Artifact | snapshot list/get、artifact/attachment get | 无（只读，设计决策；导出走 C10） | 无（快照不可变，设计决策） | R02、R03、F05 | 对象级（DataSnapshot/ResearchArtifact/DataSourceRef/DataQuality） | GAP-04 | BFF TL + Data owner（R02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C05 Strategy | strategy list、draft get、backtest get、release list/get | draft save（expectedVersion/409）、static check、backtest create、release create、approval submit、rollback request | backtest queue/run stream | S01、S02、S03、S04 | 对象级（StrategyRelease/Signal/DeploymentTarget；缺 Draft/Backtest 页面模型） | GAP-05 | BFF TL + Strategy owner（S01–S04） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C06 Portfolio/Risk | portfolio/risk query | kill switch（DangerConfirm+MFA+签名） | authorized portfolio/risk projection、kill switch 广播 | X01、X02 | 对象级（Position；缺 Portfolio/Risk 读模型消息） | GAP-06 | BFF TL + Risk owner（X02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C07 Proposal/Risk Evaluation | proposal list/get | request evaluation（proposal/version/context hash） | proposal 状态 stream | R04、X02 | 对象级（TradeProposal/RiskDecision/RiskVerdict；counter_views 已增补） | GAP-07 | BFF TL + Risk owner（X02） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C08 Approval/MFA | approval list/get | decide（签名+MFA challenge ref）、reauth | 无（拉取式，决策：操作前强制刷新版本/有效期） | F06、X03、L03 | 部分（RiskDecision；缺 Approval 消息） | GAP-08 | BFF TL + Auth owner（F06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C09 Command/Order | order list/get | submit command ref（Idempotency-Key）、cancel request | order event stream（sequence） | X03、X04、L01 | 对象级（TradeCommand/Order/Fill/OrderStatus） | GAP-09 | BFF TL + Execution owner（X03/X04） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C10 Audit/Export | audit search、correlation/causation evidence chain get | export create/status/cancel/download metadata（异步 job，轮询契约） | 无（轮询，设计决策） | F05、X06 | 部分（EventEnvelope/EventLedgerService 为服务级；页面模型由 OpenAPI 1.7.0 补齐） | GAP-10 | BFF TL + Audit owner（F05/X06） | Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT） |
-| C11 Ops/Admin | health/metrics、incident list/get/timeline、五类治理list/get | typed安全Runbook预检/运行；member/role/policy/capability/flag CRUD | incident/alert同源事实 | F09/X06/F06 | OpsHealth/Incident、AdminResource及五Spec/action | GAP-11 | BFF TL + Ops/Auth owner | OpenAPI1.12.0工程；目标持久与完整UI未验收 |
+| C11 Ops/Admin | health/metrics、incident list/get/timeline、五类治理 list/get | typed 安全 Runbook 预检/运行；member/role/policy/capability/flag CRUD | incident/alert 同源事实 | F06、F09、X06 | 部分（Capability 可复用 engine.v1；OpsHealth/Incident/AdminSpec 页面模型以 OpenAPI 为准） | GAP-11 | BFF TL + Ops/Auth owner（F06/F09/X06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C12 Market/Candle | catalog/watchlist、venue quote、candle series/history | watchlist save、告警订阅（经 C16） | quote/candle realtime（断流定格回补） | R01、R02、L01 | 无（缺 Instrument/VenueQuote/Candle 消息） | GAP-12 | BFF TL + Market data owner（R01/R02） | Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT） |
-| C13 Trade Preflight | order capabilities、preflight/risk refresh | 无（preflight 为查询；提交走 C07/C08/C09，决策） | quote/preflight refresh push | X01、X02、X03、L01 | 部分（复用 trading.v1 对象；缺 preflight 模型） | GAP-13 | BFF TL + Execution owner（X03） | Draft（未发布 OpenAPI；无同源业务 fixture） |
-| C14 Performance/Report | summary/series/attribution、report get/status/grant/content | create冻结版本、本进程job轮询 | C16通知待实现 | X01、X05/C15 actual books | PerformanceView/Report/Document/Download；DecimalValue字符串 | GAP-14 | BFF TL + Portfolio owner（X01） | OpenAPI1.11.0工程实现；完整UI/目标联调未验收 |
-| C15 Reconciliation | recon list/get、break list/get、ledger entries | request rerun（幂等；无 edit-ledger operation） | recon status stream | X05 | 无（缺 ReconRun/Break/LedgerEntry 消息） | GAP-15 | BFF TL + Recon owner（X05） | Draft（未发布 OpenAPI；无同源业务 fixture） |
-| C16 Alert/Notification | list/get、subscriptions get | ack/unack、save subscriptions | subscribeAlerts；ack不改resolved | F09/X06 | OpsAlert/AlertSubscriptions/StreamEvent | GAP-16 | BFF TL + Ops owner | OpenAPI1.12.0工程；目标持久与完整UI未验收 |
+| C13 Trade Preflight | order capabilities、preflight/risk refresh | 无（preflight 为查询；提交走 C07/C08/C09，决策） | quote/preflight refresh push | X01、X02、X03、L01 | 部分（复用 trading.v1 对象；缺 preflight 模型） | GAP-13 | BFF TL + Execution owner（X03） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C14 Performance/Report | summary/series/attribution、report get/status/grant/content | report create（冻结版本）、本进程 job 轮询 | 无（报表完成通知经 C16，未作目标联调验收） | X01、X05 | 部分（MoneyValue/DecimalValue 可复用；PerformanceView/Report/Document/Download 以 OpenAPI 为准） | GAP-14 | BFF TL + Portfolio owner（X01） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C15 Reconciliation | recon list/get、break list/get、ledger entries | request rerun（幂等；无 edit-ledger operation） | recon status stream | X05 | 无（缺 ReconRun/Break/LedgerEntry 消息） | GAP-15 | BFF TL + Recon owner（X05） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C16 Alert/Notification | alert list/get、subscriptions get | ack/unack（不改变 resolved）、save subscriptions | subscribeAlerts（授权事实/去重/恢复） | F09、X05、X06 | 部分（EventKind 可参考；OpsAlert/AlertSubscriptions/StreamEvent 以 OpenAPI 为准） | GAP-16 | BFF TL + Ops owner（F09/X05/X06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C17 Settings/Browser Platform | profile/session/device/notification/download query、browser policy | profile save、session/device revoke、MFA setup/revoke、notification prefs save | session 撤销实时失效推送 | F06、F09、L03 | 部分（会话元数据复用 common.v1；Web 页面模型以 OpenAPI 为准） | GAP-17 | BFF TL + Auth owner（F06/L03） | Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT） |
 
 ## 3. P0 页面 Query/Command/Realtime 依赖完备性矩阵
@@ -55,16 +57,16 @@
 | P02 Command Center | C02 summary + C06 portfolio/risk KPIs + C16 alerts | 无（只读聚合；处置经对应详情页） | C02 authorized event projection + C06 risk projection + C16 alert stream |
 | P03 Research 列表与新建 | C03 list + C04 snapshot list/get | C03 create/cancel | 无（创建后转 P04 详情订阅） |
 | P04 Research 与 Artifact 详情 | C03 get + C04 artifact get + C10 evidence chain | C03 cancel + C10 export create/status/download | C03 SSE stream/replay |
-| P05 数据快照目录与详情 | C04 snapshot list/get | C16 数据质量告警订阅 saveSubscription（planned） | 无（快照不可变；告警经全局 C16） |
+| P05 数据快照目录与详情 | C04 snapshot list/get | C16 saveAlertSubscriptions（严重级别/既有领域筛选；数据质量源联调未验） | 无（快照不可变；告警经全局 C16） |
 | P06 Strategy 目录与 Lab | C05 strategy list/draft get | C05 draft save、static check | 无（回测状态经 P07 stream） |
-| P07 Backtest 详情与 Release | C05 backtest/release get + C08 approval get + C10 audit/evidence chain | C05 backtest/release create/rollback + C08 decide + C10 export | C05 backtest stream（planned subscribeBacktestRun） |
+| P07 Backtest 详情与 Release | C05 backtest/release get + C08 approval get + C10 audit/evidence chain | C05 backtest/release create/rollback + C08 decide + C10 export | C05 backtest stream（subscribeBacktestRun 已发布） |
 | P08 Portfolio 与 Risk | C06 portfolio/risk | C06 kill switch | C06 授权投影 + kill switch 广播 |
 | P09 TradeProposal 列表与详情 | C07 proposal list/get + C10 evidence chain | C07 request evaluation + C10 export | C07 proposal 状态 stream |
 | P10 Approvals 与 RiskDecision | C07 proposal/evaluation context + C08 approval list/get + C10 audit/evidence chain | C08 decide/MFA/reauth + C10 export | 无（拉取式；操作前强制刷新） |
 | P11 Orders 与执行详情 | C09 order list/get + C10 audit/evidence chain + C15 reconciliation references | C09 cancel request + C10 export | C09 order event stream |
 | P12 Audit Explorer 与导出 | C10 search/chain | C10 export create/poll/download | 无（异步 job 轮询契约） |
 | P15 Profile、安全与通知 | C01 session/context + C17 profile/session/device/security/preferences | C01 reauth/MFA + C17 profile/preferences save/session/device/factor revoke | C17 会话撤销实时失效 |
-| P18 Markets 总览与标的详情 | C12 catalog/quote | C12 watchlist save + C16 alert subscription save（planned） | C12 quote realtime |
+| P18 Markets 总览与标的详情 | C12 catalog/quote | C12 watchlist save + C16 saveAlertSubscriptions（market 域筛选；真实告警源联调未验） | C12 quote realtime |
 | P19 K 线与市场分析 | C12 candle series/history + C09 linked order markers | C10 受控导出 create/status/download | C12 candle realtime |
 | P20 Trade Ticket 受控下单 | C13 order capabilities/preflight + C12 quote | C07 request evaluation → C08 approval → C09 submit command ref | C13 preflight/quote refresh |
 | P22 Reconciliation 与账本 | C15 recon/break/ledger query + C09 linked order facts + C10 audit/evidence chain | C15 request rerun + C10 export | C15 status stream |
@@ -94,7 +96,7 @@
 
 | mock 形态 | 契约 | 状态与迁移要求 |
 |---|---|---|
-| OpenAPI 生成 client/schema/MSW | C01/C03–C10/C17（P15/P17） | 70 个 handler 与 62 个组件 schema 均由 1.7.0 生成；生成漂移和页面覆盖由 CI 阻断 |
+| OpenAPI 生成 client/schema/MSW | C01/C03–C17（C17 为 P15/P17） | 132 个 handler 与 110 个组件 schema 均由 1.12.0 生成；生成漂移和页面覆盖由 CI 阻断 |
 | 服务级 swagger（可作 fixture 参考） | C03、C10 部分（Engine/EventLedger 7 operation） | 仅覆盖服务层，不代表页面 BFF；页面 mock 仍需页面级 schema |
 | 独立场景数据 fixture | C01 session、C02 command-center、C07 proposal | 共 5 个有效场景文件；C02 仅 Inventory Fixture，不能冒充已冻结 OpenAPI |
 | 无专用数据 fixture | C03–C06、C08–C17 | 已冻结域可由生成式 MSW 承载结构，但仍需按 PRE-06 补成功/拒绝/冲突/限流/断流/陈旧/权限场景；未冻结域先冻结 OpenAPI |

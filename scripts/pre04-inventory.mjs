@@ -39,6 +39,33 @@ function tableRows(markdown) {
 
 const digest = value => createHash("sha256").update(value).digest("hex");
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// Shared transport envelopes remain in the dictionary's shared-schema section.
+// Every domain object directly used by a published operation must be inventoried.
+export function publishedWireModels(inputs, id) {
+  const models = new Set();
+  const shared = new Set(["ErrorEnvelope", "Page", "AsyncAccepted", "AuditedAsyncAccepted", "StreamEvent"]);
+  const visit = schema => {
+    if (!schema || typeof schema !== "object") return;
+    if (schema.$ref?.startsWith("#/components/schemas/")) {
+      const name = schema.$ref.split("/").at(-1);
+      const model = inputs.openapi.components.schemas[name];
+      if (!shared.has(name) && model && (model.properties || model.allOf)) models.add(name);
+    }
+    for (const value of Object.values(schema)) {
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === "object") visit(value);
+    }
+  };
+  const owned = new Set(inputs.catalog.contracts[id].publishedOperations);
+  for (const item of Object.values(inputs.openapi.paths)) for (const operation of Object.values(item)) {
+    if (!owned.has(operation?.operationId)) continue;
+    visit(operation.requestBody?.content?.["application/json"]?.schema);
+    for (const [status, response] of Object.entries(operation.responses)) {
+      if (/^2\d\d$/.test(status)) visit(response.content?.["application/json"]?.schema);
+    }
+  }
+  return [...models].sort();
+}
 const taskIds = text => new Set([...text.matchAll(/^- task_id: `([^`]+)`/gm)].map(match => match[1]));
 function referencedTasks(text) {
   return [...text.replace(/([A-Z]+)(\d{2})[–-]([A-Z]+)?(\d{2})/g, (_, prefix, begin, _endPrefix, end) =>
@@ -47,7 +74,7 @@ function referencedTasks(text) {
 export function expectedMockStatus(inputs, id) {
   const spec = inputs.baseline.contracts[id]; const published = inputs.catalog.contracts[id].publishedOperations.length;
   if (inputs.baseline.implementations[id]) return "Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT）";
-  if (published) return "Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结）";
+  if (published) return "Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收）";
   if (spec.inventoryFixtures.length) return "Inventory Fixture（未发布 OpenAPI；不得升级 Implemented）";
   return "Draft（未发布 OpenAPI；无同源业务 fixture）";
 }
@@ -90,10 +117,14 @@ export function validatePre04Inventory(inputs) {
 
   const { baseline, catalog } = inputs;
   const coreIds = taskIds(inputs.corePlan); const frontendIds = taskIds(inputs.frontendPlan);
-  check(baseline.schema === "quantos-pre04-baseline/v1", "controlled inventory baseline schema is v1");
+  check(baseline.schema === "quantos-pre04-baseline/v2", "controlled inventory baseline schema is v2");
   check(same(Object.keys(baseline.contracts), contractIds) && same(Object.keys(catalog.contracts), contractIds), "baseline and catalog cover C01-C17 exactly");
-  check(digest(JSON.stringify(inputs.openapi)) === baseline.openapiDigest, "OpenAPI source identity matches reviewed baseline");
-  check(digest(JSON.stringify(catalog)) === baseline.catalogDigest, "operation catalog identity matches reviewed baseline");
+  check(same(baseline.sourceDigests?.map(row => [row.path, row.representation]), [
+    ["bff/openapi/quantos-bff.v1.yaml", "parsed-json"], ["bff/page-operation-catalog.yaml", "parsed-json"],
+  ]), "controlled source digest rows cover OpenAPI and catalog exactly once");
+  const sourceDigest = path => baseline.sourceDigests?.find(row => row.path === path)?.sha256;
+  check(digest(JSON.stringify(inputs.openapi)) === sourceDigest("bff/openapi/quantos-bff.v1.yaml"), "OpenAPI source identity matches reviewed baseline");
+  check(digest(JSON.stringify(catalog)) === sourceDigest("bff/page-operation-catalog.yaml"), "operation catalog identity matches reviewed baseline");
   check(same(inputs.protoSources.map(digest).sort(), baseline.protoDigests), "Proto source identities match reviewed baseline");
   const schemaDigests = Object.fromEntries(Object.entries(inputs.jsonSchemaFiles).sort(([a], [b]) => a.localeCompare(b)).map(([name, value]) => [name, digest(value)]));
   check(same(schemaDigests, baseline.jsonSchemas), "JSON Schema identities match reviewed baseline");
@@ -126,6 +157,8 @@ export function validatePre04Inventory(inputs) {
     check(row[7]?.includes("BFF TL") && row[7]?.includes("owner"), `${id} has BFF and domain role owners`);
     check(Boolean(row[8]) && !forbiddenPlaceholder.test(row[8]), `${id} has an explicit mock status`);
     const spec = baseline.contracts[id];
+    check(publishedWireModels(inputs, id).every(name => spec.models.includes(name)), `${id} inventories every published domain wire model`);
+    check(catalog.contracts[id].plannedOperations.length > 0 || spec.plannedFields.length === 0, `${id} published contracts cannot retain planned-only field rows`);
     check(row[0] === `${id} ${spec.name}` && row[5] === spec.protoCoverage && same(row.slice(1, 4), spec.surface), `${id} capability and domain coverage match reviewed decisions`);
     check(row[4] === spec.backendTasks.join("、") && spec.backendTasks.every(task => coreIds.has(task)), `${id} backend tasks resolve to reviewed core tasks`);
     check(row[7] === spec.owners && referencedTasks(row[7] ?? "").every(task => coreIds.has(task)), `${id} owners resolve to reviewed domain roles`);
@@ -199,13 +232,17 @@ export function validatePre04Inventory(inputs) {
   }
   const sourceIds = sourceOperations.map((operation) => operation.operationId).sort();
   const manifestIds = (inputs.manifest.operations ?? []).map((operation) => operation.operationId).sort();
-  check(inputs.openapi.info?.version === "1.7.0", "BFF OpenAPI inventory version is 1.7.0");
-  check(sourceOperations.length === 70, "BFF OpenAPI inventory has 70 operations");
-  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 62, "BFF OpenAPI inventory has 62 schemas");
+  const inventory = baseline.openapiInventory;
+  check(Boolean(inventory && /^1\.\d+\.\d+$/.test(inventory.version)), "controlled BFF inventory metadata is explicit v1");
+  check(inputs.openapi.info?.version === inventory?.version && inputs.manifest.version === inventory?.version, "BFF OpenAPI inventory version matches baseline and generated manifest");
+  check(sourceOperations.length === inventory?.operations, "BFF OpenAPI operation count matches controlled inventory");
+  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === inventory?.schemas, "BFF OpenAPI schema count matches controlled inventory");
+  const publishedIds = Object.values(catalog.contracts).flatMap(contract => contract.publishedOperations).sort();
+  check(same(sourceIds, publishedIds), "catalog publishes every OpenAPI operation exactly once");
   check(same(sourceIds, manifestIds), "generated operation IDs exactly match OpenAPI");
   const byId = entries => entries.map(({operationId, method, path}) => ({operationId, method, path})).sort((a, b) => a.operationId.localeCompare(b.operationId));
   check(same(byId(sourceOperations), byId(inputs.manifest.operations ?? [])), "generated operation manifest exactly matches OpenAPI");
-  check(inputs.ledger.includes("70 个 operation") && inputs.ledger.includes("62 个 schema"), "ledger records current BFF operation/schema counts");
+  check(inputs.ledger.includes(`${inventory?.operations} 个 operation`) && inputs.ledger.includes(`${inventory?.schemas} 个 schema`), "ledger records current BFF operation/schema counts");
 
   const protoMetrics = {
     files: inputs.protoSources.length,

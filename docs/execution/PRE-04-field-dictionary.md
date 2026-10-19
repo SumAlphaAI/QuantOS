@@ -1,6 +1,6 @@
 # PRE-04 字段字典
 
-> 版本：1.2；日期：2026-10-02；范围：一期官网与 Web Terminal。
+> 版本：1.7；日期：2026-10-19；范围：一期官网与 Web Terminal。
 > 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。
 
 ## 1. 字段与来源口径
@@ -27,15 +27,26 @@
 | TaskStatus | {"type":"string","enum":["queued","running","succeeded","failed","cancelled","cancel_requested"]} |
 | OrderStatus | {"type":"string","enum":["draft","risk_checking","awaiting_approval","command_ready","submitted","accepted","partially_filled","filled","cancelled","rejected","expired"]} |
 | TimeWindow | {"type":"object","required":["start","end"],"properties":{"start":{"$ref":"#/components/schemas/DateTime"},"end":{"$ref":"#/components/schemas/DateTime"}}} |
-| ErrorEnvelope | {"type":"object","required":["code","message","correlationId"],"properties":{"code":{"type":"string"},"message":{"type":"string"},"correlationId":{"$ref":"#/components/schemas/UUID"},"fieldErrors":{"type":"object","additionalProperties":{"type":"string"}},"retryAfter":{"type":"integer","minimum":0},"currentVersion":{"type":"string"}},"additionalProperties":false} |
+| ErrorEnvelope | {"type":"object","required":["code","message","correlationId"],"properties":{"code":{"type":"string"},"message":{"type":"string"},"correlationId":{"$ref":"#/components/schemas/UUID"},"fieldErrors":{"type":"object","additionalProperties":{"type":"string"}},"retryAfter":{"type":"integer","minimum":0},"currentVersion":{"type":"string"},"conflictDiff":{"type":"object","properties":{"files":{"type":"object","additionalProperties":{"type":"string"}},"parameters":{"type":"object","additionalProperties":true}},"required":["files","parameters"],"additionalProperties":false}},"additionalProperties":false} |
 | Page | {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{}},"nextCursor":{"type":"string"}}} |
-| AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
+| AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"},"auditRef":{"$ref":"#/components/schemas/UUID"}}} |
 | AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"},"mfaEnrollment":{"$ref":"#/components/schemas/MfaEnrollment"}}}]} |
 | StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string","enum":["v1","1"]},"payload":{"type":"object"}}} |
-| ResearchAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["statusRef","auditRef"],"properties":{"statusRef":{"type":"string","pattern":"^/v1/research-runs/[a-f0-9-]{36}$"},"auditRef":{"$ref":"#/components/schemas/UUID"}}}]} |
-| ArtifactAttachment | {"type":"object","required":["artifactId","mediaType","contentHash","content","auditRef"],"properties":{"artifactId":{"$ref":"#/components/schemas/UUID"},"mediaType":{"type":"string","enum":["application/json"]},"contentHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"content":{"type":"object"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
-| MarketCatalog | {"type":"object","additionalProperties":false,"required":["items","asOf"],"properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/MarketInstrument"}},"asOf":{"$ref":"#/components/schemas/DateTime"}}} |
-| VenueQuotes | {"type":"object","additionalProperties":false,"required":["items"],"properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/VenueQuote"}}}} |
+| ReconciliationEvidenceRef | {"type":"object","additionalProperties":false,"required":["kind","ref","sourceRef","resolution"],"properties":{"kind":{"type":"string","enum":["order","fill","audit","alert"]},"ref":{"type":"string"},"sourceRef":{"type":"string"},"resolution":{"type":"string","enum":["source_record","bff_audit","x05_exception"]}}} |
+| LedgerEntry | {"type":"object","additionalProperties":false,"required":["entryId","runId","accountId","mode","currency","kind","side","ledgerVersion","sourceRef","sourceHash","asOf","amounts","evidenceRefs","day"],"properties":{"entryId":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"runId":{"$ref":"#/components/schemas/UUID"},"accountId":{"$ref":"#/components/schemas/UUID"},"mode":{"type":"string","enum":["shadow"]},"currency":{"type":"string"},"kind":{"type":"string","enum":["snapshot","fill"]},"side":{"type":"string","enum":["expected","actual"]},"ledgerVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"sourceRef":{"type":"string"},"sourceHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"asOf":{"type":"string","format":"date-time"},"amounts":{"type":"object","additionalProperties":{"$ref":"#/components/schemas/DecimalValue"}},"evidenceRefs":{"type":"array","items":{"$ref":"#/components/schemas/ReconciliationEvidenceRef"}},"day":{"type":"string","format":"date","pattern":"^\\d{4}-\\d{2}-\\d{2}$"}}} |
+| PerformanceCoverage | {"type":"object","additionalProperties":false,"required":["requestedStart","requestedEnd","start","end","complete","points","maxIntervalSeconds"],"properties":{"requestedStart":{"type":"string","format":"date-time"},"requestedEnd":{"type":"string","format":"date-time"},"start":{"type":"string","format":"date-time"},"end":{"type":"string","format":"date-time"},"complete":{"type":"boolean"},"points":{"type":"integer","minimum":2},"maxIntervalSeconds":{"type":"integer","enum":[60]}}} |
+| PerformancePoint | {"type":"object","additionalProperties":false,"required":["asOf","equity","cumulativeFees","drawdown","ledgerVersion","valuationSnapshotId","reconciliationRunId","provisional"],"properties":{"asOf":{"type":"string","format":"date-time"},"equity":{"$ref":"#/components/schemas/DecimalValue"},"cumulativeFees":{"$ref":"#/components/schemas/DecimalValue"},"drawdown":{"$ref":"#/components/schemas/DecimalValue"},"ledgerVersion":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"valuationSnapshotId":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"reconciliationRunId":{"$ref":"#/components/schemas/UUID"},"provisional":{"type":"boolean"}}} |
+| PerformanceAttribution | {"type":"object","additionalProperties":false,"required":["symbol","pnl"],"properties":{"symbol":{"type":"string"},"pnl":{"$ref":"#/components/schemas/DecimalValue"}}} |
+| AdminMemberSpec | {"type":"object","additionalProperties":false,"required":["kind","actorId","roleId","active"],"properties":{"kind":{"type":"string","enum":["member"]},"actorId":{"$ref":"#/components/schemas/UUID"},"roleId":{"$ref":"#/components/schemas/UUID"},"active":{"type":"boolean"}}} |
+| AdminRoleSpec | {"type":"object","additionalProperties":false,"required":["kind","name","baseRole","permissions"],"properties":{"kind":{"type":"string","enum":["role"]},"name":{"type":"string","minLength":1,"maxLength":64,"pattern":"^[a-zA-Z0-9_.-]+$"},"baseRole":{"type":"string","enum":["owner","operator","approver","viewer","service"]},"permissions":{"type":"array","items":{"type":"string","enum":["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"]},"maxItems":6}}} |
+| AdminPolicySpec | {"type":"object","additionalProperties":false,"required":["kind","name","roleId","deniedCapabilities","active"],"properties":{"kind":{"type":"string","enum":["policy"]},"name":{"type":"string","minLength":1,"maxLength":64,"pattern":"^[a-zA-Z0-9_.-]+$"},"roleId":{"$ref":"#/components/schemas/UUID"},"deniedCapabilities":{"type":"array","items":{"type":"string","enum":["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"]},"maxItems":6},"active":{"type":"boolean"}}} |
+| AdminCapabilitySpec | {"oneOf":[{"$ref":"#/components/schemas/AdminPermissionCapabilitySpec"},{"$ref":"#/components/schemas/AdminEngineCapabilitySpec"}]} |
+| AdminFlagSpec | {"type":"object","additionalProperties":false,"required":["kind","name","enabled","rolloutPercent"],"properties":{"kind":{"type":"string","enum":["flag"]},"name":{"type":"string","enum":["alerts-live-view","incident-timeline","admin-catalog-preview","ops-notices"]},"enabled":{"type":"boolean"},"rolloutPercent":{"type":"integer","minimum":0,"maximum":100}}} |
+| AdminSpec | {"oneOf":[{"$ref":"#/components/schemas/AdminMemberSpec"},{"$ref":"#/components/schemas/AdminRoleSpec"},{"$ref":"#/components/schemas/AdminPolicySpec"},{"$ref":"#/components/schemas/AdminCapabilitySpec"},{"$ref":"#/components/schemas/AdminFlagSpec"}]} |
+| AdminResource | {"oneOf":[{"type":"object","additionalProperties":false,"required":["id","kind","objectVersion","configVersion","deleted","protected","spec"],"properties":{"id":{"$ref":"#/components/schemas/UUID"},"kind":{"type":"string","enum":["members"]},"objectVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"configVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"deleted":{"type":"boolean"},"protected":{"type":"boolean"},"spec":{"$ref":"#/components/schemas/AdminMemberSpec"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}},{"type":"object","additionalProperties":false,"required":["id","kind","objectVersion","configVersion","deleted","protected","spec"],"properties":{"id":{"$ref":"#/components/schemas/UUID"},"kind":{"type":"string","enum":["roles"]},"objectVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"configVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"deleted":{"type":"boolean"},"protected":{"type":"boolean"},"spec":{"$ref":"#/components/schemas/AdminRoleSpec"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}},{"type":"object","additionalProperties":false,"required":["id","kind","objectVersion","configVersion","deleted","protected","spec"],"properties":{"id":{"$ref":"#/components/schemas/UUID"},"kind":{"type":"string","enum":["policies"]},"objectVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"configVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"deleted":{"type":"boolean"},"protected":{"type":"boolean"},"spec":{"$ref":"#/components/schemas/AdminPolicySpec"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}},{"type":"object","additionalProperties":false,"required":["id","kind","objectVersion","configVersion","deleted","protected","spec"],"properties":{"id":{"$ref":"#/components/schemas/UUID"},"kind":{"type":"string","enum":["capabilities"]},"objectVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"configVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"deleted":{"type":"boolean"},"protected":{"type":"boolean"},"spec":{"$ref":"#/components/schemas/AdminCapabilitySpec"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}},{"type":"object","additionalProperties":false,"required":["id","kind","objectVersion","configVersion","deleted","protected","spec"],"properties":{"id":{"$ref":"#/components/schemas/UUID"},"kind":{"type":"string","enum":["feature-flags"]},"objectVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"configVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"deleted":{"type":"boolean"},"protected":{"type":"boolean"},"spec":{"$ref":"#/components/schemas/AdminFlagSpec"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}}]} |
+| GovernanceAction | {"type":"object","additionalProperties":false,"required":["reason","mfaChallengeRef","reauthTokenRef","spec"],"properties":{"reason":{"type":"string","minLength":1,"maxLength":256},"mfaChallengeRef":{"$ref":"#/components/schemas/UUID"},"reauthTokenRef":{"$ref":"#/components/schemas/UUID"},"spec":{"$ref":"#/components/schemas/AdminSpec"}}} |
+| AdminPermissionCapabilitySpec | {"type":"object","additionalProperties":false,"required":["kind","name","enabled"],"properties":{"kind":{"type":"string","enum":["capability"]},"name":{"type":"string","enum":["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"]},"enabled":{"type":"boolean"}}} |
+| AdminEngineCapabilitySpec | {"type":"object","additionalProperties":false,"required":["kind","reviewId","name","version","description","enabled"],"properties":{"kind":{"type":"string","enum":["engine_capability"]},"reviewId":{"$ref":"#/components/schemas/UUID"},"name":{"type":"string","minLength":1,"maxLength":160},"version":{"type":"string","minLength":1,"maxLength":64},"enabled":{"type":"boolean"}}} |
 
 ## 2. C01 Session/Context
 
@@ -92,6 +103,11 @@
 | ResearchRun.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.correlationId |
 | ResearchRun.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.createdAt |
 | ResearchRun.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.auditRef |
+| ResearchAccepted.jobId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchAccepted.jobId |
+| ResearchAccepted.status | {"type":"string","enum":["accepted","cancel_requested"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchAccepted.status |
+| ResearchAccepted.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchAccepted.correlationId |
+| ResearchAccepted.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchAccepted.auditRef |
+| ResearchAccepted.statusRef | {"type":"string","pattern":"^/v1/research-runs/[a-f0-9-]{36}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchAccepted.statusRef |
 | createResearchRun.request.capability | {"type":"string","enum":["research.hypothesis.v1","research.experiment.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.capability |
 | createResearchRun.request.dataSnapshotId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.dataSnapshotId |
 | createResearchRun.request.question | {"type":"string","minLength":1,"maxLength":8000} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.question |
@@ -126,6 +142,12 @@
 | Artifact.lineageRefs | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Artifact.lineageRefs |
 | Artifact.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:research.v1.ResearchArtifact.created_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.createdAt |
 | Artifact.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Artifact.auditRef |
+| ArtifactAttachment.artifactId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.artifactId |
+| ArtifactAttachment.mediaType | {"type":"string","enum":["application/json"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.mediaType |
+| ArtifactAttachment.contentHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.contentHash |
+| ArtifactAttachment.content | {"type":"object"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.content |
+| ArtifactAttachment.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.auditRef |
+| ArtifactAttachment.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ArtifactAttachment.correlationId |
 
 ## 6. C05 Strategy
 
@@ -137,8 +159,10 @@
 | StrategyDraft.strategyId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.strategyId |
 | StrategyDraft.objectVersion | {"type":"string"} | 是 | none | BFF 草稿 objectVersion；旧 draftVersion 仅领域概念，不作为 wire 名 | bff:StrategyDraft.objectVersion |
 | StrategyDraft.files | {"type":"object","additionalProperties":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.files |
-| StrategyDraft.parameters | {"type":"object"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.parameters |
+| StrategyDraft.parameters | {"type":"object","additionalProperties":true} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.parameters |
 | StrategyDraft.updatedAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.updatedAt |
+| StrategyDraft.dataSnapshotId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.dataSnapshotId |
+| StrategyDraft.artifactRefs | {"type":"array","items":{"type":"object","additionalProperties":true}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyDraft.artifactRefs |
 | BacktestReport.runId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.runId |
 | BacktestReport.strategyId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.strategyId |
 | BacktestReport.dataSnapshotId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.dataSnapshotId |
@@ -146,29 +170,33 @@
 | BacktestReport.metrics | {"type":"object","additionalProperties":{"$ref":"#/components/schemas/DecimalValue"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.metrics |
 | BacktestReport.leakViolations | {"type":"array","items":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.leakViolations |
 | BacktestReport.reportArtifactId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.reportArtifactId |
+| BacktestReport.objectVersion | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.objectVersion |
+| BacktestReport.reportHash | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BacktestReport.reportHash |
 | StrategyRelease.releaseId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.StrategyRelease.release_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.releaseId |
 | StrategyRelease.strategyId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.StrategyRelease.strategy_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.strategyId |
 | StrategyRelease.backtestReportArtifactId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.StrategyRelease.backtest_report_artifact_id | 保持报告 Artifact 引用，不改成 reportHash | bff:StrategyRelease.backtestReportArtifactId |
 | StrategyRelease.sourceDigest | {"type":"string"} | 是 | proto:strategy.v1.StrategyRelease.source_digest | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.sourceDigest |
 | StrategyRelease.imageDigest | {"type":"string"} | 是 | proto:strategy.v1.StrategyRelease.image_digest | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.imageDigest |
 | StrategyRelease.parameterHash | {"type":"string"} | 是 | proto:strategy.v1.StrategyRelease.parameter_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.parameterHash |
-| StrategyRelease.parameters | {"type":"object"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.parameters |
+| StrategyRelease.parameters | {"type":"object","additionalProperties":true} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.parameters |
 | StrategyRelease.snapshotId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.StrategyRelease.data_snapshot_id | HTTP 使用 snapshotId，保留同一 UUID 引用 | bff:StrategyRelease.snapshotId |
 | StrategyRelease.allowedTargets | {"type":"array","items":{"type":"string","enum":["paper","shadow","assisted_live"]}} | 是 | proto:strategy.v1.StrategyRelease.allowed_targets | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.allowedTargets |
 | StrategyRelease.approvalState | {"type":"string","enum":["none","pending","approved","rejected","expired"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.approvalState |
 | StrategyRelease.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:strategy.v1.StrategyRelease.created_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:StrategyRelease.createdAt |
+| StrategyRelease.objectVersion | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.objectVersion |
+| StrategyRelease.contentHash | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.contentHash |
+| StrategyRelease.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.expiresAt |
+| StrategyRelease.approvalTimeline | {"type":"array","items":{"type":"object"}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:StrategyRelease.approvalTimeline |
 | saveStrategyDraft.request.files | {"type":"object","additionalProperties":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveStrategyDraft.request.files |
-| saveStrategyDraft.request.parameters | {"type":"object"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveStrategyDraft.request.parameters |
+| saveStrategyDraft.request.parameters | {"type":"object","additionalProperties":true} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveStrategyDraft.request.parameters |
 | createBacktest.request.strategyId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createBacktest.request.strategyId |
 | createBacktest.request.objectVersion | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createBacktest.request.objectVersion |
 | createBacktest.request.dataSnapshotId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createBacktest.request.dataSnapshotId |
 | createRelease.request.strategyId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createRelease.request.strategyId |
 | createRelease.request.objectVersion | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createRelease.request.objectVersion |
 | createRelease.request.backtestRunId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createRelease.request.backtestRunId |
-| createRelease.request.parameters | {"type":"object"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createRelease.request.parameters |
+| createRelease.request.parameters | {"type":"object","additionalProperties":true} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createRelease.request.parameters |
 | requestReleaseRollback.request.targetReleaseId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:requestReleaseRollback.request.targetReleaseId |
-
-尚未发布 operation：subscribeBacktestRun；责任任务 BFF-FE-004。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
 
 ## 7. C06 Portfolio/Risk
 
@@ -186,6 +214,8 @@
 | RiskView.limitIds | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.limitIds |
 | RiskView.killSwitch | {"type":"object","required":["state"],"properties":{"state":{"type":"string","enum":["disengaged","engaged"]},"actor":{"type":"string"},"at":{"$ref":"#/components/schemas/DateTime"}}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.killSwitch |
 | RiskView.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.correlationId |
+| RiskView.objectVersion | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.objectVersion |
+| RiskView.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.auditRef |
 | Position.symbol | {"type":"string"} | 是 | proto:trading.v1.Position.symbol | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.symbol |
 | Position.side | {"type":"string","enum":["long","short"]} | 是 | proto:trading.v1.Position.side | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.side |
 | Position.quantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | proto:trading.v1.Position.quantity | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.quantity |
@@ -218,6 +248,8 @@
 | TradeProposal.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:trading.v1.TradeProposal.expires_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:TradeProposal.expiresAt |
 | TradeProposal.executable | {"type":"boolean","enum":[false]} | 是 | proto:trading.v1.TradeProposal.executable | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:TradeProposal.executable |
 | TradeProposal.objectVersion | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradeProposal.objectVersion |
+| TradeProposal.status | {"type":"string","enum":["active","awaiting_approval","approved","command_ready","request_info","rejected","expired","submitted"]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradeProposal.status |
+| TradeProposal.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradeProposal.correlationId |
 | Signal.signalId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.Signal.signal_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Signal.signalId |
 | Signal.strategyReleaseId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:strategy.v1.Signal.strategy_release_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Signal.strategyReleaseId |
 | Signal.symbol | {"type":"string"} | 是 | proto:strategy.v1.Signal.symbol | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Signal.symbol |
@@ -240,6 +272,12 @@
 | Approval.signature | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.signature |
 | Approval.commandRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.commandRef |
 | Approval.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.correlationId |
+| Approval.commandExpiresAt | {"$ref":"#/components/schemas/DateTime"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.commandExpiresAt |
+| Approval.issuanceState | {"type":"string","enum":["not_issued","consumed"]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.issuanceState |
+| Approval.decision | {"type":"string","enum":["approve","reject","request_info"]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.decision |
+| Approval.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.auditRef |
+| Approval.kind | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.kind |
+| Approval.objectRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.objectRef |
 | decideApproval.request.decision | {"type":"string","enum":["approve","reject","request_info"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.decision |
 | decideApproval.request.reason | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.reason |
 | decideApproval.request.mfaChallengeRef | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.mfaChallengeRef |
@@ -269,6 +307,8 @@
 | Order.mode | {"$ref":"#/components/schemas/RuntimeMode"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.mode |
 | Order.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.correlationId |
 | Order.submittedAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:trading.v1.Order.submitted_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Order.submittedAt |
+| Order.evidence | {"type":"object","required":["proposalHash","riskDecisionId","approvalId","commandId","releaseId","snapshotHash","portfolioHash","factHashes"],"properties":{"proposalHash":{"type":"string"},"riskDecisionId":{"type":"string"},"approvalId":{"type":"string"},"commandId":{"type":"string"},"releaseId":{"type":"string"},"snapshotHash":{"type":"string"},"portfolioHash":{"type":"string"},"factHashes":{"type":"array","items":{"type":"string"}}}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.evidence |
+| Order.cancelCommandRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.cancelCommandRef |
 | Fill.fillId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:trading.v1.Fill.fill_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Fill.fillId |
 | Fill.quantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | proto:trading.v1.Fill.quantity | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Fill.quantity |
 | Fill.price | {"$ref":"#/components/schemas/DecimalValue"} | 是 | proto:trading.v1.Fill.price | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Fill.price |
@@ -343,12 +383,84 @@
 
 ## 12. C11 Ops/Admin
 
-当前工程发布：OpsHealth、OpsIncident、OpsIncidentTimeline、OpsPrecheck、OpsRunbookReceipt、AdminResource及五类typed Spec/action。health/metrics含service、health、ready、latencyMs、dlqDepth、accountId/mode、asOf/expiresAt、sourceHash/metricsHash；仅安全结构化观测，无raw detail/labels。incident含UUID与X06 sourceRef、alertId、status、objectVersion、openedSource、asOf；timeline append-only。Runbook只有inspect-health/inspect-evidence与typed commandId。
-
-治理资源id UUID、kind、objectVersion/configVersion、deleted/protected、严格kind/spec联合；member spec含actorId/roleId/active，role含name/baseRole/permissions，policy含name/roleId/deniedCapabilities/active，capability分为权限目录kind=capability（name/enabled）和已签名Engine能力kind=engine_capability（reviewId/name/version/description/enabled）；capability列表可含availableReviews，仅列owner已验签且未过期的安全元数据，浏览器不得创建review；未准入/撤销/过期能力拒绝Research工作流。flag含name/enabled/rolloutPercent。写入auditRef/correlationId；原始owner注入记录没有伪造F05写事件。If-Match冲突返回currentVersion；删除tombstone。F06能力上限、最后管理员/本人/同user别名与protected resource保护。治理当前为受控租约，目标身份表持久写回未准入。
-
-发布list/get/create/update/delete五类治理资源、health/metrics、incident list/get/timeline/open/ack/resolve、Runbook list/precheck/run共36操作，具体operationId由C11 catalog与OpenAPI1.12.0生成；完整UI/目标联调NOT_RUN。
-
+| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
+|---|---|---|---|---|---|
+| AdminResourcePage.items | {"type":"array","items":{"$ref":"#/components/schemas/AdminResource"},"maxItems":200} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AdminResourcePage.items |
+| AdminResourcePage.nextCursor | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AdminResourcePage.nextCursor |
+| AdminResourcePage.configVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AdminResourcePage.configVersion |
+| AdminResourcePage.availableReviews | {"type":"array","maxItems":1000,"items":{"$ref":"#/components/schemas/AdminEngineCapabilitySpec"}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AdminResourcePage.availableReviews |
+| GovernanceCapabilityAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceCapabilityAction.reason |
+| GovernanceCapabilityAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceCapabilityAction.mfaChallengeRef |
+| GovernanceCapabilityAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceCapabilityAction.reauthTokenRef |
+| GovernanceCapabilityAction.spec | {"$ref":"#/components/schemas/AdminCapabilitySpec"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceCapabilityAction.spec |
+| GovernanceFeatureFlagAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceFeatureFlagAction.reason |
+| GovernanceFeatureFlagAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceFeatureFlagAction.mfaChallengeRef |
+| GovernanceFeatureFlagAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceFeatureFlagAction.reauthTokenRef |
+| GovernanceFeatureFlagAction.spec | {"$ref":"#/components/schemas/AdminFlagSpec"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceFeatureFlagAction.spec |
+| GovernanceMemberAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceMemberAction.reason |
+| GovernanceMemberAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceMemberAction.mfaChallengeRef |
+| GovernanceMemberAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceMemberAction.reauthTokenRef |
+| GovernanceMemberAction.spec | {"$ref":"#/components/schemas/AdminMemberSpec"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceMemberAction.spec |
+| GovernancePolicyAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernancePolicyAction.reason |
+| GovernancePolicyAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernancePolicyAction.mfaChallengeRef |
+| GovernancePolicyAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernancePolicyAction.reauthTokenRef |
+| GovernancePolicyAction.spec | {"$ref":"#/components/schemas/AdminPolicySpec"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernancePolicyAction.spec |
+| GovernanceRoleAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceRoleAction.reason |
+| GovernanceRoleAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceRoleAction.mfaChallengeRef |
+| GovernanceRoleAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceRoleAction.reauthTokenRef |
+| GovernanceRoleAction.spec | {"$ref":"#/components/schemas/AdminRoleSpec"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:GovernanceRoleAction.spec |
+| OpsAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.reason |
+| OpsAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.mfaChallengeRef |
+| OpsAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.reauthTokenRef |
+| OpsHealth.service | {"type":"string","enum":["service-x06"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.service |
+| OpsHealth.health | {"type":"string","enum":["healthy","degraded"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.health |
+| OpsHealth.ready | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.ready |
+| OpsHealth.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.objectVersion |
+| OpsHealth.sourceHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.sourceHash |
+| OpsHealth.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.asOf |
+| OpsHealth.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.expiresAt |
+| OpsHealth.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.accountId |
+| OpsHealth.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.mode |
+| OpsHealth.latencyMs | {"type":"integer","minimum":0} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.latencyMs |
+| OpsHealth.dlqDepth | {"type":"integer","minimum":0} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.dlqDepth |
+| OpsHealth.metricsHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.metricsHash |
+| OpsHealth.components | {"type":"array","items":{"type":"object","additionalProperties":false,"required":["name","ready","asOf"],"properties":{"name":{"type":"string","enum":["execution","portfolio","risk","reconciliation"]},"ready":{"type":"boolean"},"asOf":{"type":"string","format":"date-time"}}},"maxItems":4} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsHealth.components |
+| OpsIncident.id | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.id |
+| OpsIncident.incidentId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.incidentId |
+| OpsIncident.sourceRef | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.sourceRef |
+| OpsIncident.alertId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.alertId |
+| OpsIncident.status | {"type":"string","enum":["open","acknowledged","resolved"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.status |
+| OpsIncident.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.objectVersion |
+| OpsIncident.openedSource | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.openedSource |
+| OpsIncident.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.asOf |
+| OpsIncident.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.accountId |
+| OpsIncident.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.mode |
+| OpsIncident.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.auditRef |
+| OpsIncident.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncident.correlationId |
+| OpsIncidentCreate.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentCreate.reason |
+| OpsIncidentCreate.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentCreate.mfaChallengeRef |
+| OpsIncidentCreate.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentCreate.reauthTokenRef |
+| OpsIncidentCreate.alertId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentCreate.alertId |
+| OpsIncidentPage.items | {"type":"array","items":{"$ref":"#/components/schemas/OpsIncident"},"maxItems":200} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentPage.items |
+| OpsIncidentPage.nextCursor | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentPage.nextCursor |
+| OpsIncidentPage.configVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentPage.configVersion |
+| OpsIncidentTimeline.items | {"type":"array","items":{"type":"object","additionalProperties":false,"required":["eventId","occurredAt","payload"],"properties":{"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"type":"string","format":"date-time"},"payload":{"$ref":"#/components/schemas/OpsIncident"},"auditRef":{"type":"string","format":"uuid"},"correlationId":{"type":"string","format":"uuid"}}},"maxItems":10000} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsIncidentTimeline.items |
+| OpsPrecheck.actionId | {"type":"string","enum":["inspect-health","inspect-evidence"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsPrecheck.actionId |
+| OpsPrecheck.allowed | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsPrecheck.allowed |
+| OpsPrecheck.reason | {"type":"string","enum":["allowed","source_evidence_unavailable"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsPrecheck.reason |
+| OpsPrecheck.sourceVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsPrecheck.sourceVersion |
+| OpsPrecheck.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsPrecheck.expiresAt |
+| OpsRunbookActions.items | {"type":"array","items":{"type":"object","additionalProperties":false,"required":["actionId","parameters"],"properties":{"actionId":{"type":"string","enum":["inspect-health","inspect-evidence"]},"parameters":{"type":"array","items":{"type":"string","enum":["commandId"]},"maxItems":1}}},"maxItems":2} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookActions.items |
+| OpsRunbookExecute.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookExecute.reason |
+| OpsRunbookExecute.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookExecute.mfaChallengeRef |
+| OpsRunbookExecute.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookExecute.reauthTokenRef |
+| OpsRunbookExecute.commandId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookExecute.commandId |
+| OpsRunbookReceipt.operationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.operationId |
+| OpsRunbookReceipt.status | {"type":"string","enum":["succeeded"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.status |
+| OpsRunbookReceipt.sourceOperationRef | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.sourceOperationRef |
+| OpsRunbookReceipt.outcome | {"type":"object","additionalProperties":false,"required":["status","reference"],"properties":{"status":{"type":"string","enum":["applied"]},"reference":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"}}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.outcome |
+| OpsRunbookReceipt.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.auditRef |
+| OpsRunbookReceipt.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsRunbookReceipt.correlationId |
 
 ## 13. C12 Market/Candle
 
@@ -407,63 +519,191 @@
 | MarketWatchlist.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated | bff:MarketWatchlist.auditRef |
 | MarketWatchlist.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated | bff:MarketWatchlist.correlationId |
 | SaveMarketWatchlist.instrumentIds | {"type":"array","items":{"type":"string","minLength":1,"maxLength":100},"maxItems":100,"uniqueItems":true} | 是 | none | BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated | bff:SaveMarketWatchlist.instrumentIds |
+| MarketCatalog.items | {"type":"array","items":{"$ref":"#/components/schemas/MarketInstrument"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MarketCatalog.items |
+| MarketCatalog.asOf | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MarketCatalog.asOf |
+| VenueQuotes.items | {"type":"array","items":{"$ref":"#/components/schemas/VenueQuote"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:VenueQuotes.items |
 
 ## 14. C13 Trade Preflight
 
 | wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
 |---|---|---|---|---|---|
-| accountId / mode | uuid / enum:RuntimeMode | 是 | planned-model:PreflightView | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.0 |
-| venueOptions | VenueOption[]（health, asOf, supportedIntents:enum:OrderIntentType[]） | 是 | planned-model:PreflightView（单 venue 时只读） | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.1 |
-| balanceRef / positionRef | uuid（快照引用） | 是 | planned-model:PreflightView（X01 读模型） | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.2 |
-| quoteRef | uuid + asOf:rfc3339 | 是 | planned-model:PreflightView（C12 报价快照） | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.3 |
-| limitImpact | object{limitId:uuid, before:decimal, after:decimal}[] | 是 | planned-model:PreflightView（X02） | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.4 |
-| objectVersion | version | 是 | planned-model:PreflightView | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.5 |
-| blockingReasons | string[]（稳定机器码） | 是 | planned-model:PreflightView | PLANNED：BFF-FE-006 冻结后同步 wire 映射 | planned:C13.plannedFields.6 |
-
-尚未发布 operation：getOrderCapabilities、getTradePreflight、subscribeTradePreflight；责任任务 BFF-FE-006。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+| OrderCapabilities.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.accountId |
+| OrderCapabilities.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.mode |
+| OrderCapabilities.canSubmit | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.canSubmit |
+| OrderCapabilities.canCancel | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.canCancel |
+| OrderCapabilities.venueSubmit | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.venueSubmit |
+| OrderCapabilities.quantityScale | {"type":"integer","minimum":0,"maximum":18} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.quantityScale |
+| OrderCapabilities.priceScale | {"type":"integer","minimum":0,"maximum":18} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.priceScale |
+| OrderCapabilities.maxQuantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.maxQuantity |
+| OrderCapabilities.maxNotional | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.maxNotional |
+| TradePreflight.proposalId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.proposalId |
+| TradePreflight.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.accountId |
+| TradePreflight.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.mode |
+| TradePreflight.contextHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.contextHash |
+| TradePreflight.objectVersion | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.objectVersion |
+| TradePreflight.asOf | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.asOf |
+| TradePreflight.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.expiresAt |
+| TradePreflight.verdict | {"type":"string","enum":["allow","approval_required","deny"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.verdict |
+| TradePreflight.hitRules | {"type":"array","items":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.hitRules |
+| TradePreflight.executable | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.executable |
+| TradePreflight.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.correlationId |
 
 ## 15. C14 Performance/Report
 
-当前工程契约 OpenAPI1.11.0：PerformanceView / PerformanceReport / PerformanceReportDocument / PerformanceDownload。同源 X01 snapshot 与 C15 actual Book，目标联调/发布未验收。
-
-| 字段 | Wire 类型 | 来源与语义 |
-|---|---|---|
-| accountId / currency / method | UUID / USD / simple | F06账户范围；不做FX，twr/mwr明确422 |
-| ledgerVersion / valuationSnapshotId | sha256内容hash / sha256内容hash | C15实际账本与X01真实快照，非自造UUID |
-| coverage | PerformanceCoverage | 请求/观测起止、points、complete、maxIntervalSeconds60；不足2点拒绝 |
-| asOf / provisional | RFC3339 / boolean | 最后观测时间；未对账、证明过期或缺区间强制true |
-| pnl / return / drawdown / fees | DecimalValue 字符串 | 初末权益变化、simple收益率、观测峰谷最大回撤、期间新增累计费用 |
-| series / attribution | PerformancePoint[] / PerformanceAttribution[] | 逐点版本/runId/provisional；符号P&L变化+LEDGER_RESIDUAL，不双算expected/actual或rerun |
-| period / periodMode | custom,week,month,quarter,year / rolling,calendar | UTC口径；custom显式start/end，其他周期按rolling/calendar计算 |
-| reportId / reportVersion / status | UUID / 1 / queued,succeeded | 创建冻结输入；同键返回原回执；status执行本进程待办一次 |
-| createdAt / expiresAt / supersededBy | RFC3339 / RFC3339 / UUID或null | 15分钟租约；保留旧报告，不自动替换 |
-| auditRef / correlationId | UUID / UUID | F05创建根，精确重试只追加一次 |
-| downloadPath / downloadExpiresAt | 同源相对路径 / RFC3339 | actor/session绑定ticket，60秒过期410，注销401 |
-| sha256 / sizeBytes / mediaType | 内容hash / integer / application/json | 实际下载字节校验，JSON保留decimal字符串，不转换CSV |
-
-发布操作：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getPerformanceReport、getReportDownload、downloadPerformanceReport。C16完成通知及完整P21 UI仍待相应任务，不以本接口冻结替代。
+| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
+|---|---|---|---|---|---|
+| PerformanceDownload.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.accountId |
+| PerformanceDownload.currency | {"type":"string","enum":["USD"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.currency |
+| PerformanceDownload.method | {"type":"string","enum":["simple"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.method |
+| PerformanceDownload.period | {"type":"string","enum":["custom","week","month","quarter","year"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.period |
+| PerformanceDownload.periodMode | {"type":"string","enum":["rolling","calendar"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.periodMode |
+| PerformanceDownload.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.asOf |
+| PerformanceDownload.ledgerVersion | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.ledgerVersion |
+| PerformanceDownload.valuationSnapshotId | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.valuationSnapshotId |
+| PerformanceDownload.coverage | {"$ref":"#/components/schemas/PerformanceCoverage"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.coverage |
+| PerformanceDownload.provisional | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.provisional |
+| PerformanceDownload.reportId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.reportId |
+| PerformanceDownload.status | {"type":"string","enum":["queued","succeeded"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.status |
+| PerformanceDownload.reportVersion | {"type":"string","enum":["1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.reportVersion |
+| PerformanceDownload.createdAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.createdAt |
+| PerformanceDownload.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.expiresAt |
+| PerformanceDownload.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.correlationId |
+| PerformanceDownload.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.auditRef |
+| PerformanceDownload.supersededBy | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.supersededBy |
+| PerformanceDownload.downloadPath | {"type":"string","pattern":"^/v1/performance/reports/[a-f0-9-]+/content\\?ticket=[a-f0-9-]+$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.downloadPath |
+| PerformanceDownload.sha256 | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.sha256 |
+| PerformanceDownload.sizeBytes | {"type":"integer","minimum":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.sizeBytes |
+| PerformanceDownload.mediaType | {"type":"string","enum":["application/json"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.mediaType |
+| PerformanceDownload.downloadExpiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceDownload.downloadExpiresAt |
+| PerformanceQuery.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.accountId |
+| PerformanceQuery.currency | {"type":"string","enum":["USD"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.currency |
+| PerformanceQuery.method | {"type":"string","enum":["simple","twr","mwr"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.method |
+| PerformanceQuery.period | {"type":"string","enum":["custom","week","month","quarter","year"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.period |
+| PerformanceQuery.periodMode | {"type":"string","enum":["rolling","calendar"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.periodMode |
+| PerformanceQuery.start | {"type":"string","format":"date-time"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.start |
+| PerformanceQuery.end | {"type":"string","format":"date-time"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceQuery.end |
+| PerformanceReport.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.accountId |
+| PerformanceReport.currency | {"type":"string","enum":["USD"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.currency |
+| PerformanceReport.method | {"type":"string","enum":["simple"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.method |
+| PerformanceReport.period | {"type":"string","enum":["custom","week","month","quarter","year"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.period |
+| PerformanceReport.periodMode | {"type":"string","enum":["rolling","calendar"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.periodMode |
+| PerformanceReport.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.asOf |
+| PerformanceReport.ledgerVersion | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.ledgerVersion |
+| PerformanceReport.valuationSnapshotId | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.valuationSnapshotId |
+| PerformanceReport.coverage | {"$ref":"#/components/schemas/PerformanceCoverage"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.coverage |
+| PerformanceReport.provisional | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.provisional |
+| PerformanceReport.reportId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.reportId |
+| PerformanceReport.status | {"type":"string","enum":["queued","succeeded"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.status |
+| PerformanceReport.reportVersion | {"type":"string","enum":["1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.reportVersion |
+| PerformanceReport.createdAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.createdAt |
+| PerformanceReport.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.expiresAt |
+| PerformanceReport.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.correlationId |
+| PerformanceReport.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.auditRef |
+| PerformanceReport.supersededBy | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReport.supersededBy |
+| PerformanceReportDocument.metadata | {"$ref":"#/components/schemas/PerformanceReport"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReportDocument.metadata |
+| PerformanceReportDocument.performance | {"$ref":"#/components/schemas/PerformanceView"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceReportDocument.performance |
+| PerformanceView.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.accountId |
+| PerformanceView.currency | {"type":"string","enum":["USD"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.currency |
+| PerformanceView.method | {"type":"string","enum":["simple"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.method |
+| PerformanceView.period | {"type":"string","enum":["custom","week","month","quarter","year"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.period |
+| PerformanceView.periodMode | {"type":"string","enum":["rolling","calendar"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.periodMode |
+| PerformanceView.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.asOf |
+| PerformanceView.ledgerVersion | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.ledgerVersion |
+| PerformanceView.valuationSnapshotId | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.valuationSnapshotId |
+| PerformanceView.coverage | {"$ref":"#/components/schemas/PerformanceCoverage"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.coverage |
+| PerformanceView.provisional | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.provisional |
+| PerformanceView.pnl | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.pnl |
+| PerformanceView.return | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.return |
+| PerformanceView.drawdown | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.drawdown |
+| PerformanceView.fees | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.fees |
+| PerformanceView.series | {"type":"array","minItems":2,"maxItems":1000,"items":{"$ref":"#/components/schemas/PerformancePoint"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.series |
+| PerformanceView.attribution | {"type":"array","items":{"$ref":"#/components/schemas/PerformanceAttribution"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.attribution |
+| PerformanceView.precision | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.precision |
+| PerformanceView.venueSubmit | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:PerformanceView.venueSubmit |
 
 ## 16. C15 Reconciliation
 
 | wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
 |---|---|---|---|---|---|
-| runId / accountId / venue | uuid / uuid / enum:VenueKind | 是 | planned-model:ReconRun（X05） | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.0 |
-| window / ledgerVersion | TimeWindow / version | 是 | planned-model:ReconRun | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.1 |
-| status | enum:matched / investigating / resolved（+missing_data） | 是 | planned-model:ReconRun（tokens 状态枚举对齐） | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.2 |
-| breakId | uuid | 是 | planned-model:ReconBreak | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.3 |
-| internalValue / externalValue | decimal | 是 | planned-model:ReconBreak（不可前端改写） | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.4 |
-| reason | string（稳定机器码） | 是 | planned-model:ReconBreak | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.5 |
-| evidenceRefs | EvidenceRef[] | 是 | proto:common.v1.EvidenceRef | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.6 |
-| rerunRequestedBy / rerunIdempotencyKey | ActorRef / idempotency-key | 重跑时必填 | planned-model:ReconRun | PLANNED：BFF-FE-009 冻结后同步 wire 映射 | planned:C15.plannedFields.7 |
-
-尚未发布 operation：listReconciliationRuns、getReconciliationRun、listReconciliationBreaks、getReconciliationBreak、listLedgerEntries、requestReconciliationRerun、subscribeReconciliationRun；责任任务 BFF-FE-009。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+| LedgerEntryPage.items | {"type":"array","items":{"$ref":"#/components/schemas/LedgerEntry"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:LedgerEntryPage.items |
+| LedgerEntryPage.nextCursor | {"type":["string","null"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:LedgerEntryPage.nextCursor |
+| ReconciliationBreak.breakId | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.breakId |
+| ReconciliationBreak.runId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.runId |
+| ReconciliationBreak.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.accountId |
+| ReconciliationBreak.mode | {"type":"string","enum":["shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.mode |
+| ReconciliationBreak.kind | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.kind |
+| ReconciliationBreak.entity | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.entity |
+| ReconciliationBreak.status | {"type":"string","enum":["open","acknowledged","closed"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.status |
+| ReconciliationBreak.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.objectVersion |
+| ReconciliationBreak.expectedJson | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.expectedJson |
+| ReconciliationBreak.actualJson | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.actualJson |
+| ReconciliationBreak.expectedSource | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.expectedSource |
+| ReconciliationBreak.actualSource | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.actualSource |
+| ReconciliationBreak.detectedAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.detectedAt |
+| ReconciliationBreak.lastDetectedAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.lastDetectedAt |
+| ReconciliationBreak.closureReportHash | {"type":["string","null"],"pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.closureReportHash |
+| ReconciliationBreak.evidenceRefs | {"type":"array","items":{"$ref":"#/components/schemas/ReconciliationEvidenceRef"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.evidenceRefs |
+| ReconciliationBreak.day | {"type":"string","format":"date","pattern":"^\\d{4}-\\d{2}-\\d{2}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreak.day |
+| ReconciliationBreakPage.items | {"type":"array","items":{"$ref":"#/components/schemas/ReconciliationBreak"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreakPage.items |
+| ReconciliationBreakPage.nextCursor | {"type":["string","null"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationBreakPage.nextCursor |
+| ReconciliationRerun.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRerun.reason |
+| ReconciliationRun.runId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.runId |
+| ReconciliationRun.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.accountId |
+| ReconciliationRun.mode | {"type":"string","enum":["shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.mode |
+| ReconciliationRun.currency | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.currency |
+| ReconciliationRun.status | {"type":"string","enum":["succeeded"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.status |
+| ReconciliationRun.result | {"type":"string","enum":["clean","differences"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.result |
+| ReconciliationRun.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.objectVersion |
+| ReconciliationRun.reportHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.reportHash |
+| ReconciliationRun.inputHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.inputHash |
+| ReconciliationRun.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.asOf |
+| ReconciliationRun.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.expiresAt |
+| ReconciliationRun.provisional | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.provisional |
+| ReconciliationRun.breakCount | {"type":"integer","minimum":0} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.breakCount |
+| ReconciliationRun.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.correlationId |
+| ReconciliationRun.auditRef | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.auditRef |
+| ReconciliationRun.evidenceRefs | {"type":"array","items":{"$ref":"#/components/schemas/ReconciliationEvidenceRef"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.evidenceRefs |
+| ReconciliationRun.day | {"type":"string","format":"date","pattern":"^\\d{4}-\\d{2}-\\d{2}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRun.day |
+| ReconciliationRunPage.items | {"type":"array","items":{"$ref":"#/components/schemas/ReconciliationRun"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRunPage.items |
+| ReconciliationRunPage.nextCursor | {"type":["string","null"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReconciliationRunPage.nextCursor |
 
 ## 17. C16 Alert/Notification
 
-当前工程发布OpsAlert：alertId/id UUID、sourceRef内容hash、rule、severity、domain、accountId/mode、status unacked/acked、active、resolved、objectVersion/sourceVersion、occurredAt/asOf、ackActor/ackAt nullable、objectRef与correlationId。acked必须有ack身份/时间，unacked为空；ack/unack不改变resolved；source repair来自真实X06 observer。
-
-listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAlertSubscriptions、subscribeAlerts七操作；订阅含objectVersion及severity/domain集合，SSE用完整StreamEvent、typed OpsAlert payload、subscriber streamId及过滤后连续sequence。当前权限/订阅/游标绑定与gap/陈旧/撤权拒绝，禁止乐观resolved。目标持久通知/完整UI NOT_RUN。
-
+| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
+|---|---|---|---|---|---|
+| AlertSubscriptions.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AlertSubscriptions.objectVersion |
+| AlertSubscriptions.severities | {"type":"array","items":{"type":"string","enum":["critical","warning","info"]},"maxItems":3} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AlertSubscriptions.severities |
+| AlertSubscriptions.domains | {"type":"array","items":{"type":"string","enum":["risk","order","market","reconciliation","report","system"]},"maxItems":6} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AlertSubscriptions.domains |
+| AlertSubscriptions.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AlertSubscriptions.auditRef |
+| AlertSubscriptions.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AlertSubscriptions.correlationId |
+| OpsAction.reason | {"type":"string","minLength":1,"maxLength":256} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.reason |
+| OpsAction.mfaChallengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.mfaChallengeRef |
+| OpsAction.reauthTokenRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAction.reauthTokenRef |
+| OpsAlert.id | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.id |
+| OpsAlert.alertId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.alertId |
+| OpsAlert.sourceRef | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.sourceRef |
+| OpsAlert.rule | {"type":"string","maxLength":64} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.rule |
+| OpsAlert.severity | {"type":"string","enum":["critical","warning","info"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.severity |
+| OpsAlert.domain | {"type":"string","enum":["risk","order","market","reconciliation","report","system"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.domain |
+| OpsAlert.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.accountId |
+| OpsAlert.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.mode |
+| OpsAlert.status | {"type":"string","enum":["unacked","acked"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.status |
+| OpsAlert.active | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.active |
+| OpsAlert.resolved | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.resolved |
+| OpsAlert.objectVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.objectVersion |
+| OpsAlert.sourceVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.sourceVersion |
+| OpsAlert.occurredAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.occurredAt |
+| OpsAlert.asOf | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.asOf |
+| OpsAlert.ackActor | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.ackActor |
+| OpsAlert.ackAt | {"type":["string","null"],"format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.ackAt |
+| OpsAlert.objectRef | {"type":"string","enum":["/operations/health"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.objectRef |
+| OpsAlert.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.auditRef |
+| OpsAlert.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlert.correlationId |
+| OpsAlertPage.items | {"type":"array","items":{"$ref":"#/components/schemas/OpsAlert"},"maxItems":200} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlertPage.items |
+| OpsAlertPage.nextCursor | {"type":["string","null"],"format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlertPage.nextCursor |
+| OpsAlertPage.configVersion | {"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpsAlertPage.configVersion |
+| SaveAlertSubscriptions.severities | {"type":"array","items":{"type":"string","enum":["critical","warning","info"]},"maxItems":3,"minItems":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SaveAlertSubscriptions.severities |
+| SaveAlertSubscriptions.domains | {"type":"array","items":{"type":"string","enum":["risk","order","market","reconciliation","report","system"]},"maxItems":6,"minItems":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SaveAlertSubscriptions.domains |
 
 ## 18. C17 Settings/Browser Platform
 
@@ -589,7 +829,7 @@ listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAler
 
 ## 19. 完备性与验收边界
 
-- 共 459 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 692 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

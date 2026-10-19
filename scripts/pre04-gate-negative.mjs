@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { loadPre04Inputs, validatePre04Inventory } from './pre04-inventory.mjs';
+import { renderFieldDictionary } from './pre04-fields.mjs';
 const current = loadPre04Inputs();
 function change(text, from, to) { assert(text.includes(from), `fixture mutation must match ${from}`); return text.replace(from, to); }
 function rejected(mutate, message) {
@@ -17,7 +19,7 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 459]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 692]);
 });
 test('missing Gap is rejected', () => rejected(i => {i.gaps = i.gaps.replace(/^\| GAP-13 \|.*\n/m, '');}, 'gap list contains'));
 test('undecided realtime dependency is rejected', () => rejected(i => {i.ledger = change(i.ledger, 'C13 preflight/quote refresh', '待开发时再定');}, 'P20 Realtime dependency is explicit'));
@@ -48,10 +50,10 @@ test('each missing website P0 page is rejected', () => {
 test('missing auxiliary risk/audit/order contract is rejected', () => {
   for (const [from,to] of [['C07 proposal/evaluation context + ',''],[' + C09 linked order facts',''],[' + C10 audit/evidence chain','']]) rejected(i => {i.ledger = change(i.ledger, from, to);}, 'dependencies match reviewed');
 });
-test('closing partly published Gap is rejected', () => rejected(i => {const row = i.gaps.split('\n').find(l => l.startsWith('| GAP-05 '));i.gaps = change(i.gaps, row, row.replace('| Partial |','| Closed |'));}, 'status matches published/planned'));
-test('omitting planned operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '未发布：subscribeBacktestRun', '未发布：无');}, 'accounts exactly'));
+test('regressing a fully published Gap to Partial is rejected', () => rejected(i => {const row = i.gaps.split('\n').find(l => l.startsWith('| GAP-05 '));i.gaps = change(i.gaps, row, row.replace('| Closed |','| Partial |'));}, 'status matches published/planned'));
+test('omitting planned operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '未发布：getCommandSummary、subscribeCommandEvents', '未发布：无');}, 'accounts exactly'));
 test('unpublished Inventory Fixture cannot claim Implemented', () => rejected(i => {i.ledger = change(i.ledger, 'Inventory Fixture（未发布 OpenAPI；不得升级 Implemented）', 'Implemented；生产已验收');}, 'mock status matches'));
-test('generated-only contract cannot claim Integrated', () => rejected(i => {i.ledger = change(i.ledger, 'Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结）', 'Integrated；目标已验收');}, 'mock status matches'));
+test('generated-only contract cannot claim Integrated', () => rejected(i => {i.ledger = change(i.ledger, 'Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收）', 'Integrated；目标已验收');}, 'mock status matches'));
 test('missing provider evidence is rejected', () => rejected(i => {delete i.evidenceFiles['services/bff-gateway/tests/auth_settings_provider.rs'];}, 'provider/test/historical receipt matches'));
 test('changed provider receipt is rejected', () => rejected(i => {i.evidenceFiles['docs/audit/BFF-FE-007-acceptance-evidence-2026-09-16.md'] = 'PASS';}, 'provider/test/historical receipt matches'));
 test('missing Inventory Fixture is rejected', () => rejected(i => {delete i.fixtureFiles['tests/contract/fixtures/command-center/default.json'];}, 'fixture exists'));
@@ -80,3 +82,38 @@ test('unknown task suffixes are rejected in both backend task columns', () => {
 test('ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks', () => {
   for (const key of ['ledger', 'gaps']) rejected(i => {i[key] = change(i[key], '| S01、S02、S03、S04 |', '| S01–Z04 |');}, 'backend tasks resolve');
 });
+
+test('OpenAPI version and counts must agree with controlled inventory and generated source', () => {
+  for (const mutate of [i => { i.manifest.version = '1.7.0'; },
+    i => { i.baseline.openapiInventory.operations -= 1; },
+    i => { i.baseline.openapiInventory.schemas -= 1; },
+    i => { delete i.baseline.openapiInventory; }]) rejected(mutate);
+});
+test('published domains cannot omit their wire models even with a regenerated dictionary', () => {
+  for (const id of ['C11', 'C13', 'C14', 'C15', 'C16']) rejected(i => {
+    i.baseline.contracts[id].models = [];
+    i.fields = renderFieldDictionary(i).markdown;
+  }, 'inventories every published domain wire model');
+});
+test('already published fields cannot be relabelled as planned', () => rejected(i => {
+  i.baseline.contracts.C13.plannedFields.push({name:'accountId',type:'uuid',required:'是',domain:'none'});
+  i.fields = renderFieldDictionary(i).markdown;
+}, 'cannot retain planned-only field rows'));
+
+test('a still unpublished contract cannot close its Gap', () => rejected(i => {
+  const row = i.gaps.split('\n').find(line => line.startsWith('| GAP-02 '));
+  i.gaps = change(i.gaps, row, row.replace('| Open |', '| Closed |'));
+}, 'status matches published/planned'));
+test('a partially published synthetic revision still cannot close its Gap', () => rejected(i => {
+  i.catalog.contracts.C05.plannedOperations.push('futureStrategyOperation');
+  i.baseline.sourceDigests.find(row => row.path === 'bff/page-operation-catalog.yaml').sha256 = createHash('sha256').update(JSON.stringify(i.catalog)).digest('hex');
+  const row = i.gaps.split('\n').find(line => line.startsWith('| GAP-05 '));
+  i.gaps = change(i.gaps, row, row.replace('未发布：无', '未发布：futureStrategyOperation'));
+}, 'status matches published/planned'));
+
+test('source digest rows cannot be missing or duplicated', () => {
+  rejected(i => { i.baseline.sourceDigests.pop(); }, 'source digest rows cover');
+  rejected(i => { i.baseline.sourceDigests[1] = i.baseline.sourceDigests[0]; }, 'source digest rows cover');
+});
+
+test('legacy source-digest layout cannot masquerade as the current baseline', () => rejected(i => { i.baseline.schema = 'quantos-pre04-baseline/v1'; }, 'baseline schema is v2'));
