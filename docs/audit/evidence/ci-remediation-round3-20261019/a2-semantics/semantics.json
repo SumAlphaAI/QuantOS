@@ -1,0 +1,76 @@
+{
+  "sourceCommit": "27bebbf0705bec2ce77f415452df97bab58e338f",
+  "schema": "quantos-bff-a2-executed-semantics/v1",
+  "scope": "local reference provider and consumer regressions; live target separate",
+  "sourceHashes": {
+    "provider": "b0c38522737cf1c9036e2ba5bf99d2b1720d50d5b62a3264c17cff8ca41e59e4",
+    "providerTests": "e9817293b2f9b873eafe5131c459b1e021a876fbef3af8550371984c56bb47a3",
+    "liveRouter": "59f9568ea2a0b88527cc2875211fdfc947cd3b818cd3a7ee7ac55ce27323d436",
+    "authBoundary": "36d28e28f18b1ce4da5ed70622b97cd3785ac47b83ec6047ff06a40d177090d3",
+    "liveTests": "5829a1e3b81eaa59357d4bfb63d826a5d57021cf0af5949ca84f4fb30086d0d5",
+    "schemaGenerator": "9b87c5d4d1cab3cf40ec4172245066ebcdb3fb7cfa9a92d8557f4a674654a5fc",
+    "migration": "16c99fff333abd48ba206a2edcef86bc61fc6e6feca59934fab93ea7c51afc41",
+    "liveProvider": "dfb5a3a80caef75df60b3bc30bf930b20d75fc2c4c646bdbcaf316461c526ce5",
+    "livePolicy": "d8e78c1ea645226a1567a5cf0143997df11190dcdc33a735544c1e2b4f31159d",
+    "inputGuard": "681da25b6bcdfc24971e419cc066d322a040e65865588c3ea91e2ad9f3435fa1",
+    "authClient": "6890114aa9ed999799c4d460d5dc293a4cfb881d6958d1aa41c678d54c76eba5",
+    "settingsClient": "5f07ecf3f207b0f20ad2bbccce49a32e2aad5d5a28703ac2c7611ac16b9af42b",
+    "responseParser": "99fbddbf41de29255934341012e2c5c210da175236ebbac5cdd32ebbc637d044",
+    "transport": "da9dfa61fee7cf90ac434fd88673a2455bf8d635473a291a7fbdcf245eac7288",
+    "client": "e1a765a8254d3a5686e54ca3539e362aeb679868c1e53f0aefd93d2b69d9812b",
+    "responseSchemas": "805e4d85487da96041e40a8cd7d4eea563580d2bd7f73aacf3316b6cc60da1c1",
+    "authTests": "097aaf03e39143a7c5e1c76904bdce2bbf8427137f73e6dc9331935f30cbc011",
+    "settingsTests": "1afaaf9bbb195798e61159d4cdd53fe01ebdf620b38395fb1870fdb7d5251704"
+  },
+  "results": [
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "live::settings_policy::tests"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "729670495187b369acf3fd8dfe7d3614eeb04d528b65df5fb28451a86bcba249"
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "2c2df4a9d76f8aa5e56c4b2d12e6b599bfce7fcf86095b04bf1ceb5768da91d6"
+    },
+    {
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@sumalpha/terminal",
+        "exec",
+        "vitest",
+        "run",
+        "tests/auth-bff.test.ts",
+        "tests/ui104-settings.test.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "d1a185d3b41e2a69c2ca293866f34e0d462e379ee3dde2762413686e5c03f441"
+    }
+  ],
+  "status": "PASS"
+}

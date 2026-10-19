@@ -5,7 +5,11 @@
 > 历史仓库 Gate：**PASS（本地参考 provider）**
 > 历史目标环境：**NOT RUN / NO RECEIPT**
 
-## 当前功能范围（2026-10-13）
+## 当前契约引用（2026-10-19）
+
+API 1.12.0：132 operations / 110 schemas；C01/C17 仍为20项。当前 [inventory](./BFF-FE-001-current-inventory.json) 只登记契约引用；本轮 CI 修复与实际语义回归见 [第三轮记录](../audit/ci-remediation-round3-2026-10-19.md)。`check:bff-fe-001` 必须在当前源码运行三组 provider/consumer 语义测试并核对摘要，不能用历史执行缓存代替；Supabase/staging、完整联调与正式确认仍按独立门禁执行。
+
+## 历史功能范围（2026-10-13）
 
 API 1.7.0：70 operations / 62 schemas；C01/C17 共20项。当前台账为 [current inventory](./BFF-FE-001-current-inventory.json)，本地功能准入按 [A2_LOCAL规程](../operations/research-local-admission.md) 的同候选实际回归和26项HTTP记录校验；上游独立Gate与真实Supabase/staging及正式确认分账。原 [2026-10-03整改](../audit/BFF-FE-001-remediation-2026-10-03.md) 与其baseline原件保持历史范围，不转移为当前回执。
 

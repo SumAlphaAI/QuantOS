@@ -1,0 +1,289 @@
+{
+  "schema": "quantos-ci-remediation/v1",
+  "baseCommit": "27bebbf0705bec2ce77f415452df97bab58e338f",
+  "candidateBinding": "Enclosing repair commit and exact current input digests; baseCommit is the failed remote version, not new-candidate acceptance",
+  "trackedWorkflows": 5,
+  "remoteBaseResult": {
+    "success": 2,
+    "failure": 3,
+    "allCompleted": true
+  },
+  "localGate": "PASS_LOCAL_SCOPED",
+  "hostedCi": "NOT_RUN",
+  "checks": {
+    "bffContractRecipe": "PASS",
+    "marketHttp": {
+      "status": "PASS",
+      "records": 50,
+      "operations": 7,
+      "chromium": "PASS"
+    },
+    "bffRust": {
+      "passed": 148,
+      "ignored": 1
+    },
+    "gitFreeExecution": {
+      "passed": 21,
+      "ignored": 0
+    },
+    "semanticMutations": {
+      "refusedAsExpected": 9
+    }
+  },
+  "inputs": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "sha256:5e8f39bd8d25b4f7e3b95f0d05dd8684f7dc9943865765dfb7f967875f8dc15e"
+    },
+    {
+      "path": ".github/workflows/f01-clean-room.yml",
+      "sha256": "sha256:b4b91d266c968eb765d4e688759c783f647dc8228a1550604129601cb4efbf31"
+    },
+    {
+      "path": ".github/workflows/frontend-baseline.yml",
+      "sha256": "sha256:7a8715f63a71d282f94de7705287068beb14c928dae1eddbcc2b93a4690c7a9e"
+    },
+    {
+      "path": ".gitleaks.toml",
+      "sha256": "sha256:200bcc18d17e19c72bbc05db4ab982db09e76f78e4251a65e8a416bd090976f4"
+    },
+    {
+      "path": ".gitleaksignore",
+      "sha256": "sha256:c73cfdf9f3ad33d2950964ca1e272c488a6d55591bdab33327f404e73796a5ca"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "sha256:7efc9e786024d754dd56a1d654b8a1d836dfabe937e271317fdc03d572057501"
+    },
+    {
+      "path": "Makefile",
+      "sha256": "sha256:35bcf18a6d5dc8cc28fbf8a1864913f1aa2b311f3fd41b59fbd73d8cbadcf604"
+    },
+    {
+      "path": "bff/openapi/quantos-bff.v1.yaml",
+      "sha256": "sha256:cdc8b5a7fdf8b1bff60f9ae3fa5b72163628c9924c1cbac36b0f00617aa90868"
+    },
+    {
+      "path": "docs/execution/BFF-FE-001-current-inventory.json",
+      "sha256": "sha256:d149236975af38f5874a696de320ee2af529b295edb306661460d06ff2ffcbd9"
+    },
+    {
+      "path": "docs/execution/BFF-FE-001-summary.md",
+      "sha256": "sha256:7806e24d8916b57163335b482231d03057b31d2fe5755d34646c6b91c1a68885"
+    },
+    {
+      "path": "package.json",
+      "sha256": "sha256:862c0f54a3cc3f0082e62e2f4378e56af64f859326734a02f915b76275b92435"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "sha256:5e64ea8d5c6adc3d47d6233d46ed96b67bda0d1817b985a931c3c8be4c3fe0a9"
+    },
+    {
+      "path": "scripts/bff-fe-001-execution.mjs",
+      "sha256": "sha256:aee25aec21d661165456a89c88ab8716692fe547f9aa64b927da5ba203c0957c"
+    },
+    {
+      "path": "scripts/bff-fe-007-gate-negative.mjs",
+      "sha256": "sha256:8eaf7a41a48d98aceb5a5967a1a983ba5a43f3bda4fa7661d1c9d23328090f94"
+    },
+    {
+      "path": "scripts/check-bff-fe-001.mjs",
+      "sha256": "sha256:03607a55e80aa69d98371c427098616b1ff094618590c6eddc4367df3f1af95a"
+    },
+    {
+      "path": "scripts/check-bff-fe-007.mjs",
+      "sha256": "sha256:6bdf8f92523905df3dbdf10cf570eb53df9838af77a1fdf41e508b88c22982a7"
+    },
+    {
+      "path": "scripts/p0-functional-scope.mjs",
+      "sha256": "sha256:a0c45ad3c8d54b63915360bc9c39ed54cd46f4e120ce8d32728d6f40cb570114"
+    },
+    {
+      "path": "scripts/pinned-pnpm.mjs",
+      "sha256": "sha256:fcdc01f24c302a503d643882128ed5ff5e2edab850a05f916f2887597da00472"
+    },
+    {
+      "path": "scripts/pinned-pnpm.test.mjs",
+      "sha256": "sha256:250cbde9a05f78c6933e6741fd4f007273ea60a1bad28a7551740bf3fe1f0cdb"
+    },
+    {
+      "path": "scripts/test-bff-fe-001-mutations.mjs",
+      "sha256": "sha256:f98f28da99f5bb5b79e90412c1788a1bfab9a670e0749314215cc3017326dc6b"
+    },
+    {
+      "path": "scripts/test-bff-fe-005.mjs",
+      "sha256": "sha256:99cf2cc48f212c5ae3600fc6cef71c0a545b8502a220a64c38e617cc622af583"
+    },
+    {
+      "path": "scripts/verify-reproducible-builds.mjs",
+      "sha256": "sha256:d1cd7e95db5e7cc768e3f5b24c5ef597285a92c4beaee40a003e494225c74dd3"
+    },
+    {
+      "path": "services/bff-gateway/src/execution/reference_release.rs",
+      "sha256": "sha256:e2068313f776a259c3cdb35669501424c3e46881e0dfd42384d5d04b2d80d7e2"
+    },
+    {
+      "path": "services/bff-gateway/src/execution/reference_seed.rs",
+      "sha256": "sha256:72f7f045c49db575ad9cc8e48ee348dfc25996c34e8732b3e17613bee61440d9"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "a2-semantics/lock-pruning.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "a2-semantics/mutation-challenge-freshness.log",
+      "sha256": "sha256:927867b0442b76f7f233d113ba729313f79b39465a5c53b4ce51740792fd3005"
+    },
+    {
+      "path": "a2-semantics/mutation-csrf-enforcement.log",
+      "sha256": "sha256:8f37744300035f8447571ca9fe39038b5f94568eb0426a9362a67952ad84c5c5"
+    },
+    {
+      "path": "a2-semantics/mutation-last-factor-protection.log",
+      "sha256": "sha256:a72572ab12a2c65d3194c00d9fbe136db71215a26dbb02d92d7f6161f273f667"
+    },
+    {
+      "path": "a2-semantics/mutation-live-challenge-ttl.log",
+      "sha256": "sha256:4ed96b09344670d16de4dc8f607edcd792993210f7b607c82eb4deb99031d6a9"
+    },
+    {
+      "path": "a2-semantics/mutation-live-csrf.log",
+      "sha256": "sha256:7bfe8306a44b8938ee2794d7a44284ecaa9ce6156bef954451b7a966310a763d"
+    },
+    {
+      "path": "a2-semantics/mutation-live-first-factor-state.log",
+      "sha256": "sha256:f1c200ba1fba45a1033a88fd399db4f9b4c5f8d395e85920c77e1bd403f01cfa"
+    },
+    {
+      "path": "a2-semantics/mutation-live-last-factor.log",
+      "sha256": "sha256:cd4b60e027dd337c71e63e3403e6abde8cdb59ebcae5b0ed1dd07ccbf80dccaf"
+    },
+    {
+      "path": "a2-semantics/mutation-live-revocation.log",
+      "sha256": "sha256:4fa1df8765c73fa8a92f4b98464b9c89e671c82036ec6fa28d87b047e268d153"
+    },
+    {
+      "path": "a2-semantics/mutation-replay-authorization.log",
+      "sha256": "sha256:5486894181fd6264228fb85dd972c32c2244d1df5aedf51f0de7d28b7ef85c2e"
+    },
+    {
+      "path": "a2-semantics/mutations.json",
+      "sha256": "sha256:f9fba722fa417c5b433bf851030161e9ca52e1ad98ae3155cf0bb77b7035c360"
+    },
+    {
+      "path": "a2-semantics/semantics-0.log",
+      "sha256": "sha256:729670495187b369acf3fd8dfe7d3614eeb04d528b65df5fb28451a86bcba249"
+    },
+    {
+      "path": "a2-semantics/semantics-1.log",
+      "sha256": "sha256:2c2df4a9d76f8aa5e56c4b2d12e6b599bfce7fcf86095b04bf1ceb5768da91d6"
+    },
+    {
+      "path": "a2-semantics/semantics-2.log",
+      "sha256": "sha256:d1a185d3b41e2a69c2ca293866f34e0d462e379ee3dde2762413686e5c03f441"
+    },
+    {
+      "path": "a2-semantics/semantics.json",
+      "sha256": "sha256:b9668a38f90657ccb9a988cd87d3a4ded7d97b65e24e3fd0c78614ba54bc52fa"
+    },
+    {
+      "path": "local/a2-executed-gate.log",
+      "sha256": "sha256:3f43bef1717c5b293136ec6fe7f96ee605774e99a74936d6150f103437e5accd"
+    },
+    {
+      "path": "local/a2-gate-tests.log",
+      "sha256": "sha256:4a7498fca0b74f94eec8b9a486bba3ec4f480be4933e590a5971e3dce13a312c"
+    },
+    {
+      "path": "local/bff-contract-check.log",
+      "sha256": "sha256:f24cd8e8161928ed4fa95857a6a999031bde3c4cb22c9b90aae3e3735906ac86"
+    },
+    {
+      "path": "local/bff-rust.log",
+      "sha256": "sha256:400b8d703b22c3d78262cd9d2da2fb5db88eea74143143d236e4af1442fa64c3"
+    },
+    {
+      "path": "local/bff007-after.log",
+      "sha256": "sha256:f83e1e9f56c4c114026631ee8acabcbac7ede0c743f5e4bc8d3bfcbe16e8ccd4"
+    },
+    {
+      "path": "local/bff007-before.log",
+      "sha256": "sha256:c5aebe67081ab4ea5e931e0cc11e7d58d30fd21cb6cbb3f4b0d7599ccd327ee3"
+    },
+    {
+      "path": "local/clippy-final.log",
+      "sha256": "sha256:8441e4a8301636030880040de7074580fc6537a0eb25943cba4a778bc4919df5"
+    },
+    {
+      "path": "local/clippy.log",
+      "sha256": "sha256:dc6361104f5b48b0432e5cb3ee4deeadc0bfd6eba56e895780a9e2d1003069a8"
+    },
+    {
+      "path": "local/environment-consumers.log",
+      "sha256": "sha256:2159e9dabf39eb6cb3bdb53c798d2b56139eb5b0687de259a8fc664ae8abce91"
+    },
+    {
+      "path": "local/environment-pnpm.log",
+      "sha256": "sha256:7936ce2065490c3c5bd3b40a98d04de3b9c5158e671163682e0fa72aae2fb805"
+    },
+    {
+      "path": "local/gate-tests.log",
+      "sha256": "sha256:69d2a97623c47befefd678fd2d72a24dbedc9c21085722c33f60e60f5f42c5b9"
+    },
+    {
+      "path": "local/git-free-execution.log",
+      "sha256": "sha256:6a9a0f14b1654b3685e81a495857c5e65ac1f66f06322ace1fe3b907b4ddff9f"
+    },
+    {
+      "path": "local/git-free-inputs.json",
+      "sha256": "sha256:e75ca8f95dc14548d4f7abae219b865807e95d23ee45329d84535d8cf3a56668"
+    },
+    {
+      "path": "local/market-http.json",
+      "sha256": "sha256:aa64352ca7fc25ea1d155789640fe1d527c6e17d97c25175ac3cff6401b2f2df"
+    },
+    {
+      "path": "local/market-http.log",
+      "sha256": "sha256:763fdf981bc662ed87b8a0762a7c80bfd380c86f0462f78b4ecb60a683da2247"
+    },
+    {
+      "path": "local/pnpm-tests.log",
+      "sha256": "sha256:9c16e459785224fd5f312f6374fe9b2edf91bbc4b7c11e813325337f6e4e2d54"
+    },
+    {
+      "path": "local/prior-regression.log",
+      "sha256": "sha256:5b5d23da0816f10ea5642c2b2b7a98da09bc5b8c64b14558b301e651739fd97b"
+    },
+    {
+      "path": "local/secrets.log",
+      "sha256": "sha256:5984ac8204d88e14ab731be260af9643bc829a1f53d1dfdbb8570cb39fd7e0c7"
+    },
+    {
+      "path": "local/staged-secret-scan.log",
+      "sha256": "sha256:8660798a7abf5e1438e077239e6d16128cf49fe37626dfa52c32c8d2e606be4c"
+    },
+    {
+      "path": "local/structural-checks.log",
+      "sha256": "sha256:2080f963d89a67f088ad4109777e38c98c475ac529dab1a6489ae85125058432"
+    },
+    {
+      "path": "remote/39190738895.log",
+      "sha256": "sha256:7abe38006be946330947053b04b574a18f6538f8273023b540164f0a1a0078fa"
+    },
+    {
+      "path": "remote/39190738912.log",
+      "sha256": "sha256:70068ced6aef95374747699ddff8fdcafc0ad6b27018b0a6b32aea7c5a144d33"
+    },
+    {
+      "path": "remote/39190738926.log",
+      "sha256": "sha256:c5e13003635c119518b9a4709a5568efea11b012aa4a0c57e70ce8b790d15db8"
+    },
+    {
+      "path": "remote/remote-runs.json",
+      "sha256": "sha256:a568b2a06df5c34ca51a44ff104481de4d0c5dcb1d8635fffcbc676f0d81223c"
+    }
+  ]
+}

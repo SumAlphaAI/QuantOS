@@ -19,18 +19,7 @@ use quantos_strategy::{
 };
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
-fn series_start() -> DateTime<Utc> {
-    {
-        static START: std::sync::OnceLock<DateTime<Utc>> = std::sync::OnceLock::new();
-        *START.get_or_init(|| {
-            DateTime::from_timestamp_micros(Utc::now().timestamp_micros()).unwrap()
-                - ChronoDuration::hours(4)
-                - ChronoDuration::seconds(10)
-        })
-    }
-}
-
-fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
+fn honest_snapshot(start: DateTime<Utc>, captured_at: DateTime<Utc>) -> DataSnapshotRecord {
     DataSnapshotRecord::new(
         TenantId::from_uuid(uuid::Uuid::parse_str("22222222-2222-4222-8222-222222222222").unwrap()),
         DataSnapshotInput {
@@ -38,8 +27,8 @@ fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
             schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
             schema_entry_id: None,
             window: SnapshotWindow {
-                start_at: series_start(),
-                end_at: series_start() + ChronoDuration::minutes(239),
+                start_at: start,
+                end_at: start + ChronoDuration::minutes(239),
             },
             sources: vec![SnapshotSourceRef {
                 source_id: "approved.binance.spot:BTCUSDT".to_owned(),
@@ -60,7 +49,7 @@ fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
                     "BTCUSDT",
                     ContentHash::sha256_bytes(b"unbound"),
                     48,
-                    series_start(),
+                    start,
                 )
                 .data_hash()
                 .unwrap(),
@@ -79,9 +68,17 @@ fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
 }
 
 pub fn honest_request() -> BacktestRequest {
-    let snapshot = honest_snapshot(series_start() + ChronoDuration::hours(4));
-    let series =
-        BacktestBarSeries::fixture("BTCUSDT", snapshot.content_hash.clone(), 48, series_start());
+    honest_request_at(Utc::now())
+}
+
+fn honest_request_at(now: DateTime<Utc>) -> BacktestRequest {
+    // Each fixture owns one clock. A long test process must not reuse the first
+    // fixture's wall time and accidentally age new risk inputs past their TTL.
+    let clock = DateTime::from_timestamp_micros(now.timestamp_micros()).unwrap()
+        - ChronoDuration::seconds(10);
+    let start = clock - ChronoDuration::hours(4);
+    let snapshot = honest_snapshot(start, clock);
+    let series = BacktestBarSeries::fixture("BTCUSDT", snapshot.content_hash.clone(), 48, start);
     BacktestRequest {
         snapshot,
         series,
@@ -91,7 +88,7 @@ pub fn honest_request() -> BacktestRequest {
             source_commit: "a".repeat(40),
             image_digest: ContentHash::sha256_bytes(b"fixture-image"),
             runtime_digest: ContentHash::sha256_bytes(b"fixture-runtime"),
-            clock: series_start() + ChronoDuration::hours(4),
+            clock,
         },
         draft: None,
     }
@@ -186,4 +183,33 @@ pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
         .validated_backtest(&auth, draft.draft_id, request, payload)
         .unwrap();
     (auth, proof)
+}
+
+#[cfg(test)]
+mod clock_tests {
+    use super::*;
+
+    #[test]
+    fn a_later_fixture_uses_its_own_clock_after_a_slow_test_process() {
+        let first_now = DateTime::parse_from_rfc3339("2026-10-19T02:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let later_now = first_now + ChronoDuration::minutes(5);
+        let first = honest_request_at(first_now);
+        let later = honest_request_at(later_now);
+        assert_eq!(
+            later.candidate.clock - first.candidate.clock,
+            ChronoDuration::minutes(5)
+        );
+        for (request, now) in [(first, first_now), (later, later_now)] {
+            assert_eq!(request.candidate.clock, now - ChronoDuration::seconds(10));
+            assert_eq!(request.snapshot.captured_at, request.candidate.clock);
+            assert_eq!(
+                request.snapshot.window.start_at,
+                request.series.bars[0].open_time
+            );
+            assert_eq!(request.series.snapshot_hash, request.snapshot.content_hash);
+            request.snapshot.validate_integrity().unwrap();
+        }
+    }
 }

@@ -1,7 +1,8 @@
 // P0 current function checks; no recursive prerequisite admission or target execution.
 import assert from 'node:assert/strict';
-import {readFileSync,existsSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import {root,inventory,digest,nodesFromPlans,planInput} from './provider-a1-receipts.mjs';
+import {pinnedPnpmDirectory} from './pinned-pnpm.mjs';
 export const nodeId='PREPARATION:P0',profile='P0_LOCAL';
 export const prerequisites=Array.from({length:6},(_,i)=>`FE:PRE-0${i+1}`);
 export const policy=JSON.parse(readFileSync(root+'/scripts/development-testing-policy.json'));
@@ -35,7 +36,7 @@ export const checks=[
 ];
 export function environment(base=process.env){
  const env=Object.fromEntries(Object.entries(base).filter(([k])=>['PATH','HOME','TMPDIR','LANG','LC_ALL'].includes(k)));
- const pinned=env.HOME+'/Library/pnpm/.tools/pnpm/10.20.0/bin';assert(existsSync(pinned+'/pnpm'),'pinned pnpm 10.20.0 required');env.PATH=pinned+':'+env.PATH;
+ const pinned=pinnedPnpmDirectory(env);env.PATH=pinned+':'+env.PATH;
  for(const line of readFileSync(root+'/env/local-mock.env.example','utf8').split('\n'))if(line.startsWith('NEXT_PUBLIC_')){const i=line.indexOf('=');env[line.slice(0,i)]=line.slice(i+1);}
  return {...env,NEXT_TELEMETRY_DISABLED:'1',STORYBOOK_DISABLE_TELEMETRY:'1',npm_config_offline:'true',QUANTOS_RELEASE_PERFORMANCE:'0'};
 }

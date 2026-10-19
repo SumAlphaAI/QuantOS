@@ -10,6 +10,14 @@ test("current BFF-FE-007 repository Gate passes", () => {
   assert.equal(report.status, "PASS", report.failures.join("\n"));
 });
 
+test("later compatible v1 contracts retain audit checks while older or unknown majors fail", () => {
+  for (const version of ["1.6.9", "2.0.0", "invalid"]) {
+    const openapi = structuredClone(current.openapi);
+    openapi.info.version = version;
+    assert(validateBffFe007({ ...current, openapi }).failures.includes("BFF-FE-007 retains the 1.7.0 OpenAPI baseline"));
+  }
+});
+
 test("redaction attestation deletion is rejected", () => {
   const openapi = structuredClone(current.openapi);
   delete openapi.components.schemas.AuditEvent.properties.redactionApplied.enum;

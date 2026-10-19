@@ -1,0 +1,791 @@
+pnpm check:bff-a1-development
+
+> @sumalpha/quantos@ check:bff-a1-development /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-a1-acceptance.mjs --stage development
+
+{
+  "schema": "quantos-bff-a1-development/v1",
+  "stage": "development",
+  "status": "PASS",
+  "scope": "engineering baseline only",
+  "formalAccepted": false,
+  "stagingStatus": "DEFERRED_TO_FINAL_REVIEW",
+  "confirmationStatus": "PENDING_FINAL_REVIEW",
+  "failures": [],
+  "sourceCommit": "27bebbf0705bec2ce77f415452df97bab58e338f",
+  "inputsDigest": "076eee895d872029c01ef26f98b3200b3573f23f094eb22f9bc0e034d832991c"
+}
+pnpm check:bff-compatibility
+
+> @sumalpha/quantos@ check:bff-compatibility /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-compatibility.mjs
+
+{
+  "status": "PASS",
+  "changes": 0,
+  "registeredCorrections": 0,
+  "failures": [],
+  "baseline": "27bebbf0705bec2ce77f415452df97bab58e338f",
+  "scope": "engineering compatibility; no owner/staging signature implied"
+}
+pnpm test:bff-remediation
+
+> @sumalpha/quantos@ test:bff-remediation /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-remediation-negative.mjs && vitest run tests/contract/bff-remediation.test.ts packages/api-client/tests/sse-safety.test.ts
+
+✔ missing staging permits development readiness and never claims formal acceptance (1.085292ms)
+✔ stage deferral cannot bypass engineering failures, final receipt requirements or unknown stages (0.06625ms)
+✔ final review command cannot be rewired to the development stage (7.466666ms)
+✔ current semantic A1 gate passes (5.622042ms)
+✔ rejects cookie semantic regression (5.932417ms)
+✔ rejects idempotency semantic regression (4.746958ms)
+✔ rejects sort semantic regression (5.577417ms)
+✔ rejects page semantic regression (4.695958ms)
+✔ rejects ci semantic regression (5.172584ms)
+✔ rejects decimal semantic regression (4.14575ms)
+✔ rejects version semantic regression (3.994458ms)
+✔ rejects csrf semantic regression (3.925292ms)
+✔ exact registered security correction is accepted only within its window (16.343333ms)
+✔ unregistered breaking type, enum or missing baseline fails closed (36.026709ms)
+✔ new required parameters and constraints cannot silently bypass compatibility (1.023125ms)
+✔ absent, invented and reference-only staging receipts never close A1 (0.490458ms)
+✔ final receipt requires technical evidence plus one input-bound user confirmation (1.193041ms)
+✔ optional property within an existing allOf is additive, required changes are rejected (0.115125ms)
+✔ referenced watchlist request schema must still close untrusted fields (4.350625ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 270.572333
+
+ RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  11:03:24
+   Duration  693ms (transform 172ms, setup 0ms, import 516ms, tests 258ms, environment 0ms)
+
+pnpm check:bff-openapi
+
+> @sumalpha/quantos@ check:bff-openapi /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-openapi.mjs
+
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 132，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+pnpm check:bff-generated
+
+> @sumalpha/quantos@ check:bff-generated /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-generated.mjs
+
+✨ openapi-typescript 7.13.0
+🚀 /Users/anray/Documents/project/SumAlpha/QuantOS/bff/openapi/quantos-bff.v1.yaml → /var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-bff-generated-b3QkEu/packages/api-client/src/bff-gen/quantos-bff.ts [116.2ms]
+Generated BFF 1.12.0: 132 operations, 110 schemas.
+ok    packages/api-client/src/bff-gen/quantos-bff.ts
+ok    packages/api-client/src/bff-gen/quantos-bff.zod.ts
+ok    tests/contract/generated/quantos-bff.components.schema.json
+ok    tests/contract/generated/quantos-bff.operations.json
+ok    tests/contract/generated/quantos-bff.msw.ts
+ok    services/bff-gateway/src/generated-input-policy.json
+
+BFF generated artifacts match the frozen OpenAPI.
+pnpm check:bff-contract-coverage
+
+> @sumalpha/quantos@ check:bff-contract-coverage /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-contract-coverage.mjs
+
+BFF contract coverage passed: 132 operations, 110 schemas, 132 page references.
+pnpm check:bff-fe-000
+
+> @sumalpha/quantos@ check:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-000.mjs
+
+BFF-FE-000 Gate PASS: 17 contracts, 22 phase-one pages, 132 published + 2 planned operationIds.
+pnpm test:bff-fe-000
+
+> @sumalpha/quantos@ test:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-000-gate-negative.mjs
+
+✔ current BFF-FE-000 repository Gate passes (5.402292ms)
+✔ missing phase-one page mapping is rejected (3.228208ms)
+✔ published operation drift is rejected (2.509166ms)
+✔ planned operation traceability deletion is rejected (2.675792ms)
+✔ shared idempotency baseline deletion is rejected (6.2085ms)
+✔ dependency regression is rejected (2.189959ms)
+✔ error correlation header deletion is rejected (4.439792ms)
+✔ generated Zod export deletion is rejected (2.576667ms)
+✔ new-domain success headers remain mandatory (34.075083ms)
+✔ named pagination cannot lose declared filters or bounded sort (25.010875ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244.935625
+pnpm check:bff-fe-001
+
+> @sumalpha/quantos@ check:bff-fe-001 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-001.mjs
+
+BFF-FE-001 local contract Gate PASS: 20 C01/C17 operations, structure plus executed provider/consumer semantics. Live Supabase/staging evidence remains separate. F06 target acceptance requires make f06-acceptance-gate.
+pnpm test:bff-fe-001
+
+> @sumalpha/quantos@ test:bff-fe-001 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-001-gate-negative.mjs && node scripts/test-bff-fe-001-mutations.mjs && node --test scripts/f09-migration-ledger.test.cjs
+
+✔ synthetic receiver fixture passes current BFF-FE-001 contract validation (4.94125ms)
+✔ CSRF deletion is rejected (6.052959ms)
+✔ bearer session regression is rejected (7.313917ms)
+✔ recent-auth deletion is rejected (4.677959ms)
+✔ idempotency deletion is rejected (4.447416ms)
+✔ last-factor protection deletion is rejected (4.612667ms)
+✔ resource-hiding 404 deletion is rejected (4.771917ms)
+✔ revocation replay deletion is rejected (4.760958ms)
+✔ security audit reference deletion is rejected (4.986125ms)
+✔ dependency regression is rejected (3.771167ms)
+✔ provider changes invalidate executed evidence (2.584042ms)
+✔ providerTests changes invalidate executed evidence (2.463958ms)
+✔ authClient changes invalidate executed evidence (2.484083ms)
+✔ settingsClient changes invalidate executed evidence (2.48275ms)
+✔ liveProvider changes invalidate executed evidence (2.452083ms)
+✔ frontendWorkflow commands in comments do not count as CI (2.990792ms)
+✔ ciWorkflow commands in comments do not count as CI (3.042208ms)
+✔ disabled CI steps cannot satisfy the Gate (3.012792ms)
+✔ outdated inventory cannot satisfy the active evidence Gate (2.818959ms)
+✔ commented Make recipes do not satisfy executable wiring (2.744167ms)
+✔ no semantic receipt cannot satisfy the Gate (2.707041ms)
+✔ deleted active evidence cannot satisfy the Gate (3.417333ms)
+✔ actual current structure passes without borrowing an execution receipt (4.407667ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 343.537167
+PASS actual semantic mutation rejected: replay-authorization
+PASS actual semantic mutation rejected: last-factor-protection
+PASS actual semantic mutation rejected: csrf-enforcement
+PASS actual semantic mutation rejected: challenge-freshness
+PASS actual semantic mutation rejected: live-last-factor
+PASS actual semantic mutation rejected: live-first-factor-state
+PASS actual semantic mutation rejected: live-csrf
+PASS actual semantic mutation rejected: live-challenge-ttl
+PASS actual semantic mutation rejected: live-revocation
+✔ later A2 migration does not make a complete F09 ledger stale (0.340917ms)
+✔ missing target migration fails closed (0.168042ms)
+✔ changed applied SQL checksum fails closed (0.066833ms)
+✔ missing F09 prerequisite fails even if remaining ledger matches (0.05625ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.051583
+pnpm check:bff-fe-007
+
+> @sumalpha/quantos@ check:bff-fe-007 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-007.mjs
+
+BFF-FE-007 local contract Gate PASS: 6 C10 operations, redacted evidence pagination, controlled export lifecycle and fail-closed download checks.
+pnpm test:bff-fe-007
+
+> @sumalpha/quantos@ test:bff-fe-007 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-007-gate-negative.mjs
+
+✔ current BFF-FE-007 repository Gate passes (0.950459ms)
+✔ later compatible v1 contracts retain audit checks while older or unknown majors fail (8.00125ms)
+✔ redaction attestation deletion is rejected (2.355583ms)
+✔ evidence cursor deletion is rejected (2.272833ms)
+✔ export capability regression is rejected (3.000291ms)
+✔ CSRF deletion is rejected (2.1135ms)
+✔ recent-auth deletion is rejected (2.022083ms)
+✔ idempotency deletion is rejected (2.089458ms)
+✔ expired download response deletion is rejected (2.315917ms)
+✔ download URL leakage through status is rejected (2.405625ms)
+✔ watermark deletion is rejected (2.282625ms)
+✔ dependency regression is rejected (0.299ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 176.081333
+pnpm check:bff-fe-007:ci
+
+> @sumalpha/quantos@ check:bff-fe-007:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs FE:BFF-FE-007
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "FE:BFF-FE-007",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:ci-stage-disposition
+
+> @sumalpha/quantos@ test:ci-stage-disposition /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/ci-stage-disposition.test.mjs
+
+✔ pending metadata never admits or executes a stage assessment (0.693375ms)
+✔ reject pending digest (0.439125ms)
+✔ reject pending evidence (0.221417ms)
+✔ reject wrong stage (0.075041ms)
+✔ reject missing evidence array (0.105083ms)
+✔ reject unknown status (0.086208ms)
+✔ reject unknown dependency (0.069417ms)
+✔ reject unsupported blocked node (0.064792ms)
+✔ READY propagates receipt failures without falling back to pending (0.168541ms)
+✔ READY requires exact validated receipt status and invokes strict admission (0.185209ms)
+✔ BLOCKED requires a valid engineering receipt and grants no admission (0.120084ms)
+✔ READY requires current receipt metadata before invoking its strict validator (0.102417ms)
+✔ unsupported nodes cannot become CI stage gates (0.057417ms)
+✔ reading current plan dispositions does not alter lifecycle or evidence (24.562084ms)
+✔ current component CI wiring preserves strict admission commands (2.82525ms)
+✔ CI wiring rejects conditional job (5.604ms)
+✔ CI wiring rejects ignored job (3.714792ms)
+✔ CI wiring rejects missing disposition (4.262125ms)
+✔ CI wiring rejects conditional disposition (2.592791ms)
+✔ CI wiring rejects ignored disposition (2.518458ms)
+✔ CI wiring rejects missing negative tests (2.396958ms)
+✔ CI wiring rejects replacement of strict admission by the CI disposition command (1.432834ms)
+✔ A3 current function CI invokes strict own receipt instead of historical READY (0.081459ms)
+✔ market disposition invokes strict validator and propagates failure (0.0415ms)
+✔ A3 aggregate disposition propagates strict evidence failures (0.034708ms)
+✔ strategy disposition invokes strict current verifier (0.033666ms)
+✔ A4 disposition invokes strict aggregate verifier (0.034584ms)
+✔ C15 disposition invokes strict current receipt and propagates failure (0.032917ms)
+✔ BFF008 READY must propagate strict failure (0.029417ms)
+✔ BFF010 READY must propagate strict failure (0.029542ms)
+✔ A5 disposition uses strict aggregate admission (0.03275ms)
+✔ A5 strict alias cannot bypass candidate admission (1.193042ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 233.416541
+pnpm test:bff-fe-007:development
+
+> @sumalpha/quantos@ test:bff-fe-007:development /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-007-development.test.mjs
+
+✔ fully bound executed evidence is admitted (1.493625ms)
+✔ Node spec reporter with successful executed assertions is admitted (0.384125ms)
+✔ Node non-execution or failure summary is rejected: "# pass 0\n# fail 0\n" (0.520917ms)
+✔ Node non-execution or failure summary is rejected: "# pass 21\n# fail 1\n" (0.191625ms)
+✔ Node non-execution or failure summary is rejected: "business assertions passed\n" (0.149542ms)
+✔ Node non-execution or failure summary is rejected: "// # pass 21\n// # fail 0\n" (0.138375ms)
+✔ comments-only replacement changes functional inputs is rejected (0.618667ms)
+✔ unready dependency is rejected (0.216916ms)
+✔ missing live execution is rejected (0.173167ms)
+✔ evidence bytes changed is rejected (0.194625ms)
+✔ compilation-only mutant rejection is rejected (0.185625ms)
+✔ missing current export roots is rejected (0.182959ms)
+✔ missing authentication matrix is rejected (0.217292ms)
+✔ unexecuted target assertion is rejected (0.177917ms)
+✔ dependency validator failed is rejected (0.083917ms)
+✔ missing target sourceCommit is rejected (0.184708ms)
+✔ malformed target commit is rejected (0.151458ms)
+✔ unknown target commit is rejected (0.149791ms)
+✔ target source differs from original commit is rejected (0.173084ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.251042
+pnpm check:bff-fe-004:ci
+
+> @sumalpha/quantos@ check:bff-fe-004:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs FE:BFF-FE-004
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "FE:BFF-FE-004",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:bff-fe-004
+
+> @sumalpha/quantos@ test:bff-fe-004 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-004-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ unit verifier admits twelve owned operations without promoting any upstream (96.699917ms)
+✔ source drift rejected (25.955375ms)
+✔ missing check rejected (18.828417ms)
+✔ duplicate check rejected (18.316417ms)
+✔ command rejected (20.4425ms)
+✔ timeout rejected (18.224792ms)
+✔ exit rejected (18.156458ms)
+✔ signal rejected (18.17925ms)
+✔ spawn rejected (19.016833ms)
+✔ elapsed rejected (21.576667ms)
+✔ future time rejected (18.281209ms)
+✔ backwards time rejected (18.235166ms)
+✔ log hash rejected (17.824042ms)
+✔ path escape rejected (18.395125ms)
+✔ attempt escape rejected (17.878292ms)
+✔ borrowed READY rejected (17.869167ms)
+✔ original confirmation promoted rejected (17.799166ms)
+✔ recursive rejected (17.520792ms)
+✔ upstream rejected (18.911291ms)
+✔ integration rejected (17.956875ms)
+✔ release rejected (18.013667ms)
+✔ production rejected (18.198333ms)
+✔ database rejected (17.741084ms)
+✔ external rejected (18.424166ms)
+✔ self approval rejected (18.207ms)
+✔ runtime rejected (17.749167ms)
+✔ artifact rejected (18.010375ms)
+✔ coverage missing rejected (90.112459ms)
+✔ coverage duplicate rejected (94.167833ms)
+✔ history reused rejected (91.229417ms)
+✔ handoff rejected (90.379875ms)
+✔ no success rejected even with updated artifact hash (19.665625ms)
+✔ missing denial rejected even with updated artifact hash (19.889833ms)
+✔ schema issue rejected even with updated artifact hash (20.824291ms)
+✔ HTTP failure rejected even with updated artifact hash (18.938625ms)
+✔ browser omitted rejected even with updated artifact hash (18.746417ms)
+✔ repeat omitted rejected even with updated artifact hash (18.783041ms)
+✔ source swapped rejected even with updated artifact hash (18.483833ms)
+✔ empty/ignored assertions rejected gate-tests (19.718083ms)
+✔ empty/ignored assertions rejected strategy (18.467916ms)
+✔ empty/ignored assertions rejected core-strategy (18.118333ms)
+✔ empty/ignored assertions rejected consumers (17.988792ms)
+✔ cannot bypass frozen Git source by default (28.32375ms)
+✔ actual wiring mandatory (17.242708ms)
+✔ credential environment is offline and nonproduction (115.682208ms)
+✔ activated entrypoint failure rolls back both published files (20.651875ms)
+✔ line coverage rejected with updated artifact hash (18.136083ms)
+✔ critical branch coverage rejected with updated artifact hash (18.574625ms)
+ℹ tests 48
+ℹ suites 0
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7259.106958
+pnpm check:provider-a4:ci
+
+> @sumalpha/quantos@ check:provider-a4:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs PROVIDER:A4
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "PROVIDER:A4",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm check:provider-a5:ci
+
+> @sumalpha/quantos@ check:provider-a5:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs PROVIDER:A5
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "PROVIDER:A5",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:provider-a5
+
+> @sumalpha/quantos@ test:provider-a5 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/provider-a5-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ synthetic receiver admits58 only with explicit source stub and real original-reference verification (22.884541ms)
+✔ source drift refused (20.882083ms)
+✔ missing check refused (18.593875ms)
+✔ duplicate check refused (19.34925ms)
+✔ command refused (20.616917ms)
+✔ timeout refused (18.129291ms)
+✔ exit refused (18.892542ms)
+✔ signal refused (19.05475ms)
+✔ spawn refused (18.996084ms)
+✔ elapsed refused (21.988625ms)
+✔ future time refused (18.535292ms)
+✔ backwards time refused (18.203458ms)
+✔ log hash refused (17.803ms)
+✔ log path refused (18.424ms)
+✔ attempt path refused (19.181208ms)
+✔ borrowed READY refused (17.97275ms)
+✔ original confirmation promoted refused (18.138541ms)
+✔ recursive refused (17.998333ms)
+✔ upstream refused (17.773708ms)
+✔ integration refused (18.526833ms)
+✔ release refused (17.718958ms)
+✔ production refused (17.54975ms)
+✔ database refused (17.398458ms)
+✔ external refused (17.346375ms)
+✔ self approval refused (18.556541ms)
+✔ runtime refused (17.125542ms)
+✔ artifact refused (17.340792ms)
+✔ coverage missing refused (19.090459ms)
+✔ coverage duplicate refused (19.900458ms)
+✔ handoff refused (18.408459ms)
+✔ nested source refused with both hashes updated (18.327625ms)
+✔ nested schema refused with both hashes updated (18.492958ms)
+✔ missing success refused with both hashes updated (19.043834ms)
+✔ missing refusal refused with both hashes updated (19.350875ms)
+✔ unrun browser refused with both hashes updated (18.290709ms)
+✔ unrun retries refused with both hashes updated (18.110041ms)
+✔ child command refused with parent rehashed (17.927167ms)
+✔ child exit refused with parent rehashed (17.694042ms)
+✔ child signal refused with parent rehashed (19.035916ms)
+✔ child timeout refused with parent rehashed (17.962625ms)
+✔ child path refused with parent rehashed (17.949125ms)
+✔ records substitution refused with parent rehashed (69.381083ms)
+✔ parent source refused with parent rehashed (19.345292ms)
+✔ wrong operations refused with parent rehashed (18.530708ms)
+✔ missing helper refused with coverage rehashed (18.364625ms)
+✔ low lines refused with coverage rehashed (18.784792ms)
+✔ low branch refused with coverage rehashed (19.393125ms)
+✔ empty or ignored assertions refused gate-tests (17.887208ms)
+✔ empty or ignored assertions refused aggregate (17.849292ms)
+✔ empty or ignored assertions refused performance (18.275708ms)
+✔ empty or ignored assertions refused consumers (17.811417ms)
+✔ default source proof cannot be bypassed (24.7895ms)
+✔ mandatory CI wiring is enforced (2.988458ms)
+✔ public offline environment strips credentials (115.142084ms)
+✔ entrypoint failure atomically restores prior receipt and checkpoint (20.628583ms)
+ℹ tests 55
+ℹ suites 0
+ℹ pass 55
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4636.134
+pnpm check:bff-fe-009:ci
+
+> @sumalpha/quantos@ check:bff-fe-009:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs FE:BFF-FE-009
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "FE:BFF-FE-009",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:bff-fe-009
+
+> @sumalpha/quantos@ test:bff-fe-009 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-009-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ synthetic coherent receipt accepted only with explicitly stubbed source and references (32.794625ms)
+✔ candidate/source inventory drift refused (21.936417ms)
+✔ command substitution refused (20.884542ms)
+✔ missing check refused (19.826208ms)
+✔ failed check refused (19.855792ms)
+✔ interrupted check refused (19.242625ms)
+✔ ignored timeout refused (19.632ms)
+✔ future time refused (21.496667ms)
+✔ log modification refused (19.622042ms)
+✔ recursive closure promotion refused (18.754334ms)
+✔ integration promotion refused (19.014416ms)
+✔ release promotion refused (19.559167ms)
+✔ self acceptance refused (18.040584ms)
+✔ runtime admission refused (19.288708ms)
+✔ borrowed historical references refused (18.468083ms)
+✔ upstream ready propagation refused (19.273167ms)
+✔ empty source test log rehash refused (18.878667ms)
+✔ wrong artifact path refused (18.759125ms)
+✔ databaseExecution cannot be promoted (18.932708ms)
+✔ formalAccepted cannot be promoted (18.9405ms)
+✔ production cannot be promoted (19.2035ms)
+✔ externalExecution cannot be promoted (18.927417ms)
+✔ externalPublished cannot be promoted (19.2505ms)
+✔ upstreamAccepted cannot be promoted (18.54325ms)
+✔ performanceAccepted cannot be promoted (18.622125ms)
+✔ syncApproved cannot be promoted (19.137792ms)
+✔ targetCanaryAccepted cannot be promoted (18.738084ms)
+✔ targetRollbackAccepted cannot be promoted (18.991792ms)
+✔ wrong HTTP source refused even when artifact rehashed (19.038458ms)
+✔ old operation list refused even when artifact rehashed (19.378291ms)
+✔ missing401 refused even when artifact rehashed (18.968667ms)
+✔ missing403 refused even when artifact rehashed (19.022459ms)
+✔ missing success refused even when artifact rehashed (19.350333ms)
+✔ schema failure refused even when artifact rehashed (18.65525ms)
+✔ nonempty schema issues refused even when artifact rehashed (19.348209ms)
+✔ browser unrun refused even when artifact rehashed (18.962375ms)
+✔ venue submit refused even when artifact rehashed (21.00825ms)
+✔ retry campaign unrun refused even when artifact rehashed (18.970917ms)
+✔ empty retries refused even when artifact rehashed (19.214125ms)
+✔ low per-file branch coverage refused even when artifact rehashed (19.864542ms)
+✔ empty line coverage refused even when artifact rehashed (19.789417ms)
+✔ default immutable source verifier cannot be bypassed (27.308125ms)
+✔ mandatory current CI wiring (2.778042ms)
+✔ publication failure restores checkpoint and original manifest bytes (39.221459ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1066.727125
+pnpm check:bff-fe-008:ci
+
+> @sumalpha/quantos@ check:bff-fe-008:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs FE:BFF-FE-008
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "FE:BFF-FE-008",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:bff-fe-008
+
+> @sumalpha/quantos@ test:bff-fe-008 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-008-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ synthetic coherent receipt accepted only with explicitly stubbed source and references (31.490833ms)
+✔ candidate/source inventory drift refused (22.034084ms)
+✔ command substitution refused (20.0275ms)
+✔ missing check refused (20.174583ms)
+✔ failed check refused (18.860625ms)
+✔ interrupted check refused (19.550917ms)
+✔ ignored timeout refused (18.586084ms)
+✔ future time refused (21.191292ms)
+✔ log modification refused (19.189208ms)
+✔ recursive closure promotion refused (18.525625ms)
+✔ integration promotion refused (19.11ms)
+✔ release promotion refused (18.831959ms)
+✔ self acceptance refused (18.880334ms)
+✔ runtime admission refused (18.128041ms)
+✔ borrowed historical references refused (18.028167ms)
+✔ upstream ready propagation refused (19.059083ms)
+✔ empty source test log rehash refused (18.736791ms)
+✔ wrong artifact path refused (18.891333ms)
+✔ databaseExecution cannot be promoted (18.078625ms)
+✔ formalAccepted cannot be promoted (18.549833ms)
+✔ production cannot be promoted (17.667208ms)
+✔ externalExecution cannot be promoted (17.594292ms)
+✔ externalPublished cannot be promoted (18.121042ms)
+✔ upstreamAccepted cannot be promoted (17.910625ms)
+✔ performanceAccepted cannot be promoted (18.741333ms)
+✔ syncApproved cannot be promoted (17.60325ms)
+✔ targetCanaryAccepted cannot be promoted (18.176834ms)
+✔ targetRollbackAccepted cannot be promoted (18.504792ms)
+✔ missing download byte proof refused even when artifact rehashed (18.276875ms)
+✔ wrong HTTP source refused even when artifact rehashed (18.809208ms)
+✔ old operation list refused even when artifact rehashed (18.23225ms)
+✔ missing401 refused even when artifact rehashed (18.23325ms)
+✔ missing403 refused even when artifact rehashed (18.892042ms)
+✔ missing success refused even when artifact rehashed (18.020292ms)
+✔ schema failure refused even when artifact rehashed (18.711ms)
+✔ nonempty schema issues refused even when artifact rehashed (18.631834ms)
+✔ browser unrun refused even when artifact rehashed (18.829125ms)
+✔ venue submit refused even when artifact rehashed (18.359416ms)
+✔ retry campaign unrun refused even when artifact rehashed (18.24975ms)
+✔ empty retries refused even when artifact rehashed (19.387125ms)
+✔ low per-file branch coverage refused even when artifact rehashed (18.717375ms)
+✔ empty line coverage refused even when artifact rehashed (18.968584ms)
+✔ default immutable source verifier cannot be bypassed (25.178375ms)
+✔ mandatory current CI wiring (2.481292ms)
+✔ publication failure restores checkpoint and original manifest bytes (38.612917ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1051.640167
+pnpm check:bff-fe-010:ci
+
+> @sumalpha/quantos@ check:bff-fe-010:ci /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/ci-stage-disposition.mjs FE:BFF-FE-010
+
+{
+  "schema": "quantos-ci-stage-disposition/v1",
+  "nodeId": "FE:BFF-FE-010",
+  "scope": "component-ci-stage-record-validation",
+  "recordValidation": "PASS",
+  "stage": "DEVELOPMENT",
+  "status": "NOT_ASSESSED",
+  "assessmentExecuted": false,
+  "admitted": false,
+  "formalAccepted": false
+}
+pnpm test:bff-fe-010
+
+> @sumalpha/quantos@ test:bff-fe-010 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-010-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ synthetic coherent receipt accepted only with explicitly stubbed source and references (31.217417ms)
+✔ candidate/source inventory drift refused (21.272042ms)
+✔ command substitution refused (20.112291ms)
+✔ missing check refused (20.271125ms)
+✔ failed check refused (19.105334ms)
+✔ interrupted check refused (19.174416ms)
+✔ ignored timeout refused (18.653375ms)
+✔ future time refused (22.599208ms)
+✔ log modification refused (18.899459ms)
+✔ recursive closure promotion refused (19.060083ms)
+✔ integration promotion refused (19.353958ms)
+✔ release promotion refused (18.458167ms)
+✔ self acceptance refused (19.634833ms)
+✔ runtime admission refused (20.372834ms)
+✔ borrowed historical references refused (18.660667ms)
+✔ upstream ready propagation refused (19.197667ms)
+✔ empty source test log rehash refused (18.44775ms)
+✔ wrong artifact path refused (19.266167ms)
+✔ databaseExecution cannot be promoted (18.960667ms)
+✔ formalAccepted cannot be promoted (18.776042ms)
+✔ production cannot be promoted (19.205875ms)
+✔ externalExecution cannot be promoted (18.801625ms)
+✔ externalPublished cannot be promoted (18.287625ms)
+✔ upstreamAccepted cannot be promoted (19.130541ms)
+✔ performanceAccepted cannot be promoted (18.692791ms)
+✔ syncApproved cannot be promoted (18.968708ms)
+✔ targetCanaryAccepted cannot be promoted (18.906583ms)
+✔ targetRollbackAccepted cannot be promoted (19.563125ms)
+✔ missing controls refused even when artifact rehashed (18.830375ms)
+✔ wrong HTTP source refused even when artifact rehashed (18.887334ms)
+✔ old operation list refused even when artifact rehashed (19.037958ms)
+✔ missing401 refused even when artifact rehashed (18.730333ms)
+✔ missing403 refused even when artifact rehashed (19.524666ms)
+✔ missing success refused even when artifact rehashed (19.069125ms)
+✔ schema failure refused even when artifact rehashed (18.833208ms)
+✔ nonempty schema issues refused even when artifact rehashed (19.532458ms)
+✔ browser unrun refused even when artifact rehashed (18.769792ms)
+✔ venue submit refused even when artifact rehashed (19.150667ms)
+✔ retry campaign unrun refused even when artifact rehashed (18.893666ms)
+✔ empty retries refused even when artifact rehashed (19.686375ms)
+✔ low per-file branch coverage refused even when artifact rehashed (19.173375ms)
+✔ empty line coverage refused even when artifact rehashed (19.170125ms)
+✔ default immutable source verifier cannot be bypassed (28.466542ms)
+✔ mandatory current CI wiring (2.884667ms)
+✔ publication failure restores checkpoint and original manifest bytes (39.535ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1078.532334
+pnpm test:provider-a4
+
+> @sumalpha/quantos@ test:provider-a4 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/provider-a4-functional-gate.test.mjs
+
+fatal: git cat-file: could not get object info
+✔ receiver admits32 current operations without child READY or runtime promotion (176.29975ms)
+✔ source drift rejected (27.034458ms)
+✔ missing check rejected (19.313084ms)
+✔ duplicate check rejected (18.70075ms)
+✔ command rejected (19.106625ms)
+✔ timeout rejected (20.506292ms)
+✔ exit rejected (18.49475ms)
+✔ signal rejected (18.575584ms)
+✔ spawn rejected (18.258667ms)
+✔ elapsed rejected (22.055209ms)
+✔ future time rejected (18.834125ms)
+✔ backwards time rejected (18.330792ms)
+✔ log hash rejected (18.1895ms)
+✔ path escape rejected (18.365ms)
+✔ attempt escape rejected (18.653625ms)
+✔ borrowed READY rejected (18.75775ms)
+✔ original confirmation promoted rejected (18.714209ms)
+✔ recursive rejected (18.146666ms)
+✔ upstream rejected (17.876875ms)
+✔ integration rejected (18.739833ms)
+✔ release rejected (18.312417ms)
+✔ production rejected (18.872208ms)
+✔ database rejected (18.250958ms)
+✔ external rejected (18.099ms)
+✔ self approval rejected (19.305459ms)
+✔ runtime rejected (18.107458ms)
+✔ artifact rejected (18.452583ms)
+✔ coverage missing rejected (164.496959ms)
+✔ coverage duplicate rejected (166.989708ms)
+✔ history reused rejected (167.674625ms)
+✔ handoff rejected (170.480292ms)
+✔ nested source rejected after both hashes updated (92.802333ms)
+✔ nested schema rejected after both hashes updated (92.546584ms)
+✔ no success rejected after both hashes updated (165.763875ms)
+✔ missing denial rejected after both hashes updated (167.443459ms)
+✔ nested browser rejected after both hashes updated (94.999833ms)
+✔ nested repetitions rejected after both hashes updated (98.280375ms)
+✔ child command rejected with parent hash updated (21.069292ms)
+✔ child exit rejected with parent hash updated (23.399083ms)
+✔ child signal rejected with parent hash updated (20.477834ms)
+✔ child timeout rejected with parent hash updated (20.508417ms)
+✔ child path rejected with parent hash updated (20.004875ms)
+✔ records substitution rejected with parent hash updated (763.963292ms)
+✔ parent source rejected with parent hash updated (21.548791ms)
+✔ empty/ignored assertions rejected gate-tests (19.335833ms)
+✔ empty/ignored assertions rejected aggregate (19.529708ms)
+✔ empty/ignored assertions rejected execution (18.767667ms)
+✔ empty/ignored assertions rejected consumers (19.697417ms)
+✔ file missing coverage refused with artifact rehashed (19.327375ms)
+✔ low lines coverage refused with artifact rehashed (19.384708ms)
+✔ low critical branches coverage refused with artifact rehashed (19.125791ms)
+✔ frozen source default cannot be bypassed (29.531166ms)
+✔ mandatory CI wiring (19.581083ms)
+✔ public offline environment strips credentials (125.990083ms)
+✔ publication rollback preserves prior receipt and checkpoint (21.58575ms)
+ℹ tests 55
+ℹ suites 0
+ℹ pass 55
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13559.534875

@@ -1,0 +1,1498 @@
+acceptance (clean-room)	Verify isolated source snapshot	﻿2026-10-19T02:36:59.1704993Z ##[group]Run node scripts/verify-reproducible-builds.mjs --mode clean-room --runs 3 --capture-web-outputs --output artifacts/reproducibility/f01-clean-room.json
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1706534Z ^[[36;1mnode scripts/verify-reproducible-builds.mjs --mode clean-room --runs 3 --capture-web-outputs --output artifacts/reproducibility/f01-clean-room.json^[[0m
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1780892Z shell: /usr/bin/bash -e {0}
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1781226Z env:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1781492Z   CARGO_HOME: /home/runner/.cargo
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1781971Z   CARGO_INCREMENTAL: 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1782267Z   CARGO_TERM_COLOR: always
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1782651Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.10/x64
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1783230Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib/pkgconfig
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1783790Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1784288Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1784793Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1785377Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1785876Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:36:59.1786282Z ##[endgroup]
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:00.8595595Z ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.20.0.tgz
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.3005204Z node scripts/check-toolchains.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5649081Z {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5649609Z   "node": "24.12.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5649926Z   "uv": "0.7.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5650231Z   "pnpm": "10.20.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5650517Z   "rustc": "1.91.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5650765Z }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5684026Z make -j3 bootstrap-rust bootstrap-python bootstrap-node
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5710338Z make[1]: Entering directory '/tmp/quantos-f01-UlkIX3/workspace'
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5710843Z cargo fetch --locked
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5711602Z uv sync --locked --project engines --all-packages --all-groups
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.5713787Z pnpm install --frozen-lockfile
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6293094Z     Updating crates.io index
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6391266Z Using CPython 3.12.10 interpreter at: /opt/hostedtoolcache/Python/3.12.10/x64/bin/python3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6400419Z Creating virtual environment at: engines/.venv
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6465527Z Resolved 52 packages in 3ms
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6886351Z    Building quantos-openbb-adapter @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/openbb-adapter
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6953374Z    Building quantos-trading-agents @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/trading-agents
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6954266Z    Building quantos-rd-agent @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/rd-agent
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6954999Z    Building quantos-mock-engine @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/mock-engine
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6955709Z    Building quantos-llmquant @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/llmquant
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6978458Z    Building quantos-engine-sdk @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/engine-sdk
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6979789Z    Building quantos-vibe-adapter @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/vibe-adapter
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.6981567Z    Building quantos-strategy-lab @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/strategy-lab
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.7436306Z Downloading pygments (1.2MiB)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.7445561Z Downloading pyright (5.4MiB)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.7448414Z Downloading grpcio (5.9MiB)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.7489199Z Downloading pip (1.7MiB)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.8079999Z Downloading ruff (12.3MiB)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.8302009Z Scope: all 8 workspace projects
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.9102491Z Lockfile is up to date, resolution step is skipped
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:14.9669026Z Progress: resolved 1, reused 0, downloaded 0, added 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.0598389Z Packages: +630
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.0599095Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.2480204Z  Downloading pygments
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3308016Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3309849Z    ╭───────────────────────────────────────────────╮
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3311275Z    │                                               │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3333808Z    │     Update available! 10.20.0 → 12.14.0.      │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3335869Z    │     Changelog: https://pnpm.io/v/12.14.0      │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3336612Z    │   To update, run: corepack use pnpm@12.14.0   │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3337665Z    │                                               │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3338639Z    ╰───────────────────────────────────────────────╯
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.3339162Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.6393538Z  Downloading grpcio
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.9753181Z Progress: resolved 630, reused 0, downloaded 65, added 54
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:15.9915387Z  Downloading ruff
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:16.8723734Z       Built quantos-openbb-adapter @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/openbb-adapter
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:16.9743169Z Progress: resolved 630, reused 0, downloaded 136, added 84
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.0943372Z       Built quantos-trading-agents @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/trading-agents
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4443825Z       Built quantos-llmquant @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/llmquant
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4531143Z       Built quantos-rd-agent @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/rd-agent
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4532970Z       Built quantos-strategy-lab @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/strategy-lab
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4534226Z       Built quantos-mock-engine @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/mock-engine
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4536522Z       Built quantos-engine-sdk @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/engine-sdk
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4537760Z       Built quantos-vibe-adapter @ file:///tmp/quantos-f01-UlkIX3/workspace/engines/vibe-adapter
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.4748809Z  Downloading pip
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:17.9725993Z Progress: resolved 630, reused 0, downloaded 199, added 107
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.4643476Z  Downloading crates ...
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5323624Z   Downloaded wasm-bindgen v0.2.126
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5393818Z   Downloaded uuid v1.24.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5503922Z   Downloaded unicode-ident v1.0.24
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5876246Z   Downloaded wasm-bindgen-macro-support v0.2.126
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5977930Z   Downloaded wasm-bindgen-macro v0.2.126
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.5978287Z   Downloaded quote v1.0.47
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6150533Z   Downloaded proc-macro2 v1.0.107
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6277933Z   Downloaded bumpalo v3.20.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6318249Z   Downloaded wasm-bindgen-shared v0.2.126
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6348517Z   Downloaded syn v2.0.119
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6740456Z   Downloaded serde_derive v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6789946Z   Downloaded serde v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.6855615Z   Downloaded serde_core v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7320518Z   Downloaded rustversion v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7370602Z   Downloaded syn v3.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7534810Z   Downloaded cfg-if v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7571099Z   Downloaded once_cell v1.21.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7648179Z   Downloaded js-sys v0.3.103
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.7701048Z   Downloaded futures-util v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8133670Z   Downloaded pin-project-lite v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8282240Z   Downloaded futures-task v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8317881Z   Downloaded memchr v2.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8405825Z   Downloaded futures-macro v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8422581Z   Downloaded futures-sink v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8445585Z   Downloaded slab v0.4.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.8490460Z   Downloaded futures-core v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.9731766Z Progress: resolved 630, reused 0, downloaded 327, added 223
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:18.9825868Z   Downloaded getrandom v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4313247Z   Downloaded r-efi v6.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4381126Z   Downloaded rand_core v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4422755Z   Downloaded url v2.5.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4468674Z   Downloaded futures-io v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4531088Z   Downloaded percent-encoding v2.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4604194Z   Downloaded idna v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.4968746Z   Downloaded utf8_iter v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.5032863Z   Downloaded libc v0.2.189
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7252202Z   Downloaded idna_adapter v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7285770Z   Downloaded smallvec v1.15.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7332485Z   Downloaded zerovec v0.11.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7410623Z   Downloaded icu_properties v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7452358Z   Downloaded zerovec-derive v0.11.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7499442Z   Downloaded zerofrom v0.1.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7562765Z   Downloaded zerofrom-derive v0.1.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7583652Z   Downloaded synstructure v0.13.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7645766Z   Downloaded yoke v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7684611Z   Downloaded yoke-derive v0.8.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7853218Z   Downloaded stable_deref_trait v1.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.7914140Z   Downloaded displaydoc v0.2.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8059118Z   Downloaded writeable v0.6.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8192134Z   Downloaded tinystr v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8302695Z   Downloaded icu_locale_core v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8463562Z   Downloaded litemap v0.8.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8532914Z   Downloaded icu_properties_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8804286Z   Downloaded potential_utf v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8943138Z   Downloaded icu_collections v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8943698Z   Downloaded icu_normalizer_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.8972682Z   Downloaded icu_normalizer v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9102948Z   Downloaded tower-http v0.6.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9192697Z   Downloaded tower-layer v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9312473Z   Downloaded tower-service v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9312969Z   Downloaded form_urlencoded v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9347417Z   Downloaded icu_provider v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9360762Z   Downloaded tower v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9529661Z   Downloaded tracing-core v0.1.36
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9623268Z   Downloaded tracing v0.1.44
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9766987Z Progress: resolved 630, reused 0, downloaded 361, added 236
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9870111Z   Downloaded log v0.4.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9914430Z   Downloaded tracing-attributes v0.1.31
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:19.9971087Z   Downloaded zerotrie v0.2.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.0143449Z   Downloaded tokio v1.53.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.0787352Z   Downloaded windows-link v0.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.0863007Z   Downloaded windows-sys v0.61.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.1873105Z   Downloaded socket2 v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.1892836Z   Downloaded tokio-macros v2.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.1966224Z   Downloaded errno v0.3.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2042876Z   Downloaded signal-hook-registry v1.4.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2074103Z   Downloaded mio v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2155131Z   Downloaded bytes v1.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2207141Z   Downloaded wasi v0.11.1+wasi-snapshot-preview1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2260891Z   Downloaded http-body v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2285671Z   Downloaded sync_wrapper v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2364052Z   Downloaded http v1.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2491335Z   Downloaded itoa v1.0.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2524622Z   Downloaded bitflags v2.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2580097Z   Downloaded sha2 v0.10.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2675392Z   Downloaded digest v0.10.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2719335Z   Downloaded subtle v2.6.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2782529Z   Downloaded crypto-common v0.1.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2872542Z   Downloaded typenum v1.20.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2922423Z   Downloaded version_check v0.9.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.2957835Z   Downloaded generic-array v0.14.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3006201Z   Downloaded cpufeatures v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3030802Z   Downloaded block-buffer v0.10.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3090949Z   Downloaded serde_json v1.0.151
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3165103Z   Downloaded zmij v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3206174Z   Downloaded rust_decimal v1.42.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3297558Z   Downloaded rkyv v0.7.46
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3692217Z   Downloaded tinyvec_macros v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3712859Z   Downloaded tinyvec v1.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3782869Z  Downloading pyright
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.3820718Z   Downloaded rkyv_derive v0.7.46
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4020279Z   Downloaded seahash v4.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4044145Z   Downloaded syn v1.0.109
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4072515Z Prepared 50 packages in 5.75s
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4211159Z   Downloaded bytecheck v0.6.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4232341Z   Downloaded rend v0.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4302565Z   Downloaded simdutf8 v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4332567Z   Downloaded ptr_meta v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4392461Z   Downloaded ptr_meta_derive v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4431783Z   Downloaded bytecheck_derive v0.6.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4497323Z   Downloaded hashbrown v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4535163Z   Downloaded ahash v0.7.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4592398Z   Downloaded getrandom v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.4657558Z   Downloaded bitvec v1.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.5453471Z   Downloaded tap v1.0.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.5899665Z   Downloaded funty v2.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.5905720Z   Downloaded radium v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6403102Z   Downloaded rand_core v0.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6432410Z   Downloaded rand v0.8.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6462327Z   Downloaded ppv-lite86 v0.2.21
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6498794Z   Downloaded wyz v0.5.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6514284Z   Downloaded rand_chacha v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.6603246Z   Downloaded zerocopy v0.8.55
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.7193264Z   Downloaded num-traits v0.2.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.7222431Z   Downloaded zerocopy-derive v0.8.55
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.7337965Z   Downloaded borsh v1.8.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.7420016Z   Downloaded autocfg v1.5.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9016919Z   Downloaded borsh-derive v1.8.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9134122Z   Downloaded toml_edit v0.25.13+spec-1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9241531Z   Downloaded toml_parser v1.1.3+spec-1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9338344Z   Downloaded winnow v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9544716Z   Downloaded indexmap v2.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9702626Z   Downloaded equivalent v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9762345Z   Downloaded hashbrown v0.17.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9792476Z Progress: resolved 630, reused 0, downloaded 382, added 246
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:20.9942912Z   Downloaded reqwest v0.13.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0182735Z   Downloaded wasm-bindgen-futures v0.4.76
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0212405Z   Downloaded arrayvec v0.7.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0235581Z   Downloaded toml_datetime v1.1.1+spec-1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0262383Z   Downloaded proc-macro-crate v3.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0292402Z   Downloaded tokio-rustls v0.26.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.0313667Z   Downloaded web-sys v0.3.103
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6273075Z Installed 50 packages in 1.22s
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6302688Z  + boolean-py==5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6332309Z  + cachecontrol==0.14.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6362352Z  + certifi==2026.7.22
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6387271Z  + charset-normalizer==3.5.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6432404Z  + coverage==7.16.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6462415Z  + cyclonedx-python-lib==9.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6492269Z  + defusedxml==0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6492619Z  + filelock==4.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6522291Z  + grpcio==1.74.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6552273Z  + hatchling==1.27.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6592279Z  + idna==3.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6616902Z  + iniconfig==2.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6643639Z  + license-expression==30.4.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6693046Z  + markdown-it-py==4.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6697668Z  + mdurl==0.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6698267Z  + msgpack==1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6698702Z  + nodeenv==1.10.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6699145Z  + packageurl-python==0.17.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6699617Z  + packaging==26.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6700025Z  + pathspec==1.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6700417Z  + pip==26.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6700824Z  + pip-api==0.0.35
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6701226Z  + pip-audit==2.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6701711Z  + pip-requirements-parser==32.0.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6702418Z  + platformdirs==4.11.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6702850Z  + pluggy==1.6.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6703249Z  + protobuf==5.29.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6703684Z  + py-serializable==2.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6704449Z  + pygments==2.21.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6704870Z  + pyparsing==3.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6705282Z  + pyright==1.1.403
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6705709Z  + pytest==9.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6706116Z  + pytest-cov==6.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6706859Z  + quantos-engine-sdk==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/engine-sdk)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6707885Z  + quantos-llmquant==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/llmquant)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6708883Z  + quantos-mock-engine==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/mock-engine)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6709995Z  + quantos-openbb-adapter==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/openbb-adapter)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6711011Z  + quantos-rd-agent==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/rd-agent)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6712322Z  + quantos-strategy-lab==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/strategy-lab)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6713429Z  + quantos-trading-agents==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/trading-agents)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6714540Z  + quantos-vibe-adapter==0.1.0 (from file:///tmp/quantos-f01-UlkIX3/workspace/engines/vibe-adapter)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6715291Z  + requests==2.34.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6715699Z  + rich==15.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6716090Z  + ruff==0.12.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6716493Z  + sortedcontainers==2.4.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6716934Z  + toml==0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6717323Z  + tomli==2.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6717773Z  + trove-classifiers==2026.6.1.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6718262Z  + typing-extensions==4.16.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6718712Z  + urllib3==2.8.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6719190Z   Downloaded zeroize v1.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6719680Z   Downloaded cfg_aliases v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6720158Z   Downloaded rustls v0.23.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6720610Z   Downloaded untrusted v0.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6721128Z   Downloaded rustls-webpki v0.103.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6772370Z   Downloaded web-time v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6798447Z   Downloaded rustls-pki-types v1.15.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.6972727Z   Downloaded ring v0.17.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.8073087Z   Downloaded windows-targets v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.8115119Z   Downloaded windows-sys v0.52.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9033102Z   Downloaded windows_x86_64_gnullvm v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9172841Z   Downloaded windows_x86_64_msvc v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9342030Z   Downloaded windows_x86_64_gnu v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9612794Z   Downloaded windows_i686_msvc v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9789439Z   Downloaded windows_i686_gnullvm v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9790138Z Progress: resolved 630, reused 0, downloaded 387, added 246
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:21.9962656Z   Downloaded windows_i686_gnu v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0200405Z   Downloaded windows_aarch64_gnullvm v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0522587Z   Downloaded shlex v2.0.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0564973Z   Downloaded cc v1.4.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0732555Z   Downloaded find-msvc-tools v0.1.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0792342Z   Downloaded jobserver v0.1.35
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.0825422Z   Downloaded windows_aarch64_msvc v0.52.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.1122907Z   Downloaded aws-lc-rs v1.18.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.1623046Z   Downloaded pkg-config v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.1869882Z   Downloaded fs_extra v1.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.2031044Z   Downloaded dunce v1.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.2147528Z   Downloaded aws-lc-sys v0.44.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:22.9793241Z Progress: resolved 630, reused 0, downloaded 408, added 254
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:23.9803536Z Progress: resolved 630, reused 0, downloaded 532, added 386
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.3313193Z   Downloaded rustls-platform-verifier v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4475463Z   Downloaded security-framework-sys v2.17.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4502077Z   Downloaded webpki-root-certs v1.0.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4533466Z   Downloaded cmake v0.1.58
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4571231Z   Downloaded security-framework v3.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4609125Z   Downloaded core-foundation-sys v0.8.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4653098Z   Downloaded core-foundation v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4705392Z   Downloaded rustls-platform-verifier-android v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4758373Z   Downloaded rustls-native-certs v0.8.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4823176Z   Downloaded schannel v0.1.29
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4860366Z   Downloaded openssl-probe v0.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.4941960Z   Downloaded jni v0.22.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5026470Z   Downloaded walkdir v2.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5058963Z   Downloaded winapi-util v0.1.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5122058Z   Downloaded same-file v1.0.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5172477Z   Downloaded thiserror v2.0.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5238713Z   Downloaded thiserror-impl v2.0.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.5272278Z   Downloaded simd_cesu8 v1.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7007304Z   Downloaded semver v1.0.28
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7039179Z   Downloaded rustc_version v0.4.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7086689Z   Downloaded jni-sys-macros v0.4.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7100506Z   Downloaded jni-sys v0.4.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7502186Z   Downloaded combine v4.6.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7586761Z   Downloaded jni-macros v0.22.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7618340Z   Downloaded rustc-hash v2.1.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7640628Z   Downloaded quinn v0.11.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7707002Z   Downloaded quinn-udp v0.5.15
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7770428Z   Downloaded quinn-proto v0.11.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7879265Z   Downloaded rand_pcg v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7906438Z   Downloaded rand v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.7959618Z   Downloaded chacha20 v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8041622Z   Downloaded cpufeatures v0.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8070286Z   Downloaded lru-slab v0.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8102934Z   Downloaded hyper-util v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8200512Z   Downloaded ipnet v2.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8225488Z   Downloaded hyper v1.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8312819Z   Downloaded want v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8325938Z   Downloaded try-lock v0.2.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8394858Z   Downloaded httpdate v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8439457Z   Downloaded httparse v1.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8512527Z   Downloaded h2 v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8596888Z   Downloaded fnv v1.0.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8614121Z   Downloaded tokio-util v0.7.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8759435Z   Downloaded futures-channel v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8791748Z   Downloaded atomic-waker v1.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8892850Z   Downloaded hyper-rustls v0.27.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.8910491Z   Downloaded base64 v0.22.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:24.9805694Z Progress: resolved 630, reused 0, downloaded 624, added 432
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.0446611Z   Downloaded http-body-util v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.0476524Z   Downloaded regex v1.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.0624776Z   Downloaded regex-syntax v0.8.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.2672971Z   Downloaded aho-corasick v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.2727970Z   Downloaded regex-automata v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.2910728Z   Downloaded ryu v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.2950553Z   Downloaded serde_urlencoded v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3032384Z   Downloaded tower v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3134210Z   Downloaded pin-project v1.1.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3266023Z   Downloaded indexmap v1.9.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3332442Z   Downloaded pin-project-internal v1.1.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3334819Z   Downloaded tonic v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3502689Z   Downloaded socket2 v0.5.10
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3532486Z   Downloaded tokio-stream v0.1.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3582364Z   Downloaded prost v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3612383Z   Downloaded prost-derive v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3702532Z   Downloaded itertools v0.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3780731Z   Downloaded anyhow v1.0.104
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3860534Z   Downloaded hyper-timeout v0.5.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.3936013Z   Downloaded either v1.17.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.5975457Z   Downloaded serde_path_to_error v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.5991332Z   Downloaded axum v0.7.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6064979Z   Downloaded mime v0.3.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6110213Z   Downloaded matchit v0.7.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6166135Z   Downloaded axum-core v0.4.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6232292Z   Downloaded async-trait v0.1.91
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6268186Z   Downloaded async-stream v0.3.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6339703Z   Downloaded async-stream-impl v0.3.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6384114Z   Downloaded pbjson-types v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6458437Z   Downloaded prost-build v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6491318Z   Downloaded tempfile v3.27.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6578210Z   Downloaded rustix v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6832634Z   Downloaded fastrand v2.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.6891469Z   Downloaded linux-raw-sys v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:25.9140699Z Progress: resolved 630, reused 0, downloaded 630, added 630, done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.2682343Z   Downloaded prettyplease v0.2.37
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.2720973Z   Downloaded prost-types v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.2947100Z   Downloaded fixedbitset v0.5.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.2975655Z   Downloaded petgraph v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4574047Z   Downloaded heck v0.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4591332Z   Downloaded multimap v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4700741Z   Downloaded itertools v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4771731Z   Downloaded pbjson-build v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4800398Z   Downloaded pbjson v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.4869748Z   Downloaded base64 v0.21.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6515549Z   Downloaded iana-time-zone v0.1.65
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6543624Z   Downloaded chrono v0.4.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6626435Z   Downloaded windows-strings v0.5.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6645592Z   Downloaded windows-core v0.62.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6697625Z   Downloaded windows-result v0.4.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6757884Z   Downloaded windows-interface v0.59.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6774995Z   Downloaded windows-implement v0.60.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6859070Z   Downloaded android_system_properties v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6863367Z   Downloaded iana-time-zone-haiku v0.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6923706Z   Downloaded hex v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.6975943Z   Downloaded postgres-openssl v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7016277Z   Downloaded tokio-postgres v0.7.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7085069Z   Downloaded whoami v2.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7105910Z   Downloaded wasite v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7178649Z   Downloaded wasi v0.14.7+wasi-0.2.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7200903Z   Downloaded wasip2 v1.0.4+wasi-0.2.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7286970Z   Downloaded wit-bindgen v0.57.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7319834Z   Downloaded objc2-system-configuration v0.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7405307Z   Downloaded objc2-core-foundation v0.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7466427Z   Downloaded libredox v0.1.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7530430Z   Downloaded postgres-types v0.2.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7562950Z   Downloaded postgres-protocol v0.6.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7622521Z   Downloaded stringprep v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.7721767Z   Downloaded unicode-normalization v0.1.25
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8541416Z   Downloaded unicode-bidi v0.3.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8551657Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8556368Z dependencies:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8565334Z + pg 8.16.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8565536Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8565665Z devDependencies:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8566078Z + @axe-core/playwright 4.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8566544Z + @bufbuild/buf 1.72.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8566968Z + @bufbuild/protobuf 2.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8567367Z + @eslint/js 9.33.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8567735Z + @next/eslint-plugin-next 15.5.27
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8568141Z + @playwright/test 1.62.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8568511Z + @types/node 24.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8568848Z + @types/pngjs 6.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8572340Z   Downloaded unicode-properties v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8575070Z + @vitest/coverage-v8 4.1.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8575424Z + ajv 8.20.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8575697Z + ajv-formats 3.0.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8575964Z + eslint 9.33.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8576216Z + globals 16.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8576564Z + license-checker-rseidelsohn 4.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8576792Z + msw 2.15.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8576994Z + openapi-typescript 7.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8577206Z + pixelmatch 7.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8577378Z + pngjs 7.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8577551Z + typescript 5.9.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8577743Z + typescript-eslint 8.39.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8578179Z + vitest 4.1.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8578349Z + yaml 2.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8578438Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8578954Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8579394Z │                                                                              │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8580005Z │   Ignored build scripts: @bufbuild/buf, @parcel/watcher, @swc/core,          │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8580622Z │   esbuild, msw.                                                              │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8583394Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8584344Z │   to run scripts.                                                            │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8585179Z │                                                                              │
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8587417Z ╰──────────────────────────────────────────────────────────────────────────────╯
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8587717Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8636618Z   Downloaded digest v0.11.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8665257Z   Downloaded sha2 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8736284Z   Downloaded ctutils v0.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8778268Z   Downloaded cmov v0.5.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8822757Z Done in 12.2s using pnpm v10.20.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8823377Z   Downloaded crypto-common v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8899468Z   Downloaded hybrid-array v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.8932682Z   Downloaded const-oid v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9007690Z   Downloaded block-buffer v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9040811Z   Downloaded md-5 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9122840Z   Downloaded fallible-iterator v0.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9142413Z   Downloaded hmac v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9240005Z   Downloaded byteorder v1.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9269156Z   Downloaded phf v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9339891Z   Downloaded phf_shared v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9387731Z   Downloaded siphasher v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9488024Z   Downloaded parking_lot v0.12.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9512664Z   Downloaded parking_lot_core v0.9.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9604087Z   Downloaded redox_syscall v0.5.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9627932Z   Downloaded lock_api v0.4.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9718380Z   Downloaded scopeguard v1.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9738544Z   Downloaded tokio-openssl v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9826689Z   Downloaded openssl-sys v0.9.117
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:26.9880574Z   Downloaded vcpkg v0.2.15
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0362532Z   Downloaded openssl-macros v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0370093Z   Downloaded openssl v0.10.81
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0484565Z   Downloaded foreign-types-shared v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0509946Z   Downloaded foreign-types v0.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0596526Z   Downloaded postgres-native-tls v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0650463Z   Downloaded tokio-native-tls v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0719650Z   Downloaded native-tls v0.2.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0765359Z   Downloaded postgres v0.19.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0839215Z   Downloaded hmac v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0888691Z   Downloaded clap v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.0974184Z   Downloaded clap_derive v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1035306Z   Downloaded clap_builder v4.6.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1124556Z   Downloaded clap_lex v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1171696Z   Downloaded strsim v0.11.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1292557Z   Downloaded anstyle v1.0.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1369445Z   Downloaded anstream v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1387880Z   Downloaded utf8parse v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1493344Z   Downloaded is_terminal_polyfill v1.70.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1511184Z   Downloaded colorchoice v1.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1625067Z   Downloaded anstyle-wincon v3.0.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1639800Z   Downloaded once_cell_polyfill v1.70.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1744585Z   Downloaded anstyle-query v1.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.1796112Z   Downloaded anstyle-parse v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.3355585Z make[1]: Leaving directory '/tmp/quantos-f01-UlkIX3/workspace'
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.5083247Z bash ./scripts/check-lockfiles.sh
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:27.7766787Z Resolved 52 packages in 2ms
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:28.2332256Z Scope: all 8 workspace projects
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:28.4163542Z Done in 370ms using pnpm v10.20.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:28.4312193Z All phase-1 locks parse and match their manifests.
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:28.4314283Z node scripts/check-f01.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0377193Z {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0377584Z   "status": "PASS",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0377882Z   "toolchains": {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0378163Z     "node": "24.12.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0378475Z     "uv": "0.7.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0378747Z     "pnpm": "10.20.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0379003Z     "rustc": "1.91.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0379286Z   },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0379540Z   "moduleReadmes": 48,
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0379820Z   "inventory": {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0380105Z     "rustBinaries": [
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0380360Z       "bff-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0380650Z       "capacity-monitor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0380986Z       "execution-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0381300Z       "market-ingestor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0381608Z       "portfolio-rebuild",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0382134Z       "replay-cli",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0382430Z       "runtime-gateway"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0382729Z     ],
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0382997Z     "rustBuildBinaries": [
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0383317Z       "bff-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0383611Z       "capacity-monitor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0383925Z       "execution-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0384240Z       "f08-approval",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0384530Z       "fixture-corpus",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0384828Z       "market-ingestor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0385135Z       "portfolio-rebuild",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0385521Z       "quantos-proto-json-codegen",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0385880Z       "quantos-reconcile",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0386183Z       "replay-cli",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0386469Z       "runtime-gateway"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0386740Z     ],
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0387211Z     "rustDirectories": [
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0387611Z       "crates/quantos-auth",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0387903Z       "crates/quantos-core",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0392962Z       "crates/quantos-engine-manager",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0393375Z       "crates/quantos-event",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0394057Z       "crates/quantos-evidence",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0394507Z       "crates/quantos-execution",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0394877Z       "crates/quantos-market",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0395269Z       "crates/quantos-observability",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0395691Z       "crates/quantos-operations",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0396100Z       "crates/quantos-policy",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0396500Z       "crates/quantos-portfolio",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0396888Z       "crates/quantos-proto",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0397256Z       "crates/quantos-reconcile",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0397650Z       "crates/quantos-risk",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0398041Z       "crates/quantos-runtime",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0398426Z       "crates/quantos-storage",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0398819Z       "crates/quantos-strategy",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0399091Z       "crates/quantos-testkit",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0399334Z       "services/bff-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0399621Z       "services/capacity-monitor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0399888Z       "services/execution-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0400143Z       "services/market-ingestor",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0400394Z       "services/portfolio-rebuild",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0400610Z       "services/replay-cli",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0400847Z       "services/runtime-gateway",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0401082Z       "tools/proto-json-codegen"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0401297Z     ],
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0401457Z     "js": [
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0401636Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0402044Z         "directory": "apps/terminal",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0402475Z         "name": "@sumalpha/terminal",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0402938Z         "output": "apps/terminal/out"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0403163Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0403391Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0403626Z         "directory": "apps/website",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0403858Z         "name": "@sumalpha/website",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0404084Z         "output": "apps/website/out"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0404474Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0404634Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0404832Z         "directory": "packages/api-client",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0405085Z         "name": "@sumalpha/api-client",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0405344Z         "output": "packages/api-client/dist"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0405567Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0405714Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0405899Z         "directory": "packages/config",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0406133Z         "name": "@sumalpha/config",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0406364Z         "output": "packages/config/dist"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0406575Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0406722Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0406919Z         "directory": "packages/domain-ui",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0407170Z         "name": "@sumalpha/domain-ui",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0407426Z         "output": "packages/domain-ui/dist"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0407639Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0407790Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0407986Z         "directory": "packages/platform",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0408242Z         "name": "@sumalpha/platform",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0408486Z         "output": "packages/platform/dist"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0408701Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0408852Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0409032Z         "directory": "packages/ui",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0409265Z         "name": "@sumalpha/ui",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0409495Z         "output": "packages/ui/dist"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0409704Z       }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0409852Z     ],
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0410095Z     "python": [
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0410339Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0410529Z         "directory": "engines/engine-sdk",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0410783Z         "name": "quantos-engine-sdk",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0411002Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0411185Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0411344Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0411527Z         "directory": "engines/llmquant",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0411765Z         "name": "quantos-llmquant",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0412180Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0412365Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0412515Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0412717Z         "directory": "engines/mock-engine",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0413095Z         "name": "quantos-mock-engine",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0413307Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0413491Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0413671Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0413881Z         "directory": "engines/openbb-adapter",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0414159Z         "name": "quantos-openbb-adapter",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0414391Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0414579Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0414742Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0414932Z         "directory": "engines/rd-agent",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0415192Z         "name": "quantos-rd-agent",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0415411Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0415598Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0415764Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0415964Z         "directory": "engines/strategy-lab",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0416322Z         "name": "quantos-strategy-lab",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0416640Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0416898Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0417140Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0417470Z         "directory": "engines/trading-agents",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0417897Z         "name": "quantos-trading-agents",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0418126Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0418309Z       },
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0418465Z       {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0418662Z         "directory": "engines/vibe-adapter",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0418961Z         "name": "quantos-vibe-adapter",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0419288Z         "version": "0.1.0"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0419474Z       }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0419629Z     ],
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0419794Z     "buildClosure": {
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0419993Z       "hatchling": "1.27.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0420199Z       "packaging": "26.3",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0420386Z       "pathspec": "1.1.1",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0420581Z       "pluggy": "1.6.0",
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0420804Z       "trove-classifiers": "2026.6.1.19"
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0421169Z     }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0421334Z   }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0421492Z }
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:29.0421725Z node --test scripts/f01-gate-negative.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4777454Z ✔ formal gate rejects zero, one, two and noninteger runs (0.877809ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4780631Z ✔ all binaries participate in digest and omitted binary fails (135.91615ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4781256Z ✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (129.777665ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4781785Z ✔ manifest inventory cannot omit or add members (0.22948ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4792759Z ✔ dirty and untracked source rejected (176.348335ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4796297Z ✔ deleted module README is rejected (1.674369ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4796918Z ✔ wrong uv version fails toolchain preflight (73.048347ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4797359Z ✔ invalid locks fail real lock entrypoint (16.247755ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4797962Z ✔ Terminal default lint rejects a page TSX violation (2189.387952ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4798434Z ✔ invalid run revokes old successful receipt (33.138651ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4798893Z ✔ Cargo manifest drift is rejected by actual lock gate (1479.574325ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4801364Z ✔ uv manifest drift is rejected by actual lock gate (1194.225931ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4805031Z ✔ pnpm manifest drift is rejected by actual lock gate (1874.79185ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4807599Z ✔ malformed Buf lock is rejected by actual lock gate (1046.617171ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4810974Z ✔ broken Desktop is outside phase-one pnpm frozen check (542.555528ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4814599Z ✔ uv output marker is metadata, other unexpected files still fail (1.478258ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4815750Z ✔ build-only tool is required in output inventory without becoming a runtime binary (1.836719ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4828442Z ✔ pnpm frozen check rejects missing or changed patch bytes (1249.531515ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4829663Z ✔ pnpm patch cannot read outside the repository (221.658221ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4912551Z ℹ tests 19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4912772Z ℹ suites 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4912967Z ℹ pass 19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4913500Z ℹ fail 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4913684Z ℹ cancelled 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4913885Z ℹ skipped 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4914059Z ℹ todo 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4914272Z ℹ duration_ms 10427.815161
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.4943989Z node --test scripts/capture-build-outputs.test.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6043954Z ✔ a real byte mismatch still fails the Gate, and both versions survive workspace cleanup (4.64798ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6046401Z ✔ changed output cannot be attached to an earlier receipt (1.826373ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6047307Z ✔ capture rejects stale destinations instead of mixing evidence (2.299654ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6048235Z ✔ an invalid run revokes stale raw outputs as well as the success receipt (39.128986ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6119335Z ℹ tests 4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6119575Z ℹ suites 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6119763Z ℹ pass 4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6119933Z ℹ fail 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6120156Z ℹ cancelled 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6120446Z ℹ skipped 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6120723Z ℹ todo 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6120994Z ℹ duration_ms 95.780252
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.6153726Z node --test scripts/webpack-module-ids.test.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:39.8934284Z ✔ old short-ID collision swaps 9311/1692 with traversal order and changes real bundle bytes (115.703054ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:40.7429844Z ✔ terminal actual Next config produces identical executable bytes under both traversal orders (340.618918ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:40.7430945Z ✔ terminal actual Next config rejects a collision in the new namespace (514.742391ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2744072Z ✔ website actual Next config produces identical executable bytes under both traversal orders (37.438503ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2745105Z ✔ website actual Next config rejects a collision in the new namespace (494.332172ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2926531Z ℹ tests 5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2926785Z ℹ suites 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2926971Z ℹ pass 5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2927511Z ℹ fail 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2927685Z ℹ cancelled 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2927883Z ℹ skipped 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2928087Z ℹ todo 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2928298Z ℹ duration_ms 1654.930269
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:41.2957824Z cargo fmt --check
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.3502221Z cargo clippy --workspace --all-targets -- -D warnings
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6112102Z    Compiling proc-macro2 v1.0.107
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6112602Z    Compiling unicode-ident v1.0.24
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6112866Z    Compiling quote v1.0.47
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6113084Z    Compiling libc v0.2.189
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6644853Z     Checking cfg-if v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.6849783Z     Checking bytes v1.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.8566480Z     Checking itoa v1.0.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:42.9826388Z     Checking memchr v2.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:43.4203286Z    Compiling syn v2.0.119
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:43.4502887Z    Compiling syn v3.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:43.7359805Z    Compiling serde_core v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:43.8293246Z     Checking pin-project-lite v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:43.8577215Z    Compiling autocfg v1.5.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:44.1374319Z    Compiling serde v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:44.2783606Z     Checking typenum v1.20.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.0381209Z     Checking futures-core v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.1003479Z     Checking errno v0.3.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.1460732Z     Checking signal-hook-registry v1.4.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.2410102Z     Checking socket2 v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.4393147Z     Checking mio v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.4708767Z     Checking log v0.4.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.5452989Z    Compiling zmij v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.6440570Z    Compiling num-traits v0.2.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.6845788Z     Checking futures-sink v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.7195227Z    Compiling serde_json v1.0.151
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:45.8103077Z     Checking smallvec v1.15.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.3413990Z     Checking slab v0.4.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.4213357Z     Checking iana-time-zone v0.1.65
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.4751322Z     Checking futures-io v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.5333139Z     Checking futures-task v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.5982958Z     Checking percent-encoding v2.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.6613092Z     Checking rand_core v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.6783578Z    Compiling getrandom v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.7243169Z     Checking subtle v2.6.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.7787821Z    Compiling serde_derive v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.7900435Z    Compiling version_check v0.9.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.8723775Z     Checking base64 v0.22.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:46.9713027Z    Compiling generic-array v0.14.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.0333498Z     Checking futures-channel v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.1532909Z    Compiling jobserver v0.1.35
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.3793125Z    Compiling shlex v2.0.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.4453074Z    Compiling find-msvc-tools v0.1.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.4763537Z    Compiling anyhow v1.0.104
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.5923674Z    Compiling cc v1.4.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.6753065Z     Checking crypto-common v0.1.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.6803683Z    Compiling tokio-macros v2.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:47.7192886Z    Compiling futures-macro v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:48.1463270Z     Checking tokio v1.53.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:48.2533081Z     Checking futures-util v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:48.8653458Z     Checking block-buffer v0.10.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:48.9163091Z     Checking uuid v1.24.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:49.1433228Z    Compiling pkg-config v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:49.5363287Z     Checking digest v0.10.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:49.6083194Z     Checking chrono v0.4.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:49.6514753Z    Compiling async-trait v0.1.91
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.1233904Z    Compiling thiserror v2.0.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.2965794Z     Checking once_cell v1.21.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.3645950Z    Compiling thiserror-impl v2.0.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.3709411Z     Checking form_urlencoded v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.3932986Z     Checking cpufeatures v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.4195767Z     Checking sha2 v0.10.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.4202891Z     Checking semver v1.0.28
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.5412926Z     Checking bitflags v2.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.5920280Z     Checking tracing-core v0.1.36
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.6223127Z    Compiling tracing-attributes v0.1.31
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.8160694Z    Compiling synstructure v0.13.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:50.8633563Z     Checking tokio-util v0.7.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.1923312Z    Compiling either v1.17.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.2533423Z     Checking http v1.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.3242265Z    Compiling itertools v0.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.3463320Z    Compiling zerofrom-derive v0.1.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.5172896Z     Checking tracing v0.1.44
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.7313600Z     Checking http-body v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.7910890Z    Compiling yoke-derive v0.8.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.8593644Z     Checking tower-service v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.8863039Z     Checking stable_deref_trait v1.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:51.9153253Z     Checking hashbrown v0.17.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.2813456Z    Compiling httparse v1.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.2862787Z     Checking zerofrom v0.1.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.3363597Z     Checking equivalent v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.3643103Z     Checking indexmap v2.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.4493574Z    Compiling prost-derive v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.4571773Z    Compiling zerovec-derive v0.11.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.6043032Z     Checking yoke v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.7043400Z     Checking fnv v1.0.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.7343473Z     Checking atomic-waker v1.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.7673059Z     Checking try-lock v0.2.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.7975095Z     Checking want v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.8043508Z     Checking h2 v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:52.9753079Z    Compiling displaydoc v0.2.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.3143110Z     Checking zerovec v0.11.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.4581047Z     Checking hybrid-array v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.5683609Z    Compiling vcpkg v0.2.15
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.7043085Z     Checking tower-layer v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.7873480Z     Checking httpdate v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.8668307Z     Checking sync_wrapper v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.8773013Z     Checking ipnet v2.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:53.9053639Z    Compiling rust_decimal v1.42.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.0163538Z     Checking cmov v0.5.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.0640021Z    Compiling rustix v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.0658117Z    Compiling openssl-sys v0.9.117
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.1313566Z     Checking ctutils v0.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.2512098Z     Checking block-buffer v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.3151651Z     Checking crypto-common v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.3235320Z     Checking const-oid v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.4001435Z     Checking arrayvec v0.7.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.4233141Z     Checking tower v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.7283144Z     Checking tinystr v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.7803297Z     Checking http-body-util v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.8203014Z     Checking cpufeatures v0.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.8433584Z    Compiling zerocopy v0.8.55
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.9203862Z     Checking digest v0.11.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:54.9322999Z     Checking writeable v0.6.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.0168292Z     Checking tinyvec_macros v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.0369632Z     Checking litemap v0.8.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.0412956Z     Checking hex v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.1263511Z    Compiling heck v0.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.1753744Z     Checking icu_locale_core v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.2643165Z     Checking tinyvec v1.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.4933133Z     Checking potential_utf v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.5446799Z    Compiling prost v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.6022918Z     Checking hyper v1.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.7082980Z     Checking zerotrie v0.2.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.8036021Z     Checking utf8_iter v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.8593144Z    Compiling linux-raw-sys v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.8680987Z    Compiling icu_normalizer_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.9103183Z    Compiling prettyplease v0.2.37
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:55.9763545Z    Compiling regex-syntax v0.8.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:56.1703537Z    Compiling icu_properties_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:56.4483339Z     Checking hyper-util v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:57.0907448Z    Compiling regex-automata v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:57.5166730Z     Checking icu_collections v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:57.6393209Z     Checking icu_provider v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:57.7213524Z    Compiling prost-types v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:57.8322958Z     Checking unicode-normalization v0.1.25
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.1183824Z     Checking quantos-core v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-core)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.5433049Z     Checking chacha20 v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.6728234Z     Checking getrandom v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.6783828Z    Compiling parking_lot_core v0.9.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.7463308Z     Checking unicode-bidi v0.3.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.7923165Z     Checking foreign-types-shared v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.8147056Z    Compiling rustversion v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.9576058Z     Checking unicode-properties v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:58.9873212Z    Compiling fastrand v2.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.0493144Z    Compiling fixedbitset v0.5.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.0709759Z    Compiling openssl v0.10.81
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.1203015Z    Compiling tempfile v3.27.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.2032282Z    Compiling petgraph v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.2279831Z     Checking stringprep v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.3273194Z     Checking foreign-types v0.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.3566528Z     Checking rand_core v0.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.3733031Z     Checking rand v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.4413155Z    Compiling regex v1.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:37:59.8609843Z     Checking sha2 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.2943516Z     Checking md-5 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.3663503Z     Checking hmac v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.3903427Z    Compiling itertools v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.4393019Z    Compiling openssl-macros v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.5883151Z    Compiling indexmap v1.9.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.6753413Z     Checking scopeguard v1.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.7134012Z     Checking siphasher v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.7554222Z     Checking ppv-lite86 v0.2.21
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.8303641Z     Checking byteorder v1.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.8326399Z     Checking fallible-iterator v0.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:00.9669920Z    Compiling multimap v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.0313863Z     Checking rand_chacha v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.0314938Z     Checking postgres-protocol v0.6.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.0543984Z    Compiling prost-build v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.1512966Z     Checking phf_shared v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.2413021Z     Checking lock_api v0.4.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.4233037Z     Checking icu_properties v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.5723106Z    Compiling pbjson-build v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:01.9676650Z     Checking icu_normalizer v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.2223753Z    Compiling pin-project-internal v1.1.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.2692945Z     Checking hashbrown v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.5543673Z     Checking mime v0.3.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.5993591Z     Checking ryu v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.6483057Z     Checking axum-core v0.4.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:02.6683463Z     Checking serde_urlencoded v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.0503735Z     Checking parking_lot v0.12.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.0555637Z     Checking pin-project v1.1.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.0833487Z     Checking idna_adapter v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.1293324Z    Compiling pbjson-types v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.1673312Z     Checking phf v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.2453674Z     Checking postgres-types v0.2.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.4667033Z     Checking rand v0.8.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.4714317Z    Compiling async-stream-impl v0.3.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.5333108Z     Checking serde_path_to_error v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.7343370Z     Checking whoami v2.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.8093485Z     Checking base64 v0.21.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.8772981Z     Checking matchit v0.7.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.9315422Z     Checking tower v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:03.9623624Z     Checking pbjson v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.0052966Z     Checking tokio-postgres v0.7.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.0248891Z     Checking async-stream v0.3.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.0403413Z     Checking axum v0.7.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.1593257Z     Checking idna v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.3283690Z     Checking hyper-timeout v0.5.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.4383248Z     Checking tokio-stream v0.1.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.7118691Z     Checking socket2 v0.5.10
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.7285342Z    Compiling tokio-openssl v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:04.8263010Z     Checking url v2.5.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.1903534Z    Compiling cmake v0.1.58
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.3483053Z    Compiling fs_extra v1.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.4443077Z    Compiling dunce v1.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.4763534Z     Checking postgres v0.19.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.5303384Z    Compiling aws-lc-sys v0.44.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.6443159Z     Checking postgres-openssl v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.7193123Z     Checking zeroize v1.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.7912983Z    Compiling aws-lc-rs v1.18.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.9353240Z     Checking openssl-probe v0.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:05.9709547Z     Checking rustls-pki-types v1.15.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.2003171Z    Compiling native-tls v0.2.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.2963376Z    Compiling rustls v0.23.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.3653315Z     Checking untrusted v0.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.4103253Z     Checking rustls-native-certs v0.8.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.4593452Z     Checking tower-http v0.6.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.5153531Z     Checking tokio-native-tls v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.5819337Z     Checking postgres-native-tls v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.6347687Z     Checking hmac v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.6871992Z     Checking quantos-policy v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-policy)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:06.6966609Z     Checking quantos-event v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-event)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:07.1267397Z     Checking tonic v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:07.5468725Z     Checking quantos-market v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-market)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:07.9674526Z     Checking quantos-proto v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-proto)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.2719590Z     Checking quantos-portfolio v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-portfolio)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.6537315Z     Checking utf8parse v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.6779177Z     Checking anstyle-parse v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.7363447Z     Checking is_terminal_polyfill v1.70.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.7558952Z     Checking anstyle v1.0.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.8344068Z     Checking anstyle-query v1.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.8559366Z     Checking colorchoice v1.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.8792298Z     Checking anstream v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:08.9681374Z     Checking clap_lex v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:09.0199850Z     Checking strsim v0.11.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:09.0971496Z     Checking clap_builder v4.6.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:09.1181065Z    Compiling clap_derive v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:10.1264290Z     Checking aho-corasick v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:10.2433084Z     Checking clap v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:10.4279329Z     Checking quantos-engine-manager v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-engine-manager)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:11.6829254Z     Checking quantos-testkit v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-testkit)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:12.2332875Z     Checking quantos-proto-json-codegen v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/tools/proto-json-codegen)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:31.6802901Z     Checking rustls-webpki v0.103.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.2071138Z     Checking tokio-rustls v0.26.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.2071616Z     Checking rustls-platform-verifier v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.2963821Z     Checking hyper-rustls v0.27.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.3568911Z     Checking reqwest v0.13.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.7567158Z     Checking quantos-storage v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-storage)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:33.7568071Z     Checking quantos-auth v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-auth)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:34.6243945Z     Checking quantos-runtime v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-runtime)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:34.6244926Z     Checking quantos-strategy v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-strategy)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:36.1793801Z     Checking quantos-risk v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-risk)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:36.8863249Z     Checking quantos-observability v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-observability)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:37.0253969Z     Checking quantos-execution v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-execution)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:37.7843673Z     Checking portfolio-rebuild v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/portfolio-rebuild)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:37.7899170Z     Checking market-ingestor v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/market-ingestor)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:38.0233223Z     Checking runtime-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/runtime-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:38.5193949Z     Checking replay-cli v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/replay-cli)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:38.7633492Z     Checking capacity-monitor v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/capacity-monitor)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:39.4803351Z     Checking quantos-reconcile v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-reconcile)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:39.6063515Z     Checking quantos-operations v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-operations)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:39.6271422Z     Checking execution-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/execution-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:40.2103372Z     Checking quantos-evidence v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-evidence)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:41.0023594Z     Checking bff-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/bff-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.6930875Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 05s
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.7297759Z node --test scripts/python-lint-scope.test.mjs
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8088986Z ✔ both Python lint targets reject active code errors and preserve archived evidence (19.378007ms)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8156493Z ℹ tests 1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8156879Z ℹ suites 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8157166Z ℹ pass 1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8157437Z ℹ fail 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8157715Z ℹ cancelled 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8158077Z ℹ skipped 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8158368Z ℹ todo 0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8159142Z ℹ duration_ms 63.088511
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8190302Z uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src,third_party/qlib/upstream-evidence,docs/audit/evidence
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8628984Z All checks passed!
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:47.8648812Z uv run --locked --project engines --all-packages pyright --project engines
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.2624734Z 0 errors, 0 warnings, 0 informations 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.3107424Z WARNING: there is a new pyright version available (v1.1.403 -> v1.1.414).
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.3108057Z Please install the new version or set PYRIGHT_PYTHON_FORCE_VERSION to `latest`
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.3108312Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.3228060Z pnpm lint
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.5337417Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.5338135Z > @sumalpha/quantos@ lint /tmp/quantos-f01-UlkIX3/workspace
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.5338500Z > pnpm -r lint
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.5338650Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.7665461Z Scope: 7 of 8 workspace projects
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.7712979Z packages/config lint$ eslint src tests --ext .ts
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:50.7717683Z packages/ui lint$ eslint src tests --ext .ts,.tsx
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:51.6336718Z packages/config lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:51.7978812Z packages/ui lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:51.7984606Z packages/api-client lint$ eslint src tests --ext .ts
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:51.7986871Z packages/platform lint$ eslint src tests --ext .ts
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:52.5977592Z packages/platform lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:53.4341405Z packages/api-client lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:53.4346538Z apps/website lint$ eslint app src tests
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:53.4349107Z packages/domain-ui lint$ eslint src tests --ext .ts,.tsx
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:54.3895619Z apps/website lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:54.4832128Z packages/domain-ui lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:54.4836148Z apps/terminal lint$ eslint app src tests --ext .ts,.tsx
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:55.8273899Z apps/terminal lint: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:55.8431238Z pnpm typecheck
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.0591360Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.0592381Z > @sumalpha/quantos@ typecheck /tmp/quantos-f01-UlkIX3/workspace
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.0593006Z > pnpm -r typecheck
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.0593193Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.2944195Z Scope: 7 of 8 workspace projects
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.2991481Z packages/config typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:56.2995906Z packages/ui typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:57.5686686Z packages/config typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:58.2554012Z packages/ui typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:58.2559678Z packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:58.2562727Z packages/platform typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:38:59.1912499Z packages/platform typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:01.2359690Z packages/api-client typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:01.2365091Z apps/website typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:01.2367130Z packages/domain-ui typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:04.8992188Z packages/domain-ui typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:05.3182393Z apps/website typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:05.3186067Z apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.3521532Z apps/terminal typecheck: Done
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.3671403Z cargo test --workspace --locked
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.6111609Z    Compiling cfg-if v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.6113243Z    Compiling libc v0.2.189
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.6113659Z    Compiling bytes v1.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.6154897Z    Compiling itoa v1.0.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.6426649Z    Compiling memchr v2.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:09.7273145Z    Compiling serde_core v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.1363659Z    Compiling pin-project-lite v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.1823068Z    Compiling typenum v1.20.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.2743093Z    Compiling log v0.4.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.3742880Z    Compiling futures-core v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.4463353Z    Compiling zmij v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.4813702Z    Compiling errno v0.3.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.5543048Z    Compiling signal-hook-registry v1.4.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.6943118Z    Compiling socket2 v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:10.7453078Z    Compiling mio v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.0163425Z    Compiling tokio v1.53.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.1283044Z    Compiling num-traits v0.2.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.1773429Z    Compiling futures-sink v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.2173639Z    Compiling iana-time-zone v0.1.65
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.4063419Z    Compiling smallvec v1.15.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.5313013Z    Compiling serde v1.0.229
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.5963049Z    Compiling serde_json v1.0.151
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.6143007Z    Compiling slab v0.4.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.7162909Z    Compiling futures-task v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.7973018Z    Compiling bitflags v2.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.9293000Z    Compiling chrono v0.4.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:11.9656110Z    Compiling rand_core v0.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:12.0493449Z    Compiling futures-io v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:12.1172969Z    Compiling futures-util v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.0543057Z    Compiling subtle v2.6.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.1283036Z    Compiling percent-encoding v2.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.2323423Z    Compiling getrandom v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.2923011Z    Compiling base64 v0.22.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.3583737Z    Compiling generic-array v0.14.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.5273183Z    Compiling futures-channel v0.3.33
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.6572902Z    Compiling uuid v1.24.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.7860186Z    Compiling crypto-common v0.1.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.8362944Z    Compiling block-buffer v0.10.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:13.9044208Z    Compiling once_cell v1.21.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.0159424Z    Compiling digest v0.10.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.0353587Z    Compiling jobserver v0.1.35
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.1508333Z    Compiling cpufeatures v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.1859954Z    Compiling cc v1.4.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.2563041Z    Compiling tokio-util v0.7.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.3513116Z    Compiling sha2 v0.10.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.6383488Z    Compiling thiserror v2.0.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.6813128Z    Compiling form_urlencoded v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.7873532Z    Compiling semver v1.0.28
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:14.8021066Z    Compiling anyhow v1.0.104
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.0333454Z    Compiling hashbrown v0.17.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.0753260Z    Compiling equivalent v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.1033314Z    Compiling tracing-core v0.1.36
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.4676832Z    Compiling indexmap v2.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.4843584Z    Compiling tracing v0.1.44
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.5322970Z    Compiling http v1.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.6479285Z    Compiling zerofrom v0.1.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.7092977Z    Compiling either v1.17.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.8343247Z    Compiling stable_deref_trait v1.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.8603101Z    Compiling yoke v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.9673132Z    Compiling tower-service v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:15.9797453Z    Compiling itertools v0.14.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.0003448Z    Compiling zerovec v0.11.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.3843014Z    Compiling http-body v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.3984322Z    Compiling hybrid-array v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.4213532Z    Compiling arrayvec v0.7.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.4459204Z    Compiling fnv v1.0.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.4762903Z    Compiling try-lock v0.2.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.5163634Z    Compiling atomic-waker v1.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.5633449Z    Compiling rust_decimal v1.42.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.5672238Z    Compiling h2 v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.8203402Z    Compiling want v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:16.8953083Z    Compiling openssl-sys v0.9.117
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.1039023Z    Compiling prost-derive v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.1931650Z    Compiling httparse v1.10.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.1972619Z    Compiling tower-layer v0.3.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.2893500Z    Compiling hex v0.4.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.4043423Z    Compiling httpdate v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.4533058Z    Compiling cmov v0.5.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.5823419Z    Compiling ctutils v0.4.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.5873481Z    Compiling block-buffer v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.6603070Z    Compiling crypto-common v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.7122969Z    Compiling sync_wrapper v1.0.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.7572985Z    Compiling const-oid v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:17.8742847Z    Compiling ipnet v2.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.2744560Z    Compiling quantos-core v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-core)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.2963475Z    Compiling tinystr v0.8.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.3992885Z    Compiling digest v0.11.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.4922958Z    Compiling tinyvec_macros v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.5147653Z    Compiling heck v0.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.6802969Z    Compiling litemap v0.8.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.7564947Z    Compiling cpufeatures v0.3.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.7823616Z    Compiling writeable v0.6.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.7963504Z    Compiling tinyvec v1.12.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:18.9043605Z    Compiling icu_locale_core v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.0723644Z    Compiling tower v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.2140419Z    Compiling http-body-util v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.3755826Z    Compiling zerotrie v0.2.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.4453078Z    Compiling potential_utf v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.5103010Z    Compiling utf8_iter v1.0.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.5689327Z    Compiling icu_provider v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.5727853Z    Compiling icu_collections v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.7723631Z    Compiling hyper v1.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.8893681Z    Compiling unicode-normalization v0.1.25
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:19.9663803Z    Compiling chacha20 v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.1303104Z    Compiling linux-raw-sys v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.2153070Z    Compiling unicode-bidi v0.3.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.4316484Z    Compiling unicode-properties v0.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.5473078Z    Compiling foreign-types-shared v0.1.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.5753113Z    Compiling foreign-types v0.3.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.6093085Z    Compiling stringprep v0.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.6930145Z    Compiling prost v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.9163504Z    Compiling hyper-util v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.9903066Z    Compiling openssl v0.10.81
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:20.9973034Z    Compiling rustix v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.0862933Z    Compiling rand v0.10.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.3693602Z    Compiling icu_properties_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.4483515Z    Compiling icu_normalizer_data v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.4812980Z    Compiling sha2 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.6003064Z    Compiling md-5 v0.11.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:21.6993768Z    Compiling hmac v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.1153338Z    Compiling itertools v0.13.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.2443314Z    Compiling fallible-iterator v0.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.4713476Z    Compiling fastrand v2.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.4793229Z    Compiling scopeguard v1.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.5073336Z    Compiling siphasher v1.0.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.5819448Z    Compiling byteorder v1.5.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.5983341Z    Compiling lock_api v0.4.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.6233439Z    Compiling phf_shared v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.7292935Z    Compiling postgres-protocol v0.6.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:22.7903190Z    Compiling icu_normalizer v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:23.1383713Z    Compiling icu_properties v2.2.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:23.2713760Z    Compiling parking_lot_core v0.9.12
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:23.3563589Z    Compiling zerocopy v0.8.55
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:23.4323081Z    Compiling prost-types v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:24.4813562Z    Compiling getrandom v0.2.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:24.5433275Z    Compiling petgraph v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:24.5973539Z    Compiling rand_core v0.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:24.7165705Z    Compiling idna_adapter v1.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:24.7694858Z    Compiling parking_lot v0.12.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:25.0763604Z    Compiling tempfile v3.27.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:25.4137124Z    Compiling postgres-types v0.2.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:25.5973600Z    Compiling phf v0.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:25.6843126Z    Compiling whoami v2.1.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:25.9053434Z    Compiling prost-build v0.13.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.0093587Z    Compiling tokio-postgres v0.7.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.0912919Z    Compiling idna v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.4373583Z    Compiling ppv-lite86 v0.2.21
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.6828257Z    Compiling rand_chacha v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.7599540Z    Compiling pbjson-build v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.8013395Z    Compiling mime v0.3.17
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:26.9753559Z    Compiling ryu v1.0.23
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.0595799Z    Compiling hashbrown v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.0813284Z    Compiling tokio-openssl v0.6.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.0852531Z    Compiling serde_urlencoded v0.7.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.2433045Z    Compiling axum-core v0.4.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.4413594Z    Compiling indexmap v1.9.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.5533567Z    Compiling pbjson-types v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.7148463Z    Compiling rand v0.8.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.9483078Z    Compiling pin-project v1.1.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:27.9833329Z    Compiling url v2.5.8
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.2973074Z    Compiling serde_path_to_error v0.1.20
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.5644612Z    Compiling base64 v0.21.7
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.5873026Z    Compiling matchit v0.7.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.7063065Z    Compiling async-stream v0.3.6
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.7633854Z    Compiling axum v0.7.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.7843007Z    Compiling pbjson v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.7953067Z    Compiling tower v0.4.13
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:28.9303095Z    Compiling hyper-timeout v0.5.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.0063709Z    Compiling tokio-stream v0.1.19
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.0483439Z    Compiling socket2 v0.5.10
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.3433426Z    Compiling postgres-openssl v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.4493168Z    Compiling postgres v0.19.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.7323719Z    Compiling cmake v0.1.58
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:29.9993114Z    Compiling aws-lc-sys v0.44.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:31.5168533Z    Compiling zeroize v1.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:31.6098500Z    Compiling openssl-probe v0.2.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:31.6783888Z    Compiling rustls-pki-types v1.15.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.0143081Z    Compiling tonic v0.12.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.1975768Z    Compiling native-tls v0.2.18
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.2043248Z    Compiling untrusted v0.9.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.3260009Z    Compiling rustls-native-certs v0.8.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.4984254Z    Compiling tokio-native-tls v0.3.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.5169821Z    Compiling tower-http v0.6.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.5643087Z    Compiling postgres-native-tls v0.5.3
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.6266428Z    Compiling hmac v0.12.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.6850669Z    Compiling quantos-policy v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-policy)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:32.9164031Z    Compiling quantos-event v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-event)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.1582165Z    Compiling utf8parse v0.2.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.1923162Z    Compiling anstyle-parse v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.2574371Z    Compiling colorchoice v1.0.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.2845571Z    Compiling is_terminal_polyfill v1.70.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.3109595Z    Compiling anstyle v1.0.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:33.4013142Z    Compiling quantos-proto v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-proto)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:35.1023530Z    Compiling quantos-engine-manager v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-engine-manager)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:35.2220117Z    Compiling quantos-market v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-market)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:35.6932986Z    Compiling anstyle-query v1.1.5
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:35.7266449Z    Compiling anstream v1.0.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:35.9203788Z    Compiling quantos-portfolio v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-portfolio)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:36.6603562Z    Compiling clap_lex v1.1.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:36.7839703Z    Compiling strsim v0.11.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:37.0232183Z    Compiling clap_builder v4.6.2
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:38.6058737Z    Compiling clap_derive v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:39.8553198Z    Compiling clap v4.6.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:39.8817743Z    Compiling aho-corasick v1.1.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:40.0533495Z    Compiling regex-syntax v0.8.11
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:41.2517797Z    Compiling quantos-testkit v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-testkit)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:41.4973685Z    Compiling regex-automata v0.4.16
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:42.2635459Z    Compiling quantos-proto-json-codegen v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/tools/proto-json-codegen)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:39:44.2863175Z    Compiling regex v1.13.1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:06.5711079Z    Compiling aws-lc-rs v1.18.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:06.5759889Z    Compiling rustls v0.23.45
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:07.3679084Z    Compiling rustls-webpki v0.103.14
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:09.4182255Z    Compiling tokio-rustls v0.26.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:09.4182782Z    Compiling rustls-platform-verifier v0.7.0
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:09.5783130Z    Compiling hyper-rustls v0.27.9
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:09.6912969Z    Compiling reqwest v0.13.4
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:10.8384189Z    Compiling quantos-storage v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-storage)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:10.8385218Z    Compiling quantos-auth v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-auth)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:12.5595235Z    Compiling quantos-runtime v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-runtime)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:13.0016482Z    Compiling quantos-strategy v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-strategy)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:15.6723673Z    Compiling quantos-risk v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-risk)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:15.8938233Z    Compiling quantos-observability v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-observability)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:17.3584233Z    Compiling quantos-execution v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-execution)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:18.1928880Z    Compiling market-ingestor v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/market-ingestor)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:21.3388189Z    Compiling quantos-reconcile v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-reconcile)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:21.9655532Z    Compiling quantos-operations v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-operations)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:22.0542947Z    Compiling execution-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/execution-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:22.3383462Z    Compiling quantos-evidence v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/crates/quantos-evidence)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:24.8333388Z    Compiling bff-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/bff-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:51.3633312Z    Compiling portfolio-rebuild v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/portfolio-rebuild)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:52.7319263Z    Compiling replay-cli v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/replay-cli)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:53.2680293Z    Compiling capacity-monitor v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/capacity-monitor)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:40:58.9025331Z    Compiling runtime-gateway v0.1.0 (/tmp/quantos-f01-UlkIX3/workspace/services/runtime-gateway)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.6410021Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 05s
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.8570344Z      Running unittests src/lib.rs (target/debug/deps/bff_gateway-86617ee1197cacea)
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.8598517Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.8598759Z running 148 tests
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.8849603Z test a3_tests::current_aggregate_snapshot_registration_never_promotes_bad_or_degraded_facts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.9044150Z test a3_tests::current_aggregate_market_snapshot_resolves_and_drives_research_with_stale_refusal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:14.9293010Z test a3_tests::current_aggregate_research_watchlist_retries_share_unique_audit_facts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:37.3273329Z test a4_tests::mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:37.3453089Z test a4_tests::mixed_approvals_have_distinct_authority_and_frozen_pagination ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:37.5719662Z test a4_tests::poisoned_strategy_host_cannot_publish_successful_mixed_approval_page ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:37.6553459Z test a4_tests::execution_proof_cannot_be_reused_for_strategy_and_exact_retry_recovers ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:47.5124535Z test a4_tests::strategy_only_reader_lists_own_approval_without_execution_grant ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:47.7233663Z test a5_tests::governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:47.8543756Z test a5_tests::member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.4961554Z test a4_tests::simultaneous_domain_retries_preserve_two_unique_audit_roots ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.4982906Z test audit_core::tests::jsonl_csv_pdf_artifacts_include_watermark_and_attested_redacted_data ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.5012807Z test audit_core::tests::normalized_scope_is_order_independent_and_rejects_duplicate_or_reversed_bounds ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.5022556Z test audit_core::tests::redaction_excludes_unknown_nested_and_free_text_and_hashes_canonical_bytes ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.5042772Z test audit_core::tests::scope_filters_apply_correlation_kind_and_utc_time_bounds_together ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:57.6573182Z test a5_tests::poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:58.0103312Z test a5_tests::stale_observer_and_expired_download_never_turn_into_successful_recovery ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:41:58.1923387Z test a5_tests::same_key_across_domains_has_distinct_receipts_and_single_audit_roots ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:07.5458772Z test execution::tests::account_risk_and_kill_control_work_without_any_proposal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:07.7513751Z test execution::tests::actual_allow_approval_required_and_deny_decisions_remain_distinct ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:08.1413119Z test execution::tests::allow_preflight_reads_do_not_reserve_command_authority ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:08.3107314Z test execution::tests::approval_conflict_expiry_missing_proof_and_reject_are_terminal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:17.5861273Z test execution::tests::bounded_immutable_cursor_is_actor_query_and_deadline_scoped ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:17.8523512Z test execution::tests::concurrent_http_reference_issuance_has_single_command_and_one_downstream ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:18.2957803Z test execution::tests::context_version_mismatch_and_changed_idempotency_intent_conflict ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:18.4887087Z test execution::tests::expired_command_ref_and_approver_cannot_submit ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:27.6983179Z test execution::tests::expired_order_control_ref_recovers_without_renewing_submit ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:27.9506122Z test execution::tests::fail_closed_lease_source_update_and_proof_reuse ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:28.4006261Z test execution::tests::filled_kernel_facts_and_fill_lineage_are_real ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:37.7703138Z test execution::tests::kill_between_issue_and_submit_prevents_downstream ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:38.0563257Z test execution::tests::real_modules_approve_issue_submit_cancel_and_thousand_replays ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:38.4753431Z test execution::tests::rejected_source_replacement_preserves_current_projection_and_context ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:47.7973397Z test execution::tests::retry_recovers_same_reserved_approval_without_consuming_another_proof ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:48.1317114Z test execution::tests::self_approval_capability_and_scope_are_denied ... FAILED
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7821639Z test execution::tests::shadow_has_read_projection_and_no_dispatch_path ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7844772Z test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7902597Z test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7932436Z test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7938417Z test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7940544Z test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7941624Z test live::market::tests::known_source_denial_clears_data_but_transport_and_cursor_failures_freeze ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7942791Z test live::market::tests::live_capabilities_and_viewer_writes_fail_closed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7943855Z test live::research::tests::cache_scope_changes_on_tenant_actor_workspace_account_or_mode_switch ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7945301Z test live::research::tests::evidence_ids_are_stable_locatable_and_bound_to_the_artifact ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7946306Z test live::research::tests::live_authority_uses_server_grants_and_viewer_cannot_write ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7947288Z test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7948344Z test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7949510Z test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7950542Z test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7951429Z test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7952584Z test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7953445Z test live::settings_policy::tests::revoked_delivery_is_terminal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7954339Z test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7955261Z test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7956077Z test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7958382Z test market::tests::actor_isolation_unauthorized_symbols_and_input_bounds ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.7962458Z test market::tests::actual_licensed_book_bid_ask_mid_and_replay_are_not_trade_price_fabrications ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8002881Z test market::tests::book_history_deduplicates_exact_records_and_rejects_conflicting_identity_or_sequence ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8334344Z test market::tests::concurrent_watchlist_retry_conflict_and_cas ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8381454Z test market::tests::current_function_book_rejects_blank_authority_and_unsafe_sequence ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8472901Z test market::tests::current_function_trade_integrity_rejects_invalid_receipt_identity_and_zero_price ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8582654Z test market::tests::current_function_watchlist_audit_resolves_and_retries_append_once ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8612508Z test market::tests::degraded_inputs_are_not_promoted_and_empty_history_reports_requested_gap ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8672497Z test market::tests::exact_decimal_ohlcv_gaps_duplicates_and_out_of_order ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8732463Z test market::tests::new_trade_advances_book_quote_recovery_without_inventing_book_values ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8762423Z test market::tests::r01_events_r02_source_authority_and_market_projection_are_composed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.8792348Z test market::tests::reconnect_replaces_series_and_never_splices_dimensions ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.9052707Z test market::tests::seven_market_operations_and_r01_module_projections ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.9082660Z test market::tests::trade_quote_never_fabricates_book_and_staleness_is_visible ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:57.9142451Z test market::tests::wrong_venue_source_quality_and_forged_facts_rejected ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:42:58.1693052Z test execution::tests::stale_inputs_and_expired_proposal_never_create_approval ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:07.9343421Z test operations::tests::ack_unack_are_core_cas_and_never_change_source_resolution ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:08.2823536Z test operations::tests::actual_x06_f09_read_projections_are_redacted_and_stale_refused ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:17.9927968Z test operations::tests::concurrent_governance_retries_are_unique_and_revocation_blocks_other_pages ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:18.4893123Z test execution::tests::host_rejects_mismatched_authority_and_source_scopes has been running for over 60 seconds
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:18.5214162Z test operations::tests::exact_replay_survives_config_changes_and_current_revocation_precedes_replay ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:28.0653301Z test operations::tests::frozen_cursors_bind_session_query_config_and_expiry ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:28.5984104Z test operations::tests::governance_checks_exact_step_up_caller_and_clock_before_commit ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:29.4463142Z test execution::tests::host_rejects_mismatched_authority_and_source_scopes ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:38.0964235Z test operations::tests::governance_crud_versions_tombstones_and_last_admin_are_atomic ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:38.4753355Z test execution::tests::seven_current_risk_denial_families_are_enforced has been running for over 60 seconds
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:38.6768479Z test operations::tests::incident_resolution_needs_repair_new_source_and_separate_user ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:39.6760078Z test operations::tests::last_admin_retains_both_read_and_write_access_after_capability_or_policy_change ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:48.1124171Z test operations::tests::member_revocation_changes_all_page_context_admission_and_poison_refuses ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:48.7599469Z test operations::tests::roles_policies_and_flags_cannot_grant_above_f06_or_disable_safety ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.4397334Z test execution::tests::seven_current_risk_denial_families_are_enforced ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.8053309Z test operations::tests::scope_identity_role_capability_and_fresh_proof_refuse ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.8152930Z test performance::tests::altered_valuation_and_out_of_order_versions_never_append ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.8362882Z test performance::tests::c15_history_preserved_and_lease_loss_fail_closed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.8822876Z test performance::tests::concurrent_http_job_unique_audit_chain_and_revoked_download ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.8912570Z test performance::tests::download_hash_scope_token_expiry_and_report_retention ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:49.9943070Z test performance::tests::exact_retry_single_job_and_frozen_worker_recovery ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:50.0063104Z test performance::tests::periods_partial_coverage_method_currency_and_invalid_basis_refuse ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:50.0152575Z test performance::tests::scope_roles_mode_capability_poison_and_no_browser_source ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:50.0232891Z test performance::tests::trusted_cash_flow_refuses_simple_return_instead_of_fabricating_attribution ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:50.0312745Z test performance::tests::x01_x05_actual_books_golden_metrics_and_provisional ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.0513140Z test reconciliation::tests::bounded_cursor_abuse_returns_retry_envelope_without_ledger_mutation ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.0572549Z test reconciliation::tests::breaks_reflect_only_real_core_acknowledgement_and_verified_closure ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.1693347Z test reconciliation::tests::concurrent_http_retries_have_one_run_and_closed_f05_root ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.1905736Z test reconciliation::tests::denied_session_no_capability_and_logout_cannot_read_or_rerun ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.2151571Z test reconciliation::tests::explicit_context_never_crosses_shadow_into_paper_dispatch_or_strategy ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.2292663Z test reconciliation::tests::frozen_page_rejects_role_capability_session_query_and_expiry_changes ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.2323015Z test reconciliation::tests::journal_resume_gap_staleness_and_poison_refuse_false_success ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.2412550Z test reconciliation::tests::no_ledger_edit_or_browser_source_or_closure_injection ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3193012Z test reconciliation::tests::original_retry_recovers_without_rerun_even_after_source_expiry ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3282412Z test reconciliation::tests::real_x05_run_and_immutable_ledger_projections ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3462614Z test reconciliation::tests::rerun_cannot_silently_switch_the_original_day_and_owner_feed_keeps_history ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3492531Z test reconciliation::tests::tenant_workspace_account_mode_role_capability_are_authoritative ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3522528Z test reconciliation::tests::untrusted_source_renewal_is_rejected_and_report_unchanged ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3542688Z test reconciliation::tests::version_race_and_stale_sources_cannot_change_core_journal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3833036Z test research::tests::all_nine_page_operations_return_populated_contract_responses ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3922586Z test research::tests::attachment_content_hash_matches_the_returned_canonical_bytes ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.3942443Z test research::tests::bounded_materialization_and_invalid_sort_fail_closed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.4132814Z test research::tests::cancellation_is_idempotent_and_terminal_success_conflicts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.4452777Z test research::tests::command_validation_rejects_forgery_empty_and_unsafe_numeric_inputs ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.4482415Z test research::tests::completed_intent_replays_after_its_original_deadline ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.4792739Z test research::tests::concurrent_retries_do_not_duplicate_runs_audits_or_events ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.4912564Z test research::tests::current_function_artifact_metadata_and_attachment_bind_identical_content ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5032533Z test research::tests::current_function_reference_clock_rejects_deadline_and_stale_snapshot ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5212605Z test research::tests::current_function_research_audit_refs_resolve_and_retries_append_once ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5242521Z test research::tests::current_function_snapshot_expiry_preserves_subsecond_window_and_overflow_boundaries ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5243461Z test research::tests::cursors_bind_scope_query_and_immutable_materialized_rows ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5432558Z test research::tests::denied_identity_csrf_and_hidden_resource_return_no_page_data ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5662694Z test research::tests::list_http_validation_and_populated_pagination_work ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5842761Z test research::tests::method_and_attachment_limits_are_enforced_by_the_mounted_routes ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.5992759Z test research::tests::quality_license_and_unknown_attachments_fail_before_scheduling ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.6022397Z test research::tests::quota_is_actor_operation_bound_and_returns_retry_metadata ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.6182678Z test research::tests::replay_has_stable_ids_strict_sequences_and_ahead_cursor_conflict ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:54.6202479Z test research::tests::resolved_attachments_use_the_actual_rd_agent_input_shape_and_limit ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:58.1473285Z test operations::tests::signed_engine_reviews_bind_metadata_expiry_independence_and_workflow_admission ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:58.8982733Z test operations::tests::stream_resume_is_dense_bound_to_subscriptions_and_never_masks_gaps ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:43:59.5513182Z test operations::tests::typed_runbooks_cannot_run_shell_write_ledger_or_skip_prechecks ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:08.9943128Z test strategy::tests::client_cannot_inject_authority_targets_or_validation ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:09.6893606Z test strategy::tests::concurrent_edit_is_unique_and_returns_current_diff ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:14.9523344Z test strategy::tests::approval_expires_at_core_ttl_and_reconnect_revocation_is_terminal ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:18.2723116Z test strategy::tests::approval_proof_cannot_authorize_another_resource ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:19.0633340Z test strategy::tests::edited_untrusted_source_fails_static_and_backtest ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:19.8763433Z test strategy::tests::lost_save_response_replays_original_and_changed_intent_conflicts ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:25.1113113Z test strategy::tests::poisoned_owner_fails_closed ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:28.3323127Z test strategy::tests::real_draft_backtest_release_and_a3_artifact_binding ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:30.0262395Z test strategy::tests::rollback_requires_prior_approved_same_strategy_release ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:35.2336853Z test strategy::tests::scoped_cursor_preserves_snapshot_and_rejects_changed_query ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:38.3979685Z test strategy::tests::self_approval_is_rejected_even_when_actor_has_approver_capability ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:39.2963295Z test strategy::tests::release_approval_requires_independent_verified_actor_and_timelines ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:40.1373192Z test strategy::tests::snapshot_and_pinned_report_binding_cannot_be_forged ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:48.4437668Z test strategy::tests::strategy_audit_roots_and_response_ids_form_closed_evidence_chain ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:49.3404990Z test strategy::tests::trusted_report_owner_seam_checks_scope_attachment_hash_and_poison ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:50.0112006Z test strategy::tests::unauthorized_tenant_workspace_and_role_do_not_see_objects ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:44:53.9167673Z test strategy::tests::stale_snapshot_denies_validation_and_expired_release_denies_approval ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1152756Z test strategy::tests::verified_proof_is_single_use_across_strategy_and_execution ... ok
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1153812Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1154108Z failures:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1187289Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1188020Z ---- execution::tests::concurrent_http_reference_issuance_has_single_command_and_one_downstream stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1188478Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1189355Z thread 'execution::tests::concurrent_http_reference_issuance_has_single_command_and_one_downstream' (26136) panicked at services/bff-gateway/src/execution/tests.rs:694:5:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1190888Z assertion `left == right` failed: {"code":"RISK_DENIED","correlationId":"01a15209-d27a-7c03-9142-b72668be9dfc","message":"Execution request refused."}
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1191652Z   left: 409
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1192051Z  right: 202
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1192555Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1192935Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1193439Z ---- execution::tests::context_version_mismatch_and_changed_idempotency_intent_conflict stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1193829Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1194349Z thread 'execution::tests::context_version_mismatch_and_changed_idempotency_intent_conflict' (26137) panicked at services/bff-gateway/src/execution/tests.rs:379:67:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1195383Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1195602Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1195844Z ---- execution::tests::expired_command_ref_and_approver_cannot_submit stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1196095Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1196541Z thread 'execution::tests::expired_command_ref_and_approver_cannot_submit' (26138) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1197127Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1197342Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1197578Z error: test failed, to rerun pass `-p bff-gateway --lib`
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1198034Z ---- execution::tests::expired_order_control_ref_recovers_without_renewing_submit stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1198308Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1198811Z thread 'execution::tests::expired_order_control_ref_recovers_without_renewing_submit' (26141) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1199447Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1199691Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1199933Z ---- execution::tests::filled_kernel_facts_and_fill_lineage_are_real stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1200176Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1200622Z thread 'execution::tests::filled_kernel_facts_and_fill_lineage_are_real' (26143) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1201212Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1201425Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1201671Z ---- execution::tests::kill_between_issue_and_submit_prevents_downstream stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1202097Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1202557Z thread 'execution::tests::kill_between_issue_and_submit_prevents_downstream' (26148) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1203257Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1203463Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1203758Z ---- execution::tests::real_modules_approve_issue_submit_cancel_and_thousand_replays stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1204204Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1204700Z thread 'execution::tests::real_modules_approve_issue_submit_cancel_and_thousand_replays' (26149) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1205319Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1205525Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1205838Z ---- execution::tests::rejected_source_replacement_preserves_current_projection_and_context stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1206140Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1206658Z thread 'execution::tests::rejected_source_replacement_preserves_current_projection_and_context' (26150) panicked at services/bff-gateway/src/execution/tests.rs:107:10:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1207394Z called `Result::unwrap()` on an `Err` value: PORTFOLIO_INVALID_INPUT: stale account or portfolio data
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1207662Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1207977Z ---- execution::tests::retry_recovers_same_reserved_approval_without_consuming_another_proof stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1208282Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1208790Z thread 'execution::tests::retry_recovers_same_reserved_approval_without_consuming_another_proof' (26151) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1209423Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1209632Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1209862Z ---- execution::tests::self_approval_capability_and_scope_are_denied stdout ----
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1210103Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1210533Z thread 'execution::tests::self_approval_capability_and_scope_are_denied' (26152) panicked at services/bff-gateway/src/execution/tests.rs:257:6:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1211100Z called `Result::unwrap()` on an `Err` value: Fault(409, "RISK_DENIED")
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1211299Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1211304Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1211381Z failures:
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1211724Z     execution::tests::concurrent_http_reference_issuance_has_single_command_and_one_downstream
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1212515Z     execution::tests::context_version_mismatch_and_changed_idempotency_intent_conflict
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1212952Z     execution::tests::expired_command_ref_and_approver_cannot_submit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1213351Z     execution::tests::expired_order_control_ref_recovers_without_renewing_submit
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1213741Z     execution::tests::filled_kernel_facts_and_fill_lineage_are_real
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1214113Z     execution::tests::kill_between_issue_and_submit_prevents_downstream
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1214521Z     execution::tests::real_modules_approve_issue_submit_cancel_and_thousand_replays
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1214993Z     execution::tests::rejected_source_replacement_preserves_current_projection_and_context
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1215484Z     execution::tests::retry_recovers_same_reserved_approval_without_consuming_another_proof
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1215910Z     execution::tests::self_approval_capability_and_scope_are_denied
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1216119Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1216421Z test result: FAILED. 137 passed; 10 failed; 1 ignored; 0 measured; 0 filtered out; finished in 228.26s
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1216706Z 
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1225748Z make: *** [Makefile:298: test-rust] Error 101
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:03.1238003Z Command failed: make lockfile-check f01-check lint test
+acceptance (clean-room)	Verify isolated source snapshot	2026-10-19T02:45:23.8493732Z ##[error]Process completed with exit code 1.
