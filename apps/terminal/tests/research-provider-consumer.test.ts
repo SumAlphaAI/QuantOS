@@ -28,12 +28,12 @@ beforeAll(async () => {
   origin = `http://127.0.0.1:${port}`;
   child = spawn(referenceBffExecutable(), [], { cwd: referenceBffRoot, env: { ...referenceBffSourceEnv(), NODE_ENV: "test", PATH: process.env.PATH, HOME: process.env.HOME, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_BIND: `127.0.0.1:${port}` }, stdio: ["ignore", "pipe", "pipe"] });
   await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => reject(Error("reference startup timeout")), 10000);
+    const timer = setTimeout(() => reject(Error("reference startup timeout")), 30000);
     child.once("error", error => { clearTimeout(timer); reject(error); });
     child.once("exit", () => { clearTimeout(timer); reject(Error("reference startup exit")); });
     child.stdout?.on("data", chunk => { if (String(chunk).includes('"ready":true')) { clearTimeout(timer); resolve(); } });
   });
-}, 15000);
+}, 35000);
 afterAll(async () => { if (child && child.exitCode === null) { child.kill(); await new Promise(r => child.once("close", r)); } });
 
 const snapshot="11111111-1111-4111-8111-000000000001",artifact="44444444-4444-4444-8444-444444444444";

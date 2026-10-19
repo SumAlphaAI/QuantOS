@@ -1,0 +1,12 @@
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway/src/execution/reference_release.rs:215:
+         let (_, _, first, _) = material(&payload);
+         let (_, _, second, _) = material(&payload);
+         let image = std::fs::read(std::env::current_exe().unwrap()).unwrap();
+-        assert_eq!(first.candidate.image_digest, ContentHash::sha256_bytes(&image));
++        assert_eq!(
++            first.candidate.image_digest,
++            ContentHash::sha256_bytes(&image)
++        );
+         assert_eq!(first.candidate.image_digest, second.candidate.image_digest);
+         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+         assert_eq!(

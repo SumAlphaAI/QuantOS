@@ -1,0 +1,22 @@
+{
+  "scope": "macOS synthetic large executable diagnostic; not Linux CI or release acceptance",
+  "baseCommit": "657a67b81b7a45f327dafbc05efe9b22b0682a9c",
+  "paddingBytes": 335544320,
+  "paddingSha256": "sha256:9942003e84c1648820149cb7b82869eb1e6515ddd04951bd2c69f9273b09c053",
+  "afterImageBytes": 400490912,
+  "afterImageSha256": "sha256:c76b0c7d0d679a3a506b74c53c60fc994bfac8db15c57d75688b529679dde648",
+  "cargoCommand": "CARGO_BUILD_JOBS=1 cargo rustc -p bff-gateway --bin bff-gateway --features sha2/force-soft --locked --offline -- -C link-arg=-sectcreate -C link-arg=__DATA -C link-arg=__ci_padding -C link-arg=<scratch>/reference-image-padding.bin",
+  "beforeResult": "Cold request regression: 1 failed, 3 passed; first domain requests 10998-11135ms",
+  "afterResult": "6 files, 9 passed; first domain requests 15.6-19.7ms; readiness 15.73s below existing 30s deadline",
+  "unchanged": "10s API request deadline and 30s readiness deadline; live routing and risk checks unchanged",
+  "beforeRustInputs": [
+    {
+      "path": "services/bff-gateway/src/lib.rs",
+      "sha256": "sha256:b0c38522737cf1c9036e2ba5bf99d2b1720d50d5b62a3264c17cff8ca41e59e4"
+    },
+    {
+      "path": "services/bff-gateway/src/execution/reference_release.rs",
+      "sha256": "sha256:e2068313f776a259c3cdb35669501424c3e46881e0dfd42384d5d04b2d80d7e2"
+    }
+  ]
+}

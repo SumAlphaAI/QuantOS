@@ -180,6 +180,9 @@ pub struct BffProvider {
 
 impl Default for BffProvider {
     fn default() -> Self {
+        // Finish immutable image hashing before the reference binary announces
+        // readiness, rather than charging the first API request for debug data.
+        execution::reference_release::reference_image_digest();
         Self {
             data: Arc::new(Mutex::new(ProviderData::default())),
         }
@@ -189,6 +192,7 @@ impl Default for BffProvider {
 impl BffProvider {
     /// Explicit loopback-only Shadow context. Live identity never reads this flag.
     pub fn shadow_reference() -> Self {
+        execution::reference_release::reference_image_digest();
         Self {
             data: Arc::new(Mutex::new(ProviderData {
                 reference_shadow: true,

@@ -1,3 +1,5 @@
+> 当前阶段修正（2026-10-19，CI 657a67b8）：BFF-FE-006 当前输入已偏离 aad08dd5 的冻结回执，stage_gate 恢复 NOT_ASSESSED；以下工程结果仅为原 SHA 历史记录。原 manifest、日志和确认稿保持原样，当前功能直接回归继续执行，不因 CI 修复重授 READY 或触发十前置全量复验。见[第五轮 CI 修复](./audit/ci-remediation-round5-2026-10-19.md)。
+
 > 工作流调整（2026-10-18）：11个非main本地分支已完整快进整合并安全删除，后续直接在main开发，见根目录AGENTS.md。合并后代码树与12a11c72完全一致；AGENTS.md属于A5输入，当前PROVIDER:A5阶段门禁撤回NOT_ASSESSED，原范围确认CONFIRMED及原技术证据保持不变，不改绑到新提交。本次只验证Git整合及文档/计划一致性，不重跑无关业务闭包。见[整合记录](./audit/evidence/main-consolidation-20261018/README.md)。
 
 > 当前工程结果（FE:BFF-FE-006/A4，2026-10-19）：冻结aad08dd5，999输入、17组及5实际入口PASS；Rust89、Node154、consumer/契约49，20 API/1085条HTTP、1000重试与基本Chromium通过。补齐host资源绑定、无副作用Allow预检及无提案账户风险/kill空态；原53,689份audit/gate文件保持。仅BFF006_SCOPE_LOCAL DEVELOPMENT READY；十前置不重授READY，完整联调/发布NOT_RUN，formalAccepted=false、runtimeAdmission=DENIED，新确认PENDING。见[当前报告](./audit/BFF-FE-006-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-006-local-20261019/confirmation-draft.md)。下一可执行FE:BFF-FE-004/A4当前功能复核。
@@ -1453,7 +1455,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-006`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:90fd11583f7c0db8e41278f1e348d70566fa211d00172a1a7d7038c9930edece","evidence":["audit/evidence/bff-fe-006-local-20261019/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE"]
 - closes_core: []

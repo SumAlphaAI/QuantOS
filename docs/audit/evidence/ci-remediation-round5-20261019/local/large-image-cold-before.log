@@ -1,0 +1,26 @@
+
+ RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/reference-bff-fixture.test.ts (4 tests | 1 failed) 10122ms
+   × serves cold reference domains within the existing ten-second request deadline after readiness 10024ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/reference-bff-fixture.test.ts > serves cold reference domains within the existing ten-second request deadline after readiness
+TimeoutError: The operation was aborted due to timeout
+ ❯ apps/terminal/tests/reference-bff-fixture.test.ts:54:24
+     52|     });
+     53|     for (const path of ["/v1/proposals", "/v1/strategies", "/v1/operat…
+     54|       const response = await fetch(`http://127.0.0.1:${port}${path}`, {
+       |                        ^
+     55|         headers: { cookie: "quantos_session=session-current" }, signal…
+     56|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  13:37:40
+   Duration  10.20s (transform 19ms, setup 0ms, import 24ms, tests 10.12s, environment 0ms)
+

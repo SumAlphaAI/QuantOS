@@ -1,0 +1,133 @@
+{
+  "baseCommit": "657a67b81b7a45f327dafbc05efe9b22b0682a9c",
+  "environment": {
+    "nodeTarget": "24.12.0",
+    "pnpm": "10.20.0",
+    "platform": "macOS; not hosted Linux"
+  },
+  "checks": [
+    {
+      "command": "node scripts/ci-stage-disposition.mjs FE:BFF-FE-006",
+      "exitCode": 1,
+      "result": "Report link not yet created during draft generation; retained, then corrected",
+      "log": "bff006-disposition.log"
+    },
+    {
+      "command": "node scripts/ci-stage-disposition.mjs FE:BFF-FE-006",
+      "exitCode": 0,
+      "result": "NOT_ASSESSED; admitted=false",
+      "log": "bff006-disposition-final.log"
+    },
+    {
+      "command": "node --test scripts/bff-fe-006-functional-gate.test.mjs scripts/ci-stage-disposition.test.mjs scripts/development-plan-order-negative.mjs",
+      "exitCode": 0,
+      "result": "125 passed, 0 skipped, final source after startup-hook alignment",
+      "log": "stage-regressions-final-all.log"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "exitCode": 0,
+      "log": "plans-current-final.log"
+    },
+    {
+      "command": "cargo build -p bff-gateway --bin bff-gateway --features sha2/force-soft --locked --offline",
+      "exitCode": 130,
+      "result": "Interrupted parallel diagnostic compilation; retry with CARGO_BUILD_JOBS=1 completed",
+      "log": "software-sha-build-before.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo build -p bff-gateway --bin bff-gateway --features sha2/force-soft --locked --offline",
+      "exitCode": 0,
+      "log": "software-sha-build-before-retry.log"
+    },
+    {
+      "command": "CI=1 node node_modules/vitest/vitest.mjs run apps/terminal/tests/reference-bff-fixture.test.ts --maxWorkers=1",
+      "exitCode": 1,
+      "result": "Expected reproduction on pre-fix Rust: cold API request timed out at unchanged 10s; 3 helper checks passed",
+      "log": "large-image-cold-before.log"
+    },
+    {
+      "command": "CI=1 node node_modules/vitest/vitest.mjs run <five original consumer failures> apps/terminal/tests/reference-bff-fixture.test.ts --maxWorkers=2",
+      "exitCode": 0,
+      "result": "Node 24.12.0, large image, 6 files / 9 passed",
+      "log": "large-image-consumers-after.log"
+    },
+    {
+      "command": "CI=1 node node_modules/vitest/vitest.mjs run --maxWorkers=2",
+      "cwd": "apps/terminal",
+      "exitCode": 1,
+      "result": "Relative Vitest module entry missing; no tests executed, corrected to repository absolute entry",
+      "log": "large-image-terminal-all.log"
+    },
+    {
+      "command": "CI=1 node <repo>/node_modules/vitest/vitest.mjs run --maxWorkers=2",
+      "cwd": "apps/terminal",
+      "exitCode": 0,
+      "result": "Package shell selected Node 23.6.0; additional large-image run 28 files / 121 passed. Target Node 24 rerun separately",
+      "log": "large-image-terminal-all-final.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo test -p bff-gateway --lib --locked --offline",
+      "exitCode": 0,
+      "result": "149 passed / 0 failed / 1 existing database ignored",
+      "log": "bff-lib-tests.log"
+    },
+    {
+      "command": "CARGO_BUILD_JOBS=1 cargo clippy -p bff-gateway --all-targets --locked --offline -- -D warnings",
+      "exitCode": 0,
+      "log": "clippy.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal typecheck",
+      "exitCode": 0,
+      "log": "typecheck-final.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal lint",
+      "exitCode": 0,
+      "log": "lint-final.log"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "exitCode": 1,
+      "result": "New assertion formatting; formatted and rerun",
+      "log": "fmt.log"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "exitCode": 0,
+      "log": "fmt-final.log"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "exitCode": 0,
+      "result": "641 commits / no leaks; staged diff separately checked before commit",
+      "log": "history-secret-scan.log"
+    },
+    {
+      "command": "CI=1 <Node24.12.0>/node <repo>/node_modules/vitest/vitest.mjs run --maxWorkers=2",
+      "cwd": "apps/terminal",
+      "exitCode": 0,
+      "result": "Fixed CI Node 24.12.0, large executable, 28 files / 121 passed / 0 skipped",
+      "log": "large-image-terminal-node24.log"
+    },
+    {
+      "command": "PATH=<Node24.12.0>:<pnpm10.20.0> CARGO_BUILD_JOBS=1 CARGO_NET_OFFLINE=true make test-web",
+      "exitCode": 0,
+      "result": "Ordinary binary build; terminal 28 files / 121 passed, other frontend workspace packages passed; domain-ui retains 3 existing skips",
+      "log": "test-web-final.log"
+    },
+    {
+      "command": "git diff --cached --no-ext-diff --unified=0 | artifacts/tools/gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "exitCode": 0,
+      "result": "no leaks found",
+      "log": "staged-secret-scan.log"
+    }
+  ],
+  "scope": "Current-source scoped component tests and synthetic large debug-image diagnostic; no database or deployment execution",
+  "normalImage": {
+    "bytes": 62398576,
+    "diagnosticSectionPresent": false,
+    "verification": "otool -l: __ci_padding absent; ordinary make test-web build has no force-soft/linker arguments"
+  }
+}

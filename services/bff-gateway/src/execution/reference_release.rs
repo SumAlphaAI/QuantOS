@@ -18,7 +18,27 @@ use quantos_strategy::{
     release::ValidatedBacktest,
 };
 use serde_json::{Value, json};
-use std::collections::BTreeSet;
+use sha2::{Digest, Sha256};
+use std::{collections::BTreeSet, io::Read, sync::OnceLock};
+
+// Only the running image identity is immutable. Source SHA, clocks and owned
+// domain material must still be resolved independently for every fixture.
+pub(crate) fn reference_image_digest() -> &'static ContentHash {
+    static IMAGE: OnceLock<ContentHash> = OnceLock::new();
+    IMAGE.get_or_init(|| {
+        let mut file = std::fs::File::open(std::env::current_exe().unwrap()).unwrap();
+        let mut hash = Sha256::new();
+        let mut buffer = [0_u8; 64 * 1024];
+        loop {
+            let count = file.read(&mut buffer).unwrap();
+            if count == 0 {
+                break;
+            }
+            hash.update(&buffer[..count]);
+        }
+        ContentHash::parse(&format!("sha256:{:x}", hash.finalize())).unwrap()
+    })
+}
 fn honest_snapshot(start: DateTime<Utc>, captured_at: DateTime<Utc>) -> DataSnapshotRecord {
     DataSnapshotRecord::new(
         TenantId::from_uuid(uuid::Uuid::parse_str("22222222-2222-4222-8222-222222222222").unwrap()),
@@ -105,6 +125,7 @@ pub(crate) fn material(
     BacktestRequest,
     Vec<DraftArtifactRef>,
 ) {
+    let image_digest = reference_image_digest().clone();
     let mut request = honest_request();
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     request.candidate.source_commit = quantos_core::fixture_source::fixture_source_commit(
@@ -112,8 +133,7 @@ pub(crate) fn material(
         std::env::var("GITHUB_SHA").ok().as_deref(),
     )
     .expect("owned fixture requires a checkout HEAD or frozen archive SHA");
-    request.candidate.image_digest =
-        ContentHash::sha256_bytes(&std::fs::read(std::env::current_exe().unwrap()).unwrap());
+    request.candidate.image_digest = image_digest;
     request.candidate.runtime_digest =
         ContentHash::sha256_bytes(&std::fs::read(root.join("Cargo.lock")).unwrap());
     let now = request.candidate.clock;
@@ -188,6 +208,25 @@ pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
 #[cfg(test)]
 mod clock_tests {
     use super::*;
+
+    #[test]
+    fn material_binds_the_real_image_and_lockfile_without_reusing_domain_state() {
+        let payload = payload();
+        let (_, _, first, _) = material(&payload);
+        let (_, _, second, _) = material(&payload);
+        let image = std::fs::read(std::env::current_exe().unwrap()).unwrap();
+        assert_eq!(
+            first.candidate.image_digest,
+            ContentHash::sha256_bytes(&image)
+        );
+        assert_eq!(first.candidate.image_digest, second.candidate.image_digest);
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        assert_eq!(
+            first.candidate.runtime_digest,
+            ContentHash::sha256_bytes(&std::fs::read(root.join("Cargo.lock")).unwrap())
+        );
+        assert_ne!(first.snapshot.snapshot_id, second.snapshot.snapshot_id);
+    }
 
     #[test]
     fn a_later_fixture_uses_its_own_clock_after_a_slow_test_process() {
