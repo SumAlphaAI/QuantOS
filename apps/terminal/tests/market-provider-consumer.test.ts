@@ -1,13 +1,13 @@
+import { referenceBffExecutable, referenceBffRoot, referenceBffSourceEnv } from "./helpers/reference-bff";
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
-import { resolve } from "node:path";
 import { beforeAll, afterAll, expect, it } from "vitest";
 import { createBffClient, parseBffResponse, MarketSeriesRecovery, type MarketDimensions, type SseEventEnvelope } from "@sumalpha/api-client";
 import { loadEvidenceChain } from "../src/audit/gateway";
 let child:ChildProcess,origin:string,lose=false;
 const csrf="csrf-token-0000000000000001",dimensions:MarketDimensions={symbol:"BTC/USDT",venue:"binance",product:"spot",interval:"1m",timezone:"UTC"};
 const transport:typeof fetch=async(input,init)=>{const req=new Request(input,init);req.headers.set("cookie",`quantos_session=session-current; quantos_csrf=${csrf}`);req.headers.set("origin","http://localhost:3190");const res=await fetch(req);if(lose&&req.method==="PUT"){lose=false;await res.body?.cancel();throw Error("synthetic response lost after commit");}return res;};
-beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(resolve("target/debug/bff-gateway"),[],{env:{NODE_ENV:"test",PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const t=setTimeout(()=>reject(Error("reference startup timeout")),30000);child.once("error",e=>{clearTimeout(t);reject(e);});child.once("exit",()=>{clearTimeout(t);reject(Error("reference exited"));});child.stdout?.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(t);resolve();}});});},35000);
+beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(referenceBffExecutable(),[],{ cwd: referenceBffRoot,env:{ ...referenceBffSourceEnv(),NODE_ENV:"test",PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const t=setTimeout(()=>reject(Error("reference startup timeout")),30000);child.once("error",e=>{clearTimeout(t);reject(e);});child.once("exit",()=>{clearTimeout(t);reject(Error("reference exited"));});child.stdout?.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(t);resolve();}});});},35000);
 afterAll(async()=>{if(child&&child.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}});
 it("generated market consumers recover lost watchlist replies, resolve audit and replace streams without mixing dimensions",async()=>{
  const client=createBffClient({baseUrl:origin,fetch:transport,timeoutMs:10000});

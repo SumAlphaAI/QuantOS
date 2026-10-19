@@ -1,9 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { parse, stringify } from "yaml";
 
 import { loadPre06Inputs, validatePre06 } from "./check-pre06.mjs";
 
 const current = loadPre06Inputs();
+
+test("Chromium installation cannot be missing, disabled or moved after Market consumers", () => {
+  for (const mutate of [
+    steps => steps.splice(steps.findIndex(s => s.run === 'pnpm exec playwright install chromium --with-deps'), 1),
+    steps => { steps.find(s => s.run === 'pnpm exec playwright install chromium --with-deps').if = false; },
+    steps => steps.push(...steps.splice(steps.findIndex(s => s.run === 'pnpm exec playwright install chromium --with-deps'), 1)),
+  ]) {
+    const workflow = parse(current.frontendWorkflowText);
+    mutate(workflow.jobs['frontend-baseline'].steps);
+    const report = validatePre06({ ...current, frontendWorkflowText: stringify(workflow) });
+    assert(report.failures.includes("Chromium is installed before the first Market provider browser consumer"));
+  }
+});
 
 test("current PRE-06 Web baseline passes", () => {
   const report = validatePre06(current);

@@ -52,6 +52,9 @@ jobs:
       - name: Fetch locked Rust dependencies for offline A2 tests
         run: cargo fetch --locked
 
+      - name: Install Playwright Chromium before provider browser consumers
+        run: pnpm exec playwright install chromium --with-deps
+
       - name: Development plan cross-document order and negative probes
         run: pnpm check:development-plans && pnpm test:development-plans && node --test scripts/frontend-gate-handoff.test.mjs
 
@@ -164,9 +167,6 @@ jobs:
 
       - name: Client artifact secret check (PRE-05)
         run: pnpm check:client-secrets
-
-      - name: Install Playwright Chromium for PRE-03 browser smoke
-        run: pnpm exec playwright install chromium --with-deps
 
       - name: Web build smoke and negative probes (PRE-03 Web-only)
         run: pnpm check:pre03:web && pnpm test:pre03

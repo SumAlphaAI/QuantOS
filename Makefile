@@ -421,6 +421,7 @@ test-python:
 	uv run --locked --project engines --all-packages pytest engines/tests
 
 test-web:
+	cargo build -p bff-gateway --bin bff-gateway --locked
 	pnpm test
 
 test-browser:

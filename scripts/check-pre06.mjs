@@ -58,6 +58,7 @@ export function validatePre06(inputs) {
         String(step.run ?? "").split(/\s*&&\s*|\n/).map(line => line.split(" #")[0].trim()).includes(command)));
   }
   const required = [
+    ["pnpm exec playwright install chromium --with-deps", "Frontend Baseline installs the required Chromium runtime"],
     ["pnpm check:pre06", "Frontend Baseline runs PRE-06 positive/negative structure Gates"],
     ["pnpm test:pre06", "Frontend Baseline runs PRE-06 positive/negative structure Gates"],
     ["pnpm check:visual-baselines --platform linux", "Frontend Baseline validates real visual baseline integrity"],
@@ -75,6 +76,12 @@ export function validatePre06(inputs) {
   check(active(compatibility, "pnpm test:browser --project=${{ matrix.browser }} --reporter=github,json"), "Web compatibility runs Terminal in every browser");
   const steps=frontend.jobs?.["frontend-baseline"]?.steps ?? [];
   const index=(fragment)=>steps.findIndex(step=>String(step.run??"").includes(fragment));
+  const activeIndex=command=>steps.findIndex(step=>step.if===undefined&&!step['continue-on-error']&&
+    String(step.run??'').split(/\s*&&\s*|\n/).map(line=>line.split(' #')[0].trim()).includes(command));
+  const chromiumInstall=activeIndex('pnpm exec playwright install chromium --with-deps');
+  const marketBrowser=activeIndex('pnpm test:bff-fe-005');
+  check(chromiumInstall>=0&&marketBrowser>=0&&chromiumInstall<marketBrowser,
+    "Chromium is installed before the first Market provider browser consumer");
   check(index("pnpm check:pre06") < index("pnpm exec vitest") && index("pnpm --filter @sumalpha/website build") < index("node scripts/check-perf-budget") && index("pnpm check:visual-baselines") < index("pnpm exec playwright test"), "Frontend Gate executes prerequisites before consumers");
   for (const [name, workflow] of [["Frontend",frontend],["Compatibility",compatibility]]) {
     const jobs=Object.values(workflow.jobs??{});

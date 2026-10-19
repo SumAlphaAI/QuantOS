@@ -1,0 +1,62 @@
+{
+  "baseCommit": "8f433963bd414d450b81046553ceff8bd19e6170",
+  "environment": {
+    "node": "v24.12.0",
+    "pnpm": "10.20.0",
+    "platform": "macOS local; not hosted Linux"
+  },
+  "checks": [
+    {
+      "command": "node --test scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs",
+      "exitCode": 0,
+      "result": "20 passed, 0 skipped",
+      "log": "pre06-tests.log"
+    },
+    {
+      "command": "node scripts/check-pre06.mjs",
+      "exitCode": 0,
+      "log": "pre06-gate.log"
+    },
+    {
+      "command": "PATH=<existing pinned pnpm 10.20.0> CARGO_NET_OFFLINE=true make test-web",
+      "exitCode": 0,
+      "result": "terminal 28 files / 120 passed; domain-ui 25 passed / 3 existing skipped; other workspace frontend packages passed",
+      "log": "test-web.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal typecheck",
+      "exitCode": 2,
+      "result": "Initial helper type rejected by Next ProcessEnv augmentation; corrected and rerun",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal typecheck",
+      "exitCode": 0,
+      "log": "typecheck-final.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal lint",
+      "exitCode": 0,
+      "log": "lint-final.log"
+    },
+    {
+      "command": "GITHUB_SHA=<baseCommit> CARGO_TARGET_DIR=<external scratch target> cargo build --manifest-path <Git-free source>/Cargo.toml -p bff-gateway --bin bff-gateway --locked --offline",
+      "exitCode": 0,
+      "log": "git-free-build.log"
+    },
+    {
+      "command": "GITHUB_SHA=<baseCommit> CARGO_TARGET_DIR=<external scratch target> node <pinned node_modules>/vitest/vitest.mjs run --maxWorkers=2",
+      "cwd": "<Git-free source>/apps/terminal",
+      "exitCode": 0,
+      "result": "28 files / 120 passed, 0 skipped",
+      "log": "git-free-terminal-tests.log"
+    },
+    {
+      "command": "node scripts/test-bff-fe-005.mjs <scratch>/market-http.json",
+      "exitCode": 0,
+      "result": "50 HTTP records; 7 operations; Chromium consumer PASS",
+      "log": "market-browser.log"
+    }
+  ],
+  "scope": "Git-free source plus existing pinned node_modules and packages symlinks, not clean bootstrap or full F01 acceptance; no database execution"
+}

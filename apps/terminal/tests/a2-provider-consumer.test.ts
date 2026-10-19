@@ -1,6 +1,6 @@
+import { referenceBffExecutable, referenceBffRoot, referenceBffSourceEnv } from "./helpers/reference-bff";
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
-import { resolve } from "node:path";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { consumeSse, SseStreamReducer } from "@sumalpha/api-client";
 import { completeLoginMfa, completeRecentAuth } from "../src/auth/bff";
@@ -22,7 +22,7 @@ beforeAll(async () => {
   const port = (reserve.address() as { port: number }).port;
   await new Promise<void>(r => reserve.close(() => r()));
   origin = `http://127.0.0.1:${port}`;
-  child = spawn(resolve(process.cwd(), "target/debug/bff-gateway"), [], { env: { NODE_ENV: "test", PATH: process.env.PATH, HOME: process.env.HOME, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_BIND: `127.0.0.1:${port}` }, stdio: ["ignore", "pipe", "pipe"] });
+  child = spawn(referenceBffExecutable(), [], { cwd: referenceBffRoot, env: { ...referenceBffSourceEnv(), NODE_ENV: "test", PATH: process.env.PATH, HOME: process.env.HOME, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_BIND: `127.0.0.1:${port}` }, stdio: ["ignore", "pipe", "pipe"] });
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(() => reject(Error("reference startup timeout")), 10000);
     child.once("error", error => { clearTimeout(timer); reject(error); });

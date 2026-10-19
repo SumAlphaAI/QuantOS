@@ -1,13 +1,13 @@
+import { referenceBffExecutable, referenceBffRoot, referenceBffSourceEnv } from "./helpers/reference-bff";
 import {spawn,type ChildProcess} from "node:child_process";
 import {createServer} from "node:net";
-import {resolve} from "node:path";
 import {beforeAll,afterAll,expect,it} from "vitest";
 import {performanceClient,performanceView,acceptedReport,verifiedReport} from "../src/performance/gateway";
 import {loadEvidenceChain} from "../src/audit/gateway";
 let child:ChildProcess,origin:string,lose=false;
 const csrf="csrf-token-0000000000000001";
 const transport=(session="session-current"):typeof fetch=>async(input,init)=>{const req=new Request(input,init);req.headers.set("cookie",`quantos_session=${session}; quantos_csrf=${csrf}`);req.headers.set("origin","http://localhost:3190");const res=await fetch(req);if(lose&&req.method==='POST'&&req.url.endsWith('/reports')){lose=false;await res.body?.cancel();throw Error("lost response after commit");}return res;};
-beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(resolve('target/debug/bff-gateway'),[],{env:{NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_REFERENCE_CONTEXT:'shadow',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});await new Promise<void>((r,j)=>{const t=setTimeout(()=>j(Error('startup timeout')),30000);child.once('error',e=>{clearTimeout(t);j(e)});child.once('exit',()=>{clearTimeout(t);j(Error('reference exited'))});child.stdout?.on('data',b=>{if(String(b).includes('"ready":true')){clearTimeout(t);r()}})});},35000);
+beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(referenceBffExecutable(),[],{ cwd: referenceBffRoot,env:{ ...referenceBffSourceEnv(),NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_REFERENCE_CONTEXT:'shadow',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});await new Promise<void>((r,j)=>{const t=setTimeout(()=>j(Error('startup timeout')),30000);child.once('error',e=>{clearTimeout(t);j(e)});child.once('exit',()=>{clearTimeout(t);j(Error('reference exited'))});child.stdout?.on('data',b=>{if(String(b).includes('"ready":true')){clearTimeout(t);r()}})});},35000);
 afterAll(async()=>{if(child?.exitCode===null){child.kill();await new Promise(r=>child.once('close',r));}});
 it('generated C14 consumer recovers one frozen job and verifies authentic financial report bytes',async()=>{
  const c=performanceClient(origin,transport());const ctx=await c.GET('/v1/context');expect(ctx.data?.mode).toBe('shadow');const accountId=ctx.data!.accountId!;
