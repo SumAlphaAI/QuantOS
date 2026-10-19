@@ -1,0 +1,61 @@
+scripts/check-x05-no-submit.py:10:30: E702 Multiple statements on one line (semicolon)
+   |
+ 8 | rows=[]
+ 9 | for path in paths:
+10 |  raw=(root/path).read_bytes();text=raw.decode();code=re.sub(r'/\*.*?\*/','',text,flags=re.S);code=re.sub(r'//[^\n]*','',code)
+   |                              ^ E702
+11 |  for pattern in [r'\.\s*(?:submit|submit_at|cancel|issue|secret|connect)\s*\(',r'\b(?:reqwest|TcpStream|UdpSocket|ExecutionKernel|Sign…
+12 |   assert not re.search(pattern,code),(path,pattern)
+   |
+
+scripts/check-x05-no-submit.py:10:48: E702 Multiple statements on one line (semicolon)
+   |
+ 8 | rows=[]
+ 9 | for path in paths:
+10 |  raw=(root/path).read_bytes();text=raw.decode();code=re.sub(r'/\*.*?\*/','',text,flags=re.S);code=re.sub(r'//[^\n]*','',code)
+   |                                                ^ E702
+11 |  for pattern in [r'\.\s*(?:submit|submit_at|cancel|issue|secret|connect)\s*\(',r'\b(?:reqwest|TcpStream|UdpSocket|ExecutionKernel|Sign…
+12 |   assert not re.search(pattern,code),(path,pattern)
+   |
+
+scripts/check-x05-no-submit.py:10:93: E702 Multiple statements on one line (semicolon)
+   |
+ 8 | rows=[]
+ 9 | for path in paths:
+10 |  raw=(root/path).read_bytes();text=raw.decode();code=re.sub(r'/\*.*?\*/','',text,flags=re.S);code=re.sub(r'//[^\n]*','',code)
+   |                                                                                             ^ E702
+11 |  for pattern in [r'\.\s*(?:submit|submit_at|cancel|issue|secret|connect)\s*\(',r'\b(?:reqwest|TcpStream|UdpSocket|ExecutionKernel|Sign…
+12 |   assert not re.search(pattern,code),(path,pattern)
+   |
+
+scripts/check-x05-no-submit.py:18:65: E702 Multiple statements on one line (semicolon)
+   |
+16 |  rows.append({'path':path,'sha256':'sha256:'+hashlib.sha256(raw).hexdigest()})
+17 | # The sole gateway method used by the read adapter remains a non-dispatch replay.
+18 | raw=(root/'crates/quantos-execution/src/gateway.rs').read_text();start=raw.index('    pub fn replay_facts(');end=raw.index('    pub fn…
+   |                                                                 ^ E702
+19 | assert not re.search(r'\.\s*(?:submit|submit_at|cancel)\s*\(',replay)
+20 | assert 'ExecutionGateway::<NautilusBoundaryAdapter>::replay_facts' in (root/paths[3]).read_text()
+   |
+
+scripts/check-x05-no-submit.py:18:109: E702 Multiple statements on one line (semicolon)
+   |
+16 |  rows.append({'path':path,'sha256':'sha256:'+hashlib.sha256(raw).hexdigest()})
+17 | # The sole gateway method used by the read adapter remains a non-dispatch replay.
+18 | raw=(root/'crates/quantos-execution/src/gateway.rs').read_text();start=raw.index('    pub fn replay_facts(');end=raw.index('    pub fn…
+   |                                                                                                             ^ E702
+19 | assert not re.search(r'\.\s*(?:submit|submit_at|cancel)\s*\(',replay)
+20 | assert 'ExecutionGateway::<NautilusBoundaryAdapter>::replay_facts' in (root/paths[3]).read_text()
+   |
+
+scripts/check-x05-no-submit.py:18:161: E702 Multiple statements on one line (semicolon)
+   |
+16 | …
+17 | …
+18 | …ay_facts(');end=raw.index('    pub fn submission_state(',start);replay=raw[start:end]
+   |                                                                 ^ E702
+19 | …
+20 | …
+   |
+
+Found 7 errors (1 fixed, 6 remaining).

@@ -1,0 +1,12 @@
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {spawnSync} from 'node:child_process';
+const root='/Users/anray/Documents/project/SumAlpha/QuantOS';
+const require=createRequire(root+'/package.json');
+const YAML=require('yaml');
+const workflow=YAML.parse(readFileSync(root+'/.github/workflows/compatibility.yml','utf8'));
+const pinned='/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/node_modules/pnpm/bin';
+const env={...process.env,...workflow.jobs['browser-regression'].env,CI:'true',PATH:pinned+':/Users/anray/.nvm/versions/node/v24.12.0/bin:'+process.env.PATH};
+const args=process.argv.slice(2);
+const result=spawnSync(process.execPath,[pinned+'/pnpm.cjs',...args],{cwd:root,env,stdio:'inherit'});
+process.exit(result.status??1);

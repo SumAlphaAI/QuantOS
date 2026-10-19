@@ -24,6 +24,7 @@ export function loadPre06Inputs(root = repoRoot) {
     terminalPlaywright: read(root, "playwright.config.ts"),
     websitePlaywright: read(root, "playwright.website.config.ts"),
     operations: JSON.parse(read(root, "tests/contract/generated/quantos-bff.operations.json")),
+    openapi: parseYaml(read(root, "bff/openapi/quantos-bff.v1.yaml")),
     schemas: JSON.parse(read(root, "tests/contract/generated/quantos-bff.components.schema.json")),
     visualTests: Object.fromEntries(["command.spec.ts", "ui102-auth.spec.ts", "ui104-settings.spec.ts"].map(name => [name, read(root, "tests/e2e/" + name)])),
     criticalInventory: JSON.parse(read(root, "tests/critical-branches.json")),
@@ -93,9 +94,17 @@ export function validatePre06(inputs) {
   }
   check(configValue(inputs.terminalPlaywright,["testIgnore"])?.includes('"deep-link-reauth.spec.ts"'), "phase-one Terminal excludes the Desktop deep-link spec");
 
-  check(inputs.operations.version === "1.7.0", "BFF fixture manifest is version 1.7.0");
-  check(inputs.operations.operations?.length === 70, "BFF fixture manifest covers 70 operations");
-  check(Object.keys(inputs.schemas.$defs ?? {}).length === 62, "BFF fixture schema bundle covers 62 schemas");
+  check(inputs.operations.version === inputs.openapi.info.version, "BFF fixture manifest version matches OpenAPI");
+  const httpMethods = new Set(["get", "put", "post", "delete", "options", "head", "patch", "trace"]);
+  const expectedOperations = Object.entries(inputs.openapi.paths).flatMap(([path, item]) =>
+    Object.entries(item).filter(([method]) => httpMethods.has(method)).map(([method, operation]) =>
+      ({ operationId: operation.operationId, method: method.toUpperCase(), path })));
+  const operationBindings = operations => operations.map(({ operationId, method, path }) =>
+    JSON.stringify([operationId, method, path])).sort();
+  check(JSON.stringify(operationBindings(inputs.operations.operations ?? [])) === JSON.stringify(operationBindings(expectedOperations)),
+    "BFF fixture manifest covers the exact OpenAPI operations and routes");
+  check(JSON.stringify(Object.keys(inputs.schemas.$defs ?? {}).sort()) === JSON.stringify(Object.keys(inputs.openapi.components.schemas).sort()),
+    "BFF fixture schema bundle covers the exact OpenAPI schemas");
   for (const failure of validateTestStructure(inputs.contractTests, inputs.visualTests)) failures.push(failure);
   const criticalPaths=["packages/api-client/src/sse-contract.ts","packages/domain-ui/src/ui101.ts","packages/domain-ui/src/indicators.tsx","packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts","apps/terminal/src/auth/flow.ts","apps/terminal/src/audit/gateway.ts"];
   check(inputs.criticalInventory.schema === "quantos-critical-branches/v1" && criticalPaths.every(path=>inputs.criticalInventory.files.some(entry=>entry.path===path&&entry.policy)), "critical policy inventory cannot shrink");

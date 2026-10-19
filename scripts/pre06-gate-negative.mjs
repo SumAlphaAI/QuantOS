@@ -38,7 +38,29 @@ test("generated operation coverage drift is rejected", () => {
   const operations = structuredClone(current.operations);
   operations.operations.pop();
   const report = validatePre06({ ...current, operations });
-  assert(report.failures.includes("BFF fixture manifest covers 70 operations"));
+  assert(report.failures.includes("BFF fixture manifest covers the exact OpenAPI operations and routes"));
+});
+
+test("generated manifest version, operation identity and route drift are rejected", () => {
+  for (const mutate of [
+    operations => { operations.version = "0.0.0"; },
+    operations => { operations.operations[0].operationId = "unknownOperation"; },
+    operations => { operations.operations[0].path = "/wrong-route"; },
+    operations => { operations.operations[0].method = "TRACE"; },
+  ]) {
+    const operations = structuredClone(current.operations);
+    mutate(operations);
+    assert.equal(validatePre06({ ...current, operations }).status, "FAIL");
+  }
+});
+
+test("schema deletion and same-count schema substitution are rejected", () => {
+  for (const substitute of [false, true]) {
+    const schemas = structuredClone(current.schemas);
+    delete schemas.$defs[Object.keys(schemas.$defs)[0]];
+    if (substitute) schemas.$defs.UnknownSchema = {};
+    assert(validatePre06({ ...current, schemas }).failures.includes("BFF fixture schema bundle covers the exact OpenAPI schemas"));
+  }
 });
 
 test("visual baseline integrity failure is rejected", () => {
