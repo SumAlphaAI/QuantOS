@@ -95,6 +95,16 @@ fn rejected_source_replacement_preserves_current_projection_and_context() {
     let before_venue = service.venue.clone();
     let pid = *service.proposals.keys().next().unwrap();
     let before_context = service.context_hash(service.proposal(pid).unwrap());
+    service
+        .replace_sources(
+            service.input.clone(),
+            service.projection.clone(),
+            service.financials.clone(),
+            service.venue.clone(),
+            service.release.clone(),
+            Utc::now(),
+        )
+        .unwrap();
     for mismatch in ["financial_account", "release_workspace", "quote_unit"] {
         let mut financials = service.financials.clone();
         let mut release = service.release.clone();
@@ -128,6 +138,109 @@ fn rejected_source_replacement_preserves_current_projection_and_context() {
         assert_eq!(service.downstream_counts(), (Some(0), Some(0)));
         assert!(!service.poisoned);
     }
+}
+#[test]
+fn allow_preflight_reads_do_not_reserve_command_authority() {
+    let mut f = reference_seed::Fixture::new();
+    f.intent.quantity = "10".into();
+    let guard = f.guard();
+    let issuer = f.issuer(&guard);
+    let gateway = SignedExecutionGateway::new(
+        issuer.clone(),
+        GatewayLimits {
+            max_quantity: rust_decimal::Decimal::from(10000),
+            max_notional: rust_decimal::Decimal::from(250000),
+            allowed_venues: vec![f.venue.venue.clone()],
+        },
+        PaperKernel::resting("100"),
+    )
+    .unwrap();
+    let mut s = ExecutionService::new(
+        f.auth.clone(),
+        f.input.clone(),
+        f.projection.clone(),
+        f.financials.clone(),
+        f.venue.clone(),
+        f.release.clone(),
+        guard,
+        issuer,
+        gateway,
+    )
+    .unwrap();
+    let pid = s
+        .register(&f.auth, f.record(), f.intent.clone(), f.now)
+        .unwrap();
+    for _ in 0..3 {
+        assert_eq!(s.preflight(pid, f.now).unwrap()["verdict"], "allow");
+        assert_eq!(s.risk(f.now).unwrap()["killSwitch"]["state"], "disengaged");
+        assert!(s.proposal(pid).unwrap().command.is_none());
+    }
+    let (_, _, approval) = approved(&mut s, f.now);
+    let accepted = call(
+        &mut s,
+        &f.auth,
+        "/v1/commands",
+        json!({"commandRef":approval["commandRef"]}),
+        &headers(None),
+        f.now,
+    )
+    .unwrap();
+    assert_eq!(accepted.0, StatusCode::ACCEPTED);
+    assert_eq!(s.downstream_counts().0, Some(1));
+}
+#[test]
+fn account_risk_and_kill_control_work_without_any_proposal() {
+    let mut s = ExecutionService::reference();
+    s.proposals.clear();
+    let now = Utc::now();
+    let mut owner = s.auth.clone();
+    owner.role = Role::Owner;
+    let read = |s: &mut ExecutionService, path| {
+        s.handle(
+            &owner,
+            "owned-session",
+            &Method::GET,
+            path,
+            &BTreeMap::new(),
+            &HeaderMap::new(),
+            &json!({}),
+            None,
+            now,
+        )
+        .unwrap()
+    };
+    assert_eq!(
+        read(&mut s, "/v1/risk").1["killSwitch"]["state"],
+        "disengaged"
+    );
+    assert_eq!(read(&mut s, "/v1/portfolio/stream").0, StatusCode::OK);
+    let engaged = call(
+        &mut s,
+        &owner,
+        "/v1/risk/kill-switch/engage",
+        json!({"reason":"empty account incident", "confirmPhrase":"ENGAGE KILL SWITCH"}),
+        &headers(None),
+        now,
+    )
+    .unwrap();
+    assert_eq!(engaged.1["killSwitch"]["state"], "engaged");
+    assert!(
+        read(&mut s, "/v1/risk").1["hitRules"]
+            .as_array()
+            .unwrap()
+            .contains(&json!("AccountKill"))
+    );
+    let released = call(
+        &mut s,
+        &owner,
+        "/v1/risk/kill-switch/release",
+        json!({"reason":"owned recovery"}),
+        &headers(None),
+        now,
+    )
+    .unwrap();
+    assert_eq!(released.1["killSwitch"]["state"], "disengaged");
+    assert_eq!(s.downstream_counts(), (Some(0), Some(0)));
 }
 fn pending(s: &mut ExecutionService, now: DateTime<Utc>) -> (Uuid, Uuid) {
     let a = s.auth.clone();

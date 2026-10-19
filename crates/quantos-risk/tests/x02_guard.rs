@@ -21,6 +21,81 @@ struct Fixture {
     policy: RiskPolicy,
     intent: TradeIntent,
 }
+#[test]
+fn preview_is_repeatable_but_never_an_issuable_decision() {
+    let mut f = Fixture::new();
+    f.intent.quantity = "10".into();
+    let guard = f.guard();
+    for _ in 0..3 {
+        let preview = guard
+            .preview(
+                &f.auth,
+                Phase::Pre,
+                &f.intent,
+                &f.input,
+                &f.financials,
+                &f.venue,
+                &f.release,
+                None,
+                f.now,
+            )
+            .unwrap();
+        assert_eq!(preview.verdict, RiskVerdict::Allow);
+        assert!(
+            guard
+                .validate_allow(&preview, &f.auth, &f.intent, f.now)
+                .is_err()
+        );
+    }
+    let (_, checks) = guard
+        .account_checks(&f.auth, &f.input, &f.financials, f.now)
+        .unwrap();
+    assert!(
+        !checks
+            .iter()
+            .any(|c| c.breached && matches!(c.rule, Rule::Duplicate | Rule::Approval))
+    );
+    let mut foreign = f.auth.clone();
+    foreign.tenant_id = TenantId::new();
+    assert!(
+        guard
+            .account_checks(&foreign, &f.input, &f.financials, f.now)
+            .is_err()
+    );
+    foreign = f.auth.clone();
+    foreign.capabilities.clear();
+    assert!(
+        guard
+            .account_checks(&foreign, &f.input, &f.financials, f.now)
+            .is_err()
+    );
+    let mut stale = f.financials.clone();
+    stale.as_of = f.now - Duration::hours(1);
+    stale.realized_pnl_today = -1e9;
+    let (_, checks) = guard
+        .account_checks(&f.auth, &f.input, &stale, f.now)
+        .unwrap();
+    for rule in [Rule::Financials, Rule::DailyLoss] {
+        assert!(checks.iter().any(|c| c.rule == rule && c.breached));
+    }
+    let actual = guard
+        .evaluate(
+            &f.auth,
+            Phase::Pre,
+            &f.intent,
+            &f.input,
+            &f.financials,
+            &f.venue,
+            &f.release,
+            None,
+            f.now,
+        )
+        .unwrap();
+    assert_eq!(actual.verdict, RiskVerdict::Allow);
+    guard
+        .validate_allow(&actual, &f.auth, &f.intent, f.now)
+        .unwrap();
+}
 impl Fixture {
     fn new() -> Self {
         Self::with_expiry(1800)

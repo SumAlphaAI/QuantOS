@@ -350,7 +350,13 @@ impl ExecutionService {
         } else {
             None
         };
-        mapped(self.guard.evaluate(
+        let evaluate = if approved {
+            RiskGuard::evaluate
+        } else {
+            RiskGuard::preview
+        };
+        mapped(evaluate(
+            &self.guard,
             &p.requester,
             Phase::Pre,
             &p.intent,
@@ -441,10 +447,14 @@ impl ExecutionService {
         Ok(v)
     }
     fn risk(&self, now: DateTime<Utc>) -> Result<Value> {
-        let p = self.proposals.values().next().ok_or_else(Fault::hidden)?;
-        let d = self.evaluate(p, false, now)?;
-        let kills: Vec<_> = d
-            .hit_rules()
+        let (revision, checks) =
+            mapped(
+                self.guard
+                    .account_checks(&self.auth, &self.input, &self.financials, now),
+            )?;
+        let hits: Vec<_> = checks.iter().filter(|c| c.breached).collect();
+        let kills: Vec<_> = hits
+            .iter()
             .filter(|c| {
                 matches!(
                     c.rule,
@@ -453,7 +463,7 @@ impl ExecutionService {
             })
             .collect();
         Ok(
-            json!({"accountId":self.auth.account_id,"asOf":self.input.portfolio.as_of,"hitRules":d.hit_rules().map(|c|format!("{:?}",c.rule)).collect::<Vec<_>>(),"limitIds":d.hit_rules().map(|c|stable_id(&c.limit_id)).collect::<Vec<_>>(),"killSwitch":{"state":if kills.is_empty(){"disengaged"}else{"engaged"}},"objectVersion":self.guard.revision().map_err(|_|Fault::unavailable())?.to_string()}),
+            json!({"accountId":self.auth.account_id,"asOf":self.input.portfolio.as_of,"hitRules":hits.iter().map(|c|format!("{:?}",c.rule)).collect::<Vec<_>>(),"limitIds":hits.iter().map(|c|stable_id(&c.limit_id)).collect::<Vec<_>>(),"killSwitch":{"state":if kills.is_empty(){"disengaged"}else{"engaged"}},"objectVersion":revision.to_string()}),
         )
     }
     fn portfolio(&self, now: DateTime<Utc>) -> Value {

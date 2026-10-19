@@ -19,3 +19,5 @@ Reference Context 与执行 host 使用同一固定 tenant/workspace/account 和
 功能实现、完整业务联调和发布分别记账。实际 Supabase/Auth/RLS/持久事务、跨实例/进程重启恢复、生产密钥、持续可信数据 feed、完整 UI/G5/FEP5、安全/容量/长稳/同 SHA hosted CI 与部署全部 NOT_RUN；durable execution lease/restart 接入未实施，禁止默认开启。尚不能用本机 READY 放行 runtime 或生产。formalAccepted=false、runtimeAdmission=DENIED。新完整确认稿待用户确认，不使用生产凭据、不建本地数据库、不推送或外部发布。
 
 2026-10-19 当前重评：保留 20261018 原 manifest、确认稿和所有失败/中断原件；新证据写入 `docs/audit/evidence/bff-fe-006-local-20261019/`。装配时同步核对 issuer 的 tenant/workspace、财务 tenant/account、Release tenant/workspace、风险 policy/venue 的 quote unit；可信源替换同样核对 quote unit，失败前不修改当前投影。公共兼容契约按 1.x 且至少 1.8 校验，当前生成结果仍须逐字节匹配；新增 shared-approvals 直接回归检验后续 A4 共享路由的最小权限/撤权/隔离。共 17 组当前功能检查，不执行 A4/A5 汇总或上游 Gate。新候选确认仍 PENDING；原用户确认保持原 SHA。
+
+本轮额外修复：页面 preflight 改用 X02 `preview`，不写 seen/decisions 或登记可签发决策；最终审批签发仍调用 `evaluate` 并经原子 current-allow 验证。账户 RiskView 使用 X02 同一规则、当前仓位/财务和 kill 状态的只读 account_checks，独立于是否存在 Proposal；显示当前账户风险，订单增量、Release/venue/审批规则由对应 preflight 验证。无提案时 Portfolio SSE 及 kill engage/release 也须正常返回，且不产生订单。

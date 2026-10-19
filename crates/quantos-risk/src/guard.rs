@@ -351,6 +351,98 @@ impl RiskGuard {
             &json!({"tenant":self.0.tenant,"workspace":self.0.workspace,"actor":actor,"intent":intent}),
         )?))
     }
+    /// Read-only preflight. The signed projection is deliberately not registered
+    /// as an issuable decision; only `evaluate` can reserve execution authority.
+    #[allow(clippy::too_many_arguments)]
+    pub fn preview(
+        &self,
+        auth: &AuthContext,
+        phase: Phase,
+        intent: &TradeIntent,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        venue: &VenueState,
+        release: &StrategyRelease,
+        approval: Option<&ApprovalToken>,
+        now: DateTime<Utc>,
+    ) -> Result<GuardDecision, GuardError> {
+        self.authorize(auth, intent)?;
+        let state = self.lock()?;
+        self.compute(
+            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now, false,
+        )
+    }
+    /// Current account rules, independent of a Proposal or a proposed order.
+    /// Reads the same kill state and rule predicates without recording decisions.
+    pub fn account_checks(
+        &self,
+        auth: &AuthContext,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        now: DateTime<Utc>,
+    ) -> Result<(u64, Vec<RuleCheck>), GuardError> {
+        let account = snapshot.portfolio.account_id;
+        if !self.scoped(auth, Some(account))
+            || !Self::capable(auth, Capability::EXECUTION_OPERATE)
+            || !matches!(auth.role, Role::Owner | Role::Operator | Role::Service)
+        {
+            return Err(GuardError::Unauthorized);
+        }
+        let state = self.lock()?;
+        if state.at.is_some_and(|t| now < t) {
+            return Err(GuardError::Invalid("backward clock"));
+        }
+        let gross = snapshot.portfolio.exposure_gross;
+        let symbol = snapshot
+            .portfolio
+            .positions
+            .iter()
+            .map(|p| p.market_value.abs())
+            .fold(0.0, f64::max);
+        let facts = Facts {
+            pre: false,
+            identity: true,
+            numbers: [
+                gross,
+                symbol,
+                financials.equity,
+                financials.realized_pnl_today,
+            ]
+            .iter()
+            .all(|v| v.is_finite())
+                && snapshot
+                    .portfolio
+                    .positions
+                    .iter()
+                    .all(|p| p.market_value.is_finite())
+                && gross >= 0.0
+                && symbol <= gross + 1e-9,
+            precision: true,
+            global_kill: state.global,
+            account_kill: state.accounts.contains(&account),
+            release: true,
+            snapshot: snapshot
+                .validate_for(self.0.tenant, account, now, self.0.policy.max_age_seconds)
+                .is_ok(),
+            financials: financials.tenant_id == self.0.tenant
+                && financials.account_id == account
+                && financials.quote_unit == self.0.policy.quote_unit
+                && financials.utc_day == now.date_naive()
+                && financials.as_of <= now
+                && now - financials.as_of <= Duration::seconds(self.0.policy.max_age_seconds)
+                && !financials.source_ref.trim().is_empty(),
+            venue: true,
+            duplicate: false,
+            notional: 0.0,
+            gross_after: gross,
+            symbol_after: symbol,
+            equity: financials.equity,
+            daily_pnl: financials.realized_pnl_today,
+            approval: true,
+        };
+        let (_, checks) = rules::evaluate(&facts, &self.0.policy.limits);
+        Ok((state.revision, checks))
+    }
     #[allow(clippy::too_many_arguments)]
     pub fn evaluate(
         &self,
