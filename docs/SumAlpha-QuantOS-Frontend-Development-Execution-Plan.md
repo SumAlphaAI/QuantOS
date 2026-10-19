@@ -1,5 +1,7 @@
 > 当前阶段修正（2026-10-19，CI 657a67b8）：BFF-FE-006 当前输入已偏离 aad08dd5 的冻结回执，stage_gate 恢复 NOT_ASSESSED；以下工程结果仅为原 SHA 历史记录。原 manifest、日志和确认稿保持原样，当前功能直接回归继续执行，不因 CI 修复重授 READY 或触发十前置全量复验。见[第五轮 CI 修复](./audit/ci-remediation-round5-2026-10-19.md)。
 
+> 2026-10-19 用户确认：FE:BFF-FE-006 的20261019完整稿已由用户在本会话确认，只绑定aad08dd5源码及2404a7df原稿/回执；[独立确认账本](./audit/evidence/bff-fe-006-confirmation-20261019/user-confirmation.json)，确认门禁CONFIRMED。原稿及技术回执不改字节，不代表当前HEAD、上游、联调/发布或runtime准入。
+
 > 工作流调整（2026-10-18）：11个非main本地分支已完整快进整合并安全删除，后续直接在main开发，见根目录AGENTS.md。合并后代码树与12a11c72完全一致；AGENTS.md属于A5输入，当前PROVIDER:A5阶段门禁撤回NOT_ASSESSED，原范围确认CONFIRMED及原技术证据保持不变，不改绑到新提交。本次只验证Git整合及文档/计划一致性，不重跑无关业务闭包。见[整合记录](./audit/evidence/main-consolidation-20261018/README.md)。
 
 > 当前工程结果（FE:BFF-FE-006/A4，2026-10-19）：冻结aad08dd5，999输入、17组及5实际入口PASS；Rust89、Node154、consumer/契约49，20 API/1085条HTTP、1000重试与基本Chromium通过。补齐host资源绑定、无副作用Allow预检及无提案账户风险/kill空态；原53,689份audit/gate文件保持。仅BFF006_SCOPE_LOCAL DEVELOPMENT READY；十前置不重授READY，完整联调/发布NOT_RUN，formalAccepted=false、runtimeAdmission=DENIED，新确认PENDING。见[当前报告](./audit/BFF-FE-006-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-006-local-20261019/confirmation-draft.md)。下一可执行FE:BFF-FE-004/A4当前功能复核。
