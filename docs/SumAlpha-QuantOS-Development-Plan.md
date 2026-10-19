@@ -940,7 +940,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "FE:BFF-FE-004": {
       "profile": "BFF004_SCOPE_LOCAL",
       "schema": "quantos-bff004-scoped-functional-development/v1",
-      "manifest": "audit/evidence/bff-fe-004-local-20261018/manifest.json",
+      "manifest": "audit/evidence/bff-fe-004-local-20261019/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-003",
         "FE:BFF-FE-006",

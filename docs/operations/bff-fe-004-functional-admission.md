@@ -9,3 +9,5 @@
 `scripts/record-bff-fe-004-functional.mjs` 在冻结源码核对输入后记录十七组当前命令、实际 HTTP/consumer coverage；所有失败/中断保留，必须新 attempt 重试。源码按16MiB批次核验所有 Git blob，原确认也分批，不能跳过大文件。当前输入、规范需求、命令/日志 hash、真实测试断言、API成功/401/403/schema、1000幂等HTTP、基本Chromium、consumer行覆盖>=80%及关键分支100%、人工确认PENDING和runtime DENIED均独立校验。发布 manifest/计划采用回滚保护，并实际运行 development/CI/FE006原确认/直接前置metadata/计划五个入口。
 
 `pnpm check:bff-fe-004` 为严格当前功能门禁；`pnpm check:bff-fe-004:ci` 检查阶段处置且 READY 时执行同一 verifier。组件 CI 不递归重跑前置。新共享代码变更后 FE006 独立当前 READY 撤回为 NOT_ASSESSED，原证据/原确认不改字节、不改绑。无生产凭据、目标连接、外部 push/publish。
+
+2026-10-19当前重评：新目录`bff-fe-004-local-20261019`，旧manifest/确认稿保持原字节。新增重复送审只保留首次requester/requestedAt/correlationId；后续不同幂等键仍指向同一审批，不重写首个送审事实。DraftBuffer以captureSave捕获版本、提交内容和编辑修订；saved校验CAS后续版本，迟到回复不得覆盖提交后的新编辑或回退远程版本，冲突解决也不得回退。直接共享C08新增6项A4回归，总18组；不执行上游Gate。FE006原20261019完整稿按用户原话单独确认，绑定aad08dd5/2404a7df；旧20261018确认也保留，不扩为本候选确认。

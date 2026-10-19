@@ -358,6 +358,54 @@ async fn release_approval_requires_independent_verified_actor_and_timelines() {
     assert_eq!(view["approvalTimeline"].as_array().unwrap().len(), 2);
 }
 #[tokio::test]
+async fn repeated_submission_preserves_first_requester_time_and_causal_root() {
+    let (p, r, d) = setup().await;
+    let release = release(&r, &d).await;
+    let submitted = submit(&r, &release).await;
+    let aid = crate::research::uuid(submitted["jobId"].as_str().unwrap()).unwrap();
+    let mut data = p.data.lock().await;
+    let now = data.now();
+    let host = data.strategy.as_mut().unwrap();
+    let original = host.approvals[&aid].clone();
+    let original_timeline =
+        host.releases[&uid(&release, "releaseId").unwrap()]["approvalTimeline"].clone();
+    let mut other = reference_auth(crate::CURRENT_SESSION);
+    other.actor_id = quantos_core::ActorId::new();
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "idempotency-key",
+        Uuid::new_v4().to_string().parse().unwrap(),
+    );
+    headers.insert(
+        "if-match",
+        release["objectVersion"].as_str().unwrap().parse().unwrap(),
+    );
+    let result = host
+        .handle(
+            &other,
+            "other-owned-session",
+            &Method::POST,
+            &format!(
+                "/v1/releases/{}/approval-submissions",
+                release["releaseId"].as_str().unwrap()
+            ),
+            &BTreeMap::new(),
+            &headers,
+            &json!({}),
+            None,
+            now + Duration::seconds(1),
+        )
+        .unwrap();
+    assert_eq!(result.0, StatusCode::ACCEPTED);
+    assert_eq!(result.1["jobId"], submitted["jobId"]);
+    assert_eq!(host.approvals[&aid], original);
+    assert_eq!(
+        host.releases[&uid(&release, "releaseId").unwrap()]["approvalTimeline"],
+        original_timeline
+    );
+    assert_eq!(host.approvals.len(), 1);
+}
+#[tokio::test]
 async fn approval_proof_cannot_authorize_another_resource() {
     let (_, r, d) = setup().await;
     let first = release(&r, &d).await;

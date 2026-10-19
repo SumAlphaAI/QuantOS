@@ -639,7 +639,9 @@ impl StrategyHost {
                         .push(timeline);
                 }
                 self.releases.get_mut(&id).unwrap()["submitted"] = json!(true);
-                self.approvals.insert(approval,json!({"approvalId":approval,"objectRef":id,"kind":"strategy_release","status":"pending","objectVersion":"0","requestedAt":now,"requester":a.actor_id,"originator":a.actor_id,"correlationId":correlation,"timeline":[]}));
+                // A new retry key must not rewrite the first submission's actor,
+                // time or causal root. The release has one immutable request.
+                self.approvals.entry(approval).or_insert_with(||json!({"approvalId":approval,"objectRef":id,"kind":"strategy_release","status":"pending","objectVersion":"0","requestedAt":now,"requester":a.actor_id,"originator":a.actor_id,"correlationId":correlation,"timeline":[]}));
                 status = StatusCode::ACCEPTED;
                 json!({"jobId":approval,"status":"accepted"})
             }
