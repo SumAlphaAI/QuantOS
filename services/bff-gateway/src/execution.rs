@@ -145,9 +145,16 @@ impl ExecutionService {
             matches!(auth.mode, RunMode::Paper | RunMode::Shadow)
                 && auth.account_id == Some(input.portfolio.account_id)
                 && auth.tenant_id == input.portfolio.tenant_id
+                && issuer.scope_matches(auth.tenant_id, auth.workspace_id)
                 && gateway.uses_issuer(&issuer)
                 && issuer.uses_risk_guard(&guard)
+                && financials.tenant_id == auth.tenant_id
+                && Some(financials.account_id) == auth.account_id
+                && release.tenant_id == auth.tenant_id
+                && release.workspace_id == auth.workspace_id
                 && financials.quote_unit == "USD"
+                && venue.quote_unit == financials.quote_unit
+                && guard.policy().quote_unit == financials.quote_unit
                 && projection
                     .snapshot(input.portfolio.account_id)?
                     .snapshot_hash
@@ -199,6 +206,8 @@ impl ExecutionService {
                 && financials.tenant_id == self.auth.tenant_id
                 && Some(financials.account_id) == self.auth.account_id
                 && financials.quote_unit == "USD"
+                && venue.quote_unit == financials.quote_unit
+                && self.guard.policy().quote_unit == financials.quote_unit
                 && release.tenant_id == self.auth.tenant_id
                 && release.workspace_id == self.auth.workspace_id,
             "source binding"

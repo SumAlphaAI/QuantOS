@@ -37,6 +37,98 @@ fn actors(s: &ExecutionService) -> (AuthContext, AuthContext) {
     b.role = Role::Approver;
     (a, b)
 }
+#[test]
+fn host_rejects_mismatched_authority_and_source_scopes() {
+    for mismatch in [
+        "valid",
+        "financial_tenant",
+        "financial_account",
+        "release_tenant",
+        "release_workspace",
+        "authority_workspace",
+        "quote_unit",
+    ] {
+        let mut f = reference_seed::Fixture::new();
+        let guard = f.guard();
+        let issuer = f.issuer(&guard);
+        let gateway = SignedExecutionGateway::new(
+            issuer.clone(),
+            GatewayLimits {
+                max_quantity: rust_decimal::Decimal::from(10000),
+                max_notional: rust_decimal::Decimal::from(250000),
+                allowed_venues: vec![f.venue.venue.clone()],
+            },
+            PaperKernel::resting("100"),
+        )
+        .unwrap();
+        match mismatch {
+            "financial_tenant" => f.financials.tenant_id = quantos_core::TenantId::new(),
+            "financial_account" => f.financials.account_id = quantos_core::AccountId::new(),
+            "release_tenant" => f.release.tenant_id = quantos_core::TenantId::new(),
+            "release_workspace" => f.release.workspace_id = quantos_core::WorkspaceId::new(),
+            "authority_workspace" => {
+                f.auth.workspace_id = quantos_core::WorkspaceId::new();
+                f.release.workspace_id = f.auth.workspace_id;
+            }
+            "quote_unit" => f.venue.quote_unit = "EUR".into(),
+            _ => {}
+        }
+        let result = ExecutionService::new(
+            f.auth,
+            f.input,
+            f.projection,
+            f.financials,
+            f.venue,
+            f.release,
+            guard,
+            issuer,
+            gateway,
+        );
+        assert_eq!(result.is_ok(), mismatch == "valid", "{mismatch}");
+    }
+}
+#[test]
+fn rejected_source_replacement_preserves_current_projection_and_context() {
+    let mut service = ExecutionService::reference();
+    let before_input = service.input.input_hash.clone();
+    let before_financials = service.financials.clone();
+    let before_venue = service.venue.clone();
+    let pid = *service.proposals.keys().next().unwrap();
+    let before_context = service.context_hash(service.proposal(pid).unwrap());
+    for mismatch in ["financial_account", "release_workspace", "quote_unit"] {
+        let mut financials = service.financials.clone();
+        let mut release = service.release.clone();
+        let mut venue = service.venue.clone();
+        match mismatch {
+            "financial_account" => financials.account_id = quantos_core::AccountId::new(),
+            "release_workspace" => release.workspace_id = quantos_core::WorkspaceId::new(),
+            "quote_unit" => venue.quote_unit = "EUR".into(),
+            _ => unreachable!(),
+        }
+        assert!(
+            service
+                .replace_sources(
+                    service.input.clone(),
+                    service.projection.clone(),
+                    financials,
+                    venue,
+                    release,
+                    Utc::now()
+                )
+                .is_err(),
+            "{mismatch}"
+        );
+        assert_eq!(service.input.input_hash, before_input);
+        assert_eq!(service.financials, before_financials);
+        assert_eq!(service.venue, before_venue);
+        assert_eq!(
+            service.context_hash(service.proposal(pid).unwrap()),
+            before_context
+        );
+        assert_eq!(service.downstream_counts(), (Some(0), Some(0)));
+        assert!(!service.poisoned);
+    }
+}
 fn pending(s: &mut ExecutionService, now: DateTime<Utc>) -> (Uuid, Uuid) {
     let a = s.auth.clone();
     let pid = *s.proposals.keys().next().unwrap();

@@ -1,0 +1,1056 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: stage contract differs from required policy
++ actual - expected
+... Skipped lines
+
+  {
+    dependency_basis: 'stage_gate',
+    early_required: [
+      'contracts',
+      'data-integrity',
+...
+      'FE:BFF-FE-006': {
++       manifest: 'audit/evidence/bff-fe-006-local-20261019/manifest.json',
+-       manifest: 'audit/evidence/bff-fe-006-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-003',
+          'FE:BFF-FE-005',
+          'FE:BFF-FE-007',
+          'CORE:X01',
+
+    at validatePlanOrder (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:106:10)
+    at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:180:21)
+    at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+    at snapshot (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-007-functional-scope.mjs:37:14)
+    at snapshot (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a2-functional-scope.mjs:30:17)
+    at snapshot (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-005-functional-scope.mjs:30:43)
+    at snapshot (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a3-functional-scope.mjs:30:43)
+    at snapshot (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-006-functional-scope.mjs:26:43)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-006-functional-gate.test.mjs:3:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    schema: 'quantos-plan-stages/v1',
+    dependency_basis: 'stage_gate',
+    early_required: [
+      'contracts',
+      'data-integrity',
+      'authorization',
+      'idempotency-recovery',
+      'deadline-semantics'
+    ],
+    release_required: [
+      'performance',
+      'soak',
+      'deployment',
+      'same-sha-ci',
+      'release-authorization',
+      'r03-supabase-target-acceptance',
+      'supabase-target-acceptance',
+      'external-environment-acceptance'
+    ],
+    release_checkpoints: [ 'RELEASE-GATE:BETA', 'RELEASE-GATE:LIVE-READINESS' ],
+    local_dependency_receipts: {
+      'CORE:R03': {
+        profile: 'R03_LOCAL',
+        schema: 'quantos-r03-development/v2',
+        manifest: 'audit/evidence/r03-20261011/manifest.json',
+        prerequisites: [
+          'CORE:F07',
+          'CORE:F08',
+          'CORE:R02',
+          'CORE:TP02',
+          'CORE-GATE:F0'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:F0': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-gate-f0.json',
+        prerequisites: [
+          'CORE:F01',    'CORE:F02',
+          'CORE:F03',    'CORE:F04',
+          'CORE:F05',    'CORE:F06',
+          'CORE:F07',    'CORE:F08',
+          'CORE:F09',    'CORE:TP01-A',
+          'CORE:TP01-B'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP03': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-tp03.json',
+        prerequisites: [ 'CORE:F08', 'CORE:F05', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP04': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-tp04.json',
+        prerequisites: [ 'CORE:F08', 'CORE:TP03', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-C': {
+        profile: 'TP01-C_LOCAL',
+        schema: 'quantos-tp01-c-local-development/v1',
+        manifest: 'audit/evidence/tp01-c-local-20261012/manifest.json',
+        prerequisites: [ 'CORE:TP01-B', 'CORE:F08', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-D': {
+        profile: 'TP01-D_LOCAL',
+        schema: 'quantos-tp01-d-local-development/v1',
+        manifest: 'audit/evidence/tp01-d-local-20261012/manifest.json',
+        prerequisites: [ 'CORE:TP01-C', 'CORE:R02', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A2': {
+        profile: 'A2_SCOPE_LOCAL',
+        schema: 'quantos-a2-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a2-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:R1-SERVICE': {
+        profile: 'R1_LOCAL',
+        schema: 'quantos-research-local-admission/v1',
+        manifest: 'audit/evidence/provider-a3-local-20261013/r1-local.json',
+        prerequisites: [
+          'CORE:R01',    'CORE:R02',
+          'CORE:TP01-C', 'CORE:TP01-D',
+          'CORE:TP02',   'CORE:TP03',
+          'CORE:TP04',   'CORE:TP05',
+          'CORE:TP08',   'CORE:TP09',
+          'CORE:TP10',   'CORE:TP11',
+          'CORE:R03',    'CORE:R04'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-003': {
+        profile: 'BFF003_SCOPE_LOCAL',
+        schema: 'quantos-bff003-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-003-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'FE:BFF-FE-007',
+          'CORE:F07',
+          'CORE:F08',
+          'CORE:R02',
+          'CORE:R03',
+          'CORE:R04',
+          'CORE-GATE:R1-SERVICE',
+          'PROVIDER:A2'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-005': {
+        profile: 'BFF005_SCOPE_LOCAL',
+        schema: 'quantos-bff005-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-005-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'CORE:R01',
+          'CORE:R02',
+          'CORE-GATE:R1-SERVICE',
+          'PROVIDER:A2'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A3': {
+        profile: 'A3_SCOPE_LOCAL',
+        schema: 'quantos-a3-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a3-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-003', 'FE:BFF-FE-005', 'PROVIDER:A2' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP02': {
+        profile: 'TP02_LOCAL',
+        schema: 'quantos-tp02-local-development/v1',
+        manifest: 'audit/evidence/tp02-local-20261013/manifest.json',
+        prerequisites: [ 'CORE:F08', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-E': {
+        profile: 'TP01-E_LOCAL',
+        schema: 'quantos-tp01-e-local-development/v1',
+        manifest: 'audit/evidence/tp01-e-readmission-20261014/manifest.json',
+        prerequisites: [ 'CORE:TP01-D', 'CORE:F02', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-F': {
+        profile: 'TP01-F_LOCAL',
+        schema: 'quantos-tp01-f-local-development/v1',
+        manifest: 'audit/evidence/tp01-f-local-20261014/manifest.json',
+        prerequisites: [ 'CORE:TP01-E', 'CORE:F09', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-G': {
+        profile: 'TP01-G_LOCAL',
+        schema: 'quantos-tp01-g-local-development/v1',
+        manifest: 'audit/evidence/tp01-g-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:TP01-F', 'CORE:R03', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:TP01': {
+        profile: 'SERVICE-TP01_LOCAL',
+        schema: 'quantos-service-tp01-local-development/v1',
+        manifest: 'audit/evidence/service-tp01-local-20261015/manifest.json',
+        prerequisites: [
+          'CORE:TP01-A',
+          'CORE:TP01-B',
+          'CORE:TP01-C',
+          'CORE:TP01-D',
+          'CORE:TP01-E',
+          'CORE:TP01-F',
+          'CORE:TP01-G',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S01': {
+        profile: 'S01_LOCAL',
+        schema: 'quantos-s01-local-development/v1',
+        manifest: 'audit/evidence/s01-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:R02', 'CORE:R03', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP06': {
+        profile: 'TP06_LOCAL',
+        schema: 'quantos-tp06-local-development/v1',
+        manifest: 'audit/evidence/tp06-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:F08', 'SERVICE:TP01', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S02': {
+        profile: 'S02_LOCAL',
+        schema: 'quantos-s02-local-development/v1',
+        manifest: 'audit/evidence/s02-local-20261015/manifest.json',
+        prerequisites: [
+          'CORE:S01',
+          'CORE:TP06',
+          'CORE:TP08',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S03': {
+        profile: 'S03_LOCAL',
+        schema: 'quantos-s03-local-development/v1',
+        manifest: 'audit/evidence/s03-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:S02', 'CORE:F06', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:S04': {
+        profile: 'SERVICE-S04_LOCAL',
+        schema: 'quantos-service-s04-local-development/v1',
+        manifest: 'audit/evidence/service-s04-local-20261016/manifest.json',
+        prerequisites: [
+          'CORE:S01',
+          'CORE:S02',
+          'CORE:S03',
+          'CORE:F06',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'EVALUATION:TP07': {
+        profile: 'EVAL-TP07_LOCAL',
+        schema: 'quantos-eval-tp07-local-development/v1',
+        manifest: 'audit/evidence/eval-tp07-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F03', 'CORE:F06', 'CORE:F08' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'EVALUATION:TP12': {
+        profile: 'EVAL-TP12_LOCAL',
+        schema: 'quantos-eval-tp12-local-development/v1',
+        manifest: 'audit/evidence/eval-tp12-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F07', 'EVALUATION:TP07' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:S2-SERVICE': {
+        profile: 'S2-SERVICE_LOCAL',
+        schema: 'quantos-s2-service-local-development/v1',
+        manifest: 'audit/evidence/s2-service-local-20261016/manifest.json',
+        prerequisites: [
+          'CORE-GATE:R1-SERVICE',
+          'SERVICE:TP01',
+          'CORE:S01',
+          'CORE:TP06',
+          'CORE:S02',
+          'CORE:S03',
+          'SERVICE:S04',
+          'CORE:TP08',
+          'CORE:TP09',
+          'CORE:TP10',
+          'CORE:TP11',
+          'EVALUATION:TP07',
+          'EVALUATION:TP12'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X01': {
+        profile: 'X01_LOCAL',
+        schema: 'quantos-x01-local-development/v1',
+        manifest: 'audit/evidence/x01-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F05', 'CORE:R01', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X02': {
+        profile: 'X02_LOCAL',
+        schema: 'quantos-x02-local-development/v1',
+        manifest: 'audit/evidence/x02-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:X01', 'CORE:S03', 'CORE:F06', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X03': {
+        profile: 'X03_LOCAL',
+        schema: 'quantos-x03-local-development/v2',
+        manifest: 'audit/evidence/x03-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:R04', 'CORE:X02', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP07': {
+        profile: 'TP07_LOCAL',
+        schema: 'quantos-tp07-local-development/v1',
+        manifest: 'audit/evidence/tp07-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:F03',
+          'CORE:F06',
+          'CORE:F08',
+          'CORE:X03',
+          'CORE-GATE:S2-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X04': {
+        profile: 'X04_LOCAL',
+        schema: 'quantos-x04-local-development/v1',
+        manifest: 'audit/evidence/x04-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:X03', 'CORE:TP07', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X05': {
+        profile: 'X05_LOCAL',
+        schema: 'quantos-x05-local-development/v1',
+        manifest: 'audit/evidence/x05-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE-GATE:S2-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP12': {
+        profile: 'TP12_LOCAL',
+        schema: 'quantos-tp12-local-development/v1',
+        manifest: 'audit/evidence/tp12-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:F07', 'CORE:TP07', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:X06': {
+        profile: 'SERVICE-X06_LOCAL',
+        schema: 'quantos-service-x06-local-development/v1',
+        manifest: 'audit/evidence/service-x06-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE:X05',
+          'CORE:F05',
+          'CORE:F06',
+          'CORE:F09'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:X3-SERVICE': {
+        profile: 'X3-SERVICE_LOCAL',
+        schema: 'quantos-x3-service-local-development/v1',
+        manifest: 'audit/evidence/x3-service-local-20261018/manifest.json',
+        prerequisites: [
+          'CORE-GATE:S2-SERVICE',
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:TP07',
+          'CORE:TP12',
+          'CORE:X04',
+          'CORE:X05',
+          'SERVICE:X06'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PREPARATION:P0': {
+        profile: 'P0_LOCAL',
+        schema: 'quantos-p0-functional-development/v1',
+        manifest: 'audit/evidence/p0-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:PRE-01',
+          'FE:PRE-02',
+          'FE:PRE-03',
+          'FE:PRE-04',
+          'FE:PRE-05',
+          'FE:PRE-06'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-000': {
+        profile: 'A1_SCOPE_LOCAL',
+        schema: 'quantos-a1-scoped-development/v1',
+        manifest: 'audit/evidence/a1-local-20261018/a1.json',
+        prerequisites: [
+          'FE:PRE-04',
+          'FE:PRE-06',
+          'CORE:F03',
+          'CORE:F05',
+          'CORE:F06',
+          'PREPARATION:P0'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A1': {
+        profile: 'A1_SCOPE_LOCAL',
+        schema: 'quantos-a1-scoped-development/v1',
+        manifest: 'audit/evidence/a1-local-20261018/provider-a1.json',
+        prerequisites: [ 'FE:BFF-FE-000', 'PREPARATION:P0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-001': {
+        profile: 'A2_IDENTITY_LOCAL',
+        schema: 'quantos-a2-identity-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-001-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-000', 'CORE:F06', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-007': {
+        profile: 'A2_AUDIT_LOCAL',
+        schema: 'quantos-a2-audit-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-007-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-001', 'CORE:F05', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-006': {
+        profile: 'BFF006_SCOPE_LOCAL',
+        schema: 'quantos-bff006-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-006-local-20261019/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-003',
+          'FE:BFF-FE-005',
+          'FE:BFF-FE-007',
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE:TP07',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A3'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-004': {
+        profile: 'BFF004_SCOPE_LOCAL',
+        schema: 'quantos-bff004-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-004-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-003',
+          'FE:BFF-FE-006',
+          'FE:BFF-FE-007',
+          'CORE:S01',
+          'CORE:S02',
+          'CORE:S03',
+          'CORE-GATE:X3-SERVICE',
+          'SERVICE:S04',
+          'PROVIDER:A3'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A4': {
+        profile: 'A4_SCOPE_LOCAL',
+        schema: 'quantos-a4-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a4-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-006', 'FE:BFF-FE-004', 'PROVIDER:A3' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-009': {
+        profile: 'BFF009_SCOPE_LOCAL',
+        schema: 'quantos-bff009-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-009-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-006',
+          'FE:BFF-FE-007',
+          'CORE:X05',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-008': {
+        profile: 'BFF008_SCOPE_LOCAL',
+        schema: 'quantos-bff008-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-008-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-009',
+          'CORE:X01',
+          'CORE:X05',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-010': {
+        profile: 'BFF010_SCOPE_LOCAL',
+        schema: 'quantos-bff010-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-010-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'FE:BFF-FE-007',
+          'FE:BFF-FE-009',
+          'CORE:F09',
+          'CORE-GATE:X3-SERVICE',
+          'SERVICE:X06',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A5': {
+        profile: 'A5_SCOPE_LOCAL',
+        schema: 'quantos-a5-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a5-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-009',
+          'FE:BFF-FE-008',
+          'FE:BFF-FE-010',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      }
+    }
+  },
+  expected: {
+    schema: 'quantos-plan-stages/v1',
+    dependency_basis: 'stage_gate',
+    early_required: [
+      'contracts',
+      'data-integrity',
+      'authorization',
+      'idempotency-recovery',
+      'deadline-semantics'
+    ],
+    release_required: [
+      'performance',
+      'soak',
+      'deployment',
+      'same-sha-ci',
+      'release-authorization',
+      'r03-supabase-target-acceptance',
+      'supabase-target-acceptance',
+      'external-environment-acceptance'
+    ],
+    release_checkpoints: [ 'RELEASE-GATE:BETA', 'RELEASE-GATE:LIVE-READINESS' ],
+    local_dependency_receipts: {
+      'CORE:R03': {
+        profile: 'R03_LOCAL',
+        schema: 'quantos-r03-development/v2',
+        manifest: 'audit/evidence/r03-20261011/manifest.json',
+        prerequisites: [
+          'CORE:F07',
+          'CORE:F08',
+          'CORE:R02',
+          'CORE:TP02',
+          'CORE-GATE:F0'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:F0': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-gate-f0.json',
+        prerequisites: [
+          'CORE:F01',    'CORE:F02',
+          'CORE:F03',    'CORE:F04',
+          'CORE:F05',    'CORE:F06',
+          'CORE:F07',    'CORE:F08',
+          'CORE:F09',    'CORE:TP01-A',
+          'CORE:TP01-B'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP03': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-tp03.json',
+        prerequisites: [ 'CORE:F08', 'CORE:F05', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP04': {
+        profile: 'R04_LOCAL',
+        schema: 'quantos-local-development/v1',
+        manifest: 'audit/evidence/local-development-20261012/core-tp04.json',
+        prerequisites: [ 'CORE:F08', 'CORE:TP03', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-C': {
+        profile: 'TP01-C_LOCAL',
+        schema: 'quantos-tp01-c-local-development/v1',
+        manifest: 'audit/evidence/tp01-c-local-20261012/manifest.json',
+        prerequisites: [ 'CORE:TP01-B', 'CORE:F08', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-D': {
+        profile: 'TP01-D_LOCAL',
+        schema: 'quantos-tp01-d-local-development/v1',
+        manifest: 'audit/evidence/tp01-d-local-20261012/manifest.json',
+        prerequisites: [ 'CORE:TP01-C', 'CORE:R02', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A2': {
+        profile: 'A2_SCOPE_LOCAL',
+        schema: 'quantos-a2-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a2-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:R1-SERVICE': {
+        profile: 'R1_LOCAL',
+        schema: 'quantos-research-local-admission/v1',
+        manifest: 'audit/evidence/provider-a3-local-20261013/r1-local.json',
+        prerequisites: [
+          'CORE:R01',    'CORE:R02',
+          'CORE:TP01-C', 'CORE:TP01-D',
+          'CORE:TP02',   'CORE:TP03',
+          'CORE:TP04',   'CORE:TP05',
+          'CORE:TP08',   'CORE:TP09',
+          'CORE:TP10',   'CORE:TP11',
+          'CORE:R03',    'CORE:R04'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-003': {
+        profile: 'BFF003_SCOPE_LOCAL',
+        schema: 'quantos-bff003-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-003-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'FE:BFF-FE-007',
+          'CORE:F07',
+          'CORE:F08',
+          'CORE:R02',
+          'CORE:R03',
+          'CORE:R04',
+          'CORE-GATE:R1-SERVICE',
+          'PROVIDER:A2'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-005': {
+        profile: 'BFF005_SCOPE_LOCAL',
+        schema: 'quantos-bff005-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-005-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'CORE:R01',
+          'CORE:R02',
+          'CORE-GATE:R1-SERVICE',
+          'PROVIDER:A2'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A3': {
+        profile: 'A3_SCOPE_LOCAL',
+        schema: 'quantos-a3-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a3-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-003', 'FE:BFF-FE-005', 'PROVIDER:A2' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP02': {
+        profile: 'TP02_LOCAL',
+        schema: 'quantos-tp02-local-development/v1',
+        manifest: 'audit/evidence/tp02-local-20261013/manifest.json',
+        prerequisites: [ 'CORE:F08', 'CORE-GATE:F0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-E': {
+        profile: 'TP01-E_LOCAL',
+        schema: 'quantos-tp01-e-local-development/v1',
+        manifest: 'audit/evidence/tp01-e-readmission-20261014/manifest.json',
+        prerequisites: [ 'CORE:TP01-D', 'CORE:F02', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-F': {
+        profile: 'TP01-F_LOCAL',
+        schema: 'quantos-tp01-f-local-development/v1',
+        manifest: 'audit/evidence/tp01-f-local-20261014/manifest.json',
+        prerequisites: [ 'CORE:TP01-E', 'CORE:F09', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP01-G': {
+        profile: 'TP01-G_LOCAL',
+        schema: 'quantos-tp01-g-local-development/v1',
+        manifest: 'audit/evidence/tp01-g-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:TP01-F', 'CORE:R03', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:TP01': {
+        profile: 'SERVICE-TP01_LOCAL',
+        schema: 'quantos-service-tp01-local-development/v1',
+        manifest: 'audit/evidence/service-tp01-local-20261015/manifest.json',
+        prerequisites: [
+          'CORE:TP01-A',
+          'CORE:TP01-B',
+          'CORE:TP01-C',
+          'CORE:TP01-D',
+          'CORE:TP01-E',
+          'CORE:TP01-F',
+          'CORE:TP01-G',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S01': {
+        profile: 'S01_LOCAL',
+        schema: 'quantos-s01-local-development/v1',
+        manifest: 'audit/evidence/s01-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:R02', 'CORE:R03', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP06': {
+        profile: 'TP06_LOCAL',
+        schema: 'quantos-tp06-local-development/v1',
+        manifest: 'audit/evidence/tp06-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:F08', 'SERVICE:TP01', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S02': {
+        profile: 'S02_LOCAL',
+        schema: 'quantos-s02-local-development/v1',
+        manifest: 'audit/evidence/s02-local-20261015/manifest.json',
+        prerequisites: [
+          'CORE:S01',
+          'CORE:TP06',
+          'CORE:TP08',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:S03': {
+        profile: 'S03_LOCAL',
+        schema: 'quantos-s03-local-development/v1',
+        manifest: 'audit/evidence/s03-local-20261015/manifest.json',
+        prerequisites: [ 'CORE:S02', 'CORE:F06', 'CORE-GATE:R1-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:S04': {
+        profile: 'SERVICE-S04_LOCAL',
+        schema: 'quantos-service-s04-local-development/v1',
+        manifest: 'audit/evidence/service-s04-local-20261016/manifest.json',
+        prerequisites: [
+          'CORE:S01',
+          'CORE:S02',
+          'CORE:S03',
+          'CORE:F06',
+          'CORE-GATE:R1-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'EVALUATION:TP07': {
+        profile: 'EVAL-TP07_LOCAL',
+        schema: 'quantos-eval-tp07-local-development/v1',
+        manifest: 'audit/evidence/eval-tp07-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F03', 'CORE:F06', 'CORE:F08' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'EVALUATION:TP12': {
+        profile: 'EVAL-TP12_LOCAL',
+        schema: 'quantos-eval-tp12-local-development/v1',
+        manifest: 'audit/evidence/eval-tp12-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F07', 'EVALUATION:TP07' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:S2-SERVICE': {
+        profile: 'S2-SERVICE_LOCAL',
+        schema: 'quantos-s2-service-local-development/v1',
+        manifest: 'audit/evidence/s2-service-local-20261016/manifest.json',
+        prerequisites: [
+          'CORE-GATE:R1-SERVICE',
+          'SERVICE:TP01',
+          'CORE:S01',
+          'CORE:TP06',
+          'CORE:S02',
+          'CORE:S03',
+          'SERVICE:S04',
+          'CORE:TP08',
+          'CORE:TP09',
+          'CORE:TP10',
+          'CORE:TP11',
+          'EVALUATION:TP07',
+          'EVALUATION:TP12'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X01': {
+        profile: 'X01_LOCAL',
+        schema: 'quantos-x01-local-development/v1',
+        manifest: 'audit/evidence/x01-local-20261016/manifest.json',
+        prerequisites: [ 'CORE:F05', 'CORE:R01', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X02': {
+        profile: 'X02_LOCAL',
+        schema: 'quantos-x02-local-development/v1',
+        manifest: 'audit/evidence/x02-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:X01', 'CORE:S03', 'CORE:F06', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X03': {
+        profile: 'X03_LOCAL',
+        schema: 'quantos-x03-local-development/v2',
+        manifest: 'audit/evidence/x03-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:R04', 'CORE:X02', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP07': {
+        profile: 'TP07_LOCAL',
+        schema: 'quantos-tp07-local-development/v1',
+        manifest: 'audit/evidence/tp07-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:F03',
+          'CORE:F06',
+          'CORE:F08',
+          'CORE:X03',
+          'CORE-GATE:S2-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X04': {
+        profile: 'X04_LOCAL',
+        schema: 'quantos-x04-local-development/v1',
+        manifest: 'audit/evidence/x04-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:X03', 'CORE:TP07', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:X05': {
+        profile: 'X05_LOCAL',
+        schema: 'quantos-x05-local-development/v1',
+        manifest: 'audit/evidence/x05-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE-GATE:S2-SERVICE'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE:TP12': {
+        profile: 'TP12_LOCAL',
+        schema: 'quantos-tp12-local-development/v1',
+        manifest: 'audit/evidence/tp12-local-20261017/manifest.json',
+        prerequisites: [ 'CORE:F07', 'CORE:TP07', 'CORE-GATE:S2-SERVICE' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'SERVICE:X06': {
+        profile: 'SERVICE-X06_LOCAL',
+        schema: 'quantos-service-x06-local-development/v1',
+        manifest: 'audit/evidence/service-x06-local-20261017/manifest.json',
+        prerequisites: [
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE:X05',
+          'CORE:F05',
+          'CORE:F06',
+          'CORE:F09'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'CORE-GATE:X3-SERVICE': {
+        profile: 'X3-SERVICE_LOCAL',
+        schema: 'quantos-x3-service-local-development/v1',
+        manifest: 'audit/evidence/x3-service-local-20261018/manifest.json',
+        prerequisites: [
+          'CORE-GATE:S2-SERVICE',
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:TP07',
+          'CORE:TP12',
+          'CORE:X04',
+          'CORE:X05',
+          'SERVICE:X06'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PREPARATION:P0': {
+        profile: 'P0_LOCAL',
+        schema: 'quantos-p0-functional-development/v1',
+        manifest: 'audit/evidence/p0-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:PRE-01',
+          'FE:PRE-02',
+          'FE:PRE-03',
+          'FE:PRE-04',
+          'FE:PRE-05',
+          'FE:PRE-06'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-000': {
+        profile: 'A1_SCOPE_LOCAL',
+        schema: 'quantos-a1-scoped-development/v1',
+        manifest: 'audit/evidence/a1-local-20261018/a1.json',
+        prerequisites: [
+          'FE:PRE-04',
+          'FE:PRE-06',
+          'CORE:F03',
+          'CORE:F05',
+          'CORE:F06',
+          'PREPARATION:P0'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A1': {
+        profile: 'A1_SCOPE_LOCAL',
+        schema: 'quantos-a1-scoped-development/v1',
+        manifest: 'audit/evidence/a1-local-20261018/provider-a1.json',
+        prerequisites: [ 'FE:BFF-FE-000', 'PREPARATION:P0' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-001': {
+        profile: 'A2_IDENTITY_LOCAL',
+        schema: 'quantos-a2-identity-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-001-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-000', 'CORE:F06', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-007': {
+        profile: 'A2_AUDIT_LOCAL',
+        schema: 'quantos-a2-audit-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-007-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-001', 'CORE:F05', 'PROVIDER:A1' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-006': {
+        profile: 'BFF006_SCOPE_LOCAL',
+        schema: 'quantos-bff006-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-006-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-003',
+          'FE:BFF-FE-005',
+          'FE:BFF-FE-007',
+          'CORE:X01',
+          'CORE:X02',
+          'CORE:X03',
+          'CORE:X04',
+          'CORE:TP07',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A3'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-004': {
+        profile: 'BFF004_SCOPE_LOCAL',
+        schema: 'quantos-bff004-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-004-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-003',
+          'FE:BFF-FE-006',
+          'FE:BFF-FE-007',
+          'CORE:S01',
+          'CORE:S02',
+          'CORE:S03',
+          'CORE-GATE:X3-SERVICE',
+          'SERVICE:S04',
+          'PROVIDER:A3'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A4': {
+        profile: 'A4_SCOPE_LOCAL',
+        schema: 'quantos-a4-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a4-local-20261018/manifest.json',
+        prerequisites: [ 'FE:BFF-FE-006', 'FE:BFF-FE-004', 'PROVIDER:A3' ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-009': {
+        profile: 'BFF009_SCOPE_LOCAL',
+        schema: 'quantos-bff009-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-009-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-006',
+          'FE:BFF-FE-007',
+          'CORE:X05',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-008': {
+        profile: 'BFF008_SCOPE_LOCAL',
+        schema: 'quantos-bff008-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-008-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-009',
+          'CORE:X01',
+          'CORE:X05',
+          'CORE-GATE:X3-SERVICE',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'FE:BFF-FE-010': {
+        profile: 'BFF010_SCOPE_LOCAL',
+        schema: 'quantos-bff010-scoped-functional-development/v1',
+        manifest: 'audit/evidence/bff-fe-010-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-001',
+          'FE:BFF-FE-007',
+          'FE:BFF-FE-009',
+          'CORE:F09',
+          'CORE-GATE:X3-SERVICE',
+          'SERVICE:X06',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      },
+      'PROVIDER:A5': {
+        profile: 'A5_SCOPE_LOCAL',
+        schema: 'quantos-a5-aggregate-functional-development/v1',
+        manifest: 'audit/evidence/provider-a5-local-20261018/manifest.json',
+        prerequisites: [
+          'FE:BFF-FE-009',
+          'FE:BFF-FE-008',
+          'FE:BFF-FE-010',
+          'PROVIDER:A4'
+        ],
+        release_checkpoint: 'RELEASE-GATE:BETA'
+      }
+    }
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.12.0
+✖ scripts/bff-fe-006-functional-gate.test.mjs (764.240041ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 770.822584
+
+✖ failing tests:
+
+test at scripts/bff-fe-006-functional-gate.test.mjs:1:1
+✖ scripts/bff-fe-006-functional-gate.test.mjs (764.240041ms)
+  'test failed'

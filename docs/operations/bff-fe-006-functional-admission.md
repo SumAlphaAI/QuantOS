@@ -17,3 +17,5 @@ Reference Context 与执行 host 使用同一固定 tenant/workspace/account 和
 源码校验保留全部 Git blob/hash/规范输入核对，按16MiB分批传输，避免继承清单超过单次缓冲上限；不跳过任何输入。冻结后运行 `make bff006-local-assess ATTEMPT=docs/audit/evidence/bff-fe-006-local-20261018/function-attempt-NN`；失败/超时/中断保留为新 attempt，不修改旧回执。只有所有组与源码/输入/产物绑定检查通过，才原子发布当前 manifest 和 FE:BFF-FE-006 stage_gate；五个实际入口验证失败则回滚发布文件。`pnpm check:bff-fe-006:development` 是严格准入，mandatory CI disposition 不得把 NOT_ASSESSED 解释为已准入。
 
 功能实现、完整业务联调和发布分别记账。实际 Supabase/Auth/RLS/持久事务、跨实例/进程重启恢复、生产密钥、持续可信数据 feed、完整 UI/G5/FEP5、安全/容量/长稳/同 SHA hosted CI 与部署全部 NOT_RUN；durable execution lease/restart 接入未实施，禁止默认开启。尚不能用本机 READY 放行 runtime 或生产。formalAccepted=false、runtimeAdmission=DENIED。新完整确认稿待用户确认，不使用生产凭据、不建本地数据库、不推送或外部发布。
+
+2026-10-19 当前重评：保留 20261018 原 manifest、确认稿和所有失败/中断原件；新证据写入 `docs/audit/evidence/bff-fe-006-local-20261019/`。装配时同步核对 issuer 的 tenant/workspace、财务 tenant/account、Release tenant/workspace、风险 policy/venue 的 quote unit；可信源替换同样核对 quote unit，失败前不修改当前投影。公共兼容契约按 1.x 且至少 1.8 校验，当前生成结果仍须逐字节匹配；新增 shared-approvals 直接回归检验后续 A4 共享路由的最小权限/撤权/隔离。共 17 组当前功能检查，不执行 A4/A5 汇总或上游 Gate。新候选确认仍 PENDING；原用户确认保持原 SHA。
