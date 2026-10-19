@@ -1,5 +1,8 @@
 > 工作流调整（2026-10-18）：11个非main本地分支已完整快进整合并安全删除，后续直接在main开发，见根目录AGENTS.md。合并后代码树与12a11c72完全一致；AGENTS.md属于A5输入，当前PROVIDER:A5阶段门禁撤回NOT_ASSESSED，原范围确认CONFIRMED及原技术证据保持不变，不改绑到新提交。本次只验证Git整合及文档/计划一致性，不重跑无关业务闭包。见[整合记录](./audit/evidence/main-consolidation-20261018/README.md)。
 
+> 当前工程结果（FE:BFF-FE-006/A4，2026-10-19）：冻结aad08dd5，999输入、17组及5实际入口PASS；Rust89、Node154、consumer/契约49，20 API/1085条HTTP、1000重试与基本Chromium通过。补齐host资源绑定、无副作用Allow预检及无提案账户风险/kill空态；原53,689份audit/gate文件保持。仅BFF006_SCOPE_LOCAL DEVELOPMENT READY；十前置不重授READY，完整联调/发布NOT_RUN，formalAccepted=false、runtimeAdmission=DENIED，新确认PENDING。见[当前报告](./audit/BFF-FE-006-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-006-local-20261019/confirmation-draft.md)。下一可执行FE:BFF-FE-004/A4当前功能复核。
+
+
 > 用户确认（PROVIDER:A5，2026-10-18）：项目用户已确认完整稿，确认门禁CONFIRMED；仅绑定原DEVELOPMENT功能汇总源码a036f73baaae984386e43b5eec0294fdfe44c031与原回执提交e41e65fda773c85d4e9734e0111eff9eb6188d8e。本阶段评审ACCEPTED，formalAccepted=false、runtimeAdmission=DENIED，完整联调/发布仍NOT_RUN；原稿及技术回执保持原字节。见[原始确认](./audit/evidence/provider-a5-confirmation-20261018/user-confirmation.json)与[确认门禁](./audit/evidence/provider-a5-confirmation-20261018/gate.json)。本次未启动A6。
 
 > 历史工程结果（PROVIDER:A5，2026-10-18）：冻结a036f73b，1087输入/17组当前汇总与直接影响、8实际入口PASS；Rust72、Node196、consumer/契约47，58操作/584条当前HTTP和三个基本Chromium通过，24限定控制PASS。同一Shadow provider验证账本/冻结报表、独立告警来源、三域同键并发与丢回复恢复/唯一F05根、撤权和过期拒绝。仅A5_SCOPE_LOCAL DEVELOPMENT READY；009/008/010及A4原确认CONFIRMED并保持原SHA，四前置不重授READY，BFF010独立当前撤回。53,577原audit/gate文件保持；完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总原范围确认CONFIRMED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-18.md)与[完整稿](./audit/evidence/provider-a5-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
@@ -1450,7 +1453,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-006`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:90fd11583f7c0db8e41278f1e348d70566fa211d00172a1a7d7038c9930edece","evidence":["audit/evidence/bff-fe-006-local-20261019/manifest.json"]}
 - depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -1463,7 +1466,9 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 覆盖契约/页面：C06–C09/C13；P08–P11/P20
 - 目标阶段与验收：FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过
 
-当前功能实现与范围门禁：见[规程](./operations/bff-fe-006-functional-admission.md)。当前590f1f8f的16组及5入口PASS，见[报告](./audit/BFF-FE-006-functional-review-2026-10-18.md)与[完整确认稿](./audit/evidence/bff-fe-006-local-20261018/confirmation-draft.md)。BFF006_SCOPE_LOCAL 仅检查20项当前API及实际影响路径；A3原稿确认保存在[独立账本](./audit/evidence/provider-a3-confirmation-20261018/user-confirmation.json)，不扩大原范围，不重授十个上游独立Gate。完整联调/发布与目标数据库未验。
+历史功能实现与范围门禁：见[规程](./operations/bff-fe-006-functional-admission.md)。原590f1f8f的16组及5入口PASS，见[报告](./audit/BFF-FE-006-functional-review-2026-10-18.md)与[完整确认稿](./audit/evidence/bff-fe-006-local-20261018/confirmation-draft.md)。BFF006_SCOPE_LOCAL 仅检查20项当前API及实际影响路径；A3原稿确认保存在[独立账本](./audit/evidence/provider-a3-confirmation-20261018/user-confirmation.json)，不扩大原范围，不重授十个上游独立Gate。完整联调/发布与目标数据库未验。
+
+当前2026-10-19：aad08dd5冻结候选17组/5入口PASS，BFF006_SCOPE_LOCAL READY；新增资源绑定、无副作用预检和无Proposal账户风险/kill恢复。见[报告](./audit/BFF-FE-006-functional-review-2026-10-19.md)与[待确认稿](./audit/evidence/bff-fe-006-local-20261019/confirmation-draft.md)。原回执不改绑，十上游独立Gate不重授，完整联调/发布NOT_RUN。
 
 <a id="task-bff-fe-004"></a>
 ##### BFF-FE-004：Strategy、Backtest 与 Release API

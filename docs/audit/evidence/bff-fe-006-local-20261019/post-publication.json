@@ -1,0 +1,48 @@
+{
+  "schema": "quantos-bff006-post-publication/v1",
+  "observedSourceCommit": "aad08dd50347d696409db84f86b080c26296a9c3",
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "check:bff-fe-006:development"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/bff-fe-006-local-20261019/final-development.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "stageCounts": {
+        "READY": 1,
+        "NOT_ASSESSED": 158
+      }
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2024",
+        "crates/quantos-risk/src/guard.rs",
+        "crates/quantos-risk/tests/x02_guard.rs",
+        "services/bff-gateway/src/execution.rs",
+        "services/bff-gateway/src/execution/tests.rs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}
