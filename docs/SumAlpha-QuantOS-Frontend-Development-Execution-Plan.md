@@ -1,3 +1,5 @@
+> 用户确认（FE:BFF-FE-008，2026-10-20）：本会话已确认原完整稿，仅绑定b20efc30原源码、5f82e72a原稿/技术回执和1109输入，不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/bff-fe-008-confirmation-20261020/summary.md)。
+
 > 当前工程结果（FE:BFF-FE-008/A5，2026-10-20）：冻结b20efc30，1109输入、15组/6入口PASS；Rust57、Node173、consumer/契约46，八API/146条HTTP及基本Chromium通过。修复到期报告票据回收、下载状态/时间/审计元数据绑定，26控制点；54,236份原audit/gate保持。仅BFF008_SCOPE_LOCAL DEVELOPMENT READY；C15原稿已CONFIRMED，五前置当前Gate不重授。完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-008-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-008-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-010 / A5当前复核。
 
 > 用户确认（FE:BFF-FE-009，2026-10-20）：本会话已确认原完整稿，仅绑定007040fd原源码、1e1ca813原稿/技术回执和1082输入；不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/bff-fe-009-confirmation-20261020/summary.md)。
