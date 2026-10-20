@@ -1373,8 +1373,8 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:e7e3553b093bb2167b4f9b140bb22468573a633b1556b9790b94282f85653fdb",
+    "status": "READY",
+    "input_digest": "sha256:0e4285dbb4aa13bca0d923f122102d4a7dafe7b5f1caf72e5458ce6337e3beda",
     "evidence": [
       "audit/evidence/g0-local-20261020/g0.json"
     ]
@@ -1854,7 +1854,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "BLOCKED",
-    "input_digest": "sha256:910b184caa17756c881ffad2784920d80c58871195baf99f32776cbbb5894b01",
+    "input_digest": "sha256:528022c4fdab8873ba9c31fd2bf8498f852ebbbe6ba22eaead9aedd3b6ff3c6d",
     "evidence": [
       "audit/evidence/g0-local-20261020/provider-all.json"
     ]
