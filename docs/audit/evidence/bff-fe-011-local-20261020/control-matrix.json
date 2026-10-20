@@ -1,0 +1,263 @@
+{
+  "schema": "quantos-bff011-local-controls/v1",
+  "scope": "Current bounded feature only; SQL/target notes are explicit, not database execution",
+  "sourceCommit": "a3524fdf7a226023957eec553ff0d80df2cd3f77",
+  "controls": [
+    {
+      "id": "B11-01",
+      "control": "browser-session",
+      "claim": "API requires current cookie identity; viewer may read non-sensitive policy; missing identity401",
+      "check": "platform",
+      "evidence": "router_authentication_precedes_history_and_never_grants_browser_permission",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-02",
+      "control": "query-envelope",
+      "claim": "Unknown injected/duplicate/invalid query produces canonical JSON refusal, no-store",
+      "check": "platform",
+      "evidence": "router_projects_actual_owner_exports_and_refuses_forged_scope",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-03",
+      "control": "unknown-permission",
+      "claim": "Server cannot observe local notifications or clipboard; never fabricates granted",
+      "check": "platform",
+      "evidence": "browser_policy_keeps_local_permission_unknown_and_degrades_without_prompts",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-04",
+      "control": "no-permission-prompt",
+      "claim": "Chromium policy/history GET never triggers Notification.requestPermission",
+      "check": "http",
+      "evidence": "browser.prompts=0",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-05",
+      "control": "local-detection",
+      "claim": "Secure context gates local notifications/clipboard/passkey; no storage reads",
+      "check": "consumers",
+      "evidence": "detects only local runtime presence and secure-context permission without prompting",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-06",
+      "control": "fallbacks",
+      "claim": "Denied/default/unsupported notifications, missing clipboard/download, offline narrow ability",
+      "check": "consumers",
+      "evidence": "narrows notification permission and offline capabilities without a permission request",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-07",
+      "control": "scope",
+      "claim": "Live owner query filters user/tenant/actor/workspace/account and audit:read; compiled/static only, target NOT_RUN",
+      "check": "contract",
+      "evidence": "bounded download_history SQL and TrustedIdentity binding",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-08",
+      "control": "owner-read-refusal",
+      "claim": "Reference viewer403; no legacy command-response fallback",
+      "check": "http",
+      "evidence": "listDownloads403 and actual createExport history",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-09",
+      "control": "metadata-whitelist",
+      "claim": "No reason/raw label/session/URL/storage path in output",
+      "check": "platform",
+      "evidence": "history_whitelist_never_replays_urls_tokens_labels_or_local_paths",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-10",
+      "control": "no-stored-lease",
+      "claim": "History rejects URL-bearing source responses in new consumer",
+      "check": "consumers",
+      "evidence": "does not pass sensitive history URLs or extra permission metadata to consumers",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-11",
+      "control": "action-authority",
+      "claim": "Only ready/current audit:export exposes owner action path; GET history mints no ticket",
+      "check": "platform",
+      "evidence": "owner_capability_retention_and_state_control_download_action",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-12",
+      "control": "worker-states",
+      "claim": "All seven authoritative persisted worker states map safely, cancellation pending never ready",
+      "check": "platform",
+      "evidence": "all_persisted_export_worker_states_have_safe_history_semantics",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-13",
+      "control": "retention",
+      "claim": "Final sample rechecks retention after source read; expired action removed",
+      "check": "platform",
+      "evidence": "history_rechecks_retention_after_source_read_before_paging",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-14",
+      "control": "malformed-source",
+      "claim": "Malformed fields fail closed, never partial/empty fabricated success",
+      "check": "platform",
+      "evidence": "malformed_source_never_becomes_partial_or_empty_success",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-15",
+      "control": "ordering",
+      "claim": "Filter/sort whitelist, stable UUID tie-break before slicing",
+      "check": "platform",
+      "evidence": "history_filters_sorts_and_breaks_equal_timestamp_ties_before_paging",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-16",
+      "control": "input-limits",
+      "claim": "PageSize1-200 and registered sort/filter only",
+      "check": "platform",
+      "evidence": "query_fields_directions_ranges_and_unknowns_fail_closed",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-17",
+      "control": "cursor-binding",
+      "claim": "Identity/session/scope/query/pageSize/revision bind cursor; no offset forgery",
+      "check": "platform",
+      "evidence": "cursor_binds_identity_session_query_page_size_and_current_revision",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-18",
+      "control": "cursor-expiry",
+      "claim": "60s non-renewing cursor, tamper/expiry/source change422 reload",
+      "check": "platform",
+      "evidence": "cursor_expiry_tamper_and_row_limit_refuse_with_recoverable_reload",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-19",
+      "control": "capacity",
+      "claim": "2000 source row limit,512 cursors; expired cursor capacity reclaimed",
+      "check": "platform",
+      "evidence": "cursor_capacity_is_bounded_and_recovered_after_deadline",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-20",
+      "control": "revocation",
+      "claim": "Invalid current session refuses saved cursor and platform reads",
+      "check": "platform",
+      "evidence": "revoked_or_expired_session_cannot_read_even_saved_cursor",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-21",
+      "control": "link-deadline",
+      "claim": "Shared owner lease min(now+300s,retention,session); expired refuses issuance",
+      "check": "platform",
+      "evidence": "short_link_never_outlives_session_retention_or_five_minutes",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-22",
+      "control": "fresh-action",
+      "claim": "Explicit owned history action obtains current lease with cookies",
+      "check": "consumers",
+      "evidence": "mints a fresh validated same-origin lease only from an explicit owned history action",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-23",
+      "control": "url-safety",
+      "claim": "Same object/HTTPS/same origin/content path/no userinfo/query/fragment/current <=300s",
+      "check": "consumers",
+      "evidence": "refuses foreign objects, URL injection, expired, long, and elapsed leases",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-24",
+      "control": "expired-action",
+      "claim": "Bad/missing action or expired/failed state refuses before I/O",
+      "check": "consumers",
+      "evidence": "refuses expired, failed, missing, or forged action paths before network I/O",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-25",
+      "control": "instant-time",
+      "claim": "Date.parse compares instants, invalid clock/expiry refuses",
+      "check": "consumers",
+      "evidence": "parses expiry as an instant and rejects invalid clock values",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-26",
+      "control": "generation",
+      "claim": "OpenAPI1.14.0 134 operations113schemas, six exact generated outputs,710 dictionary rows",
+      "check": "generated",
+      "evidence": "exact isolated regeneration",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-27",
+      "control": "direct-regression",
+      "claim": "Shared settings/auth and export owner29 tests; target DB NOT_RUN",
+      "check": "a2-boundary",
+      "evidence": "auth_settings_provider + audit_export_provider",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-28",
+      "control": "consumer-error",
+      "claim": "401403422503 refuses stale cached facts; generated cookies and AbortSignal forwarded",
+      "check": "consumers",
+      "evidence": "propagates refusals without presenting cached platform facts",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-29",
+      "control": "receipt-negative",
+      "claim": "Source/log/command/phase/HTTP/coverage mutation cannot rehash into READY",
+      "check": "gate-tests",
+      "evidence": "actual rejection suite, source verifier mandatory",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-30",
+      "control": "atomic-publication",
+      "claim": "CI/strict entrypoint validation mandatory; failure restores current plan and manifest",
+      "check": "gate-tests",
+      "evidence": "publication failure restores checkpoint and original manifest bytes",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-31",
+      "control": "historical-confirmation",
+      "claim": "Actual BFF002 user reply bound only original116d076e/3d86f2fb/1247 inputs",
+      "check": "confirmation",
+      "evidence": "original frozen-source validation and independent ledger",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "B11-32",
+      "control": "phase-policy",
+      "claim": "No recursive upstream/full workspace/three-build/target promotion; both plans and CI dispatch",
+      "check": "plan-policy",
+      "evidence": "C17 profile and stage-disposition negative tests",
+      "status": "PASS_LOCAL"
+    }
+  ]
+}

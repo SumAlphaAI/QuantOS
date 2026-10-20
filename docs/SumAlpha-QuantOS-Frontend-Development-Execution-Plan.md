@@ -1,4 +1,8 @@
-> 当前工程结果（FE:BFF-FE-002/A6，2026-10-20）：冻结116d076e，1247输入、16组/5入口PASS；Rust47、Node249、consumer/契约46，两C02 API/42条当前HTTP及基本Chromium，34限定控制点。四源受权读取、null/陈旧/缺失、排序截断与最早期限、只读权限和有界流恢复完成。54,468原audit/gate保持，三轮FAIL、第四轮替代与预检失败保留。仅BFF002_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整UI/联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-011/A6。
+> 当前工程结果（FE:BFF-FE-011/A6，2026-10-20）：冻结a3524fdf，1278输入、16组/5入口PASS；Rust44、Node249、consumer/契约64，两API/35条HTTP及基本Chromium、32限定控制点。权限unknown/本机降级、受控导出白名单历史、期限与有界游标完成。54,649原audit/gate保持，预检失败及首轮替代保留。仅BFF011_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-011-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-011-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:A6当前汇总。
+
+> 用户确认（FE:BFF-FE-002，2026-10-20）：原稿CONFIRMED，仅116d076e/3d86f2fb原1247输入。共享输入变化后当前Gate NOT_ASSESSED，原字节保持。见[记录](./audit/evidence/bff-fe-002-confirmation-20261020/summary.md)。
+
+> 历史工程结果（FE:BFF-FE-002/A6，2026-10-20）：冻结116d076e，1247输入、16组/5入口PASS；Rust47、Node249、consumer/契约46，两C02 API/42条当前HTTP及基本Chromium，34限定控制点。四源受权读取、null/陈旧/缺失、排序截断与最早期限、只读权限和有界流恢复完成。54,468原audit/gate保持，三轮FAIL、第四轮替代与预检失败保留。仅BFF002_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整UI/联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-011/A6。
 
 > 用户确认（PROVIDER:A5，2026-10-20）：原稿CONFIRMED，仅5fb5b6aa/8a0ce81b原1169输入。共享输入变更后独立当前Gate NOT_ASSESSED，原稿与回执保持。见[记录](./audit/evidence/provider-a5-confirmation-20261020/summary.md)。
 
@@ -1699,14 +1703,16 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="task-bff-fe-011"></a>
 ##### BFF-FE-011：Web 浏览器平台能力 API
 
+2026-10-20当前功能：a3524fdf冻结候选16组/5入口PASS，两API策略/安全历史与generated consumer完成；仅BFF011_SCOPE_LOCAL READY，新稿PENDING、联调/发布NOT_RUN。见[报告](./audit/BFF-FE-011-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-011-local-20261020/confirmation-draft.md)。
+
 - task_id: `BFF-FE-011`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2a57e2657fc1d22157d884f8ece36d12f95d2905460444042d14bffde6beea4b","evidence":["audit/evidence/bff-fe-011-local-20261020/manifest.json"]}
 - depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
