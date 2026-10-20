@@ -1,0 +1,3 @@
+# PROVIDER:A5 原稿用户确认（2026-10-20）
+
+保存本会话原始确认，仅绑定5fb5b6aa52fbfb604e009d1e818826114ead155a源码、8a0ce81b8d5f5f2067e73137ff7de24e90546a01原稿/回执及1169原输入；原稿、技术回执与历史不改写。原功能范围CONFIRMED，formalAccepted=false、runtimeAdmission=DENIED，完整联调/发布NOT_RUN，不批准之后HEAD或BFF002新候选。
