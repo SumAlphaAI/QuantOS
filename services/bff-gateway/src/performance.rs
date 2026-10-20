@@ -380,6 +380,14 @@ impl PerformanceHost {
         now: DateTime<Utc>,
     ) -> Result<(StatusCode, Value)> {
         self.authorize(a)?;
+        // Keep expired grants while their report is live so they still return 410.
+        // Once a report expires, its own 410 check preserves that behavior and
+        // its grants must stop consuming the bounded ticket lease.
+        self.tickets.retain(|_, ticket| {
+            self.jobs
+                .get(&ticket.report)
+                .is_some_and(|job| now < job.expires)
+        });
         let binding = Self::binding(a, session);
         let parts = path.trim_matches('/').split('/').collect::<Vec<_>>();
         if m == Method::POST {

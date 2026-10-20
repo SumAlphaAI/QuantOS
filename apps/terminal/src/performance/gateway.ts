@@ -21,6 +21,9 @@ export async function verifiedReport(response: Response, rawGrant: unknown, acco
   if (hash !== grant.sha256 || bytes.byteLength !== grant.sizeBytes) throw Error("Report integrity mismatch");
   const document = bffZodSchemas.PerformanceReportDocument.parse(JSON.parse(new TextDecoder().decode(bytes)));
   if (document.metadata.reportId !== grant.reportId || document.metadata.ledgerVersion !== grant.ledgerVersion || document.metadata.valuationSnapshotId !== grant.valuationSnapshotId) throw Error("Report version mismatch");
+  for (const key of ["status", "createdAt", "expiresAt", "correlationId", "auditRef", "supersededBy"] as const) {
+    if (JSON.stringify(document.metadata[key]) !== JSON.stringify(grant[key])) throw Error("Report metadata mismatch");
+  }
   for (const key of ["accountId", "currency", "method", "asOf", "ledgerVersion", "valuationSnapshotId", "period", "periodMode", "provisional", "coverage"] as const) {
     if (JSON.stringify(document.metadata[key]) !== JSON.stringify(grant[key]) || JSON.stringify(document.performance[key]) !== JSON.stringify(document.metadata[key])) throw Error("Report metadata mismatch");
   }

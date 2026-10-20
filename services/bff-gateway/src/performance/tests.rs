@@ -593,3 +593,173 @@ fn trusted_cash_flow_refuses_simple_return_instead_of_fabricating_attribution() 
         "CASH_FLOW_UNSUPPORTED"
     );
 }
+
+#[test]
+fn expired_report_tickets_release_capacity_without_reviving_old_grants() {
+    let (a, mut p, mut r, n, q) = setup();
+    let headers = headers();
+    let body = json!(q);
+    let request = |p: &mut PerformanceHost,
+                   r: &mut ReconciliationHost,
+                   method: Method,
+                   path: &str,
+                   h: &HeaderMap,
+                   b: &Value,
+                   now: DateTime<Utc>| {
+        p.handle(&a, "s", &method, path, &BTreeMap::new(), h, b, r, now)
+    };
+    let first = request(
+        &mut p,
+        &mut r,
+        Method::POST,
+        "/v1/performance/reports",
+        &headers,
+        &body,
+        n,
+    )
+    .unwrap();
+    let old = format!(
+        "/v1/performance/reports/{}",
+        first.1["reportId"].as_str().unwrap()
+    );
+    request(
+        &mut p,
+        &mut r,
+        Method::GET,
+        &format!("{old}/status"),
+        &headers,
+        &json!({}),
+        n,
+    )
+    .unwrap();
+    let mut first_grant = Value::Null;
+    for index in 0..1000 {
+        let grant = request(
+            &mut p,
+            &mut r,
+            Method::GET,
+            &format!("{old}/download"),
+            &headers,
+            &json!({}),
+            n,
+        )
+        .unwrap()
+        .1;
+        if index == 0 {
+            first_grant = grant;
+        }
+    }
+    assert_eq!(
+        request(
+            &mut p,
+            &mut r,
+            Method::GET,
+            &format!("{old}/download"),
+            &headers,
+            &json!({}),
+            n
+        )
+        .unwrap_err()
+        .0,
+        StatusCode::TOO_MANY_REQUESTS
+    );
+    let token = first_grant["downloadPath"]
+        .as_str()
+        .unwrap()
+        .split("ticket=")
+        .nth(1)
+        .unwrap();
+    let query = BTreeMap::from([("ticket".into(), token.into())]);
+    assert_eq!(
+        p.handle(
+            &a,
+            "s",
+            &Method::GET,
+            &format!("{old}/content"),
+            &query,
+            &headers,
+            &json!({}),
+            &mut r,
+            n + Duration::seconds(60)
+        )
+        .unwrap_err()
+        .1,
+        "DOWNLOAD_EXPIRED"
+    );
+    let later = n + Duration::minutes(15);
+    let mut next_headers = HeaderMap::new();
+    next_headers.insert(
+        "idempotency-key",
+        Uuid::new_v4().to_string().parse().unwrap(),
+    );
+    let next = request(
+        &mut p,
+        &mut r,
+        Method::POST,
+        "/v1/performance/reports",
+        &next_headers,
+        &body,
+        later,
+    )
+    .unwrap()
+    .1;
+    let path = format!(
+        "/v1/performance/reports/{}",
+        next["reportId"].as_str().unwrap()
+    );
+    request(
+        &mut p,
+        &mut r,
+        Method::GET,
+        &format!("{path}/status"),
+        &next_headers,
+        &json!({}),
+        later,
+    )
+    .unwrap();
+    assert_eq!(
+        request(
+            &mut p,
+            &mut r,
+            Method::GET,
+            &format!("{path}/download"),
+            &next_headers,
+            &json!({}),
+            later
+        )
+        .unwrap()
+        .0,
+        StatusCode::OK
+    );
+    assert_eq!(p.tickets.len(), 1);
+    assert_eq!(
+        p.handle(
+            &a,
+            "s",
+            &Method::GET,
+            &format!("{old}/content"),
+            &query,
+            &headers,
+            &json!({}),
+            &mut r,
+            later
+        )
+        .unwrap_err()
+        .1,
+        "REPORT_EXPIRED"
+    );
+    assert_eq!(
+        request(
+            &mut p,
+            &mut r,
+            Method::POST,
+            "/v1/performance/reports",
+            &headers,
+            &body,
+            later
+        )
+        .unwrap(),
+        first
+    );
+    assert_eq!(p.jobs.len(), 2);
+}

@@ -7,7 +7,7 @@ import {root,digest} from './provider-a1-receipts.mjs';
 import {snapshot,commands,environment} from './bff-fe-008-functional-scope.mjs';
 import {buildReceipt,publish,verifySource} from './bff-fe-008-functional-gate.mjs';
 assert(process.argv.length<=3);
-const attempt=process.argv[2]??'docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-01';
+const attempt=process.argv[2]??'docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01';
 assert(/^docs\/audit\/evidence\/bff-fe-008-local-[0-9]{8}\/function-attempt-[0-9]{2}$/.test(attempt));assert(!existsSync(attempt),'use a fresh attempt');
 const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),before=snapshot(),rows=[];
 verifySource(before,source);

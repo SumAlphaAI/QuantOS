@@ -13,3 +13,7 @@ period=custom 显式 start/end，或 week/month/quarter/year；rolling 按 UTC 7
 live 保留 F06 caller，显式注入 X01/C15 两租约，无host503；create在真实适配代码内写F05事务，audit失败或commit不确定后quarantine进程租约并503，不能当作持久回滚/跨实例恢复通过。reference仅显式Shadow合成数据，真实X01/X05核心组合；新增参考样本保留既有C15事实。Paper默认Context不跨mode获取Shadow资料。原生测试验证并发唯一job、黄金金额、scope/method/coverage/幂等/有效期/租约丢失；HTTP+生成consumer验证成功/401/403/错误schema、100重试、字节哈希、F05根及基本Chromium。源码冻结后执行 `node scripts/record-bff-fe-008-functional.mjs`；`pnpm check:bff-fe-008`严格校验唯一当前回执与输入，发布失败原子恢复manifest/计划。CI分处置与strict READY，当前功能未验收不得隐式放行。
 
 真实目标DB/Auth/RLS/MFA/Storage、持久跨实例或重启worker恢复、真实Paper/Shadow连续业务链、C16通知、完整P21 UI/G4/FEP4、性能/容量/长稳/同SHA hosted CI/部署均移交RELEASE-GATE:BETA并保持NOT_RUN；本任务不使用生产凭据、不进行venue submit/外部发布。用户完整确认PENDING，formalAccepted=false，runtimeAdmission=DENIED。
+
+2026-10-20当前复核：原确认改为C15的007040fd/1e1ca813与A4的1297bc3b/4085bdef，各自原源码/稿/回执；新证据独立写入bff-fe-008-local-20261020。按15组当前检查与6个实际入口执行，不调用原组件Gate。
+
+下载授权最多1000张；活动报告的已过期票据保留至报告到期，以维持已知过期授权410；所属报告15分钟到期后，票据在下一合法请求清理并释放限额，旧报告仍由REPORT_EXPIRED拒绝。新报告可获新授权，旧报告原创建键仍恢复原queued回执，jobs/replays不删除、不重算；1000个报告/历史幂等租约上限保留。此为期限/恢复语义验证，不作为性能容量准入。前端下载除hash、字节长度及报告/账本/估值ID外，必须逐项核对状态、createdAt/expiresAt、correlationId/auditRef及supersededBy与下载授权一致，重新计算hash也不能掩盖语义不匹配。reportVersion在当前schema固定为1，非1版本已有schema拒绝，本轮不把它描述为可复现版本漏洞。

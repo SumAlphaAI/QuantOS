@@ -1,6 +1,8 @@
+> 当前执行（FE:BFF-FE-008/A5，2026-10-20）：复核C14八项API，报告到期票据回收与下载元数据绑定修复纳入新候选；C15原稿用户CONFIRMED，共享输入变更后独立当前Gate NOT_ASSESSED，原回执与确认保留原范围。完整联调/发布NOT_RUN，新稿PENDING。
+
 > 用户确认（FE:BFF-FE-009，2026-10-20）：本会话已确认原完整稿，仅绑定007040fd原源码、1e1ca813原稿/技术回执和1082输入；不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/bff-fe-009-confirmation-20261020/summary.md)。
 
-> 当前工程结果（FE:BFF-FE-009/A5，2026-10-20）：冻结007040fd，1082输入、15组/5入口PASS；Rust65、Node158、consumer/契约46，七API/147条HTTP及基本Chromium通过。修复差异报告/day数值绑定、分页deadline及请求sort契约校验，28控制点；54,147份原audit/gate字节保持，前三轮失败/后续NOT_RUN保留。仅BFF009_SCOPE_LOCAL DEVELOPMENT READY；A4原稿用户CONFIRMED，五前置当前Gate不重授。完整联调/发布NOT_RUN、runtime DENIED，新稿PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-009-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-008 / A5当前复核。
+> 历史工程结果（FE:BFF-FE-009/A5，2026-10-20）：冻结007040fd，1082输入、15组/5入口PASS；Rust65、Node158、consumer/契约46，七API/147条HTTP及基本Chromium通过。修复差异报告/day数值绑定、分页deadline及请求sort契约校验，28控制点；54,147份原audit/gate字节保持，前三轮失败/后续NOT_RUN保留。仅BFF009_SCOPE_LOCAL DEVELOPMENT READY；A4原稿用户CONFIRMED，五前置当前Gate不重授。完整联调/发布NOT_RUN、runtime DENIED，新稿PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-009-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-008 / A5当前复核。
 
 > 用户确认（PROVIDER:A4，2026-10-20）：本会话已确认原完整稿；仅绑定1297bc3b原源码、4085bdef原稿/技术回执及原输入，不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/provider-a4-confirmation-20261020/summary.md)。
 
@@ -923,7 +925,7 @@
     "FE:BFF-FE-008": {
       "profile": "BFF008_SCOPE_LOCAL",
       "schema": "quantos-bff008-scoped-functional-development/v1",
-      "manifest": "audit/evidence/bff-fe-008-local-20261018/manifest.json",
+      "manifest": "audit/evidence/bff-fe-008-local-20261020/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-009",
         "CORE:X01",
@@ -1546,7 +1548,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-009`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2194db4b710ce253ab701e087587d1d72dc65c99cfbf565782289854da57f457","evidence":["audit/evidence/bff-fe-009-local-20261020/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -1569,7 +1571,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
