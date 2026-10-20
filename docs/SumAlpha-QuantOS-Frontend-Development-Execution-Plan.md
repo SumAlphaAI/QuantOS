@@ -1,3 +1,5 @@
+> 用户确认（PROVIDER:A4，2026-10-20）：本会话已确认原完整稿；仅绑定1297bc3b原源码、4085bdef原稿/技术回执及原输入，不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/provider-a4-confirmation-20261020/summary.md)。
+
 > 当前工程结果（PROVIDER:A4，2026-10-20）：冻结1297bc3b，1053输入、16组与7入口PASS；Rust76、Node196、consumer/契约55，32API/2153条HTTP和两个基本Chromium通过。修复游标快照续期和只读过期缓存恢复，26控制点PASS，54,090份原audit/gate字节保持。仅A4_SCOPE_LOCAL DEVELOPMENT READY；FE004原稿已CONFIRMED，三个前置当前Gate不重授。完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总确认PENDING。见[报告](./audit/PROVIDER-A4-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a4-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-009 / A5当前复核。
 
 > 用户确认（FE:BFF-FE-004，2026-10-20）：本会话明确确认20261019原完整稿；17项确认验证通过。仅绑定20d65a86源码、787f8230原稿/技术回执与原输入；不授予当前HEAD、A4汇总或运行时准入。见[确认记录](./audit/evidence/bff-fe-004-confirmation-20261020/summary.md)。
