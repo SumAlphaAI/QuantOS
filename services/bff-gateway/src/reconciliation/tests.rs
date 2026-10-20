@@ -929,3 +929,63 @@ fn cursor_chain_expires_at_original_deadline_for_all_c15_pages() {
     }
     assert_eq!(h.ledger(), ledger);
 }
+
+#[tokio::test]
+async fn http_sort_contract_accepts_registered_expressions_and_rejects_unsafe_fields() {
+    let p = crate::BffProvider::shadow_reference();
+    for route in [
+        "/v1/reconciliation/runs",
+        "/v1/reconciliation/breaks",
+        "/v1/ledger/entries",
+    ] {
+        for (sort, status) in [
+            ("id:asc", 200),
+            ("id:desc", 200),
+            ("runId:asc", 422),
+            ("id:invalid", 422),
+            ("id:desc:extra", 422),
+        ] {
+            let path =
+                format!("{route}?accountId=44444444-4444-4444-8444-444444444444&sort={sort}");
+            assert_eq!(
+                http(
+                    &p,
+                    "GET",
+                    &path,
+                    Uuid::new_v4(),
+                    json!({}),
+                    crate::CURRENT_SESSION
+                )
+                .await
+                .0
+                .as_u16(),
+                status,
+                "{path}"
+            );
+        }
+    }
+    let paper = crate::BffProvider::default();
+    for (sort, status) in [
+        ("orderId:desc", 200),
+        ("password:asc", 422),
+        ("orderId:invalid", 422),
+        ("orderId:desc:extra", 422),
+    ] {
+        let path = format!("/v1/orders?accountId=44444444-4444-4444-8444-444444444444&sort={sort}");
+        assert_eq!(
+            http(
+                &paper,
+                "GET",
+                &path,
+                Uuid::new_v4(),
+                json!({}),
+                crate::CURRENT_SESSION
+            )
+            .await
+            .0
+            .as_u16(),
+            status,
+            "{path}"
+        );
+    }
+}

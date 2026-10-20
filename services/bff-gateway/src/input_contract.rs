@@ -235,9 +235,10 @@ pub(crate) async fn validate_request(request: Request, op: &Value) -> Result<Req
         if let Some(value) = query.get(name) {
             let parts = value.splitn(3, ':').collect::<Vec<_>>();
             let allowed = op["policy"][key].as_array().is_some_and(|fields| {
-                fields
-                    .iter()
-                    .any(|field| field.as_str() == parts.first().copied())
+                fields.iter().any(|field| {
+                    field.as_str() == parts.first().copied()
+                        || name == "sort" && field.as_str() == Some(value.as_str())
+                })
             });
             let shape = if name == "sort" {
                 parts.len() == 2 && matches!(parts[1], "asc" | "desc")

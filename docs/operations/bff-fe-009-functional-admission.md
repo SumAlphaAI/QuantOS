@@ -13,3 +13,5 @@
 2026-10-20当前复核：差异的runId/day、expectedJson/actualJson和证据来源必须来自X05 exception.last_report指定的同一报告，禁止从其他day/历史版本按类型与实体取值；原报告不在可信host时503拒绝，不能回退到同日其他报告。关闭后的差异仍显示最后检测报告，独立保留closureReportHash。三个C15分页共享最初快照五分钟deadline，所有后继cursor不续期；行快照仍按当前时间保守标记provisional，过期即拒绝游标。新增跨日/同日更新、缺失报告及三类分页精确到期回归。不执行无关A4/X3或全仓Gate。新证据独立写入bff-fe-009-local-20261020，历史文件保持原字节。
 
 当前HTTP契约校验同时支持已登记完整sort表达式（C15 id:asc/id:desc）和字段allowlist（Order等）；方向、格式及schema仍须合法，未登记字段拒绝。首个冻结尝试a06b46bb在HTTP前置请求校验失败，仅6组通过、HTTP FAIL、后8组NOT_RUN；保留原始记录，修复校验器后使用新候选/新attempt完整复核，不拼接READY。原X05/X3回执无统一entrypoints/results.json时不虚构此元数据；存在者仍核对原入口日志hash。
+
+138a3446的第二轮HTTP已通过探针校验，但服务端同类字段解析仍422拒绝完整sort表达式，HTTP FAIL及后8组NOT_RUN保留；继续修复共享input_contract的完全相同授权解析，补真实Shadow三路C15及Paper Order路由正负向测试。复用当前A2 audit排序回归检查共享字段语义，不扩大为无关业务全闭包。仅第三轮新冻结候选完整结果可用于当前准入。
