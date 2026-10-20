@@ -1,4 +1,8 @@
-> 当前工程结果（PROVIDER:A5，2026-10-20）：冻结5fb5b6aa，1169输入、17组/8入口PASS；Rust84、Node218、consumer/契约49，58API/637条当前HTTP与三个基本Chromium，26限定控制点。旧凭据不随observer续期及共享quarantine跨域拒绝通过。54,386份原audit/gate保持，沙箱FAIL/预检失败保留；仅A5_SCOPE_LOCAL DEVELOPMENT READY，四前置只引用原确认，新汇总稿PENDING，完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a5-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
+> 当前工程结果（FE:BFF-FE-002/A6，2026-10-20）：冻结116d076e，1247输入、16组/5入口PASS；Rust47、Node249、consumer/契约46，两C02 API/42条当前HTTP及基本Chromium，34限定控制点。四源受权读取、null/陈旧/缺失、排序截断与最早期限、只读权限和有界流恢复完成。54,468原audit/gate保持，三轮FAIL、第四轮替代与预检失败保留。仅BFF002_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整UI/联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-011/A6。
+
+> 用户确认（PROVIDER:A5，2026-10-20）：原稿CONFIRMED，仅5fb5b6aa/8a0ce81b原1169输入。共享输入变更后独立当前Gate NOT_ASSESSED，原稿与回执保持。见[记录](./audit/evidence/provider-a5-confirmation-20261020/summary.md)。
+
+> 历史工程结果（PROVIDER:A5，2026-10-20）：冻结5fb5b6aa，1169输入、17组/8入口PASS；Rust84、Node218、consumer/契约49，58API/637条当前HTTP与三个基本Chromium，26限定控制点。旧凭据不随observer续期及共享quarantine跨域拒绝通过。54,386份原audit/gate保持，沙箱FAIL/预检失败保留；仅A5_SCOPE_LOCAL DEVELOPMENT READY，四前置只引用原确认，新汇总稿PENDING，完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a5-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
 
 > 用户确认（FE:BFF-FE-010，2026-10-20）：原完整稿CONFIRMED，仅3152db47/4ed64603原1146输入。共享输入变化后独立当前Gate NOT_ASSESSED；原稿/回执保持。见[记录](./audit/evidence/bff-fe-010-confirmation-20261020/summary.md)。
 
@@ -1662,10 +1666,12 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="task-bff-fe-002"></a>
 ##### BFF-FE-002：Command Center 聚合 API
 
+2026-10-20功能交付：116d076e冻结候选16组/5入口PASS，两个C02 API及四源只读聚合，有限SSE恢复与生成consumer完成；仅BFF002_SCOPE_LOCAL READY，完整P02/UI101/G1/联调/发布NOT_RUN、确认PENDING。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。
+
 - task_id: `BFF-FE-002`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1ecff773f1032d20d45418beecae3dd58e9d3f390de01c7ecd9d09628019f4ba","evidence":["audit/evidence/bff-fe-002-local-20261020/manifest.json"]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE"]
 - closes_core: []

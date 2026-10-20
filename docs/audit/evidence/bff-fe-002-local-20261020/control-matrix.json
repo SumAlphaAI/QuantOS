@@ -1,0 +1,349 @@
+{
+  "schema": "quantos-bff002-control-matrix/v1",
+  "sourceCommit": "116d076e7506b96aa7161f9c87cf9001df56428d",
+  "inputDigest": "sha256:82da38a85509a5b978eb66783508d9c12a58457a83214dbe2afab6de0809a007",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "Published C02 contract",
+      "checkId": "contract",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/contract.log",
+      "assertion": "2 C02 operations",
+      "verifiedBehavior": "Two owned read-only APIs, scope/permissions and bounded sources; original132 operations/110 schemas semantically unchanged",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C02",
+      "control": "Exact generated artifacts",
+      "checkId": "generated",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/generated.log",
+      "assertion": "BFF generated artifacts match",
+      "verifiedBehavior": "OpenAPI1.13.0,134 operations/113 schemas, six generated outputs exact",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C03",
+      "control": "Published inventory/field mapping",
+      "checkId": "inventory",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/inventory.log",
+      "assertion": null,
+      "verifiedBehavior": "C02 dictionary, exact operation catalog, Gap closure; no implementation/target admission inferred",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C04",
+      "control": "actual_four_sources_are_authorized_bounded_and_reads_do_not_acquire_authority",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "actual_four_sources_are_authorized_bounded_and_reads_do_not_acquire_authority ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C05",
+      "control": "current_capability_revocation_and_binding_change_precede_saved_event_replay",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "current_capability_revocation_and_binding_change_precede_saved_event_replay ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C06",
+      "control": "immutable_revision_ignores_sample_time_but_tracks_source_status",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "immutable_revision_ignores_sample_time_but_tracks_source_status ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C07",
+      "control": "oversized_research_source_fails_closed_and_does_not_claim_zero",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "oversized_research_source_fails_closed_and_does_not_claim_zero ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C08",
+      "control": "owner_and_operator_use_their_actual_domain_capabilities",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "owner_and_operator_use_their_actual_domain_capabilities ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C09",
+      "control": "projection_expiry_never_outlives_a_ready_source_and_rechecks_final_sample_time",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "projection_expiry_never_outlives_a_ready_source_and_rechecks_final_sample_time ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C10",
+      "control": "reference_context_execution_read_capability_matches_each_aggregate_role",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "reference_context_execution_read_capability_matches_each_aggregate_role ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C11",
+      "control": "research_projection_strips_prompts_actors_and_raw_payloads",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "research_projection_strips_prompts_actors_and_raw_payloads ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C12",
+      "control": "shadow_read_never_seeds_or_exposes_paper_execution_or_strategy",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "shadow_read_never_seeds_or_exposes_paper_execution_or_strategy ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C13",
+      "control": "shared_governance_quarantine_and_expired_session_refuse_old_streams",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "shared_governance_quarantine_and_expired_session_refuse_old_streams ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C14",
+      "control": "source_failures_and_scope_changes_do_not_fabricate_empty_success",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "source_failures_and_scope_changes_do_not_fabricate_empty_success ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C15",
+      "control": "source_priority_and_recent_ordering_happen_before_output_truncation",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "source_priority_and_recent_ordering_happen_before_output_truncation ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C16",
+      "control": "stale_sources_are_explicit_and_never_show_zero_or_fresh_risk",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "stale_sources_are_explicit_and_never_show_zero_or_fresh_risk ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C17",
+      "control": "stream_overflow_gaps_and_expired_capacity_recover_without_writes",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "stream_overflow_gaps_and_expired_capacity_recover_without_writes ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C18",
+      "control": "stream_replays_exact_frames_without_false_new_events",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "stream_replays_exact_frames_without_false_new_events ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C19",
+      "control": "stream_scope_expiry_and_future_sequence_refuse_recovery",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "stream_scope_expiry_and_future_sequence_refuse_recovery ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C20",
+      "control": "unknown_identity_viewer_and_foreign_account_never_receive_aggregate",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "unknown_identity_viewer_and_foreign_account_never_receive_aggregate ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C21",
+      "control": "unknown_queries_and_ambiguous_resume_headers_fail_closed",
+      "checkId": "command",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/command.log",
+      "assertion": "unknown_queries_and_ambiguous_resume_headers_fail_closed ... ok",
+      "verifiedBehavior": "Current native C02 case; exact assertions in services/bff-gateway/src/command/tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C22",
+      "control": "Shared auth and audit",
+      "checkId": "a2-boundary",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/a2-boundary.log",
+      "assertion": null,
+      "verifiedBehavior": "29 direct existing session/auth/audit/export regressions for new router and generated request policy",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C23",
+      "control": "Owned executable",
+      "checkId": "build",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/build.log",
+      "assertion": null,
+      "verifiedBehavior": "One actual current BFF executable used for local probes",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C24",
+      "control": "HTTP and basic Chromium",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Both C02 success401403/schema; role cropping,404 foreign account/422 forged fields, dense exact replay, current controlled C03 metadata change and reviewed capability gate; basic Chromium",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C25",
+      "control": "Generated client facts",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/consumers.log",
+      "assertion": null,
+      "verifiedBehavior": "Actual helper: invalid initial frames do not bind/mutate; duplicates/gaps/lease/expiry/scope/permission refusal; shared response schema coverage",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C26",
+      "control": "Typecheck",
+      "checkId": "types",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/types.log",
+      "assertion": null,
+      "verifiedBehavior": "Generated client and Terminal typecheck",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C27",
+      "control": "Lint",
+      "checkId": "lint",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/lint.log",
+      "assertion": null,
+      "verifiedBehavior": "New typed helper/client static lint",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C28",
+      "control": "Clippy",
+      "checkId": "clippy",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/clippy.log",
+      "assertion": null,
+      "verifiedBehavior": "New read adapters and live scope query compile with denied warnings",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C29",
+      "control": "Original A5 confirmation",
+      "checkId": "confirmation",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/confirmation.log",
+      "assertion": null,
+      "verifiedBehavior": "Original human reply/draft/source5fb5b6aa/packet8a0ce81b/1169 inputs; current BFF002 PENDING",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C30",
+      "control": "Scoped Gate",
+      "checkId": "gate-tests",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/gate-tests.log",
+      "assertion": null,
+      "verifiedBehavior": "Source/log/schema/hash/phase/ref/coverage and omitted current native assertions rejected, atomic publication rollback",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C31",
+      "control": "Stage/CI disposition",
+      "checkId": "plan-policy",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/plan-policy.log",
+      "assertion": null,
+      "verifiedBehavior": "Only current BFF002 functional receipt; required CI dispatch, no upstream gate admission",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C32",
+      "control": "Direct publication registry refusal",
+      "checkId": "inventory-negative",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/inventory-negative.log",
+      "assertion": null,
+      "verifiedBehavior": "PRE04/BFF000 catalog and compatibility mutation assertions affected by C02 publication; no upstream business campaign",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C33",
+      "control": "Plan consistency",
+      "checkId": "plans",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-05/logs/plans.log",
+      "assertion": null,
+      "verifiedBehavior": "Both plans and machine policy agree; full UI/target/release NOT_RUN",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C34",
+      "control": "Historical evidence preservation",
+      "evidence": "docs/audit/evidence/bff-fe-002-local-20261020/history-preservation.json",
+      "verifiedBehavior": "54468 original tracked audit/gate files unchanged",
+      "status": "PASS",
+      "scope": "REFERENCE_PRESERVATION_NOT_REVALIDATION"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}
