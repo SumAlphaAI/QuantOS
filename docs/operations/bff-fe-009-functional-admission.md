@@ -15,3 +15,5 @@
 当前HTTP契约校验同时支持已登记完整sort表达式（C15 id:asc/id:desc）和字段allowlist（Order等）；方向、格式及schema仍须合法，未登记字段拒绝。首个冻结尝试a06b46bb在HTTP前置请求校验失败，仅6组通过、HTTP FAIL、后8组NOT_RUN；保留原始记录，修复校验器后使用新候选/新attempt完整复核，不拼接READY。原X05/X3回执无统一entrypoints/results.json时不虚构此元数据；存在者仍核对原入口日志hash。
 
 138a3446的第二轮HTTP已通过探针校验，但服务端同类字段解析仍422拒绝完整sort表达式，HTTP FAIL及后8组NOT_RUN保留；继续修复共享input_contract的完全相同授权解析，补真实Shadow三路C15及Paper Order路由正负向测试。复用当前A2 audit排序回归检查共享字段语义，不扩大为无关业务全闭包。仅第三轮新冻结候选完整结果可用于当前准入。
+
+第三轮5376a8e6已通过七API/HTTP与真实consumer，但新增Order排序契约正向fixture遗漏必需accountId，consumer/契约组45 PASS/1 FAIL，后7组NOT_RUN；修复正负向fixture均带账户，防止负向因缺字段提前拒绝而虚假证明排序拒绝。保留原日志，第四轮新候选独立完成当前15组，不作上游/全仓复验。

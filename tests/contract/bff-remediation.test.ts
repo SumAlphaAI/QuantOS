@@ -32,7 +32,7 @@ describe("A1 OpenAPI semantic remediation",()=>{
   const make=(body:unknown,h:HeadersInit=headers)=>new Request('http://localhost:4010/v1/strategies/'+uuid+'/draft',{method:"PUT",headers:h,body:JSON.stringify(body)});
   expect((await validateRequest("saveStrategyDraft",make({files:{},parameters:{},actorId:uuid}),{strategyId:uuid})).status).toBe(422);
   expect((await validateRequest("saveStrategyDraft",make({files:{},parameters:{}},{cookie:"quantos_session=synthetic"}),{strategyId:uuid})).issues.length).toBeGreaterThan(0);
-  expect((await validateRequest("listOrders",new Request('http://localhost:4010/v1/orders?sort=password:asc',{headers}))).status).toBe(422);
+  expect((await validateRequest("listOrders",new Request(`http://localhost:4010/v1/orders?accountId=${uuid}&sort=password:asc`,{headers}))).status).toBe(422);
  });
  it("valid cookie succeeds; bearer-only and malformed writes fail through real MSW handlers",async()=>{
   const server=setupServer(...handlers);server.listen({onUnhandledRequest:"error"});
@@ -93,9 +93,9 @@ it("accepts C15 exact sort expressions and preserves field-based order sorts",as
  for(const [id,path]of [["listReconciliationRuns","/v1/reconciliation/runs"],["listReconciliationBreaks","/v1/reconciliation/breaks"],["listLedgerEntries","/v1/ledger/entries"]])for(const sort of ["id:asc","id:desc"]){
   const url=new URL(path!,"http://localhost:4010");url.searchParams.set("accountId",uuid);url.searchParams.set("sort",sort);expect((await validateRequest(id!,new Request(url,{headers}))).issues).toEqual([]);
  }
- expect((await validateRequest("listOrders",new Request("http://localhost:4010/v1/orders?sort=orderId:desc",{headers}))).issues).toEqual([]);
+ expect((await validateRequest("listOrders",new Request(`http://localhost:4010/v1/orders?accountId=${uuid}&sort=orderId:desc`,{headers}))).issues).toEqual([]);
 });
 it("rejects unregistered C15 expressions and unsafe field sorts",async()=>{
  for(const sort of ["runId:asc","id:invalid","id:asc:extra","id"]){const url=new URL("http://localhost:4010/v1/ledger/entries");url.searchParams.set("accountId",uuid);url.searchParams.set("sort",sort);expect((await validateRequest("listLedgerEntries",new Request(url,{headers}))).status).toBe(422);}
- for(const sort of ["password:asc","orderId:invalid","orderId:desc:extra"]){const url=new URL("http://localhost:4010/v1/orders");url.searchParams.set("sort",sort);expect((await validateRequest("listOrders",new Request(url,{headers}))).status).toBe(422);}
+ for(const sort of ["password:asc","orderId:invalid","orderId:desc:extra"]){const url=new URL("http://localhost:4010/v1/orders");url.searchParams.set("accountId",uuid);url.searchParams.set("sort",sort);expect((await validateRequest("listOrders",new Request(url,{headers}))).status).toBe(422);}
 });
