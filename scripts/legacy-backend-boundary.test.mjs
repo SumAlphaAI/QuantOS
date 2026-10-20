@@ -1,7 +1,12 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync}from'node:fs';
-import {validateModelOnly,validateRemoval,modelFiles}from'./legacy-backend-boundary.mjs';
+import {validateModelOnly,validateCompiledModel,validateRemoval,modelFiles}from'./legacy-backend-boundary.mjs';
 test('four production modules contain only compatibility type declarations',()=>assert.equal(validateRemoval().legacyRuntimeClasses,0));
 for(const declaration of ['export class InMemoryOpsBackend {}','export const backend = {};','export function createTerminalClient(){}',"export * from '../../../apps/terminal/tests/fixtures/scenarios/ops.js';",'export default {};'])test('runtime or fixture reintroduction rejected: '+declaration,()=>assert.throws(()=>validateModelOnly('export interface View {}\n'+declaration)));
 test('production API barrel cannot re-export a renamed test implementation',()=>assert.throws(()=>validateRemoval({read:p=>readFileSync(p,'utf8')+(p==='packages/api-client/src/index.ts'?"\nexport { createOpsScenario as Operations } from '../../../apps/terminal/tests/fixtures/scenarios/ops.js';":'')}),/production fixture import/));
 test('renamed production constructor cannot bypass class name checks',()=>assert.throws(()=>validateRemoval({read:p=>readFileSync(p,'utf8')+(p===modelFiles[0]?'\nexport class RemoteAdapter {}':'')}),/runtime statement/));
 test('removing generated adapter boundary is refused',()=>assert.throws(()=>validateRemoval({read:p=>readFileSync(p,'utf8').replaceAll('generatedScenario(',p.endsWith('/scenarios/strategy.ts')?'unchecked(':'generatedScenario(')}),/missing generated adapter/));
+
+test('compiled type-only modules may retain TypeScript file header comments',()=>validateCompiledModel('/** preserved file header */\nexport {};'));
+test('compiled renamed runtime and named export are rejected despite comments',()=>{for(const s of ['/** header */ export {}; class RemoteBackend {}','/** header */ export { RemoteBackend };','/** header */ export * from "fixture.js";'])assert.throws(()=>validateCompiledModel(s));});
+test('compiled client artifact reintroduction cannot pass source-only checks',()=>assert.throws(()=>validateRemoval({artifacts:true,exists:()=>true,read:p=>p.endsWith('.js')?'export {};'+(p==='packages/api-client/dist/src/terminal.js'?'\nexport class RemoteBackend {}':''):readFileSync(p,'utf8')}),/compiled compatibility models contain runtime/));
+test('missing compiled artifact cannot be called build acceptance',()=>assert.throws(()=>validateRemoval({artifacts:true,exists:()=>false}),/current compiled client missing/));

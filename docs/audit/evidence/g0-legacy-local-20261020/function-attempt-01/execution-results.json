@@ -1,0 +1,97 @@
+[
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "--filter",
+      "@sumalpha/website",
+      "typecheck"
+    ],
+    "reason": "Type-only compatibility models and all direct UI consumers compile",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T13:35:55.311Z",
+    "completedAt": "2026-10-20T13:35:58.253Z",
+    "elapsedMs": 2942,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/g0-legacy-local-20261020/function-attempt-01/logs/types.log",
+    "logSha256": "sha256:1357f910c39788c97be7705dc67b28e81d90c1ad0f4327b19444af39a44a9516"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "--filter",
+      "@sumalpha/website",
+      "lint"
+    ],
+    "reason": "Production fixture/import/security boundary and migrated scenario adapters",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T13:35:58.254Z",
+    "completedAt": "2026-10-20T13:36:00.451Z",
+    "elapsedMs": 2197,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/g0-legacy-local-20261020/function-attempt-01/logs/lint.log",
+    "logSha256": "sha256:f5597095e900ff9bd585ad2ff5fc738b1fa5fc3a042164d8185b21565b7df3fc"
+  },
+  {
+    "id": "api-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "build"
+    ],
+    "reason": "Current production client build; four compatibility modules must emit no runtime",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T13:36:00.451Z",
+    "completedAt": "2026-10-20T13:36:01.645Z",
+    "elapsedMs": 1194,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/g0-legacy-local-20261020/function-attempt-01/logs/api-build.log",
+    "logSha256": "sha256:ac2ac049f1321f8b9368454af7e2b81d7b6738bb721715c94bf32265a2937317"
+  },
+  {
+    "id": "removal",
+    "command": [
+      "node",
+      "scripts/legacy-backend-boundary.mjs",
+      "--artifacts"
+    ],
+    "reason": "Four production classes/constructors absent; no renamed runtime or fixture re-export; compiled models empty",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T13:36:01.645Z",
+    "completedAt": "2026-10-20T13:36:02.033Z",
+    "elapsedMs": 388,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/g0-legacy-local-20261020/function-attempt-01/logs/removal.log",
+    "logSha256": "sha256:f2ac8f2b6b81db05e51af5426eca3a8a1ce9004db55bf2ea7ad609535e6ed05f"
+  }
+]

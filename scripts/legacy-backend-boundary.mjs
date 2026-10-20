@@ -14,15 +14,20 @@ export function validateModelOnly(source,path='models.ts'){
  assert(!/(?:InMemory\w+Backend|export interface (?:Terminal|Strategy|Execution|Ops)Backend)/.test(source),'legacy backend remains '+path);
  return tree.statements.length;
 }
+export function validateCompiledModel(source,path='models.js'){
+ const tree=ts.createSourceFile(path,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ assert.equal(tree.parseDiagnostics.length,0,'invalid compiled client');assert.equal(tree.statements.length,1,'compiled compatibility models contain runtime');
+ const node=tree.statements[0];assert(ts.isExportDeclaration(node)&&!node.moduleSpecifier&&node.exportClause&&ts.isNamedExports(node.exportClause)&&node.exportClause.elements.length===0,'compiled compatibility models contain runtime');
+}
 function files(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(dir+'/'+e.name):[dir+'/'+e.name]);}
-export function validateRemoval({read=p=>readFileSync(p,'utf8'),list=files,artifacts=false}={}){
+export function validateRemoval({read=p=>readFileSync(p,'utf8'),list=files,exists=existsSync,artifacts=false}={}){
  let declarations=0;for(const p of modelFiles)declarations+=validateModelOnly(read(p),p);
  const roots=['packages/api-client/src','apps/terminal/src','apps/terminal/app','packages/domain-ui/src','packages/ui/src','packages/platform/src','packages/config/src'];
  const paths=roots.flatMap(list).filter(p=>/\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(p)&&!p.includes('.stories.'));
  for(const p of paths){const source=read(p);assert(!/InMemory(?:Terminal|Strategy|Execution|Ops)Backend/.test(source),'production legacy reference '+p);const tree=ts.createSourceFile(p,source,ts.ScriptTarget.Latest,true);const visit=node=>{if((ts.isImportDeclaration(node)||ts.isExportDeclaration(node))&&node.moduleSpecifier&&ts.isStringLiteral(node.moduleSpecifier))assert(!/(?:^|\/)(?:tests|__tests__|fixtures)(?:\/|$)/.test(node.moduleSpecifier.text),'production fixture import '+p);ts.forEachChild(node,visit)};visit(tree);}
  const adapters=domains.map(n=>'apps/terminal/tests/fixtures/scenarios/'+n+'.ts');
  for(const p of adapters){const source=read(p);assert(source.includes('generatedScenario('),'missing generated adapter '+p);assert(!source.includes('export class Scenario'),'fixture state must be private');}
- if(artifacts)for(const n of domains){const p='packages/api-client/dist/src/'+n+'.js';assert(existsSync(p),'current compiled client missing '+p);assert.match(read(p).trim(),/^export\s*\{\s*\};(?:\s*\/\/.*)?$/,'compiled compatibility models contain runtime');}
+ if(artifacts)for(const n of domains){const p='packages/api-client/dist/src/'+n+'.js';assert(exists(p),'current compiled client missing '+p);validateCompiledModel(read(p),p);}
  return{schema:'quantos-legacy-backend-removal/v1',status:'PASS',legacyRuntimeClasses:0,productionFiles:paths.length,compatibilityTypeDeclarations:declarations,modelFiles,adapters,generatedContract:'OPERATION_METADATA_AND_GENERATED_RESPONSE_SCHEMAS',compiledClient:artifacts?'PASS':'NOT_RUN',formalClosed:false};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{console.log(JSON.stringify(validateRemoval({artifacts:process.argv.includes('--artifacts')}),null,2));}catch(e){console.error(e.message);process.exitCode=1;}}
