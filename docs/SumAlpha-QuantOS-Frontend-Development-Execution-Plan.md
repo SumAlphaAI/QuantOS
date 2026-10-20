@@ -1,3 +1,5 @@
+> 当前工程结果（G0与8项台账，2026-10-20）：冻结e4434952，1601输入、16组/8入口，Node346、consumer117、Web/mockOIDC11例及单次构建通过；8项IMPLEMENTED_ENGINEERING，其他11项保持。G0工程PASS/BLOCKED待新稿确认；ALL工程PASS/BLOCKED另含L10-2 legacy移除未完成。原ALL确认只绑定a045f15c/fce29312，不自批G0；原API证据不重跑不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-current-functional-review-2026-10-20.md)和[完整稿](./audit/evidence/g0-local-20261020/confirmation-draft.md)。
+
 > 当前工程结果（PROVIDER:A6，2026-10-20）：冻结f367cfd8，1306输入，17组/7入口PASS；Rust70、Node217、consumer/契约75，四API/77条当前HTTP及两次基本Chromium、26限定控制点。C02/C17同provider独立事实/权限/期限/恢复验证完成；54,736原audit/gate保持，预检失败保留。仅A6_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING、完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A6-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a6-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:ALL当前汇总。
 
 > 用户确认（FE:BFF-FE-011，2026-10-20）：原稿CONFIRMED，仅a3524fdf/5cf6aa13原1278输入；共享输入变化后当前独立Gate NOT_ASSESSED，原字节保持。见[记录](./audit/evidence/bff-fe-011-confirmation-20261020/summary.md)。
@@ -1371,9 +1373,11 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "BLOCKED",
+    "input_digest": "sha256:e7e3553b093bb2167b4f9b140bb22468573a633b1556b9790b94282f85653fdb",
+    "evidence": [
+      "audit/evidence/g0-local-20261020/g0.json"
+    ]
   }
 }
 ```
@@ -1840,18 +1844,20 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "IN_REVIEW",
-  "source_commit": "a045f15cddf2be6abca36fff003936602ce80985",
+  "source_commit": "e443495217797c8fe8428620f5177efcf876cf69",
   "evidence": [
-    "audit/PROVIDER-ALL-functional-review-2026-10-20.md",
-    "audit/evidence/provider-all-local-20261020/manifest.json",
-    "audit/evidence/provider-all-local-20261020/confirmation-draft.md",
-    "audit/evidence/provider-all-local-20261020/g0-confirmation-draft.md"
+    "audit/G0-current-functional-review-2026-10-20.md",
+    "audit/evidence/g0-local-20261020/provider-all.json",
+    "audit/evidence/g0-local-20261020/provider-all-evaluation.md",
+    "audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "BLOCKED",
+    "input_digest": "sha256:910b184caa17756c881ffad2784920d80c58871195baf99f32776cbbb5894b01",
+    "evidence": [
+      "audit/evidence/g0-local-20261020/provider-all.json"
+    ]
   }
 }
 ```

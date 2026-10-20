@@ -1,3 +1,5 @@
+> 当前工程结果（G0与8项台账，2026-10-20）：冻结e4434952，1601输入、16组/8入口，Node346、consumer117、Web/mockOIDC11例及单次构建通过；8项IMPLEMENTED_ENGINEERING，其他11项保持。G0工程PASS/BLOCKED待新稿确认；ALL工程PASS/BLOCKED另含L10-2 legacy移除未完成。原ALL确认只绑定a045f15c/fce29312，不自批G0；原API证据不重跑不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-current-functional-review-2026-10-20.md)和[完整稿](./audit/evidence/g0-local-20261020/confirmation-draft.md)。
+
 > 当前工程结果（FE:BFF-FE-002/A6，2026-10-20）：冻结116d076e，1247输入、16组/5入口PASS；Rust47、Node249、consumer/契约46，两C02 API/42条当前HTTP及基本Chromium，34限定控制点。四源受权读取、null/陈旧/缺失、排序截断与最早期限、只读权限和有界流恢复完成。54,468原audit/gate保持，三轮FAIL、第四轮替代与预检失败保留。仅BFF002_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整UI/联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-011/A6。
 
 > 用户确认（PROVIDER:A5，2026-10-20）：原稿CONFIRMED，仅5fb5b6aa/8a0ce81b原1169输入。共享输入变更后独立当前Gate NOT_ASSESSED，原稿与回执保持。见[记录](./audit/evidence/provider-a5-confirmation-20261020/summary.md)。
