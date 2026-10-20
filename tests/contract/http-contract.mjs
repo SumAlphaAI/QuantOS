@@ -38,7 +38,8 @@ export async function validateRequest(id,request,params={}) {
   for(const [parameter,allowed]of [['sort',op['x-quantos-policy']?.sort],['filter',op['x-quantos-policy']?.filter]]) {
     const value=url.searchParams.get(parameter);if(!value)continue;
     const parts=value.split(':');
-    if(!allowed?.includes(parts[0])||parameter==='sort'&&(parts.length!==2||!['asc','desc'].includes(parts[1]))||parameter==='filter'&&(parts.length<3||parts[1]!=='eq'||!parts.slice(2).join(':')))return issue(422,'unsupported sort/filter');
+    const authorized=allowed?.includes(parts[0])||parameter==='sort'&&allowed?.includes(value);
+    if(!authorized||parameter==='sort'&&(parts.length!==2||!['asc','desc'].includes(parts[1]))||parameter==='filter'&&(parts.length<3||parts[1]!=='eq'||!parts.slice(2).join(':')))return issue(422,'unsupported sort/filter');
   }
   if(op.requestBody) {
     const text=await request.clone().text();

@@ -88,3 +88,14 @@ describe('C15 nullable read projections stay strictly typed',()=>{
   expect(bffZodSchemas.ReconciliationRun.safeParse({...run,reportHash:'unverified'}).success).toBe(false);
  });
 });
+
+it("accepts C15 exact sort expressions and preserves field-based order sorts",async()=>{
+ for(const [id,path]of [["listReconciliationRuns","/v1/reconciliation/runs"],["listReconciliationBreaks","/v1/reconciliation/breaks"],["listLedgerEntries","/v1/ledger/entries"]])for(const sort of ["id:asc","id:desc"]){
+  const url=new URL(path!,"http://localhost:4010");url.searchParams.set("accountId",uuid);url.searchParams.set("sort",sort);expect((await validateRequest(id!,new Request(url,{headers}))).issues).toEqual([]);
+ }
+ expect((await validateRequest("listOrders",new Request("http://localhost:4010/v1/orders?sort=orderId:desc",{headers}))).issues).toEqual([]);
+});
+it("rejects unregistered C15 expressions and unsafe field sorts",async()=>{
+ for(const sort of ["runId:asc","id:invalid","id:asc:extra","id"]){const url=new URL("http://localhost:4010/v1/ledger/entries");url.searchParams.set("accountId",uuid);url.searchParams.set("sort",sort);expect((await validateRequest("listLedgerEntries",new Request(url,{headers}))).status).toBe(422);}
+ for(const sort of ["password:asc","orderId:invalid","orderId:desc:extra"]){const url=new URL("http://localhost:4010/v1/orders");url.searchParams.set("sort",sort);expect((await validateRequest("listOrders",new Request(url,{headers}))).status).toBe(422);}
+});

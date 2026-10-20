@@ -11,3 +11,5 @@
 功能实现、完整联调、发布分别记账。本轮合成Shadow/观察Paper来源不替代真实Supabase/Auth/MFA/RLS/Storage、跨实例/重启恢复、真实feed/许可/撤权、连续10个交易日Shadow、P11/P21/P22/G5/FEP-5、性能/容量/长稳、安全/部署/同SHA hosted CI与正式发布，全部NOT_RUN；目标专用自动化NOT_IMPLEMENTED。继承X01 f64、固定quote和非零异币费用拒绝边界。无生产凭据、无venue submit、无外部发布，runtimeAdmission=DENIED、formalAccepted=false。
 
 2026-10-20当前复核：差异的runId/day、expectedJson/actualJson和证据来源必须来自X05 exception.last_report指定的同一报告，禁止从其他day/历史版本按类型与实体取值；原报告不在可信host时503拒绝，不能回退到同日其他报告。关闭后的差异仍显示最后检测报告，独立保留closureReportHash。三个C15分页共享最初快照五分钟deadline，所有后继cursor不续期；行快照仍按当前时间保守标记provisional，过期即拒绝游标。新增跨日/同日更新、缺失报告及三类分页精确到期回归。不执行无关A4/X3或全仓Gate。新证据独立写入bff-fe-009-local-20261020，历史文件保持原字节。
+
+当前HTTP契约校验同时支持已登记完整sort表达式（C15 id:asc/id:desc）和字段allowlist（Order等）；方向、格式及schema仍须合法，未登记字段拒绝。首个冻结尝试a06b46bb在HTTP前置请求校验失败，仅6组通过、HTTP FAIL、后8组NOT_RUN；保留原始记录，修复校验器后使用新候选/新attempt完整复核，不拼接READY。原X05/X3回执无统一entrypoints/results.json时不虚构此元数据；存在者仍核对原入口日志hash。
