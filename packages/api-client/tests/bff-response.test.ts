@@ -10,6 +10,7 @@ type Schema = {
   minLength?: number; minItems?: number;
 };
 const components = JSON.parse(readFileSync(new URL("../../../tests/contract/generated/quantos-bff.components.schema.json", import.meta.url), "utf8")) as { $defs: Record<string, Schema> };
+const manifest = JSON.parse(readFileSync(new URL("../../../tests/contract/generated/quantos-bff.operations.json", import.meta.url), "utf8")) as {operations: {operationId: string}[]};
 const uuid = "11111111-1111-4111-8111-111111111111";
 
 // Build specimens from the independently published JSON Schema, including
@@ -38,6 +39,7 @@ function specimen(schema: Schema): unknown {
     if (schema.pattern?.startsWith("^/v1/research-runs/")) return "/v1/research-runs/" + uuid;
     if (schema.pattern?.startsWith("^/v1/performance/reports/")) return `/v1/performance/reports/${uuid}/content?ticket=${uuid}`;
     if (schema.pattern?.includes("sha256:")) return "sha256:" + "a".repeat(64);
+    if (schema.pattern?.startsWith("^/(research/runs|orders|approvals|operations/alerts)/")) return `/research/runs/${uuid}`;
     if (schema.pattern?.includes("a-f0-9")) return "a".repeat(64);
     if (schema.pattern?.includes("2[0-3]")) return "12:00";
     if (schema.pattern === "^/") return "/fixture";
@@ -49,7 +51,7 @@ function specimen(schema: Schema): unknown {
 
 describe("published BFF runtime response coverage", () => {
   it("validates populated specimens for every component and rejects invalid types", () => {
-    expect(Object.keys(bffZodSchemas)).toHaveLength(110);
+    expect(Object.keys(bffZodSchemas).sort()).toEqual(Object.keys(components.$defs).sort());
     for (const [name, schema] of Object.entries(bffZodSchemas)) {
       const value = specimen(components.$defs[name]);
       expect(schema.safeParse(value).success, name).toBe(true);
@@ -58,7 +60,7 @@ describe("published BFF runtime response coverage", () => {
   });
 
   it("rejects malformed success/error payloads for all published operations", () => {
-    expect(Object.keys(bffResponseSchemas)).toHaveLength(132);
+    expect(Object.keys(bffResponseSchemas).sort()).toEqual(manifest.operations.map(o=>o.operationId).sort());
     for (const [operation, responses] of Object.entries(bffResponseSchemas)) {
       for (const [status, schema] of Object.entries(responses)) {
         if (status === "204") expect(schema.safeParse(undefined).success).toBe(true);

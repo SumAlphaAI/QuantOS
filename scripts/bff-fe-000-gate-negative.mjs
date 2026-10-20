@@ -25,10 +25,10 @@ test("published operation drift is rejected", () => {
   assert(report.failures.includes("published catalog operations exactly match versioned OpenAPI"));
 });
 
-test("planned operation traceability deletion is rejected", () => {
-  const coverage = current.coverage.replaceAll("getCommandSummary", "removedCommandSummary");
-  const report = validateBffFe000({ ...current, coverage });
-  assert(report.failures.includes("planned operation getCommandSummary is traceable from Page API Coverage"));
+test("future planned operation traceability deletion is rejected after C02 publication", () => {
+  const catalog=structuredClone(current.catalog);catalog.contracts.C02.plannedOperations.push("getFutureCommandSummary");
+  const report=validateBffFe000({...current,catalog});
+  assert(report.failures.includes("planned operation getFutureCommandSummary is traceable from Page API Coverage"));
 });
 
 test("shared idempotency baseline deletion is rejected", () => {
