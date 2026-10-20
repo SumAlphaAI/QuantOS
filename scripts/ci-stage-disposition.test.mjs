@@ -120,3 +120,10 @@ test('ALL engineering BLOCKED validates current receipt while new-page admission
  f.options.validate=()=>({status:'READY',engineeringStatus:'PASS'});assert.throws(()=>checkDisposition(f.id,f.options));
  f.options.validate=()=>({status:'BLOCKED',engineeringStatus:'FAIL'});assert.throws(()=>checkDisposition(f.id,f.options));
 });
+
+test('current G0 engineering BLOCKED executes its validator without admitting pages',()=>{
+ const f=fixture('FRONTEND-GATE:G0','BLOCKED');let called=false;
+ f.options.validate=requireReady=>{assert.equal(requireReady,false);called=true;return{status:'BLOCKED',engineeringStatus:'PASS'}};
+ assert.equal(checkDisposition(f.id,f.options).admitted,false);assert(called);
+ f.options.validate=()=>({status:'READY',engineeringStatus:'PASS'});assert.throws(()=>checkDisposition(f.id,f.options));
+});

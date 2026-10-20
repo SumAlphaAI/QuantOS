@@ -145,7 +145,7 @@ jobs:
       - name: G0 stage disposition and fail-closed receipt rejection probes
         # NOT_ASSESSED remains explicit; READY/BLOCKED still validate current receipts.
         # Component CI does not assess or publish stage admission.
-        run: pnpm check:g0:ci && pnpm test:g0-development
+        run: pnpm check:g0:ci && pnpm test:g0-development && pnpm test:g0-current
 
       - name: Contract fixture tests (PRE-06)
         run: pnpm exec vitest run tests/contract

@@ -1020,9 +1020,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "PROVIDER:ALL": {
-      "profile": "ALL_SCOPE_LOCAL",
-      "schema": "quantos-provider-all-functional-development/v1",
-      "manifest": "audit/evidence/provider-all-local-20261020/manifest.json",
+      "profile": "ALL_G0_REVIEW_LOCAL",
+      "schema": "quantos-g0-current-functional-development/v1",
+      "manifest": "audit/evidence/g0-local-20261020/provider-all.json",
       "prerequisites": [
         "PROVIDER:A1",
         "PROVIDER:A2",
@@ -1043,6 +1043,17 @@
         "FE:BFF-FE-010",
         "FE:BFF-FE-011",
         "FRONTEND-GATE:G0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FRONTEND-GATE:G0": {
+      "profile": "G0_SCOPE_LOCAL",
+      "schema": "quantos-g0-current-functional-development/v1",
+      "manifest": "audit/evidence/g0-local-20261020/g0.json",
+      "prerequisites": [
+        "PREPARATION:P0",
+        "PROVIDER:A1",
+        "FE:BFF-FE-000"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1838,11 +1849,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:76e022715b8b4c9bff2cf78539ff9c8e1afa3a1b1d5ac77ce5c9f7ce83e521fb",
-    "evidence": [
-      "audit/evidence/provider-all-local-20261020/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

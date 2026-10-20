@@ -1,6 +1,6 @@
 {
   "schema": "quantos-g0-current-disposition/v1",
-  "observedAt": "2026-10-05",
+  "observedAt": "2026-10-20",
   "calendarCommitment": "NO NEW OWNER CALENDAR SIGNATURE; checkpoint deadlines are engineering gate boundaries",
   "historicalWholeItemClosure": false,
   "items": [
@@ -15,17 +15,42 @@
         "before": "FE:BFF-FE-004",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "保留 getBacktest 同源轮询；SSE 未交付不得标实时 Integrated。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "Backtest轮询与SSE使用同一冻结run、权限及deadline；有限参考流不代表完整UI、真实worker或持久恢复。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C05"
+        ],
+        "operations": [
+          "createBacktest",
+          "createRelease",
+          "getBacktest",
+          "getRelease",
+          "getStrategyDraft",
+          "listReleases",
+          "listStrategies",
+          "requestReleaseRollback",
+          "runStaticCheck",
+          "saveStrategyDraft",
+          "submitReleaseApproval",
+          "subscribeBacktestRun"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L02-1",
       "parentId": "G0-L02",
-      "scope": "C02 Command planned operations",
+      "scope": "C02 Command published operations",
       "stage": "DEVELOPMENT",
       "owner": "BFF TL + Observability owner + Auth owner",
       "deadline": {
@@ -33,12 +58,27 @@
         "before": "FE:BFF-FE-002",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "只用同源命名与 fixture；发布 schema/provider 前不进入业务集成。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "Command仅为授权只读投影，遵循来源最早deadline和stream命名空间；不记录risk decision或授予执行权限。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C02"
+        ],
+        "operations": [
+          "getCommandSummary",
+          "subscribeCommandEvents"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L02-2",
@@ -70,12 +110,32 @@
         "before": "FE:BFF-FE-005",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "许可证约束与默认拒绝；不得另建 DTO。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "市场契约/参考provider已实现；报价不执行交易，真实来源许可、时效、撤权和R01 B01/FA-H01风险继续保留。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C12"
+        ],
+        "operations": [
+          "getCandleSeries",
+          "getMarketCatalog",
+          "getVenueQuotes",
+          "getWatchlist",
+          "saveWatchlist",
+          "subscribeCandles",
+          "subscribeQuotes"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L03-2",
@@ -88,12 +148,33 @@
         "before": "FE:BFF-FE-008",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "估值快照与账本语义同源；未交付不标 Integrated。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "Performance使用Shadow授权账本/估值快照及独立report/ticket期限；本机能力不代表真实数据库、worker或完整联调。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C14"
+        ],
+        "operations": [
+          "createPerformanceReport",
+          "downloadPerformanceReport",
+          "getPerformanceAttribution",
+          "getPerformanceReport",
+          "getPerformanceSeries",
+          "getPerformanceSummary",
+          "getReportDownload",
+          "getReportStatus"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L04-1",
@@ -117,7 +198,7 @@
     {
       "id": "G0-L04-2",
       "parentId": "G0-L04",
-      "scope": "C13 trade preflight planned extension",
+      "scope": "C13 trade preflight contract and provider",
       "stage": "DEVELOPMENT",
       "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
       "deadline": {
@@ -125,12 +206,28 @@
         "before": "FE:BFF-FE-006",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "已有 Proposal/Order 不能替代 planned preflight；禁止高风险 mock 验收。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "已发布preflight是只读风险preview，不写最终decision、不消费审批；最终执行权限由独立命令路径校验，禁止高风险mock冒充执行验收。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C13"
+        ],
+        "operations": [
+          "getOrderCapabilities",
+          "getTradePreflight",
+          "subscribeTradePreflight"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L04-3",
@@ -143,12 +240,32 @@
         "before": "FE:BFF-FE-009",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "只用版本化账本与同 schema fixture，不标目标联调完成。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "Shadow参考对账/版本化账本与同源schema已验证；不标真实持久事务、自动修复或目标联调完成。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C15"
+        ],
+        "operations": [
+          "getReconciliationBreak",
+          "getReconciliationRun",
+          "listLedgerEntries",
+          "listReconciliationBreaks",
+          "listReconciliationRuns",
+          "requestReconciliationRerun",
+          "subscribeReconciliationRun"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L05-1",
@@ -161,12 +278,61 @@
         "before": "FE:BFF-FE-010",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "无临时 URL/字段；未知 capability 默认拒绝。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "运维/admin当前本机权限、MFA/CSRF、幂等/CAS和成员撤权已验证；未知capability默认拒绝，不标实际部署/运维授权。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C11"
+        ],
+        "operations": [
+          "ackIncident",
+          "checkRunbookPreconditions",
+          "createCapability",
+          "createFeatureFlag",
+          "createMember",
+          "createPolicy",
+          "createRole",
+          "deleteCapability",
+          "deleteFeatureFlag",
+          "deleteMember",
+          "deletePolicy",
+          "deleteRole",
+          "getCapability",
+          "getFeatureFlag",
+          "getIncident",
+          "getIncidentTimeline",
+          "getMember",
+          "getPolicy",
+          "getRole",
+          "getServiceHealth",
+          "getServiceMetrics",
+          "listCapabilities",
+          "listFeatureFlags",
+          "listIncidents",
+          "listMembers",
+          "listPolicies",
+          "listRoles",
+          "listRunbookActions",
+          "openIncident",
+          "resolveIncident",
+          "runApprovedRunbookAction",
+          "saveCapability",
+          "saveFeatureFlag",
+          "savePolicy",
+          "saveRole",
+          "updateMember"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L05-2",
@@ -179,12 +345,32 @@
         "before": "FE:BFF-FE-010",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "禁止以 planned 名称冒充告警运行；仅同源 fixture。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "告警/订阅使用已发布schema和当前身份/范围/期限；参考事件不代表真实通知渠道或全链监控验收。",
       "evidence": [
-        "bff/page-operation-catalog.yaml"
+        "docs/audit/evidence/provider-all-local-20261020/manifest.json",
+        "docs/audit/evidence/provider-all-local-20261020/operation-coverage.md",
+        "docs/audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
       ],
-      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。",
+      "engineeringReview": {
+        "sourceCommit": "a045f15cddf2be6abca36fff003936602ce80985",
+        "receiptCommit": "fce2931240415cd1f713fcdfdf12f40adc1ef916",
+        "contracts": [
+          "C16"
+        ],
+        "operations": [
+          "ackAlert",
+          "getAlert",
+          "getAlertSubscriptions",
+          "listAlerts",
+          "saveAlertSubscriptions",
+          "subscribeAlerts",
+          "unackAlert"
+        ],
+        "evidenceMode": "ORIGINAL_CONFIRMED_FUNCTION_SCOPE_NOT_REBOUND",
+        "formalClosed": false
+      }
     },
     {
       "id": "G0-L06-1",

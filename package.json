@@ -67,7 +67,7 @@
     "test:provider-a1": "node --test scripts/provider-a1-receipts.test.mjs",
     "check:g0-engineering": "node scripts/g0-development.mjs --engineering",
     "check:g0-development": "node scripts/g0-development.mjs --ready",
-    "assess:g0-development": "node scripts/g0-development.mjs --assess",
+    "assess:g0-development": "node scripts/record-g0-current-functional.mjs",
     "scope:g0-development": "node scripts/g0-development.mjs --scope",
     "test:g0-development": "node --test scripts/g0-development.test.mjs scripts/frontend-import-boundary.test.mjs scripts/user-acceptance-confirmation.test.mjs",
     "draft:g0-confirmation": "node scripts/g0-development.mjs --draft",
@@ -177,7 +177,9 @@
     "check:provider-all:engineering": "node scripts/provider-all-development.mjs --engineering",
     "check:provider-all:ci": "node scripts/ci-stage-disposition.mjs PROVIDER:ALL",
     "test:provider-all": "node --test scripts/provider-all-functional-gate.test.mjs",
-    "assess:provider-all": "node scripts/record-provider-all-functional.mjs"
+    "assess:provider-all": "node scripts/record-provider-all-functional.mjs",
+    "test:g0-current": "node --test scripts/g0-current-functional-gate.test.mjs",
+    "finalize:g0-development": "node scripts/g0-development.mjs --finalize"
   },
   "dependencies": {
     "pg": "8.16.3"
