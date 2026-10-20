@@ -1,3 +1,5 @@
+import { createOpsScenario } from "./fixtures/scenarios/ops.js";
+import { createExecutionScenario } from "./fixtures/scenarios/execution.js";
 /**
  * X06 acceptance scenarios: full evidence-chain reconstruction from any order
  * within the 5-minute SLA, order/approval/kill-switch E2E, no direct venue
@@ -5,7 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { InMemoryExecutionBackend, InMemoryOpsBackend } from "@sumalpha/api-client";
+
 import {
   beginDangerConfirm,
   buildAdminPage,
@@ -34,8 +36,8 @@ const CHAIN_SLA_MS = 5 * 60 * 1000;
 describe("X06 execution/audit/ops scenarios (web + desktop)", () => {
   for (const kind of ["web", "desktop"] as PlatformKind[]) {
     it(`reconstructs the full evidence chain from an order within the SLA on ${kind}`, async () => {
-      const execution = new InMemoryExecutionBackend();
-      const ops = new InMemoryOpsBackend();
+      const execution = createExecutionScenario();
+      const ops = createOpsScenario();
 
       const started = Date.now();
       const order = await execution.getOrder("order-0001");
@@ -73,7 +75,7 @@ describe("X06 execution/audit/ops scenarios (web + desktop)", () => {
     });
 
     it(`runs order/approval/kill-switch flows with MFA and self-approval bans on ${kind}`, async () => {
-      const execution = new InMemoryExecutionBackend();
+      const execution = createExecutionScenario();
 
       // Portfolio & risk read models with as-of context
       const portfolio = buildPortfolioPage(await execution.getPortfolio("paper-account-0"));
@@ -136,7 +138,7 @@ describe("X06 execution/audit/ops scenarios (web + desktop)", () => {
     });
 
     it(`serves operations, incident runbooks, exports, and admin guardrails on ${kind}`, async () => {
-      const ops = new InMemoryOpsBackend();
+      const ops = createOpsScenario();
 
       const operations = buildOperationsPage(await ops.getOperationsView());
       expect(operations.degradedBanner).toContain("降级");

@@ -1,0 +1,156 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/l03-scenarios.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m     [31m×[31m keeps assisted live 100% unreachable while the M5 flag is off on web[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m opens assisted live for testnet once the flag flips on web[39m[32m 1[2mms[22m[39m
+     [32m✓[39m derives every gate strictly from server payloads on web[32m 3[2mms[22m[39m
+[31m     [31m×[31m keeps assisted live 100% unreachable while the M5 flag is off on desktop[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m opens assisted live for testnet once the flag flips on desktop[39m[32m 0[2mms[22m[39m
+     [32m✓[39m derives every gate strictly from server payloads on desktop[32m 1[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/u01-scenarios.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m     [31m×[31m creates research, streams with dedup, cancels with confirmation, and resolves evidence routes on web[39m[32m 12[2mms[22m[39m
+[31m     [31m×[31m serves auth, command center, and snapshot catalog models on web[39m[32m 4[2mms[22m[39m
+     [32m✓[39m hides high-risk actions on small screens and shows them on regular screens on web[32m 0[2mms[22m[39m
+[31m     [31m×[31m creates research, streams with dedup, cancels with confirmation, and resolves evidence routes on desktop[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m serves auth, command center, and snapshot catalog models on desktop[39m[32m 1[2mms[22m[39m
+     [32m✓[39m hides high-risk actions on small screens and shows them on regular screens on desktop[32m 0[2mms[22m[39m
+     [32m✓[39m marks every terminal page as noindex[32m 0[2mms[22m[39m
+     [32m✓[39m keeps platform bindings divergent only at the adapter surface[32m 0[2mms[22m[39m
+     [32m✓[39m rejects trading instructions in the research composer[32m 0[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/x06-scenarios.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 21[2mms[22m[39m
+[31m     [31m×[31m reconstructs the full evidence chain from an order within the SLA on web[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m runs order/approval/kill-switch flows with MFA and self-approval bans on web[39m[32m 11[2mms[22m[39m
+[31m     [31m×[31m serves operations, incident runbooks, exports, and admin guardrails on web[39m[32m 4[2mms[22m[39m
+     [32m✓[39m keeps all execution/ops pages noindex with viewport-gated risk actions on web[32m 1[2mms[22m[39m
+[31m     [31m×[31m reconstructs the full evidence chain from an order within the SLA on desktop[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m runs order/approval/kill-switch flows with MFA and self-approval bans on desktop[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m serves operations, incident runbooks, exports, and admin guardrails on desktop[39m[32m 1[2mms[22m[39m
+     [32m✓[39m keeps all execution/ops pages noindex with viewport-gated risk actions on desktop[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/s04-scenarios.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m14 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 21:22:57
+[2m   Duration [22m 549ms[2m (transform 908ms, setup 0ms, import 1.62s, tests 104ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 14 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/l03-scenarios.test.ts[2m > [22mL03 assisted live gate scenarios (web + desktop)[2m > [22mkeeps assisted live 100% unreachable while the M5 flag is off on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/l03-scenarios.test.ts[2m > [22mL03 assisted live gate scenarios (web + desktop)[2m > [22mkeeps assisted live 100% unreachable while the M5 flag is off on desktop
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m21:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m29:35[22m[39m
+[90m [2m❯[22m apps/terminal/tests/l03-scenarios.test.ts:[2m25:14[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/l03-scenarios.test.ts[2m > [22mL03 assisted live gate scenarios (web + desktop)[2m > [22mopens assisted live for testnet once the flag flips on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/l03-scenarios.test.ts[2m > [22mL03 assisted live gate scenarios (web + desktop)[2m > [22mopens assisted live for testnet once the flag flips on desktop
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m21:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m29:35[22m[39m
+[90m [2m❯[22m apps/terminal/tests/l03-scenarios.test.ts:[2m41:14[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mcreates research, streams with dedup, cancels with confirmation, and resolves evidence routes on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mcreates research, streams with dedup, cancels with confirmation, and resolves evidence routes on desktop
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m21:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m29:35[22m[39m
+[90m [2m❯[22m apps/terminal/tests/u01-scenarios.test.ts:[2m56:19[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mserves auth, command center, and snapshot catalog models on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mserves auth, command center, and snapshot catalog models on desktop
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m21:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m29:35[22m[39m
+[90m [2m❯[22m apps/terminal/tests/u01-scenarios.test.ts:[2m99:44[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mreconstructs the full evidence chain from an order within the SLA on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mreconstructs the full evidence chain from an order within the SLA on desktop
+[31m[1mTypeError[22m: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received undefined[39m
+[36m [2m❯[22m hash apps/terminal/tests/fixtures/scenarios/transport.ts:[2m10:73[22m[39m
+    [90m  8|[39m [35mexport[39m type [33mSchemas[39m [33m=[39m [33mBffComponents[39m[[32m"schemas"[39m][33m;[39m
+    [90m  9|[39m [35mexport[39m [35mconst[39m now [33m=[39m [32m"2026-08-01T00:00:00Z"[39m[33m;[39m
+    [90m 10|[39m export const hash = (value: string) => "sha256:" + createHash("sha256"…
+    [90m   |[39m                                                                         [31m^[39m
+    [90m 11|[39m export const uuid = (value: string) => { const h=hash(value).slice(7);…
+    [90m 12|[39m export interface ScenarioExchange { operation: BffOperationId; status:…
+[90m [2m❯[22m uuid apps/terminal/tests/fixtures/scenarios/transport.ts:[2m11:50[22m[39m
+[90m [2m❯[22m order apps/terminal/tests/fixtures/scenarios/wire.ts:[2m16:487[22m[39m
+[90m [2m❯[22m projectScenario apps/terminal/tests/fixtures/scenarios/wire.ts:[2m55:87[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m28:52[22m[39m
+[90m [2m❯[22m apps/terminal/tests/x06-scenarios.test.ts:[2m43:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mruns order/approval/kill-switch flows with MFA and self-approval bans on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mruns order/approval/kill-switch flows with MFA and self-approval bans on desktop
+[31m[1mTypeError[22m: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received undefined[39m
+[36m [2m❯[22m hash apps/terminal/tests/fixtures/scenarios/transport.ts:[2m10:73[22m[39m
+    [90m  8|[39m [35mexport[39m type [33mSchemas[39m [33m=[39m [33mBffComponents[39m[[32m"schemas"[39m][33m;[39m
+    [90m  9|[39m [35mexport[39m [35mconst[39m now [33m=[39m [32m"2026-08-01T00:00:00Z"[39m[33m;[39m
+    [90m 10|[39m export const hash = (value: string) => "sha256:" + createHash("sha256"…
+    [90m   |[39m                                                                         [31m^[39m
+    [90m 11|[39m export const uuid = (value: string) => { const h=hash(value).slice(7);…
+    [90m 12|[39m export interface ScenarioExchange { operation: BffOperationId; status:…
+[90m [2m❯[22m uuid apps/terminal/tests/fixtures/scenarios/transport.ts:[2m11:50[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/wire.ts:[2m19:485[22m[39m
+[90m [2m❯[22m proposal apps/terminal/tests/fixtures/scenarios/wire.ts:[2m19:478[22m[39m
+[90m [2m❯[22m projectScenario apps/terminal/tests/fixtures/scenarios/wire.ts:[2m50:57[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m28:52[22m[39m
+[90m [2m❯[22m apps/terminal/tests/x06-scenarios.test.ts:[2m89:9[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mserves operations, incident runbooks, exports, and admin guardrails on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mserves operations, incident runbooks, exports, and admin guardrails on desktop
+[31m[1mBffResponseError[22m: BFF response does not match the published contract[39m
+[36m [2m❯[22m parseBffResponse packages/api-client/src/bff-response.ts:[2m18:31[22m[39m
+    [90m 16|[39m   [35mconst[39m schema [33m=[39m schemas[[33mString[39m(status)] [33m??[39m schemas[33m.[39m[35mdefault[39m[33m;[39m
+    [90m 17|[39m   [35mconst[39m result [33m=[39m schema[33m?.[39m[34msafeParse[39m(value)[33m;[39m
+    [90m 18|[39m   [35mif[39m ([33m![39mresult[33m?.[39msuccess) [35mthrow[39m [35mnew[39m [33mBffResponseError[39m(operation[33m,[39m status)[33m;[39m
+    [90m   |[39m                               [31m^[39m
+    [90m 19|[39m   [35mreturn[39m result[33m.[39mdata[33m;[39m
+    [90m 20|[39m }
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m21:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m29:35[22m[39m
+[90m [2m❯[22m apps/terminal/tests/x06-scenarios.test.ts:[2m161:36[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯[22m[39m
+

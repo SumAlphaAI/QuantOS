@@ -529,13 +529,16 @@
         "before": "PROVIDER:ALL",
         "stage": "DEVELOPMENT"
       },
-      "status": "PENDING",
-      "compatibilityStrategy": "迁移对应域 scenario 到生成 adapter 后再删除；现有类明确 deprecated fixture。",
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "四类生产 backend 与旧客户端构造器已移除；场景状态仅存 tests/fixtures，经生成 operation/schema adapter 校验，生产仅保留 UI 兼容类型。",
       "evidence": [
-        "packages/api-client/src/terminal.ts",
-        "packages/api-client/src/strategy.ts",
-        "packages/api-client/src/execution.ts",
-        "packages/api-client/src/ops.ts"
+        "scripts/legacy-backend-boundary.mjs",
+        "apps/terminal/tests/generated-scenario-adapters.test.ts",
+        "apps/terminal/tests/fixtures/scenarios/terminal.ts",
+        "apps/terminal/tests/fixtures/scenarios/strategy.ts",
+        "apps/terminal/tests/fixtures/scenarios/execution.ts",
+        "apps/terminal/tests/fixtures/scenarios/ops.ts",
+        "docs/operations/g0-legacy-backend-migration.md"
       ],
       "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
     }

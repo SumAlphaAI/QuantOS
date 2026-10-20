@@ -1,3 +1,4 @@
+import { createStrategyScenario } from "./fixtures/scenarios/strategy.js";
 /**
  * S04 acceptance scenarios: 20 strategy fixtures complete the research-to-
  * release lifecycle; rejected/expired/concurrent-approval states are explicit;
@@ -6,7 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { InMemoryStrategyBackend } from "@sumalpha/api-client";
+
 import {
   approvalActionVisibility,
   buildApprovalTimeline,
@@ -28,7 +29,7 @@ const APPROVER = { capabilities: ["strategy.approve"] };
 describe("S04 strategy lifecycle scenarios (web + desktop)", () => {
   for (const kind of ["web", "desktop"] as PlatformKind[]) {
     it(`completes 20 fixtures from draft to release on ${kind}`, async () => {
-      const backend = new InMemoryStrategyBackend();
+      const backend = createStrategyScenario();
       const summaries = await backend.listStrategies();
       expect(summaries).toHaveLength(20);
 
@@ -94,7 +95,7 @@ describe("S04 strategy lifecycle scenarios (web + desktop)", () => {
     });
 
     it(`surfaces rejected, expired, and concurrent-approval states on ${kind}`, async () => {
-      const backend = new InMemoryStrategyBackend();
+      const backend = createStrategyScenario();
 
       // rejected
       await backend.runStaticCheck("strategy-001");

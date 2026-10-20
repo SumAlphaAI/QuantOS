@@ -1,0 +1,54 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/l03-scenarios.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/u01-scenarios.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m     [31m×[31m creates research, streams with dedup, cancels with confirmation, and resolves evidence routes on web[39m[32m 13[2mms[22m[39m
+     [32m✓[39m serves auth, command center, and snapshot catalog models on web[32m 3[2mms[22m[39m
+     [32m✓[39m hides high-risk actions on small screens and shows them on regular screens on web[32m 0[2mms[22m[39m
+[31m     [31m×[31m creates research, streams with dedup, cancels with confirmation, and resolves evidence routes on desktop[39m[32m 1[2mms[22m[39m
+     [32m✓[39m serves auth, command center, and snapshot catalog models on desktop[32m 1[2mms[22m[39m
+     [32m✓[39m hides high-risk actions on small screens and shows them on regular screens on desktop[32m 0[2mms[22m[39m
+     [32m✓[39m marks every terminal page as noindex[32m 0[2mms[22m[39m
+     [32m✓[39m keeps platform bindings divergent only at the adapter surface[32m 0[2mms[22m[39m
+     [32m✓[39m rejects trading instructions in the research composer[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/s04-scenarios.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m27 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 21:26:07
+[2m   Duration [22m 387ms[2m (transform 598ms, setup 0ms, import 1.10s, tests 103ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mcreates research, streams with dedup, cancels with confirmation, and resolves evidence routes on web
+[41m[1m FAIL [22m[49m apps/terminal/tests/u01-scenarios.test.ts[2m > [22mU01 shared scenarios (web + desktop)[2m > [22mcreates research, streams with dedup, cancels with confirmation, and resolves evidence routes on desktop
+[31m[1mZodError[22m: [
+  {
+    "code": "invalid_value",
+    "values": [
+      "1",
+      "v1"
+    ],
+    "path": [
+      "payloadVersion"
+    ],
+    "message": "Invalid option: expected one of \"1\"|\"v1\""
+  }
+][39m
+[36m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m19:84[22m[39m
+    [90m 17|[39m   [35mconst[39m route[33m=[39mcatalog[33m.[39moperations[33m.[39m[34mfind[39m(o[33m=>[39mo[33m.[39moperationId[33m===[39moperation)[33m;[39m
+    [90m 18|[39m   if(!route) throw Error("scenario adapter requires a published operat…
+    [90m 19|[39m   if(route.sse) return (payload as unknown[]).map(value=>bffZodSchemas…
+    [90m   |[39m                                                                                    [31m^[39m
+    [90m 20|[39m   const fetcher=createBffFetch(async () => Response.json(payload,{stat…
+    [90m 21|[39m   const response=await fetcher(new Request("http://scenario.invalid"+r…
+[90m [2m❯[22m exchange apps/terminal/tests/fixtures/scenarios/transport.ts:[2m19:47[22m[39m
+[90m [2m❯[22m apps/terminal/tests/fixtures/scenarios/transport.ts:[2m30:41[22m[39m
+[90m [2m❯[22m catchUpStream packages/domain-ui/src/research.ts:[2m157:20[22m[39m
+[90m [2m❯[22m apps/terminal/tests/u01-scenarios.test.ts:[2m61:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+

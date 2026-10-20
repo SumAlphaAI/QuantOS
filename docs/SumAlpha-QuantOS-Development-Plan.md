@@ -1074,9 +1074,9 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "PROVIDER:ALL": {
-      "profile": "ALL_G0_REVIEW_LOCAL",
-      "schema": "quantos-g0-current-functional-development/v1",
-      "manifest": "audit/evidence/g0-local-20261020/provider-all.json",
+      "profile": "ALL_LEGACY_REVIEW_LOCAL",
+      "schema": "quantos-g0-legacy-functional-development/v1",
+      "manifest": "audit/evidence/g0-legacy-local-20261020/provider-all.json",
       "prerequisites": [
         "PROVIDER:A1",
         "PROVIDER:A2",
@@ -1101,9 +1101,9 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "FRONTEND-GATE:G0": {
-      "profile": "G0_SCOPE_LOCAL",
-      "schema": "quantos-g0-current-functional-development/v1",
-      "manifest": "audit/evidence/g0-local-20261020/g0.json",
+      "profile": "G0_LEGACY_SCOPE_LOCAL",
+      "schema": "quantos-g0-legacy-functional-development/v1",
+      "manifest": "audit/evidence/g0-legacy-local-20261020/g0.json",
       "prerequisites": [
         "PREPARATION:P0",
         "PROVIDER:A1",

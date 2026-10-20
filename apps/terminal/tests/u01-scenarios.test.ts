@@ -1,3 +1,5 @@
+import { createScenarioTerminalClient } from "./fixtures/scenarios/terminal.js";
+import { createTerminalScenario } from "./fixtures/scenarios/terminal.js";
 /**
  * U01 acceptance scenarios: the same scenario matrix runs against the web and
  * desktop platform bindings, covering Research create/stream/cancel/evidence
@@ -5,7 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { InMemoryTerminalBackend, createTerminalClient } from "@sumalpha/api-client";
+
 import {
   PAGE_REGISTRY,
   advanceComposer,
@@ -31,7 +33,7 @@ import { createTerminalApp, type TerminalApp } from "./fixtures/app.js";
 function apps(): { kind: PlatformKind; app: TerminalApp }[] {
   return (["web", "desktop"] as const).map((kind) => ({
     kind,
-    app: createTerminalApp(kind, createTerminalClient(new InMemoryTerminalBackend())),
+    app: createTerminalApp(kind, createScenarioTerminalClient(createTerminalScenario())),
   }));
 }
 

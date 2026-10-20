@@ -26,8 +26,10 @@
 | G0-L09-1 | Current static JS budget gate | DEVELOPMENT / FE:PRE-06 | Frontend Performance owner | IMPLEMENTED_ENGINEERING | 超预算必须 ADR 与拆包复测；持续 CI 阻断。 |
 | G0-L09-2 | Release performance revalidation | RELEASE / RELEASE-GATE:BETA | Frontend Performance owner | DEFERRED | 候选版本实测首屏与长稳；开发预算不冒充发布性能验收。 |
 | G0-L10-1 | Production adapter import prohibition | DEVELOPMENT / FRONTEND-GATE:G0 | Frontend TL + 对应 BFF owner | IMPLEMENTED_ENGINEERING | 生产页面禁止四类 legacy adapter，默认 fixture 仅在 tests 中组装。 |
-| G0-L10-2 | Legacy adapter removal by owning domain | DEVELOPMENT / PROVIDER:ALL | Frontend TL + 对应 BFF owner | PENDING | 迁移对应域 scenario 到生成 adapter 后再删除；现有类明确 deprecated fixture。 |
+| G0-L10-2 | Legacy adapter removal by owning domain | DEVELOPMENT / PROVIDER:ALL | Frontend TL + 对应 BFF owner | IMPLEMENTED_ENGINEERING | 四类生产 backend 与旧客户端构造器已移除；场景状态仅存 tests/fixtures，经生成 operation/schema adapter 校验，生产仅保留 UI 兼容类型。 |
 
 IMPLEMENTED_ENGINEERING 的实际执行结果由本轮 G0 功能 manifest 绑定；引用文件只是来源，不独立证明运行 PASS。RELEASE 与 PHASE_TWO 继续保留未验收；PROVIDER:ALL 未 READY 前不启动新业务页面。
 
 2026-10-20：仅8项API工程条目由PENDING映射为IMPLEMENTED_ENGINEERING，依据已确认的a045f15c/fce29312原范围回执；新G0当前核证不改绑其HTTP/原生通过。原台账字节另存本轮preflight并可由Git取回。其余11条逐项保持；G0-L10-2仍PENDING且消费期限PROVIDER:ALL，未移除的4类legacy fixture不可因8项同步而视为完成。G0新范围仍待项目用户确认，ALL不得自动READY。
+
+2026-10-20 后续：原 G0 用户确认已单独收口并绑定 e4434952/f7141e4b；本次仅另更新 G0-L10-2 为 IMPLEMENTED_ENGINEERING。四类类实现及旧客户端构造器从生产包移除，UI 场景迁至生成契约测试 adapter。其他18项保持；历史整项不 CLOSED。当前功能输入已变化，旧批准不改绑到迁移后输入；需当前确认与门禁，ALL不自动READY。

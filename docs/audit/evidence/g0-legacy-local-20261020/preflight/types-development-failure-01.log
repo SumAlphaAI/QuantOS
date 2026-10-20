@@ -1,0 +1,27 @@
+Scope: 3 of 8 workspace projects
+packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+packages/api-client typecheck: Done
+packages/domain-ui typecheck$ tsc --project tsconfig.json --noEmit
+packages/domain-ui typecheck: Done
+apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(11,142): error TS2322: Type 'SnapshotQuality' is not assignable to type '"failed" | "degraded" | "expired" | "verified" | "provisional" | "license_missing"'.
+apps/terminal typecheck:   Type '"pending"' is not assignable to type '"failed" | "degraded" | "expired" | "verified" | "provisional" | "license_missing"'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(14,508): error TS2322: Type '{ entryId: string; actor: string; action: "approved" | "rejected" | "expired" | "submitted" | "conflict_detected"; at: string; note: string; }[]' is not assignable to type 'Record<string, never>[]'.
+apps/terminal typecheck:   Type '{ entryId: string; actor: string; action: "submitted" | "approved" | "rejected" | "expired" | "conflict_detected"; at: string; note: string; }' is not assignable to type 'Record<string, never>'.
+apps/terminal typecheck:     Property 'entryId' is incompatible with index signature.
+apps/terminal typecheck:       Type 'string' is not assignable to type 'never'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(15,135): error TS2339: Property 'objectVersion' does not exist on type 'ApprovalDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(16,156): error TS2339: Property 'venue' does not exist on type 'OrderDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(16,209): error TS2322: Type 'string' is not assignable to type '"buy" | "sell"'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(16,239): error TS2339: Property 'quantity' does not exist on type 'OrderDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(16,494): error TS2339: Property 'correlationId' does not exist on type 'OrderDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,152): error TS2339: Property 'action' does not exist on type 'ProposalDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,177): error TS2339: Property 'quantity' does not exist on type 'ProposalDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,352): error TS2339: Property 'confidence' does not exist on type 'ProposalDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,416): error TS2339: Property 'rationale' does not exist on type 'ProposalDetail'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,492): error TS2339: Property 'ref' does not exist on type '{ evidenceId: string; artifactId: string; summary: string; }'.
+apps/terminal typecheck: tests/fixtures/scenarios/wire.ts(19,518): error TS2339: Property 'confidence' does not exist on type 'ProposalDetail'.
+apps/terminal typecheck: Failed
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2

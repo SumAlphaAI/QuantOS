@@ -1022,9 +1022,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "PROVIDER:ALL": {
-      "profile": "ALL_G0_REVIEW_LOCAL",
-      "schema": "quantos-g0-current-functional-development/v1",
-      "manifest": "audit/evidence/g0-local-20261020/provider-all.json",
+      "profile": "ALL_LEGACY_REVIEW_LOCAL",
+      "schema": "quantos-g0-legacy-functional-development/v1",
+      "manifest": "audit/evidence/g0-legacy-local-20261020/provider-all.json",
       "prerequisites": [
         "PROVIDER:A1",
         "PROVIDER:A2",
@@ -1049,9 +1049,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "FRONTEND-GATE:G0": {
-      "profile": "G0_SCOPE_LOCAL",
-      "schema": "quantos-g0-current-functional-development/v1",
-      "manifest": "audit/evidence/g0-local-20261020/g0.json",
+      "profile": "G0_LEGACY_SCOPE_LOCAL",
+      "schema": "quantos-g0-legacy-functional-development/v1",
+      "manifest": "audit/evidence/g0-legacy-local-20261020/g0.json",
       "prerequisites": [
         "PREPARATION:P0",
         "PROVIDER:A1",
@@ -1373,11 +1373,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:0e4285dbb4aa13bca0d923f122102d4a7dafe7b5f1caf72e5458ce6337e3beda",
-    "evidence": [
-      "audit/evidence/g0-local-20261020/g0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1853,11 +1851,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:528022c4fdab8873ba9c31fd2bf8498f852ebbbe6ba22eaead9aedd3b6ff3c6d",
-    "evidence": [
-      "audit/evidence/g0-local-20261020/provider-all.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
