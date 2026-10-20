@@ -1,4 +1,8 @@
-> 当前前端API结果（FE:BFF-FE-010/A5，2026-10-20）：冻结3152db47，1146输入、18组/7入口PASS，43项C11/C16 API；仅BFF010_SCOPE_LOCAL DEVELOPMENT READY，七前置referenceOnly，完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-20.md)。
+> 当前工程结果（PROVIDER:A5，2026-10-20）：冻结5fb5b6aa，1169输入、17组/8入口PASS；Rust84、Node218、consumer/契约49，58API/637条当前HTTP与三个基本Chromium，26限定控制点。旧凭据不随observer续期及共享quarantine跨域拒绝通过。54,386份原audit/gate保持，沙箱FAIL/预检失败保留；仅A5_SCOPE_LOCAL DEVELOPMENT READY，四前置只引用原确认，新汇总稿PENDING，完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a5-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
+
+> 用户确认（FE:BFF-FE-010，2026-10-20）：原完整稿CONFIRMED，仅3152db47/4ed64603原1146输入。共享输入变化后独立当前Gate NOT_ASSESSED；原稿/回执保持。见[记录](./audit/evidence/bff-fe-010-confirmation-20261020/summary.md)。
+
+> 历史前端API结果（FE:BFF-FE-010/A5，2026-10-20）：冻结3152db47，1146输入、18组/7入口PASS，43项C11/C16 API；仅BFF010_SCOPE_LOCAL DEVELOPMENT READY，七前置referenceOnly，完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-20.md)。
 
 > 当前前端API结果（FE:BFF-FE-008/A5，2026-10-20）：冻结b20efc30，1109输入、15组/6入口PASS，八项C14 API；仅BFF008_SCOPE_LOCAL DEVELOPMENT READY，五前置referenceOnly，完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-008-functional-review-2026-10-20.md)。
 

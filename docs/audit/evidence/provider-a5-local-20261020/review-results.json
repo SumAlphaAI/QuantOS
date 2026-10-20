@@ -1,0 +1,729 @@
+{
+  "schema": "quantos-a5-functional-review/v1",
+  "nodeId": "PROVIDER:A5",
+  "status": "PASS",
+  "gate": "A5_SCOPE_LOCAL DEVELOPMENT READY",
+  "sourceCommit": "5fb5b6aa52fbfb604e009d1e818826114ead155a",
+  "inputDigest": "sha256:6a47cc9783665af84551b1a398ce81bae92969fe67fa9b548d027ea67f8e0e62",
+  "inputs": 1169,
+  "checks": [
+    {
+      "id": "contract",
+      "command": [
+        "node",
+        "scripts/check-provider-a5-boundary.mjs"
+      ],
+      "reason": "Current58 C11/C14/C15/C16 operations and direct owner/no ledger write/venue boundaries; never component gates",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:18.279Z",
+      "completedAt": "2026-10-20T04:02:19.050Z",
+      "elapsedMs": 772,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/contract.log",
+      "logSha256": "sha256:835f810e622bd5de02c40174e57b26f7cf65800ba2b5bceed4654b7b5acdeda0"
+    },
+    {
+      "id": "generated",
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "reason": "Six exact compatible v1 generated artifacts and registered58 operations; compatibility scope only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:19.051Z",
+      "completedAt": "2026-10-20T04:02:19.669Z",
+      "elapsedMs": 618,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/generated.log",
+      "logSha256": "sha256:a5e97a47316402d65f0a0223186edb01cab3a41202f727c9088a8883a437423b"
+    },
+    {
+      "id": "aggregate",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "a5_tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "One Shadow provider: immutable ledger/report versions, independent alert sources, three-domain same-key isolation, F05 roots, current member revocation, source/download expiry and quarantine; refreshed observer cannot extend old leases or download tickets",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:19.669Z",
+      "completedAt": "2026-10-20T04:02:22.018Z",
+      "elapsedMs": 2349,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "logSha256": "sha256:02df23f3ac651cdb89e68a92c1ed7119c7b2a313bf6fc5b0d1952df0142d1ab7"
+    },
+    {
+      "id": "reconciliation",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "reconciliation::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Current C15 functionality within the aggregate: actual X05 read-only ledger/proofs, rerun CAS/idempotency/concurrency/scope/stream and retained source history",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:22.018Z",
+      "completedAt": "2026-10-20T04:02:26.036Z",
+      "elapsedMs": 4018,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/reconciliation.log",
+      "logSha256": "sha256:545ff6bae2746fe0d1ecda9ddcb9eebe745184b0081989616107979d14f0101d"
+    },
+    {
+      "id": "performance",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "performance::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Current C14 aggregate: actual X01/C15 book and provisional binding, immutable financial/report bytes, safe methods/periods, retention/authorization/recovery",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:26.036Z",
+      "completedAt": "2026-10-20T04:02:28.209Z",
+      "elapsedMs": 2173,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/performance.log",
+      "logSha256": "sha256:eb8234a25555bf9ef13c08e8bcf3434a4f341d4dec047d53e754b564d402c44a"
+    },
+    {
+      "id": "operations",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "operations::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Current C11/C16 aggregate: actual X06/F09, versioned governance/last-owner/SoD, signed capabilities, bounded Runbook, alert CAS and subscriber restoration",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:28.209Z",
+      "completedAt": "2026-10-20T04:02:30.895Z",
+      "elapsedMs": 2686,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/operations.log",
+      "logSha256": "sha256:894448d7625b9bc25f32857c8265dca1a666ece2651c14fce05da60ac2e0ffb1"
+    },
+    {
+      "id": "a2-boundary",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "reason": "Shared authentication/context/MFA and F05 unique audit roots directly exercised by the new mixed provider; no F06/F05 target gate",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:30.896Z",
+      "completedAt": "2026-10-20T04:02:33.320Z",
+      "elapsedMs": 2424,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/a2-boundary.log",
+      "logSha256": "sha256:d0b5eb6ff8779ce865cc7747e38534d8d5e6d322a2f04fb6fcd5b9e71cdc46a7"
+    },
+    {
+      "id": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--bin",
+        "bff-gateway"
+      ],
+      "reason": "One current binary for fresh58-API HTTP/generated consumers/basic Chromium, no target service installation",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:33.320Z",
+      "completedAt": "2026-10-20T04:02:33.671Z",
+      "elapsedMs": 351,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/build.log",
+      "logSha256": "sha256:4f27ac380b22e1d975eee20ce727fa8cbc09061177f6253af0777fd4de7b7506"
+    },
+    {
+      "id": "http",
+      "command": [
+        "node",
+        "scripts/test-provider-a5-http.mjs",
+        "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/aggregate-http.json"
+      ],
+      "reason": "Fresh current C15/C14/C11-C16 probes, every58 operation success401403/schema, three100-retry campaigns and basic Chromium; no borrowed receipts",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:33.671Z",
+      "completedAt": "2026-10-20T04:02:46.418Z",
+      "elapsedMs": 12747,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/http.log",
+      "logSha256": "sha256:c1a24af5a1ca0c2119dd180e3013a251a853ac0db062a4a681e2ea87ce5735a9"
+    },
+    {
+      "id": "consumers",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "apps/terminal/tests/a5-aggregate-consumer.test.ts",
+        "apps/terminal/tests/reconciliation-provider-consumer.test.ts",
+        "apps/terminal/tests/performance-provider-consumer.test.ts",
+        "apps/terminal/tests/operations-provider-consumer.test.ts",
+        "packages/api-client/tests/bff-response.test.ts",
+        "packages/api-client/tests/bff-transport.test.ts",
+        "packages/api-client/tests/sse-poc.test.ts",
+        "tests/contract",
+        "--coverage",
+        "--coverage.provider=v8",
+        "--coverage.include=apps/terminal/src/reconciliation/gateway.ts",
+        "--coverage.include=apps/terminal/src/performance/gateway.ts",
+        "--coverage.include=apps/terminal/src/operations/gateway.ts",
+        "--coverage.reporter=json-summary",
+        "--coverage.reportsDirectory=docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/consumer-coverage"
+      ],
+      "reason": "Real generated consumers on shared host plus domain cases: authoritative provisional/alert facts, immutable downloaded versions, mixed loss recovery and revocation; three critical helpers branch coverage",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:46.418Z",
+      "completedAt": "2026-10-20T04:02:49.597Z",
+      "elapsedMs": 3179,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/consumers.log",
+      "logSha256": "sha256:1386aab103c61c4059fc4b72d988a38fd0503b25abfbcd71cb4d28bac416fd0b"
+    },
+    {
+      "id": "types",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "typecheck"
+      ],
+      "reason": "Compile new A5 consumer with current generated client and pinned toolchain only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:49.598Z",
+      "completedAt": "2026-10-20T04:02:51.627Z",
+      "elapsedMs": 2029,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/types.log",
+      "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "lint"
+      ],
+      "reason": "Static checks for aggregate consumer and directly affected shared API boundaries",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:51.627Z",
+      "completedAt": "2026-10-20T04:02:53.358Z",
+      "elapsedMs": 1731,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/lint.log",
+      "logSha256": "sha256:eb15fc98c8f1bb5bdc954879cf828f73694786fb55fdd848d7514afb23fd0f89"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "reason": "Necessary native adapter/static validation for actual current mixed provider wiring",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:53.358Z",
+      "completedAt": "2026-10-20T04:02:53.750Z",
+      "elapsedMs": 391,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/clippy.log",
+      "logSha256": "sha256:732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd"
+    },
+    {
+      "id": "confirmation",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-009-confirmation-20261020.test.mjs",
+        "scripts/bff-fe-008-confirmation-20261020.test.mjs",
+        "scripts/bff-fe-010-confirmation-20261020.test.mjs",
+        "scripts/provider-a4-confirmation-20261020.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "reason": "Four original user replies/drafts/source/receipts only; aggregate A5 confirmation remains PENDING",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:53.750Z",
+      "completedAt": "2026-10-20T04:02:55.175Z",
+      "elapsedMs": 1425,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/confirmation.log",
+      "logSha256": "sha256:97115a60141a2b7ec66c297e8db4cddbc8595a2b8ae18df50b57b7de2d64a6ae"
+    },
+    {
+      "id": "gate-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a5-functional-gate.test.mjs"
+      ],
+      "reason": "Current source/log/API/child-byte/coverage/ref drift, historical READY/phase promotion refusals and atomic checkpoint rollback",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:02:55.176Z",
+      "completedAt": "2026-10-20T04:03:01.480Z",
+      "elapsedMs": 6304,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/gate-tests.log",
+      "logSha256": "sha256:ea3487d99b73976cc4def88552f611d51b9a5f366c358a1388d36e6980c1d9e3"
+    },
+    {
+      "id": "plan-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "reason": "A5 checkpoint-only scope and mandatory CI disposition; upstream gates remain reference-only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:03:01.480Z",
+      "completedAt": "2026-10-20T04:03:02.115Z",
+      "elapsedMs": 635,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/plan-policy.log",
+      "logSha256": "sha256:0baf2ca41d1e533d2772faf7d75b2f2303a886cf06319bec02eefef33ecc9f54"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "reason": "Two plan stage declarations consistent; full UI/target/release obligations NOT_RUN",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T04:03:02.116Z",
+      "completedAt": "2026-10-20T04:03:02.284Z",
+      "elapsedMs": 168,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    }
+  ],
+  "references": {
+    "baselineCommit": "4ed64603605edec9ded9189cead505ade0fed28a",
+    "preflight": {
+      "path": "docs/audit/evidence/provider-a5-local-20261020/preflight/bff010-before-change.json",
+      "sha256": "sha256:c47a6a65cf6f3fff4cb26946512f553c5d529beccb4267a272ac8f271df042d5"
+    },
+    "receipts": [
+      {
+        "nodeId": "FE:BFF-FE-009",
+        "path": "docs/audit/evidence/bff-fe-009-local-20261020/manifest.json",
+        "sha256": "sha256:2194db4b710ce253ab701e087587d1d72dc65c99cfbf565782289854da57f457",
+        "receiptCommit": "1e1ca813325ae3ba765c3d877efebfab45bed74b",
+        "sourceCommit": "007040fd3848f583d7534464cdc50724099ea6f4",
+        "checksVerified": 15,
+        "entrypoints": {
+          "path": "docs/audit/evidence/bff-fe-009-local-20261020/function-attempt-04/entrypoints/results.json",
+          "sha256": "sha256:8f0c9074c6275e997d351180fac8eb3b4e55ee7fc28ae5df79a2a4661bbbf430",
+          "count": 5
+        },
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED",
+        "confirmation": {
+          "status": "CONFIRMED",
+          "approver": "ProjectUser",
+          "nodeId": "FE:BFF-FE-009",
+          "approvedSourceCommit": "007040fd3848f583d7534464cdc50724099ea6f4",
+          "approvedReceiptCommit": "1e1ca813325ae3ba765c3d877efebfab45bed74b",
+          "scopeAdmission": "FUNCTION_ONLY",
+          "formalAccepted": false,
+          "runtimeAdmission": "DENIED",
+          "currentHeadAcceptance": "NOT_CLAIMED",
+          "upstreamAdmission": "NOT_CLAIMED"
+        }
+      },
+      {
+        "nodeId": "FE:BFF-FE-008",
+        "path": "docs/audit/evidence/bff-fe-008-local-20261020/manifest.json",
+        "sha256": "sha256:bfc755b5a41e9d22d0bfbe2761d790bca97fdacb847d2a3f3e2ca0cd8d19e154",
+        "receiptCommit": "5f82e72a36ede5af82b2c573527b18050614c249",
+        "sourceCommit": "b20efc3054c51933a706b8ac4132dd4316b5c71d",
+        "checksVerified": 15,
+        "entrypoints": {
+          "path": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/entrypoints/results.json",
+          "sha256": "sha256:9ad28213389b0cd37eb5205dba3eb079b23d54f59d18d38d2ac377c67b4d4cc7",
+          "count": 6
+        },
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED",
+        "confirmation": {
+          "status": "CONFIRMED",
+          "approver": "ProjectUser",
+          "nodeId": "FE:BFF-FE-008",
+          "approvedSourceCommit": "b20efc3054c51933a706b8ac4132dd4316b5c71d",
+          "approvedReceiptCommit": "5f82e72a36ede5af82b2c573527b18050614c249",
+          "scopeAdmission": "FUNCTION_ONLY",
+          "formalAccepted": false,
+          "runtimeAdmission": "DENIED",
+          "currentHeadAcceptance": "NOT_CLAIMED",
+          "upstreamAdmission": "NOT_CLAIMED"
+        }
+      },
+      {
+        "nodeId": "FE:BFF-FE-010",
+        "path": "docs/audit/evidence/bff-fe-010-local-20261020/manifest.json",
+        "sha256": "sha256:32b1cea100bba6eb34e5621c13b2344fb3b73a35f6030f21dd456951fde66e60",
+        "receiptCommit": "4ed64603605edec9ded9189cead505ade0fed28a",
+        "sourceCommit": "3152db47dbe1f7a56805bf95c4f897b79e384ee3",
+        "checksVerified": 18,
+        "entrypoints": {
+          "path": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/entrypoints/results.json",
+          "sha256": "sha256:632f12ceeaddd9bf89c1d5895dd3adc2c38833a1d06049f4ddef2c4e65f229d9",
+          "count": 7
+        },
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED",
+        "confirmation": {
+          "status": "CONFIRMED",
+          "approver": "ProjectUser",
+          "nodeId": "FE:BFF-FE-010",
+          "approvedSourceCommit": "3152db47dbe1f7a56805bf95c4f897b79e384ee3",
+          "approvedReceiptCommit": "4ed64603605edec9ded9189cead505ade0fed28a",
+          "scopeAdmission": "FUNCTION_ONLY",
+          "formalAccepted": false,
+          "runtimeAdmission": "DENIED",
+          "currentHeadAcceptance": "NOT_CLAIMED",
+          "upstreamAdmission": "NOT_CLAIMED"
+        }
+      },
+      {
+        "nodeId": "PROVIDER:A4",
+        "path": "docs/audit/evidence/provider-a4-local-20261020/manifest.json",
+        "sha256": "sha256:429def0e5cb4be5ba0ee2fdcef55a1dc3491a2d362c931c85afb8ad5bd6e3910",
+        "receiptCommit": "4085bdefff5890b12161fc865bbf10692171a440",
+        "sourceCommit": "1297bc3bdc511195820ea000da064fdd8e16f088",
+        "checksVerified": 16,
+        "entrypoints": {
+          "path": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/entrypoints/results.json",
+          "sha256": "sha256:5893f527c70d8be32f5ccf0979f3701115e5d5631bde561608b124c0d13311b8",
+          "count": 7
+        },
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED",
+        "confirmation": {
+          "status": "CONFIRMED",
+          "approver": "ProjectUser",
+          "nodeId": "PROVIDER:A4",
+          "approvedSourceCommit": "1297bc3bdc511195820ea000da064fdd8e16f088",
+          "approvedReceiptCommit": "4085bdefff5890b12161fc865bbf10692171a440",
+          "scopeAdmission": "FUNCTION_ONLY",
+          "formalAccepted": false,
+          "runtimeAdmission": "DENIED",
+          "currentHeadAcceptance": "NOT_CLAIMED",
+          "upstreamAdmission": "NOT_CLAIMED"
+        }
+      }
+    ],
+    "upstreamAdmission": "NOT_CLAIMED"
+  },
+  "stats": {
+    "rust": {
+      "total": 84,
+      "groups": {
+        "aggregate": 7,
+        "reconciliation": 18,
+        "performance": 10,
+        "operations": 20,
+        "a2-boundary": 29
+      }
+    },
+    "node": {
+      "total": 218,
+      "groups": {
+        "confirmation": 85,
+        "gate-tests": 57,
+        "plan-policy": 76
+      }
+    },
+    "consumer": {
+      "tests": 49,
+      "files": 10
+    },
+    "http": {
+      "operations": 58,
+      "records": 637,
+      "statuses": {
+        "200": 266,
+        "201": 7,
+        "202": 203,
+        "204": 2,
+        "401": 62,
+        "403": 63,
+        "404": 7,
+        "409": 19,
+        "422": 8
+      },
+      "domains": {
+        "reconciliation": {
+          "operations": 7,
+          "records": 147,
+          "browser": "PASS",
+          "repeatCount": 100
+        },
+        "performance": {
+          "operations": 8,
+          "records": 146,
+          "browser": "PASS",
+          "repeatCount": 100
+        },
+        "operations": {
+          "operations": 43,
+          "records": 344,
+          "browser": "PASS",
+          "repeatCount": 100
+        }
+      }
+    },
+    "coverage": {
+      "total": {
+        "lines": {
+          "total": 68,
+          "covered": 68,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 126,
+          "covered": 126,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 28,
+          "covered": 28,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 101,
+          "covered": 101,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/operations/gateway.ts": {
+        "lines": {
+          "total": 27,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 13,
+          "covered": 13,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 56,
+          "covered": 56,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 46,
+          "covered": 46,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/performance/gateway.ts": {
+        "lines": {
+          "total": 21,
+          "covered": 21,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 6,
+          "covered": 6,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 33,
+          "covered": 33,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 32,
+          "covered": 32,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/reconciliation/gateway.ts": {
+        "lines": {
+          "total": 20,
+          "covered": 20,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 9,
+          "covered": 9,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 37,
+          "covered": 37,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 23,
+          "covered": 23,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "entrypoints": 8,
+    "historyFiles": 54386
+  },
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "confirmation": "PENDING",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "upstreamAdmission": "NOT_CLAIMED",
+  "earlierAttempts": [
+    "docs/audit/evidence/provider-a5-local-20261020/function-attempt-01/disposition.json"
+  ],
+  "preflightFailures": [
+    "docs/audit/evidence/provider-a5-local-20261020/preflight/inventory-attempt-01.json",
+    "docs/audit/evidence/provider-a5-local-20261020/preflight/aggregate-test-attempt-01.json"
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "schema": "quantos-a5-control-matrix/v1",
+  "sourceCommit": "5fb5b6aa52fbfb604e009d1e818826114ead155a",
+  "inputDigest": "sha256:6a47cc9783665af84551b1a398ce81bae92969fe67fa9b548d027ea67f8e0e62",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "58 owned operation contracts",
+      "checkId": "contract",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/contract.log",
+      "assertion": "58 C11/C14/C15/C16 operations",
+      "verifiedBehavior": "7 C15 +8 C14 +43 C11/C16; registered owners, strict schemas, safe surface",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C02",
+      "control": "Exact generated artifacts",
+      "checkId": "generated",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/generated.log",
+      "assertion": "BFF generated artifacts match",
+      "verifiedBehavior": "Compatible v1 six generated artifacts remain exact",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C03",
+      "control": "governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C04",
+      "control": "member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C05",
+      "control": "poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C06",
+      "control": "renewed_observer_does_not_extend_old_leases_or_report_tickets",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "renewed_observer_does_not_extend_old_leases_or_report_tickets ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C07",
+      "control": "same_key_across_domains_has_distinct_receipts_and_single_audit_roots",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "same_key_across_domains_has_distinct_receipts_and_single_audit_roots ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C08",
+      "control": "shared_governance_quarantine_refuses_frozen_downloads_and_recovery",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "shared_governance_quarantine_refuses_frozen_downloads_and_recovery ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C09",
+      "control": "stale_observer_and_expired_download_never_turn_into_successful_recovery",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/aggregate.log",
+      "assertion": "stale_observer_and_expired_download_never_turn_into_successful_recovery ... ok",
+      "verifiedBehavior": "Same owned Shadow provider actual composition; assertions in services/bff-gateway/src/a5_tests.rs",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C10",
+      "control": "C15 current function",
+      "checkId": "reconciliation",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/reconciliation.log",
+      "assertion": null,
+      "verifiedBehavior": "Read-only X05 ledger, append-only source/history, source authority, CAS, stream and original cursor expiry",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C11",
+      "control": "C14 current function",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/performance.log",
+      "assertion": null,
+      "verifiedBehavior": "X01/C15 financial versions, immutable reports/download time/audit bindings, expiry/capacity/recovery",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C12",
+      "control": "C11/C16 current function",
+      "checkId": "operations",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/operations.log",
+      "assertion": null,
+      "verifiedBehavior": "X06/F09 facts, safe Runbook/governance/SoD, tombstone, empty filtering and expired read leases",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C13",
+      "control": "Shared session and audit",
+      "checkId": "a2-boundary",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/a2-boundary.log",
+      "assertion": null,
+      "verifiedBehavior": "Authentication/MFA/current permissions; actual F05 action roots and redaction",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C14",
+      "control": "Current generated consumer",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/consumers.log",
+      "assertion": null,
+      "verifiedBehavior": "Same host mixed lost replies, immutable downloaded facts and current multi-domain revocation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C15",
+      "control": "Executable",
+      "checkId": "build",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/build.log",
+      "assertion": null,
+      "verifiedBehavior": "One offline BFF binary built for all current probes",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C16",
+      "control": "Typecheck",
+      "checkId": "types",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/types.log",
+      "assertion": null,
+      "verifiedBehavior": "Current generated client and terminal compile",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C17",
+      "control": "Lint",
+      "checkId": "lint",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/lint.log",
+      "assertion": null,
+      "verifiedBehavior": "API client and terminal static checks",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C18",
+      "control": "Clippy",
+      "checkId": "clippy",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/clippy.log",
+      "assertion": null,
+      "verifiedBehavior": "Native shared provider warnings denied",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C19",
+      "control": "Four original confirmations",
+      "checkId": "confirmation",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/confirmation.log",
+      "assertion": null,
+      "verifiedBehavior": "Original user reply/draft/source/receipt binding; current A5 approval PENDING",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C20",
+      "control": "Gate refusal tests",
+      "checkId": "gate-tests",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/gate-tests.log",
+      "assertion": null,
+      "verifiedBehavior": "Hash/source/log/coverage/phase drift, omitted expiry/quarantine and atomic publication rollback",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C21",
+      "control": "Stage policy and mandatory CI",
+      "checkId": "plan-policy",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/plan-policy.log",
+      "assertion": null,
+      "verifiedBehavior": "Scoped A5 only; upstream READY not borrowed",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C22",
+      "control": "Plan consistency",
+      "checkId": "plans",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/plans.log",
+      "assertion": null,
+      "verifiedBehavior": "Both plans and machine policy agree",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C23",
+      "control": "reconciliation HTTP/Chromium",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Fresh frozen-source child: 7 APIs/147 HTTP; every operation success401403/schema, 100 retries and basic Chromium; not complete UI",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C24",
+      "control": "performance HTTP/Chromium",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Fresh frozen-source child: 8 APIs/146 HTTP; every operation success401403/schema, 100 retries and basic Chromium; not complete UI",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C25",
+      "control": "operations HTTP/Chromium",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/function-attempt-02/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Fresh frozen-source child: 43 APIs/344 HTTP; every operation success401403/schema, 100 retries and basic Chromium; not complete UI",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C26",
+      "control": "Historical byte preservation",
+      "evidence": "docs/audit/evidence/provider-a5-local-20261020/history-preservation.json",
+      "status": "PASS",
+      "verifiedBehavior": "54386 original tracked audit/gate files unchanged",
+      "scope": "REFERENCE_PRESERVATION_NOT_REVALIDATION"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}

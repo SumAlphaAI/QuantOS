@@ -1,4 +1,8 @@
-> 当前工程结果（FE:BFF-FE-010/A5，2026-10-20）：冻结3152db47，1146输入、18组/7入口PASS；Rust53、Node194、consumer/契约46，43API/342条HTTP及基本Chromium通过。修复分页/stream期限恢复、tombstone、合法空集过滤及首帧状态；参考种子时钟统一，38控制点。54,289份原audit/gate保持，两轮FAIL保留。仅BFF010_SCOPE_LOCAL DEVELOPMENT READY；C14原稿CONFIRMED，七前置不重授。完整联调/发布NOT_RUN、runtime DENIED，新稿PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-010-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:A5当前汇总。
+> 当前工程结果（PROVIDER:A5，2026-10-20）：冻结5fb5b6aa，1169输入、17组/8入口PASS；Rust84、Node218、consumer/契约49，58API/637条当前HTTP与三个基本Chromium，26限定控制点。旧凭据不随observer续期及共享quarantine跨域拒绝通过。54,386份原audit/gate保持，沙箱FAIL/预检失败保留；仅A5_SCOPE_LOCAL DEVELOPMENT READY，四前置只引用原确认，新汇总稿PENDING，完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A5-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a5-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-002/A6。
+
+> 用户确认（FE:BFF-FE-010，2026-10-20）：原完整稿CONFIRMED，仅3152db47/4ed64603原1146输入。共享输入变化后独立当前Gate NOT_ASSESSED；原稿/回执保持。见[记录](./audit/evidence/bff-fe-010-confirmation-20261020/summary.md)。
+
+> 历史工程结果（FE:BFF-FE-010/A5，2026-10-20）：冻结3152db47，1146输入、18组/7入口PASS；Rust53、Node194、consumer/契约46，43API/342条HTTP及基本Chromium通过。修复分页/stream期限恢复、tombstone、合法空集过滤及首帧状态；参考种子时钟统一，38控制点。54,289份原audit/gate保持，两轮FAIL保留。仅BFF010_SCOPE_LOCAL DEVELOPMENT READY；C14原稿CONFIRMED，七前置不重授。完整联调/发布NOT_RUN、runtime DENIED，新稿PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-010-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:A5当前汇总。
 
 > 用户确认（FE:BFF-FE-008，2026-10-20）：本会话已确认原完整稿，仅绑定b20efc30原源码、5f82e72a原稿/技术回执和1109输入，不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/bff-fe-008-confirmation-20261020/summary.md)。
 
@@ -1624,13 +1628,19 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "IN_REVIEW",
-  "source_commit": null,
-  "evidence": ["audit/evidence/provider-a5-local-20261020/preflight/baseline.json"],
+  "source_commit": "5fb5b6aa52fbfb604e009d1e818826114ead155a",
+  "evidence": [
+    "audit/evidence/provider-a5-local-20261020/manifest.json",
+    "audit/evidence/provider-a5-local-20261020/confirmation-draft.md",
+    "audit/PROVIDER-A5-functional-review-2026-10-20.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:ebfb8542147d33290e59945f05d969dd8459a7ce9529c344cd78d66e0766158e",
+    "evidence": [
+      "audit/evidence/provider-a5-local-20261020/manifest.json"
+    ]
   }
 }
 ```
