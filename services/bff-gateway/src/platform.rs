@@ -61,7 +61,7 @@ pub(crate) fn record(job: &Value, now: DateTime<Utc>, can_download: bool) -> Res
         "expired"
     } else {
         match job["status"].as_str() {
-            Some("queued" | "running") => "preparing",
+            Some("queued" | "running" | "generating" | "cancel_requested") => "preparing",
             Some("ready") => "ready",
             Some("failed" | "cancelled") => "failed",
             Some("expired") => "expired",

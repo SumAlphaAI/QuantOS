@@ -4,7 +4,7 @@ A6 的 C17/P17 当前功能只覆盖 `getPlatformCapabilities` 与 `listDownload
 
 服务端只声明 Web 策略和本机 permission state 的 unknown 边界，GET 不请求浏览器权限。客户端本机检测只缩小能力，拒绝/默认/不支持通知使用应用内提示；剪贴板不可用使用手工复制；离线禁用下载及领域动作；无本地文件导入。server security policy 字段不是对实际部署 CSP/header 的验收证明。
 
-下载历史使用既有受控审计导出源；live 查询 user/tenant/actor/workspace/account 全作用域与 audit:read，来源最多2000条、超量503拒绝。只投影安全元数据，不返回对象路径、内容、reason、水印原文、会话或签名 URL。ready 且当前具备 audit:export 才给 owner 下载动作路径；历史 expiresAt 是文件保留期限。cancelled 映射 failed，retention 到期映射 expired；读取不生成文件或票据，不把 ready 当作已经下载。
+下载历史使用既有受控审计导出源；live 查询 user/tenant/actor/workspace/account 全作用域与 audit:read，来源最多2000条、超量503拒绝。只投影安全元数据，不返回对象路径、内容、reason、水印原文、会话或签名 URL。ready 且当前具备 audit:export 才给 owner 下载动作路径；历史 expiresAt 是文件保留期限。queued/generating/cancel_requested 映射 preparing（无下载动作），cancelled 映射 failed，retention 到期映射 expired；读取不生成文件或票据，不把 ready 当作已经下载。
 
 列表 pageSize1–200，排序同值以downloadId打破平局；不透明游标绑定身份/会话/mode/作用域、查询、页大小、当前投影摘要，期限60秒且后继不续期，变更/到期/篡改422重新加载。最多512游标；进程内游标不承诺跨实例或重启恢复，范围上限适用于本开发版本。
 

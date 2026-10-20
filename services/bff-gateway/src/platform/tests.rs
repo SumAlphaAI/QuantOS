@@ -375,3 +375,28 @@ fn history_rechecks_retention_after_source_read_before_paging() {
     assert_eq!(page["items"][0]["status"], "expired");
     assert!(page["items"][0].get("downloadPath").is_none());
 }
+
+#[test]
+fn all_persisted_export_worker_states_have_safe_history_semantics() {
+    // Read the authoritative database declaration, not a copy of the projection's cases.
+    let sql = include_str!("../../../../supabase/migrations/20261006100000_bff_audit_exports.sql");
+    let values = sql
+        .split_once("status text not null check(status in (")
+        .unwrap()
+        .1
+        .split_once("))")
+        .unwrap()
+        .0;
+    let mut count = 0;
+    for state in values.split(',').map(|s| s.trim().trim_matches('\'')) {
+        let mut source = job(1);
+        source["status"] = json!(state);
+        let record = record(&source, now(), true).unwrap();
+        assert_eq!(record.get("downloadPath").is_some(), state == "ready");
+        if matches!(state, "generating" | "cancel_requested") {
+            assert_eq!(record["status"], "preparing");
+        }
+        count += 1;
+    }
+    assert_eq!(count, 7);
+}
