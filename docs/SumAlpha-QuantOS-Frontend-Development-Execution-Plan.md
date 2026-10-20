@@ -1,4 +1,4 @@
-> 当前执行（FE:BFF-FE-009/A5，2026-10-20）：复核C15七项API；差异详情的报告/day绑定与三类分页原始deadline修复纳入新候选。A4原完整稿用户CONFIRMED，共享输入变更后当前A4撤回NOT_ASSESSED；原回执与确认仅原范围。完整联调/发布NOT_RUN，新稿PENDING。
+> 当前工程结果（FE:BFF-FE-009/A5，2026-10-20）：冻结007040fd，1082输入、15组/5入口PASS；Rust65、Node158、consumer/契约46，七API/147条HTTP及基本Chromium通过。修复差异报告/day数值绑定、分页deadline及请求sort契约校验，28控制点；54,147份原audit/gate字节保持，前三轮失败/后续NOT_RUN保留。仅BFF009_SCOPE_LOCAL DEVELOPMENT READY；A4原稿用户CONFIRMED，五前置当前Gate不重授。完整联调/发布NOT_RUN、runtime DENIED，新稿PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-009-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-008 / A5当前复核。
 
 > 用户确认（PROVIDER:A4，2026-10-20）：本会话已确认原完整稿；仅绑定1297bc3b原源码、4085bdef原稿/技术回执及原输入，不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/provider-a4-confirmation-20261020/summary.md)。
 
@@ -1539,10 +1539,12 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="task-bff-fe-009"></a>
 ##### BFF-FE-009：Reconciliation 与账本 API
 
+2026-10-20当前复核：007040fd冻结候选15组/5入口PASS，仅BFF009_SCOPE_LOCAL READY，完整联调/发布NOT_RUN、确认PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-009-local-20261020/confirmation-draft.md)，原失败与五前置独立Gate不改绑。
+
 - task_id: `BFF-FE-009`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2194db4b710ce253ab701e087587d1d72dc65c99cfbf565782289854da57f457","evidence":["audit/evidence/bff-fe-009-local-20261020/manifest.json"]}
 - depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
