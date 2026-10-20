@@ -1,3 +1,5 @@
+> 当前执行（PROVIDER:A4，2026-10-20）：按最新AGENTS进行32项API当前功能汇总；共享分页有效期及只读缓存恢复修复纳入新候选。FE004原稿用户已确认；共享输入已变，组件当前Gate撤回NOT_ASSESSED，原READY/确认保留原范围。完整联调/发布NOT_RUN，新汇总确认PENDING。
+
 > 用户确认（FE:BFF-FE-004，2026-10-20）：本会话明确确认20261019原完整稿；17项确认验证通过。仅绑定20d65a86源码、787f8230原稿/技术回执与原输入；不授予当前HEAD、A4汇总或运行时准入。见[确认记录](./audit/evidence/bff-fe-004-confirmation-20261020/summary.md)。
 
 > 当前工程结果（FE:BFF-FE-004/A4，2026-10-19）：冻结20d65a86，1032输入、18组与5本机入口PASS；Rust104、Node184、consumer/契约54，12 API/1068条HTTP、1000重试和基本Chromium通过。修复首次送审事实被重写、迟到保存回复丢编辑/版本回退；保留原稿与全部历史。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；九前置不重授READY，FE006原20261019稿用户CONFIRMED但独立当前Gate仍NOT_ASSESSED，完整联调/发布NOT_RUN，runtimeAdmission=DENIED，新稿PENDING。见[报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)。下一可执行PROVIDER:A4当前汇总。
@@ -891,7 +893,7 @@
     "PROVIDER:A4": {
       "profile": "A4_SCOPE_LOCAL",
       "schema": "quantos-a4-aggregate-functional-development/v1",
-      "manifest": "audit/evidence/provider-a4-local-20261018/manifest.json",
+      "manifest": "audit/evidence/provider-a4-local-20261020/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-006",
         "FE:BFF-FE-004",
@@ -1484,7 +1486,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-004`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:92fb789a7c91ef7db34cc1f75edc622937f53cf88806e5652d8e74e4884994a6","evidence":["audit/evidence/bff-fe-004-local-20261019/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04"]
 - closes_core: []

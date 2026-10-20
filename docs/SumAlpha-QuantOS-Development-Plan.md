@@ -957,7 +957,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "PROVIDER:A4": {
       "profile": "A4_SCOPE_LOCAL",
       "schema": "quantos-a4-aggregate-functional-development/v1",
-      "manifest": "audit/evidence/provider-a4-local-20261018/manifest.json",
+      "manifest": "audit/evidence/provider-a4-local-20261020/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-006",
         "FE:BFF-FE-004",

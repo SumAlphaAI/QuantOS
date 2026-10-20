@@ -318,13 +318,13 @@ impl StrategyHost {
                 .collect::<Vec<_>>()
         ]));
         self.cursors.retain(|_, c| c.expires > now);
-        let (rows, offset) = if let Some(v) = q.get("cursor") {
+        let (rows, offset, expires) = if let Some(v) = q.get("cursor") {
             let c = self
                 .cursors
                 .get(&crate::research::uuid(v)?)
                 .filter(|c| c.binding == binding)
                 .ok_or_else(Fault::invalid)?;
-            (c.rows.clone(), c.offset)
+            (c.rows.clone(), c.offset, c.expires)
         } else {
             if let Some(filter) = q.get("filter") {
                 let v = filter.splitn(3, ':').collect::<Vec<_>>();
@@ -377,7 +377,7 @@ impl StrategyHost {
             if v[1] == "desc" {
                 rows.reverse()
             }
-            (rows, 0)
+            (rows, 0, now + Duration::minutes(5))
         };
         let end = (offset + size).min(rows.len());
         let mut result = json!({"items":rows[offset..end]});
@@ -392,7 +392,7 @@ impl StrategyHost {
                     binding,
                     rows,
                     offset: end,
-                    expires: now + Duration::minutes(5),
+                    expires,
                 },
             );
             result["nextCursor"] = json!(id)

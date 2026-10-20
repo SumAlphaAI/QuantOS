@@ -539,6 +539,7 @@ impl ExecutionService {
         mut rows: Vec<Value>,
         now: DateTime<Utc>,
     ) -> Result<Value> {
+        self.cursors.retain(|_, c| now < c.expires);
         let actor = digest(&json!([
             a.tenant_id,
             a.actor_id,
@@ -563,7 +564,7 @@ impl ExecutionService {
         if !(1..=200).contains(&size) {
             return Err(Fault::invalid());
         }
-        let offset = if let Some(c) = cursor {
+        let (offset, expires) = if let Some(c) = cursor {
             let c = self
                 .cursors
                 .get(&crate::research::uuid(&c)?)
@@ -572,7 +573,7 @@ impl ExecutionService {
                 return Err(conflict());
             }
             rows = c.rows.clone();
-            c.offset
+            (c.offset, c.expires)
         } else {
             if let Some(f) = q.get("filter") {
                 let parts: Vec<_> = f.splitn(3, ':').collect();
@@ -596,7 +597,7 @@ impl ExecutionService {
                     rows.reverse();
                 }
             }
-            0
+            (0, now + Duration::minutes(5))
         };
         let end = (offset + size).min(rows.len());
         let mut out = json!({"items":rows[offset..end]});
@@ -612,7 +613,7 @@ impl ExecutionService {
                     query,
                     rows,
                     offset: end,
-                    expires: now + Duration::minutes(5),
+                    expires,
                 },
             );
             out["nextCursor"] = json!(id);

@@ -448,3 +448,158 @@ async fn mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_rep
         "revoked strategy capability leaked frozen strategy approval: {replay:?}"
     );
 }
+
+// Exercise both owned services with the same trusted actor and deterministic time.
+// This tests the deadline contract without sleeping or treating elapsed time as performance evidence.
+async fn approval_page_at(
+    p: &BffProvider,
+    mixed: bool,
+    cursor: Option<&str>,
+    now: chrono::DateTime<Utc>,
+) -> Result<Value, crate::research::Fault> {
+    let mut auth = strategy::reference_auth(CURRENT_SESSION);
+    let mut q = std::collections::BTreeMap::from([
+        ("sort".into(), "approvalId:asc".into()),
+        ("pageSize".into(), "1".into()),
+    ]);
+    if let Some(cursor) = cursor {
+        q.insert("cursor".into(), cursor.into());
+    }
+    let mut state = p.data.lock().await;
+    if mixed {
+        auth.capabilities.insert(
+            quantos_policy::Capability::parse(quantos_policy::Capability::EXECUTION_OPERATE)
+                .unwrap(),
+        );
+        let linked = state
+            .strategy
+            .as_ref()
+            .unwrap()
+            .checked_approvals(&auth, now)?;
+        let service = state.execution.as_mut().unwrap();
+        service.linked_approvals = linked;
+        service
+            .handle(
+                &auth,
+                "trusted-reader",
+                &axum::http::Method::GET,
+                "/v1/approvals",
+                &q,
+                &axum::http::HeaderMap::new(),
+                &json!({}),
+                None,
+                now,
+            )
+            .map(|(_, v)| v)
+    } else {
+        state
+            .strategy
+            .as_mut()
+            .unwrap()
+            .handle(
+                &auth,
+                "trusted-reader",
+                &axum::http::Method::GET,
+                "/v1/approvals",
+                &q,
+                &axum::http::HeaderMap::new(),
+                &json!({}),
+                None,
+                now,
+            )
+            .map(|(_, v)| v)
+    }
+}
+
+#[tokio::test]
+async fn mixed_and_strategy_cursor_chains_keep_original_snapshot_deadline() {
+    for mixed in [true, false] {
+        let p = BffProvider::default();
+        let mut approvals = std::collections::BTreeSet::new();
+        for _ in 0..3 {
+            let (draft, _, ack) = strategy_pending(&p).await;
+            approvals.insert(ack["jobId"].as_str().unwrap().to_owned());
+            let (status, saved) = call(
+                &p,
+                "PUT",
+                &format!(
+                    "/v1/strategies/{}/draft",
+                    draft["strategyId"].as_str().unwrap()
+                ),
+                Some(json!({"files":draft["files"],"parameters":draft["parameters"]})),
+                CURRENT_SESSION,
+                Uuid::new_v4(),
+                draft["objectVersion"].as_str().unwrap(),
+            )
+            .await;
+            assert_eq!(status, 200, "{saved}");
+        }
+        assert_eq!(
+            approvals.len(),
+            3,
+            "test requires three genuine distinct approvals"
+        );
+        if mixed {
+            risk_pending(&p, Uuid::new_v4()).await;
+        }
+        let now = Utc::now();
+        let first = approval_page_at(&p, mixed, None, now).await.unwrap();
+        let second = approval_page_at(
+            &p,
+            mixed,
+            first["nextCursor"].as_str(),
+            now + chrono::Duration::minutes(4),
+        )
+        .await
+        .unwrap();
+        let cursor = second["nextCursor"]
+            .as_str()
+            .expect("third row must remain");
+        let third = approval_page_at(
+            &p,
+            mixed,
+            Some(cursor),
+            now + chrono::Duration::seconds(270),
+        )
+        .await
+        .unwrap();
+        assert_ne!(
+            second["items"][0]["approvalId"],
+            third["items"][0]["approvalId"]
+        );
+        let expired = approval_page_at(
+            &p,
+            mixed,
+            Some(cursor),
+            now + chrono::Duration::seconds(301),
+        )
+        .await
+        .unwrap_err();
+        assert_eq!(expired.0.as_u16(), if mixed { 409 } else { 422 });
+    }
+}
+
+#[tokio::test]
+async fn mixed_cursor_capacity_recovers_after_expiry_without_write() {
+    let p = BffProvider::default();
+    strategy_pending(&p).await;
+    risk_pending(&p, Uuid::new_v4()).await;
+    let now = Utc::now();
+    for _ in 0..2000 {
+        let page = approval_page_at(&p, true, None, now).await.unwrap();
+        assert!(page["nextCursor"].is_string());
+    }
+    assert_eq!(
+        approval_page_at(&p, true, None, now)
+            .await
+            .unwrap_err()
+            .0
+            .as_u16(),
+        429
+    );
+    let recovered = approval_page_at(&p, true, None, now + chrono::Duration::minutes(6))
+        .await
+        .unwrap();
+    assert!(recovered["nextCursor"].is_string());
+    assert_eq!(recovered["items"].as_array().unwrap().len(), 1);
+}

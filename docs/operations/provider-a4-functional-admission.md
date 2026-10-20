@@ -11,3 +11,5 @@ HTTP父探针重新执行execution20、strategy12两个当前源码API探针，�
 显式Paper和Strategy宿主为独立可信输入的进程内租约。页面批准Release不签发TradeCommand；不宣称该Release已通过真实worker/部署安装进执行账户，该完整部署/信号业务链归INTEGRATION。rollback仅请求，不部署；Shadow只读/kill且不dispatch；无venue submit。真实Supabase/Auth/MFA/RLS/Storage、跨实例/重启持久事务恢复、持续feed/许可撤权/密钥/OS隔离、完整P06-P11/P20及G3/G5/FEP3/FEP5链、性能容量长稳/部署/同SHA hosted CI和正式发布均NOT_RUN；保留S02/X01 f64与固定USD/非零异币费用拒绝边界。runtimeAdmission=DENIED，formalAccepted=false，不使用生产凭据或外部发布。
 
 A4_STAGE_GATE仅更新PROVIDER:A4；修改共享源码后组件当前READY撤回NOT_ASSESSED，原确认回执保留原范围。`pnpm check:provider-a4:development`严格验证当前证据；`pnpm check:provider-a4:ci`检查阶段处置，READY时调用同一verifier。UI/staging/正式验收分账，不抬高本机结果用途。
+
+2026-10-20 当前汇总：使用 bff-fe-006-local-20261019、bff-fe-004-local-20261019 和 provider-a3-local-20261018 三份原回执及各自人工确认。新证据独立写入 provider-a4-local-20261020，不覆盖20261018汇总。共享执行/策略分页的所有后继游标继承最初快照的五分钟deadline，翻页不能续期；执行分页在只读请求中清理过期缓存，达到2000上限返回429后，无写入也可在过期后恢复。A4用受控时钟验证两条分页路径及容量恢复，不声称性能或目标环境验收。当前OpenAPI保持v1兼容边界，仍严格核对32项归属、生成产物与契约兼容。
