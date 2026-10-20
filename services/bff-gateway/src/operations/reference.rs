@@ -18,6 +18,16 @@ pub(crate) fn seed(shadow: bool, now: DateTime<Utc>) -> OperationsHost {
         PaperKernel::resting("100"),
     )
     .unwrap();
+    // This owned seed uses the caller's clock, including on a cold image-hash
+    // initialization. Do not let later fixture materialization put X01 events
+    // after the observation that initializes the service.
+    let shift = now - f.now;
+    for event in &mut f.events {
+        event.occurred_at += shift;
+        if let quantos_portfolio::PortfolioEventKind::MarketMark(mark) = &mut event.kind {
+            mark.source_at += shift;
+        }
+    }
     let scope = Scope {
         tenant_id: owner.tenant_id,
         workspace_id: owner.workspace_id,
@@ -37,7 +47,7 @@ pub(crate) fn seed(shadow: bool, now: DateTime<Utc>) -> OperationsHost {
             scope: scope.clone(),
             quote_unit: "USD".into(),
             observer: observer.actor_id,
-            started_at: f.now - Duration::seconds(6),
+            started_at: now - Duration::seconds(6),
             max_actions: 4096,
         },
         f.events,

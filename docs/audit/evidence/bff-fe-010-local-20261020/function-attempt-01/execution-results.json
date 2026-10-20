@@ -1,0 +1,67 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-010-boundary.mjs"
+    ],
+    "reason": "43 C11/C16 operations contracts and existing compatibility/page register; no old component gates",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T03:08:44.363Z",
+    "completedAt": "2026-10-20T03:08:45.081Z",
+    "elapsedMs": 718,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-01/logs/contract.log",
+    "logSha256": "sha256:3e540e930a8ec108b0367cd388ca5012bb66ade6945334711b81da787ecf97c8"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Current compatible OpenAPI1.x six exact client/Zod/schema/MSW/input artifacts",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T03:08:45.081Z",
+    "completedAt": "2026-10-20T03:08:45.759Z",
+    "elapsedMs": 678,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:c1390fc8638807a552644a1f906b834fb2e4d7cda9cb095ffe9a1ff141fccc3e"
+  },
+  {
+    "id": "operations",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "operations::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "reason": "Actual X06/F09 health/alert/incident/runbook and governance lease; atomic versioned CRUD, last-admin/SoD/current permissions, retry/concurrency/source expiry/cursor/stream/quarantine; original snapshot deadline, expired read leases recover, deleted-resource mutation refuses",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T03:08:45.760Z",
+    "completedAt": "2026-10-20T03:08:55.603Z",
+    "elapsedMs": 9843,
+    "exitCode": 101,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-01/logs/operations.log",
+    "logSha256": "sha256:5ed2a09dd8278f459681d9c0c2fec0c68230ff97016190811fb83b730f29120b"
+  }
+]

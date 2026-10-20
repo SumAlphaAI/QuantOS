@@ -1109,3 +1109,35 @@ fn deleted_governance_resource_cannot_be_restored_or_deleted_again() {
     assert!(h.gov.entries[&id].deleted);
     assert_eq!(h.gov.entries[&id].version, 1);
 }
+
+#[test]
+fn reference_seed_uses_requested_clock_before_materialization() {
+    let requested = Utc::now() - Duration::seconds(10);
+    let mut host = reference::seed(false, requested);
+    let a = governance::reference_auth(crate::CURRENT_SESSION, false);
+    let health = read_page_at(
+        &mut host,
+        &a,
+        "/v1/operations/health",
+        &BTreeMap::new(),
+        requested,
+    )
+    .unwrap();
+    assert_eq!(health["asOf"], json!(requested));
+    assert_eq!(
+        health["expiresAt"],
+        json!(requested + Duration::seconds(30))
+    );
+    assert_eq!(
+        read_page_at(
+            &mut host,
+            &a,
+            "/v1/operations/health",
+            &BTreeMap::new(),
+            requested + Duration::seconds(31)
+        )
+        .unwrap_err()
+        .1,
+        "STALE_OBSERVATION"
+    );
+}
