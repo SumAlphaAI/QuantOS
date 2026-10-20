@@ -959,3 +959,153 @@ fn last_admin_retains_both_read_and_write_access_after_capability_or_policy_chan
     )
     .unwrap();
 }
+
+fn read_page_at(
+    h: &mut OperationsHost,
+    a: &AuthContext,
+    path: &str,
+    query: &BTreeMap<String, String>,
+    now: DateTime<Utc>,
+) -> Result<Value> {
+    h.handle(
+        a,
+        "s",
+        &Method::GET,
+        path,
+        query,
+        &HeaderMap::new(),
+        &json!({}),
+        None,
+        now,
+    )
+    .map(|(_, v)| v)
+}
+
+#[test]
+fn cursor_chain_keeps_deadline_and_expired_capacity_recovers_without_writes() {
+    let (mut h, owner, _, n) = setup();
+    let path = "/v1/admin/roles";
+    let mut query = BTreeMap::from([("pageSize".into(), "1".into())]);
+    let first = read_page_at(&mut h, &owner, path, &query, n).unwrap();
+    query.insert(
+        "cursor".into(),
+        first["nextCursor"].as_str().unwrap().into(),
+    );
+    let second = read_page_at(&mut h, &owner, path, &query, n + Duration::minutes(4)).unwrap();
+    query.insert(
+        "cursor".into(),
+        second["nextCursor"].as_str().unwrap().into(),
+    );
+    let third = read_page_at(&mut h, &owner, path, &query, n + Duration::seconds(270)).unwrap();
+    assert_ne!(second["items"], third["items"]);
+    let expired = n + Duration::minutes(5);
+    assert_eq!(
+        read_page_at(&mut h, &owner, path, &query, expired)
+            .unwrap_err()
+            .1,
+        "CURSOR_EXPIRED"
+    );
+    query.remove("cursor");
+    for _ in 0..1000 {
+        read_page_at(&mut h, &owner, path, &query, expired).unwrap();
+    }
+    assert_eq!(
+        read_page_at(&mut h, &owner, path, &query, expired)
+            .unwrap_err()
+            .0,
+        StatusCode::TOO_MANY_REQUESTS
+    );
+    assert!(read_page_at(&mut h, &owner, path, &query, expired + Duration::minutes(5)).is_ok());
+    assert_eq!(h.gov.version, 0);
+    assert!(h.replays.is_empty());
+}
+
+#[test]
+fn expired_stream_capacity_recovers_with_fresh_source_and_old_lease_refuses() {
+    let (mut h, _, a, n) = setup();
+    let path = "/v1/alerts/stream";
+    let query = BTreeMap::new();
+    let mut first = Value::Null;
+    for index in 0..1000 {
+        let page = read_page_at(&mut h, &a, path, &query, n).unwrap();
+        if index == 0 {
+            first = page;
+        }
+    }
+    assert_eq!(
+        read_page_at(&mut h, &a, path, &query, n).unwrap_err().0,
+        StatusCode::TOO_MANY_REQUESTS
+    );
+    let later = n + Duration::minutes(5);
+    assert_eq!(
+        read_page_at(&mut h, &a, path, &query, later).unwrap_err().1,
+        "STALE_OBSERVATION"
+    );
+    reference::renew(&mut h, false, later, true).unwrap();
+    let next = read_page_at(&mut h, &a, path, &query, later).unwrap();
+    assert_ne!(first["streamId"], next["streamId"]);
+    let old = BTreeMap::from([(
+        "streamId".into(),
+        first["streamId"].as_str().unwrap().into(),
+    )]);
+    assert_eq!(
+        read_page_at(&mut h, &a, path, &old, later).unwrap_err().1,
+        "STREAM_EXPIRED"
+    );
+    assert_eq!(h.streams.len(), 1);
+    assert_eq!(h.gov.version, 0);
+    assert!(h.replays.is_empty());
+}
+
+#[test]
+fn deleted_governance_resource_cannot_be_restored_or_deleted_again() {
+    let (mut h, owner, _, n) = setup();
+    let spec = json!({"spec":{"kind":"role","name":"tombstone-role","baseRole":"operator","permissions":["ops.read"]}});
+    let created = call(
+        &mut h,
+        &owner,
+        Method::POST,
+        "/v1/admin/roles",
+        "0",
+        spec.clone(),
+        n,
+    )
+    .unwrap()
+    .1;
+    let path = format!("/v1/admin/roles/{}", created["id"].as_str().unwrap());
+    let tombstone = call(&mut h, &owner, Method::DELETE, &path, "0", json!({}), n)
+        .unwrap()
+        .1;
+    let before = (h.gov.version, h.events.len(), h.replays.len());
+    for (method, body) in [(Method::PUT, spec.clone()), (Method::DELETE, json!({}))] {
+        assert_eq!(
+            call(&mut h, &owner, method, &path, "1", body, n)
+                .unwrap_err()
+                .0,
+            StatusCode::NOT_FOUND
+        );
+        assert_eq!(
+            read_page_at(&mut h, &owner, &path, &BTreeMap::new(), n).unwrap()["deleted"],
+            true
+        );
+        assert_eq!((h.gov.version, h.events.len(), h.replays.len()), before);
+    }
+    let current = h.gov.version.to_string();
+    assert_eq!(
+        call(
+            &mut h,
+            &owner,
+            Method::POST,
+            "/v1/admin/roles",
+            &current,
+            spec,
+            n
+        )
+        .unwrap_err()
+        .1,
+        "RESOURCE_EXISTS"
+    );
+    let id = parse(tombstone["id"].as_str().unwrap()).unwrap();
+    assert!(h.gov.entries[&id].deleted);
+    assert_eq!(h.gov.entries[&id].version, 1);
+}

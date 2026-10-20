@@ -441,7 +441,8 @@ impl OperationsHost {
         let mut b = q.clone();
         b.remove("cursor");
         let binding = digest(&json!([self.binding(a, session), path, b]));
-        let offset = if let Some(c) = q.get("cursor") {
+        self.cursors.retain(|_, cursor| now < cursor.expires);
+        let (offset, expires) = if let Some(c) = q.get("cursor") {
             let c = self
                 .cursors
                 .get(&parse(c)?)
@@ -450,7 +451,7 @@ impl OperationsHost {
                 return Err(fault(409, "CURSOR_SCOPE_CONFLICT"));
             }
             rows = c.rows.clone();
-            c.offset
+            (c.offset, c.expires)
         } else {
             for key in ["status", "domain", "severity", "active", "kind"] {
                 if let Some(v) = q.get(key) {
@@ -467,7 +468,7 @@ impl OperationsHost {
             if q.get("sort").is_some_and(|s| s == "id:desc") {
                 rows.reverse()
             }
-            0
+            (0, now + Duration::minutes(5))
         };
         let end = (offset + size).min(rows.len());
         let next = if end < rows.len() {
@@ -481,7 +482,7 @@ impl OperationsHost {
                     binding,
                     rows: rows.clone(),
                     offset: end,
-                    expires: now + Duration::minutes(5),
+                    expires,
                 },
             );
             Some(id)
@@ -928,6 +929,7 @@ impl OperationsHost {
                     .unwrap_or(0);
                 let subscription = self.subscription(&subkey);
                 let stream_binding = digest(&json!([binding, subscription]));
+                self.streams.retain(|_, lease| now < lease.expires);
                 let sid = if let Some(s) = q.get("streamId") {
                     let sid = parse(s)?;
                     let l = self

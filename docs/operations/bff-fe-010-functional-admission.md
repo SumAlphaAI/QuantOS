@@ -17,3 +17,9 @@ Runbook仅既有X06 `inspect-health` / `inspect-evidence`；后者还须真实�
 consumer只消费服务端事实，mutation receipt不乐观resolve；校验结构、资源范围、ack证据与SSE去重/gap/撤权。
 
 完整P02/P13/P14/P23 UI、G6/FEP6业务联调、真实Supabase/Auth/MFA/RLS/Storage、F06治理持久写回、F05/outbox持久原子性、真实F09/X05观察来源、持久跨实例/重启恢复、性能/容量/长稳/部署/同SHA hosted CI与正式发布全部NOT_RUN，移交RELEASE-GATE:BETA。当前完整用户确认PENDING，formalAccepted=false，runtimeAdmission=DENIED。不得使用生产凭据、venue submit或外部发布。
+
+2026-10-20当前复核：独立写入bff-fe-010-local-20261020；C14/C15/A4原确认分别绑定b20efc30/5f82e72a、007040fd/1e1ca813、1297bc3b/4085bdef，只核验原范围，18组当前检查、7个实际入口。
+
+共享分页的后继cursor继承初始五分钟deadline，不得通过翻页续期；分页读取清理过期cursor。stream仍要求30秒内可信观察，清理过期stream后可重新开租约，旧ID409，不把缓存恢复变成陈旧源放行。治理tombstone可读但不可经PUT/DELETE恢复或再次删除，404拒绝且configVersion/版本/回执不变；同名创建继续409，不能绕过删除历史。
+
+AlertFacts在首帧结构、账户、stream一致性和序列校验全部通过且实际apply后才提交新stream绑定；错误账户或gap首帧不改变stream/sequence/rows，随后正常首帧可恢复。显式opened(header)仍代表已建立服务端租约，后续其他stream拒绝。权限撤销继续清空事实，不乐观resolve。期限/容量循环属于有界正确性验证，不作为性能准入。

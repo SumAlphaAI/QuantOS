@@ -28,10 +28,11 @@ export class AlertFacts {
   if(this.reducer.isClosed)throw Error("Alert permission revoked");
   const e=bffZodSchemas.StreamEvent.parse(raw);
   if(e.payload.type==="permission_revoked"){this.revoke();return"revoked";}
-  this.opened(e.streamId);const row=alertFact(e.payload,this.accountId);const action=this.reducer.accept(raw);
+  if(this.stream&&this.stream!==e.streamId)throw Error("Alert stream lease changed");
+  const row=alertFact(e.payload,this.accountId);const action=this.reducer.accept(raw);
   if(action.type==="gap")throw Error("Alert stream gap");
   if(action.type!=="apply")return"ignored";
-  this.rows.set(row.alertId,row);return"applied";
+  this.stream=e.streamId;this.rows.set(row.alertId,row);return"applied";
  }
  url(base:string){const u=new URL('/v1/alerts/stream',base);u.searchParams.set('afterSequence',String(this.afterSequence));if(this.stream)u.searchParams.set('streamId',this.stream);return u.toString();}
 }

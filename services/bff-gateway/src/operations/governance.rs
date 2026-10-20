@@ -302,7 +302,7 @@ impl Governance {
             self.version
         } else {
             old.as_ref()
-                .filter(|e| e.spec.kind() == kind)
+                .filter(|e| !e.deleted && e.spec.kind() == kind)
                 .ok_or_else(Fault::hidden)?
                 .version
         };
