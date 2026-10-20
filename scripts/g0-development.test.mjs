@@ -31,7 +31,7 @@ for(const [name,mutate,error]of [
  ['unexecuted check',f=>f.m.checks[0].executedAt=null,/execution timestamp/],
  ['wrong command',f=>f.m.checks[0].command=['true'],/command differs/],
  ['source inventory drift',f=>f.m.scopeRequest.inputs.pop(),/functional input inventory/],
- ['planned scope delivered claim',f=>f.m.scopeRequest.plannedExcluded=[],/functional input inventory/],
+ ['invented planned exclusion drift',f=>f.m.scopeRequest.plannedExcluded.push('SYNTHETIC_UNPUBLISHED_OPERATION'),/functional input inventory/],
  ['log tampering',f=>f.logs.set(f.m.checks[0].log,Buffer.from('fake')),/log content changed/],
  ['arbitrary rehashed prose',f=>{const c=f.m.checks[0];f.logs.set(c.log,Buffer.from('some audit text'));c.logSha256=digest(f.logs.get(c.log));},/execution marker/],
  ['wrong Web build source',f=>f.m.webBuild.sourceDigest='bad',/Web PoC build source/],
