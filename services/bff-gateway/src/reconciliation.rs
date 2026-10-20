@@ -267,19 +267,14 @@ impl ReconciliationHost {
             let r = self
                 .runs
                 .iter()
-                .find(|(_, r)| r.report.id() == &e.last_report)
-                .or_else(|| {
-                    self.runs
-                        .iter()
-                        .find(|(_, r)| r.report.input().day == e.day)
-                });
+                .find(|(_, r)| r.report.id() == &e.last_report && r.report.input().day == e.day);
             let Some((id, r)) = r else {
                 return Err(Fault::unavailable());
             };
-            let d = self
-                .runs
-                .values()
-                .flat_map(|r| r.report.differences())
+            let d = r
+                .report
+                .differences()
+                .iter()
                 .find(|d| d.kind == e.kind && d.entity == e.entity)
                 .ok_or_else(Fault::unavailable)?;
             let mut refs = source_refs(r.report.input());
@@ -378,7 +373,7 @@ impl ReconciliationHost {
         } else {
             "entryId"
         };
-        let (rows, start) = if let Some(token) = cursor {
+        let (rows, start, expires) = if let Some(token) = cursor {
             let id = Uuid::parse_str(&token).map_err(|_| Fault::invalid())?;
             let c = self
                 .cursors
@@ -387,7 +382,7 @@ impl ReconciliationHost {
             if c.binding != binding {
                 return Err(fault(409, "CURSOR_SCOPE_CONFLICT"));
             }
-            (c.rows.clone(), c.offset)
+            (c.rows.clone(), c.offset, c.expires)
         } else {
             if let Some(status) = q.get("status") {
                 rows.retain(|r| r["status"].as_str() == Some(status))
@@ -404,7 +399,7 @@ impl ReconciliationHost {
             if q.get("sort").map(String::as_str) == Some("id:desc") {
                 rows.reverse()
             }
-            (rows, 0)
+            (rows, 0, now + Duration::minutes(5))
         };
         let end = (start + size).min(rows.len());
         let next = if end < rows.len() {
@@ -418,7 +413,7 @@ impl ReconciliationHost {
                     binding,
                     rows: rows.clone(),
                     offset: end,
-                    expires: now + Duration::minutes(5),
+                    expires,
                 },
             );
             Some(id)

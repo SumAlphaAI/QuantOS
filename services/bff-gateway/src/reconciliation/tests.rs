@@ -740,3 +740,192 @@ fn rerun_cannot_silently_switch_the_original_day_and_owner_feed_keeps_history() 
     );
     assert_eq!(h.core.journal(&a).unwrap(), journal);
 }
+
+fn observe_cash(
+    h: &mut ReconciliationHost,
+    a: &AuthContext,
+    now: DateTime<Utc>,
+    cash: i64,
+) -> Uuid {
+    let mut input = h.input.clone();
+    input.day = now.date_naive();
+    input.available_at = now;
+    input.actual.ledger.cash = rust_decimal::Decimal::new(cash, 0);
+    for book in [&mut input.expected, &mut input.actual] {
+        book.captured_at = now;
+        book.revision += 1;
+        for position in &mut book.positions {
+            position.mark.source_at = now;
+            position.mark.sequence += 1;
+        }
+    }
+    h.observe(a, input, now).unwrap()
+}
+
+#[test]
+fn break_values_follow_latest_report_for_each_day() {
+    let (a, mut h, n) = setup();
+    let ledger = h.ledger();
+    let same_day = observe_cash(&mut h, &a, n, 797);
+    let next = n + Duration::days(1);
+    let next_day = observe_cash(&mut h, &a, next, 796);
+    let journal = h.core.journal(&a).unwrap();
+    let rows = call(
+        &mut h,
+        &a,
+        Method::GET,
+        "/v1/reconciliation/breaks",
+        &HeaderMap::new(),
+        json!({}),
+        next,
+    )
+    .unwrap()
+    .1;
+    for (day, run, cash) in [
+        (n.date_naive(), same_day, "797"),
+        (next.date_naive(), next_day, "796"),
+    ] {
+        let item = rows["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|v| {
+                v["day"] == day.to_string()
+                    && v["kind"] == "LedgerBalanceMismatch"
+                    && v["entity"] == "ledger/cash"
+            })
+            .unwrap();
+        assert_eq!(item["runId"], run.to_string());
+        assert_eq!(
+            serde_json::from_str::<Value>(item["expectedJson"].as_str().unwrap()).unwrap(),
+            json!("799")
+        );
+        assert_eq!(
+            serde_json::from_str::<Value>(item["actualJson"].as_str().unwrap()).unwrap(),
+            json!(cash)
+        );
+        let member = format!(
+            "/v1/reconciliation/breaks/{}",
+            item["breakId"].as_str().unwrap()
+        );
+        assert_eq!(
+            call(
+                &mut h,
+                &a,
+                Method::GET,
+                &member,
+                &HeaderMap::new(),
+                json!({}),
+                next
+            )
+            .unwrap()
+            .1,
+            *item
+        );
+    }
+    assert_eq!(h.core.journal(&a).unwrap(), journal);
+    assert!(ledger.iter().all(|entry| h.ledger().contains(entry)));
+}
+
+#[test]
+fn missing_break_report_is_unavailable_without_history_fallback() {
+    let (a, mut h, n) = setup();
+    let id = observe_cash(&mut h, &a, n, 797);
+    h.runs.remove(&id);
+    let journal = h.core.journal(&a).unwrap();
+    assert_eq!(
+        call(
+            &mut h,
+            &a,
+            Method::GET,
+            "/v1/reconciliation/breaks",
+            &HeaderMap::new(),
+            json!({}),
+            n
+        )
+        .unwrap_err()
+        .0,
+        StatusCode::SERVICE_UNAVAILABLE
+    );
+    assert_eq!(h.core.journal(&a).unwrap(), journal);
+}
+
+#[test]
+fn cursor_chain_expires_at_original_deadline_for_all_c15_pages() {
+    let (a, mut h, n) = setup();
+    observe_cash(&mut h, &a, n + Duration::days(1), 797);
+    let now = n + Duration::days(2);
+    observe_cash(&mut h, &a, now, 796);
+    let ledger = h.ledger();
+    for path in [
+        "/v1/reconciliation/runs",
+        "/v1/reconciliation/breaks",
+        "/v1/ledger/entries",
+    ] {
+        let mut query = BTreeMap::from([("pageSize".into(), "1".into())]);
+        let first = h
+            .handle(
+                &a,
+                "s",
+                &Method::GET,
+                path,
+                &query,
+                &HeaderMap::new(),
+                &json!({}),
+                now,
+            )
+            .unwrap()
+            .1;
+        query.insert(
+            "cursor".into(),
+            first["nextCursor"].as_str().unwrap().into(),
+        );
+        let second = h
+            .handle(
+                &a,
+                "s",
+                &Method::GET,
+                path,
+                &query,
+                &HeaderMap::new(),
+                &json!({}),
+                now + Duration::minutes(4),
+            )
+            .unwrap()
+            .1;
+        query.insert(
+            "cursor".into(),
+            second["nextCursor"].as_str().unwrap().into(),
+        );
+        let third = h
+            .handle(
+                &a,
+                "s",
+                &Method::GET,
+                path,
+                &query,
+                &HeaderMap::new(),
+                &json!({}),
+                now + Duration::seconds(270),
+            )
+            .unwrap()
+            .1;
+        assert_ne!(second["items"], third["items"]);
+        assert_eq!(
+            h.handle(
+                &a,
+                "s",
+                &Method::GET,
+                path,
+                &query,
+                &HeaderMap::new(),
+                &json!({}),
+                now + Duration::minutes(5)
+            )
+            .unwrap_err()
+            .1,
+            "CURSOR_EXPIRED"
+        );
+    }
+    assert_eq!(h.ledger(), ledger);
+}
