@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.12.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.13.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -1120,6 +1120,54 @@ export const AdminEngineCapabilitySpecSchema = z.object({
   "enabled": z.boolean(),
 }).strict();
 
+export const CommandItemSchema = z.object({
+  "kind": z.enum(["run","order","approval","alert"]),
+  "id": z.lazy(() => UUIDSchema),
+  "severity": z.enum(["critical","warning","info"]),
+  "status": z.string().min(1).max(32),
+  "occurredAt": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "objectRef": z.string().regex(new RegExp("^/(research/runs|orders|approvals|operations/alerts)/[a-f0-9-]{36}$")),
+}).strict();
+
+export const CommandSourceSchema = z.object({
+  "domain": z.enum(["research","execution","operations","strategy"]),
+  "status": z.enum(["ready","stale","unavailable","forbidden"]),
+  "asOf": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "sourceHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict();
+
+export const CommandSummarySchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.lazy(() => RuntimeModeSchema),
+  "sampledAt": z.lazy(() => DateTimeSchema),
+  "asOf": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "revision": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "partial": z.boolean(),
+  "dataFreshness": z.enum(["fresh","stale","unavailable"]),
+  "riskPosture": z.enum(["normal","elevated","halted","unknown"]),
+  "systemHealth": z.union([z.enum(["healthy","degraded"]), z.null()]),
+  "pendingApprovals": z.union([z.number().int().min(0).max(4000), z.null()]),
+  "failedRuns": z.union([z.number().int().min(0).max(2000), z.null()]),
+  "runningRuns": z.union([z.number().int().min(0).max(2000), z.null()]),
+  "openRiskAlerts": z.union([z.number().int().min(0).max(2000), z.null()]).describe("Authorized active C16 alerts with domain=risk only; no fabricated X02 alert events"),
+  "orderSummary": z.union([z.object({
+  "mode": z.enum(["paper","shadow"]),
+  "submitted": z.number().int().min(0).max(2000),
+  "filled": z.number().int().min(0).max(2000),
+  "rejected": z.number().int().min(0).max(2000),
+}).strict(), z.null()]),
+  "priority": z.array(z.lazy(() => CommandItemSchema)).max(50),
+  "recentActivity": z.array(z.lazy(() => CommandItemSchema)).max(50),
+  "sources": z.array(z.lazy(() => CommandSourceSchema)).min(4).max(4),
+  "bounded": z.object({
+  "sourceCount": z.literal(4),
+  "rowLimit": z.literal(2000),
+  "itemLimit": z.literal(50),
+  "truncated": z.boolean(),
+}).strict(),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -1231,6 +1279,9 @@ export const bffZodSchemas = {
   GovernanceFeatureFlagAction: GovernanceFeatureFlagActionSchema,
   AdminPermissionCapabilitySpec: AdminPermissionCapabilitySpecSchema,
   AdminEngineCapabilitySpec: AdminEngineCapabilitySpecSchema,
+  CommandItem: CommandItemSchema,
+  CommandSource: CommandSourceSchema,
+  CommandSummary: CommandSummarySchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2138,6 +2189,18 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "subscribeAlerts": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getCommandSummary": {
+    "200": z.lazy(() => CommandSummarySchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeCommandEvents": {
     "200": z.undefined(),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),

@@ -8,7 +8,7 @@
 | Gap ID | 契约 | published / planned operationId | 覆盖页面 | 后端任务 | 优先级 | 目标阶段 | BFF-FE | 状态 |
 |---|---|---|---|---|---|---|---|---|
 | GAP-01 | C01 | 已发布：getSession、getContext、reauth、mfaChallenge、logout、submitAccessRequest；未发布：无 | P01、P15、GS、WEB-06、WEB-07 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-001 | Closed |
-| GAP-02 | C02 | 已发布：无；未发布：getCommandSummary、subscribeCommandEvents | P02 | F09、R03、X01、X02、X03、X04、X05、X06 | P0 | FEP-1/G1 | BFF-FE-002 | Open |
+| GAP-02 | C02 | 已发布：getCommandSummary、subscribeCommandEvents；未发布：无 | P02 | F09、R03、X01、X02、X03、X04、X05、X06 | P0 | FEP-1/G1 | BFF-FE-002 | Closed |
 | GAP-03 | C03 | 已发布：listResearchRuns、createResearchRun、getResearchRun、cancelResearchRun、subscribeResearchRun；未发布：无 | P03、P04 | F07、F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | Closed |
 | GAP-04 | C04 | 已发布：listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment；未发布：无 | P04、P05 | R02、R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Closed |
 | GAP-05 | C05 | 已发布：listStrategies、getStrategyDraft、saveStrategyDraft、runStaticCheck、createBacktest、getBacktest、listReleases、createRelease、getRelease、submitReleaseApproval、requestReleaseRollback、subscribeBacktestRun；未发布：无 | P06、P07 | S01、S02、S03、S04 | P0 | FEP-3/G3 | BFF-FE-004 | Closed |
@@ -29,5 +29,5 @@
 
 - envelope、分页（cursor/pageSize/nextCursor）、sort/filter、202 job 引用、Idempotency-Key、ETag/objectVersion、错误模型、SSE event envelope（streamId/sequence/eventId/occurredAt/correlationId/payloadVersion）由 BFF-FE-000 一次性冻结，GAP-01–17 继承，不逐条重复设计。
 - 现有 `quantos.swagger.json`（7 个 Engine/EventLedger operation）保留为服务级契约，页面不直接消费；页面只引用 BFF 版本化 OpenAPI 生成的 client。
-- Gap Closed 只表示一期 catalog 全部 operation 发布；进入页面 Sprint 的 Reviewed/Mocked、provider 实现和真实 staging 集成仍独立验收。当前 C01/C03–C17 的 catalog 面均 Closed，C02 仍为 Open；Closed 仅表示操作已发布，原生面由二期承接。
+- Gap Closed 只表示一期 catalog 全部 operation 发布；进入页面 Sprint 的 Reviewed/Mocked、provider 实现和真实 staging 集成仍独立验收。当前 C01–C17 的 catalog 面均 Closed；Closed 仅表示操作已发布，原生面由二期承接。
 - 原生 P16/cache/update/diagnostic 不进入本表，见 [DESK-PRE-04承接表](./DESK-PRE-04-interface-transfer.md)。

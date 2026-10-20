@@ -1029,6 +1029,20 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "PROVIDER:A4"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-002": {
+      "profile": "BFF002_SCOPE_LOCAL",
+      "schema": "quantos-bff002-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-002-local-20261020/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-010",
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }

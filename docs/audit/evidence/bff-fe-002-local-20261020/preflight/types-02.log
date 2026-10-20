@@ -1,0 +1,14 @@
+Scope: 2 of 8 workspace projects
+packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+packages/api-client typecheck: Done
+apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+apps/terminal typecheck: src/command/gateway.ts(28,26): error TS2719: Type '{ accountId: string; mode: "paper" | "shadow"; sampledAt: string; asOf: string | null; expiresAt: string; revision: string; partial: boolean; dataFreshness: "stale" | "unavailable" | "fresh"; ... 10 more ...; bounded: { ...; }; }' is not assignable to type '{ accountId: string; mode: "paper" | "shadow"; sampledAt: string; asOf: string | null; expiresAt: string; revision: string; partial: boolean; dataFreshness: "stale" | "unavailable" | "fresh"; ... 10 more ...; bounded: { ...; }; }'. Two different types with this name exist, but they are unrelated.
+apps/terminal typecheck:   The types of 'bounded.sourceCount' are incompatible between these types.
+apps/terminal typecheck:     Type 'number' is not assignable to type '4'.
+apps/terminal typecheck: tests/command-provider-consumer.test.ts(9,284): error TS2769: No overload matches this call.
+apps/terminal typecheck:   The last overload gave the following error.
+apps/terminal typecheck:     Property 'NODE_ENV' is missing in type '{ PATH: string | undefined; HOME: string | undefined; QUANTOS_SKIP_ENV: string; QUANTOS_BFF_MODE: string; QUANTOS_BFF_BIND: string; GITHUB_SHA?: string; }' but required in type 'ProcessEnv'.
+apps/terminal typecheck: Failed
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2

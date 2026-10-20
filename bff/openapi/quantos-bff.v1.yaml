@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.12.0
+  version: 1.13.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -56,6 +56,8 @@ tags:
     description: C12 authorized market data and watchlist
   - name: reconciliation
     description: C15 X05 controlled reconciliation and append-only ledger projections
+  - name: command
+    description: C02 authorized bounded read composition
 security:
   - cookieAuth: []
 paths:
@@ -5684,7 +5686,7 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
           - id:asc
           - id:desc
@@ -5871,7 +5873,7 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
           - id:asc
           - id:desc
@@ -6065,7 +6067,7 @@ paths:
         owner: BFF-FE-009
         auth: cookie + trusted X05 tenant/workspace/account/shadow and role
         capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
-        pagination: "Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused"
+        pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
           - id:asc
           - id:desc
@@ -10441,6 +10443,101 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/command/summary:
+    get:
+      operationId: getCommandSummary
+      tags:
+        - command
+      summary: getCommandSummary
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Authorized bounded projection; partial sources explicit
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommandSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy: &a1
+        owner: BFF-FE-002
+        auth: Verified cookie F06 caller, tenant/workspace/account/mode binding, current governance before snapshot/replay
+        capability: ops.read; each source also requires its existing research.read, execution.operate, strategy.write/approve, ops.read/alerts.read; no privilege escalation
+        pagination: Not applicable; fixed four sources, each max2000 rows, output max50 items
+        sort:
+          - recentActivity occurredAt descending then id
+          - priority severity then id
+        filter:
+          - accountId
+        expression: not applicable
+        cache: no-store
+        freshness: sampledAt is composition time; source asOf/hash/status retained, execution60s and health30s; forbidden/unavailable/stale counters null, never fabricated zero
+        idempotency: Read-only; no proof, reservation, command, audit mutation or venue submit
+        version: revision hash binds authorized source facts and current scope; sample timestamps do not produce false changes
+        audit: Resource-level read references only; source audit policies retained
+        limits:
+          bodyBytes: 0
+          pageSize: 50
+          rate: 1000 active stream leases, initial30second deadline,32 snapshot replay events; no HTTP fanout
+        realtime: Finite snapshot SSE poll/resume with streamId and afterSequence; source/scope changes checked before replay; gap/expired/changed binding409, current permission refusal terminal
+        sensitive: Only whitelisted resource kind/id/status/time and canonical relative objectRef, no arbitrary labels, raw activity, secrets, prompts, risk inputs or executable payloads
+  /v1/command/stream:
+    get:
+      operationId: subscribeCommandEvents
+      tags:
+        - command
+      summary: subscribeCommandEvents
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/AfterSequence"
+        - name: streamId
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Authorized bounded projection; partial sources explicit
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy: *a1
 components:
   securitySchemes:
     cookieAuth:
@@ -12669,9 +12766,9 @@ components:
             - fill
             - audit
             - alert
-        ref: &a1
+        ref: &a2
           type: string
-        sourceRef: *a1
+        sourceRef: *a2
         resolution:
           type: string
           enum:
@@ -12700,14 +12797,14 @@ components:
         - evidenceRefs
         - day
       properties:
-        runId: &a1
+        runId: &a3
           $ref: "#/components/schemas/UUID"
-        accountId: *a1
+        accountId: *a3
         mode:
           type: string
           enum:
             - shadow
-        currency: &a2
+        currency: &a6
           type: string
         status:
           type: string
@@ -12727,16 +12824,16 @@ components:
         inputHash:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        asOf: &a3
+        asOf: &a4
           type: string
           format: date-time
-        expiresAt: *a3
+        expiresAt: *a4
         provisional:
           type: boolean
         breakCount:
           type: integer
           minimum: 0
-        correlationId: *a1
+        correlationId: *a3
         auditRef:
           type:
             - string
@@ -12775,15 +12872,15 @@ components:
         breakId:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        runId: &a1
+        runId: &a5
           $ref: "#/components/schemas/UUID"
-        accountId: *a1
+        accountId: *a5
         mode:
           type: string
           enum:
             - shadow
-        kind: *a2
-        entity: *a2
+        kind: *a6
+        entity: *a6
         status:
           type: string
           enum:
@@ -12793,14 +12890,14 @@ components:
         objectVersion:
           type: string
           pattern: ^(0|[1-9][0-9]*)$
-        expectedJson: *a2
-        actualJson: *a2
-        expectedSource: *a2
-        actualSource: *a2
-        detectedAt: &a3
+        expectedJson: *a6
+        actualJson: *a6
+        expectedSource: *a6
+        actualSource: *a6
+        detectedAt: &a7
           type: string
           format: date-time
-        lastDetectedAt: *a3
+        lastDetectedAt: *a7
         closureReportHash:
           type:
             - string
@@ -12836,14 +12933,14 @@ components:
         entryId:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        runId: &a1
+        runId: &a8
           $ref: "#/components/schemas/UUID"
-        accountId: *a1
+        accountId: *a8
         mode:
           type: string
           enum:
             - shadow
-        currency: *a2
+        currency: *a6
         kind:
           type: string
           enum:
@@ -12857,7 +12954,7 @@ components:
         ledgerVersion:
           type: string
           pattern: ^(0|[1-9][0-9]*)$
-        sourceRef: *a2
+        sourceRef: *a6
         sourceHash:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
@@ -12966,10 +13063,10 @@ components:
           enum:
             - rolling
             - calendar
-        start: &a4
+        start: &a9
           type: string
           format: date-time
-        end: *a4
+        end: *a9
     PerformanceCoverage:
       type: object
       additionalProperties: false
@@ -12982,12 +13079,12 @@ components:
         - points
         - maxIntervalSeconds
       properties:
-        requestedStart: &a4
+        requestedStart: &a10
           type: string
           format: date-time
-        requestedEnd: *a4
-        start: *a4
-        end: *a4
+        requestedEnd: *a10
+        start: *a10
+        end: *a10
         complete:
           type: boolean
         points:
@@ -13013,14 +13110,14 @@ components:
         asOf:
           type: string
           format: date-time
-        equity: &a4
+        equity: &a11
           $ref: "#/components/schemas/DecimalValue"
-        cumulativeFees: *a4
-        drawdown: *a4
-        ledgerVersion: &a5
+        cumulativeFees: *a11
+        drawdown: *a11
+        ledgerVersion: &a12
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        valuationSnapshotId: *a5
+        valuationSnapshotId: *a12
         reconciliationRunId:
           $ref: "#/components/schemas/UUID"
         provisional:
@@ -13085,19 +13182,19 @@ components:
         asOf:
           type: string
           format: date-time
-        ledgerVersion: &a4
+        ledgerVersion: &a13
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        valuationSnapshotId: *a4
+        valuationSnapshotId: *a13
         coverage:
           $ref: "#/components/schemas/PerformanceCoverage"
         provisional:
           type: boolean
-        pnl: &a5
+        pnl: &a14
           $ref: "#/components/schemas/DecimalValue"
-        return: *a5
-        drawdown: *a5
-        fees: *a5
+        return: *a14
+        drawdown: *a14
+        fees: *a14
         series:
           type: array
           minItems: 2
@@ -13137,7 +13234,7 @@ components:
         - auditRef
         - supersededBy
       properties:
-        accountId: &a5
+        accountId: &a16
           $ref: "#/components/schemas/UUID"
         currency:
           type: string
@@ -13160,18 +13257,18 @@ components:
           enum:
             - rolling
             - calendar
-        asOf: &a6
+        asOf: &a17
           type: string
           format: date-time
-        ledgerVersion: &a4
+        ledgerVersion: &a15
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        valuationSnapshotId: *a4
+        valuationSnapshotId: *a15
         coverage:
           $ref: "#/components/schemas/PerformanceCoverage"
         provisional:
           type: boolean
-        reportId: *a5
+        reportId: *a16
         status:
           type: string
           enum:
@@ -13181,10 +13278,10 @@ components:
           type: string
           enum:
             - "1"
-        createdAt: *a6
-        expiresAt: *a6
-        correlationId: *a5
-        auditRef: *a5
+        createdAt: *a17
+        expiresAt: *a17
+        correlationId: *a16
+        auditRef: *a16
         supersededBy:
           type:
             - string
@@ -13229,7 +13326,7 @@ components:
         - mediaType
         - downloadExpiresAt
       properties:
-        accountId: &a5
+        accountId: &a19
           $ref: "#/components/schemas/UUID"
         currency:
           type: string
@@ -13252,18 +13349,18 @@ components:
           enum:
             - rolling
             - calendar
-        asOf: &a6
+        asOf: &a20
           type: string
           format: date-time
-        ledgerVersion: &a4
+        ledgerVersion: &a18
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        valuationSnapshotId: *a4
+        valuationSnapshotId: *a18
         coverage:
           $ref: "#/components/schemas/PerformanceCoverage"
         provisional:
           type: boolean
-        reportId: *a5
+        reportId: *a19
         status:
           type: string
           enum:
@@ -13273,10 +13370,10 @@ components:
           type: string
           enum:
             - "1"
-        createdAt: *a6
-        expiresAt: *a6
-        correlationId: *a5
-        auditRef: *a5
+        createdAt: *a20
+        expiresAt: *a20
+        correlationId: *a19
+        auditRef: *a19
         supersededBy:
           type:
             - string
@@ -13285,7 +13382,7 @@ components:
         downloadPath:
           type: string
           pattern: ^/v1/performance/reports/[a-f0-9-]+/content\?ticket=[a-f0-9-]+$
-        sha256: *a4
+        sha256: *a18
         sizeBytes:
           type: integer
           minimum: 1
@@ -13293,7 +13390,7 @@ components:
           type: string
           enum:
             - application/json
-        downloadExpiresAt: *a6
+        downloadExpiresAt: *a20
     AdminMemberSpec:
       type: object
       additionalProperties: false
@@ -13307,9 +13404,9 @@ components:
           type: string
           enum:
             - member
-        actorId: &a7
+        actorId: &a21
           $ref: "#/components/schemas/UUID"
-        roleId: *a7
+        roleId: *a21
         active:
           type: boolean
     AdminRoleSpec:
@@ -13435,23 +13532,23 @@ components:
             - protected
             - spec
           properties:
-            id: &a13
+            id: &a24
               $ref: "#/components/schemas/UUID"
             kind:
               type: string
               enum:
                 - members
-            objectVersion: &a11
+            objectVersion: &a22
               type: string
               pattern: ^(0|[1-9][0-9]*)$
-            configVersion: *a11
-            deleted: &a12
+            configVersion: *a22
+            deleted: &a23
               type: boolean
-            protected: *a12
+            protected: *a23
             spec:
               $ref: "#/components/schemas/AdminMemberSpec"
-            auditRef: *a13
-            correlationId: *a13
+            auditRef: *a24
+            correlationId: *a24
         - type: object
           additionalProperties: false
           required:
@@ -13463,23 +13560,23 @@ components:
             - protected
             - spec
           properties:
-            id: &a16
+            id: &a27
               $ref: "#/components/schemas/UUID"
             kind:
               type: string
               enum:
                 - roles
-            objectVersion: &a14
+            objectVersion: &a25
               type: string
               pattern: ^(0|[1-9][0-9]*)$
-            configVersion: *a14
-            deleted: &a15
+            configVersion: *a25
+            deleted: &a26
               type: boolean
-            protected: *a15
+            protected: *a26
             spec:
               $ref: "#/components/schemas/AdminRoleSpec"
-            auditRef: *a16
-            correlationId: *a16
+            auditRef: *a27
+            correlationId: *a27
         - type: object
           additionalProperties: false
           required:
@@ -13491,23 +13588,23 @@ components:
             - protected
             - spec
           properties:
-            id: &a19
+            id: &a30
               $ref: "#/components/schemas/UUID"
             kind:
               type: string
               enum:
                 - policies
-            objectVersion: &a17
+            objectVersion: &a28
               type: string
               pattern: ^(0|[1-9][0-9]*)$
-            configVersion: *a17
-            deleted: &a18
+            configVersion: *a28
+            deleted: &a29
               type: boolean
-            protected: *a18
+            protected: *a29
             spec:
               $ref: "#/components/schemas/AdminPolicySpec"
-            auditRef: *a19
-            correlationId: *a19
+            auditRef: *a30
+            correlationId: *a30
         - type: object
           additionalProperties: false
           required:
@@ -13519,23 +13616,23 @@ components:
             - protected
             - spec
           properties:
-            id: &a22
+            id: &a33
               $ref: "#/components/schemas/UUID"
             kind:
               type: string
               enum:
                 - capabilities
-            objectVersion: &a20
+            objectVersion: &a31
               type: string
               pattern: ^(0|[1-9][0-9]*)$
-            configVersion: *a20
-            deleted: &a21
+            configVersion: *a31
+            deleted: &a32
               type: boolean
-            protected: *a21
+            protected: *a32
             spec:
               $ref: "#/components/schemas/AdminCapabilitySpec"
-            auditRef: *a22
-            correlationId: *a22
+            auditRef: *a33
+            correlationId: *a33
         - type: object
           additionalProperties: false
           required:
@@ -13547,23 +13644,23 @@ components:
             - protected
             - spec
           properties:
-            id: &a25
+            id: &a36
               $ref: "#/components/schemas/UUID"
             kind:
               type: string
               enum:
                 - feature-flags
-            objectVersion: &a23
+            objectVersion: &a34
               type: string
               pattern: ^(0|[1-9][0-9]*)$
-            configVersion: *a23
-            deleted: &a24
+            configVersion: *a34
+            deleted: &a35
               type: boolean
-            protected: *a24
+            protected: *a35
             spec:
               $ref: "#/components/schemas/AdminFlagSpec"
-            auditRef: *a25
-            correlationId: *a25
+            auditRef: *a36
+            correlationId: *a36
     GovernanceAction:
       type: object
       additionalProperties: false
@@ -13577,9 +13674,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a7
+        mfaChallengeRef: &a37
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a7
+        reauthTokenRef: *a37
         spec:
           $ref: "#/components/schemas/AdminSpec"
     OpsAction:
@@ -13594,9 +13691,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a7
+        mfaChallengeRef: &a38
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a7
+        reauthTokenRef: *a38
     OpsIncidentCreate:
       type: object
       additionalProperties: false
@@ -13610,10 +13707,10 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a7
+        mfaChallengeRef: &a39
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a7
-        alertId: *a7
+        reauthTokenRef: *a39
+        alertId: *a39
     OpsRunbookExecute:
       type: object
       additionalProperties: false
@@ -13626,10 +13723,10 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a7
+        mfaChallengeRef: &a40
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a7
-        commandId: *a7
+        reauthTokenRef: *a40
+        commandId: *a40
     AlertSubscriptions:
       type: object
       additionalProperties: false
@@ -13662,9 +13759,9 @@ components:
               - report
               - system
           maxItems: 6
-        auditRef: &a7
+        auditRef: &a41
           $ref: "#/components/schemas/UUID"
-        correlationId: *a7
+        correlationId: *a41
     SaveAlertSubscriptions:
       type: object
       additionalProperties: false
@@ -13722,18 +13819,18 @@ components:
           enum:
             - healthy
             - degraded
-        ready: &a9
+        ready: &a44
           type: boolean
         objectVersion:
           type: string
           pattern: ^(0|[1-9][0-9]*)$
-        sourceHash: &a8
+        sourceHash: &a43
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        asOf: &a7
+        asOf: &a42
           type: string
           format: date-time
-        expiresAt: *a7
+        expiresAt: *a42
         accountId:
           $ref: "#/components/schemas/UUID"
         mode:
@@ -13747,7 +13844,7 @@ components:
         dlqDepth:
           type: integer
           minimum: 0
-        metricsHash: *a8
+        metricsHash: *a43
         components:
           type: array
           items:
@@ -13765,8 +13862,8 @@ components:
                   - portfolio
                   - risk
                   - reconciliation
-              ready: *a9
-              asOf: *a7
+              ready: *a44
+              asOf: *a42
           maxItems: 4
     OpsAlert:
       type: object
@@ -13792,9 +13889,9 @@ components:
         - objectRef
         - correlationId
       properties:
-        id: &a7
+        id: &a45
           $ref: "#/components/schemas/UUID"
-        alertId: *a7
+        alertId: *a45
         sourceRef:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
@@ -13816,7 +13913,7 @@ components:
             - reconciliation
             - report
             - system
-        accountId: *a7
+        accountId: *a45
         mode:
           type: string
           enum:
@@ -13827,17 +13924,17 @@ components:
           enum:
             - unacked
             - acked
-        active: &a8
+        active: &a46
           type: boolean
-        resolved: *a8
-        objectVersion: &a9
+        resolved: *a46
+        objectVersion: &a47
           type: string
           pattern: ^(0|[1-9][0-9]*)$
-        sourceVersion: *a9
-        occurredAt: &a10
+        sourceVersion: *a47
+        occurredAt: &a48
           type: string
           format: date-time
-        asOf: *a10
+        asOf: *a48
         ackActor:
           type:
             - string
@@ -13852,8 +13949,8 @@ components:
           type: string
           enum:
             - /operations/health
-        auditRef: *a7
-        correlationId: *a7
+        auditRef: *a45
+        correlationId: *a45
     OpsIncident:
       type: object
       additionalProperties: false
@@ -13869,34 +13966,34 @@ components:
         - accountId
         - mode
       properties:
-        id: &a7
+        id: &a49
           $ref: "#/components/schemas/UUID"
-        incidentId: *a7
+        incidentId: *a49
         sourceRef:
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
-        alertId: *a7
+        alertId: *a49
         status:
           type: string
           enum:
             - open
             - acknowledged
             - resolved
-        objectVersion: &a8
+        objectVersion: &a50
           type: string
           pattern: ^(0|[1-9][0-9]*)$
-        openedSource: *a8
+        openedSource: *a50
         asOf:
           type: string
           format: date-time
-        accountId: *a7
+        accountId: *a49
         mode:
           type: string
           enum:
             - paper
             - shadow
-        auditRef: *a7
-        correlationId: *a7
+        auditRef: *a49
+        correlationId: *a49
     OpsPrecheck:
       type: object
       additionalProperties: false
@@ -13964,13 +14061,13 @@ components:
         - auditRef
         - correlationId
       properties:
-        operationId: &a8
+        operationId: &a52
           $ref: "#/components/schemas/UUID"
         status:
           type: string
           enum:
             - succeeded
-        sourceOperationRef: &a7
+        sourceOperationRef: &a51
           type: string
           pattern: ^sha256:[a-f0-9]{64}$
         outcome:
@@ -13984,9 +14081,9 @@ components:
               type: string
               enum:
                 - applied
-            reference: *a7
-        auditRef: *a8
-        correlationId: *a8
+            reference: *a51
+        auditRef: *a52
+        correlationId: *a52
     AdminResourcePage:
       type: object
       additionalProperties: false
@@ -14098,9 +14195,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a11
+        mfaChallengeRef: &a53
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a11
+        reauthTokenRef: *a53
         spec:
           $ref: "#/components/schemas/AdminMemberSpec"
     GovernanceRoleAction:
@@ -14116,9 +14213,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a11
+        mfaChallengeRef: &a54
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a11
+        reauthTokenRef: *a54
         spec:
           $ref: "#/components/schemas/AdminRoleSpec"
     GovernancePolicyAction:
@@ -14134,9 +14231,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a11
+        mfaChallengeRef: &a55
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a11
+        reauthTokenRef: *a55
         spec:
           $ref: "#/components/schemas/AdminPolicySpec"
     GovernanceCapabilityAction:
@@ -14152,9 +14249,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a11
+        mfaChallengeRef: &a56
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a11
+        reauthTokenRef: *a56
         spec:
           $ref: "#/components/schemas/AdminCapabilitySpec"
     GovernanceFeatureFlagAction:
@@ -14170,9 +14267,9 @@ components:
           type: string
           minLength: 1
           maxLength: 256
-        mfaChallengeRef: &a11
+        mfaChallengeRef: &a57
           $ref: "#/components/schemas/UUID"
-        reauthTokenRef: *a11
+        reauthTokenRef: *a57
         spec:
           $ref: "#/components/schemas/AdminFlagSpec"
     AdminPermissionCapabilitySpec:
@@ -14228,3 +14325,213 @@ components:
           maxLength: 512
         enabled:
           type: boolean
+    CommandItem:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - id
+        - severity
+        - status
+        - occurredAt
+        - objectRef
+      properties:
+        kind:
+          type: string
+          enum:
+            - run
+            - order
+            - approval
+            - alert
+        id:
+          $ref: "#/components/schemas/UUID"
+        severity:
+          type: string
+          enum:
+            - critical
+            - warning
+            - info
+        status:
+          type: string
+          minLength: 1
+          maxLength: 32
+        occurredAt:
+          anyOf:
+            - $ref: "#/components/schemas/DateTime"
+            - type: "null"
+        objectRef:
+          type: string
+          pattern: ^/(research/runs|orders|approvals|operations/alerts)/[a-f0-9-]{36}$
+    CommandSource:
+      type: object
+      additionalProperties: false
+      required:
+        - domain
+        - status
+        - asOf
+        - sourceHash
+      properties:
+        domain:
+          type: string
+          enum:
+            - research
+            - execution
+            - operations
+            - strategy
+        status:
+          type: string
+          enum:
+            - ready
+            - stale
+            - unavailable
+            - forbidden
+        asOf:
+          anyOf:
+            - $ref: "#/components/schemas/DateTime"
+            - type: "null"
+        sourceHash:
+          anyOf:
+            - type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            - type: "null"
+    CommandSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - mode
+        - sampledAt
+        - asOf
+        - expiresAt
+        - revision
+        - partial
+        - dataFreshness
+        - riskPosture
+        - systemHealth
+        - pendingApprovals
+        - failedRuns
+        - runningRuns
+        - openRiskAlerts
+        - orderSummary
+        - priority
+        - recentActivity
+        - sources
+        - bounded
+      properties:
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          $ref: "#/components/schemas/RuntimeMode"
+        sampledAt:
+          $ref: "#/components/schemas/DateTime"
+        asOf:
+          anyOf:
+            - $ref: "#/components/schemas/DateTime"
+            - type: "null"
+        expiresAt:
+          $ref: "#/components/schemas/DateTime"
+        revision:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        partial:
+          type: boolean
+        dataFreshness:
+          type: string
+          enum:
+            - fresh
+            - stale
+            - unavailable
+        riskPosture:
+          type: string
+          enum:
+            - normal
+            - elevated
+            - halted
+            - unknown
+        systemHealth:
+          anyOf:
+            - type: string
+              enum:
+                - healthy
+                - degraded
+            - type: "null"
+        pendingApprovals:
+          anyOf:
+            - type: integer
+              minimum: 0
+              maximum: 4000
+            - type: "null"
+        failedRuns:
+          anyOf:
+            - &a58
+              type: integer
+              minimum: 0
+              maximum: 2000
+            - type: "null"
+        runningRuns:
+          anyOf:
+            - *a58
+            - type: "null"
+        openRiskAlerts:
+          anyOf:
+            - *a58
+            - type: "null"
+          description: Authorized active C16 alerts with domain=risk only; no fabricated X02 alert events
+        orderSummary:
+          anyOf:
+            - type: object
+              additionalProperties: false
+              required:
+                - mode
+                - submitted
+                - filled
+                - rejected
+              properties:
+                mode:
+                  type: string
+                  enum:
+                    - paper
+                    - shadow
+                submitted: *a58
+                filled: *a58
+                rejected: *a58
+            - type: "null"
+        priority:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/CommandItem"
+        recentActivity:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/CommandItem"
+        sources:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/CommandSource"
+        bounded:
+          type: object
+          additionalProperties: false
+          required:
+            - sourceCount
+            - rowLimit
+            - itemLimit
+            - truncated
+          properties:
+            sourceCount:
+              type: integer
+              enum:
+                - 4
+            rowLimit:
+              type: integer
+              enum:
+                - 2000
+            itemLimit:
+              type: integer
+              enum:
+                - 50
+            truncated:
+              type: boolean

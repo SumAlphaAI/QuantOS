@@ -327,6 +327,62 @@ impl ExecutionService {
         }
         Ok(())
     }
+    pub(crate) fn command_source(&self, a: &AuthContext, now: DateTime<Utc>) -> Value {
+        if let Err(e) = self.authorize(a, false) {
+            return crate::command::unavailable(
+                "execution",
+                if e.0 == StatusCode::FORBIDDEN {
+                    "forbidden"
+                } else {
+                    "unavailable"
+                },
+            );
+        }
+        if self.proposals.len() + self.orders.len() > crate::command::ROW_LIMIT {
+            return crate::command::unavailable("execution", "unavailable");
+        }
+        let risk = match self.risk(now) {
+            Ok(v) => v,
+            Err(_) => return crate::command::unavailable("execution", "unavailable"),
+        };
+        let mut submitted = 0;
+        let mut filled = 0;
+        let mut rejected = 0;
+        let mut items = Vec::new();
+        for id in self.orders.keys() {
+            let order = match self.order(*id, now) {
+                Ok(v) => v,
+                Err(_) => return crate::command::unavailable("execution", "unavailable"),
+            };
+            match order["status"].as_str() {
+                Some("filled") => filled += 1,
+                Some("rejected") => rejected += 1,
+                _ => submitted += 1,
+            };
+            {
+                items.push(json!({"kind":"order","id":id,"severity":"info","status":order["status"],"occurredAt":order["submittedAt"],"objectRef":format!("/orders/{id}")}));
+            }
+        }
+        let mut pending = 0;
+        for p in self.proposals.values() {
+            if p.approval.is_some()
+                && let Ok(v) = self.approval_page(p, now)
+                && v["status"] == "pending"
+            {
+                pending += 1;
+                {
+                    items.push(json!({"kind":"approval","id":v["approvalId"],"severity":"warning","status":"pending","occurredAt":p.record.created_at,"objectRef":format!("/approvals/{}",v["approvalId"].as_str().unwrap())}));
+                }
+            }
+        }
+        crate::command::source(
+            "execution",
+            json!({"riskPosture":if risk["killSwitch"]["state"]=="engaged"{"halted"}else if risk["hitRules"].as_array().is_some_and(|r|!r.is_empty()){"elevated"}else{"normal"},"pendingApprovals":pending,"orderSummary":{"mode":a.mode.as_str(),"submitted":submitted,"filled":filled,"rejected":rejected},"items":items,"truncated":self.orders.len()+pending>50}),
+            self.input.portfolio.as_of,
+            now,
+            60,
+        )
+    }
     fn sources(&self) -> CurrentSources<'_> {
         CurrentSources {
             snapshot: &self.input,

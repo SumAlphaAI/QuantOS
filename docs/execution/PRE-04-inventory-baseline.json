@@ -1,7 +1,7 @@
 {
   "schema": "quantos-pre04-baseline/v2",
-  "version": "1.7",
-  "date": "2026-10-19",
+  "version": "1.8",
+  "date": "2026-10-20",
   "reviewedSourceSha": null,
   "protoDigests": [
     "2655e561849dc08be5bfa5738daf8aedf348f59f30e994d969062147d22170b7",
@@ -103,45 +103,10 @@
       ],
       "owners": "BFF TL + Observability owner（F09）",
       "protoCoverage": "无（页面聚合模型新增）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "riskPosture",
-          "type": "enum{normal, elevated, halted}",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView（X02 读模型）"
-        },
-        {
-          "name": "dataFreshness",
-          "type": "enum{fresh, delayed, stale} + asOf:rfc3339",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView"
-        },
-        {
-          "name": "pendingApprovals / failedRuns / openRiskAlerts",
-          "type": "int32",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView"
-        },
-        {
-          "name": "orderSummary",
-          "type": "object{mode, submitted, filled, rejected}",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView（X04 投影）"
-        },
-        {
-          "name": "alerts",
-          "type": "AlertRef[]（见 C16）",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView"
-        },
-        {
-          "name": "sampledAt",
-          "type": "rfc3339",
-          "required": "是",
-          "domain": "planned-model:CommandCenterView"
-        }
+      "models": [
+        "CommandSummary"
       ],
+      "plannedFields": [],
       "priority": "P0",
       "stage": "FEP-1/G1",
       "inventoryFixtures": [
@@ -691,7 +656,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
+          "sha256": "2b27f044ae06ec6d6b6bd6636f264b2830d09be7134b1dae7064a6b95426b68c"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -709,7 +674,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
+          "sha256": "2b27f044ae06ec6d6b6bd6636f264b2830d09be7134b1dae7064a6b95426b68c"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -727,7 +692,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "8630ffac211ef910e107b31da38dba5017a1ef563a1a440783343fbb34bdfe14"
+          "sha256": "2b27f044ae06ec6d6b6bd6636f264b2830d09be7134b1dae7064a6b95426b68c"
         },
         {
           "path": "services/bff-gateway/tests/audit_export_provider.rs",
@@ -1312,20 +1277,20 @@
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
   "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
   "openapiInventory": {
-    "version": "1.12.0",
-    "operations": 132,
-    "schemas": 110
+    "version": "1.13.0",
+    "operations": 134,
+    "schemas": 113
   },
   "sourceDigests": [
     {
       "path": "bff/openapi/quantos-bff.v1.yaml",
       "representation": "parsed-json",
-      "sha256": "0aeb21e9705de55f7be0b108318409e6c8c8a593d94d689e51192fba99d0f83a"
+      "sha256": "ab72bc9f575754648942406f3364d73250b58edc8488f454f7006817f53d6837"
     },
     {
       "path": "bff/page-operation-catalog.yaml",
       "representation": "parsed-json",
-      "sha256": "b8c0b1f4b72df5deac1bdc02be8be96ab14597d04d1713204d540ee7f87b9145"
+      "sha256": "4c62025b8f17cbaa3e0e138e08f2e3984d2ff9f357a89898935ddfa7e3ae4057"
     }
   ]
 }

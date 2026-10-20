@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -311,6 +311,16 @@
         "admin"
       ],
       "responseSchema": "AdminResource",
+      "sse": false
+    },
+    {
+      "operationId": "getCommandSummary",
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "tags": [
+        "command"
+      ],
+      "responseSchema": "CommandSummary",
       "sse": false
     },
     {
@@ -1219,6 +1229,16 @@
       "path": "/v1/markets/candles/stream",
       "tags": [
         "market"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeCommandEvents",
+      "method": "GET",
+      "path": "/v1/command/stream",
+      "tags": [
+        "command"
       ],
       "responseSchema": null,
       "sse": true

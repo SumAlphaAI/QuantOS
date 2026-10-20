@@ -19,7 +19,7 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 692]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 705]);
 });
 test('missing Gap is rejected', () => rejected(i => {i.gaps = i.gaps.replace(/^\| GAP-13 \|.*\n/m, '');}, 'gap list contains'));
 test('undecided realtime dependency is rejected', () => rejected(i => {i.ledger = change(i.ledger, 'C13 preflight/quote refresh', '待开发时再定');}, 'P20 Realtime dependency is explicit'));
@@ -51,8 +51,8 @@ test('missing auxiliary risk/audit/order contract is rejected', () => {
   for (const [from,to] of [['C07 proposal/evaluation context + ',''],[' + C09 linked order facts',''],[' + C10 audit/evidence chain','']]) rejected(i => {i.ledger = change(i.ledger, from, to);}, 'dependencies match reviewed');
 });
 test('regressing a fully published Gap to Partial is rejected', () => rejected(i => {const row = i.gaps.split('\n').find(l => l.startsWith('| GAP-05 '));i.gaps = change(i.gaps, row, row.replace('| Closed |','| Partial |'));}, 'status matches published/planned'));
-test('omitting planned operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '未发布：getCommandSummary、subscribeCommandEvents', '未发布：无');}, 'accounts exactly'));
-test('unpublished Inventory Fixture cannot claim Implemented', () => rejected(i => {i.ledger = change(i.ledger, 'Inventory Fixture（未发布 OpenAPI；不得升级 Implemented）', 'Implemented；生产已验收');}, 'mock status matches'));
+test('omitting published command operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '已发布：getCommandSummary、subscribeCommandEvents', '已发布：getCommandSummary');}, 'accounts exactly'));
+test('published contract cannot claim target implementation', () => rejected(i => {i.ledger = change(i.ledger, 'Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收）', 'Implemented；生产已验收');}, 'mock status matches'));
 test('generated-only contract cannot claim Integrated', () => rejected(i => {i.ledger = change(i.ledger, 'Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收）', 'Integrated；目标已验收');}, 'mock status matches'));
 test('missing provider evidence is rejected', () => rejected(i => {delete i.evidenceFiles['services/bff-gateway/tests/auth_settings_provider.rs'];}, 'provider/test/historical receipt matches'));
 test('changed provider receipt is rejected', () => rejected(i => {i.evidenceFiles['docs/audit/BFF-FE-007-acceptance-evidence-2026-09-16.md'] = 'PASS';}, 'provider/test/historical receipt matches'));
@@ -62,7 +62,7 @@ test('nonexistent domain field mappings including the former engine-version anch
   for (const [key, source] of [['Approval.originator', 'proto:common.v1.ActorRef.does_not_exist'], ['ResearchRun.engineVersion', 'proto:engine.v1.GetMetadataResponse.version']]) rejected(i => {i.baseline.domainMappings[key][0] = source;}, 'resolves domain source');
 });
 test('removed referenced core task is rejected', () => rejected(i => {i.corePlan = change(i.corePlan, '- task_id: `F06`', '- task_id: `Z99`');}, 'backend tasks resolve'));
-test('catalog source drift is rejected', () => rejected(i => {i.catalog.contracts.C02.publishedOperations.push('getCommandSummary');}, 'operation catalog identity'));
+test('catalog source drift is rejected', () => rejected(i => {i.catalog.contracts.C02.publishedOperations.pop();}, 'operation catalog identity'));
 
 test('empty implementation artifact lists are rejected for every implemented contract', () => {
   for (const id of Object.keys(current.baseline.implementations)) rejected(i => {i.baseline.implementations[id].artifacts = [];}, 'requires complete contract-specific');
@@ -101,8 +101,8 @@ test('already published fields cannot be relabelled as planned', () => rejected(
 }, 'cannot retain planned-only field rows'));
 
 test('a still unpublished contract cannot close its Gap', () => rejected(i => {
-  const row = i.gaps.split('\n').find(line => line.startsWith('| GAP-02 '));
-  i.gaps = change(i.gaps, row, row.replace('| Open |', '| Closed |'));
+  i.catalog.contracts.C02.publishedOperations=[];i.catalog.contracts.C02.plannedOperations=['getCommandSummary','subscribeCommandEvents'];
+  i.baseline.sourceDigests.find(row=>row.path==='bff/page-operation-catalog.yaml').sha256=createHash('sha256').update(JSON.stringify(i.catalog)).digest('hex');
 }, 'status matches published/planned'));
 test('a partially published synthetic revision still cannot close its Gap', () => rejected(i => {
   i.catalog.contracts.C05.plannedOperations.push('futureStrategyOperation');

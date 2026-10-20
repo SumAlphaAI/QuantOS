@@ -1,4 +1,5 @@
 mod audit;
+mod command;
 mod execution;
 mod market;
 mod operations;
@@ -30,6 +31,7 @@ use tower_http::cors::CorsLayer;
 use uuid::Uuid;
 
 struct LiveState {
+    command: Mutex<crate::command::CommandStreams>,
     consumed_step_proofs: Mutex<std::collections::BTreeSet<String>>,
     reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
     performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
@@ -249,6 +251,7 @@ pub fn router_with_operations(
     );
     let cors = cors_layer(HeaderValue::from_str(&terminal_origin)?);
     let state = Arc::new(LiveState {
+        command: Mutex::new(Default::default()),
         reconciliation,
         performance,
         operations,
@@ -279,6 +282,7 @@ pub fn router_with_operations(
         .merge(reconciliation::routes())
         .merge(performance::routes())
         .merge(operations::routes())
+        .merge(command::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

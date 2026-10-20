@@ -363,6 +363,44 @@ impl OperationsHost {
             a.actor_id
         ]))
     }
+    pub(crate) fn command_source(&self, a: &AuthContext, now: DateTime<Utc>) -> Value {
+        if let Err(e) = self.authorize(a, "ops.read") {
+            return crate::command::unavailable(
+                "operations",
+                if e.0 == StatusCode::FORBIDDEN {
+                    "forbidden"
+                } else {
+                    "unavailable"
+                },
+            );
+        }
+        let Some(health) = &self.health else {
+            return crate::command::unavailable("operations", "unavailable");
+        };
+        let Some(at) = health["asOf"]
+            .as_str()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+        else {
+            return crate::command::unavailable("operations", "unavailable");
+        };
+        if self.alerts.len() > crate::command::ROW_LIMIT {
+            return crate::command::unavailable("operations", "unavailable");
+        }
+        let visible = self.gov.allows(a, "alerts.read");
+        let rows = self
+            .alerts
+            .values()
+            .filter(|r| visible && r["active"] == true)
+            .collect::<Vec<_>>();
+        let items=rows.iter().map(|r|json!({"kind":"alert","id":r["alertId"],"severity":r["severity"],"status":r["status"],"occurredAt":r["occurredAt"],"objectRef":format!("/operations/alerts/{}",r["alertId"].as_str().unwrap())})).collect::<Vec<_>>();
+        crate::command::source(
+            "operations",
+            json!({"health":health["health"],"provenance":health["sourceHash"],"openRiskAlerts":if visible{json!(rows.iter().filter(|r|r["domain"]=="risk").count())}else{Value::Null},"items":items,"truncated":rows.len()>50}),
+            at.with_timezone(&Utc),
+            now,
+            30,
+        )
+    }
     pub(crate) fn current_version(&self, path: &str, a: &AuthContext) -> Option<String> {
         let p = path.split('/').collect::<Vec<_>>();
         if path.ends_with("/subscriptions") {
@@ -1089,3 +1127,14 @@ pub(crate) fn reference_capabilities(session: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests;
+
+pub(crate) fn command_auth(session: &str, shadow: bool) -> AuthContext {
+    let mut a = governance::reference_auth(session, shadow);
+    if session == crate::CURRENT_SESSION {
+        for cap in ["research.read", "execution.operate"] {
+            a.capabilities
+                .insert(quantos_policy::Capability::parse(cap).unwrap());
+        }
+    }
+    a
+}

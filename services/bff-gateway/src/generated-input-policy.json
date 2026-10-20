@@ -1,5 +1,5 @@
 {
-  "version": "1.12.0",
+  "version": "1.13.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -5072,6 +5072,342 @@
         },
         "enabled": {
           "type": "boolean"
+        }
+      }
+    },
+    "CommandItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "severity",
+        "status",
+        "occurredAt",
+        "objectRef"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "run",
+            "order",
+            "approval",
+            "alert"
+          ]
+        },
+        "id": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "occurredAt": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objectRef": {
+          "type": "string",
+          "pattern": "^/(research/runs|orders|approvals|operations/alerts)/[a-f0-9-]{36}$"
+        }
+      }
+    },
+    "CommandSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "status",
+        "asOf",
+        "sourceHash"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "enum": [
+            "research",
+            "execution",
+            "operations",
+            "strategy"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "stale",
+            "unavailable",
+            "forbidden"
+          ]
+        },
+        "asOf": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CommandSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "mode",
+        "sampledAt",
+        "asOf",
+        "expiresAt",
+        "revision",
+        "partial",
+        "dataFreshness",
+        "riskPosture",
+        "systemHealth",
+        "pendingApprovals",
+        "failedRuns",
+        "runningRuns",
+        "openRiskAlerts",
+        "orderSummary",
+        "priority",
+        "recentActivity",
+        "sources",
+        "bounded"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "$ref": "#/components/schemas/RuntimeMode"
+        },
+        "sampledAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "asOf": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "partial": {
+          "type": "boolean"
+        },
+        "dataFreshness": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "stale",
+            "unavailable"
+          ]
+        },
+        "riskPosture": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "elevated",
+            "halted",
+            "unknown"
+          ]
+        },
+        "systemHealth": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "healthy",
+                "degraded"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pendingApprovals": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failedRuns": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runningRuns": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "openRiskAlerts": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Authorized active C16 alerts with domain=risk only; no fabricated X02 alert events"
+        },
+        "orderSummary": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mode",
+                "submitted",
+                "filled",
+                "rejected"
+              ],
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "paper",
+                    "shadow"
+                  ]
+                },
+                "submitted": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                },
+                "filled": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                },
+                "rejected": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "priority": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/components/schemas/CommandItem"
+          }
+        },
+        "recentActivity": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/components/schemas/CommandItem"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/components/schemas/CommandSource"
+          }
+        },
+        "bounded": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceCount",
+            "rowLimit",
+            "itemLimit",
+            "truncated"
+          ],
+          "properties": {
+            "sourceCount": {
+              "type": "integer",
+              "enum": [
+                4
+              ]
+            },
+            "rowLimit": {
+              "type": "integer",
+              "enum": [
+                2000
+              ]
+            },
+            "itemLimit": {
+              "type": "integer",
+              "enum": [
+                50
+              ]
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }
@@ -14080,6 +14416,113 @@
         },
         "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
         "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/command/summary",
+      "method": "GET",
+      "operationId": "getCommandSummary",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-002",
+        "auth": "Verified cookie F06 caller, tenant/workspace/account/mode binding, current governance before snapshot/replay",
+        "capability": "ops.read; each source also requires its existing research.read, execution.operate, strategy.write/approve, ops.read/alerts.read; no privilege escalation",
+        "pagination": "Not applicable; fixed four sources, each max2000 rows, output max50 items",
+        "sort": [
+          "recentActivity occurredAt descending then id",
+          "priority severity then id"
+        ],
+        "filter": [
+          "accountId"
+        ],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "sampledAt is composition time; source asOf/hash/status retained, execution60s and health30s; forbidden/unavailable/stale counters null, never fabricated zero",
+        "idempotency": "Read-only; no proof, reservation, command, audit mutation or venue submit",
+        "version": "revision hash binds authorized source facts and current scope; sample timestamps do not produce false changes",
+        "audit": "Resource-level read references only; source audit policies retained",
+        "limits": {
+          "bodyBytes": 0,
+          "pageSize": 50,
+          "rate": "1000 active stream leases, initial30second deadline,32 snapshot replay events; no HTTP fanout"
+        },
+        "realtime": "Finite snapshot SSE poll/resume with streamId and afterSequence; source/scope changes checked before replay; gap/expired/changed binding409, current permission refusal terminal",
+        "sensitive": "Only whitelisted resource kind/id/status/time and canonical relative objectRef, no arbitrary labels, raw activity, secrets, prompts, risk inputs or executable payloads"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/command/stream",
+      "method": "GET",
+      "operationId": "subscribeCommandEvents",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        },
+        {
+          "name": "streamId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-002",
+        "auth": "Verified cookie F06 caller, tenant/workspace/account/mode binding, current governance before snapshot/replay",
+        "capability": "ops.read; each source also requires its existing research.read, execution.operate, strategy.write/approve, ops.read/alerts.read; no privilege escalation",
+        "pagination": "Not applicable; fixed four sources, each max2000 rows, output max50 items",
+        "sort": [
+          "recentActivity occurredAt descending then id",
+          "priority severity then id"
+        ],
+        "filter": [
+          "accountId"
+        ],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "sampledAt is composition time; source asOf/hash/status retained, execution60s and health30s; forbidden/unavailable/stale counters null, never fabricated zero",
+        "idempotency": "Read-only; no proof, reservation, command, audit mutation or venue submit",
+        "version": "revision hash binds authorized source facts and current scope; sample timestamps do not produce false changes",
+        "audit": "Resource-level read references only; source audit policies retained",
+        "limits": {
+          "bodyBytes": 0,
+          "pageSize": 50,
+          "rate": "1000 active stream leases, initial30second deadline,32 snapshot replay events; no HTTP fanout"
+        },
+        "realtime": "Finite snapshot SSE poll/resume with streamId and afterSequence; source/scope changes checked before replay; gap/expired/changed binding409, current permission refusal terminal",
+        "sensitive": "Only whitelisted resource kind/id/status/time and canonical relative objectRef, no arbitrary labels, raw activity, secrets, prompts, risk inputs or executable payloads"
       },
       "authenticated": true
     }

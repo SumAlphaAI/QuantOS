@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {check as checkBff002} from './bff-fe-002-development.mjs';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readFileSync} from 'node:fs';
@@ -22,6 +23,7 @@ import {check as checkBff005} from './bff-fe-005-development.mjs';
 import {check as checkBff003} from './bff-fe-003-development.mjs';
 
 const validators = {
+  'FE:BFF-FE-002': () => checkBff002(),
   'PROVIDER:A1': () => {if(nodesFromPlans().get('PROVIDER:A1').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const r=JSON.parse(execFileSync(process.execPath,[resolve(import.meta.dirname,'a1-functional-gate.mjs'),'--provider-ready'],{encoding:'utf8'}));assert.equal(r.stageGate,'READY');return {status:'READY',engineeringStatus:'PASS'};}validateReceipt('PROVIDER:A1'); return {status: 'READY'};},
   'CORE-GATE:F0': () => {validateReceipt('CORE-GATE:F0'); return {status: 'READY'};},
   'FE:FEP-0': requireReady => checkFep0({requireReady}),
@@ -42,6 +44,7 @@ const validators = {
 };
 
 const ciAliases = {
+  'bff-fe-002':'FE:BFF-FE-002',
   'provider-a5':'PROVIDER:A5', 'bff-fe-010':'FE:BFF-FE-010', 'bff-fe-008':'FE:BFF-FE-008', 'bff-fe-009':'FE:BFF-FE-009', 'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
   fep0: 'FE:FEP-0', g0: 'FRONTEND-GATE:G0',
   'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'provider-a4':'PROVIDER:A4', 'provider-a3': 'PROVIDER:A3', 'bff-fe-004':'FE:BFF-FE-004', 'bff-fe-006':'FE:BFF-FE-006', 'bff-fe-003': 'FE:BFF-FE-003', 'bff-fe-005': 'FE:BFF-FE-005',
@@ -60,6 +63,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
   assert.equal(pkg.scripts['test:ci-stage-disposition'], 'node --test scripts/ci-stage-disposition.test.mjs');
   assert(job.steps.some(step => unconditional(step) && String(step.run).split(/\s*&&\s*/).includes('pnpm test:ci-stage-disposition')), 'CI disposition rejection probes missing');
   const strict = {
+    'check:bff-fe-002':'node scripts/bff-fe-002-development.mjs --ready',
     'check:provider-a1': 'node scripts/provider-a1-receipts.mjs',
     'check:f0-development': 'node scripts/provider-a1-receipts.mjs --f0',
     'check:fep0': 'node scripts/fep0-development.mjs --ready',

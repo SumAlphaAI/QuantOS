@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.12.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.13.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -42,6 +42,7 @@ export type BffOperationId =
   | "getBacktest"
   | "getCandleSeries"
   | "getCapability"
+  | "getCommandSummary"
   | "getContext"
   | "getDataSnapshot"
   | "getEvidenceChain"
@@ -133,6 +134,7 @@ export type BffOperationId =
   | "subscribeAlerts"
   | "subscribeBacktestRun"
   | "subscribeCandles"
+  | "subscribeCommandEvents"
   | "subscribeOrder"
   | "subscribePortfolio"
   | "subscribeProposal"
@@ -310,6 +312,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getCapability;
     if (resolver) return resolver({ request, params });
     return missingResolver("getCapability");
+  }),
+  http.get(`${baseUrl}/v1/command/summary`, async ({ request, params }) => {
+    const resolver = resolvers.getCommandSummary;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getCommandSummary");
   }),
   http.get(`${baseUrl}/v1/context`, async ({ request, params }) => {
     const resolver = resolvers.getContext;
@@ -765,6 +772,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeCandles;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeCandles");
+  }),
+  http.get(`${baseUrl}/v1/command/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeCommandEvents;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeCommandEvents");
   }),
   http.get(`${baseUrl}/v1/orders/:orderId/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeOrder;

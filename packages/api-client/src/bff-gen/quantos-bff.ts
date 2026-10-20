@@ -1860,6 +1860,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/command/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getCommandSummary */
+        get: operations["getCommandSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/command/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeCommandEvents */
+        get: operations["subscribeCommandEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3113,6 +3147,62 @@ export interface components {
             version: string;
             description: string;
             enabled: boolean;
+        };
+        CommandItem: {
+            /** @enum {string} */
+            kind: "run" | "order" | "approval" | "alert";
+            id: components["schemas"]["UUID"];
+            /** @enum {string} */
+            severity: "critical" | "warning" | "info";
+            status: string;
+            occurredAt: components["schemas"]["DateTime"] | null;
+            objectRef: string;
+        };
+        CommandSource: {
+            /** @enum {string} */
+            domain: "research" | "execution" | "operations" | "strategy";
+            /** @enum {string} */
+            status: "ready" | "stale" | "unavailable" | "forbidden";
+            asOf: components["schemas"]["DateTime"] | null;
+            sourceHash: string | null;
+        };
+        CommandSummary: {
+            accountId: components["schemas"]["UUID"];
+            mode: components["schemas"]["RuntimeMode"];
+            sampledAt: components["schemas"]["DateTime"];
+            asOf: components["schemas"]["DateTime"] | null;
+            expiresAt: components["schemas"]["DateTime"];
+            revision: string;
+            partial: boolean;
+            /** @enum {string} */
+            dataFreshness: "fresh" | "stale" | "unavailable";
+            /** @enum {string} */
+            riskPosture: "normal" | "elevated" | "halted" | "unknown";
+            systemHealth: ("healthy" | "degraded") | null;
+            pendingApprovals: number | null;
+            failedRuns: number | null;
+            runningRuns: number | null;
+            /** @description Authorized active C16 alerts with domain=risk only; no fabricated X02 alert events */
+            openRiskAlerts: number | null;
+            orderSummary: {
+                /** @enum {string} */
+                mode: "paper" | "shadow";
+                submitted: number;
+                filled: number;
+                rejected: number;
+            } | null;
+            priority: components["schemas"]["CommandItem"][];
+            recentActivity: components["schemas"]["CommandItem"][];
+            sources: components["schemas"]["CommandSource"][];
+            bounded: {
+                /** @enum {integer} */
+                sourceCount: 4;
+                /** @enum {integer} */
+                rowLimit: 2000;
+                /** @enum {integer} */
+                itemLimit: 50;
+                truncated: boolean;
+            };
         };
     };
     responses: {
@@ -10372,6 +10462,63 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getCommandSummary: {
+        parameters: {
+            query?: {
+                accountId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized bounded projection; partial sources explicit */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandSummary"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeCommandEvents: {
+        parameters: {
+            query?: {
+                accountId?: components["schemas"]["UUID"];
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+                streamId?: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized bounded projection; partial sources explicit */
             200: {
                 headers: {
                     "X-Correlation-Id": components["headers"]["X-Correlation-Id"];

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.12.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.13.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -5074,6 +5074,342 @@
         },
         "enabled": {
           "type": "boolean"
+        }
+      }
+    },
+    "CommandItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "severity",
+        "status",
+        "occurredAt",
+        "objectRef"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "run",
+            "order",
+            "approval",
+            "alert"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/UUID"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "occurredAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objectRef": {
+          "type": "string",
+          "pattern": "^/(research/runs|orders|approvals|operations/alerts)/[a-f0-9-]{36}$"
+        }
+      }
+    },
+    "CommandSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "status",
+        "asOf",
+        "sourceHash"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "enum": [
+            "research",
+            "execution",
+            "operations",
+            "strategy"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "stale",
+            "unavailable",
+            "forbidden"
+          ]
+        },
+        "asOf": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CommandSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "mode",
+        "sampledAt",
+        "asOf",
+        "expiresAt",
+        "revision",
+        "partial",
+        "dataFreshness",
+        "riskPosture",
+        "systemHealth",
+        "pendingApprovals",
+        "failedRuns",
+        "runningRuns",
+        "openRiskAlerts",
+        "orderSummary",
+        "priority",
+        "recentActivity",
+        "sources",
+        "bounded"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "$ref": "#/$defs/RuntimeMode"
+        },
+        "sampledAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "asOf": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "partial": {
+          "type": "boolean"
+        },
+        "dataFreshness": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "stale",
+            "unavailable"
+          ]
+        },
+        "riskPosture": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "elevated",
+            "halted",
+            "unknown"
+          ]
+        },
+        "systemHealth": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "healthy",
+                "degraded"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pendingApprovals": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failedRuns": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runningRuns": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "openRiskAlerts": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Authorized active C16 alerts with domain=risk only; no fabricated X02 alert events"
+        },
+        "orderSummary": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mode",
+                "submitted",
+                "filled",
+                "rejected"
+              ],
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "paper",
+                    "shadow"
+                  ]
+                },
+                "submitted": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                },
+                "filled": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                },
+                "rejected": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2000
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "priority": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/CommandItem"
+          }
+        },
+        "recentActivity": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/CommandItem"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/CommandSource"
+          }
+        },
+        "bounded": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceCount",
+            "rowLimit",
+            "itemLimit",
+            "truncated"
+          ],
+          "properties": {
+            "sourceCount": {
+              "type": "integer",
+              "enum": [
+                4
+              ]
+            },
+            "rowLimit": {
+              "type": "integer",
+              "enum": [
+                2000
+              ]
+            },
+            "itemLimit": {
+              "type": "integer",
+              "enum": [
+                50
+              ]
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }

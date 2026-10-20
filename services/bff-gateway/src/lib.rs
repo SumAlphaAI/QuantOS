@@ -1,4 +1,5 @@
 mod audit_core;
+pub mod command;
 pub mod operations;
 pub mod performance;
 pub mod reconciliation;
@@ -56,6 +57,7 @@ struct MfaWindow {
 
 #[derive(Debug)]
 struct ProviderData {
+    command: command::CommandStreams,
     reference_shadow: bool,
     reconciliation: Option<reconciliation::ReconciliationHost>,
     performance: Option<performance::PerformanceHost>,
@@ -94,6 +96,7 @@ impl Default for ProviderData {
         let mut research = research::Fixture::default();
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
+            command: Default::default(),
             reference_shadow: false,
             execution: None,
             strategy: None,
@@ -230,6 +233,7 @@ impl BffProvider {
             .merge(reconciliation::reference_routes())
             .merge(performance::reference_routes())
             .merge(operations::reference_routes())
+            .merge(command::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))

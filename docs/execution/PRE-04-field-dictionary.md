@@ -1,6 +1,6 @@
 # PRE-04 字段字典
 
-> 版本：1.7；日期：2026-10-19；范围：一期官网与 Web Terminal。
+> 版本：1.8；日期：2026-10-20；范围：一期官网与 Web Terminal。
 > 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。
 
 ## 1. 字段与来源口径
@@ -47,6 +47,8 @@
 | GovernanceAction | {"type":"object","additionalProperties":false,"required":["reason","mfaChallengeRef","reauthTokenRef","spec"],"properties":{"reason":{"type":"string","minLength":1,"maxLength":256},"mfaChallengeRef":{"$ref":"#/components/schemas/UUID"},"reauthTokenRef":{"$ref":"#/components/schemas/UUID"},"spec":{"$ref":"#/components/schemas/AdminSpec"}}} |
 | AdminPermissionCapabilitySpec | {"type":"object","additionalProperties":false,"required":["kind","name","enabled"],"properties":{"kind":{"type":"string","enum":["capability"]},"name":{"type":"string","enum":["ops.read","ops.operate","ops.approve","admin.read","admin.write","alerts.read"]},"enabled":{"type":"boolean"}}} |
 | AdminEngineCapabilitySpec | {"type":"object","additionalProperties":false,"required":["kind","reviewId","name","version","description","enabled"],"properties":{"kind":{"type":"string","enum":["engine_capability"]},"reviewId":{"$ref":"#/components/schemas/UUID"},"name":{"type":"string","minLength":1,"maxLength":160},"version":{"type":"string","minLength":1,"maxLength":64},"enabled":{"type":"boolean"}}} |
+| CommandItem | {"type":"object","additionalProperties":false,"required":["kind","id","severity","status","occurredAt","objectRef"],"properties":{"kind":{"type":"string","enum":["run","order","approval","alert"]},"id":{"$ref":"#/components/schemas/UUID"},"severity":{"type":"string","enum":["critical","warning","info"]},"status":{"type":"string","minLength":1,"maxLength":32},"occurredAt":{"anyOf":[{"$ref":"#/components/schemas/DateTime"},{"type":"null"}]},"objectRef":{"type":"string","pattern":"^/(research/runs&#124;orders&#124;approvals&#124;operations/alerts)/[a-f0-9-]{36}$"}}} |
+| CommandSource | {"type":"object","additionalProperties":false,"required":["domain","status","asOf","sourceHash"],"properties":{"domain":{"type":"string","enum":["research","execution","operations","strategy"]},"status":{"type":"string","enum":["ready","stale","unavailable","forbidden"]},"asOf":{"anyOf":[{"$ref":"#/components/schemas/DateTime"},{"type":"null"}]},"sourceHash":{"anyOf":[{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},{"type":"null"}]}}} |
 
 ## 2. C01 Session/Context
 
@@ -76,14 +78,25 @@
 
 | wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
 |---|---|---|---|---|---|
-| riskPosture | enum{normal, elevated, halted} | 是 | planned-model:CommandCenterView（X02 读模型） | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.0 |
-| dataFreshness | enum{fresh, delayed, stale} + asOf:rfc3339 | 是 | planned-model:CommandCenterView | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.1 |
-| pendingApprovals / failedRuns / openRiskAlerts | int32 | 是 | planned-model:CommandCenterView | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.2 |
-| orderSummary | object{mode, submitted, filled, rejected} | 是 | planned-model:CommandCenterView（X04 投影） | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.3 |
-| alerts | AlertRef[]（见 C16） | 是 | planned-model:CommandCenterView | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.4 |
-| sampledAt | rfc3339 | 是 | planned-model:CommandCenterView | PLANNED：BFF-FE-002 冻结后同步 wire 映射 | planned:C02.plannedFields.5 |
-
-尚未发布 operation：getCommandSummary、subscribeCommandEvents；责任任务 BFF-FE-002。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+| CommandSummary.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.accountId |
+| CommandSummary.mode | {"$ref":"#/components/schemas/RuntimeMode"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.mode |
+| CommandSummary.sampledAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.sampledAt |
+| CommandSummary.asOf | {"anyOf":[{"$ref":"#/components/schemas/DateTime"},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.asOf |
+| CommandSummary.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.expiresAt |
+| CommandSummary.revision | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.revision |
+| CommandSummary.partial | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.partial |
+| CommandSummary.dataFreshness | {"type":"string","enum":["fresh","stale","unavailable"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.dataFreshness |
+| CommandSummary.riskPosture | {"type":"string","enum":["normal","elevated","halted","unknown"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.riskPosture |
+| CommandSummary.systemHealth | {"anyOf":[{"type":"string","enum":["healthy","degraded"]},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.systemHealth |
+| CommandSummary.pendingApprovals | {"anyOf":[{"type":"integer","minimum":0,"maximum":4000},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.pendingApprovals |
+| CommandSummary.failedRuns | {"anyOf":[{"type":"integer","minimum":0,"maximum":2000},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.failedRuns |
+| CommandSummary.runningRuns | {"anyOf":[{"type":"integer","minimum":0,"maximum":2000},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.runningRuns |
+| CommandSummary.openRiskAlerts | {"anyOf":[{"type":"integer","minimum":0,"maximum":2000},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.openRiskAlerts |
+| CommandSummary.orderSummary | {"anyOf":[{"type":"object","additionalProperties":false,"required":["mode","submitted","filled","rejected"],"properties":{"mode":{"type":"string","enum":["paper","shadow"]},"submitted":{"type":"integer","minimum":0,"maximum":2000},"filled":{"type":"integer","minimum":0,"maximum":2000},"rejected":{"type":"integer","minimum":0,"maximum":2000}}},{"type":"null"}]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.orderSummary |
+| CommandSummary.priority | {"type":"array","maxItems":50,"items":{"$ref":"#/components/schemas/CommandItem"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.priority |
+| CommandSummary.recentActivity | {"type":"array","maxItems":50,"items":{"$ref":"#/components/schemas/CommandItem"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.recentActivity |
+| CommandSummary.sources | {"type":"array","minItems":4,"maxItems":4,"items":{"$ref":"#/components/schemas/CommandSource"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.sources |
+| CommandSummary.bounded | {"type":"object","additionalProperties":false,"required":["sourceCount","rowLimit","itemLimit","truncated"],"properties":{"sourceCount":{"type":"integer","enum":[4]},"rowLimit":{"type":"integer","enum":[2000]},"itemLimit":{"type":"integer","enum":[50]},"truncated":{"type":"boolean"}}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:CommandSummary.bounded |
 
 ## 4. C03 Research Runtime
 
@@ -829,7 +842,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 692 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 705 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

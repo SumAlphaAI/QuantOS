@@ -1,0 +1,103 @@
+[
+  {
+    "id": "command-05",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "command::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/command-05.log",
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "id": "clippy-03",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/clippy-03.log",
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "id": "build-04",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/build-04.log",
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "id": "consumer-03",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/command-provider-consumer.test.ts",
+      "--coverage",
+      "--coverage.provider=v8",
+      "--coverage.include=apps/terminal/src/command/gateway.ts",
+      "--coverage.reporter=json-summary",
+      "--coverage.reportsDirectory=/private/tmp/quantos-command-precheck-coverage"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/consumer-03.log",
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "id": "types-03",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/types-03.log",
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "id": "pre04-negative-03",
+    "command": [
+      "node",
+      "--test",
+      "scripts/pre04-gate-negative.mjs"
+    ],
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/preflight/pre04-negative-03.log",
+    "exitCode": 1,
+    "signal": null,
+    "error": null
+  }
+]

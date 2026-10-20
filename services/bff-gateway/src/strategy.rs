@@ -400,6 +400,36 @@ impl StrategyHost {
         Ok(result)
     }
     /// Shared pages cannot silently omit or publish facts from a quarantined lease.
+    pub(crate) fn command_source(&self, a: &AuthContext, now: DateTime<Utc>) -> Value {
+        let rows = match self.checked_approvals(a, now) {
+            Ok(v) => v,
+            Err(e) => {
+                return crate::command::unavailable(
+                    "strategy",
+                    if e.0 == StatusCode::FORBIDDEN {
+                        "forbidden"
+                    } else {
+                        "unavailable"
+                    },
+                );
+            }
+        };
+        if rows.len() > crate::command::ROW_LIMIT {
+            return crate::command::unavailable("strategy", "unavailable");
+        }
+        let pending = rows
+            .iter()
+            .filter(|r| r["status"] == "pending")
+            .collect::<Vec<_>>();
+        let items=pending.iter().map(|v|json!({"kind":"approval","id":v["approvalId"],"severity":"warning","status":"pending","occurredAt":null,"objectRef":format!("/approvals/{}",v["approvalId"].as_str().unwrap())})).collect::<Vec<_>>();
+        crate::command::source(
+            "strategy",
+            json!({"pendingApprovals":pending.len(),"items":items,"truncated":pending.len()>50}),
+            now,
+            now,
+            30,
+        )
+    }
     pub(crate) fn checked_approvals(
         &self,
         a: &AuthContext,
