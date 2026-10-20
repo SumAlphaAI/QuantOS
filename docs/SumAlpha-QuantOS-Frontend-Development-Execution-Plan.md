@@ -1,4 +1,4 @@
-> 当前执行（FE:BFF-FE-008/A5，2026-10-20）：复核C14八项API，报告到期票据回收与下载元数据绑定修复纳入新候选；C15原稿用户CONFIRMED，共享输入变更后独立当前Gate NOT_ASSESSED，原回执与确认保留原范围。完整联调/发布NOT_RUN，新稿PENDING。
+> 当前工程结果（FE:BFF-FE-008/A5，2026-10-20）：冻结b20efc30，1109输入、15组/6入口PASS；Rust57、Node173、consumer/契约46，八API/146条HTTP及基本Chromium通过。修复到期报告票据回收、下载状态/时间/审计元数据绑定，26控制点；54,236份原audit/gate保持。仅BFF008_SCOPE_LOCAL DEVELOPMENT READY；C15原稿已CONFIRMED，五前置当前Gate不重授。完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-008-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-008-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-010 / A5当前复核。
 
 > 用户确认（FE:BFF-FE-009，2026-10-20）：本会话已确认原完整稿，仅绑定007040fd原源码、1e1ca813原稿/技术回执和1082输入；不授予当前HEAD或运行时准入。见[确认记录](./audit/evidence/bff-fe-009-confirmation-20261020/summary.md)。
 
@@ -1564,10 +1564,12 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="task-bff-fe-008"></a>
 ##### BFF-FE-008：Performance 与报表 API
 
+2026-10-20当前复核：b20efc30冻结候选15组/6入口PASS，仅BFF008_SCOPE_LOCAL READY，完整联调/发布NOT_RUN、确认PENDING。见[报告](./audit/BFF-FE-008-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-008-local-20261020/confirmation-draft.md)。五前置原回执、确认及失败不改绑。
+
 - task_id: `BFF-FE-008`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:bfc755b5a41e9d22d0bfbe2761d790bca97fdacb847d2a3f3e2ca0cd8d19e154","evidence":["audit/evidence/bff-fe-008-local-20261020/manifest.json"]}
 - depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []

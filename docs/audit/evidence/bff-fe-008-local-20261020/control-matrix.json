@@ -1,0 +1,269 @@
+{
+  "schema": "quantos-bff008-control-matrix/v1",
+  "sourceCommit": "b20efc3054c51933a706b8ac4132dd4316b5c71d",
+  "inputDigest": "sha256:ed19be79c4d9b2d7ca665ad6c497c31e6528b09127fd768b436a8a4a4c4efa28",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "C14 owned API contract",
+      "checkId": "contract",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/contract.log",
+      "assertion": "8 C14 operations",
+      "verifiedBehavior": "Eight current owned C14 operations; no ledger/venue edit",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C02",
+      "control": "Exact generated artifacts",
+      "checkId": "generated",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/generated.log",
+      "assertion": "BFF generated artifacts match",
+      "verifiedBehavior": "OpenAPI1.12.0 and six generated artifacts exact",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C03",
+      "control": "Financial golden values",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "x01_x05_actual_books_golden_metrics_and_provisional ... ok",
+      "verifiedBehavior": "Actual X01/X05 books produce expected P&L/simple return/fees/drawdown and provisional coverage",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C04",
+      "control": "Frozen retry recovery",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "exact_retry_single_job_and_frozen_worker_recovery ... ok",
+      "verifiedBehavior": "1000 original-key retries preserve one frozen job; worker materializes bytes once",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C05",
+      "control": "Scope and poison refusal",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "scope_roles_mode_capability_poison_and_no_browser_source ... ok",
+      "verifiedBehavior": "Trusted actor scope/role/mode/capability; poisoned host and browser book rejected",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C06",
+      "control": "Period and basis refusal",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "periods_partial_coverage_method_currency_and_invalid_basis_refuse ... ok",
+      "verifiedBehavior": "UTC period/coverage bounds, unsupported method/currency and return basis rejected",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C07",
+      "control": "Grant integrity and expiry",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "download_hash_scope_token_expiry_and_report_retention ... ok",
+      "verifiedBehavior": "Byte SHA256/size; actor/session bound token; exact60second and15minute expiry refused",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C08",
+      "control": "C15 history and lease",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "c15_history_preserved_and_lease_loss_fail_closed ... ok",
+      "verifiedBehavior": "Existing C15 history remains; missing/poisoned lease refuses new valuation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C09",
+      "control": "Concurrent unique job and F05",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "concurrent_http_job_unique_audit_chain_and_revoked_download ... ok",
+      "verifiedBehavior": "Concurrent actual requests yield unique job/root, revoked download refused",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C10",
+      "control": "Valuation source mismatch",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "altered_valuation_and_out_of_order_versions_never_append ... ok",
+      "verifiedBehavior": "Tampered valuation and reversed versions do not append points",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C11",
+      "control": "Cashflow refusal",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "trusted_cash_flow_refuses_simple_return_instead_of_fabricating_attribution ... ok",
+      "verifiedBehavior": "Changed seed refuses fabricated simple return/attribution",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C12",
+      "control": "Expired-report capacity recovery",
+      "checkId": "performance",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/performance.log",
+      "assertion": "expired_report_tickets_release_capacity_without_reviving_old_grants ... ok",
+      "verifiedBehavior": "1000 ticket429, known expired grant410, report expiry releases capacity; new download succeeds while old report410/original-key recovery remain",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C13",
+      "control": "Consumer metadata binding",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/consumers.log",
+      "assertion": "performance-provider-consumer.test.ts",
+      "verifiedBehavior": "Six schema-valid status/time/audit/supersession fields mutated on document with rehashed bytes and on grant must refuse; actual normal download passes",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C14",
+      "control": "Current HTTP/browser",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Every owned success401403/schema,100 retries and basic Chromium; actual downloaded byte proof bound",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C15",
+      "control": "Downloaded JSON integrity",
+      "checkId": "http",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/http.log",
+      "assertion": null,
+      "verifiedBehavior": "Fresh downloadProof SHA256 and size agree with actual grant, not synthesized metadata",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C16",
+      "control": "Direct C15 regressions",
+      "checkId": "c15-direct",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/c15-direct.log",
+      "assertion": null,
+      "verifiedBehavior": "Actual read seam/history/day/proof/pagination/readonly/mode tests only; no C15 Gate",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C17",
+      "control": "Direct Auth/audit regressions",
+      "checkId": "a2-boundary",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/a2-boundary.log",
+      "assertion": null,
+      "verifiedBehavior": "Shared session/CSRF/authorization/logout/F05 roots preserved",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C18",
+      "control": "Type compilation",
+      "checkId": "types",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/types.log",
+      "assertion": null,
+      "verifiedBehavior": "Pinned generated client and terminal compile",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C19",
+      "control": "Static lint",
+      "checkId": "lint",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/lint.log",
+      "assertion": null,
+      "verifiedBehavior": "Current consumer and client static checks",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C20",
+      "control": "Native static checks",
+      "checkId": "clippy",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/clippy.log",
+      "assertion": null,
+      "verifiedBehavior": "Current host/wiring clippy warnings denied",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C21",
+      "control": "Provider executable",
+      "checkId": "build",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/build.log",
+      "assertion": null,
+      "verifiedBehavior": "Current owned reference provider built offline",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C22",
+      "control": "Original user confirmations",
+      "checkId": "confirmation",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/confirmation.log",
+      "assertion": null,
+      "verifiedBehavior": "Latest C15/A4 human reply/draft/source/receipt verified only within original scopes",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C23",
+      "control": "Gate refusal and rollback",
+      "checkId": "gate-tests",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/gate-tests.log",
+      "assertion": null,
+      "verifiedBehavior": "Source/log/schema/coverage/dependency/phase drift refused; publish rollback verified",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C24",
+      "control": "Mandatory CI disposition",
+      "checkId": "plan-policy",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/plan-policy.log",
+      "assertion": null,
+      "verifiedBehavior": "Scoped profile and mandatory actual CI entrypoint; no upstream readiness propagation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C25",
+      "control": "Plan consistency",
+      "checkId": "plans",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/function-attempt-01/logs/plans.log",
+      "assertion": null,
+      "verifiedBehavior": "Both plans and machine policy match; integration/release remain NOT_RUN",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "id": "C26",
+      "control": "Historical byte preservation",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261020/history-preservation.json",
+      "status": "PASS",
+      "verifiedBehavior": "54236 original tracked audit/gate files unchanged",
+      "scope": "REFERENCE_PRESERVATION_NOT_REVALIDATION"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}
