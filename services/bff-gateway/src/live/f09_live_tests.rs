@@ -150,6 +150,7 @@ fn real_logout_db_write_matches_persistent_trace() {
     );
     let origin = "https://f09-trace.example.invalid";
     let state = Arc::new(LiveState {
+        platform: Mutex::new(Default::default()),
         command: Mutex::new(Default::default()),
         reconciliation: None,
         performance: None,

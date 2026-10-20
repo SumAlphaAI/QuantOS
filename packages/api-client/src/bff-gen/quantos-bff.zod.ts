@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.13.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.14.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -190,6 +190,7 @@ export const DownloadRecordSchema = z.object({
   "downloadUrl": z.string().url().describe("BFF 短时签名 URL；不得写入日志或持久化").optional(),
   "watermarked": z.boolean().optional(),
   "correlationId": z.lazy(() => UUIDSchema).optional(),
+  "downloadPath": z.string().regex(new RegExp("^/v1/exports/[0-9a-fA-F-]{36}/download$")).describe("Metadata-only action path. Obtain a fresh current-session short-lived link from the export owner. History never stores or returns a bearer URL; expiresAt is artifact retention, not a minted URL lifetime.").optional(),
 }).passthrough();
 
 export const BrowserCapabilityPolicySchema = z.object({
@@ -203,6 +204,15 @@ export const BrowserCapabilityPolicySchema = z.object({
   "businessPagesNoIndex": z.literal(true),
   "cspEnforced": z.boolean(),
   "sessionProtected": z.boolean(),
+  "permissionState": z.object({
+  "notifications": z.literal("unknown"),
+  "clipboard": z.literal("unknown"),
+  "authority": z.literal("browser_runtime"),
+  "requestedByServer": z.literal(false),
+}).passthrough().describe("Server cannot observe browser-native permission. Browser runtime detection is local and may only narrow this policy; this GET never prompts.").optional(),
+  "fallbacks": z.array(z.enum(["notification_in_app","clipboard_manual","download_retry","online_only"])).max(4).optional(),
+  "downloadLinkTtlSeconds": z.literal(300).optional(),
+  "downloadHistoryIncludesLinks": z.literal(false).optional(),
 }).passthrough();
 
 export const AuditEventSchema = z.object({
@@ -1425,12 +1435,14 @@ export const bffResponseSchemas = {
 }).passthrough()),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "getPlatformCapabilities": {
     "200": z.lazy(() => BrowserCapabilityPolicySchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "listResearchRuns": {

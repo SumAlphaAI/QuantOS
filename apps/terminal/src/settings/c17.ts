@@ -57,26 +57,27 @@ export function notificationFallback(permission: BrowserPermissionState): "brows
 
 export function downloadAvailability(record: DownloadRecord, nowIso: string): { available: boolean; reason: string } {
   if (record.status !== "ready") return { available: false, reason: record.status === "expired" ? "下载链接已过期，请重新生成。" : "文件尚未准备完成。" };
-  if (!record.downloadUrl || !record.expiresAt || record.expiresAt <= nowIso) return { available: false, reason: "短时下载链接不可用或已过期。" };
+  if (!record.downloadUrl || !record.expiresAt || !Number.isFinite(Date.parse(record.expiresAt)) || !Number.isFinite(Date.parse(nowIso)) || Date.parse(record.expiresAt) <= Date.parse(nowIso)) return { available: false, reason: "短时下载链接不可用或已过期。" };
   return { available: true, reason: "下载通过 BFF 短时签名链接提供，并记录审计。" };
 }
 
 export function detectBrowserRuntime(scope: Window & typeof globalThis): BrowserRuntimeCapabilities {
   const userAgent = scope.navigator.userAgent;
+  const secure = scope.isSecureContext === true;
   const chrome = userAgent.match(/(?:Chrome|CriOS)\/(\d+)/)?.[1];
   const safari = !chrome && userAgent.match(/Version\/(\d+).+Safari/)?.[1];
   const firefox = userAgent.match(/Firefox\/(\d+)/)?.[1];
   return {
     browserLabel: chrome ? `Chrome ${chrome}` : firefox ? `Firefox ${firefox}` : safari ? `Safari ${safari}` : "Unknown / upgrade required",
     operatingSystem: /Mac/.test(userAgent) ? "macOS" : /Win/.test(userAgent) ? "Windows" : /Linux/.test(userAgent) ? "Linux" : "Unknown",
-    notifications: !("Notification" in scope) ? "unsupported" : scope.Notification.permission,
+    notifications: !secure || !("Notification" in scope) ? "unsupported" : scope.Notification.permission,
     webSocket: "WebSocket" in scope,
     serverSentEvents: "EventSource" in scope,
-    clipboard: Boolean(scope.navigator.clipboard),
+    clipboard: secure && Boolean(scope.navigator.clipboard),
     downloads: "download" in scope.document.createElement("a"),
     serviceWorker: "serviceWorker" in scope.navigator,
     storageEstimate: Boolean(scope.navigator.storage?.estimate),
     indexedDb: "indexedDB" in scope,
-    passkey: "PublicKeyCredential" in scope,
+    passkey: secure && "PublicKeyCredential" in scope,
   };
 }

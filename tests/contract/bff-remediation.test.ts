@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { bffZodSchemas } from "../../packages/api-client/src/bff-gen/quantos-bff.zod";
 import { openapi, operations, validateRequest, validateResponse } from "./http-contract.mjs";
@@ -46,7 +47,7 @@ describe("A1 OpenAPI semantic remediation",()=>{
   expect((await validateResponse('getSession',Response.json({}, {headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).length).toBeGreaterThan(0);
   expect((await validateResponse('getSession',Response.json(loadFixture('session/default.json')))).some((i:string)=>i.includes('header'))).toBe(true);
   expect((await validateResponse('getSession',Response.json({...loadFixture('session/default.json'),venueApiKey:'synthetic'},{headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).some((i:string)=>i.includes('敏感'))).toBe(true);
-  expect(openapi.info.version).toBe('1.13.0');
+  expect(openapi.info.version).toBe(JSON.parse(readFileSync(new URL("./generated/quantos-bff.operations.json",import.meta.url),"utf8")).version);
  });
  it("requires conflict version, rate retry and matching error correlation without debug extensions",async()=>{
   const envelope={code:'VERSION_CONFLICT',message:'stale',correlationId:uuid};

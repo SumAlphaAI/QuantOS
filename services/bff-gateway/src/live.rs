@@ -31,6 +31,7 @@ use tower_http::cors::CorsLayer;
 use uuid::Uuid;
 
 struct LiveState {
+    platform: Mutex<crate::platform::History>,
     command: Mutex<crate::command::CommandStreams>,
     consumed_step_proofs: Mutex<std::collections::BTreeSet<String>>,
     reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
@@ -251,6 +252,7 @@ pub fn router_with_operations(
     );
     let cors = cors_layer(HeaderValue::from_str(&terminal_origin)?);
     let state = Arc::new(LiveState {
+        platform: Mutex::new(Default::default()),
         command: Mutex::new(Default::default()),
         reconciliation,
         performance,

@@ -1,0 +1,81 @@
+✖ current full phase-one inventory passes (16.994666ms)
+✔ missing Gap is rejected (12.339334ms)
+✔ undecided realtime dependency is rejected (9.4385ms)
+✔ deleted required actorId field is rejected (8.733792ms)
+✔ nonexistent field source is rejected (8.804459ms)
+✔ wrong field type and optionality are rejected (7.94025ms)
+✔ generated operation deletion is rejected (8.403375ms)
+✔ generated method and path drift are rejected (16.280917ms)
+✔ same-count schema rename is rejected (7.247458ms)
+✔ schema required and enum drift are rejected (15.0595ms)
+✔ same-count Proto message rename is rejected (7.782208ms)
+✔ removed Proto declaration is rejected (8.045417ms)
+✔ same-count JSON Schema replacement is rejected (7.373709ms)
+✔ duplicate contract row is rejected before Map collapse (7.49925ms)
+✔ duplicate Gap row is rejected before Map collapse (7.016375ms)
+✔ nonexistent role owner is rejected (7.045459ms)
+✔ nonexistent backend task is rejected (7.806834ms)
+✔ nonexistent BFF task is rejected (7.344791ms)
+✔ unknown Gap page is rejected (7.127208ms)
+✔ each missing website P0 page is rejected (36.873208ms)
+✔ missing auxiliary risk/audit/order contract is rejected (22.984458ms)
+✔ regressing a fully published Gap to Partial is rejected (7.101542ms)
+✔ omitting published command operation is rejected (7.964583ms)
+✔ published contract cannot claim target implementation (7.68325ms)
+✔ generated-only contract cannot claim Integrated (7.684125ms)
+✔ missing provider evidence is rejected (8.872ms)
+✔ changed provider receipt is rejected (7.147417ms)
+✔ missing Inventory Fixture is rejected (7.520958ms)
+✔ Desktop contamination is rejected by Web inventory (7.746875ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (15.446083ms)
+✔ removed referenced core task is rejected (8.305083ms)
+✔ catalog source drift is rejected (7.807125ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (28.8035ms)
+✔ each missing implementation evidence category is rejected (86.511542ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (7.643083ms)
+✔ another contract receipt cannot substitute for required evidence (7.145333ms)
+✔ unknown task suffixes are rejected in both backend task columns (42.011083ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (18.171791ms)
+✔ OpenAPI version and counts must agree with controlled inventory and generated source (31.477542ms)
+✔ published domains cannot omit their wire models even with a regenerated dictionary (48.3875ms)
+✔ already published fields cannot be relabelled as planned (9.949875ms)
+✔ a still unpublished contract cannot close its Gap (8.388459ms)
+✔ a partially published synthetic revision still cannot close its Gap (9.4355ms)
+✔ source digest rows cannot be missing or duplicated (15.227041ms)
+✔ legacy source-digest layout cannot masquerade as the current baseline (8.173667ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 44
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 810.854166
+
+✖ failing tests:
+
+test at scripts/pre04-gate-negative.mjs:19:1
+✖ current full phase-one inventory passes (16.994666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      17,
+      17,
+      23,
+  +   710
+  -   705
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:22:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 17, 17, 23, 710 ],
+    expected: [ 17, 17, 23, 705 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

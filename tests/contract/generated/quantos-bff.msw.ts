@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.13.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.14.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {

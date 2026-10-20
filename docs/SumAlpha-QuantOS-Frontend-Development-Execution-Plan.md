@@ -987,6 +987,18 @@
         "PROVIDER:A5"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-011": {
+      "profile": "BFF011_SCOPE_LOCAL",
+      "schema": "quantos-bff011-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-011-local-20261020/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-010",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1666,12 +1678,12 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="task-bff-fe-002"></a>
 ##### BFF-FE-002：Command Center 聚合 API
 
-2026-10-20功能交付：116d076e冻结候选16组/5入口PASS，两个C02 API及四源只读聚合，有限SSE恢复与生成consumer完成；仅BFF002_SCOPE_LOCAL READY，完整P02/UI101/G1/联调/发布NOT_RUN、确认PENDING。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。
+2026-10-20功能交付：116d076e冻结候选16组/5入口PASS，两个C02 API及四源只读聚合，有限SSE恢复与生成consumer完成；仅BFF002_SCOPE_LOCAL READY，完整P02/UI101/G1/联调/发布NOT_RUN、原稿已由本会话用户确认；共享平台/契约输入变化后当前READY撤回，原回执仅原范围参考。见[报告](./audit/BFF-FE-002-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-002-local-20261020/confirmation-draft.md)。
 
 - task_id: `BFF-FE-002`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1ecff773f1032d20d45418beecae3dd58e9d3f390de01c7ecd9d09628019f4ba","evidence":["audit/evidence/bff-fe-002-local-20261020/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE"]
 - closes_core: []

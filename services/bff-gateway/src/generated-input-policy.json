@@ -1,5 +1,5 @@
 {
-  "version": "1.13.0",
+  "version": "1.14.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -805,6 +805,11 @@
         },
         "correlationId": {
           "$ref": "#/components/schemas/UUID"
+        },
+        "downloadPath": {
+          "type": "string",
+          "pattern": "^/v1/exports/[0-9a-fA-F-]{36}/download$",
+          "description": "Metadata-only action path. Obtain a fresh current-session short-lived link from the export owner. History never stores or returns a bearer URL; expiresAt is artifact retention, not a minted URL lifetime."
         }
       }
     },
@@ -874,6 +879,67 @@
         },
         "sessionProtected": {
           "type": "boolean"
+        },
+        "permissionState": {
+          "type": "object",
+          "description": "Server cannot observe browser-native permission. Browser runtime detection is local and may only narrow this policy; this GET never prompts.",
+          "required": [
+            "notifications",
+            "clipboard",
+            "authority",
+            "requestedByServer"
+          ],
+          "properties": {
+            "notifications": {
+              "type": "string",
+              "enum": [
+                "unknown"
+              ]
+            },
+            "clipboard": {
+              "type": "string",
+              "enum": [
+                "unknown"
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "browser_runtime"
+              ]
+            },
+            "requestedByServer": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            }
+          }
+        },
+        "fallbacks": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "enum": [
+              "notification_in_app",
+              "clipboard_manual",
+              "download_retry",
+              "online_only"
+            ]
+          }
+        },
+        "downloadLinkTtlSeconds": {
+          "type": "integer",
+          "enum": [
+            300
+          ]
+        },
+        "downloadHistoryIncludesLinks": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
         }
       }
     },
@@ -6545,10 +6611,10 @@
       "body": null,
       "bodyExample": null,
       "policy": {
-        "owner": "BFF-FE-001",
+        "owner": "BFF-FE-011",
         "auth": "cookie + resource-scoped authorization",
         "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
-        "pagination": "cursor/pageSize; max 200",
+        "pagination": "Opaque owner/session/query/revision-bound cursor; pageSize max200, bounded source max2000, lease60s; expired/changed/tampered cursor422 reload",
         "sort": [
           "downloadId",
           "requestedAt",
@@ -6585,7 +6651,7 @@
       "body": null,
       "bodyExample": null,
       "policy": {
-        "owner": "BFF-FE-001",
+        "owner": "BFF-FE-011",
         "auth": "cookie + resource-scoped authorization",
         "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
         "pagination": "not applicable: single resource or bounded member-owned collection",

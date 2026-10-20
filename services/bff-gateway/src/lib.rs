@@ -2,6 +2,7 @@ mod audit_core;
 pub mod command;
 pub mod operations;
 pub mod performance;
+mod platform;
 pub mod reconciliation;
 pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
@@ -57,6 +58,7 @@ struct MfaWindow {
 
 #[derive(Debug)]
 struct ProviderData {
+    platform: platform::History,
     command: command::CommandStreams,
     reference_shadow: bool,
     reconciliation: Option<reconciliation::ReconciliationHost>,
@@ -96,6 +98,7 @@ impl Default for ProviderData {
         let mut research = research::Fixture::default();
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
+            platform: Default::default(),
             command: Default::default(),
             reference_shadow: false,
             execution: None,
@@ -1277,14 +1280,46 @@ async fn revoke_factor(
 async fn list_downloads(
     State(data): State<Arc<Mutex<ProviderData>>>,
     headers: HeaderMap,
+    Query(query): Query<platform::HistoryQuery>,
 ) -> Response {
-    if let Err(response) = authenticate(&headers, &data).await {
+    if let Err(response) = require_capability(&headers, &data, "audit:read").await {
         return response;
     }
-    let correlation = correlation_id();
-    response(StatusCode::OK, json!({"items":[]}), &correlation)
+    let mut state = data.lock().await;
+    let now = state.now();
+    if state.exports.len() > platform::ROW_LIMIT {
+        return platform_fault(platform::Fault::Unavailable);
+    }
+    let items = state
+        .exports
+        .values()
+        .map(|job| platform::record(job, now, true))
+        .collect::<Result<Vec<_>, _>>();
+    let result = items.and_then(|items| state.platform.page(CURRENT_SESSION, items, query, now));
+    match result {
+        Ok(payload) => response(StatusCode::OK, payload, &correlation_id()),
+        Err(f) => platform_fault(f),
+    }
 }
-
+fn platform_fault(f: platform::Fault) -> Response {
+    match f {
+        platform::Fault::Invalid => error(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "INVALID_REQUEST",
+            "请求无效。",
+        ),
+        platform::Fault::Cursor => error(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "INVALID_CURSOR",
+            "游标已失效，请重新加载。",
+        ),
+        platform::Fault::Unavailable => error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "SERVICE_UNAVAILABLE",
+            "暂时无法完成请求。",
+        ),
+    }
+}
 async fn browser_capabilities(
     State(data): State<Arc<Mutex<ProviderData>>>,
     headers: HeaderMap,
@@ -1292,11 +1327,10 @@ async fn browser_capabilities(
     if let Err(response) = authenticate(&headers, &data).await {
         return response;
     }
-    let correlation = correlation_id();
     response(
         StatusCode::OK,
-        json!({"kind":"web","authFlow":"browser_redirect","notifications":"browser","localFileImport":false,"deepLinkScheme":"https://app.sumalpha.test","downloadsViaBff":true,"offlineDomainActions":false,"businessPagesNoIndex":true,"cspEnforced":true,"sessionProtected":true}),
-        &correlation,
+        platform::policy("https://app.sumalpha.test"),
+        &correlation_id(),
     )
 }
 
@@ -1879,7 +1913,10 @@ async fn get_export_download(
             "导出已过期，请重新创建。",
         );
     }
-    let expires_at = (state.now() + Duration::minutes(5)).min(retention);
+    let Some(expires_at) = platform::lease_expiry(state.now(), retention, state.session_expires_at)
+    else {
+        return error(StatusCode::UNAUTHORIZED, "UNAUTHENTICATED", "会话已过期。");
+    };
     let audit_ref = record_audit_action(
         &mut state,
         "export.download_issued",

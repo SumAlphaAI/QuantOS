@@ -1,0 +1,33 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.23s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-66658af83242e527)
+
+running 12 tests
+test platform::tests::browser_policy_keeps_local_permission_unknown_and_degrades_without_prompts ... ok
+test platform::tests::cursor_binds_identity_session_query_page_size_and_current_revision ... ok
+test platform::tests::cursor_capacity_is_bounded_and_recovered_after_deadline ... ok
+test platform::tests::cursor_expiry_tamper_and_row_limit_refuse_with_recoverable_reload ... ok
+test platform::tests::history_filters_sorts_and_breaks_equal_timestamp_ties_before_paging ... ok
+test platform::tests::history_whitelist_never_replays_urls_tokens_labels_or_local_paths ... ok
+test platform::tests::malformed_source_never_becomes_partial_or_empty_success ... ok
+test platform::tests::owner_capability_retention_and_state_control_download_action ... ok
+test platform::tests::query_fields_directions_ranges_and_unknowns_fail_closed ... ok
+test platform::tests::revoked_or_expired_session_cannot_read_even_saved_cursor ... ok
+test platform::tests::router_authentication_precedes_history_and_never_grants_browser_permission ... ok
+test platform::tests::router_projects_actual_owner_exports_and_refuses_forged_scope ... FAILED
+
+failures:
+
+---- platform::tests::router_projects_actual_owner_exports_and_refuses_forged_scope stdout ----
+
+thread 'platform::tests::router_projects_actual_owner_exports_and_refuses_forged_scope' (1356198) panicked at services/bff-gateway/src/platform/tests.rs:256:34:
+no entry found for key "cache-control"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    platform::tests::router_projects_actual_owner_exports_and_refuses_forged_scope
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 183 filtered out; finished in 1.70s
+
+error: test failed, to rerun pass `-p bff-gateway --lib`

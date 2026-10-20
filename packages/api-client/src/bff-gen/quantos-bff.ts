@@ -278,6 +278,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Current actor-scoped controlled export history; metadata only, audit:read required, no cached download URLs */
         get: operations["listDownloads"];
         put?: never;
         post?: never;
@@ -2119,6 +2120,8 @@ export interface components {
             downloadUrl?: string;
             watermarked?: boolean;
             correlationId?: components["schemas"]["UUID"];
+            /** @description Metadata-only action path. Obtain a fresh current-session short-lived link from the export owner. History never stores or returns a bearer URL; expiresAt is artifact retention, not a minted URL lifetime. */
+            downloadPath?: string;
         };
         BrowserCapabilityPolicy: {
             /** @enum {string} */
@@ -2139,6 +2142,22 @@ export interface components {
             businessPagesNoIndex: true;
             cspEnforced: boolean;
             sessionProtected: boolean;
+            /** @description Server cannot observe browser-native permission. Browser runtime detection is local and may only narrow this policy; this GET never prompts. */
+            permissionState?: {
+                /** @enum {string} */
+                notifications: "unknown";
+                /** @enum {string} */
+                clipboard: "unknown";
+                /** @enum {string} */
+                authority: "browser_runtime";
+                /** @enum {boolean} */
+                requestedByServer: false;
+            };
+            fallbacks?: ("notification_in_app" | "clipboard_manual" | "download_retry" | "online_only")[];
+            /** @enum {integer} */
+            downloadLinkTtlSeconds?: 300;
+            /** @enum {boolean} */
+            downloadHistoryIncludesLinks?: false;
         };
         AuditEvent: {
             eventId: components["schemas"]["UUID"];
@@ -4239,6 +4258,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
             default: components["responses"]["ServerError"];
         };
     };
@@ -4271,7 +4291,21 @@ export interface operations {
                      *       "offlineDomainActions": false,
                      *       "businessPagesNoIndex": true,
                      *       "cspEnforced": false,
-                     *       "sessionProtected": false
+                     *       "sessionProtected": false,
+                     *       "permissionState": {
+                     *         "notifications": "unknown",
+                     *         "clipboard": "unknown",
+                     *         "authority": "browser_runtime",
+                     *         "requestedByServer": false
+                     *       },
+                     *       "fallbacks": [
+                     *         "notification_in_app",
+                     *         "clipboard_manual",
+                     *         "download_retry",
+                     *         "online_only"
+                     *       ],
+                     *       "downloadLinkTtlSeconds": 300,
+                     *       "downloadHistoryIncludesLinks": false
                      *     }
                      */
                     "application/json": components["schemas"]["BrowserCapabilityPolicy"];
@@ -4279,6 +4313,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
             default: components["responses"]["ServerError"];
         };
     };

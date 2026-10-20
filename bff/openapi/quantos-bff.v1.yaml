@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.13.0
+  version: 1.14.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -1407,11 +1407,13 @@ paths:
           $ref: "#/components/responses/Forbidden"
         default:
           $ref: "#/components/responses/ServerError"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
       x-quantos-policy:
-        owner: BFF-FE-001
+        owner: BFF-FE-011
         auth: cookie + resource-scoped authorization
         capability: Domain owner authorizes the resource/action; client capability is not authority.
-        pagination: cursor/pageSize; max 200
+        pagination: Opaque owner/session/query/revision-bound cursor; pageSize max200, bounded source max2000, lease60s; expired/changed/tampered cursor422 reload
         sort:
           - downloadId
           - requestedAt
@@ -1434,6 +1436,7 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      summary: Current actor-scoped controlled export history; metadata only, audit:read required, no cached download URLs
   /v1/platform/browser-capabilities:
     get:
       operationId: getPlatformCapabilities
@@ -1458,6 +1461,18 @@ paths:
                 businessPagesNoIndex: true
                 cspEnforced: false
                 sessionProtected: false
+                permissionState:
+                  notifications: unknown
+                  clipboard: unknown
+                  authority: browser_runtime
+                  requestedByServer: false
+                fallbacks:
+                  - notification_in_app
+                  - clipboard_manual
+                  - download_retry
+                  - online_only
+                downloadLinkTtlSeconds: 300
+                downloadHistoryIncludesLinks: false
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -1473,8 +1488,10 @@ paths:
           $ref: "#/components/responses/Forbidden"
         default:
           $ref: "#/components/responses/ServerError"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
       x-quantos-policy:
-        owner: BFF-FE-001
+        owner: BFF-FE-011
         auth: cookie + resource-scoped authorization
         capability: Domain owner authorizes the resource/action; client capability is not authority.
         pagination: "not applicable: single resource or bounded member-owned collection"
@@ -11394,6 +11411,10 @@ components:
           type: boolean
         correlationId:
           $ref: "#/components/schemas/UUID"
+        downloadPath:
+          type: string
+          pattern: ^/v1/exports/[0-9a-fA-F-]{36}/download$
+          description: Metadata-only action path. Obtain a fresh current-session short-lived link from the export owner. History never stores or returns a bearer URL; expiresAt is artifact retention, not a minted URL lifetime.
     BrowserCapabilityPolicy:
       type: object
       required:
@@ -11443,6 +11464,49 @@ components:
           type: boolean
         sessionProtected:
           type: boolean
+        permissionState:
+          type: object
+          description: Server cannot observe browser-native permission. Browser runtime detection is local and may only narrow this policy; this GET never prompts.
+          required:
+            - notifications
+            - clipboard
+            - authority
+            - requestedByServer
+          properties:
+            notifications:
+              type: string
+              enum:
+                - unknown
+            clipboard:
+              type: string
+              enum:
+                - unknown
+            authority:
+              type: string
+              enum:
+                - browser_runtime
+            requestedByServer:
+              type: boolean
+              enum:
+                - false
+        fallbacks:
+          type: array
+          maxItems: 4
+          items:
+            type: string
+            enum:
+              - notification_in_app
+              - clipboard_manual
+              - download_retry
+              - online_only
+        downloadLinkTtlSeconds:
+          type: integer
+          enum:
+            - 300
+        downloadHistoryIncludesLinks:
+          type: boolean
+          enum:
+            - false
     AuditEvent:
       type: object
       required:

@@ -807,6 +807,7 @@
 | DownloadRecord.downloadUrl | {"type":"string","format":"uri"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DownloadRecord.downloadUrl |
 | DownloadRecord.watermarked | {"type":"boolean"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DownloadRecord.watermarked |
 | DownloadRecord.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DownloadRecord.correlationId |
+| DownloadRecord.downloadPath | {"type":"string","pattern":"^/v1/exports/[0-9a-fA-F-]{36}/download$"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DownloadRecord.downloadPath |
 | BrowserCapabilityPolicy.kind | {"type":"string","enum":["web"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.kind |
 | BrowserCapabilityPolicy.authFlow | {"type":"string","enum":["browser_redirect"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.authFlow |
 | BrowserCapabilityPolicy.notifications | {"type":"string","enum":["browser"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.notifications |
@@ -817,6 +818,10 @@
 | BrowserCapabilityPolicy.businessPagesNoIndex | {"type":"boolean","enum":[true]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.businessPagesNoIndex |
 | BrowserCapabilityPolicy.cspEnforced | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.cspEnforced |
 | BrowserCapabilityPolicy.sessionProtected | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.sessionProtected |
+| BrowserCapabilityPolicy.permissionState | {"type":"object","required":["notifications","clipboard","authority","requestedByServer"],"properties":{"notifications":{"type":"string","enum":["unknown"]},"clipboard":{"type":"string","enum":["unknown"]},"authority":{"type":"string","enum":["browser_runtime"]},"requestedByServer":{"type":"boolean","enum":[false]}}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.permissionState |
+| BrowserCapabilityPolicy.fallbacks | {"type":"array","maxItems":4,"items":{"type":"string","enum":["notification_in_app","clipboard_manual","download_retry","online_only"]}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.fallbacks |
+| BrowserCapabilityPolicy.downloadLinkTtlSeconds | {"type":"integer","enum":[300]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.downloadLinkTtlSeconds |
+| BrowserCapabilityPolicy.downloadHistoryIncludesLinks | {"type":"boolean","enum":[false]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.downloadHistoryIncludesLinks |
 | MfaEnrollment.factorRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaEnrollment.factorRef |
 | MfaEnrollment.delivery | {"type":"string","enum":["one_time","restart_required"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaEnrollment.delivery |
 | MfaEnrollment.uri | {"type":"string"} | 否 | none | 真实 Auth 的一次性 TOTP 注册材料；仅首次响应和内存消费；禁止日志、数据库或持久化 | bff:MfaEnrollment.uri |
@@ -842,7 +847,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 705 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 710 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

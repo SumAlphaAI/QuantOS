@@ -467,77 +467,38 @@ async fn capabilities(
     headers: HeaderMap,
 ) -> Result<Response, ApiError> {
     let _ = (identity, headers);
-    Ok(respond(
-        json!({"kind":"web","authFlow":"browser_redirect","notifications":"browser","localFileImport":false,"deepLinkScheme":state.terminal_origin,"downloadsViaBff":true,"offlineDomainActions":false,"businessPagesNoIndex":true,"cspEnforced":true,"sessionProtected":true}),
-    ))
-}
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct DownloadsQuery {
-    cursor: Option<String>,
-    page_size: Option<usize>,
-    sort: Option<String>,
-    filter: Option<String>,
+    Ok(respond(crate::platform::policy(&state.terminal_origin)))
 }
 async fn downloads(
-    identity: axum::Extension<TrustedIdentity>,
+    axum::Extension(identity): axum::Extension<TrustedIdentity>,
     State(state): State<Arc<LiveState>>,
-    _headers: HeaderMap,
-    Query(q): Query<DownloadsQuery>,
+    Query(q): Query<crate::platform::HistoryQuery>,
 ) -> Result<Response, ApiError> {
-    let axum::Extension(TrustedIdentity(context, _)) = identity;
-    // A2 lists persisted controlled-download metadata; signing/export production is owned by A2 BFF-FE-007.
-    let rows=tokio::task::spawn_blocking(move||state.a2.lock().map_err(|_|ApiError::unavailable())?.client.query("select response from quantos.bff_security_commands where user_id=$1 and operation='controlledDownload' and completed order by created_at,idempotency_key", &[&context.user_id]).map_err(ApiError::from)).await.map_err(|_|ApiError::unavailable())??;
-    let mut items = rows
-        .into_iter()
-        .map(|r| r.get::<_, Value>(0))
-        .collect::<Vec<_>>();
-    if let Some(filter) = q.filter {
-        let parts = filter.splitn(3, ':').collect::<Vec<_>>();
-        if parts.len() != 3 || parts[1] != "eq" {
-            return Err(ApiError::new(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "INVALID_REQUEST",
-            ));
-        }
-        items.retain(|v| v[parts[0]].as_str() == Some(parts[2]));
-    }
-    if let Some(sort) = q.sort {
-        let parts = sort.split(':').collect::<Vec<_>>();
-        if parts.len() != 2 {
-            return Err(ApiError::new(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "INVALID_REQUEST",
-            ));
-        }
-        items.sort_by(|a, b| a[parts[0]].as_str().cmp(&b[parts[0]].as_str()));
-        if parts[1] == "desc" {
-            items.reverse();
-        }
-    }
-    let offset = q
-        .cursor
-        .as_deref()
-        .map(|s| {
-            s.strip_prefix("downloads:")
-                .and_then(|v| v.parse::<usize>().ok())
-                .ok_or_else(|| ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, "INVALID_REQUEST"))
-        })
-        .transpose()?
-        .unwrap_or(0);
-    let size = q.page_size.unwrap_or(50);
-    if !(1..=200).contains(&size) || offset > items.len() {
-        return Err(ApiError::new(
-            StatusCode::UNPROCESSABLE_ENTITY,
-            "INVALID_REQUEST",
-        ));
-    }
-    let end = (offset + size).min(items.len());
-    let mut payload = json!({"items":items[offset..end]});
-    if end < items.len() {
-        payload["nextCursor"] = json!(format!("downloads:{end}"));
-    }
-    Ok(respond(payload))
+    // Only the export owner queries persisted, scoped metadata. Never stored command responses.
+    let target = state.clone();
+    let binding = format!(
+        "{}:{}:{}:{}:{:?}:{:?}:{}",
+        identity.0.user_id,
+        identity.0.auth.tenant_id,
+        identity.0.auth.actor_id,
+        identity.0.auth.workspace_id,
+        identity.0.auth.account_id,
+        identity.0.auth.mode,
+        identity.1
+    );
+    let items =
+        tokio::task::spawn_blocking(move || super::audit::download_history(&target, &identity))
+            .await
+            .map_err(|_| ApiError::unavailable())??;
+    let page = state
+        .platform
+        .lock()
+        .map_err(|_| ApiError::unavailable())?
+        .page(&binding, items, q, Utc::now());
+    Ok(match page {
+        Ok(payload) => respond(payload),
+        Err(f) => crate::platform_fault(f),
+    })
 }
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]

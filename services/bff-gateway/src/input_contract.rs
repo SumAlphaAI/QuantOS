@@ -203,6 +203,23 @@ pub(crate) async fn validate_request(request: Request, op: &Value) -> Result<Req
             ));
         }
     }
+    // BFF011 has no client authority/scope inputs. Keep extraction failures in
+    // the canonical JSON error envelope for both reference and live adapters.
+    if op["policy"]["owner"] == "BFF-FE-011"
+        && query.keys().any(|key| {
+            !op["parameters"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|p| p["in"] == "query" && p["name"].as_str() == Some(key.as_str()))
+        })
+    {
+        return Err(error(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "INVALID_REQUEST",
+            "未知查询参数。",
+        ));
+    }
     for parameter in op["parameters"]
         .as_array()
         .unwrap()

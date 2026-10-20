@@ -409,6 +409,47 @@ async fn create(
  })).await.map_err(|_|ApiError::unavailable())??;
     Ok(response(StatusCode::ACCEPTED, value))
 }
+/// BFF011 history is a bounded, scope-filtered metadata read. It never mints
+/// tickets, reads object bodies or returns snapshot/storage fields.
+pub(super) fn download_history(
+    state: &LiveState,
+    identity: &TrustedIdentity,
+) -> Result<Vec<Value>, ApiError> {
+    let mut store = state.a2.lock().map_err(|_| ApiError::unavailable())?;
+    let mut tx = store.client.transaction()?;
+    if let Err(e) = admit(&mut tx, identity, "audit:read", "listDownloads") {
+        tx.commit()?;
+        return Err(e);
+    }
+    let c = &identity.0;
+    let rows=tx.query("select jsonb_build_object('exportId',export_id,'format',job->>'format','requestedAt',job->>'requestedAt','status',status,'retentionUntil',retention_until,'correlationId',job->>'correlationId') from quantos.bff_export_jobs where user_id=$1 and tenant_id=$2 and actor_id=$3 and workspace_id=$4 and account_id is not distinct from $5 order by created_at,export_id limit 2001", &[&c.user_id,c.auth.tenant_id.as_uuid(),c.auth.actor_id.as_uuid(),c.auth.workspace_id.as_uuid(),&c.auth.account_id.map(|a|*a.as_uuid())])?;
+    if rows.len() > crate::platform::ROW_LIMIT {
+        return Err(ApiError::unavailable());
+    }
+    let now: DateTime<Utc> = tx.query_one("select now()", &[])?.get(0);
+    let can_download = c
+        .auth
+        .capabilities
+        .iter()
+        .any(|cap| cap.as_str() == "audit:export");
+    let items = rows
+        .iter()
+        .map(|r| {
+            crate::platform::record(&r.get::<_, Value>(0), now, can_download)
+                .map_err(|_| ApiError::unavailable())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    log(
+        &mut tx,
+        identity,
+        "export.history_read",
+        Uuid::new_v4(),
+        "downloads",
+        json!({"outcome":"succeeded","count":items.len()}),
+    )?;
+    tx.commit()?;
+    Ok(items)
+}
 fn job_row(
     tx: &mut Transaction<'_>,
     identity: &TrustedIdentity,
@@ -624,7 +665,8 @@ async fn download(
   let row=match job_row(&mut tx,&identity,id){Ok(row)=>row,Err(e)=>{log(&mut tx,&identity,"export.resource_denied",Uuid::new_v4(),"exports",json!({"outcome":"denied"}))?;tx.commit()?;return Err(e);}};let job=expire(&mut tx,&identity,&row)?;
   if job["status"]=="expired"{tx.commit()?;return Err(ApiError::new(StatusCode::GONE,"EXPORT_EXPIRED"));}
   if job["status"]!="ready" {log(&mut tx,&identity,"export.download_denied",uuid(job["correlationId"].as_str().unwrap())?,&id.to_string(),json!({"outcome":"denied"}))?;tx.commit()?;return Err(conflict());}
-  let until:DateTime<Utc>=tx.query_one("select least(now()+interval '5 minutes',$1::timestamptz)", &[&row.get::<_,DateTime<Utc>>("retention_until")])?.get(0);
+  let now:DateTime<Utc>=tx.query_one("select now()",&[])?.get(0);
+  let until=crate::platform::lease_expiry(now,row.get::<_,DateTime<Utc>>("retention_until"),identity.0.expires_at).ok_or_else(||ApiError::new(StatusCode::UNAUTHORIZED,"UNAUTHENTICATED"))?;
   let ticket=Uuid::new_v4();let signature=objects.sign(ticket)?;
   tx.execute("insert into quantos.bff_export_tickets(ticket_id,signature_hash,export_id,user_id,session_hash,expires_at) values($1,$2,$3,$4,$5,$6)", &[&ticket,&settings::hash(&signature),&id,&identity.0.user_id,&identity.1,&until])?;
   let audit=log(&mut tx,&identity,"export.download_issued",uuid(job["correlationId"].as_str().unwrap())?,&id.to_string(),json!({"outcome":"succeeded"}))?;
