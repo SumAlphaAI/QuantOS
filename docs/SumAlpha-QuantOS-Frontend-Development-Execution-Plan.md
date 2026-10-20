@@ -1,4 +1,6 @@
-> 当前工程结果（G0确认收口与legacy迁移，2026-10-20）：原G0在f7141e4b按e4434952原稿确认收口READY；迁移冻结4fdc67b4，1652输入、16组/8入口，Node323、consumer177/3 skipped、Web/mockOIDC11例。四类生产backend/旧构造器移除，L10-2 IMPLEMENTED_ENGINEERING；当前G0/ALL工程PASS，BLOCKED只剩新功能输入确认，原批准不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-legacy-backend-review-2026-10-20.md)与[迁移后完整稿](./audit/evidence/g0-legacy-local-20261020/confirmation-draft.md)。
+> 当前确认收口（G0 / PROVIDER:ALL，2026-10-20）：项目用户确认迁移后完整稿，1652工程输入与冻结4fdc67b4一致；G0_LEGACY_SCOPE_LOCAL与ALL_LEGACY_REVIEW_LOCAL DEVELOPMENT READY。8实际入口exit0，176项确认/门禁/计划直接回归PASS；不重跑原16组/134 API或全闭包，原执行原件/失败/拒绝记录保持。仅功能阶段准入，formalAccepted=false、runtime DENIED，完整联调/发布NOT_RUN。见[报告](./audit/G0-PROVIDER-ALL-confirmation-closure-2026-10-20.md)和[本会话确认](./audit/evidence/g0-legacy-confirmation-20261020/user-confirmation.json)。下一可执行FE:UI-103 / I1当前功能复核。
+
+> 历史工程结果（G0确认收口与legacy迁移，2026-10-20）：原G0在f7141e4b按e4434952原稿确认收口READY；迁移冻结4fdc67b4，1652输入、16组/8入口，Node323、consumer177/3 skipped、Web/mockOIDC11例。四类生产backend/旧构造器移除，L10-2 IMPLEMENTED_ENGINEERING；当前G0/ALL工程PASS，BLOCKED只剩新功能输入确认，原批准不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-legacy-backend-review-2026-10-20.md)与[迁移后完整稿](./audit/evidence/g0-legacy-local-20261020/confirmation-draft.md)。
 
 > 当前工程结果（G0与8项台账，2026-10-20）：冻结e4434952，1601输入、16组/8入口，Node346、consumer117、Web/mockOIDC11例及单次构建通过；8项IMPLEMENTED_ENGINEERING，其他11项保持。G0工程PASS/BLOCKED待新稿确认；ALL工程PASS/BLOCKED另含L10-2 legacy移除未完成。原ALL确认只绑定a045f15c/fce29312，不自批G0；原API证据不重跑不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-current-functional-review-2026-10-20.md)和[完整稿](./audit/evidence/g0-local-20261020/confirmation-draft.md)。
 
@@ -1375,8 +1377,8 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:851a78be0456b84a3717909d8b7b4eb788b555393d995911d2882ba2d8ac5077",
+    "status": "READY",
+    "input_digest": "sha256:5d9978fdc4df529f40fe129b5cc03d38ba99936039303f1775efeb3f29fb4a01",
     "evidence": [
       "audit/evidence/g0-legacy-local-20261020/g0.json"
     ]
@@ -1848,16 +1850,16 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "review_status": "IN_REVIEW",
   "source_commit": "4fdc67b41b1cf30215ca96a0ac2fe97d6729dc83",
   "evidence": [
-    "audit/G0-legacy-backend-review-2026-10-20.md",
+    "audit/G0-PROVIDER-ALL-confirmation-closure-2026-10-20.md",
     "audit/evidence/g0-legacy-local-20261020/provider-all.json",
-    "audit/evidence/g0-legacy-local-20261020/confirmation-draft.md",
-    "audit/evidence/g0-confirmation-20261020/user-confirmation.json",
+    "audit/evidence/g0-legacy-confirmation-20261020/user-confirmation.json",
+    "audit/evidence/g0-legacy-confirmation-20261020/closure-proof.json",
     "audit/evidence/provider-all-confirmation-20261020/user-confirmation.json"
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:9d7e635ece6282b6a25ef6c5bf65e48a172001c1e372f97bbd4b89a75fc20759",
+    "status": "READY",
+    "input_digest": "sha256:ac5c4bef0fa26ded3242d181a962e47c9ec97709654d686f399fc7db22642e2f",
     "evidence": [
       "audit/evidence/g0-legacy-local-20261020/provider-all.json"
     ]

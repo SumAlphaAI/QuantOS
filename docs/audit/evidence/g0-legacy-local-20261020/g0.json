@@ -3,12 +3,10 @@
   "nodeId": "FRONTEND-GATE:G0",
   "profile": "G0_LEGACY_SCOPE_LOCAL",
   "stage": "DEVELOPMENT",
-  "status": "BLOCKED",
-  "blockers": [
-    "G0_CURRENT_SCOPE_CONFIRMATION_PENDING"
-  ],
+  "status": "READY",
+  "blockers": [],
   "engineeringStatus": "PASS",
-  "admission": "DENIED",
+  "admission": "FUNCTION_STAGE_ONLY",
   "runtimeAdmission": "DENIED",
   "scope": {
     "phase": "FUNCTION_DEVELOPMENT",
@@ -15100,11 +15098,11 @@
     "sourceLedgerSha256": "sha256:1197d24e2a08b3cf174b75136b05d9cc46e709f004a9e403e63dcdbc8dcf40c9"
   },
   "confirmationState": {
-    "status": "PENDING",
-    "missingApproval": "ProjectUser"
+    "status": "CONFIRMED",
+    "approver": "ProjectUser"
   },
-  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"PENDING\",\n  \"scopeDigest\": null,\n  \"approval\": null,\n  \"reason\": \"Original e4434952 G0 draft explicitly confirmed and closed at f7141e4b; raw reply and confirmed original scope preserved under g0-confirmation-20261020. Legacy migration changes production/API and functional input inventory; current scope requires its own draft confirmation, not rebinding the original approval.\"\n}\n",
-  "confirmationLedgerSha256": "sha256:961e7bda05a2430beea0e050dacf0d331950534977140d29c2a6d630c20205f8",
+  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"CONFIRMED\",\n  \"scopeDigest\": \"sha256:8f6826a9effa78b3b41aaef2a45e2cc31d7d806e414c2f27481d0d9668c0bc9b\",\n  \"approval\": {\n    \"record\": \"docs/audit/evidence/g0-legacy-confirmation-20261020/user-confirmation.json\",\n    \"recordSha256\": \"sha256:715660a5422eaf8ebcaf8cf71027620a36fe3f988d501d68443b36777c7634ee\"\n  },\n  \"reason\": \"ProjectUser explicitly confirmed the immutable migrated G0 complete draft; original source/engineering receipt preserved. This record grants only the human condition for same-input functional G0/ALL admission, never a later source, runtime, integration or release.\"\n}\n",
+  "confirmationLedgerSha256": "sha256:01268c154b8d9e16a4ccfb70a229b0f153eed1ee33c16e9f1189fffc19d50dd4",
   "impact": {
     "schema": "quantos-g0-legacy-impact/v1",
     "baselineCommit": "f7141e4b0ff24805972214dd58501f8071365983",
@@ -15414,8 +15412,8 @@
   },
   "freeze": {
     "g0": {
-      "confirmation": "PENDING",
-      "stageAdmission": "NOT_GRANTED"
+      "confirmation": "CONFIRMED",
+      "stageAdmission": "GRANTED"
     }
   },
   "apiEvidenceFreshExecution": false,
