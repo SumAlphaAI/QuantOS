@@ -1,0 +1,672 @@
+{
+  "schema": "quantos-bff010-functional-review/v1",
+  "nodeId": "FE:BFF-FE-010",
+  "status": "PASS",
+  "gate": "BFF010_SCOPE_LOCAL DEVELOPMENT READY",
+  "sourceCommit": "3152db47dbe1f7a56805bf95c4f897b79e384ee3",
+  "inputDigest": "sha256:b50d331f69bfdf48b6b5edeb4fd2d6a168b34afaf8f277db3022eef0737d3b55",
+  "inputs": 1146,
+  "checks": [
+    {
+      "id": "contract",
+      "command": [
+        "node",
+        "scripts/check-bff-fe-010-boundary.mjs"
+      ],
+      "reason": "43 C11/C16 operations contracts and existing compatibility/page register; no old component gates",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:44.870Z",
+      "completedAt": "2026-10-20T03:14:45.520Z",
+      "elapsedMs": 649,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/contract.log",
+      "logSha256": "sha256:3e540e930a8ec108b0367cd388ca5012bb66ade6945334711b81da787ecf97c8"
+    },
+    {
+      "id": "generated",
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "reason": "Current compatible OpenAPI1.x six exact client/Zod/schema/MSW/input artifacts",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:45.521Z",
+      "completedAt": "2026-10-20T03:14:46.272Z",
+      "elapsedMs": 751,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/generated.log",
+      "logSha256": "sha256:188319c326b787bd89a5d584b5ab700725410cd39c5f93675d8dfc3e0477514d"
+    },
+    {
+      "id": "operations",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "operations::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Actual X06/F09 health/alert/incident/runbook and governance lease; atomic versioned CRUD, last-admin/SoD/current permissions, retry/concurrency/source expiry/cursor/stream/quarantine; original snapshot deadline, expired read leases recover, deleted-resource mutation refuses",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:46.272Z",
+      "completedAt": "2026-10-20T03:14:54.962Z",
+      "elapsedMs": 8690,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/operations.log",
+      "logSha256": "sha256:ad6e914eb9ad841c6648e131817efcb1f18a0475241778ead2e5c20639fb3588"
+    },
+    {
+      "id": "core-alerts",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-operations",
+        "--test",
+        "service_x06",
+        "service_x06_real_f09_alerts_keep_ack_until_repaired",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Changed X06 acknowledgement boundary and directly used F09 observer/incident/safe-runbook behavior; no execution/risk/closure campaign",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:54.962Z",
+      "completedAt": "2026-10-20T03:14:55.630Z",
+      "elapsedMs": 668,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/core-alerts.log",
+      "logSha256": "sha256:771f77d0934dbc1f9da68bd08df3e828430f96f7e1a8f03466379306c945bf07"
+    },
+    {
+      "id": "core-incidents",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-operations",
+        "--test",
+        "service_x06",
+        "service_x06_incident_ack_repair_independent_close_and_recurrence",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Changed X06 acknowledgement boundary and directly used F09 observer/incident/safe-runbook behavior; no execution/risk/closure campaign",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:55.630Z",
+      "completedAt": "2026-10-20T03:14:56.282Z",
+      "elapsedMs": 652,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/core-incidents.log",
+      "logSha256": "sha256:800e39d3d9eaa68c57c41bdec3106c1af95e5b45df54dfee09fdffd4356f64c2"
+    },
+    {
+      "id": "core-runbook",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-operations",
+        "--test",
+        "service_x06",
+        "service_x06_no_arbitrary_runbook_ledger_write_and_copy_queries_are_safe",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Changed X06 acknowledgement boundary and directly used F09 observer/incident/safe-runbook behavior; no execution/risk/closure campaign",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:56.283Z",
+      "completedAt": "2026-10-20T03:14:56.961Z",
+      "elapsedMs": 678,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/core-runbook.log",
+      "logSha256": "sha256:e3a7a02087ce9be138bd5d246c491a6621713cfb4e2471a72a8493fffe5f8071"
+    },
+    {
+      "id": "core-observer",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-operations",
+        "--test",
+        "service_x06",
+        "service_x06_observer_authority_staleness_empty_health_and_redaction",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Changed X06 acknowledgement boundary and directly used F09 observer/incident/safe-runbook behavior; no execution/risk/closure campaign",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:56.962Z",
+      "completedAt": "2026-10-20T03:14:57.615Z",
+      "elapsedMs": 653,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/core-observer.log",
+      "logSha256": "sha256:58d58af803d0c9f581f480fbc908a20fe902ca7ba01b0665fb4f42db8f48c84c"
+    },
+    {
+      "id": "a2-boundary",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "reason": "Changed reference Context and added F05 mutation roots: authenticated sessions, logout/recovery/redaction and audit/export direct regression",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:14:57.615Z",
+      "completedAt": "2026-10-20T03:15:04.736Z",
+      "elapsedMs": 7121,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/a2-boundary.log",
+      "logSha256": "sha256:c161fa7ddde0fac26a2dccc7daf481a8273821aa39ed599b8cf05d1ba456e4d4"
+    },
+    {
+      "id": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--bin",
+        "bff-gateway"
+      ],
+      "reason": "Build actual reference binary for HTTP/generated consumer/Chromium, explicit Shadow context; default live no injected host503",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:04.737Z",
+      "completedAt": "2026-10-20T03:15:05.003Z",
+      "elapsedMs": 266,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/build.log",
+      "logSha256": "sha256:c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+    },
+    {
+      "id": "http",
+      "command": [
+        "node",
+        "scripts/test-bff-fe-010-http.mjs",
+        "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/reference-http.json"
+      ],
+      "reason": "All43 C11/C16 success401403/schema; actual X06/F09 source renewal, incident repair/separate resolve, governanceCRUD/version/SoD,100 exact recovery/one F05, pagination/stream/revocation/basic Chromium",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:05.004Z",
+      "completedAt": "2026-10-20T03:15:11.283Z",
+      "elapsedMs": 6279,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/http.log",
+      "logSha256": "sha256:58e97528a5f5d533f9eb8a97fd9ea277c9ae6737096c17f7a0e2a9f0b89aa438"
+    },
+    {
+      "id": "consumers",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "apps/terminal/tests/operations-provider-consumer.test.ts",
+        "packages/api-client/tests/bff-response.test.ts",
+        "packages/api-client/tests/bff-transport.test.ts",
+        "packages/api-client/tests/sse-poc.test.ts",
+        "tests/contract",
+        "--coverage",
+        "--coverage.provider=v8",
+        "--coverage.include=apps/terminal/src/operations/gateway.ts",
+        "--coverage.reporter=json-summary",
+        "--coverage.reportsDirectory=docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/consumer-coverage"
+      ],
+      "reason": "Generated C11/C16 consumer recovers governed intent and authoritative alerts/stream; no optimistic resolution; invalid initial resource/gap frames leave subscriber binding and sequence unchanged",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:11.284Z",
+      "completedAt": "2026-10-20T03:15:14.107Z",
+      "elapsedMs": 2823,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/consumers.log",
+      "logSha256": "sha256:42e1e68bd2698f225d6b97920ab9a680701b856a8d0a52bb1f44aefa98e42fc3"
+    },
+    {
+      "id": "types",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "typecheck"
+      ],
+      "reason": "Compile added C11/C16 generated client and consumer with pinned dependencies",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:14.108Z",
+      "completedAt": "2026-10-20T03:15:15.994Z",
+      "elapsedMs": 1886,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/types.log",
+      "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "lint"
+      ],
+      "reason": "Changed generated API and C11/C16 consumer static checks",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:15.994Z",
+      "completedAt": "2026-10-20T03:15:17.633Z",
+      "elapsedMs": 1639,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/lint.log",
+      "logSha256": "sha256:eb15fc98c8f1bb5bdc954879cf828f73694786fb55fdd848d7514afb23fd0f89"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "reason": "Native static checks for X06/F09 operations/governance adapter and live/ref owner wiring",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:17.633Z",
+      "completedAt": "2026-10-20T03:15:19.067Z",
+      "elapsedMs": 1434,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/clippy.log",
+      "logSha256": "sha256:e5bfa5822c04f07f3f7eb490452adcfc58561f60e49512d3a1801cd5544080d5"
+    },
+    {
+      "id": "confirmation",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-008-confirmation-20261020.test.mjs",
+        "scripts/bff-fe-009-confirmation-20261020.test.mjs",
+        "scripts/provider-a4-confirmation-20261020.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "reason": "C14/A4/C15 original user replies/drafts/source/receipts only; C11/C16 current confirmation PENDING",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:19.067Z",
+      "completedAt": "2026-10-20T03:15:20.317Z",
+      "elapsedMs": 1250,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/confirmation.log",
+      "logSha256": "sha256:b880ddec4f81b846902f2412aa5edba15cad865bfbb897a00b7910edfc71bf7d"
+    },
+    {
+      "id": "gate-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-010-functional-gate.test.mjs"
+      ],
+      "reason": "Current source/check/HTTP/schema/coverage/refs drift, phase promotion and atomic checkpoint rollback refusals",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:20.317Z",
+      "completedAt": "2026-10-20T03:15:21.281Z",
+      "elapsedMs": 964,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/gate-tests.log",
+      "logSha256": "sha256:a41ceba976d22ca034fd7b6c10ab390bd04821e65077cb43911e2564013baa4c"
+    },
+    {
+      "id": "plan-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "reason": "BFF010-only scoped admission and mandatory CI disposition, seven reference-only dependencies",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:21.282Z",
+      "completedAt": "2026-10-20T03:15:21.907Z",
+      "elapsedMs": 625,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/plan-policy.log",
+      "logSha256": "sha256:9ae8417ccce571e3028ea6d017843370c4b9f8c157befee13b35e00734b9a556"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "reason": "Two plan stage/profile requirements match; full UI/target/release NOT_RUN",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T03:15:21.907Z",
+      "completedAt": "2026-10-20T03:15:22.074Z",
+      "elapsedMs": 167,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-03/logs/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    }
+  ],
+  "references": {
+    "baselineCommit": "5f82e72a36ede5af82b2c573527b18050614c249",
+    "receipts": [
+      {
+        "nodeId": "FE:BFF-FE-001",
+        "path": "docs/audit/evidence/bff-fe-001-local-20261018/manifest.json",
+        "sha256": "sha256:6d943d9f506ec53c1549d2bf018b6732c22462155d50d8056e44bedfb75d82f8",
+        "receiptCommit": "f2d8330f6174552b0cbfc508997b41c5bd0798a5",
+        "sourceCommit": "855300213db81476f7fd61cd21f5439364fee8c0",
+        "checksVerified": 14,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "FE:BFF-FE-007",
+        "path": "docs/audit/evidence/bff-fe-007-local-20261018/manifest.json",
+        "sha256": "sha256:c54a9d52f47394d3fa21fd162d3fbcf99085a344d66b629ccc2c081dfb5c6f41",
+        "receiptCommit": "f2d8330f6174552b0cbfc508997b41c5bd0798a5",
+        "sourceCommit": "7d0fc3664904627972e3d82559eabd4405c0a9f2",
+        "checksVerified": 17,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "FE:BFF-FE-009",
+        "path": "docs/audit/evidence/bff-fe-009-local-20261020/manifest.json",
+        "sha256": "sha256:2194db4b710ce253ab701e087587d1d72dc65c99cfbf565782289854da57f457",
+        "receiptCommit": "1e1ca813325ae3ba765c3d877efebfab45bed74b",
+        "sourceCommit": "007040fd3848f583d7534464cdc50724099ea6f4",
+        "checksVerified": 15,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "SERVICE:X06",
+        "path": "docs/audit/evidence/service-x06-local-20261017/manifest.json",
+        "sha256": "sha256:f30e053adac3d4fa08b287e0138e325c2d68688ebbcdf7b1583f9a77ca3108c2",
+        "receiptCommit": "f2d8330f6174552b0cbfc508997b41c5bd0798a5",
+        "sourceCommit": "bcadfef9f0501975fcbcdbd14dd25f45bd3943de",
+        "checksVerified": 20,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "CORE-GATE:X3-SERVICE",
+        "path": "docs/audit/evidence/x3-service-local-20261018/manifest.json",
+        "sha256": "sha256:85cb27da7f4ef1046e163fc1aeccbdf121ec60bc8197fbeddd35dd2cd94b0fdc",
+        "receiptCommit": "f2d8330f6174552b0cbfc508997b41c5bd0798a5",
+        "sourceCommit": "cd1961951e583a70cd1a5bfbd97f5457d3ba1f57",
+        "checksVerified": 17,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "PROVIDER:A4",
+        "path": "docs/audit/evidence/provider-a4-local-20261020/manifest.json",
+        "sha256": "sha256:429def0e5cb4be5ba0ee2fdcef55a1dc3491a2d362c931c85afb8ad5bd6e3910",
+        "receiptCommit": "4085bdefff5890b12161fc865bbf10692171a440",
+        "sourceCommit": "1297bc3bdc511195820ea000da064fdd8e16f088",
+        "checksVerified": 16,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      },
+      {
+        "nodeId": "CORE:F09",
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/x01-local-20261016/attempt-02/core-f09.json",
+        "sha256": "sha256:ef27419017b201544b13f210508d8667d070d8dd9f043dec0c48383c12ba5142",
+        "receiptCommit": "f2d8330f6174552b0cbfc508997b41c5bd0798a5",
+        "sourceCommit": "e2b85a80654ba91992a8fb4e2fd9f127ba449740",
+        "checksVerified": 2,
+        "referenceOnly": true,
+        "currentReady": "NOT_CLAIMED"
+      }
+    ],
+    "c14Confirmation": {
+      "status": "CONFIRMED",
+      "approver": "ProjectUser",
+      "nodeId": "FE:BFF-FE-008",
+      "approvedSourceCommit": "b20efc3054c51933a706b8ac4132dd4316b5c71d",
+      "approvedReceiptCommit": "5f82e72a36ede5af82b2c573527b18050614c249",
+      "scopeAdmission": "FUNCTION_ONLY",
+      "formalAccepted": false,
+      "runtimeAdmission": "DENIED",
+      "currentHeadAcceptance": "NOT_CLAIMED",
+      "upstreamAdmission": "NOT_CLAIMED"
+    },
+    "a4Confirmation": {
+      "status": "CONFIRMED",
+      "approver": "ProjectUser",
+      "nodeId": "PROVIDER:A4",
+      "approvedSourceCommit": "1297bc3bdc511195820ea000da064fdd8e16f088",
+      "approvedReceiptCommit": "4085bdefff5890b12161fc865bbf10692171a440",
+      "scopeAdmission": "FUNCTION_ONLY",
+      "formalAccepted": false,
+      "runtimeAdmission": "DENIED",
+      "currentHeadAcceptance": "NOT_CLAIMED",
+      "upstreamAdmission": "NOT_CLAIMED"
+    },
+    "c15Confirmation": {
+      "status": "CONFIRMED",
+      "approver": "ProjectUser",
+      "nodeId": "FE:BFF-FE-009",
+      "approvedSourceCommit": "007040fd3848f583d7534464cdc50724099ea6f4",
+      "approvedReceiptCommit": "1e1ca813325ae3ba765c3d877efebfab45bed74b",
+      "scopeAdmission": "FUNCTION_ONLY",
+      "formalAccepted": false,
+      "runtimeAdmission": "DENIED",
+      "currentHeadAcceptance": "NOT_CLAIMED",
+      "upstreamAdmission": "NOT_CLAIMED"
+    },
+    "upstreamAdmission": "NOT_CLAIMED"
+  },
+  "stats": {
+    "rust": {
+      "total": 53,
+      "groups": {
+        "operations": 20,
+        "core-alerts": 1,
+        "core-incidents": 1,
+        "core-runbook": 1,
+        "core-observer": 1,
+        "a2-boundary": 29
+      }
+    },
+    "node": {
+      "total": 194,
+      "groups": {
+        "confirmation": 68,
+        "gate-tests": 50,
+        "plan-policy": 76
+      }
+    },
+    "consumer": {
+      "tests": 46,
+      "files": 7
+    },
+    "http": {
+      "operations": 43,
+      "records": 342,
+      "statuses": {
+        "200": 230,
+        "201": 7,
+        "202": 1,
+        "401": 45,
+        "403": 47,
+        "409": 11,
+        "422": 1
+      }
+    },
+    "coverage": {
+      "total": {
+        "lines": {
+          "total": 27,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 56,
+          "covered": 56,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 13,
+          "covered": 13,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 46,
+          "covered": 46,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": "Unknown"
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/operations/gateway.ts": {
+        "lines": {
+          "total": 27,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 13,
+          "covered": 13,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 56,
+          "covered": 56,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 46,
+          "covered": 46,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "entrypoints": 7,
+    "historyFiles": 54289
+  },
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "confirmation": "PENDING",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "upstreamAdmission": "NOT_CLAIMED",
+  "earlierAttempts": [
+    "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-01/disposition.json",
+    "docs/audit/evidence/bff-fe-010-local-20261020/function-attempt-02/disposition.json"
+  ]
+}

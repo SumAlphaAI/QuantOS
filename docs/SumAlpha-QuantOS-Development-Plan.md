@@ -1,3 +1,5 @@
+> 当前前端API结果（FE:BFF-FE-010/A5，2026-10-20）：冻结3152db47，1146输入、18组/7入口PASS，43项C11/C16 API；仅BFF010_SCOPE_LOCAL DEVELOPMENT READY，七前置referenceOnly，完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-010-functional-review-2026-10-20.md)。
+
 > 当前前端API结果（FE:BFF-FE-008/A5，2026-10-20）：冻结b20efc30，1109输入、15组/6入口PASS，八项C14 API；仅BFF008_SCOPE_LOCAL DEVELOPMENT READY，五前置referenceOnly，完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-008-functional-review-2026-10-20.md)。
 
 > 当前前端API结果（FE:BFF-FE-009/A5，2026-10-20）：冻结007040fd，1082输入、15组/5入口通过，七项C15 API；仅BFF009_SCOPE_LOCAL DEVELOPMENT READY。五前置referenceOnly，A4原确认只限原范围；完整联调/发布NOT_RUN、runtime DENIED、新稿PENDING。见[报告](./audit/BFF-FE-009-functional-review-2026-10-20.md)。
