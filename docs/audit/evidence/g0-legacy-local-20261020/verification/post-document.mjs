@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';
+import{verifyPublished}from'../../../../../scripts/g0-legacy-functional-gate.mjs';import{snapshot,environment}from'../../../../../scripts/g0-legacy-functional-scope.mjs';import{execFileSync}from'node:child_process';
+const D='docs/audit/evidence/g0-legacy-local-20261020',r=JSON.parse(readFileSync(D+'/function-attempt-02/function-receipt.json'));
+assert.deepEqual(snapshot(),r.inputs,'post-document source scope changed');const draft=JSON.parse(readFileSync(D+'/confirmation-draft.md','utf8').match(/```json\s*([\s\S]*?)```/)[1]);assert.equal(draft.request.inputsDigest,r.inputs.g0Request.scopeDigest);
+const result={g0:verifyPublished('FRONTEND-GATE:G0'),all:verifyPublished('PROVIDER:ALL')};writeFileSync(D+'/verification/post-document-gates.json',JSON.stringify(result,null,2)+'\n');
+writeFileSync(D+'/environment.json',JSON.stringify({node:process.version,pnpm:execFileSync('pnpm',['--version'],{env:environment(),encoding:'utf8'}).trim(),platform:process.platform,environment:'FILTERED_NO_TARGET_CREDENTIALS',databaseExecution:false},null,2)+'\n');console.log(JSON.stringify({inputSnapshot:'UNCHANGED',draftBinding:'PASS',...result},null,2));

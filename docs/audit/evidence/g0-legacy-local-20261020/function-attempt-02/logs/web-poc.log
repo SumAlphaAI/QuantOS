@@ -1,0 +1,104 @@
+
+> @sumalpha/terminal@0.1.0 build /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+> next build && node ../../scripts/pre03-build-receipt.mjs terminal && node ../../scripts/check-client-secrets.mjs out
+
+   ▲ Next.js 15.5.27
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 1535ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/17) ...
+   Generating static pages (4/17) 
+   Generating static pages (8/17) 
+   Generating static pages (12/17) 
+ ✓ Generating static pages (17/17)
+   Finalizing page optimization ...
+   Collecting build traces ...
+   Exporting (0/2) ...
+ ✓ Exporting (2/2)
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      140 B         104 kB
+├ ○ /_not-found                            140 B         104 kB
+├ ○ /access-request                      1.58 kB         155 kB
+├ ○ /auth/callback                        3.3 kB         107 kB
+├ ○ /auth/deep-link                      2.34 kB         106 kB
+├ ○ /command                             6.74 kB         130 kB
+├ ○ /login                               3.31 kB         107 kB
+├ ○ /maintenance                           140 B         104 kB
+├ ○ /mfa                                 3.06 kB         157 kB
+├ ○ /offline                             1.59 kB         105 kB
+├ ○ /settings/browser                      132 B         132 kB
+├ ○ /settings/notifications                132 B         132 kB
+├ ○ /settings/profile                      132 B         132 kB
+├ ○ /settings/security                     133 B         132 kB
+└ ○ /unauthorized                        1.73 kB         106 kB
++ First Load JS shared by all             104 kB
+  ├ chunks/184-66cb13e8c916ded4.js       47.6 kB
+  ├ chunks/acdcb40b-34a8e9b159d4ad73.js  54.3 kB
+  └ other shared chunks (total)          1.91 kB
+
+
+○  (Static)  prerendered as static content
+
+Client secret check PASS (64 files)
+
+Running 11 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/auth-callback.spec.ts:40:7 › OIDC callback PoC › 完整流：login → PKCE authorize → callback 交换 → 安全 return path (186ms)
+  ✓   2 [chromium] › tests/e2e/auth-callback.spec.ts:56:7 › OIDC callback PoC › 跨站 return_to 被消毒回退到 /command (150ms)
+  ✓   3 [chromium] › tests/e2e/auth-callback.spec.ts:66:7 › OIDC callback PoC › state 不匹配：不发起 token 交换并显示安全错误 (87ms)
+  ✓   4 [chromium] › tests/e2e/auth-callback.spec.ts:78:7 › OIDC callback PoC › IdP 返回 error：不发起交换，错误提示不含敏感细节 (89ms)
+  ✓   5 [chromium] › tests/e2e/command.spec.ts:13:7 › Command Center（/command） › 静态首屏只渲染守卫状态，不提前泄露 Command 投影 (312ms)
+  ✓   6 [chromium] › tests/e2e/command.spec.ts:21:7 › Command Center（/command） › 路由可打开且渲染共享壳标记 (114ms)
+  ✓   7 [chromium] › tests/e2e/command.spec.ts:31:7 › Command Center（/command） › 复用 UI-103 的 freshness、risk 与 connection 领域组件 (111ms)
+  ✓   8 [chromium] › tests/e2e/command.spec.ts:40:7 › Command Center（/command） › axe 无严重/高等级可访问性问题（执行计划 7.1） (554ms)
+  ✓   9 [chromium] › tests/e2e/command.spec.ts:47:7 › Command Center（/command） › 优先级筛选与侧栏折叠可交互 (158ms)
+  ✓  10 [chromium] › tests/e2e/command.spec.ts:56:7 › Command Center（/command） › 390px 小屏保持只读监控并隐藏高风险入口 (121ms)
+  ✓  11 [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 (247ms)
+
+  11 passed (3.1s)
+Client secret check PASS (64 files)
+ok    共享首屏 JS gzip: 140.3KB ≤ 250.0KB
+ok    单 chunk gzip: 58.5KB ≤ 200.0KB
+ok    CSS gzip: 10.7KB ≤ 60.0KB
+
+各路由首屏 JS gzip（含 polyfills；逐路由门禁）：
+ok    route /_not-found/page: 140.4KB ≤ 200.0KB
+   140.4KB  /_not-found/page
+ok    route /access-request/page: 190.5KB ≤ 200.0KB
+   190.5KB  /access-request/page
+ok    route /auth/callback/page: 143.5KB ≤ 200.0KB
+   143.5KB  /auth/callback/page
+ok    route /auth/deep-link/page: 142.5KB ≤ 200.0KB
+   142.5KB  /auth/deep-link/page
+ok    route /command/page: 166.2KB ≤ 200.0KB
+   166.2KB  /command/page
+ok    route /layout: 140.4KB ≤ 200.0KB
+   140.4KB  /layout
+ok    route /login/page: 143.5KB ≤ 200.0KB
+   143.5KB  /login/page
+ok    route /maintenance/page: 140.4KB ≤ 200.0KB
+   140.4KB  /maintenance/page
+ok    route /mfa/page: 192.0KB ≤ 200.0KB
+   192.0KB  /mfa/page
+ok    route /not-found: 140.4KB ≤ 200.0KB
+   140.4KB  /not-found
+ok    route /offline/page: 141.8KB ≤ 200.0KB
+   141.8KB  /offline/page
+ok    route /page: 140.4KB ≤ 200.0KB
+   140.4KB  /page
+ok    route /settings/browser/page: 167.9KB ≤ 200.0KB
+   167.9KB  /settings/browser/page
+ok    route /settings/notifications/page: 167.9KB ≤ 200.0KB
+   167.9KB  /settings/notifications/page
+ok    route /settings/profile/page: 167.9KB ≤ 200.0KB
+   167.9KB  /settings/profile/page
+ok    route /settings/security/page: 167.9KB ≤ 200.0KB
+   167.9KB  /settings/security/page
+ok    route /unauthorized/page: 141.9KB ≤ 200.0KB
+   141.9KB  /unauthorized/page
+
+性能预算校验通过
+A1_WEB_POC={"status":"PASS","sourceCommit":"4fdc67b41b1cf30215ca96a0ac2fe97d6729dc83","build":{"schema":"quantos-pre03-build/v1","app":"terminal","sourceDigest":"da1f7f8db2bd44c01a9a4c50c53c984776da27cc51305e73560170b9ca225e18","output":"export","buildId":"terminal-4fdc67b41b1cf30215ca96a0ac2fe97d6729dc83"},"webRoute":"PASS","oidc":"MOCK_ROUTE_INTERCEPTED","browser":"chromium","cases":11,"staticBudget":"PASS","performanceAcceptance":"NOT_RUN","publicOrigins":{"terminal":"http://localhost:3190","callback":"http://localhost:3190/auth/callback"},"privateDotenv":"ABSENT","runtimeChecks":2356}
