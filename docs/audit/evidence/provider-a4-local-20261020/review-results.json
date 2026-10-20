@@ -1,0 +1,529 @@
+{
+  "schema": "quantos-a4-functional-review/v1",
+  "nodeId": "PROVIDER:A4",
+  "status": "PASS",
+  "gate": "A4_SCOPE_LOCAL DEVELOPMENT READY",
+  "sourceCommit": "1297bc3bdc511195820ea000da064fdd8e16f088",
+  "inputDigest": "sha256:daf746dc26c2457f1c8ce18a734065c540a55e50cab7ce98ecd46b5543c4c984",
+  "inputs": 1053,
+  "checks": [
+    {
+      "id": "contract",
+      "command": [
+        "node",
+        "scripts/check-provider-a4-boundary.mjs"
+      ],
+      "reason": "Current C05-C09/C13 all32 operations, generated paths/owners and shared approval quarantine/no venue/publish boundary only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:05:20.106Z",
+      "completedAt": "2026-10-20T02:05:20.878Z",
+      "elapsedMs": 772,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/contract.log",
+      "logSha256": "sha256:b9281b006dc5d5662291391f1fd1fcfe2abe802e93a63ea90f3375f34e90b27d"
+    },
+    {
+      "id": "generated",
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "reason": "Current compatible v1 six generated client/Zod/schema/MSW/Rust policy artifacts exact; no A1 gate revalidation",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:05:20.879Z",
+      "completedAt": "2026-10-20T02:05:21.600Z",
+      "elapsedMs": 721,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/generated.log",
+      "logSha256": "sha256:a916e4d7ad7775d5e898b411ceb84a525ca27b3384cea65a6b878105964500c4"
+    },
+    {
+      "id": "aggregate",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "a4_tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "New same-provider mixed Strategy/Trade approvals, frozen page with current role/capability revocation binding/retry/independent single-use proof, unique F05 roots, quarantined host refusal, original snapshot deadline across both pagination lanes and read-only expired cache capacity recovery",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:05:21.600Z",
+      "completedAt": "2026-10-20T02:07:42.267Z",
+      "elapsedMs": 140667,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/aggregate.log",
+      "logSha256": "sha256:f404843169539228eef0e6184c0d243fa0c9de8ab576554ccb0817ed3a3c101d"
+    },
+    {
+      "id": "strategy",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "strategy::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Current32-API aggregation consumes existing C05 CAS/proof/expiry/static/Artifact/rollback semantics and changed shared checked-approval projection",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:07:42.268Z",
+      "completedAt": "2026-10-20T02:07:44.823Z",
+      "elapsedMs": 2555,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/strategy.log",
+      "logSha256": "sha256:8eb7f9db18ccdea97079e447a76135a5faa8c74790c345001c9ce25786b5c7f6"
+    },
+    {
+      "id": "execution",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "execution::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "reason": "Shared approval-list routing change: current C06-C09/C13 actual Paper/risk/kill/stale/ref/OMS/trace/recovery and Shadow no-dispatch boundary",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:07:44.824Z",
+      "completedAt": "2026-10-20T02:07:47.290Z",
+      "elapsedMs": 2466,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/execution.log",
+      "logSha256": "sha256:b45b2667f5e9cd93e4e80477a1407e8581c41394805566cba687bba0df279aab"
+    },
+    {
+      "id": "a2-boundary",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "reason": "Shared session/MFA and F05 evidence touched by aggregate provider; direct permission/redaction/paging/idempotency/recovery regression only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:07:47.290Z",
+      "completedAt": "2026-10-20T02:08:04.648Z",
+      "elapsedMs": 17358,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/a2-boundary.log",
+      "logSha256": "sha256:c0e477b00dfb6e9a94548c10c843c84fcd93b47e996615f53394e6e5b0fd2060"
+    },
+    {
+      "id": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--bin",
+        "bff-gateway"
+      ],
+      "reason": "Build actual current BFF used by new same-provider generated consumer and fresh owned API HTTP/Chromium probes",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:04.648Z",
+      "completedAt": "2026-10-20T02:08:04.916Z",
+      "elapsedMs": 268,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/build.log",
+      "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+    },
+    {
+      "id": "http",
+      "command": [
+        "node",
+        "scripts/test-provider-a4-http.mjs",
+        "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/aggregate-http.json"
+      ],
+      "reason": "Fresh same-source execution20 + strategy12 API probes with each success/401/403/schema, two1000-retry campaigns/basic Chromium; no child gates",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:04.916Z",
+      "completedAt": "2026-10-20T02:08:12.295Z",
+      "elapsedMs": 7379,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/http.log",
+      "logSha256": "sha256:3289f5f20246ede5f66949d1f668dca6c86a4062714e9c98e1c0e67276ad6a82"
+    },
+    {
+      "id": "consumers",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "apps/terminal/tests/a4-aggregate-consumer.test.ts",
+        "apps/terminal/tests/strategy-provider-consumer.test.ts",
+        "apps/terminal/tests/strategy-recovery.test.ts",
+        "apps/terminal/tests/execution-provider-consumer.test.ts",
+        "apps/terminal/tests/execution-recovery.test.ts",
+        "packages/api-client/tests/bff-response.test.ts",
+        "packages/api-client/tests/bff-transport.test.ts",
+        "packages/api-client/tests/sse-poc.test.ts",
+        "tests/contract",
+        "--coverage",
+        "--coverage.provider=v8",
+        "--coverage.include=apps/terminal/src/strategy/gateway.ts",
+        "--coverage.include=apps/terminal/src/execution/gateway.ts",
+        "--coverage.reporter=json-summary",
+        "--coverage.reportsDirectory=docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/consumer-coverage"
+      ],
+      "reason": "Real same-host generated clients combine distinct approval kinds, single proof, loss recovery, actual Order/Backtest facts, A3 Artifact/F05 and revoked reconnects",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:12.295Z",
+      "completedAt": "2026-10-20T02:08:15.464Z",
+      "elapsedMs": 3169,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/consumers.log",
+      "logSha256": "sha256:f983ce1af0372df010e27168283246df4033bf3d6913b7683145d9dcd6994d98"
+    },
+    {
+      "id": "types",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "typecheck"
+      ],
+      "reason": "Necessary compilation of new A4 consumer and current generated client with existing pinned dependencies",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:15.464Z",
+      "completedAt": "2026-10-20T02:08:17.444Z",
+      "elapsedMs": 1980,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/types.log",
+      "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/terminal",
+        "lint"
+      ],
+      "reason": "Static checks for changed A4 consumer and directly affected API/import boundary only",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:17.444Z",
+      "completedAt": "2026-10-20T02:08:19.338Z",
+      "elapsedMs": 1894,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/lint.log",
+      "logSha256": "sha256:eb15fc98c8f1bb5bdc954879cf828f73694786fb55fdd848d7514afb23fd0f89"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "reason": "Necessary static validation of shared approval read quarantine and actual current native host wiring",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:19.339Z",
+      "completedAt": "2026-10-20T02:08:29.588Z",
+      "elapsedMs": 10249,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/clippy.log",
+      "logSha256": "sha256:a0bdfc50d6b0aa8a2261d556c2db48e47d91b77893450559f15ec3588e959576"
+    },
+    {
+      "id": "confirmation",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-004-confirmation-20261020.test.mjs",
+        "scripts/bff-fe-006-confirmation-20261019.test.mjs",
+        "scripts/provider-a3-confirmation.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "reason": "All three original raw user confirmations bind original source/draft/receipt only; A4 human approval remains PENDING",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:29.588Z",
+      "completedAt": "2026-10-20T02:08:31.001Z",
+      "elapsedMs": 1413,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/confirmation.log",
+      "logSha256": "sha256:a4b07918a33b96ad078a5b76808bf80fa4c69cb0a3b8f3823da0027adddc69ae"
+    },
+    {
+      "id": "gate-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a4-functional-gate.test.mjs"
+      ],
+      "reason": "Candidate/log/API/child-byte/source/coverage drift and borrowed READY refusals; checkpoint atomic publish rollback, no self/runtime admission",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:31.001Z",
+      "completedAt": "2026-10-20T02:08:43.645Z",
+      "elapsedMs": 12644,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/gate-tests.log",
+      "logSha256": "sha256:21c31fc14d5e29d84401899f522e48fd3a891c88742aa83c83e92ea4fb899251"
+    },
+    {
+      "id": "plan-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "reason": "A4 checkpoint-only profile and mandatory CI disposition preserve stage policy and independent upstream NOT_ASSESSED",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:43.645Z",
+      "completedAt": "2026-10-20T02:08:44.273Z",
+      "elapsedMs": 628,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/plan-policy.log",
+      "logSha256": "sha256:c471c9ad9a64ba2ee1e222e1506bcbd2a1327659ff2ac9bb49506aeab377e924"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "reason": "Both plans/stage declarations agree; full UI integration, target/release and upstream admission remain NOT_RUN",
+      "timeoutMs": 600000,
+      "startedAt": "2026-10-20T02:08:44.273Z",
+      "completedAt": "2026-10-20T02:08:44.436Z",
+      "elapsedMs": 163,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "timedOut": false,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a4-local-20261020/function-attempt-01/logs/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    }
+  ],
+  "stats": {
+    "rust": {
+      "total": 76,
+      "groups": {
+        "aggregate": 8,
+        "strategy": 19,
+        "execution": 20,
+        "a2-boundary": 29
+      }
+    },
+    "node": {
+      "total": 196,
+      "groups": {
+        "confirmation": 63,
+        "gate-tests": 57,
+        "plan-policy": 76
+      }
+    },
+    "consumer": {
+      "tests": 55,
+      "files": 11
+    },
+    "http": {
+      "operations": 32,
+      "records": 2153,
+      "statuses": {
+        "200": 57,
+        "201": 2,
+        "202": 2009,
+        "204": 2,
+        "401": 34,
+        "403": 35,
+        "404": 2,
+        "409": 9,
+        "422": 3
+      }
+    },
+    "coverage": {
+      "total": {
+        "lines": {
+          "total": 44,
+          "covered": 44,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 112,
+          "covered": 112,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 28,
+          "covered": 28,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 79,
+          "covered": 79,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/execution/gateway.ts": {
+        "lines": {
+          "total": 25,
+          "covered": 25,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 10,
+          "covered": 10,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 44,
+          "covered": 44,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 33,
+          "covered": 33,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/strategy/gateway.ts": {
+        "lines": {
+          "total": 19,
+          "covered": 19,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 18,
+          "covered": 18,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 68,
+          "covered": 68,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 46,
+          "covered": 46,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "entrypoints": 7,
+    "historyFiles": 54090
+  },
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "confirmation": "PENDING",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "upstreamAdmission": "NOT_CLAIMED"
+}

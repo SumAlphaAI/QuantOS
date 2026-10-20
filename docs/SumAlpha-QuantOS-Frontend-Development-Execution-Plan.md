@@ -1,8 +1,8 @@
-> 当前执行（PROVIDER:A4，2026-10-20）：按最新AGENTS进行32项API当前功能汇总；共享分页有效期及只读缓存恢复修复纳入新候选。FE004原稿用户已确认；共享输入已变，组件当前Gate撤回NOT_ASSESSED，原READY/确认保留原范围。完整联调/发布NOT_RUN，新汇总确认PENDING。
+> 当前工程结果（PROVIDER:A4，2026-10-20）：冻结1297bc3b，1053输入、16组与7入口PASS；Rust76、Node196、consumer/契约55，32API/2153条HTTP和两个基本Chromium通过。修复游标快照续期和只读过期缓存恢复，26控制点PASS，54,090份原audit/gate字节保持。仅A4_SCOPE_LOCAL DEVELOPMENT READY；FE004原稿已CONFIRMED，三个前置当前Gate不重授。完整联调/发布NOT_RUN、runtimeAdmission=DENIED，本汇总确认PENDING。见[报告](./audit/PROVIDER-A4-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a4-local-20261020/confirmation-draft.md)。下一可执行FE:BFF-FE-009 / A5当前复核。
 
 > 用户确认（FE:BFF-FE-004，2026-10-20）：本会话明确确认20261019原完整稿；17项确认验证通过。仅绑定20d65a86源码、787f8230原稿/技术回执与原输入；不授予当前HEAD、A4汇总或运行时准入。见[确认记录](./audit/evidence/bff-fe-004-confirmation-20261020/summary.md)。
 
-> 当前工程结果（FE:BFF-FE-004/A4，2026-10-19）：冻结20d65a86，1032输入、18组与5本机入口PASS；Rust104、Node184、consumer/契约54，12 API/1068条HTTP、1000重试和基本Chromium通过。修复首次送审事实被重写、迟到保存回复丢编辑/版本回退；保留原稿与全部历史。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；九前置不重授READY，FE006原20261019稿用户CONFIRMED但独立当前Gate仍NOT_ASSESSED，完整联调/发布NOT_RUN，runtimeAdmission=DENIED，新稿PENDING。见[报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)。下一可执行PROVIDER:A4当前汇总。
+> 历史工程结果（FE:BFF-FE-004/A4，2026-10-19）：冻结20d65a86，1032输入、18组与5本机入口PASS；Rust104、Node184、consumer/契约54，12 API/1068条HTTP、1000重试和基本Chromium通过。修复首次送审事实被重写、迟到保存回复丢编辑/版本回退；保留原稿与全部历史。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；九前置不重授READY，FE006原20261019稿用户CONFIRMED但独立当前Gate仍NOT_ASSESSED，完整联调/发布NOT_RUN，runtimeAdmission=DENIED，新稿PENDING。见[报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)。下一可执行PROVIDER:A4当前汇总。
 
 > 当前阶段修正（2026-10-19，CI 657a67b8）：BFF-FE-006 当前输入已偏离 aad08dd5 的冻结回执，stage_gate 恢复 NOT_ASSESSED；以下工程结果仅为原 SHA 历史记录。原 manifest、日志和确认稿保持原样，当前功能直接回归继续执行，不因 CI 修复重授 READY 或触发十前置全量复验。见[第五轮 CI 修复](./audit/ci-remediation-round5-2026-10-19.md)。
 
@@ -1499,10 +1499,12 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 覆盖契约/页面：C05/C08；P06/P07
 - 目标阶段与验收：FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝
 
-当前2026-10-19功能交付：20d65a86冻结候选18组/5入口PASS；首次送审事实及在途编辑/版本保护完成，BFF004_SCOPE_LOCAL READY，完整联调/发布NOT_RUN。见[当前报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[新完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)，确认PENDING；原历史与九前置独立Gate不改绑。
+历史2026-10-19功能交付：20d65a86冻结候选18组/5入口PASS，原稿于2026-10-20用户CONFIRMED。A4共享输入变更后当前组件Gate NOT_ASSESSED；原READY/确认仅原源码范围，完整联调/发布NOT_RUN。见[原报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[确认记录](./audit/evidence/bff-fe-004-confirmation-20261020/summary.md)。
 
 <a id="acceptance-provider-a4"></a>
 ##### PROVIDER:A4：验收检查点
+
+2026-10-20当前汇总：1297bc3b冻结候选16组/7入口PASS，仅A4_SCOPE_LOCAL READY，26控制点；完整联调/发布NOT_RUN、确认PENDING。见[报告](./audit/PROVIDER-A4-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a4-local-20261020/confirmation-draft.md)。三个直接前置referenceOnly，原确认不重授当前READY。
 
 A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
@@ -1521,9 +1523,11 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:429def0e5cb4be5ba0ee2fdcef55a1dc3491a2d362c931c85afb8ad5bd6e3910",
+    "evidence": [
+      "audit/evidence/provider-a4-local-20261020/manifest.json"
+    ]
   }
 }
 ```
