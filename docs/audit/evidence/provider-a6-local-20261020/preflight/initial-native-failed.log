@@ -1,0 +1,31 @@
+
+running 8 tests
+test a6_tests::browser_reads_never_turn_shadow_or_viewer_into_execution_authority ... ok
+test a6_tests::current_member_revocation_precedes_saved_a6_recovery_and_download_issuance ... ok
+test a6_tests::expired_session_denies_both_surfaces_and_renewal_cannot_revive_old_recovery ... ok
+test a6_tests::export_cancellation_changes_history_but_not_command_frame_or_execution_facts ... ok
+test a6_tests::independent_deadlines_and_observer_refresh_do_not_renew_saved_a6_leases ... FAILED
+test a6_tests::mixed_command_platform_reads_never_acquire_execution_or_export_authority ... ok
+test a6_tests::shared_quarantine_refuses_all_a6_routes_without_new_business_writes ... ok
+test a6_tests::stream_and_history_recovery_tokens_cannot_cross_resource_namespaces ... ok
+
+failures:
+
+---- a6_tests::independent_deadlines_and_observer_refresh_do_not_renew_saved_a6_leases stdout ----
+
+thread 'a6_tests::independent_deadlines_and_observer_refresh_do_not_renew_saved_a6_leases' (1716772) panicked at services/bff-gateway/src/a6_tests.rs:233:5:
+assertion `left == right` failed
+  left: String("elevated")
+ right: "unknown"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    a6_tests::independent_deadlines_and_observer_refresh_do_not_renew_saved_a6_leases
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 198 filtered out; finished in 2.10s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.71s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-66658af83242e527)
+error: test failed, to rerun pass `-p bff-gateway --lib`

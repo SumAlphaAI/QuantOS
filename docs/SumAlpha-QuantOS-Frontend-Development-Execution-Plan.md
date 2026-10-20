@@ -1003,6 +1003,17 @@
         "PROVIDER:A5"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A6": {
+      "profile": "A6_SCOPE_LOCAL",
+      "schema": "quantos-a6-aggregate-functional-development/v1",
+      "manifest": "audit/evidence/provider-a6-local-20261020/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-011",
+        "PROVIDER:A5"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1708,7 +1719,7 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-011`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2a57e2657fc1d22157d884f8ece36d12f95d2905460444042d14bffde6beea4b","evidence":["audit/evidence/bff-fe-011-local-20261020/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE"]
 - closes_core: []

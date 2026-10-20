@@ -110,3 +110,5 @@ test("A5 strict alias cannot bypass candidate admission",()=>{const p=JSON.parse
 test('C02 disposition cannot bypass strict current source verification',()=>{const f=fixture('FE:BFF-FE-002','READY');assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);f.options.validate=()=>({status:'READY'});assert.equal(checkDisposition(f.id,f.options).admitted,true);});
 
 for (const status of ['NOT_ASSESSED','READY']) test('BFF011 dispatch '+status+' does not borrow upstream admission',()=>{const f=fixture('FE:BFF-FE-011',status);if(status==='READY')assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);else assert.equal(checkDisposition(f.id,f.options).admitted,false);});
+
+for (const status of ['NOT_ASSESSED','READY']) test('A6 dispatch '+status+' preserves strict source verification',()=>{const f=fixture('PROVIDER:A6',status);if(status==='READY')assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);else assert.equal(checkDisposition(f.id,f.options).admitted,false);});

@@ -1964,3 +1964,6 @@ mod a4_tests;
 
 #[cfg(test)]
 mod a5_tests;
+
+#[cfg(test)]
+mod a6_tests;

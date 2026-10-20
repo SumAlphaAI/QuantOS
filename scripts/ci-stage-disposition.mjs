@@ -1,4 +1,5 @@
 import {check as checkBff011} from './bff-fe-011-development.mjs';
+import {check as checkProviderA6} from './provider-a6-development.mjs';
 import assert from 'node:assert/strict';
 import {check as checkBff002} from './bff-fe-002-development.mjs';
 import {resolve} from 'node:path';
@@ -24,6 +25,7 @@ import {check as checkBff005} from './bff-fe-005-development.mjs';
 import {check as checkBff003} from './bff-fe-003-development.mjs';
 
 const validators = {
+  'PROVIDER:A6': () => checkProviderA6(),
   'FE:BFF-FE-011': () => checkBff011(),
   'FE:BFF-FE-002': () => checkBff002(),
   'PROVIDER:A1': () => {if(nodesFromPlans().get('PROVIDER:A1').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const r=JSON.parse(execFileSync(process.execPath,[resolve(import.meta.dirname,'a1-functional-gate.mjs'),'--provider-ready'],{encoding:'utf8'}));assert.equal(r.stageGate,'READY');return {status:'READY',engineeringStatus:'PASS'};}validateReceipt('PROVIDER:A1'); return {status: 'READY'};},
@@ -46,6 +48,7 @@ const validators = {
 };
 
 const ciAliases = {
+  'provider-a6':'PROVIDER:A6',
   'bff-fe-011':'FE:BFF-FE-011',
   'bff-fe-002':'FE:BFF-FE-002',
   'provider-a5':'PROVIDER:A5', 'bff-fe-010':'FE:BFF-FE-010', 'bff-fe-008':'FE:BFF-FE-008', 'bff-fe-009':'FE:BFF-FE-009', 'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
@@ -66,6 +69,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
   assert.equal(pkg.scripts['test:ci-stage-disposition'], 'node --test scripts/ci-stage-disposition.test.mjs');
   assert(job.steps.some(step => unconditional(step) && String(step.run).split(/\s*&&\s*/).includes('pnpm test:ci-stage-disposition')), 'CI disposition rejection probes missing');
   const strict = {
+    'check:provider-a6':'node scripts/provider-a6-development.mjs --ready',
     'check:bff-fe-011':'node scripts/bff-fe-011-development.mjs --ready',
     'check:bff-fe-002':'node scripts/bff-fe-002-development.mjs --ready',
     'check:provider-a1': 'node scripts/provider-a1-receipts.mjs',

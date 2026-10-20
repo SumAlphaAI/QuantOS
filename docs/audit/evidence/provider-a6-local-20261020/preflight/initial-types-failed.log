@@ -1,0 +1,10 @@
+
+> @sumalpha/terminal@0.1.0 typecheck /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+> tsc --project tsconfig.json --noEmit
+
+tests/a6-aggregate-consumer.test.ts(26,199): error TS2339: Property 'actorId' does not exist on type '{ kind: "member"; actorId: string; roleId: string; active: boolean; } | { kind: "role"; name: string; baseRole: "owner" | "operator" | "approver" | "viewer" | "service"; permissions: ("ops.read" | ... 4 more ... | "alerts.read")[]; } | { ...; } | { ...; } | { ...; } | { ...; }'.
+  Property 'actorId' does not exist on type '{ kind: "role"; name: string; baseRole: "owner" | "operator" | "approver" | "viewer" | "service"; permissions: ("ops.read" | "ops.operate" | "ops.approve" | "admin.read" | "admin.write" | "alerts.read")[]; }'.
+tests/a6-aggregate-consumer.test.ts(27,32): error TS2345: Argument of type '"/v1/admin/members/{memberId}"' is not assignable to parameter of type 'PathsWithMethod<paths, "put">'.
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2
