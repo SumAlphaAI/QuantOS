@@ -1,3 +1,5 @@
+> 用户确认（FE:BFF-FE-004，2026-10-20）：本会话明确确认20261019原完整稿；17项确认验证通过。仅绑定20d65a86源码、787f8230原稿/技术回执与原输入；不授予当前HEAD、A4汇总或运行时准入。见[确认记录](./audit/evidence/bff-fe-004-confirmation-20261020/summary.md)。
+
 > 当前工程结果（FE:BFF-FE-004/A4，2026-10-19）：冻结20d65a86，1032输入、18组与5本机入口PASS；Rust104、Node184、consumer/契约54，12 API/1068条HTTP、1000重试和基本Chromium通过。修复首次送审事实被重写、迟到保存回复丢编辑/版本回退；保留原稿与全部历史。仅BFF004_SCOPE_LOCAL DEVELOPMENT READY；九前置不重授READY，FE006原20261019稿用户CONFIRMED但独立当前Gate仍NOT_ASSESSED，完整联调/发布NOT_RUN，runtimeAdmission=DENIED，新稿PENDING。见[报告](./audit/BFF-FE-004-functional-review-2026-10-19.md)与[完整稿](./audit/evidence/bff-fe-004-local-20261019/confirmation-draft.md)。下一可执行PROVIDER:A4当前汇总。
 
 > 当前阶段修正（2026-10-19，CI 657a67b8）：BFF-FE-006 当前输入已偏离 aad08dd5 的冻结回执，stage_gate 恢复 NOT_ASSESSED；以下工程结果仅为原 SHA 历史记录。原 manifest、日志和确认稿保持原样，当前功能直接回归继续执行，不因 CI 修复重授 READY 或触发十前置全量复验。见[第五轮 CI 修复](./audit/ci-remediation-round5-2026-10-19.md)。
