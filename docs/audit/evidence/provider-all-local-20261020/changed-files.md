@@ -1,0 +1,187 @@
+# PROVIDER:ALL 变更文件与本地提交
+
+功能候选 `a045f15cddf2be6abca36fff003936602ce80985`；基线 `997e6f37359d7e379056a2555052942944d3029e`，全部在main；不推送、不部署。
+
+## 代码、测试、配置及计划/文档
+
+- `.github/workflows/frontend-baseline.yml`
+- `apps/terminal/tests/provider-all-aggregate-consumer.test.ts`
+- `docs/SumAlpha-QuantOS-Development-Plan.md`
+- `docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md`
+- `docs/audit/PROVIDER-ALL-functional-review-2026-10-20.md`
+- `docs/execution/PRE-01-page-api-coverage-register.md`
+- `docs/execution/PRE-04-inventory-baseline.json`
+- `docs/operations/provider-all-functional-admission.md`
+- `package.json`
+- `scripts/check-development-plan-order.mjs`
+- `scripts/check-provider-all-boundary.mjs`
+- `scripts/ci-stage-disposition.mjs`
+- `scripts/ci-stage-disposition.test.mjs`
+- `scripts/development-plan-order-negative.mjs`
+- `scripts/development-plan-order-policy.json`
+- `scripts/g0-development.test.mjs`
+- `scripts/provider-a6-confirmation-20261020.mjs`
+- `scripts/provider-a6-confirmation-20261020.test.mjs`
+- `scripts/provider-all-contract.mjs`
+- `scripts/provider-all-development.mjs`
+- `scripts/provider-all-functional-gate.mjs`
+- `scripts/provider-all-functional-gate.test.mjs`
+- `scripts/provider-all-functional-scope.mjs`
+- `scripts/record-provider-all-functional.mjs`
+- `scripts/test-provider-all-http.mjs`
+- `services/bff-gateway/src/lib.rs`
+- `services/bff-gateway/src/provider_all_tests.rs`
+
+## 本任务证据文件（含A6原确认记录及保留试次）
+
+- `docs/audit/evidence/provider-a6-confirmation-20261020/approval.json`
+- `docs/audit/evidence/provider-a6-confirmation-20261020/gate.json`
+- `docs/audit/evidence/provider-a6-confirmation-20261020/summary.md`
+- `docs/audit/evidence/provider-a6-confirmation-20261020/user-confirmation.json`
+- `docs/audit/evidence/provider-a6-confirmation-20261020/verification.log`
+- `docs/audit/evidence/provider-all-local-20261020/changed-files.md`
+- `docs/audit/evidence/provider-all-local-20261020/commands-and-results.md`
+- `docs/audit/evidence/provider-all-local-20261020/confirmation-draft.md`
+- `docs/audit/evidence/provider-all-local-20261020/control-matrix.md`
+- `docs/audit/evidence/provider-all-local-20261020/environment.json`
+- `docs/audit/evidence/provider-all-local-20261020/freeze.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/execution-results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/failure.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/inputs.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/contract.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/g0-minimum.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/g0-records.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/generated.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/inventory.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-01/logs/pre01.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/aggregate-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/execution-results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/failure.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/identity-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/inputs.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/build.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/contract.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/g0-minimum.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/g0-records.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/generated.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/http.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/identity-audit.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/inventory.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/native.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/logs/pre01.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-02/research-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/aggregate-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/command-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/a6-confirmation.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/ci.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/engineering.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/plans.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/entrypoints/strict-refusal.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/execution-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/execution-results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/function-receipt.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/identity-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/inputs.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/build.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/clippy.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/confirmation.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/consumers.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/contract.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/freeze-negative.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/g0-minimum.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/g0-records.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/gate-tests.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/generated.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/http.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/identity-audit.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/inventory.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/lint.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/native.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/plan-policy.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/plans.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/pre01.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/types.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/logs/web-poc.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/market-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/operations-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/performance-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/platform-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/reconciliation-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/research-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-03/strategy-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/aggregate-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/command-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/a6-confirmation.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/ci.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/engineering.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/plans.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/entrypoints/strict-refusal.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/execution-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/execution-results.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/function-receipt.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/identity-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/inputs.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/build.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/clippy.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/confirmation.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/consumers.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/contract.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/freeze-negative.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/g0-minimum.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/g0-records.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/gate-tests.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/generated.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/http.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/identity-audit.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/inventory.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/lint.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/native.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/plan-policy.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/plans.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/pre01.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/types.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/logs/web-poc.log`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/market-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/operations-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/performance-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/platform-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/reconciliation-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/research-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/function-attempt-04/strategy-http.json`
+- `docs/audit/evidence/provider-all-local-20261020/g0-confirmation-draft.md`
+- `docs/audit/evidence/provider-all-local-20261020/g0-disposition-recheck.json`
+- `docs/audit/evidence/provider-all-local-20261020/g0-scope-request.json`
+- `docs/audit/evidence/provider-all-local-20261020/history-preservation.json`
+- `docs/audit/evidence/provider-all-local-20261020/manifest.json`
+- `docs/audit/evidence/provider-all-local-20261020/operation-coverage.md`
+- `docs/audit/evidence/provider-all-local-20261020/post-document/engineering.log`
+- `docs/audit/evidence/provider-all-local-20261020/post-document/format.log`
+- `docs/audit/evidence/provider-all-local-20261020/post-document/plans.log`
+- `docs/audit/evidence/provider-all-local-20261020/post-document/results.json`
+- `docs/audit/evidence/provider-all-local-20261020/post-document/whitespace.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/a6-original-gate.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/baseline.json`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/development-trials.md`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/freeze-negative-development-failure.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/g0-source-binding-recheck.json`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/historical-files.json`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/original-receipts.json`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/quantos-all-gate-dev.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/quantos-all-gate-dev2.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/quantos-all-native-dev.log`
+- `docs/audit/evidence/provider-all-local-20261020/preflight/quantos-all-native-dev2.log`
+- `docs/audit/evidence/provider-all-local-20261020/review-summary.json`
+
+最终索引及独立校验文件另列于 `index.json`、`independent-verification.json`；二者自摘要关系按索引字段说明。
+
+## 已生成本地提交
+
+- `193c5ed1 docs(provider-a6): bind original aggregate user confirmation`
+- `cea64f2c feat(provider-all): add bounded aggregate review and fail-closed G0 admission`
+- `e4616a57 fix(provider-all): synchronize current API publication register`
+- `c3203f95 fix(provider-all): bind legacy probe execution and strengthen freeze negatives`
+- `a045f15c fix(provider-all): freeze every G0 annex input in aggregate source proof`
+
+最后的文档/验收证据提交由Git自身保存，最终报告给出实际SHA；当前功能证据始终绑定上述冻结源码，未宣称最终HEAD/发布已接受。

@@ -1797,6 +1797,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-all"></a>
 ##### PROVIDER:ALL：验收检查点
 
+2026-10-20当前功能复核：134项当前API工程PASS，G0当前范围确认PENDING、8项API处置待独立同步，ALL DEVELOPMENT BLOCKED，新页面未放行；源码`a045f15cddf2be6abca36fff003936602ce80985`。详见[报告](./audit/PROVIDER-ALL-functional-review-2026-10-20.md)、[ALL完整稿](./audit/evidence/provider-all-local-20261020/confirmation-draft.md)及[独立G0稿](./audit/evidence/provider-all-local-20261020/g0-confirmation-draft.md)。首轮PRE01失败与历史原确认保留，完整联调/发布NOT_RUN。
+
 
 全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
@@ -1827,13 +1829,20 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "IN_REVIEW",
-  "source_commit": null,
-  "evidence": [],
+  "source_commit": "a045f15cddf2be6abca36fff003936602ce80985",
+  "evidence": [
+    "audit/PROVIDER-ALL-functional-review-2026-10-20.md",
+    "audit/evidence/provider-all-local-20261020/manifest.json",
+    "audit/evidence/provider-all-local-20261020/confirmation-draft.md",
+    "audit/evidence/provider-all-local-20261020/g0-confirmation-draft.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "BLOCKED",
+    "input_digest": "sha256:76e022715b8b4c9bff2cf78539ff9c8e1afa3a1b1d5ac77ce5c9f7ce83e521fb",
+    "evidence": [
+      "audit/evidence/provider-all-local-20261020/manifest.json"
+    ]
   }
 }
 ```
