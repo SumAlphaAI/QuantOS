@@ -1,0 +1,158 @@
+[
+  {
+    "id": "contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-002-boundary.mjs"
+    ],
+    "reason": "Two new C02 operations, authorization and fixed bounded source composition; current OpenAPI/coverage/compatible additive contract only",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:33.798Z",
+    "completedAt": "2026-10-20T04:58:34.446Z",
+    "elapsedMs": 648,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/contract.log",
+    "logSha256": "sha256:b5d086a4a3e70a4538928295e894528795a3f730f2c9a719883bdb8bdb863fd8"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Six exact current1.13.0 generated client/Zod/JSONSchema/MSW/manifest/Rust request policies",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:34.447Z",
+    "completedAt": "2026-10-20T04:58:35.125Z",
+    "elapsedMs": 678,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:6a3a46b42eeef2ffe022fa11251d29b691e5693c4fd7513a904f79531a8199df"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "reason": "Published C02 model, field dictionary, Gap closure and controlled source identities; contract publication is not target acceptance",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:35.125Z",
+    "completedAt": "2026-10-20T04:58:35.392Z",
+    "elapsedMs": 267,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/inventory.log",
+    "logSha256": "sha256:75671ad738197dc81b0c954d1b8f2dd33ec8cbb1234ed0ca54d5607d01ad16a0"
+  },
+  {
+    "id": "command",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "command::tests::",
+      "--",
+      "--test-threads=1"
+    ],
+    "reason": "Actual four-source composition: authorized roles, cross-account/identity refusals, source redaction/null/staleness, no execution/audit authority, immutable bounded lease replay/gaps/expiry/capacity",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:35.392Z",
+    "completedAt": "2026-10-20T04:58:37.728Z",
+    "elapsedMs": 2336,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/command.log",
+    "logSha256": "sha256:57dc0c4e92830a873a17ddaceb488ed999e503cb86c2f89623b4b86b22377794"
+  },
+  {
+    "id": "a2-boundary",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "--test",
+      "audit_export_provider"
+    ],
+    "reason": "New router/common request policy and identity use: direct existing session/auth/audit regression only; no upstream Gate or target DB",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:37.729Z",
+    "completedAt": "2026-10-20T04:58:43.032Z",
+    "elapsedMs": 5303,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/a2-boundary.log",
+    "logSha256": "sha256:cf2cd682e07793ebd3fb4187af63c3a534181fc8d06925d83351a09e6d774a1e"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "reason": "Build actual local owned BFF once for current HTTP/generated consumer/Chromium; no target installation",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:43.032Z",
+    "completedAt": "2026-10-20T04:58:43.299Z",
+    "elapsedMs": 267,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/build.log",
+    "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+  },
+  {
+    "id": "http",
+    "command": [
+      "node",
+      "scripts/test-bff-fe-002-http.mjs",
+      "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/reference-http.json"
+    ],
+    "reason": "Both operations success401403/schema, controlled C03 reference create/read metadata aggregation, changed-source dense replay, hidden cross-account and invalid context refusal, basic Chromium and local request baseline only",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-20T04:58:43.299Z",
+    "completedAt": "2026-10-20T04:58:46.558Z",
+    "elapsedMs": 3259,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "FAIL",
+    "log": "docs/audit/evidence/bff-fe-002-local-20261020/function-attempt-01/logs/http.log",
+    "logSha256": "sha256:d267fc224495c02017594569a49342016ab1910400fde52c525057bb212013f7"
+  }
+]
