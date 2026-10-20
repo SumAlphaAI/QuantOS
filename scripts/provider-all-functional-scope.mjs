@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {scopeRequest} from './g0-development.mjs';
 import {readFileSync} from 'node:fs';
 import {snapshot as previousSnapshot,environment} from './provider-a6-functional-scope.mjs';
 import {inventory,digest,nodesFromPlans,planInput} from './provider-a1-receipts.mjs';
@@ -30,5 +31,5 @@ export const checks=[
 ];
 export const commands=attempt=>checks.map(c=>({...c,command:c.command.map(v=>v.replace('{attempt}',attempt))}));
 export function snapshot(){const prev=previousSnapshot(),refs=JSON.parse(readFileSync('docs/audit/evidence/provider-all-local-20261020/preflight/original-receipts.json'));
- const inputs=inventory([...prev.inputs.map(i=>i.path),'docs/operations/provider-all-functional-admission.md','docs/audit/evidence/provider-all-local-20261020/preflight/','docs/audit/evidence/provider-a6-confirmation-20261020/',...refs.map(r=>r.path)]),nodes=nodesFromPlans(),normative=[nodeId,...prerequisites].map(id=>({nodeId:id,planInput:planInput(nodes.get(id))})),policy=JSON.parse(readFileSync('scripts/development-testing-policy.json'));
+ const inputs=inventory([...prev.inputs.map(i=>i.path),...scopeRequest().inputs.map(i=>i.path),'docs/operations/provider-all-functional-admission.md','docs/audit/evidence/provider-all-local-20261020/preflight/','docs/audit/evidence/provider-a6-confirmation-20261020/',...refs.map(r=>r.path)]),nodes=nodesFromPlans(),normative=[nodeId,...prerequisites].map(id=>({nodeId:id,planInput:planInput(nodes.get(id))})),policy=JSON.parse(readFileSync('scripts/development-testing-policy.json'));
  assert(!checks.some(c=>c.command.includes('--workspace')));assert(!inputs.some(i=>/(?:^|\/)\.env(?!\.example$)/.test(i.path)));return{schema:'quantos-provider-all-functional-inputs/v1',inputs,normative,checks,policy,inputDigest:digest(JSON.stringify({inputs,normative,checks,policy}))};}
