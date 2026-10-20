@@ -105,13 +105,13 @@ async fn owner_and_operator_use_their_actual_domain_capabilities() {
     assert_eq!(s, 200);
     assert!(operator["runningRuns"].is_number());
     assert_eq!(owner["runningRuns"], Value::Null);
-    assert_eq!(owner["orderSummary"], Value::Null);
+    assert!(owner["orderSummary"].is_object());
     assert!(
         owner["recentActivity"]
             .as_array()
             .unwrap()
             .iter()
-            .all(|v| v["kind"] != "run" && v["kind"] != "order")
+            .all(|v| v["kind"] != "run")
     );
 }
 #[tokio::test]
@@ -539,4 +539,23 @@ fn projection_expiry_never_outlives_a_ready_source_and_rechecks_final_sample_tim
     let later = compose(&a, sources, n + Duration::seconds(2));
     assert_eq!(later["systemHealth"], Value::Null);
     assert_eq!(later["sources"][2]["status"], "stale");
+}
+
+#[tokio::test]
+async fn reference_context_execution_read_capability_matches_each_aggregate_role() {
+    let p = crate::BffProvider::default();
+    for session in [crate::CURRENT_SESSION, "session-owner", "session-approver"] {
+        let (status, context) = http(&p, "/v1/context", session).await;
+        assert_eq!(status, 200);
+        assert!(
+            context["capabilities"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("execution.operate"))
+        );
+        let (status, view) = http(&p, "/v1/command/summary", session).await;
+        assert_eq!(status, 200);
+        assert!(view["orderSummary"].is_object(), "{session}: {view}");
+        assert_eq!(view["sources"][1]["status"], "ready");
+    }
 }

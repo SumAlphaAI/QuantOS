@@ -1130,11 +1130,18 @@ mod tests;
 
 pub(crate) fn command_auth(session: &str, shadow: bool) -> AuthContext {
     let mut a = governance::reference_auth(session, shadow);
+    // Match the execution.read surface already advertised by reference Context.
+    if matches!(
+        session,
+        crate::CURRENT_SESSION | "session-owner" | "session-approver"
+    ) {
+        a.capabilities
+            .insert(quantos_policy::Capability::parse("execution.operate").unwrap());
+    }
+    // Reference C03 is scoped to this actor; Owner cannot read another actor's runs.
     if session == crate::CURRENT_SESSION {
-        for cap in ["research.read", "execution.operate"] {
-            a.capabilities
-                .insert(quantos_policy::Capability::parse(cap).unwrap());
-        }
+        a.capabilities
+            .insert(quantos_policy::Capability::parse("research.read").unwrap());
     }
     a
 }

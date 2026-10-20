@@ -2,7 +2,7 @@
 
 发布 OpenAPI 1.13.0 的 getCommandSummary、subscribeCommandEvents；134操作/113schema及六生成物一致。GET /v1/command/summary、GET /v1/command/stream 只读。当前四来源：R03研究run、X01/X02/X03/X04执行读模型、S04策略审批、X06/F09健康及告警。关联现有接口，无HTTP扇出，无命令签发、审批消费、风险decision记录、任意脚本或venue submit。新 helper 与真实生成consumer验证C02；既有UI101继续Mocked，不声称完整页面集成。
 
-ops.read是入口权限，各来源再按其原权限/tenant/workspace/account/mode拒绝或裁剪。不可用/无权/陈旧来源保留status/asOf/hash，相关计数为null，风险unknown；零只代表真实受权来源计数为零。策略与交易审批都ready才给pendingApprovals总数。参考研究只当前操作者可见；Owner不自动读取该actor的研究或获得execution.operate。真实live用F06身份和owner注入host，研究只执行一条有界查询，显式作用域与session mode匹配；缺失host不使用fixture。
+ops.read是入口权限，各来源再按其原权限/tenant/workspace/account/mode拒绝或裁剪。不可用/无权/陈旧来源保留status/asOf/hash，相关计数为null，风险unknown；零只代表真实受权来源计数为零。策略与交易审批都ready才给pendingApprovals总数。参考研究只当前操作者可见；Owner不读取该actor的研究；Owner/Approver执行读取沿用Context已有execution.operate，不能误裁剪为无权。真实live用F06身份和owner注入host，研究只执行一条有界查询，显式作用域与session mode匹配；缺失host不使用fixture。
 
 最多四来源、每来源2000行，priority/recentActivity各50条；超出输入上限整来源unavailable，输出truncated可见。来源排序在输出截断前完成；critical/warning优先队列与近期活动分别选取，旧严重项不会被较新的info挤掉。最终组合重新检查来源期限，expiresAt取ready来源最早期限与30秒上限；来源在采样期间过期则置stale。资源引用仅规范相对路径、类型/UUID/状态/来源时间；不输出原始prompt、actor信息、token、标签或可执行payload。近期活动按有来源的时间倒序；缺失源时间的策略审批保留null，不伪造时间。单次响应多host采样不等于跨服务原子快照。
 

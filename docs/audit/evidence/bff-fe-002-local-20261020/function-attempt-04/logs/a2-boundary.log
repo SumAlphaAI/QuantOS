@@ -1,0 +1,42 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-711a99a0cb62d947)
+
+running 14 tests
+test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
+test opaque_snapshot_cursors_reject_tampering_and_query_reuse ... ok
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test all_six_audit_operations_require_authentication_and_capability ... ok
+test redaction_hashes_and_retention_are_enforced_by_business_calls ... ok
+test expired_export_status_transitions_once_and_denies_fresh_cancel_and_download ... ok
+test concurrent_export_create_and_cancel_replay_one_job_and_one_audit_effect ... ok
+test complete_scope_intent_conflicts_without_side_effects_and_rejects_invalid_scope ... ok
+test audit_snapshot_replay_has_no_duplicates_and_cursor_expiry_fails_closed ... ok
+test export_commands_reject_changed_intents_before_audit_or_cancellation ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+test export_evidence_uses_an_independent_causal_root_and_stable_response_correlation ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.07s
+
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-929815d89454b7ad)
+
+running 15 tests
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test revoked_stream_discards_backlog_before_delivering_any_settings_event ... ok
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test readonly_session_cannot_write_settings_or_reuse_another_sessions_reauth ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+test notification_save_is_idempotent_and_audited ... ok
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... ok
+test security_retries_execute_once_and_match_success_correlation ... ok
+test concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once ... ok
+test session_stream_stays_open_for_other_session_and_closes_revoked_target ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.11s
+
