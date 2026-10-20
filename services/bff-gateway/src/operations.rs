@@ -453,9 +453,14 @@ impl OperationsHost {
             rows = c.rows.clone();
             (c.offset, c.expires)
         } else {
+            let filters: &[&str] = match path {
+                "/v1/alerts" => &["status", "domain", "severity", "active"],
+                "/v1/operations/incidents" => &["status"],
+                _ => &[],
+            };
             for key in ["status", "domain", "severity", "active", "kind"] {
                 if let Some(v) = q.get(key) {
-                    if !rows.iter().any(|r| r.get(key).is_some()) {
+                    if !filters.contains(&key) {
                         return Err(Fault::invalid());
                     }
                     rows.retain(|r| {

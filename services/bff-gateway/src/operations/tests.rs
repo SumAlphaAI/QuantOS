@@ -1141,3 +1141,47 @@ fn reference_seed_uses_requested_clock_before_materialization() {
         "STALE_OBSERVATION"
     );
 }
+
+#[test]
+fn allowed_filters_return_empty_pages_without_data_dependent_authorization() {
+    let (mut host, owner, a, now) = setup();
+    let query = BTreeMap::from([
+        ("status".into(), "acked".into()),
+        ("domain".into(), "system".into()),
+        ("severity".into(), "warning".into()),
+        ("active".into(), "true".into()),
+    ]);
+    assert_eq!(
+        read_page_at(&mut host, &a, "/v1/alerts", &query, now).unwrap()["items"],
+        json!([])
+    );
+    let active = BTreeMap::from([
+        ("domain".into(), "system".into()),
+        ("severity".into(), "warning".into()),
+        ("active".into(), "true".into()),
+    ]);
+    assert!(
+        !read_page_at(&mut host, &a, "/v1/alerts", &active, now).unwrap()["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    let status = BTreeMap::from([("status".into(), "resolved".into())]);
+    assert_eq!(
+        read_page_at(&mut host, &a, "/v1/operations/incidents", &status, now).unwrap()["items"],
+        json!([])
+    );
+    for (path, query) in [
+        ("/v1/admin/roles", status),
+        ("/v1/operations/incidents", active),
+    ] {
+        assert_eq!(
+            read_page_at(&mut host, &owner, path, &query, now)
+                .unwrap_err()
+                .0,
+            StatusCode::UNPROCESSABLE_ENTITY
+        );
+    }
+    assert_eq!(host.gov.version, 0);
+    assert!(host.replays.is_empty());
+}
