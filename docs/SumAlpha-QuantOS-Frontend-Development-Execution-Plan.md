@@ -1018,6 +1018,33 @@
         "PROVIDER:A5"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:ALL": {
+      "profile": "ALL_SCOPE_LOCAL",
+      "schema": "quantos-provider-all-functional-development/v1",
+      "manifest": "audit/evidence/provider-all-local-20261020/manifest.json",
+      "prerequisites": [
+        "PROVIDER:A1",
+        "PROVIDER:A2",
+        "PROVIDER:A3",
+        "PROVIDER:A4",
+        "PROVIDER:A5",
+        "PROVIDER:A6",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FRONTEND-GATE:G0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1760,11 +1787,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:8d0d3a0581193f1d4b85131cd9a04beca1a7d7c7b49441a47fc2eac2b458abc6",
-    "evidence": [
-      "audit/evidence/provider-a6-local-20261020/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1800,7 +1825,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FRONTEND-GATE:G0"
   ],
   "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {

@@ -112,3 +112,11 @@ test('C02 disposition cannot bypass strict current source verification',()=>{con
 for (const status of ['NOT_ASSESSED','READY']) test('BFF011 dispatch '+status+' does not borrow upstream admission',()=>{const f=fixture('FE:BFF-FE-011',status);if(status==='READY')assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);else assert.equal(checkDisposition(f.id,f.options).admitted,false);});
 
 for (const status of ['NOT_ASSESSED','READY']) test('A6 dispatch '+status+' preserves strict source verification',()=>{const f=fixture('PROVIDER:A6',status);if(status==='READY')assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);else assert.equal(checkDisposition(f.id,f.options).admitted,false);});
+
+test('ALL engineering BLOCKED validates current receipt while new-page admission stays false',()=>{
+ const f=fixture('PROVIDER:ALL','BLOCKED');
+ f.options.validate=requireReady=>{assert.equal(requireReady,false);return{status:'BLOCKED',engineeringStatus:'PASS'}};
+ const r=checkDisposition(f.id,f.options);assert.equal(r.admitted,false);assert.equal(r.assessmentExecuted,true);
+ f.options.validate=()=>({status:'READY',engineeringStatus:'PASS'});assert.throws(()=>checkDisposition(f.id,f.options));
+ f.options.validate=()=>({status:'BLOCKED',engineeringStatus:'FAIL'});assert.throws(()=>checkDisposition(f.id,f.options));
+});

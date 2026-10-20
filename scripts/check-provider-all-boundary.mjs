@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+import {contract,domains} from './provider-all-contract.mjs';
+import {nodesFromPlans} from './provider-a1-receipts.mjs';
+import {prerequisites} from './provider-all-functional-scope.mjs';
+const rows=contract();assert.deepEqual(nodesFromPlans().get('PROVIDER:ALL').dependencies,prerequisites);
+assert.equal(rows.filter(r=>r.owner==='BFF-FE-000').length,0,'BFF000 owns infrastructure, never fabricate runtime routes');
+for(const script of ['scripts/test-provider-all-http.mjs',...domains.map(d=>d[1])])execFileSync(process.execPath,['--check',script],{stdio:'inherit'});
+const policy=JSON.parse(readFileSync('scripts/development-testing-policy.json'));assert.equal(policy.development.recursiveDependencyRevalidation,false);
+console.log('ALL boundary PASS:134 unique operations;12 API tasks including infrastructure;17 contracts/113 schemas; no upstream Gates');

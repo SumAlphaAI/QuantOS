@@ -1967,3 +1967,6 @@ mod a5_tests;
 
 #[cfg(test)]
 mod a6_tests;
+
+#[cfg(test)]
+mod provider_all_tests;

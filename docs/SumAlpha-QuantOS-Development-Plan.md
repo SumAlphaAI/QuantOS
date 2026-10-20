@@ -1070,6 +1070,33 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "PROVIDER:A5"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:ALL": {
+      "profile": "ALL_SCOPE_LOCAL",
+      "schema": "quantos-provider-all-functional-development/v1",
+      "manifest": "audit/evidence/provider-all-local-20261020/manifest.json",
+      "prerequisites": [
+        "PROVIDER:A1",
+        "PROVIDER:A2",
+        "PROVIDER:A3",
+        "PROVIDER:A4",
+        "PROVIDER:A5",
+        "PROVIDER:A6",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FRONTEND-GATE:G0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }

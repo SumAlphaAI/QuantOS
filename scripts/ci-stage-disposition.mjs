@@ -1,3 +1,4 @@
+import {check as checkProviderAll} from './provider-all-development.mjs';
 import {check as checkBff011} from './bff-fe-011-development.mjs';
 import {check as checkProviderA6} from './provider-a6-development.mjs';
 import assert from 'node:assert/strict';
@@ -25,6 +26,7 @@ import {check as checkBff005} from './bff-fe-005-development.mjs';
 import {check as checkBff003} from './bff-fe-003-development.mjs';
 
 const validators = {
+  'PROVIDER:ALL': requireReady => checkProviderAll({requireReady}),
   'PROVIDER:A6': () => checkProviderA6(),
   'FE:BFF-FE-011': () => checkBff011(),
   'FE:BFF-FE-002': () => checkBff002(),
@@ -48,6 +50,7 @@ const validators = {
 };
 
 const ciAliases = {
+  'provider-all':'PROVIDER:ALL',
   'provider-a6':'PROVIDER:A6',
   'bff-fe-011':'FE:BFF-FE-011',
   'bff-fe-002':'FE:BFF-FE-002',
@@ -69,6 +72,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
   assert.equal(pkg.scripts['test:ci-stage-disposition'], 'node --test scripts/ci-stage-disposition.test.mjs');
   assert(job.steps.some(step => unconditional(step) && String(step.run).split(/\s*&&\s*/).includes('pnpm test:ci-stage-disposition')), 'CI disposition rejection probes missing');
   const strict = {
+    'check:provider-all':'node scripts/provider-all-development.mjs --ready',
     'check:provider-a6':'node scripts/provider-a6-development.mjs --ready',
     'check:bff-fe-011':'node scripts/bff-fe-011-development.mjs --ready',
     'check:bff-fe-002':'node scripts/bff-fe-002-development.mjs --ready',
@@ -113,7 +117,7 @@ export function checkDisposition(id, {nodes = nodesFromPlans(), validate = valid
   } else {
     assert(['READY', 'BLOCKED'].includes(gate.status), `${id}: unsupported disposition`);
     if (gate.status === 'BLOCKED') {
-      assert(['FE:FEP-0', 'FRONTEND-GATE:G0'].includes(id), `${id}: BLOCKED engineering mode unsupported`);
+      assert(['FE:FEP-0', 'FRONTEND-GATE:G0', 'PROVIDER:ALL'].includes(id), `${id}: BLOCKED engineering mode unsupported`);
     }
     assert(/^sha256:[a-f0-9]{64}$/.test(gate.input_digest), `${id}: current receipt digest required`);
     assert.equal(gate.evidence.length, 1, `${id}: one current receipt required`);
