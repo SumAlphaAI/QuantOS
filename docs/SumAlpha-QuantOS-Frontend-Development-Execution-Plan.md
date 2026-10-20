@@ -1,4 +1,8 @@
-> 当前工程结果（FE:BFF-FE-011/A6，2026-10-20）：冻结a3524fdf，1278输入、16组/5入口PASS；Rust44、Node249、consumer/契约64，两API/35条HTTP及基本Chromium、32限定控制点。权限unknown/本机降级、受控导出白名单历史、期限与有界游标完成。54,649原audit/gate保持，预检失败及首轮替代保留。仅BFF011_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-011-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-011-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:A6当前汇总。
+> 当前工程结果（PROVIDER:A6，2026-10-20）：冻结f367cfd8，1306输入，17组/7入口PASS；Rust70、Node217、consumer/契约75，四API/77条当前HTTP及两次基本Chromium、26限定控制点。C02/C17同provider独立事实/权限/期限/恢复验证完成；54,736原audit/gate保持，预检失败保留。仅A6_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING、完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/PROVIDER-A6-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/provider-a6-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:ALL当前汇总。
+
+> 用户确认（FE:BFF-FE-011，2026-10-20）：原稿CONFIRMED，仅a3524fdf/5cf6aa13原1278输入；共享输入变化后当前独立Gate NOT_ASSESSED，原字节保持。见[记录](./audit/evidence/bff-fe-011-confirmation-20261020/summary.md)。
+
+> 历史工程结果（FE:BFF-FE-011/A6，2026-10-20）：冻结a3524fdf，1278输入、16组/5入口PASS；Rust44、Node249、consumer/契约64，两API/35条HTTP及基本Chromium、32限定控制点。权限unknown/本机降级、受控导出白名单历史、期限与有界游标完成。54,649原audit/gate保持，预检失败及首轮替代保留。仅BFF011_SCOPE_LOCAL DEVELOPMENT READY，新稿PENDING；完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/BFF-FE-011-functional-review-2026-10-20.md)与[完整稿](./audit/evidence/bff-fe-011-local-20261020/confirmation-draft.md)。下一可执行PROVIDER:A6当前汇总。
 
 > 用户确认（FE:BFF-FE-002，2026-10-20）：原稿CONFIRMED，仅116d076e/3d86f2fb原1247输入。共享输入变化后当前Gate NOT_ASSESSED，原字节保持。见[记录](./audit/evidence/bff-fe-002-confirmation-20261020/summary.md)。
 
@@ -1747,14 +1751,20 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "PROVIDER:A5"
   ],
   "required_scope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
-  "source_commit": null,
-  "evidence": [],
+  "review_status": "IN_REVIEW",
+  "source_commit": "f367cfd887111fb3af5f288ac842995ad089f22b",
+  "evidence": [
+    "audit/PROVIDER-A6-functional-review-2026-10-20.md",
+    "audit/evidence/provider-a6-local-20261020/manifest.json",
+    "audit/evidence/provider-a6-local-20261020/confirmation-draft.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:8d0d3a0581193f1d4b85131cd9a04beca1a7d7c7b49441a47fc2eac2b458abc6",
+    "evidence": [
+      "audit/evidence/provider-a6-local-20261020/manifest.json"
+    ]
   }
 }
 ```

@@ -1,0 +1,215 @@
+{
+  "schema": "quantos-a6-local-controls/v1",
+  "sourceCommit": "f367cfd887111fb3af5f288ac842995ad089f22b",
+  "scope": "Current four A6 APIs only; all claims local, no target DB or Storage consumption",
+  "controls": [
+    {
+      "id": "A6-01",
+      "control": "published-scope",
+      "claim": "Four current C02/C17 operations and owner/page mapping, shared generated source1.14.0",
+      "check": "contract",
+      "evidence": "check-provider-a6-boundary.mjs",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-02",
+      "control": "unchanged-command-contract",
+      "claim": "C02 paths and three models unchanged against original3d86f2fb",
+      "check": "contract",
+      "evidence": "exact semantic comparison",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-03",
+      "control": "source-binding",
+      "claim": "One committed source, all input/command/log/artifact hashes and nested probe identity",
+      "check": "gate-tests",
+      "evidence": "source drift and nested source refusal",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-04",
+      "control": "original-human-scope",
+      "claim": "Original C02/C17/A5 confirmations remain original Git/receipt scope only",
+      "check": "confirmation",
+      "evidence": "68 confirmation/workflow tests; references original receipts",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-05",
+      "control": "mixed-read-only",
+      "claim": "Mixed command/platform reads cannot acquire execution or export authority",
+      "check": "aggregate",
+      "evidence": "mixed_command_platform_reads_never_acquire_execution_or_export_authority",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-06",
+      "control": "independent-export",
+      "claim": "Export and cancellation change history, not frozen command frames or revision",
+      "check": "aggregate",
+      "evidence": "export_cancellation_changes_history_but_not_command_frame_or_execution_facts",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-07",
+      "control": "permission-narrowing",
+      "claim": "Native denied/unsupported/offline fallback never confers domain authority",
+      "check": "consumers",
+      "evidence": "platform and A6 generated consumer cases",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-08",
+      "control": "no-prompt",
+      "claim": "Basic Chromium capability/history reads do not request permission",
+      "check": "http",
+      "evidence": "platform child browser.prompts=0",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-09",
+      "control": "redaction",
+      "claim": "No private export reason/URL/storage key/user attribution in history or Command",
+      "check": "aggregate",
+      "evidence": "mixed_command_platform_reads_never_acquire_execution_or_export_authority",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-10",
+      "control": "token-namespaces",
+      "claim": "History cursor cannot be Command stream token and vice versa",
+      "check": "aggregate",
+      "evidence": "stream_and_history_recovery_tokens_cannot_cross_resource_namespaces",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-11",
+      "control": "independent-deadlines",
+      "claim": "Command30s/ready-source minimum, source60s/history60s and link<=300s remain independent",
+      "check": "aggregate",
+      "evidence": "independent_deadlines_and_observer_refresh_do_not_renew_saved_a6_leases",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-12",
+      "control": "expired-session",
+      "claim": "Session expiry denies both surfaces; renewal does not revive old stream/cursor",
+      "check": "aggregate",
+      "evidence": "expired_session_denies_both_surfaces_and_renewal_cannot_revive_old_recovery",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-13",
+      "control": "current-membership",
+      "claim": "Actual Owner membership revocation precedes saved recovery and link issuance",
+      "check": "aggregate",
+      "evidence": "current_member_revocation_precedes_saved_a6_recovery_and_download_issuance",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-14",
+      "control": "shared-quarantine",
+      "claim": "Quarantine refuses all current A6 routes without new business writes",
+      "check": "aggregate",
+      "evidence": "shared_quarantine_refuses_all_a6_routes_without_new_business_writes",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-15",
+      "control": "shadow-viewer",
+      "claim": "Platform reads cannot seed Paper hosts in Shadow or authorize Viewer execution/history",
+      "check": "aggregate",
+      "evidence": "browser_reads_never_turn_shadow_or_viewer_into_execution_authority",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-16",
+      "control": "field-authority",
+      "claim": "C02 per-source role/identity scope null/forbidden, no risk decision/proof consumption",
+      "check": "command",
+      "evidence": "current18 C02 tests",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-17",
+      "control": "source-freshness",
+      "claim": "Stale/unavailable risk is unknown/null; observer renewal cannot refresh execution data",
+      "check": "command",
+      "evidence": "stale_sources_are_explicit_and_never_show_zero_or_fresh_risk plus A6 deadline test",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-18",
+      "control": "bounded-stream",
+      "claim": "Finite lease/frame/row bounds, exact replay, gap/expiry/changed binding refusal",
+      "check": "command",
+      "evidence": "current C02 recovery/source tests",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-19",
+      "control": "worker-state-map",
+      "claim": "All seven persisted export states map safely; no ready/download action during cancellation",
+      "check": "platform",
+      "evidence": "all_persisted_export_worker_states_have_safe_history_semantics",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-20",
+      "control": "bounded-history",
+      "claim": "History source2000/page200/cursor512/60s, session/query/revision binding and canonical refusal",
+      "check": "platform",
+      "evidence": "current15 platform tests",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-21",
+      "control": "safe-download",
+      "claim": "Link min(retention,session,now+300s), consumer HTTPS same-origin/resource/path/expiry checks",
+      "check": "platform",
+      "evidence": "shared lease_expiry and URL negative consumer cases; target content NOT_RUN",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-22",
+      "control": "real-consumer",
+      "claim": "Generated clients share one real local provider, then both refuse revoked current identity",
+      "check": "consumers",
+      "evidence": "a6-aggregate-consumer.test.ts",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-23",
+      "control": "error-recovery",
+      "claim": "Invalid initial frames, missing/gap/revoke/refusal never replace authorized facts",
+      "check": "consumers",
+      "evidence": "command/platform/shared transport and SSE tests",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-24",
+      "control": "receipt-negatives",
+      "claim": "Tampered log/child artifacts/commands/source/coverage cannot rehash into READY",
+      "check": "gate-tests",
+      "evidence": "65 receiver refusal tests including all8 mandatory composition assertions",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-25",
+      "control": "phase-ci-rollback",
+      "claim": "Mandatory strict CI and profile routing; no upstream/release promotion, atomic publication rollback",
+      "check": "plan-policy",
+      "evidence": "84 policy/CI tests plus actual7 entrypoints",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "id": "A6-26",
+      "control": "historical-integrity",
+      "claim": "All baseline historical audit/gate bytes preserved",
+      "check": "history-preservation.json",
+      "evidence": "54736 independently hashed files",
+      "status": "PASS_LOCAL"
+    }
+  ]
+}
