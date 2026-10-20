@@ -1,0 +1,22 @@
+{
+  "status": "FAIL",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "bff-gateway",
+    "--lib",
+    "a5_tests::",
+    "--",
+    "--test-threads=1"
+  ],
+  "exitCode": 101,
+  "passed": 5,
+  "failed": 1,
+  "failure": "a5_tests::renewed_observer_does_not_extend_old_leases_or_report_tickets: a5_tests.rs:455:46 Option::unwrap on None",
+  "cause": "New test incorrectly assumed the owned seed had more than one alert; single alert legitimately has nextCursor=null",
+  "correction": "Use owner governance roles pagination with multiple actual rows; health response key is health; compare immutable ledger items instead of sample metadata",
+  "admission": "NOT_CLAIMED"
+}

@@ -957,7 +957,7 @@
     "PROVIDER:A5": {
       "profile": "A5_SCOPE_LOCAL",
       "schema": "quantos-a5-aggregate-functional-development/v1",
-      "manifest": "audit/evidence/provider-a5-local-20261018/manifest.json",
+      "manifest": "audit/evidence/provider-a5-local-20261020/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-009",
         "FE:BFF-FE-008",
@@ -1594,7 +1594,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-010`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:32b1cea100bba6eb34e5621c13b2344fb3b73a35f6030f21dd456951fde66e60","evidence":["audit/evidence/bff-fe-010-local-20261020/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "BFF-FE-009", "CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06"]
 - closes_core: []
@@ -1623,15 +1623,9 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "PROVIDER:A4"
   ],
   "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "ACCEPTED",
-  "source_commit": "a036f73baaae984386e43b5eec0294fdfe44c031",
-  "evidence": [
-    "audit/evidence/provider-a5-local-20261018/manifest.json",
-    "audit/evidence/provider-a5-local-20261018/confirmation-draft.md",
-    "audit/PROVIDER-A5-functional-review-2026-10-18.md",
-    "audit/evidence/provider-a5-confirmation-20261018/approval.json",
-    "audit/evidence/provider-a5-confirmation-20261018/gate.json"
-  ],
+  "review_status": "IN_REVIEW",
+  "source_commit": null,
+  "evidence": ["audit/evidence/provider-a5-local-20261020/preflight/baseline.json"],
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "NOT_ASSESSED",

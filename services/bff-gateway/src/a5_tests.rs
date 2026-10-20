@@ -445,3 +445,150 @@ async fn poisoned_reconciliation_refuses_current_financial_reads_without_resolvi
     }
     assert_eq!(get(&p, "/v1/alerts").await["items"][0]["resolved"], false);
 }
+
+#[tokio::test]
+async fn renewed_observer_does_not_extend_old_leases_or_report_tickets() {
+    let p = BffProvider::shadow_reference();
+    let (_, q, _) = setup(&p).await;
+    let ledger = get(&p, "/v1/ledger/entries").await;
+    let (status, page) = call(
+        &p,
+        "GET",
+        "/v1/admin/roles?pageSize=1",
+        None,
+        "session-owner",
+        Uuid::new_v4(),
+        "",
+    )
+    .await;
+    assert_eq!(status, 200, "{page}");
+    let cursor = page["nextCursor"].as_str().unwrap();
+    let stream = get(&p, "/v1/alerts/stream").await;
+    let stream_id = stream["frames"][0]["streamId"].as_str().unwrap();
+    let key = Uuid::new_v4();
+    let (status, receipt) = call(
+        &p,
+        "POST",
+        "/v1/performance/reports",
+        Some(q.clone()),
+        CURRENT_SESSION,
+        key,
+        "",
+    )
+    .await;
+    assert_eq!(status, 202, "{receipt}");
+    let report_id = receipt["reportId"].as_str().unwrap();
+    let report_path = format!("/v1/performance/reports/{report_id}");
+    let _ = get(&p, &format!("{report_path}/status")).await;
+    let frozen = get(&p, &report_path).await;
+    let grant = get(&p, &format!("{report_path}/download")).await;
+
+    // Renewing only the independent observer changes alert facts, never an
+    // already issued financial ticket, cursor deadline, or frozen report.
+    p.advance_reference_time(Duration::seconds(301)).await;
+    p.renew_reference_session().await;
+    p.renew_operations_reference().await.unwrap();
+    assert_eq!(get(&p, "/v1/operations/health").await["health"], "healthy");
+    for (path, expected) in [
+        (grant["downloadPath"].as_str().unwrap().to_owned(), 410),
+        (format!("/v1/admin/roles?pageSize=1&cursor={cursor}"), 409),
+        (format!("/v1/alerts/stream?streamId={stream_id}"), 409),
+    ] {
+        let (status, body) = call(
+            &p,
+            "GET",
+            &path,
+            None,
+            if path.starts_with("/v1/admin/") {
+                "session-owner"
+            } else {
+                CURRENT_SESSION
+            },
+            Uuid::new_v4(),
+            "",
+        )
+        .await;
+        assert_eq!(status, expected, "{path}: {body}");
+    }
+    assert_eq!(get(&p, &report_path).await, frozen);
+    let renewed = get(&p, &format!("{report_path}/download")).await;
+    assert_ne!(renewed["downloadPath"], grant["downloadPath"]);
+    let document = get(&p, renewed["downloadPath"].as_str().unwrap()).await;
+    assert_eq!(document, frozen);
+    assert_eq!(
+        call(
+            &p,
+            "POST",
+            "/v1/performance/reports",
+            Some(q),
+            CURRENT_SESSION,
+            key,
+            ""
+        )
+        .await,
+        (202, receipt)
+    );
+    assert_eq!(
+        get(&p, "/v1/ledger/entries").await["items"],
+        ledger["items"]
+    );
+    let fresh = get(&p, "/v1/alerts/stream").await;
+    assert_ne!(fresh["frames"][0]["streamId"], stream_id);
+}
+
+#[tokio::test]
+async fn shared_governance_quarantine_refuses_frozen_downloads_and_recovery() {
+    let p = BffProvider::shadow_reference();
+    let (_, q, _) = setup(&p).await;
+    let key = Uuid::new_v4();
+    let (status, receipt) = call(
+        &p,
+        "POST",
+        "/v1/performance/reports",
+        Some(q.clone()),
+        CURRENT_SESSION,
+        key,
+        "",
+    )
+    .await;
+    assert_eq!(status, 202);
+    let report_path = format!(
+        "/v1/performance/reports/{}",
+        receipt["reportId"].as_str().unwrap()
+    );
+    let _ = get(&p, &format!("{report_path}/status")).await;
+    let grant = get(&p, &format!("{report_path}/download")).await;
+    let count = p.audit_count().await;
+    p.data.lock().await.operations.as_mut().unwrap().poisoned = true;
+    for path in [
+        "/v1/operations/health",
+        "/v1/reconciliation/runs",
+        "/v1/performance/summary",
+        "/v1/alerts/stream",
+        &report_path,
+        grant["downloadPath"].as_str().unwrap(),
+    ] {
+        assert_eq!(
+            call(&p, "GET", path, None, CURRENT_SESSION, Uuid::new_v4(), "")
+                .await
+                .0,
+            503,
+            "{path}"
+        );
+    }
+    assert_eq!(
+        call(
+            &p,
+            "POST",
+            "/v1/performance/reports",
+            Some(q),
+            CURRENT_SESSION,
+            key,
+            ""
+        )
+        .await
+        .0,
+        503
+    );
+    assert_eq!(p.audit_count().await, count);
+}
