@@ -1,0 +1,85 @@
+{
+  "schema": "quantos-ci-remediation/v1",
+  "baseCommit": "d7fe13ecf4f8b89fc6f674cbcc4b1411f1aca478",
+  "candidateBinding": "enclosing Git commit and manifest input hashes",
+  "gate": "PASS_LOCAL_SCOPED",
+  "hostedCandidateGate": "NOT_RUN",
+  "databaseExecution": false,
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "check:pre03:web"
+      ],
+      "exitCode": 0,
+      "lockedDependencies": 29,
+      "runtimeContractChecks": 2356,
+      "builtRouteChecks": 2
+    },
+    {
+      "command": [
+        "pnpm",
+        "test:pre03"
+      ],
+      "exitCode": 0,
+      "passed": 32,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--project",
+        "engines",
+        "--all-packages",
+        "--all-groups",
+        "pytest",
+        "engines/tests/test_tp08_qlib_mapping_samples.py",
+        "-q"
+      ],
+      "exitCode": 0,
+      "passed": 41
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp08-evaluation.test.mjs"
+      ],
+      "exitCode": 0,
+      "passed": 30
+    },
+    {
+      "command": [
+        "node",
+        "scripts/tp08-evaluation.mjs",
+        "third_party/qlib/mappings"
+      ],
+      "exitCode": 0
+    },
+    {
+      "scope": "Website/Terminal production build with CI public local-mock profile",
+      "exitCode": 0
+    },
+    {
+      "scope": "Python changed test Ruff; Node script syntax; sample semantic/digest scope verification",
+      "exitCode": 0
+    }
+  ],
+  "additionalDiagnostic": {
+    "scope": "root ESLint config applied directly to Node scripts outside workspace lint targets",
+    "status": "FAIL_NOT_PASS",
+    "baselineDiagnostics": 25,
+    "currentDiagnostics": 26,
+    "allDiagnosticKindsPreexisting": true,
+    "evidence": "local/node-lint-baseline.json"
+  },
+  "notRun": [
+    "new SHA hosted CI",
+    "full F01 clean-room/reproducibility",
+    "full F08 stable Gate",
+    "target database",
+    "deployment/release"
+  ]
+}

@@ -1,7 +1,7 @@
 # ADR: 前端运行时技术栈落地（PRE-03）
 
 - 状态：Accepted（工程选型，不代表正式 G0）
-- 更新：2026-10-02
+- 更新：2026-10-21
 - 范围：第一期官网与 Web Terminal；Desktop 属[独立第二期计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
 - 关联：[前端执行计划](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)、[PRE-02 token ADR](./20260814-pre02-design-tokens.md)
 
@@ -34,11 +34,13 @@ Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-
 | @radix-ui/react-dialog | 1.1.23 |
 | @radix-ui/react-tabs | 1.1.21 |
 | storybook | 8.6.18 |
-| vite | 6.4.3 |
+| vite | 6.4.4 |
 | @testing-library/react | 16.3.0 |
 | jsdom | 26.1.0 |
 
 版本替换必须同步 ADR、manifest、锁文件与 `expectedLockedVersions`。Next 推荐及 core-web-vitals lint 启用，异步 Client Component 作为错误拒绝；`no-html-link-for-pages` 仅针对 Pages Router，本工程静态 App Router 无 pages/ 目录，明确关闭该单项规则。业务接线与页面验收由后续任务负责；安装依赖不代表全量 Query、图表、i18n 或 provider 集成完成。观测 SDK 依隐私策略批准后启用，local-mock 默认关闭。
+
+2026-10-21：Vite 已随依赖安全修复升级到 6.4.4；同步 PRE-03 的受控版本输入，继续拒绝旧 6.4.3 和未经审阅的其他版本，不变更运行时选型或验收范围。
 
 ## 构建、启动与验收
 

@@ -29,6 +29,15 @@ def test_three_experiments_are_executed_with_real_byte_hashes():
     assert research["code_version"] == module.digest(
         (ROOT / "third_party/qlib/experiments.py").read_bytes()
     )
+    assert research["environment_hash"] == module.digest(
+        module.canonical(
+            {
+                "contract": "v1",
+                "python": "3.12",
+                "workspace_lock": module.digest((ROOT / "engines/uv.lock").read_bytes()),
+            }
+        )
+    )
     for doc in docs:
         assert doc["content_hash"] == module.digest(
             module.canonical({k: v for k, v in doc.items() if k != "content_hash"})
@@ -57,6 +66,30 @@ def test_replay_is_byte_identical_and_deduplicated():
     docs, store = module.evaluate(FIXTURE)
     again, _ = module.evaluate(FIXTURE, store=store)
     assert docs == again and len(store.objects) == 3
+
+
+def test_lock_change_rebinds_only_environment_envelope(tmp_path, monkeypatch):
+    docs, store = module.evaluate(FIXTURE)
+    lock = (ROOT / "engines/uv.lock").read_bytes() + b"\n# environment binding probe\n"
+    (tmp_path / "engines").mkdir()
+    (tmp_path / "engines/uv.lock").write_bytes(lock)
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    changed, changed_store = module.evaluate(FIXTURE)
+    expected = deepcopy(docs)
+    expected[1]["quantos_research_artifact"]["environment_hash"] = module.digest(
+        module.canonical(
+            {"contract": "v1", "python": "3.12", "workspace_lock": module.digest(lock)}
+        )
+    )
+    assert (
+        expected[1]["quantos_research_artifact"]["environment_hash"]
+        != docs[1]["quantos_research_artifact"]["environment_hash"]
+    )
+    expected[1]["content_hash"] = module.digest(
+        module.canonical({k: v for k, v in expected[1].items() if k != "content_hash"})
+    )
+    assert changed == expected
+    assert changed_store.objects == store.objects
 
 
 @pytest.mark.parametrize("field", list(module.SCOPE))

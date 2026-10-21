@@ -1,0 +1,55 @@
+[
+  {
+    "name": "tp08-python",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "--project",
+      "engines",
+      "--all-packages",
+      "--all-groups",
+      "pytest",
+      "engines/tests/test_tp08_qlib_mapping_samples.py",
+      "-q"
+    ],
+    "exitCode": 0,
+    "seconds": 0.221
+  },
+  {
+    "name": "tp08-node",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp08-evaluation.test.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 0.305
+  },
+  {
+    "name": "tp08-verify",
+    "command": [
+      "node",
+      "scripts/tp08-evaluation.mjs",
+      "third_party/qlib/mappings"
+    ],
+    "exitCode": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "python-lint",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "--project",
+      "engines",
+      "--all-packages",
+      "ruff",
+      "check",
+      "engines/tests/test_tp08_qlib_mapping_samples.py"
+    ],
+    "exitCode": 0,
+    "seconds": 0.063
+  }
+]

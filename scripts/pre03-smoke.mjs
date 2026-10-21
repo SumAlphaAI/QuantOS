@@ -29,7 +29,7 @@ export const expectedLockedVersions = {
   },
   "packages/ui": {
     dependencies: { "@radix-ui/react-dialog": "1.1.23", "@radix-ui/react-tabs": "1.1.21" },
-    devDependencies: { "@testing-library/react": "16.3.0", jsdom: "26.1.0", storybook: "8.6.18", vite: "6.4.3", react: "19.2.8", "react-dom": "19.2.8" },
+    devDependencies: { "@testing-library/react": "16.3.0", jsdom: "26.1.0", storybook: "8.6.18", vite: "6.4.4", react: "19.2.8", "react-dom": "19.2.8" },
   },
 };
 

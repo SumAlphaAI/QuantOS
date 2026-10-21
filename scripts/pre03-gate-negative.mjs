@@ -23,6 +23,15 @@ for (const importer of ['apps/terminal','apps/website']) for (const version of [
     const pnpmLock=structuredClone(current.pnpmLock);pnpmLock.importers[importer].dependencies.next.version=version;rejected({pnpmLock});
   });
 }
+for (const version of ['6.4.2','6.4.3','7.0.0']) {
+  test(`packages/ui rejects unreviewed Vite ${version}`, () => {
+    const pnpmLock=structuredClone(current.pnpmLock);
+    pnpmLock.importers['packages/ui'].devDependencies.vite.version=version;
+    const report=validate({pnpmLock});
+    assert.equal(report.status,'FAIL');
+    assert(report.failures.includes('packages/ui vite locked at 6.4.4'));
+  });
+}
 for (const [name,change] of [
   ['missing package resolutions',lock=>lock.packages={}],
   ['missing snapshots',lock=>lock.snapshots={}],
