@@ -1,0 +1,73 @@
+
+Running 17 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui104-bff.spec.ts:31:5 › static settings HTML is guarded before any profile is rendered (339ms)
+  ✓   2 [chromium] › tests/e2e/ui104-bff.spec.ts:32:5 › profile save uses actual context, CSRF/CAS and a real accepted response (299ms)
+  ✓   3 [chromium] › tests/e2e/ui104-bff.spec.ts:33:5 › 409 keeps draft and needs explicit rebase plus another save (290ms)
+  ✘   4 [chromium] › tests/e2e/ui104-bff.spec.ts:34:5 › notifications persist only approved settings fields (221ms)
+  ✓   5 [chromium] › tests/e2e/ui104-bff.spec.ts:35:5 › security confirmation really sends MFA/reauth/delete and 202 keeps the resource pending (280ms)
+  ✓   6 [chromium] › tests/e2e/ui104-bff.spec.ts:36:5 › MFA refusal never reaches reauth or delete and preserves a safe failure (231ms)
+  ✓   7 [chromium] › tests/e2e/ui104-bff.spec.ts:37:5 › offline recovery keeps unsaved drafts and requires explicit revalidation (201ms)
+  ✓   8 [chromium] › tests/e2e/ui104-bff.spec.ts:38:5 › downloads mint no lease on load and consume a fresh lease only on click (193ms)
+  ✓   9 [chromium] › tests/e2e/ui104-bff.spec.ts:39:5 › denied native notification permission is requested only once and falls back (195ms)
+  ✓  10 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 401 refuses before private read (147ms)
+  ✓  11 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 403 refuses before private read (140ms)
+  ✓  12 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 404 refuses before private read (138ms)
+  ✓  13 [chromium] › tests/e2e/ui104-bff.spec.ts:41:5 › four settings pages fit1440/390/CSS zoom and record axe without promoting native checks (1.7s)
+  ✓  14 [chromium] › tests/e2e/ui104-bff.spec.ts:42:5 › read-only profile needs no unrelated downloads and cannot save (139ms)
+  ✓  15 [chromium] › tests/e2e/ui104-bff.spec.ts:43:5 › failed revalidation retains unsaved draft as read-only and explicit recovery restores editing (240ms)
+  ✓  16 [chromium] › tests/e2e/ui104-bff.spec.ts:44:5 › clipboard rejection shows manual copy and never claims success (181ms)
+  ✓  17 [chromium] › tests/e2e/ui104-bff.spec.ts:45:5 › foreign download lease is refused before navigation (217ms)
+
+
+  1) [chromium] › tests/e2e/ui104-bff.spec.ts:34:5 › notifications persist only approved settings fields 
+
+    Error: expect(received).not.toHaveProperty(path)
+
+    Expected path: not "objectVersion"
+
+    Received value: "notifications-v7"
+
+      15 |     else if(r.method()==="DELETE")return route.fulfill({status:202,headers:cors,contentType:"application/json",body:JSON.stringify(accepted)});
+      16 |     else if(path==="/v1/settings/profile"){if(r.method()==="PUT"){const input=r.postDataJSON();for(const key of ["roleLabels","email","memberId","objectVersion"])expect(input).not.toHaveProperty(key);Object.assign(data.profile,input,{objectVersion:"profile-v15"});}body=data.profile;}
+    > 17 |     else if(path==="/v1/settings/notification-preferences"){if(r.method()==="PUT"){const input=r.postDataJSON();expect(input).not.toHaveProperty("objectVersion");expect(input).not.toHaveProperty("browserPermission");Object.assign(data.notifications,input,{objectVersion:"notification-v8"});}body=data.notifications;}
+         |                                                                                                                                   ^
+      18 |     else if(path==="/v1/settings/security")body=data.security;
+      19 |     else if(path==="/v1/settings/sessions")body=data.sessions;
+      20 |     else if(path==="/v1/settings/trusted-devices")body=data.devices;
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui104-bff.spec.ts:17:131
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/通知偏好已保存/)
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/通知偏好已保存/)
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      32 | test("profile save uses actual context, CSRF/CAS and a real accepted response",async({page})=>{const t=await boundary(page);await page.goto("/settings/profile");await expect(page.locator(".q-workspace-mode")).toHaveText("SHADOW");await page.getByLabel("显示名称",{exact:true}).fill("Changed display");await page.getByRole("button",{name:"保存个人资料"}).click();await expect(page.getByText(/个人资料已保存/)).toBeVisible();const req=writes(t.requests)[0]!;expect(req.headers()["if-match"]).toBe("profile-v14");expect(req.headers()["x-csrf-token"]).toBe("csrf-fixture");await page.reload();await expect(page.getByLabel("显示名称",{exact:true})).toHaveValue("Changed display");});
+      33 | test("409 keeps draft and needs explicit rebase plus another save",async({page})=>{let first=true;const t=await boundary(page,r=>{if(r.method()==="PUT"&&first){first=false;return{status:409,data:{code:"VERSION_CONFLICT",message:"internal",correlationId:id,currentVersion:"server-v99"}};}});await page.goto("/settings/profile");await page.getByLabel("显示名称",{exact:true}).fill("Keep draft");await page.getByRole("button",{name:"保存个人资料"}).click();await expect(page.getByText(/版本冲突；草稿已保留/)).toBeVisible();await expect(page.getByLabel("显示名称",{exact:true})).toHaveValue("Keep draft");t.data.profile.objectVersion="server-v99";await page.getByRole("button",{name:"加载最新版本并保留草稿"}).click();await expect(page.getByText(/最新版本已读取/)).toBeVisible();expect(writes(t.requests)).toHaveLength(1);await page.getByRole("button",{name:"保存个人资料"}).click();await expect(page.getByText(/个人资料已保存/)).toBeVisible();expect(writes(t.requests)[1]!.headers()["if-match"]).toBe("server-v99");});
+    > 34 | test("notifications persist only approved settings fields",async({page})=>{const t=await boundary(page);await page.goto("/settings/notifications");await page.getByRole("checkbox",{name:"启用静默时段",exact:true}).uncheck();await page.getByRole("button",{name:"保存通知偏好"}).click();await expect(page.getByText(/通知偏好已保存/)).toBeVisible();expect(writes(t.requests)[0]!.postDataJSON().quietHoursEnabled).toBe(false);});
+         |                                                                                                                                                                                                                                                                                                                         ^
+      35 | test("security confirmation really sends MFA/reauth/delete and 202 keeps the resource pending",async({page})=>{const t=await boundary(page);await page.goto("/settings/security");await dialog(page);await page.getByRole("button",{name:"确认撤销会话",exact:true}).click();await expect(page.getByText(/会话撤销已受理/)).toBeVisible();await expect(page.getByRole("button",{name:"撤销处理中",exact:true})).toBeVisible();expect(writes(t.requests).map(r=>r.method())).toEqual(["POST","POST","DELETE"]);expect(writes(t.requests)[2]!.headers()["x-reauth-token-ref"]).toBe(id);await expect(page.locator(".settings-list-row code").filter({hasText:"sess-12de-remote"})).toBeVisible();});
+      36 | test("MFA refusal never reaches reauth or delete and preserves a safe failure",async({page})=>{const t=await boundary(page,r=>new URL(r.url()).pathname.endsWith("/challenges")?{status:429,data:{code:"RATE_LIMITED",message:"private-account",correlationId:id,retryAfter:60}}:undefined);await page.goto("/settings/security");await dialog(page);await page.getByRole("button",{name:"确认撤销会话",exact:true}).click();await expect(page.getByRole("dialog")).toBeVisible();await expect(page.getByRole("dialog")).not.toContainText("private-account");expect(writes(t.requests)).toHaveLength(1);});
+      37 | test("offline recovery keeps unsaved drafts and requires explicit revalidation",async({page,context:c})=>{const t=await boundary(page);await page.goto("/settings/profile");await page.getByLabel("显示名称",{exact:true}).fill("Offline draft");await c.setOffline(true);await page.evaluate(()=>dispatchEvent(new Event("offline")));await expect(page.getByRole("button",{name:"保存个人资料"})).toBeDisabled();await c.setOffline(false);await page.evaluate(()=>dispatchEvent(new Event("online")));await expect(page.getByRole("button",{name:"保存个人资料"})).toBeDisabled();expect(writes(t.requests)).toHaveLength(0);await page.getByRole("button",{name:"重新验证并保留草稿"}).click();await expect(page.getByRole("button",{name:"保存个人资料"})).toBeEnabled();await expect(page.getByLabel("显示名称",{exact:true})).toHaveValue("Offline draft");});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui104-bff.spec.ts:34:313
+
+    Error Context: docs/audit/evidence/ui-104-local-20261021/function-attempt-02/bff-browser/results/ui104-bff-notifications-pe-d0e72-ly-approved-settings-fields-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-104-local-20261021/function-attempt-02/bff-browser/results/ui104-bff-notifications-pe-d0e72-ly-approved-settings-fields-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-104-local-20261021/function-attempt-02/bff-browser/results/ui104-bff-notifications-pe-d0e72-ly-approved-settings-fields-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/ui104-bff.spec.ts:34:5 › notifications persist only approved settings fields 
+  16 passed (6.6s)

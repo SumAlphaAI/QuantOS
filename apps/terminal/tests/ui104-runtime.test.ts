@@ -28,6 +28,10 @@ it("loads session/context before private reads and strips all server-owned profi
   const saved = await t.actions.saveProfile({ ...t.data.profile, displayName: "Controlled edit" }); const req = t.requests.at(-1)!; const body = await req.json();
   expect(body.displayName).toBe("Controlled edit"); for (const key of ["email","roleLabels","memberId","objectVersion","emailVerified"]) expect(body).not.toHaveProperty(key);
   expect(req.headers.get("if-match")).toBe(t.data.profile.objectVersion); expect(req.headers.get("x-csrf-token")).toBe("csrf-fixture"); expect(saved.objectVersion).toBe("server-v2");
+  await t.actions.saveNotifications({ ...t.data.notifications, rules: t.data.notifications.rules.map(rule => Object.assign({}, rule, { privilegedOverride: true })) });
+  const notificationBody = await t.requests.at(-1)!.json();
+  for (const key of ["objectVersion", "browserPermission"]) expect(notificationBody).not.toHaveProperty(key);
+  expect(notificationBody.rules.every((rule: Record<string, unknown>) => !("privilegedOverride" in rule))).toBe(true);
 });
 it.each(["expired","capability","workspace","challenged"])("%s blocks private C17 reads", async kind => {
   const t = setup(req => { const path = new URL(req.url).pathname; if (path === "/v1/session" && (kind === "expired" || kind === "challenged")) return Response.json({ ...ctx(), ...(kind === "expired" ? { expiresAt: "2000-01-01T00:00:00Z" } : { mfaState: "challenged" }) }); if (path === "/v1/context") return Response.json({ ...ctx(), ...(kind === "capability" ? { capabilities: [] } : kind === "workspace" ? { workspaceId: crypto.randomUUID() } : {}) }); });

@@ -72,7 +72,9 @@ export function profileInput(value: ProfileSettingsInput): ProfileSettingsInput 
   return bffZodSchemas.ProfileSettingsInput.parse(Object.fromEntries(keys.filter(k => value[k] !== undefined).map(k => [k, value[k]])));
 }
 export function notificationInput(value: NotificationPreferencesInput): NotificationPreferencesInput {
-  return bffZodSchemas.NotificationPreferencesInput.parse(value);
+  const { quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency } = value;
+  const rules = value.rules.map(({ key, severity, inApp, desktop, email, browser }) => ({ key, severity, inApp, desktop, email, browser }));
+  return bffZodSchemas.NotificationPreferencesInput.parse({ rules, quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency });
 }
 export type SettingsSection = "profile" | "notifications" | "security" | "browser";
 export type SettingsSnapshot = Awaited<ReturnType<typeof loadSettingsSnapshot>>;
