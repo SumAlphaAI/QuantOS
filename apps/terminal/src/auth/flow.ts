@@ -1,3 +1,4 @@
+import { createBffFetch } from "@sumalpha/api-client";
 import { deriveCodeChallenge, generateCodeVerifier, generateState } from "./pkce";
 
 export interface OidcConfig {
@@ -10,6 +11,7 @@ export interface PendingAuth {
   verifier: string;
   state: string;
   returnTo: string;
+  issuedAt: number;
 }
 
 export interface Session {
@@ -21,12 +23,15 @@ export interface Session {
 
 /** 会话仅内存持有（401 清内存态；浏览器不持久化长期 token）。 */
 let currentSession: Session | null = null;
+let sessionEpoch = 0;
 export const sessionStore = {
   get: () => currentSession,
   set: (s: Session) => {
+    sessionEpoch++;
     currentSession = s;
   },
   clear: () => {
+    sessionEpoch++;
     currentSession = null;
   },
 };
@@ -81,10 +86,12 @@ export function buildAuthorizeUrl(config: OidcConfig, pending: PendingAuth, chal
 }
 
 export async function beginAuth(config: OidcConfig, returnTo: string | null): Promise<{ authorizeUrl: string; pending: PendingAuth }> {
+  sessionStore.clear();
   const pending: PendingAuth = {
     verifier: generateCodeVerifier(),
     state: generateState(),
     returnTo: sanitizeReturnPath(returnTo),
+    issuedAt: Date.now(),
   };
   const challenge = await deriveCodeChallenge(pending.verifier);
   return { authorizeUrl: buildAuthorizeUrl(config, pending, challenge), pending };
@@ -100,6 +107,30 @@ export class AuthError extends Error {
   }
 }
 
+export const pendingAuthKey = "quantos.auth.pending";
+export const pendingAuthLifetimeMs = 10 * 60 * 1000;
+
+/** Consume before any asynchronous work, including provider rejection; never replay. */
+export function consumePendingAuth(storage: Pick<Storage, "getItem" | "removeItem">): PendingAuth {
+  sessionStore.clear();
+  const raw = storage.getItem(pendingAuthKey);
+  storage.removeItem(pendingAuthKey);
+  return parsePendingAuth(raw);
+}
+
+function parsePendingAuth(raw: string | null): PendingAuth {
+  try {
+    const p = JSON.parse(raw ?? "null") as PendingAuth | null;
+    if (!p || !/^[A-Za-z0-9._~-]{43,128}$/.test(p.verifier) ||
+        !/^[a-f0-9]{32}$/.test(p.state) || typeof p.returnTo !== "string" ||
+        !Number.isFinite(p.issuedAt) || p.issuedAt > Date.now() ||
+        Date.now() - p.issuedAt >= pendingAuthLifetimeMs) throw new Error();
+    return { ...p, returnTo: sanitizeReturnPath(p.returnTo) };
+  } catch {
+    throw new AuthError("认证会话已失效，请重新登录。");
+  }
+}
+
 /**
  * 回调交换：仅接受 code + 匹配 state；token 响应落内存，不进 URL/localStorage。
  * 失败抛 AuthError（安全可展示，不含敏感细节；审计 correlationId 透传）。
@@ -112,50 +143,67 @@ export async function exchangeCode(
   fetchImpl: typeof fetch = fetch,
   bffOrigin?: string,
 ): Promise<Session> {
+  sessionStore.clear();
+  const epoch = sessionEpoch;
+  pending = parsePendingAuth(JSON.stringify(pending));
   if (!code) throw new AuthError("回调缺少授权码");
   if (state !== pending.state) throw new AuthError("认证状态不匹配，请重新登录");
 
-  const res = await fetchImpl(new URL("/token", config.issuer).toString(), {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: config.redirectUri,
-      client_id: config.clientId,
-      code_verifier: pending.verifier,
-    }),
-  });
-  if (!res.ok) {
-    let correlationId: string | undefined;
-    try {
-      const body = (await res.json()) as { correlationId?: string };
-      correlationId = body.correlationId;
-    } catch {
-      /* 保持安全默认 */
+  const boundedFetch = createBffFetch(fetchImpl, { timeoutMs: 15_000 });
+  try {
+    const res = await boundedFetch(new URL("/token", config.issuer).toString(), {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: config.redirectUri,
+        client_id: config.clientId,
+        code_verifier: pending.verifier,
+      }),
+    });
+    if (!res.ok) {
+      let correlationId: string | undefined;
+      try {
+        const body = (await res.json()) as { correlationId?: string };
+        correlationId = body.correlationId;
+      } catch {
+        /* 保持安全默认 */
+      }
+      throw new AuthError("登录交换失败，请重试；若持续失败请联系支持", correlationId);
     }
-    throw new AuthError("登录交换失败，请重试；若持续失败请联系支持", correlationId);
-  }
-  const body = (await res.json()) as { subject?: string; user?: { id?: string }; access_token?: string; expires_in?: number; mfa_required?: boolean };
-  if (bffOrigin) {
-    if (!body.access_token || !(body.user?.id ?? body.subject)) {
+    const body = (await res.json()) as { subject?: string; user?: { id?: string }; access_token?: string; expires_in?: number; mfa_required?: boolean };
+    const subject = body.user?.id ?? body.subject;
+    if (typeof subject !== "string" || !subject.trim() ||
+        typeof body.expires_in !== "number" || !Number.isFinite(body.expires_in) || body.expires_in <= 0 ||
+        (body.mfa_required !== undefined && typeof body.mfa_required !== "boolean")) {
       throw new AuthError("身份会话缺少必要字段，请重新登录。");
     }
-    const established = await fetchImpl(`${bffOrigin}/v1/auth/session`, {
-      method: "POST",
-      credentials: "include",
-      headers: { authorization: `Bearer ${body.access_token}` },
-    });
-    if (established.status !== 204) {
-      throw new AuthError("服务端会话建立失败，请重新登录。");
+    if (epoch !== sessionEpoch) throw new AuthError("认证会话已失效，请重新登录。");
+    if (bffOrigin) {
+      if (typeof body.access_token !== "string" || !body.access_token.trim()) {
+        throw new AuthError("身份会话缺少必要字段，请重新登录。");
+      }
+      const established = await boundedFetch(`${bffOrigin}/v1/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: { authorization: `Bearer ${body.access_token}` },
+      });
+      if (established.status !== 204) {
+        throw new AuthError("服务端会话建立失败，请重新登录。");
+      }
     }
+    const session: Session = {
+      subject,
+      establishedAt: new Date().toISOString(),
+      expiresIn: body.expires_in ?? 300,
+      mfaRequired: body.mfa_required === true,
+    };
+    if (epoch !== sessionEpoch) throw new AuthError("认证会话已失效，请重新登录。");
+    sessionStore.set(session);
+    return session;
+  } catch (error) {
+    if (error instanceof AuthError) throw error;
+    throw new AuthError("登录交换失败，请重试。");
   }
-  const session: Session = {
-    subject: body.user?.id ?? body.subject ?? "unknown",
-    establishedAt: new Date().toISOString(),
-    expiresIn: body.expires_in ?? 300,
-    mfaRequired: body.mfa_required === true,
-  };
-  sessionStore.set(session);
-  return session;
 }

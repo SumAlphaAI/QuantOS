@@ -7,7 +7,7 @@ import {
   sanitizeReturnPath,
   AuthError,
   type OidcConfig,
-  type PendingAuth,
+  consumePendingAuth,
 } from "../../../src/auth/flow";
 import { AuthBrand, AuthCard, AuthPageShell } from "../../_components/auth-surface";
 
@@ -28,27 +28,11 @@ function CallbackHandler() {
     const run = async () => {
       const authError = searchParams.get("error");
       window.history.replaceState({}, "", "/auth/callback");
-      if (authError) {
-        // 回调错误写认证审计（服务端）；客户端不展示敏感细节，URL 不含 token
-        setError("登录未完成或已取消。请重新尝试登录。");
-        return;
-      }
-      const code = searchParams.get("code") ?? "";
-      const state = searchParams.get("state") ?? "";
-      const raw = sessionStorage.getItem("quantos.auth.pending");
-      sessionStorage.removeItem("quantos.auth.pending");
-      if (!raw) {
-        setError("认证会话已失效，请重新登录。");
-        return;
-      }
-      let pending: PendingAuth;
       try {
-        pending = JSON.parse(raw) as PendingAuth;
-      } catch {
-        setError("认证会话已失效，请重新登录。");
-        return;
-      }
-      try {
+        const pending = consumePendingAuth(sessionStorage);
+        if (authError) throw new AuthError("登录未完成或已取消。请重新尝试登录。");
+        const code = searchParams.get("code") ?? "";
+        const state = searchParams.get("state") ?? "";
         const bffOrigin = process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === "true"
           ? undefined
           : process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN;

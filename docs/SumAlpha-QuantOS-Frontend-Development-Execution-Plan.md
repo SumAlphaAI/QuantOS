@@ -1907,7 +1907,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：共享Frame/Chrome及工作区组件当前功能复核；原P02/P20参考、受控状态及视觉基线见[本轮报告](./audit/UI-VIS-000-current-function-review-2026-10-21.md)。INTEGRATION NOT_ASSESSED；真实BFF/业务联调、人工读屏/原生缩放及RELEASE未执行，新确认PENDING。
+- 状态范围：共享Frame/Chrome原完整稿已由项目用户确认，见[原始答复](./audit/evidence/ui-vis-000-confirmation-20261021/user-confirmation.json)；绑定45f3a307工程与a7d00219原稿包，未改写原receipt。INTEGRATION NOT_ASSESSED；人工读屏/原生200%缩放、真实BFF/业务联调及RELEASE仍NOT_RUN。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -1928,7 +1928,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Contract Integrated。真实 IdP/MFA 功能联调是 G1 阶段 READY 的前置；staging 签署是正式 Done 的前置。
+- 状态范围：2026-10-21 当前认证/错误恢复功能复核，见[本轮报告](./audit/UI-102-current-function-review-2026-10-21.md)。本机真实前端模块及受控IdP/BFF边界验证；真实IdP/MFA联调NOT_RUN，INTEGRATION NOT_ASSESSED；新完整确认稿PENDING。人工读屏/原生200%缩放、远程同SHA CI与RELEASE仍NOT_RUN，不声称Contract Integrated或正式Done。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

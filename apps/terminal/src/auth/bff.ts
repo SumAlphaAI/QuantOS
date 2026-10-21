@@ -1,3 +1,4 @@
+import { handleAuthHttpStatus } from "./flow";
 import { createBffFetch, type BffRequestOptions, bffZodSchemas, parseBffResponse, type BffOperationId, type BffComponents, type BffOperations } from "@sumalpha/api-client";
 
 type ErrorEnvelope = BffComponents["schemas"]["ErrorEnvelope"];
@@ -58,7 +59,10 @@ async function postJson<TResponse>(
     headers,
     body: JSON.stringify(body),
   });
-  if (response.status !== acceptedStatus) throw await parseError(operation, response);
+  if (response.status !== acceptedStatus) {
+    if (response.status === 401) handleAuthHttpStatus(401);
+    throw await parseError(operation, response);
+  }
   return parseBffResponse(operation, response.status, await response.json()) as TResponse;
 }
 

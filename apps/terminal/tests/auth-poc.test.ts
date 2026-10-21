@@ -17,7 +17,7 @@ const config = {
   redirectUri: "http://localhost:3100/auth/callback",
 };
 
-const pending: PendingAuth = { verifier: "v", state: "s", returnTo: "/command" };
+const pending: PendingAuth = { verifier: "v".repeat(64), state: "a".repeat(32), returnTo: "/command", issuedAt: Date.now() };
 
 describe("OIDC callback PoC（G0 #4）", () => {
   it("PKCE S256 符合 RFC 7636 测试向量", async () => {
@@ -35,7 +35,7 @@ describe("OIDC callback PoC（G0 #4）", () => {
     expect(url.origin + url.pathname).toBe("https://mock.idp.local/authorize");
     expect(url.searchParams.get("response_type")).toBe("code");
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
-    expect(url.searchParams.get("state")).toBe("s");
+    expect(url.searchParams.get("state")).toBe(pending.state);
     expect(url.searchParams.get("redirect_uri")).toBe(config.redirectUri);
   });
 
@@ -54,8 +54,8 @@ describe("OIDC callback PoC（G0 #4）", () => {
       captured = String(init?.body ?? "");
       return new Response(JSON.stringify({ subject: "user-1", expires_in: 300 }), { status: 200 });
     }) as unknown as typeof fetch;
-    const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl);
-    expect(captured).toContain("code_verifier=v");
+    const session = await exchangeCode(config, pending, "code-1", pending.state, fetchImpl);
+    expect(captured).toContain("code_verifier=" + pending.verifier);
     expect(captured).toContain("grant_type=authorization_code");
     expect(session.subject).toBe("user-1");
     expect(JSON.stringify(session)).not.toContain("token");
@@ -75,7 +75,7 @@ describe("OIDC callback PoC（G0 #4）", () => {
       }
       return new Response(JSON.stringify({ access_token: "short-token", user: { id: "user-1" }, expires_in: 300 }), { status: 200 });
     }) as typeof fetch;
-    const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl, "https://bff.example.com");
+    const session = await exchangeCode(config, pending, "code-1", pending.state, fetchImpl, "https://bff.example.com");
     expect(calls).toHaveLength(2);
     expect(session.subject).toBe("user-1");
     expect(JSON.stringify(session)).not.toContain("short-token");
@@ -84,13 +84,13 @@ describe("OIDC callback PoC（G0 #4）", () => {
 
   it("真实回调缺 token 时失败关闭", async () => {
     const fetchImpl = (async () => new Response(JSON.stringify({ subject: "user-1", expires_in: 300 }), { status: 200 })) as typeof fetch;
-    await expect(exchangeCode(config, pending, "code-1", "s", fetchImpl, "https://bff.example.com"))
+    await expect(exchangeCode(config, pending, "code-1", pending.state, fetchImpl, "https://bff.example.com"))
       .rejects.toThrow(AuthError);
   });
 
   it("保留服务端 MFA 必需信号但不接收任何长期 token", async () => {
     const fetchImpl = (async () => new Response(JSON.stringify({ subject: "user-1", expires_in: 300, mfa_required: true }), { status: 200 })) as typeof fetch;
-    const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl);
+    const session = await exchangeCode(config, pending, "code-1", pending.state, fetchImpl);
     expect(session.mfaRequired).toBe(true);
     expect(JSON.stringify(session)).not.toContain("access_token");
     sessionStore.clear();
@@ -111,7 +111,7 @@ describe("OIDC callback PoC（G0 #4）", () => {
       new Response(JSON.stringify({ correlationId: "9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60", debug: "secret-detail" }), {
         status: 400,
       })) as unknown as typeof fetch;
-    const err = await exchangeCode(config, pending, "code-1", "s", fetchImpl).catch((e: unknown) => e);
+    const err = await exchangeCode(config, pending, "code-1", pending.state, fetchImpl).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(AuthError);
     expect((err as AuthError).message).not.toContain("secret-detail");
     expect((err as AuthError).correlationId).toBe("9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60");
@@ -135,16 +135,16 @@ describe("OIDC callback PoC（G0 #4）", () => {
 it("callback failure paths never establish a session or expose provider details", async () => {
   sessionStore.clear();
   const never = (async () => { throw new Error("must not fetch"); }) as typeof fetch;
-  await expect(exchangeCode(config,pending,"","s",never)).rejects.toThrow("缺少授权码");
+  await expect(exchangeCode(config,pending,"",pending.state,never)).rejects.toThrow("缺少授权码");
   expect(sanitizeReturnPath("//evil/path")).toBe("/command");
   expect(handleAuthHttpStatus(503)).toEqual({kind:"maintenance",route:"/maintenance"});
   expect(handleAuthHttpStatus(200)).toEqual({kind:"continue"});
   const invalidJson = (async () => new Response("not json",{status:400})) as typeof fetch;
-  await expect(exchangeCode(config,pending,"code","s",invalidJson)).rejects.toThrow(AuthError);
+  await expect(exchangeCode(config,pending,"code",pending.state,invalidJson)).rejects.toThrow(AuthError);
   for (const body of [{access_token:"temporary"},{access_token:"temporary",user:{}},{access_token:"temporary",subject:"actor"}]) {
     let calls=0;
     const fetchImpl=(async () => ++calls===1 ? new Response(JSON.stringify(body)) : new Response(null,{status:403})) as typeof fetch;
-    await expect(exchangeCode(config,pending,"code","s",fetchImpl,"https://bff.example")).rejects.toThrow(AuthError);
+    await expect(exchangeCode(config,pending,"code",pending.state,fetchImpl,"https://bff.example")).rejects.toThrow(AuthError);
     expect(sessionStore.get()).toBeNull();
   }
 });
@@ -153,8 +153,8 @@ it("beginAuth and local PoC fallback expose only sanitized session metadata", as
   const started=await beginAuth(config,"//evil/path");
   expect(started.pending.returnTo).toBe("/command");
   expect(new URL(started.authorizeUrl).searchParams.get("code_challenge_method")).toBe("S256");
-  const fetchImpl=(async () => new Response("{}")) as typeof fetch;
-  const session=await exchangeCode(config,pending,"code","s",fetchImpl);
-  expect(session).toMatchObject({subject:"unknown",expiresIn:300,mfaRequired:false});
+  const fetchImpl=(async () => new Response(JSON.stringify({subject:"local-actor",expires_in:300}))) as typeof fetch;
+  const session=await exchangeCode(config,pending,"code",pending.state,fetchImpl);
+  expect(session).toMatchObject({subject:"local-actor",expiresIn:300,mfaRequired:false});
   sessionStore.clear();
 });

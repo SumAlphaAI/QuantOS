@@ -91,7 +91,7 @@ test.describe("UI-102 identity, access and recovery", () => {
     await context.setOffline(false);
   });
 
-  test("390px 与 200% 缩放下认证操作仍可达", async ({ page }) => {
+  test("390px 与 CSS zoom=2 下认证操作仍可达（原生缩放独立 NOT_RUN）", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/login");
     await expect(page.getByRole("button", { name: "使用组织账户继续" })).toBeVisible();
