@@ -49,19 +49,38 @@ export function validateDisposition(r){
  for(const key of ['formalAccepted','databaseExecution','production','externalPublished'])assert.equal(r[key],false);
  assert.equal(r.runtimeAdmission,'DENIED');assert.equal(r.manualScreenReader,'NOT_RUN');assert.equal(r.confirmation,'PENDING');assert.equal(r.businessIntegration,'NOT_RUN');assert.equal(r.releaseAcceptance,'NOT_RUN');assert.equal(r.recursiveDependencyRevalidation,false);
 }
+export const toolRepairPaths=['scripts/ui-103-functional-review.mjs','scripts/ui-103-functional-review.test.mjs'];
+export function validateToolDelta(original,current,proof){
+ assert.deepEqual(current.requirements,original.requirements,'requirements changed');assert.deepEqual(current.checks,original.checks,'commands changed');
+ const before=new Map(original.inputs.map(r=>[r.path,r.sha256])),after=new Map(current.inputs.map(r=>[r.path,r.sha256]));
+ assert.deepEqual([...after.keys()],[...before.keys()],'input inventory changed');
+ const delta=current.inputs.filter(r=>r.sha256!==before.get(r.path)).map(r=>({path:r.path,before:before.get(r.path),after:r.sha256}));
+ assert.deepEqual(delta.map(r=>r.path),toolRepairPaths,'only the explicitly listed review tool and its tests may change');assert.deepEqual(proof.changedInputs,delta);return delta;
+}
+export function validateAxe(rows,storyCount){
+ const scans=rows.filter(row=>Array.isArray(row.violations));assert(scans.length>=storyCount*2+7,'complete story and portal scans missing');
+ assert(rows.every(row=>row.status==='PASS'));assert(scans.every(row=>!row.violations.some(v=>['critical','serious'].includes(v.impact))));
+ for(const name of ['dark-en-1440','light-zh-1440','dark-en-768','light-zh-390','dark-en-200pct']){const layout=rows.find(row=>row.id===name);assert(layout,'missing reflow '+name);assert(layout.reflow.scroll<=layout.reflow.client+1);}
+}
+function validateToolRepair(r,current,readBytes){
+ assert(r.toolRepair,'current input drift');const bytes=readBytes(r.toolRepair.path);assert.equal(digest(bytes),r.toolRepair.sha256);const proof=JSON.parse(bytes);assert.equal(proof.schema,'quantos-ui103-review-tool-repair/v1');assert.equal(proof.engineeringSourceCommit,r.sourceCommit);assert(/^[0-9a-f]{40}$/.test(proof.toolSourceCommit));execFileSync('git',['merge-base','--is-ancestor',r.sourceCommit,proof.toolSourceCommit]);
+ for(const delta of validateToolDelta(r.snapshot,current,proof))assert.equal(digest(execFileSync('git',['show',`${proof.toolSourceCommit}:${delta.path}`])),delta.after);
+ assert.deepEqual(proof.test.command,['node','--test','scripts/ui-103-functional-review.test.mjs']);assert.equal(proof.test.exitCode,0);assert.equal(proof.test.signal,null);assert.equal(proof.test.logSha256,digest(readBytes(proof.test.log)));assert(readBytes(proof.test.log).includes('fail 0'));return proof;
+}
 export function verify(r,{current=snapshot(),readBytes=read,sourceVerifier=verifySource}={}){
  validateDisposition(r);assert.deepEqual(nodesFromPlans().get('FE:UI-103').stage_gate,{stage:'INTEGRATION',status:'NOT_ASSESSED',input_digest:null,evidence:[]});
- assert.equal(r.schema,'quantos-ui103-current-function/v1');assert.equal(r.nodeId,'FE:UI-103');assert.equal(r.engineeringStatus,'PASS');assert.equal(r.stageGate,'NOT_ASSESSED');assert.equal(r.formalAccepted,false);assert.equal(r.runtimeAdmission,'DENIED');assert.equal(r.manualScreenReader,'NOT_RUN');assert.equal(r.confirmation,'PENDING');assert.equal(r.businessIntegration,'NOT_RUN');assert.equal(r.releaseAcceptance,'NOT_RUN');assert.equal(r.recursiveDependencyRevalidation,false);assert.deepEqual(r.snapshot,current,'current input drift');assert.equal(r.inputDigest,digest(JSON.stringify(current)));sourceVerifier(current,r.sourceCommit);assert.deepEqual(r.dependencies,prerequisites());validateExecution(r.executions,commands(r.attempt),readBytes);
+ assert.equal(r.schema,'quantos-ui103-current-function/v1');assert.equal(r.nodeId,'FE:UI-103');assert.equal(r.engineeringStatus,'PASS');assert.equal(r.stageGate,'NOT_ASSESSED');assert.equal(r.formalAccepted,false);assert.equal(r.runtimeAdmission,'DENIED');assert.equal(r.manualScreenReader,'NOT_RUN');assert.equal(r.confirmation,'PENDING');assert.equal(r.businessIntegration,'NOT_RUN');assert.equal(r.releaseAcceptance,'NOT_RUN');assert.equal(r.recursiveDependencyRevalidation,false);if(JSON.stringify(r.snapshot)!==JSON.stringify(current))validateToolRepair(r,current,readBytes);assert.equal(r.inputDigest,digest(JSON.stringify(r.snapshot)));sourceVerifier(r.snapshot,r.sourceCommit);assert.deepEqual(r.dependencies,prerequisites());validateExecution(r.executions,commands(r.attempt),readBytes);
  const artifactPaths=r.artifacts.map(a=>a.path);assert.equal(new Set(artifactPaths).size,artifactPaths.length,'duplicate artifact');
  for(const path of ['inputs.json','executions.json','storybook-build.json','terminal-build.json','terminal-runtime-build.json','storybook-index.json','coverage/coverage-summary.json','browser/browser.json','browser/axe.json','browser/accessibility-tree.yml','browser/dialog-accessibility-tree.yml',...['dark-en-1440','light-zh-1440','dark-en-768','light-zh-390','dark-en-200pct'].flatMap(n=>['browser/'+n+'.png','browser/'+n+'-dialog.png'])])assert(artifactPaths.includes(r.attempt+'/'+path),'missing artifact '+path);
  for(const artifact of r.artifacts)assert.equal(digest(readBytes(artifact.path)),artifact.sha256,'artifact drift');
  const browser=JSON.parse(readBytes(r.attempt+'/browser/browser.json'));assert.equal(browser.status,'PASS');assert.equal(browser.completeStoryMatrix,true);assert(browser.stories.length>=50);assert.equal(browser.manualScreenReader,'NOT_RUN');assert.deepEqual(browser.errors,[]);assert.deepEqual(browser.blocked,[]);
  const coverage=JSON.parse(readBytes(r.attempt+'/coverage/coverage-summary.json'));const policy=Object.keys(coverage).find(k=>k.endsWith('/DangerConfirmDialog/confirmation-policy.ts'));assert(policy,'danger policy coverage missing');for(const key of ['branches','lines','functions','statements'])assert.equal(coverage[policy][key].pct,100);assert(coverage[policy].branches.total>=4);
  const runtimeBuild=JSON.parse(readBytes(r.attempt+'/terminal-runtime-build.json'));assert.equal(runtimeBuild.schema,'quantos-pre03-build/v1');assert.equal(runtimeBuild.app,'terminal');assert.equal(runtimeBuild.output,'export');
- const axe=JSON.parse(readBytes(r.attempt+'/browser/axe.json'));assert(axe.length>=browser.stories.length*2);assert(axe.every(row=>row.status==='PASS'&&!row.violations.some(v=>['critical','serious'].includes(v.impact))));
+ const axe=JSON.parse(readBytes(r.attempt+'/browser/axe.json'));validateAxe(axe,browser.stories.length);
  for(const id of ['g0-disposition','all-disposition']){const disposition=JSON.parse(readBytes(r.executions.find(r=>r.id===id).log));assert.equal(disposition.status,'NOT_ASSESSED');assert.equal(disposition.admitted,false);assert.equal(disposition.assessmentExecuted,false);}
- return {nodeId:r.nodeId,engineeringStatus:'PASS',componentIntegration:'PASS',stageGate:r.stageGate,sourceCommit:r.sourceCommit,inputDigest:r.inputDigest,confirmation:'PENDING',manualScreenReader:'NOT_RUN',formalAccepted:false};
+ return {nodeId:r.nodeId,engineeringStatus:'PASS',componentIntegration:'PASS',stageGate:r.stageGate,sourceCommit:r.sourceCommit,inputDigest:r.inputDigest,reviewToolRepair:r.toolRepair??null,currentHeadAcceptance:'NOT_CLAIMED',confirmation:'PENDING',manualScreenReader:'NOT_RUN',formalAccepted:false};
 }
+function saveOnce(path,bytes){if(existsSync(path))assert.deepEqual(readFileSync(path),Buffer.from(bytes),'existing artifact must not be rewritten '+path);else writeFileSync(path,bytes);}
 function files(path){return readdirSync(path,{withFileTypes:true}).flatMap(f=>f.isDirectory()?files(path+'/'+f.name):[path+'/'+f.name]);}
 export function run(attempt){
  assert(attempt.startsWith(directory+'/function-attempt-')&&!attempt.includes('..'));assert(!existsSync(attempt),'use a fresh attempt');mkdirSync(attempt,{recursive:true});const captured=snapshot(),sourceCommit=execFileSync('git',['rev-parse','HEAD']).toString().trim();verifySource(captured,sourceCommit);
@@ -72,11 +91,15 @@ export function run(attempt){
   assert.equal(result.status,0,'check failed; raw log: '+log);assert.equal(result.signal,null);assert(!result.error);
  }
  assert.deepEqual(snapshot(),captured,'inputs changed during execution');
+ return complete(attempt,{sourceCommit});
+}
+export function complete(attempt,{sourceCommit,toolRepair}={}){
+ assert(attempt.startsWith(directory+'/function-attempt-')&&!attempt.includes('..'));assert(!existsSync(attempt+'/receipt.json'),'immutable completed attempt');const captured=JSON.parse(read(attempt+'/inputs.json')),executions=JSON.parse(read(attempt+'/executions.json'));validateExecution(executions,commands(attempt));verifySource(captured,sourceCommit);
  // Keep build output inventories, not generated bundles, in Git.
- for(const [id,path]of [['storybook','packages/ui/storybook-static'],['terminal','apps/terminal/out']])writeFileSync(attempt+'/'+id+'-build.json',JSON.stringify({sourceCommit,inputDigest:digest(JSON.stringify(captured)),files:files(path).map(path=>({path,sha256:digest(readFileSync(path))}))},null,2)+'\n');
- writeFileSync(attempt+'/terminal-runtime-build.json',readFileSync('apps/terminal/out/pre03-build.json'));writeFileSync(attempt+'/storybook-index.json',readFileSync('packages/ui/storybook-static/index.json'));
+ for(const [id,path]of [['storybook','packages/ui/storybook-static'],['terminal','apps/terminal/out']])saveOnce(attempt+'/'+id+'-build.json',JSON.stringify({sourceCommit,inputDigest:digest(JSON.stringify(captured)),files:files(path).map(path=>({path,sha256:digest(readFileSync(path))}))},null,2)+'\n');
+ saveOnce(attempt+'/terminal-runtime-build.json',readFileSync('apps/terminal/out/pre03-build.json'));saveOnce(attempt+'/storybook-index.json',readFileSync('packages/ui/storybook-static/index.json'));
  const artifacts=files(attempt).filter(p=>!p.endsWith('.log')).map(path=>({path,sha256:digest(readFileSync(path))}));
- const receipt={schema:'quantos-ui103-current-function/v1',nodeId:'FE:UI-103',engineeringStatus:'PASS',componentIntegration:'PASS',stageGate:'NOT_ASSESSED',sourceCommit,snapshot:captured,inputDigest:digest(JSON.stringify(captured)),dependencies:prerequisites(),executions,artifacts,attempt,manualScreenReader:'NOT_RUN',confirmation:'PENDING',businessIntegration:'NOT_RUN',releaseAcceptance:'NOT_RUN',recursiveDependencyRevalidation:false,formalAccepted:false,databaseExecution:false,production:false,externalPublished:false,runtimeAdmission:'DENIED'};
+ const receipt={schema:'quantos-ui103-current-function/v1',nodeId:'FE:UI-103',engineeringStatus:'PASS',componentIntegration:'PASS',stageGate:'NOT_ASSESSED',sourceCommit,snapshot:captured,inputDigest:digest(JSON.stringify(captured)),dependencies:prerequisites(),executions,artifacts,attempt,...(toolRepair?{toolRepair}:{}),manualScreenReader:'NOT_RUN',confirmation:'PENDING',businessIntegration:'NOT_RUN',releaseAcceptance:'NOT_RUN',recursiveDependencyRevalidation:false,formalAccepted:false,databaseExecution:false,production:false,externalPublished:false,runtimeAdmission:'DENIED'};
  verify(receipt);writeFileSync(attempt+'/receipt.json',JSON.stringify(receipt,null,2)+'\n');writeFileSync(directory+'/receipt.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(verify(receipt),null,2));return receipt;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--run')run(process.argv[3]);else{assert.equal(process.argv[2],'--verify');console.log(JSON.stringify(verify(JSON.parse(read(directory+'/receipt.json'))),null,2));}}catch(e){console.error(e.stack);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--run')run(process.argv[3]);else if(process.argv[2]==='--complete-attempt')complete(process.argv[3],{sourceCommit:process.argv[4],toolRepair:{path:process.argv[5],sha256:digest(read(process.argv[5]))}});else{assert.equal(process.argv[2],'--verify');console.log(JSON.stringify(verify(JSON.parse(read(directory+'/receipt.json'))),null,2));}}catch(e){console.error(e.stack);process.exitCode=1;}}

@@ -1,0 +1,245 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "packages/ui/tests",
+      "packages/domain-ui/tests"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 901,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/unit.log",
+    "logSha256": "sha256:8543dc745750fc7fd7eb7c0bd1bb824480ebb25b4481f98bf525e0e71d2bef65"
+  },
+  {
+    "id": "danger-policy-coverage",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "packages/ui/tests/ui103.test.tsx",
+      "packages/ui/tests/ui103-interactions.test.tsx",
+      "--coverage",
+      "--coverage.include=packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts",
+      "--coverage.reporter=json-summary",
+      "--coverage.reportsDirectory=docs/audit/evidence/ui-103-local-20261021/function-attempt-01/coverage",
+      "--coverage.thresholds.branches=100",
+      "--coverage.thresholds.lines=100",
+      "--coverage.thresholds.functions=100",
+      "--coverage.thresholds.statements=100"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 929,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/danger-policy-coverage.log",
+    "logSha256": "sha256:3198f132ce0426519ae7e0dc44d757e3725567b19068d428f03777600f0ff6f0"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 2656,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/types.log",
+    "logSha256": "sha256:a5465c5f60b0d526bbd005826a35cdbec616e1a4ec26b49df5e0365e0c4a38a1"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1446,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/lint.log",
+    "logSha256": "sha256:e2bf69b029f79dd79d47bcea38cd3bf5f2d0470dab1fe84c3474c9c88797550c"
+  },
+  {
+    "id": "design",
+    "command": [
+      "node",
+      "packages/ui/scripts/pre02-checks.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 162,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/design.log",
+    "logSha256": "sha256:77ad12075cf7ae3d663e5436076f6ad99cc839a5f8f18cdd9800ba0d6f24cc9d"
+  },
+  {
+    "id": "design-negative",
+    "command": [
+      "node",
+      "--test",
+      "packages/ui/scripts/pre02-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 219,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/design-negative.log",
+    "logSha256": "sha256:63b37b6eb14ffaee847e185837f80cf626901918749c48a75b0f828eef2bf106"
+  },
+  {
+    "id": "pre06",
+    "command": [
+      "node",
+      "scripts/check-pre06.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 885,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/pre06.log",
+    "logSha256": "sha256:ba33e52bf4ace9bc7fb06097c9aaeb8f57f11a8e7ec59005e7d0ee1cd7d4bc3c"
+  },
+  {
+    "id": "boundary",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-import-boundary.test.mjs",
+      "scripts/ui-103-functional-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 384,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/boundary.log",
+    "logSha256": "sha256:e7f040e9f691c533955b55dff9d03d48495196e44b9b7f2dbd9d7d614cbf7d62"
+  },
+  {
+    "id": "storybook-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "build-storybook"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 3252,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/storybook-build.log",
+    "logSha256": "sha256:38a0accbfd85e5ce0924e126e30fea9933e5b3b79f9dae52523ffb2422d281f3"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 8021,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/terminal-build.log",
+    "logSha256": "sha256:237c628044d25e52541fc327595ca264b7fe46ea87a22c5a71fb4980dbdda9fd"
+  },
+  {
+    "id": "terminal-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/command.spec.ts",
+      "--grep",
+      "复用 UI-103|路由可打开|axe 无",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 2392,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/terminal-consumer.log",
+    "logSha256": "sha256:65d73b1ea754f1d69b6630f04c89e75f4b9c465831ad1ec014f9577f8fbbe887"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "node",
+      "scripts/ui-103-browser-probe.mjs",
+      "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/browser"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 91982,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/browser.log",
+    "logSha256": "sha256:2f1191bc810b6db21f8d585cc8e0fb89364759aeba6e3313696fdd67b3f0123e"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 54,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "g0-disposition",
+    "command": [
+      "node",
+      "scripts/ci-stage-disposition.mjs",
+      "FRONTEND-GATE:G0"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 265,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/g0-disposition.log",
+    "logSha256": "sha256:11e1c84350fbe1efd07ef88114de4a1c449cbdb4d8afdcff27b919b308cda875"
+  },
+  {
+    "id": "all-disposition",
+    "command": [
+      "node",
+      "scripts/ci-stage-disposition.mjs",
+      "PROVIDER:ALL"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 264,
+    "log": "docs/audit/evidence/ui-103-local-20261021/function-attempt-01/all-disposition.log",
+    "logSha256": "sha256:b45524cda2f393fc8dcee1a7a09bfba9d88665fd609f64d4144f7ab1df692724"
+  }
+]
