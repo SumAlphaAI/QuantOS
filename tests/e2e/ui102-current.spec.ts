@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
+import { writeFile } from "node:fs/promises";
 const key = "quantos.auth.pending";
 async function seed(page: import("@playwright/test").Page, overrides = {}) {
   await page.goto("/login");
@@ -9,7 +10,7 @@ test("provider rejection consumes pending data and strips every callback paramet
   await seed(page); let calls = 0;
   await page.route("https://mock.idp.local/token", async route => { calls++; await route.abort(); });
   await page.goto("/auth/callback?error=access_denied&error_description=secret&code=private&state=private");
-  await expect(page.getByRole("alert")).toContainText("登录未完成");
+  await expect(page.locator('main [role="alert"]')).toContainText("登录未完成");
   expect(new URL(page.url()).search).toBe("");
   expect(await page.evaluate(key => sessionStorage.getItem(key), key)).toBeNull(); expect(calls).toBe(0);
 });
@@ -18,10 +19,10 @@ for (const [name, overrides] of [["mismatch", {}], ["expired", { issuedAt: 0 }],
     await seed(page, overrides); let calls = 0;
     await page.route("https://mock.idp.local/token", async route => { calls++; await route.abort(); });
     await page.goto("/auth/callback?code=secret&state=forged");
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.locator('main [role="alert"]')).toBeVisible();
     expect(await page.evaluate(key => sessionStorage.getItem(key), key)).toBeNull();
     await page.goto("/auth/callback?code=replay&state=forged");
-    await expect(page.getByRole("alert")).toContainText("已失效"); expect(calls).toBe(0);
+    await expect(page.locator('main [role="alert"]')).toContainText("已失效"); expect(calls).toBe(0);
     expect(new URL(page.url()).search).toBe("");
   });
 }
@@ -52,7 +53,13 @@ test("recovery surfaces expose usable headings, safe navigation and recorded axe
     const result = await new AxeBuilder({ page }).analyze();
     scans.push({ path, violations: result.violations, incomplete: result.incomplete });
     expect(result.violations.filter(v => ["serious", "critical"].includes(v.impact ?? ""))).toEqual([]);
-    if (["/login", "/mfa", "/offline"].includes(path)) await info.attach(path.slice(1) + ".png", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    if (["/login", "/mfa", "/offline"].includes(path)) {
+      const name = path.slice(1) + ".png", capture = info.outputPath(name);
+      await page.screenshot({ path: capture, fullPage: true });
+      await info.attach(name, { path: capture, contentType: "image/png" });
+    }
   }
-  await info.attach("axe.json", { body: Buffer.from(JSON.stringify(scans, null, 2)), contentType: "application/json" });
+  const axePath = info.outputPath("axe.json");
+  await writeFile(axePath, JSON.stringify(scans, null, 2));
+  await info.attach("axe.json", { path: axePath, contentType: "application/json" });
 });
