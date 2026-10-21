@@ -1,3 +1,5 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import tokens from "../../tokens/index";
 import { useOptionalTheme } from "../../theme/ThemeProvider";

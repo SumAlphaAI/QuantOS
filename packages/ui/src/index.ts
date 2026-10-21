@@ -19,5 +19,5 @@ export { DangerConfirmDialog, isDangerConfirmationValid } from "./components/Dan
 export type { DangerConfirmDialogProps } from "./components/DangerConfirmDialog/DangerConfirmDialog";
 export { ThemeProvider, createThemeVariables, useTheme } from "./theme/ThemeProvider";
 export type { ThemeContextValue, ThemeProviderProps } from "./theme/ThemeProvider";
-export { I18nProvider, translate, useI18n } from "./i18n/I18nProvider";
+export { I18nProvider, translate, useI18n, useOptionalI18n } from "./i18n/I18nProvider";
 export type { I18nProviderProps, Locale, TranslationKey } from "./i18n/I18nProvider";

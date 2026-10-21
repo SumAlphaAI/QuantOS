@@ -30,8 +30,8 @@ test.describe("Command Center（/command）", () => {
 
   test("复用 UI-103 的 freshness、risk 与 connection 领域组件", async ({ page }) => {
     await page.goto("/command");
-    await expect(page.locator(".freshness-status").getByRole("status", { name: "live" })).toBeVisible();
-    await expect(page.locator(".risk-status").getByRole("status", { name: "allow" })).toBeVisible();
+    await expect(page.locator(".freshness-status").getByRole("status", { name: "Live" })).toBeVisible();
+    await expect(page.locator(".risk-status").getByRole("status", { name: "Allowed" })).toBeVisible();
     const connection = page.locator(".terminal-statusbar .q-alert");
     await expect(connection).toContainText("Connected");
     await expect(connection).toHaveAttribute("aria-live", "polite");

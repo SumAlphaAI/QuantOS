@@ -1,4 +1,5 @@
 .quantos-theme {
+  box-sizing: border-box;
   color: var(--q-text-primary); background: var(--q-surface-0); font-family: var(--q-font-sans);
   font-size: var(--q-font-body-size); line-height: var(--q-font-body-line); color-scheme: var(--q-color-scheme);
 }
@@ -35,7 +36,7 @@
 .q-field--inline { min-width: 12rem; margin-top: 0; }
 .q-column-menu { position: relative; }
 .q-column-menu summary { cursor: pointer; font-weight: 600; }
-.q-column-menu__body { position: absolute; right: 0; display: grid; min-width: 12rem; gap: var(--q-space-2); padding: var(--q-space-3); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-1); z-index: 4; }
+.q-column-menu__body { position: static; display: grid; min-width: 12rem; gap: var(--q-space-2); padding: var(--q-space-3); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-1); z-index: 4; }
 .q-table-wrap--virtual { overflow: auto; }
 .q-timeline { list-style: none; margin: 0; padding: var(--q-space-3); }
 .q-timeline__item { position: relative; display: grid; grid-template-columns: 8rem 1fr; gap: var(--q-space-3); padding: 0 0 var(--q-space-4) var(--q-space-4); }
@@ -46,11 +47,24 @@
 .q-timeline__meta { margin: var(--q-space-1) 0 0; color: var(--q-text-secondary); }
 .q-timeline details { margin-top: var(--q-space-2); }
 .q-timeline pre { overflow: auto; padding: var(--q-space-2); background: var(--q-surface-2); border-radius: var(--q-radius-sm); }
-.q-dialog-overlay { position: fixed; inset: 0; background: rgb(0 0 0 / 66%); }
-.q-dialog-content { position: fixed; left: 50%; top: 50%; width: min(calc(100vw - var(--q-space-5)), 34rem); max-height: calc(100vh - var(--q-space-5)); overflow: auto; transform: translate(-50%, -50%); padding: var(--q-space-4); border: 1px solid var(--q-danger); border-radius: var(--q-radius-lg); background: var(--q-surface-1); box-shadow: 0 var(--q-space-2) var(--q-space-5) rgb(0 0 0 / 35%); }
+.q-dialog-overlay { z-index: 100; position: fixed; inset: 0; background: rgb(0 0 0 / 66%); }
+.q-dialog-content { z-index: 101; position: fixed; left: 50%; top: 50%; width: min(calc(100vw - var(--q-space-5)), 34rem); max-height: calc(100vh - var(--q-space-5)); overflow: auto; transform: translate(-50%, -50%); padding: var(--q-space-4); border: 1px solid var(--q-danger); border-radius: var(--q-radius-lg); background: var(--q-surface-1); box-shadow: 0 var(--q-space-2) var(--q-space-5) rgb(0 0 0 / 35%); }
 .q-dialog-title { margin: 0; font-size: var(--q-font-page-size); line-height: var(--q-font-page-line); }
 .q-dialog-description { margin: var(--q-space-2) 0 var(--q-space-3); color: var(--q-text-secondary); }
 .q-field { display: grid; gap: var(--q-space-1); margin-top: var(--q-space-3); font-weight: 600; }
 .q-input { min-height: var(--q-control-height); padding: 0 var(--q-space-2); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-0); color: var(--q-text-primary); font: inherit; }
 .q-dialog-actions { display: flex; justify-content: flex-end; gap: var(--q-space-2); margin-top: var(--q-space-4); }
 @media (max-width: 767px) { .q-timeline__item { grid-template-columns: 1fr; gap: 0; } .q-panel__header { align-items: flex-start; flex-direction: column; } .q-dialog-actions { flex-direction: column-reverse; } .q-dialog-actions .q-button { width: 100%; } }
+
+/* Shared surfaces must reflow at 200%; wide tables scroll within their own region. */
+.q-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.q-timeline__item > *, .q-dialog-content > *, .q-field { min-width: 0; overflow-wrap: anywhere; }
+.q-pagination { flex-wrap: wrap; }
+.q-table-wrap--virtual tbody td { height: var(--q-row-height); padding-top: 0; padding-bottom: 0; }
+.q-table [style*="sticky"] { overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 767px) {
+  /* Narrow tables retain native horizontal scrolling instead of overlapping pinned bands. */
+  .q-table th { left: auto !important; right: auto !important; }
+  .q-table td { position: static !important; }
+}

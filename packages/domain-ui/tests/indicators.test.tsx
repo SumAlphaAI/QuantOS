@@ -27,3 +27,9 @@ it("freshness and connection rendering includes all states and optional timestam
     }
   }
 });
+
+it("provider locale reaches all domain indicators and unknown connections fail closed", async () => {
+  const {I18nProvider}=await import("@sumalpha/ui");
+  const html=renderToStaticMarkup(<I18nProvider locale="en"><ConnectionStatusBar state="future_connection"/><DataFreshnessIndicator state="stale"/><RiskPostureBadge posture="toString"/></I18nProvider>);
+  expect(html).toContain("Read-only cache only");expect(html).toContain("Stale");expect(html).toContain("Unknown / upgrade required");expect(html).toContain('data-blocking="true"');
+});

@@ -1,4 +1,6 @@
-> 当前确认收口（G0 / PROVIDER:ALL，2026-10-20）：项目用户确认迁移后完整稿，1652工程输入与冻结4fdc67b4一致；G0_LEGACY_SCOPE_LOCAL与ALL_LEGACY_REVIEW_LOCAL DEVELOPMENT READY。8实际入口exit0，176项确认/门禁/计划直接回归PASS；不重跑原16组/134 API或全闭包，原执行原件/失败/拒绝记录保持。仅功能阶段准入，formalAccepted=false、runtime DENIED，完整联调/发布NOT_RUN。见[报告](./audit/G0-PROVIDER-ALL-confirmation-closure-2026-10-20.md)和[本会话确认](./audit/evidence/g0-legacy-confirmation-20261020/user-confirmation.json)。下一可执行FE:UI-103 / I1当前功能复核。
+> 当前执行（UI-103 / I1，2026-10-21）：复核17直接前提原件，仅执行共享组件与直接Terminal消费者。G0/ALL原READY保留4fdc67b4范围；UI输入变化后当前阶段记录NOT_ASSESSED，不改绑原确认、不递归复验。UI-103工程/组件组合与人工读屏、确认和发布分开记账。见[报告](./audit/UI-103-current-function-review-2026-10-21.md)。
+
+> 历史确认收口（G0 / PROVIDER:ALL，2026-10-20）：项目用户确认迁移后完整稿，1652工程输入与冻结4fdc67b4一致；G0_LEGACY_SCOPE_LOCAL与ALL_LEGACY_REVIEW_LOCAL DEVELOPMENT READY。8实际入口exit0，176项确认/门禁/计划直接回归PASS；不重跑原16组/134 API或全闭包，原执行原件/失败/拒绝记录保持。仅功能阶段准入，formalAccepted=false、runtime DENIED，完整联调/发布NOT_RUN。见[报告](./audit/G0-PROVIDER-ALL-confirmation-closure-2026-10-20.md)和[本会话确认](./audit/evidence/g0-legacy-confirmation-20261020/user-confirmation.json)。下一可执行FE:UI-103 / I1当前功能复核。
 
 > 历史工程结果（G0确认收口与legacy迁移，2026-10-20）：原G0在f7141e4b按e4434952原稿确认收口READY；迁移冻结4fdc67b4，1652输入、16组/8入口，Node323、consumer177/3 skipped、Web/mockOIDC11例。四类生产backend/旧构造器移除，L10-2 IMPLEMENTED_ENGINEERING；当前G0/ALL工程PASS，BLOCKED只剩新功能输入确认，原批准不改绑。完整联调/发布NOT_RUN、runtime DENIED。见[报告](./audit/G0-legacy-backend-review-2026-10-20.md)与[迁移后完整稿](./audit/evidence/g0-legacy-local-20261020/confirmation-draft.md)。
 
@@ -1377,11 +1379,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:5d9978fdc4df529f40fe129b5cc03d38ba99936039303f1775efeb3f29fb4a01",
-    "evidence": [
-      "audit/evidence/g0-legacy-local-20261020/g0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1858,11 +1858,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:ac5c4bef0fa26ded3242d181a962e47c9ec97709654d686f399fc7db22642e2f",
-    "evidence": [
-      "audit/evidence/g0-legacy-local-20261020/provider-all.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1888,7 +1886,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete。组件及 Storybook 属于交付范围，本轮复审从空白开始。
+- 状态范围：2026-10-21 当前功能复核：共享组件修复及本机组合验证，详见[报告](./audit/UI-103-current-function-review-2026-10-21.md)。INTEGRATION NOT_ASSESSED，人工读屏 NOT_RUN、新完整稿 PENDING；自动化结果不代替正式 ACCEPTED。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

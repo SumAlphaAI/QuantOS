@@ -1,0 +1,59 @@
+- main:
+  - heading "UI-103 component integration" [level=1]
+  - button "Switch theme"
+  - button "Switch language"
+  - button "Restore dataset"
+  - status:
+    - paragraph: Offline
+    - paragraph: Read-only cache only; create, approve, and trade actions are paused
+  - status "Stale"
+  - status "Approval required"
+  - region "Orders":
+    - heading "Orders" [level=2]
+    - group: Visible columns
+    - text: Search
+    - searchbox "Search": BTC
+    - region "Orders table scroll area":
+      - table "Orders":
+        - caption: Orders
+        - rowgroup:
+          - row "ID Amount Risk Audit":
+            - columnheader "ID":
+              - button "ID"
+            - columnheader "Amount":
+              - button "Amount"
+            - columnheader "Risk"
+            - columnheader "Audit"
+        - rowgroup:
+          - row "row-0 0 approval_required recorded":
+            - cell "row-0"
+            - cell "0"
+            - cell "approval_required"
+            - cell "recorded"
+          - row "row-1 1 approval_required recorded":
+            - cell "row-1"
+            - cell "1"
+            - cell "approval_required"
+            - cell "recorded"
+    - navigation "Orders pagination":
+      - button "Previous page"
+      - text: Page 2 of 3
+      - button "Next page"
+  - region "Orders":
+    - heading "Orders" [level=2]
+    - list:
+      - listitem:
+        - time: 2026-10-21T00:00:00Z
+        - paragraph: Review requested
+        - paragraph: local-fixture · approval_required
+        - paragraph: "Correlation ID: cor-ui103-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        - group:
+          - text: View evidence details
+          - paragraph: Local fixture evidence only
+  - text: Callback outcome
+  - combobox "Callback outcome":
+    - option "success" [selected]
+    - option "error"
+    - option "pending"
+  - button "Open confirmation"
+  - status "Callback count": "0"
