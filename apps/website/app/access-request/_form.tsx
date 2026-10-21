@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { BffComponents, BffOperations } from "@sumalpha/api-client";
-
-type AccessRequest = BffOperations["submitAccessRequest"]["requestBody"]["content"]["application/json"];
-type AccessAccepted = BffOperations["submitAccessRequest"]["responses"][202]["content"]["application/json"];
-type ErrorEnvelope = BffComponents["schemas"]["ErrorEnvelope"];
-
-const BFF_ORIGIN = (process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN ?? "").replace(/\/$/, "");
-const PRIVACY_NOTICE_VERSION = "2026-08-15";
+import { AccessSubmissionError, createAccessSubmission, PRIVACY_NOTICE_VERSION } from "../../src/access-request";
 
 /**
  * 访问申请表单（C01 submitAccessRequest）。
@@ -20,84 +13,35 @@ export function AccessRequestForm() {
   const [online, setOnline] = useState(true);
   const [error, setError] = useState("");
   const [accepted, setAccepted] = useState<{ correlationId?: string } | null>(null);
-  const activeRequest = useRef<AbortController | null>(null);
-
+  const [uncertain, setUncertain] = useState(false);
+  const controller = useRef<ReturnType<typeof createAccessSubmission>>(undefined);
+  const mounted = useRef(false), submitting = useRef(false);
   useEffect(() => {
+    mounted.current = true;
+    const request = createAccessSubmission({ origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, siteOrigin: location.origin, online: () => navigator.onLine });
+    controller.current = request;
     function syncNetworkState() {
-      const nextOnline = navigator.onLine;
-      setOnline(nextOnline);
-      if (!nextOnline) activeRequest.current?.abort();
+      setOnline(navigator.onLine);
+      if (!navigator.onLine) request.cancel();
     }
-    syncNetworkState();
-    window.addEventListener("online", syncNetworkState);
-    window.addEventListener("offline", syncNetworkState);
-    return () => {
-      window.removeEventListener("online", syncNetworkState);
-      window.removeEventListener("offline", syncNetworkState);
-      activeRequest.current?.abort();
-    };
+    syncNetworkState(); window.addEventListener("online", syncNetworkState); window.addEventListener("offline", syncNetworkState);
+    return () => { mounted.current = false; request.close(); controller.current = undefined; window.removeEventListener("online", syncNetworkState); window.removeEventListener("offline", syncNetworkState); };
   }, []);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    // honeypot：正常用户不可见；被填充则静默拒绝
-    if (String(data.get("website") ?? "") !== "") return;
-    if (!navigator.onLine) {
-      setOnline(false);
-      setError("网络已断开，申请尚未提交。恢复连接后可保留当前内容并重试。");
-      return;
-    }
-
-    setPending(true);
-    setError("");
-    const controller = new AbortController();
-    activeRequest.current = controller;
-    const payload: AccessRequest = {
-      teamName: String(data.get("teamName") ?? ""),
-      contactEmail: String(data.get("contactEmail") ?? ""),
-      purpose: String(data.get("purpose") ?? ""),
-      markets: [String(data.get("market") ?? "digital-assets")],
-      expectedMode: String(data.get("expectedMode") ?? "paper") as AccessRequest["expectedMode"],
-      privacyNoticeVersion: PRIVACY_NOTICE_VERSION,
-    };
+    if (!controller.current || submitting.current || pending || uncertain) return;
+    submitting.current = true;
+    const data = new FormData(event.currentTarget);
+    // honeypot and consent are checked before any network request.
+    const draft = { teamName: String(data.get("teamName") ?? ""), contactEmail: String(data.get("contactEmail") ?? ""), purpose: String(data.get("purpose") ?? ""), market: String(data.get("market") ?? ""), expectedMode: String(data.get("expectedMode") ?? ""), consent: data.get("consent") === "on", website: String(data.get("website") ?? "") };
+    setPending(true); setError("");
     try {
-      const response = await fetch(`${BFF_ORIGIN}/v1/access-requests`, {
-        method: "POST",
-        headers: { accept: "application/json", "content-type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-      if (response.status === 202) {
-        const body = (await response.json()) as AccessAccepted;
-        setAccepted({ correlationId: body.correlationId });
-        return;
-      }
-      let correlationId: string | undefined;
-      let retryAfter: number | undefined;
-      try {
-        const body = (await response.json()) as Partial<ErrorEnvelope>;
-        correlationId = body.correlationId;
-        retryAfter = body.retryAfter;
-      } catch {
-        /* 保持安全默认 */
-      }
-      if (response.status === 429) {
-        setError(`申请提交过于频繁，请稍后重试。${retryAfter ? `建议等待 ${retryAfter} 秒。` : ""}${correlationId ? `（参考号 ${correlationId}）` : ""}`);
-      } else if (response.status === 422) {
-        setError(`部分信息未通过校验，请检查后重试。${correlationId ? `（参考号 ${correlationId}）` : ""}`);
-      } else {
-        setError(`暂时无法提交申请，请稍后重试。${correlationId ? `（参考号 ${correlationId}）` : ""}`);
-      }
-    } catch {
-      setError(navigator.onLine
-        ? "网络异常，申请未提交。请检查连接后重试。"
-        : "网络已断开，申请尚未提交。恢复连接后可保留当前内容并重试。");
-    } finally {
-      activeRequest.current = null;
-      setPending(false);
-    }
+      const receipt = await controller.current.submit(draft);
+      if (mounted.current && receipt) setAccepted(receipt);
+    } catch (reason) {
+      if (mounted.current) { setError(reason instanceof AccessSubmissionError ? reason.message : "申请结果无法确认，请联系支持。"); setUncertain(reason instanceof AccessSubmissionError && reason.outcomeUnknown); }
+    } finally { submitting.current = false; if (mounted.current) setPending(false); }
   }
 
   if (accepted) {
@@ -114,6 +58,7 @@ export function AccessRequestForm() {
 
   return (
     <form className="form-panel" onSubmit={submit} data-smoke="website-access-form">
+      <fieldset disabled={pending || uncertain} className="access-fields">
       <div className="hp-field" aria-hidden="true">
         <label>请勿填写<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
@@ -123,7 +68,7 @@ export function AccessRequestForm() {
       </label>
       <label className="form-field">
         <span>工作邮箱</span>
-        <input name="contactEmail" type="email" placeholder="name@company.com" required autoComplete="email" />
+        <input name="contactEmail" type="email" maxLength={254} placeholder="name@company.com" required autoComplete="email" />
       </label>
       <label className="form-field">
         <span>主要市场</span>
@@ -146,15 +91,17 @@ export function AccessRequestForm() {
         <textarea name="purpose" placeholder="请简要说明团队规模、研究方向与预期使用模式（至少 20 字）" required minLength={20} maxLength={1000} />
       </label>
       <label className="consent-row">
-        <input type="checkbox" required />
+        <input type="checkbox" name="consent" required />
         <span>
           我已阅读隐私说明：申请信息仅用于访问资格审核，审核行为将被记录；申请接口有速率限制。
           （隐私说明版本 {PRIVACY_NOTICE_VERSION}）
         </span>
       </label>
-      <button className="btn btn-primary" type="submit" disabled={pending || !online}>
+      </fieldset>
+      <button className="btn btn-primary" type="submit" disabled={pending || !online || uncertain}>
         {pending ? "正在提交…" : online ? "提交申请" : "离线，无法提交"}
       </button>
+      {uncertain ? <div className="form-hint"><p>此接口不提供幂等重放；恢复联网不会自动重提。请先向支持核查，重复提交可能产生重复申请。</p><button className="btn btn-ghost" type="button" disabled={!online || pending} onClick={() => { controller.current?.acknowledgeRetry(); setUncertain(false); setError(""); }}>已核查受理状态，允许重新提交</button></div> : null}
       {!online && !error ? <p className="form-error" role="alert">网络已断开，恢复连接后可保留当前内容并提交。</p> : null}
       {error ? <p className="form-error" role="alert">{error}</p> : null}
     </form>

@@ -1966,7 +1966,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：2026-10-21 当前设置/安全/通知/浏览器功能复核，见[本轮报告](./audit/UI-104-current-function-review-2026-10-21.md)；源码ab50c36d当前功能工程PASS：69项单测/组合、16项门禁负向、13+17项浏览器、四页axe零违规及必要构建/types/lint通过；15项直接前提只读核验。按分区受权读取，真实保存与MFA/reauth撤销流水，202仅受理，下载按手势取短时链接；[完整确认稿](./audit/evidence/ui-104-local-20261021/confirmation-draft.md)。INTEGRATION NOT_ASSESSED，新确认PENDING；人工读屏/原生200%、真实IdP/目标持久服务、远程CI及RELEASE仍NOT_RUN。
+- 状态范围：2026-10-21 当前设置/安全/通知/浏览器功能复核，见[本轮报告](./audit/UI-104-current-function-review-2026-10-21.md)；源码ab50c36d当前功能工程PASS：69项单测/组合、16项门禁负向、13+17项浏览器、四页axe零违规及必要构建/types/lint通过；15项直接前提只读核验。按分区受权读取，真实保存与MFA/reauth撤销流水，202仅受理，下载按手势取短时链接；[完整确认稿](./audit/evidence/ui-104-local-20261021/confirmation-draft.md)。INTEGRATION NOT_ASSESSED；项目用户已确认原稿，独立确认记录绑定ab50c36d工程/507b3a4c文稿包，原稿与receipt不改写。人工读屏/原生200%、真实IdP/目标持久服务、远程CI及RELEASE仍NOT_RUN。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -1985,7 +1985,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF 真实功能联调后配置获准环境的 BFF origin 并评估 G1 阶段准入；发布前取得 staging/目标 CDN origin 证据并验证 Lighthouse。
+- 状态范围：2026-10-21 当前官网七页/C01申请功能复核，见[本轮报告](./audit/WEB-101-current-function-review-2026-10-21.md)。核验16项直接前提，修复匿名受理响应校验、同步防重复、期限/未知结果恢复与Research模式；单次非mock官网构建及本机Lighthouse基线。INTEGRATION NOT_ASSESSED，新确认PENDING；真实目标Origin/持久BFF/IdP、人工读屏/原生200%、远程CI及RELEASE仍NOT_RUN。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

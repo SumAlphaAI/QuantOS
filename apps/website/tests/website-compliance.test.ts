@@ -64,8 +64,9 @@ describe("WEB-101 content compliance", () => {
   it("access request form carries anti-abuse and privacy semantics", () => {
     const form = readFileSync(join(APP_DIR, "access-request", "_form.tsx"), "utf8");
     expect(form).toContain("honeypot");
-    expect(form).toContain("privacyNoticeVersion");
-    expect(form).toContain("429");
+    const transport = readFileSync(join(APP_DIR, "..", "src", "access-request.ts"), "utf8");
+    expect(transport).toContain("privacyNoticeVersion");
+    expect(transport).toContain("429");
     expect(form).toContain("navigator.onLine");
     expect(form).toContain('name="expectedMode"');
     expect(form).not.toContain("权限已经开通\""); // 仅允许否定式表述

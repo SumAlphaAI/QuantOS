@@ -27,8 +27,8 @@ export default function LoginPage() {
         <div className="login-panel">
           <ul className="login-facts">
             <li><span className="sigil" aria-hidden="true">[01]</span>凭据永不对 QuantOS 暴露，全部验证在组织身份提供商完成。</li>
-            <li><span className="sigil" aria-hidden="true">[02]</span>会话仅保存在内存中；登出或 401 即清除，不落盘长期 token。</li>
-            <li><span className="sigil" aria-hidden="true">[03]</span>桌面端通过系统浏览器认证并以深链返回，深链只携带交换码。</li>
+            <li><span className="sigil" aria-hidden="true">[02]</span>会话由 BFF 与组织身份服务管理；前端不持久化长期 token，登出或 401 清理当前前端状态。</li>
+            <li><span className="sigil" aria-hidden="true">[03]</span>本页仅提供 Web Terminal 入口；桌面系统浏览器及深链认证按独立阶段验收。</li>
           </ul>
           <a className="btn btn-primary" href={`${TERMINAL_ORIGIN}/login`}>前往 Terminal 登录</a>
           <p className="form-hint" style={{ margin: 0 }}>

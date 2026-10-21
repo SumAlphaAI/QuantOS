@@ -843,7 +843,7 @@ async fn access_request(
         || input.markets.is_empty()
         || !matches!(
             input.expected_mode.as_str(),
-            "paper" | "shadow" | "assisted_live"
+            "research" | "paper" | "shadow"
         )
         || input.privacy_notice_version.trim().is_empty()
     {

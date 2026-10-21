@@ -1,0 +1,150 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/website/tests/website.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [31m❯[39m apps/website/tests/website-compliance.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 9[2mms[22m[39m
+     [32m✓[39m renders the website badge[32m 1[2mms[22m[39m
+     [32m✓[39m ships all first-phase pages[32m 0[2mms[22m[39m
+     [32m✓[39m contains no promotional or return-guarantee wording[32m 3[2mms[22m[39m
+     [32m✓[39m states the non-execution boundary on public pages[32m 0[2mms[22m[39m
+[31m     [31m×[31m access request form carries anti-abuse and privacy semantics[39m[32m 4[2mms[22m[39m
+     [32m✓[39m ships the frozen seven-page routes and documentation empty state[32m 0[2mms[22m[39m
+ [32m✓[39m apps/website/tests/web101-access.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m apps/website/tests/web101-http.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2892[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (43)[39m
+[2m   Start at [22m 12:59:33
+[2m   Duration [22m 3.22s[2m (transform 506ms, setup 0ms, import 819ms, tests 2.95s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/website/tests/website-compliance.test.ts[2m > [22mWEB-101 content compliance[2m > [22maccess request form carries anti-abuse and privacy semantics
+[31m[1mAssertionError[22m: expected '"use client";\n\nimport { useEffect, …' to contain 'privacyNoticeVersion'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- privacyNoticeVersion[39m
+[31m+ "use client";[39m
+[31m+[39m
+[31m+ import { useEffect, useRef, useState } from "react";[39m
+[31m+ import { AccessSubmissionError, createAccessSubmission, PRIVACY_NOTICE_VERSION } from "../../src/access-request";[39m
+[31m+[39m
+[31m+ /**[39m
+[31m+  * 访问申请表单（C01 submitAccessRequest）。[39m
+[31m+  * 防滥用：客户端校验 + honeypot + pending 防重复；服务端限速（429）与审计为准。[39m
+[31m+  * 安全语义：202 只表示“已受理”，不暗示权限开通；错误文案不泄露内部细节。[39m
+[31m+  */[39m
+[31m+ export function AccessRequestForm() {[39m
+[31m+   const [pending, setPending] = useState(false);[39m
+[31m+   const [online, setOnline] = useState(true);[39m
+[31m+   const [error, setError] = useState("");[39m
+[31m+   const [accepted, setAccepted] = useState<{ correlationId?: string } | null>(null);[39m
+[31m+   const [uncertain, setUncertain] = useState(false);[39m
+[31m+   const controller = useRef<ReturnType<typeof createAccessSubmission>>(undefined);[39m
+[31m+   const mounted = useRef(false), submitting = useRef(false);[39m
+[31m+   useEffect(() => {[39m
+[31m+     mounted.current = true;[39m
+[31m+     const request = createAccessSubmission({ origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, siteOrigin: location.origin, online: () => navigator.onLine });[39m
+[31m+     controller.current = request;[39m
+[31m+     function syncNetworkState() {[39m
+[31m+       setOnline(navigator.onLine);[39m
+[31m+       if (!navigator.onLine) request.cancel();[39m
+[31m+     }[39m
+[31m+     syncNetworkState(); window.addEventListener("online", syncNetworkState); window.addEventListener("offline", syncNetworkState);[39m
+[31m+     return () => { mounted.current = false; request.close(); controller.current = undefined; window.removeEventListener("online", syncNetworkState); window.removeEventListener("offline", syncNetworkState); };[39m
+[31m+   }, []);[39m
+[31m+[39m
+[31m+   async function submit(event: React.FormEvent<HTMLFormElement>) {[39m
+[31m+     event.preventDefault();[39m
+[31m+     if (!controller.current || submitting.current || pending || uncertain) return;[39m
+[31m+     submitting.current = true;[39m
+[31m+     const data = new FormData(event.currentTarget);[39m
+[31m+     // honeypot and consent are checked before any network request.[39m
+[31m+     const draft = { teamName: String(data.get("teamName") ?? ""), contactEmail: String(data.get("contactEmail") ?? ""), purpose: String(data.get("purpose") ?? ""), market: String(data.get("market") ?? ""), expectedMode: String(data.get("expectedMode") ?? ""), consent: data.get("consent") === "on", website: String(data.get("website") ?? "") };[39m
+[31m+     setPending(true); setError("");[39m
+[31m+     try {[39m
+[31m+       const receipt = await controller.current.submit(draft);[39m
+[31m+       if (mounted.current && receipt) setAccepted(receipt);[39m
+[31m+     } catch (reason) {[39m
+[31m+       if (mounted.current) { setError(reason instanceof AccessSubmissionError ? reason.message : "申请结果无法确认，请联系支持。"); setUncertain(reason instanceof AccessSubmissionError && reason.outcomeUnknown); }[39m
+[31m+     } finally { submitting.current = false; if (mounted.current) setPending(false); }[39m
+[31m+   }[39m
+[31m+[39m
+[31m+   if (accepted) {[39m
+[31m+     return ([39m
+[31m+       <div className="accepted-panel" role="status">[39m
+[31m+         <h2 style={{ marginTop: 0 }}>申请已受理</h2>[39m
+[31m+         <p className="form-hint">[39m
+[31m+           你的申请已进入审核队列——这不代表访问权限已经开通。审核结果将通过你提供的工作邮箱通知。[39m
+[31m+         </p>[39m
+[31m+         {accepted.correlationId ? <code>受理编号 {accepted.correlationId}</code> : null}[39m
+[31m+       </div>[39m
+[31m+     );[39m
+[31m+   }[39m
+[31m+[39m
+[31m+   return ([39m
+[31m+     <form className="form-panel" onSubmit={submit} data-smoke="website-access-form">[39m
+[31m+       <fieldset disabled={pending || uncertain} className="access-fields">[39m
+[31m+       <div className="hp-field" aria-hidden="true">[39m
+[31m+         <label>请勿填写<input name="website" tabIndex={-1} autoComplete="off" /></label>[39m
+[31m+       </div>[39m
+[31m+       <label className="form-field">[39m
+[31m+         <span>组织 / 公司</span>[39m
+[31m+         <input name="teamName" placeholder="例如：SumAlpha Capital" required minLength={2} maxLength={100} autoComplete="organization" />[39m
+[31m+       </label>[39m
+[31m+       <label className="form-field">[39m
+[31m+         <span>工作邮箱</span>[39m
+[31m+         <input name="contactEmail" type="email" maxLength={254} placeholder="name@company.com" required autoComplete="email" />[39m
+[31m+       </label>[39m
+[31m+       <label className="form-field">[39m
+[31m+         <span>主要市场</span>[39m
+[31m+         <select name="market" defaultValue="digital-assets">[39m
+[31m+           <option value="digital-assets">数字资产</option>[39m
+[31m+           <option value="equities">股票</option>[39m
+[31m+           <option value="futures">期货</option>[39m
+[31m+         </select>[39m
+[31m+       </label>[39m
+[31m+       <label className="form-field">[39m
+[31m+         <span>预期模式</span>[39m
+[31m+         <select name="expectedMode" defaultValue="paper">[39m
+[31m+           <option value="research">Research</option>[39m
+[31m+           <option value="paper">Paper</option>[39m
+[31m+           <option value="shadow">Shadow</option>[39m
+[31m+         </select>[39m
+[31m+       </label>[39m
+[31m+       <label className="form-field">[39m
+[31m+         <span>使用场景 / 用途说明</span>[39m
+[31m+         <textarea name="purpose" placeholder="请简要说明团队规模、研究方向与预期使用模式（至少 20 字）" required minLength={20} maxLength={1000} />[39m
+[31m+       </label>[39m
+[31m+       <label className="consent-row">[39m
+[31m+         <input type="checkbox" name="consent" required />[39m
+[31m+         <span>[39m
+[31m+           我已阅读隐私说明：申请信息仅用于访问资格审核，审核行为将被记录；申请接口有速率限制。[39m
+[31m+           （隐私说明版本 {PRIVACY_NOTICE_VERSION}）[39m
+[31m+         </span>[39m
+[31m+       </label>[39m
+[31m+       </fieldset>[39m
+[31m+       <button className="btn btn-primary" type="submit" disabled={pending || !online || uncertain}>[39m
+[31m+         {pending ? "正在提交…" : online ? "提交申请" : "离线，无法提交"}[39m
+[31m+       </button>[39m
+[31m+       {uncertain ? <div className="form-hint"><p>此接口不提供幂等重放；恢复联网不会自动重提。请先向支持核查，重复提交可能产生重复申请。</p><button className="btn btn-ghost" type="button" disabled={!online || pending} onClick={() => { controller.current?.acknowledgeRetry(); setUncertain(false); setError(""); }}>已核查受理状态，允许重新提交</button></div> : null}[39m
+[31m+       {!online && !error ? <p className="form-error" role="alert">网络已断开，恢复连接后可保留当前内容并提交。</p> : null}[39m
+[31m+       {error ? <p className="form-error" role="alert">{error}</p> : null}[39m
+[31m+     </form>[39m
+[31m+   );[39m
+[31m+ }[39m
+[31m+[39m
+
+[36m [2m❯[22m apps/website/tests/website-compliance.test.ts:[2m67:18[22m[39m
+    [90m 65|[39m     const form = readFileSync(join(APP_DIR, "access-request", "_form.t…
+    [90m 66|[39m     [34mexpect[39m(form)[33m.[39m[34mtoContain[39m([32m"honeypot"[39m)[33m;[39m
+    [90m 67|[39m     [34mexpect[39m(form)[33m.[39m[34mtoContain[39m([32m"privacyNoticeVersion"[39m)[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 68|[39m     [34mexpect[39m(form)[33m.[39m[34mtoContain[39m([32m"429"[39m)[33m;[39m
+    [90m 69|[39m     [34mexpect[39m(form)[33m.[39m[34mtoContain[39m([32m"navigator.onLine"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

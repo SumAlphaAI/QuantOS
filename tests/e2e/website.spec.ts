@@ -6,6 +6,7 @@ import AxeBuilder from "@axe-core/playwright";
  * 服务目标为 apps/website/out 静态产物（见 playwright.website.config.ts）。
  */
 
+const SITE_ORIGIN = (process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "https://sumalpha.ai").replace(/\/$/, "");
 const PAGES = ["", "product", "architecture-security", "use-cases", "docs", "access-request", "login"];
 
 async function fillAccessRequest(page: import("@playwright/test").Page) {
@@ -106,6 +107,7 @@ test.describe("WEB-101 website", () => {
         body: JSON.stringify({
           jobId: "11111111-2222-4333-8444-555555555555",
           status: "accepted",
+          auditRef: "11111111-2222-4333-8444-555555555555",
           correlationId: "66666666-7777-4888-8999-000000000000",
         }),
       });
@@ -156,19 +158,19 @@ test.describe("WEB-101 website", () => {
   test("SEO 输出覆盖 canonical、robots 与七页 sitemap", async ({ page, request }) => {
     await page.goto("/");
     await expect(page).toHaveTitle("SumAlpha QuantOS — AI 原生量化研究与交易操作系统");
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://sumalpha.ai");
+    expect(new URL((await page.locator('link[rel="canonical"]').getAttribute("href"))!).origin).toBe(SITE_ORIGIN);
     const robots = await request.get("/robots.txt");
-    expect(await robots.text()).toContain("Sitemap: https://sumalpha.ai/sitemap.xml");
+    expect(await robots.text()).toContain(`Sitemap: ${SITE_ORIGIN}/sitemap.xml`);
     const sitemap = await request.get("/sitemap.xml");
     const xml = await sitemap.text();
     for (const url of [
-      "https://sumalpha.ai",
-      "https://sumalpha.ai/product",
-      "https://sumalpha.ai/architecture-security",
-      "https://sumalpha.ai/use-cases",
-      "https://sumalpha.ai/docs",
-      "https://sumalpha.ai/access-request",
-      "https://sumalpha.ai/login",
+      SITE_ORIGIN,
+      `${SITE_ORIGIN}/product`,
+      `${SITE_ORIGIN}/architecture-security`,
+      `${SITE_ORIGIN}/use-cases`,
+      `${SITE_ORIGIN}/docs`,
+      `${SITE_ORIGIN}/access-request`,
+      `${SITE_ORIGIN}/login`,
     ]) {
       expect(xml).toContain(`<loc>${url}</loc>`);
     }
