@@ -1,0 +1,77 @@
+{
+  "schema": "quantos-ci-remediation/v1",
+  "baseCommit": "9f527ac5075098edd3690c0f6bb7467f0ccd8369",
+  "candidateBinding": "enclosing Git commit plus manifest input hashes; local SCA records base source and dirty=true honestly",
+  "gate": "PASS_LOCAL_SCOPED",
+  "hostedCandidateGate": "NOT_RUN",
+  "databaseExecution": false,
+  "checks": [
+    {
+      "command": [
+        "make",
+        "sca-check"
+      ],
+      "exitCode": 0,
+      "scanners": {
+        "npm": "PASS",
+        "pypi": "PASS",
+        "cargo": "PASS",
+        "cargo-desktop": "PASS"
+      },
+      "unwaivedUnpatchedFindings": 0
+    },
+    {
+      "command": [
+        "make",
+        "coverage-web"
+      ],
+      "exitCode": 0,
+      "generalTests": {
+        "passed": 451,
+        "skipped": 3
+      },
+      "criticalTests": {
+        "passed": 349,
+        "skipped": 3
+      },
+      "criticalCoverage": {
+        "files": 6,
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      }
+    },
+    {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/ui",
+        "build-storybook"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-auth",
+        "-p",
+        "quantos-storage",
+        "--lib"
+      ],
+      "exitCode": 0,
+      "passed": 28,
+      "ignored": 0
+    }
+  ],
+  "notRun": [
+    "new SHA hosted CI",
+    "full clean-room/reproducibility",
+    "database execution",
+    "deployment/release"
+  ]
+}

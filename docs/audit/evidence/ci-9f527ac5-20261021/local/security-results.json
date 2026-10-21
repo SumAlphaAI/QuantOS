@@ -1,0 +1,46 @@
+[
+  {
+    "name": "sca",
+    "command": [
+      "make",
+      "sca-check"
+    ],
+    "exitCode": 0,
+    "seconds": 80.467
+  },
+  {
+    "name": "lockfile",
+    "command": [
+      "make",
+      "lockfile-check"
+    ],
+    "exitCode": 0,
+    "seconds": 0.387
+  },
+  {
+    "name": "licenses",
+    "command": [
+      "make",
+      "license-check"
+    ],
+    "exitCode": 0,
+    "seconds": 21.158
+  },
+  {
+    "name": "certifi-bundle",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "--project",
+      "engines",
+      "--all-packages",
+      "--all-groups",
+      "python",
+      "-c",
+      "import certifi,ssl,json\nassert certifi.__version__ == \"2026.10.19\"\ncontext=ssl.create_default_context(cafile=certifi.where())\nnames={value for cert in context.get_ca_certs() for rdn in cert[\"subject\"] for key,value in rdn if key==\"commonName\"}\nassert \"emSign ECC Root CA - G3\" not in names\nassert context.cert_store_stats()[\"x509_ca\"]>0\nprint(json.dumps({\"version\":certifi.__version__,\"removedRoot\":\"emSign ECC Root CA - G3\",\"removedRootPresent\":False,\"certificateStore\":context.cert_store_stats(),\"networkProbe\":False}))"
+    ],
+    "exitCode": 0,
+    "seconds": 0.05
+  }
+]
