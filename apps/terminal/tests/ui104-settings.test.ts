@@ -66,6 +66,7 @@ describe("UI-104 C17 gateway guard", () => {
       "/v1/settings/downloads": { items: fixture.downloads },
       "/v1/platform/browser-capabilities": fixture.browserPolicy,
     };
+    responses["/v1/context"] = responses["/v1/session"];
     const requests: Request[] = [];
     const fetchImpl = (async (input: RequestInfo | URL) => {
       const request = input as Request;
@@ -76,7 +77,7 @@ describe("UI-104 C17 gateway guard", () => {
       });
     }) as typeof fetch;
     expect(await loadSettingsBundle("https://bff.example", fetchImpl)).toEqual(fixture);
-    expect(requests).toHaveLength(8);
+    expect(requests).toHaveLength(9);
     expect(requests.every(request => request.credentials === "include")).toBe(true);
     delete responses["/v1/settings/security"];
     await expect(loadSettingsBundle("https://bff.example", fetchImpl)).rejects.toMatchObject({ operation: "getSecuritySettings" });
@@ -175,7 +176,7 @@ describe("A2 settings cancellation and uncertain writes", () => {
     const signals: AbortSignal[] = [];
     const fetchImpl = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const path = new URL((input as Request).url).pathname;
-      if (path === "/v1/session") return Response.json({ actorId: "11111111-1111-4111-8111-111111111111", tenantId: "22222222-2222-4222-8222-222222222222", workspaceId: "33333333-3333-4333-8333-333333333333", accountId: "44444444-4444-4444-8444-444444444444", mode: "paper", environment: "dev", mfaState: "verified", expiresAt: new Date(Date.now()+300000).toISOString(), capabilities: ["settings.read"] });
+      if (path === "/v1/session" || path === "/v1/context") return Response.json({ actorId: "11111111-1111-4111-8111-111111111111", tenantId: "22222222-2222-4222-8222-222222222222", workspaceId: "33333333-3333-4333-8333-333333333333", accountId: "44444444-4444-4444-8444-444444444444", mode: "paper", environment: "dev", mfaState: "verified", expiresAt: new Date(Date.now()+300000).toISOString(), capabilities: ["settings.read"] });
       if (init?.signal) signals.push(init.signal);
       if (path.endsWith("/security")) return Response.json({ code: "UNAUTHORIZED" }, { status: 401 });
       return new Promise<Response>(() => {});

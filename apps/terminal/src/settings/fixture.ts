@@ -21,7 +21,7 @@ export const ui104SettingsFixture: SettingsBundle = {
     { deviceId: "device-iphone", label: "iPhone 16", verificationMethod: "biometric", trustedUntil: "2026-08-24T00:00:00Z", current: false },
   ],
   downloads: [
-    { downloadId: "export-00917", objectLabel: "Audit export 00917", format: "JSON-CSV", requestedAt: "2026-08-15T00:42:00Z", status: "ready", expiresAt: "2026-08-15T12:42:00Z", downloadUrl: "https://bff.test.invalid/download/short-lived-00917", watermarked: true, correlationId: "7db31ab6-1a22-4d3d-a3da-c9aab07c1f50" },
+    { downloadId: "11111111-aaaa-4111-8111-111111111111", objectLabel: "Audit export 00917", format: "JSON-CSV", requestedAt: "2026-08-15T00:42:00Z", status: "ready", expiresAt: "2099-08-15T12:42:00Z", downloadPath: "/v1/exports/11111111-aaaa-4111-8111-111111111111/download", watermarked: true, correlationId: "7db31ab6-1a22-4d3d-a3da-c9aab07c1f50" },
     { downloadId: "report-20260609", objectLabel: "Performance report", format: "PDF", requestedAt: "2026-08-14T09:23:00Z", status: "downloaded", watermarked: true },
     { downloadId: "snapshot-export-0810", objectLabel: "Snapshot metadata", format: "Parquet", requestedAt: "2026-08-10T02:11:00Z", status: "expired", watermarked: false },
   ],

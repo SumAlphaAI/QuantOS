@@ -1,0 +1,13 @@
+
+> @sumalpha/terminal@0.1.0 typecheck /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+> tsc --project tsconfig.json --noEmit
+
+app/settings/_components/ui104-settings-route.tsx(36,77): error TS2322: Type '{ section: SettingsSection; initialData: { profile: { displayName: string; title?: string | undefined; team?: string | undefined; locale: "zh-CN" | "en"; timezone: string; ... 11 more ...; objectVersion: string; }; ... 5 more ...; browserPolicy: { ...; }; }; ... 6 more ...; pageState: "default" | "stale"; }' is not assignable to type 'IntrinsicAttributes & SettingsWorkspaceProps'.
+  Property 'context' does not exist on type 'IntrinsicAttributes & SettingsWorkspaceProps'.
+src/settings/runtime.ts(79,9): error TS2322: Type '{ jobId: string; status: "accepted" | "cancel_requested"; correlationId: string; auditRef: string; mfaEnrollment?: { factorRef: string; delivery: "one_time" | "restart_required"; uri?: string | undefined; } | undefined; }' is not assignable to type '{ status: "accepted"; jobId: string; }'.
+  Types of property 'status' are incompatible.
+    Type '"accepted" | "cancel_requested"' is not assignable to type '"accepted"'.
+      Type '"cancel_requested"' is not assignable to type '"accepted"'.
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2

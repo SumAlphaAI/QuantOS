@@ -57,7 +57,7 @@ export function notificationFallback(permission: BrowserPermissionState): "brows
 
 export function downloadAvailability(record: DownloadRecord, nowIso: string): { available: boolean; reason: string } {
   if (record.status !== "ready") return { available: false, reason: record.status === "expired" ? "下载链接已过期，请重新生成。" : "文件尚未准备完成。" };
-  if (!record.downloadUrl || !record.expiresAt || !Number.isFinite(Date.parse(record.expiresAt)) || !Number.isFinite(Date.parse(nowIso)) || Date.parse(record.expiresAt) <= Date.parse(nowIso)) return { available: false, reason: "短时下载链接不可用或已过期。" };
+  if ((!record.downloadPath && !record.downloadUrl) || !record.expiresAt || !Number.isFinite(Date.parse(record.expiresAt)) || !Number.isFinite(Date.parse(nowIso)) || Date.parse(record.expiresAt) <= Date.parse(nowIso)) return { available: false, reason: "短时下载链接不可用或已过期。" };
   return { available: true, reason: "下载通过 BFF 短时签名链接提供，并记录审计。" };
 }
 

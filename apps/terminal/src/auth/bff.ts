@@ -77,6 +77,10 @@ export function completeLoginMfa(
   return postJson<MfaResponse>("mfaChallenge", origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl, options);
 }
 
+export function completeSecurityMfa(origin: string, code: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}): Promise<MfaResponse> {
+  return postJson<MfaResponse>("mfaChallenge", origin, "/v1/auth/mfa/challenges", { purpose: "security_change", code } satisfies MfaRequest, 200, csrfToken, fetchImpl, options);
+}
+
 export function completeRecentAuth(
   origin: string,
   challengeRef: string,

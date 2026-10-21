@@ -1,2 +1,2 @@
-import { ui104SettingsFixture } from "../../../src/settings/fixture"; import { SettingsWorkspace } from "../_components/ui104-settings-workspace";
-export default function ProfileSettingsPage() { return <SettingsWorkspace section="profile" initialData={ui104SettingsFixture} />; }
+import { SettingsRoute } from "../_components/ui104-settings-route";
+export default function Page() { return <SettingsRoute section="profile" />; }

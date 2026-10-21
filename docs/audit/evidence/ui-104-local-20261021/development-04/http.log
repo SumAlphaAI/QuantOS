@@ -1,0 +1,34 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+[90mstdout[2m | apps/terminal/tests/ui104-http.test.ts[2m > [22m[2mactual Rust C17 save, conflict, explicit rebase, MFA/reauth revoke and authoritative reload
+[22m[39mUI104_LOOPBACK C17 save/CAS/rebase/security_change/reauth/delete/readback PASS
+
+ [31m❯[39m apps/terminal/tests/ui104-http.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 4646[2mms[22m[39m
+   [32m✓[39m actual Rust C17 save, conflict, explicit rebase, MFA/reauth revoke and authoritative reload[32m 55[2mms[22m[39m
+[31m   [31m×[31m actual read-only session cannot write and an invalid session cannot read private settings[39m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 12:08:42
+[2m   Duration [22m 4.96s[2m (transform 148ms, setup 0ms, import 235ms, tests 4.65s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui104-http.test.ts[2m > [22mactual read-only session cannot write and an invalid session cannot read private settings
+[31m[1mSettingsGatewayError[22m: 设置服务暂不可用，请稍后重试。[39m
+[36m [2m❯[22m required apps/terminal/src/settings/gateway.ts:[2m23:11[22m[39m
+    [90m 21|[39m       // Keep the transport status but discard all malformed provider …
+    [90m 22|[39m     }
+    [90m 23|[39m     [35mthrow[39m [35mnew[39m [33mSettingsGatewayError[39m([32m"设置服务暂不可用，请稍后重试。"[39m[33m,[39m operation[33m,[39m
+    [90m   |[39m           [31m^[39m
+    [90m 24|[39m       error?.correlationId, result.response.status, error?.code, error…
+    [90m 25|[39m   }
+[90m [2m❯[22m apps/terminal/src/settings/gateway.ts:[2m43:30[22m[39m
+[90m [2m❯[22m loadSettingsSnapshot apps/terminal/src/settings/gateway.ts:[2m44:93[22m[39m
+[90m [2m❯[22m Object.load apps/terminal/src/settings/runtime.ts:[2m38:173[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui104-http.test.ts:[2m25:53[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

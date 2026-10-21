@@ -1,4 +1,5 @@
 import { bffZodSchemas, parseBffResponse, type BffOperationId, type BffRequestOptions, createBffClient } from "@sumalpha/api-client";
+import { handleAuthHttpStatus } from "../auth/flow";
 import type { NotificationPreferencesInput, ProfileSettingsInput, SettingsBundle } from "./c17";
 
 export class SettingsGatewayError extends Error {
@@ -10,6 +11,7 @@ export class SettingsGatewayError extends Error {
 }
 
 function required<T>(result: { data?: T; error?: unknown; response: Response }, operation: BffOperationId): T {
+  if (result.response.status === 401) handleAuthHttpStatus(401);
   if (result.data === undefined) {
     let error;
     try {
@@ -24,38 +26,66 @@ function required<T>(result: { data?: T; error?: unknown; response: Response }, 
   return parseBffResponse(operation, result.response.status, result.data) as T;
 }
 
-export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}): Promise<SettingsBundle> {
+export async function loadSettingsSnapshot(origin: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}, section?: SettingsSection) {
   const group = new AbortController();
   const cancel = () => group.abort();
   options.signal?.addEventListener("abort", cancel, { once: true });
   if (options.signal?.aborted) group.abort();
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options, signal: group.signal });
   try {
-    required(await client.GET("/v1/session"), "getSession");
+    const session = required(await client.GET("/v1/session"), "getSession");
+    const valid = (s: typeof session) => Date.parse(s.expiresAt) > Date.now() && s.mfaState !== "challenged";
+    if (!valid(session)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getSession", undefined, 401); }
+    const context = required(await client.GET("/v1/context"), "getContext");
+    if (!valid(context)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getContext", undefined, 401); }
+    if (context.actorId !== session.actorId || context.tenantId !== session.tenantId || context.workspaceId !== session.workspaceId || context.accountId !== session.accountId || context.mode !== session.mode || !["research", "paper", "shadow"].includes(context.mode) || !context.capabilities.includes("settings.read")) throw new SettingsGatewayError("无法访问此设置。", "getContext", undefined, 403);
     const checked = <T>(promise: Promise<{ data?: T; error?: unknown; response: Response }>, operation: BffOperationId) =>
       promise.then(result => required(result, operation)).catch(error => { group.abort(); throw error; });
+    const needed = (name: SettingsSection) => section === undefined || section === name;
     const [profile, notifications, security, sessions, devices, downloads, browserPolicy] = await Promise.all([
-      checked(client.GET("/v1/settings/profile"), "getProfile"), checked(client.GET("/v1/settings/notification-preferences"), "getNotificationPrefs"),
-      checked(client.GET("/v1/settings/security"), "getSecuritySettings"), checked(client.GET("/v1/settings/sessions"), "listSessions"),
-      checked(client.GET("/v1/settings/trusted-devices"), "listDevices"), checked(client.GET("/v1/settings/downloads"), "listDownloads"),
-      checked(client.GET("/v1/platform/browser-capabilities"), "getPlatformCapabilities"),
+      checked(client.GET("/v1/settings/profile"), "getProfile"), needed("notifications") ? checked(client.GET("/v1/settings/notification-preferences"), "getNotificationPrefs") : undefined,
+      needed("security") ? checked(client.GET("/v1/settings/security"), "getSecuritySettings") : undefined, needed("security") ? checked(client.GET("/v1/settings/sessions"), "listSessions") : undefined,
+      needed("security") ? checked(client.GET("/v1/settings/trusted-devices"), "listDevices") : undefined, needed("browser") ? checked(client.GET("/v1/settings/downloads"), "listDownloads") : undefined,
+      needed("browser") || needed("notifications") ? checked(client.GET("/v1/platform/browser-capabilities"), "getPlatformCapabilities") : undefined,
     ]);
-    return { profile, notifications, security, sessions, devices, downloads: downloads.items, browserPolicy };
+    const policy = browserPolicy ? bffZodSchemas.BrowserCapabilityPolicy.strict().parse(browserPolicy) : undefined;
+    const history = downloads?.items.map(item => {
+      const row = bffZodSchemas.DownloadRecord.strict().parse(item);
+      if (row.downloadUrl) throw new Error("History must not retain leases");
+      return row;
+    });
+    if (!valid(context)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getSession", undefined, 401); }
+    return { context, loadedAt: new Date().toISOString(), bundle: { profile, notifications, security, sessions, devices, downloads: history, browserPolicy: policy } };
   } finally {
     group.abort();
     options.signal?.removeEventListener("abort", cancel);
   }
 }
 
+export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}): Promise<SettingsBundle> {
+  const b = (await loadSettingsSnapshot(origin, fetchImpl, options)).bundle;
+  if (!b.notifications || !b.security || !b.sessions || !b.devices || !b.downloads || !b.browserPolicy) throw Error("Incomplete settings aggregate");
+  return { profile: b.profile, notifications: b.notifications, security: b.security, sessions: b.sessions, devices: b.devices, downloads: b.downloads, browserPolicy: b.browserPolicy };
+}
+export function profileInput(value: ProfileSettingsInput): ProfileSettingsInput {
+  const keys = ["displayName", "title", "team", "locale", "timezone", "theme", "numberFormat", "timeDisplay", "defaultRoute", "density", "highContrast", "reducedMotion"] as const;
+  return bffZodSchemas.ProfileSettingsInput.parse(Object.fromEntries(keys.filter(k => value[k] !== undefined).map(k => [k, value[k]])));
+}
+export function notificationInput(value: NotificationPreferencesInput): NotificationPreferencesInput {
+  return bffZodSchemas.NotificationPreferencesInput.parse(value);
+}
+export type SettingsSection = "profile" | "notifications" | "security" | "browser";
+export type SettingsSnapshot = Awaited<ReturnType<typeof loadSettingsSnapshot>>;
+
 export async function saveProfileSettings(origin: string, profile: ProfileSettingsInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
-  const result = await client.PUT("/v1/settings/profile", { body: profile, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
+  const result = await client.PUT("/v1/settings/profile", { body: profileInput(profile), params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
   return required(result, "saveProfile");
 }
 
 export async function saveNotificationSettings(origin: string, preferences: NotificationPreferencesInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
-  const result = await client.PUT("/v1/settings/notification-preferences", { body: preferences, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
+  const result = await client.PUT("/v1/settings/notification-preferences", { body: notificationInput(preferences), params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
   return required(result, "saveNotificationPrefs");
 }
 
