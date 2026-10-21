@@ -306,6 +306,7 @@ code,
 }
 
 .hero-title {
+  overflow-wrap: anywhere;
   font-size: clamp(36px, 6vw, 64px);
   line-height: 1.08;
   font-weight: 700;
@@ -352,7 +353,7 @@ code,
 
 .trust-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 1px solid var(--q-border);
   border-radius: 10px;
   overflow: hidden;
@@ -394,16 +395,17 @@ code,
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
 .card-grid.cols-3 {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .card {
-  border: 1px solid var(--q-border);
+  min-width: 0;
+  overflow-wrap: anywhere;  border: 1px solid var(--q-border);
   border-radius: 10px;
   background: var(--q-surface-1);
   padding: 28px;
@@ -414,7 +416,8 @@ code,
 }
 
 a.card {
-  text-decoration: none;
+  min-width: 0;
+  overflow-wrap: anywhere;  text-decoration: none;
 }
 
 .card:hover {
@@ -515,7 +518,7 @@ a.card {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -562,6 +565,8 @@ a.card {
 .form-field input,
 .form-field select,
 .form-field textarea {
+  min-width: 0;
+  max-width: 100%;
   background: var(--q-surface-0);
   border: 1px solid var(--q-border-strong);
   border-radius: 6px;
@@ -797,7 +802,7 @@ a.card {
   .docs-grid,
   .principle-list,
   .trust-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .trust-item {
@@ -810,12 +815,12 @@ a.card {
   }
 
   .flow-list li {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
 
   .site-footer-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .site-header-inner {
@@ -844,5 +849,7 @@ a.card {
   }
 }
 
-.access-fields { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 20px; }
+.access-fields { grid-template-columns: minmax(0, 1fr); border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 20px; }
 .access-fields:disabled { opacity: .8; }
+
+main { min-width: 0; overflow-wrap: anywhere; }

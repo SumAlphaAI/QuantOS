@@ -16,7 +16,7 @@ function EvidenceChainDiagram() {
     { x: 668, label: "TradeCommand", sub: "幂等 · 审计留证" },
   ];
   return (
-    <div className="hero-chain">
+    <div className="hero-chain" role="region" aria-label="受控链路图，可横向滚动" tabIndex={0}>
       <svg viewBox="0 0 880 132" role="img" aria-label="提议、风险决策、审批到执行命令的受控链路示意图">
         {nodes.slice(0, -1).map((node, i) => (
           <g key={`edge-${node.label}`}>

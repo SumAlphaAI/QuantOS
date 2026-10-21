@@ -1,0 +1,75 @@
+
+Running 27 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/web101-current.spec.ts:9:5 › malformed 202 stays unknown until explicit acknowledgement; no fake permission granted (738ms)
+  ✓   2 [chromium] › tests/e2e/web101-current.spec.ts:13:5 › same-tick duplicate submit is latched and locks fields until an audited response (183ms)
+  ✓   3 [chromium] › tests/e2e/web101-current.spec.ts:16:5 › in-flight network loss retains input and never automatically replays after recovery (190ms)
+  ✓   4 [chromium] › tests/e2e/web101-current.spec.ts:19:43 › HTTP 403 never displays private provider details or a false success (2.3s)
+  ✓   5 [chromium] › tests/e2e/web101-current.spec.ts:19:43 › HTTP 422 never displays private provider details or a false success (471ms)
+  ✓   6 [chromium] › tests/e2e/web101-current.spec.ts:19:43 › HTTP 503 never displays private provider details or a false success (463ms)
+  ✓   7 [chromium] › tests/e2e/web101-current.spec.ts:22:5 › missing consent and manipulated public mode cannot send a request (512ms)
+  ✘   8 [chromium] › tests/e2e/web101-current.spec.ts:25:5 › all seven pages record zero axe violations, desktop/light/mobile captures and CSS zoom reflow (847ms)
+  ✓   9 [chromium] › tests/e2e/web101-current.spec.ts:32:5 › keyboard skip link reaches main content and public pages send no application without consent (144ms)
+  ✓  10 [chromium] › tests/e2e/website.spec.ts:24:7 › WEB-101 website › 首页呈现品牌主张、信任承诺与证据链 (97ms)
+  ✓  11 [chromium] › tests/e2e/website.spec.ts:34:7 › WEB-101 website › 全部首期页面可访问且导航互链 (315ms)
+  ✓  12 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › / 无 serious/critical 无障碍违规 (372ms)
+  ✓  13 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /product 无 serious/critical 无障碍违规 (324ms)
+  ✓  14 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /architecture-security 无 serious/critical 无障碍违规 (320ms)
+  ✓  15 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /use-cases 无 serious/critical 无障碍违规 (327ms)
+  ✓  16 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /docs 无 serious/critical 无障碍违规 (310ms)
+  ✓  17 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /access-request 无 serious/critical 无障碍违规 (327ms)
+  ✓  18 [chromium] › tests/e2e/website.spec.ts:47:9 › WEB-101 website › /login 无 serious/critical 无障碍违规 (307ms)
+  ✓  19 [chromium] › tests/e2e/website.spec.ts:55:7 › WEB-101 website › 390px 移动端无页面级横向溢出 (200ms)
+  ✓  20 [chromium] › tests/e2e/website.spec.ts:64:7 › WEB-101 website › 文档中心无结果时可清除条件并联系支持 (320ms)
+  ✓  21 [chromium] › tests/e2e/website.spec.ts:77:7 › WEB-101 website › 访问申请表单：校验、honeypot 与受理语义 (512ms)
+  ✓  22 [chromium] › tests/e2e/website.spec.ts:100:7 › WEB-101 website › 访问申请 202 仅显示受理态并发送冻结契约字段 (173ms)
+  ✓  23 [chromium] › tests/e2e/website.spec.ts:128:7 › WEB-101 website › 访问申请 429 显示等待与参考号且保留输入 (463ms)
+  ✓  24 [chromium] › tests/e2e/website.spec.ts:147:7 › WEB-101 website › 离线时禁止提交并保留已填内容 (1.5s)
+  ✓  25 [chromium] › tests/e2e/website.spec.ts:158:7 › WEB-101 website › SEO 输出覆盖 canonical、robots 与七页 sitemap (415ms)
+  ✓  26 [chromium] › tests/e2e/website.spec.ts:179:7 › WEB-101 website › 官网不包含收益承诺类禁用词 (296ms)
+  ✓  27 [chromium] › tests/e2e/website.spec.ts:193:7 › WEB-101 website › 登录页指向 Terminal 且不内嵌认证表单 (81ms)
+
+
+  1) [chromium] › tests/e2e/web101-current.spec.ts:25:5 › all seven pages record zero axe violations, desktop/light/mobile captures and CSS zoom reflow 
+
+    Error: / CSS zoom
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    45
+
+      27 |     await page.setViewportSize({ width: 1440, height: 900 }); await page.emulateMedia({ colorScheme: "dark" }); await page.goto(path!); const a = await new AxeBuilder({ page }).analyze(); scans.push({ name, path, violations: a.violations, incomplete: a.incomplete }); expect(a.violations, path).toEqual([]);
+      28 |     for (const variant of ["desktop", "light", "mobile"]) { if (variant === "light") await page.emulateMedia({ colorScheme: "light" }); if (variant === "mobile") { await page.emulateMedia({ colorScheme: "dark" }); await page.setViewportSize({ width: 390, height: 844 }); } const png = info.outputPath(`${name}-${variant}.png`); await page.screenshot({ path: png, fullPage: true }); await info.attach(`${name}-${variant}`, { path: png, contentType: "image/png" }); expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), `${path} ${variant}`).toBeLessThanOrEqual(0); }
+    > 29 |     await page.evaluate(() => { document.documentElement.style.zoom = "2"; }); expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), `${path} CSS zoom`).toBeLessThanOrEqual(0);
+         |                                                                                                                                                                                                                   ^
+      30 |   } const out = info.outputPath("axe.json"); await writeFile(out, JSON.stringify(scans, null, 2)); await info.attach("axe", { path: out, contentType: "application/json" });
+      31 | });
+      32 | test("keyboard skip link reaches main content and public pages send no application without consent", async ({ page }) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/web101-current.spec.ts:29:211
+
+    attachment #1: home-desktop (image/png) ────────────────────────────────────────────────────────
+    docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/attachments/home-desktop-e59f500be011c1aa84ab1a658cebba3f8011157d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: home-light (image/png) ──────────────────────────────────────────────────────────
+    docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/attachments/home-light-51737441f9d1263b67145db2549ba2211de3e8d0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: home-mobile (image/png) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/attachments/home-mobile-975e0f110e6e570c68376bc8ee4714dccbbe6d09.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/web-101-local-20261021/function-attempt-02/browser/results/web101-current-all-seven-p-1c725-aptures-and-CSS-zoom-reflow-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/web101-current.spec.ts:25:5 › all seven pages record zero axe violations, desktop/light/mobile captures and CSS zoom reflow 
+  26 passed (14.3s)
