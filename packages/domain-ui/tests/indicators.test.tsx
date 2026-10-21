@@ -33,3 +33,9 @@ it("provider locale reaches all domain indicators and unknown connections fail c
   const html=renderToStaticMarkup(<I18nProvider locale="en"><ConnectionStatusBar state="future_connection"/><DataFreshnessIndicator state="stale"/><RiskPostureBadge posture="toString"/></I18nProvider>);
   expect(html).toContain("Read-only cache only");expect(html).toContain("Stale");expect(html).toContain("Unknown / upgrade required");expect(html).toContain('data-blocking="true"');
 });
+
+it("snapshot-only connection does not claim a live update subscription", () => {
+  const html = renderToStaticMarkup(<ConnectionStatusBar state="connected" liveUpdates={false} locale="en" />);
+  expect(html).toContain("Read-only snapshot; refresh revalidates");
+  expect(html).not.toContain("Live updates enabled");
+});

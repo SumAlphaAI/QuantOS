@@ -16,7 +16,8 @@ test("non-mock build loads generated session/context/summary and shows scoped fa
   const paths = await boundary(page); await page.goto("/command");
   await expect(page.locator('[data-contract-mode="integrated"]')).toBeVisible();
   await expect(page.locator(".q-workspace-mode")).toHaveText("SHADOW");
-  await expect(page.locator(".account-context")).toContainText(context().accountId);
+  await expect(page.locator(".account-context")).toHaveAttribute("title", context().accountId);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
   await expect(page.locator(".freshness-status")).toContainText("Stale");
   await expect(page.locator(".risk-status")).toContainText("Unknown");
   await expect(page.getByRole("link", { name: "Command", exact: true })).toBeVisible();
@@ -60,4 +61,13 @@ test("session deadline removes the mounted shell and rechecks before loading dat
   await boundary(page, path => path !== "/v1/command/summary" ? { data: { ...context(), expiresAt: expired ? "2000-01-01T00:00:00Z" : new Date(Date.now() + 2000).toISOString() } } : {});
   await page.goto("/command"); await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible(); expired = true;
   await expect(page).toHaveURL(/\/login$/, { timeout: 7000 }); await expect(page.locator('[data-ui101-shell]')).toHaveCount(0);
+});
+
+test("authoritative context fits 390px and CSS zoom=2 while staying read-only", async ({ page }) => {
+  await boundary(page); await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/command");
+  await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await expect(page.locator(".high-risk-action").first()).toBeHidden();
+  await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });

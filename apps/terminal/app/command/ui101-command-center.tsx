@@ -65,9 +65,9 @@ export function CommandCenter({ projection, contractMode, onRefresh }: CommandCe
 
   return (
     <TerminalFrame collapsed={collapsed} data-ui101-shell data-contract-mode={contractMode} mainClassName="command-main" mainMarker="route-/command"
-      header={<TerminalHeader workspace={projection.session.workspaceLabel} account={projection.session.accountLabel} initials={projection.session.actorInitials} mode={projection.session.mode} collapsed={collapsed} onToggle={()=>setCollapsed(value=>!value)} freshness={indicatorFreshness(freshness)} risk={indicatorRisk(risk)} notifications={3}/>}
+      header={<TerminalHeader workspace={projection.session.workspaceLabel} account={projection.session.accountLabel} workspaceTitle={projection.session.workspaceId} accountTitle={projection.session.accountId} initials={projection.session.actorInitials} mode={projection.session.mode} collapsed={collapsed} onToggle={()=>setCollapsed(value=>!value)} freshness={indicatorFreshness(freshness)} risk={indicatorRisk(risk)} notifications={3}/>}
       navigation={<TerminalNavigation items={navItems} activeRoute="/command"/>}
-      status={<><ConnectionStatusBar state={connection === "live" ? "connected" : connection} lastConnectedAt={lastSync.toISOString()} locale="en"/><span>Data latency: {contractMode === "mocked" ? "1.2s (fixture)" : "—"}</span><span>Last sync {formatSyncTime(lastSync)}</span></>}
+      status={<><ConnectionStatusBar state={connection === "live" ? "connected" : connection} liveUpdates={false} locale="en"/><span>Data latency: {contractMode === "mocked" ? "1.2s (fixture)" : "—"}</span><span>Last sync {formatSyncTime(lastSync)}</span></>}
     >
         {connection === "offline" ? <div className="offline-banner" role="alert">网络已断开。当前为只读状态，所有写操作均已禁用；恢复连接后不会自动提交旧意图。</div> : null}
         {contractMode === "mocked" ? <div className="command-contract-banner" role="status">C02 Runtime Guard Mocked · 本地演示数据；不代表真实会话或当前业务状态。</div> : null}

@@ -41,7 +41,7 @@ export function createCommandBffSource(origin: string, fetchImpl: typeof fetch =
           const summary = commandView(raw, context!.accountId, context!.mode);
           if (summary.dataFreshness === "unavailable" || !summary.asOf || Date.parse(summary.asOf) > Date.now() + 1000) return "unknown";
           projection = {
-            session: { ...context!, workspaceLabel: `Workspace ${context!.workspaceId}`, accountLabel: `Account ${context!.accountId}`, actorInitials: context!.actorId.slice(0, 2).toUpperCase() },
+            session: { ...context!, workspaceLabel: `Workspace ${context!.workspaceId.slice(0, 8)}…`, accountLabel: `Account ${context!.accountId.slice(0, 8)}…`, actorInitials: context!.actorId.slice(0, 2).toUpperCase() },
             guard: { resourceAvailable: true, dataAvailable: true },
             freshness: { state: summary.dataFreshness, asOf: summary.asOf },
             risk: { posture: summary.riskPosture === "halted" ? "critical" : summary.riskPosture, reason: "C02 服务端风险事实" },
