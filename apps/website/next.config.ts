@@ -22,6 +22,8 @@ function deterministicBuildId(app: string): string {
 const nextConfig: NextConfig = {
   output: "export",
   webpack(config, { webpack }) {
+    // Workspace ESM retains .js specifiers; resolve them when consuming TS sources.
+    config.resolve.extensionAlias = { ...config.resolve.extensionAlias, ".js": [".ts", ".tsx", ".js"] };
     // F02-A11: short-ID collision retries depend on async traversal order.
     // Use a fixed larger namespace and reject collisions instead of reassigning IDs.
     config.optimization.moduleIds = false;
@@ -31,7 +33,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   generateBuildId: () => deterministicBuildId("website"),
-  transpilePackages: ["@sumalpha/ui", "@sumalpha/config"],
+  transpilePackages: ["@sumalpha/ui", "@sumalpha/config", "@sumalpha/api-client"],
 };
 
 export default nextConfig;

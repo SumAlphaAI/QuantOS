@@ -1,0 +1,118 @@
+[
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 469,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/bff-build.log",
+    "logSha256": "sha256:0b53209db424367e80c52cd8cde8b75e37af110438a0efde777104a1463956de"
+  },
+  {
+    "id": "provider-access",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "public_access_request_validates_origin_and_body_and_writes_audit",
+      "--",
+      "--exact"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 4036,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/provider-access.log",
+    "logSha256": "sha256:1f2c1ffc6e0dd301252c69d948458377799b608414f6635d13f1164e39178128"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/website/tests"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 3839,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/unit.log",
+    "logSha256": "sha256:59bb36d5f90694f0351f4e19ff4e1443c7c1d161018425640c1ee29ba849d823"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 852,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/types.log",
+    "logSha256": "sha256:f80eb2863ee274048f8ebbc6e1bf420632e84db0596f6d8581fe63c9dd5cc786"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 897,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/lint.log",
+    "logSha256": "sha256:e189563b37ab2be0ea3619813918b3039ff01e990beaf64129c517f5cdeda403"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/web-101-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 331,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/negative.log",
+    "logSha256": "sha256:1cdf1df53a8ebf21e9aa5f34bd726a7892a988318ee66a046389227f68e9d9f7"
+  },
+  {
+    "id": "website-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "build"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1599,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-01/website-build.log",
+    "logSha256": "sha256:661a1e081e63654c255d270d22317a7b2535200323a78a161e230a71c5454464"
+  }
+]
