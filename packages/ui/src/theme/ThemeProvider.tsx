@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { workspaceTokens } from "../tokens/workspace";
 import designTokens, { type ThemeName } from "../tokens/index";
 type ThemeVariables = CSSProperties & Record<`--q-${string}`, string>;
 export interface ThemeContextValue { theme: ThemeName; setTheme: (theme: ThemeName) => void }
@@ -11,7 +12,8 @@ export function createThemeVariables(theme: ThemeName): ThemeVariables {
     "--q-color-scheme": theme, "--q-surface-0": color.surface["0"], "--q-surface-1": color.surface["1"], "--q-surface-2": color.surface["2"],
     "--q-border": color.border.default, "--q-border-strong": color.border.strong, "--q-text-primary": color.text.primary, "--q-text-secondary": color.text.secondary, "--q-text-disabled": color.text.disabled,
     "--q-brand": color.brand.bg, "--q-brand-hover": color.brand.bgHover, "--q-brand-fg": color.brand.fg, "--q-success": color.semantic.success, "--q-warning": color.semantic.warning, "--q-danger": color.semantic.danger, "--q-info": color.semantic.info,
-    "--q-accent": theme === "dark" ? "#31C8F4" : "#075985", "--q-chart-line": color.chart.categorical[0], "--q-mode-paper": color.mode.paper, "--q-mode-shadow": color.mode.shadow, "--q-text-inverse": color.text.inverse,
+    "--q-font-chrome-size": workspaceTokens.chromeFontSize, "--q-font-brand-size": workspaceTokens.brandFontSize, "--q-font-icon-size": workspaceTokens.iconFontSize,
+    "--q-accent": workspaceTokens.accent[theme], "--q-chart-line": color.chart.categorical[0], "--q-mode-paper": color.mode.paper, "--q-mode-shadow": color.mode.shadow, "--q-text-inverse": color.text.inverse,
     "--q-focus": color.semantic.info, "--q-focus-width": `${designTokens.focus.ringWidth}px`, "--q-font-sans": designTokens.typography.fontFamily.sans, "--q-font-mono": designTokens.typography.fontFamily.mono,
     "--q-font-body-size": designTokens.typography.body.fontSize, "--q-font-body-line": designTokens.typography.body.lineHeight, "--q-font-table-size": designTokens.typography.table.fontSize, "--q-font-table-line": designTokens.typography.table.lineHeight,
     "--q-font-page-size": designTokens.typography.pageTitle.fontSize, "--q-font-page-line": designTokens.typography.pageTitle.lineHeight, "--q-space-1": `${spacing[1]}px`, "--q-space-2": `${spacing[2]}px`, "--q-space-3": `${spacing[3]}px`, "--q-space-4": `${spacing[4]}px`, "--q-space-5": `${spacing[5]}px`,

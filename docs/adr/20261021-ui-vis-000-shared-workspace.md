@@ -4,7 +4,7 @@ P02 v1 与 P20 v3 定义全局几何参考：约196px侧栏、56px顶栏、底�
 
 `packages/ui`提供 TerminalFrame、WorkspacePanel/Grid/Field/Chart 及集中 workspace.css；`domain-ui/chrome`提供可复用的顶栏/导航，调用方必须先过滤权限。组件不加载账户或BFF、不生成RiskDecision或TradeCommand。静态主工作区保持只读，模式仅展示Paper/Shadow，未知模式明确UNKNOWN/只读；展示不是业务授权。
 
-ThemeProvider扩展非状态视觉变量：`--q-accent`是装饰/导航品牌强调（dark #31C8F4、light #075985），不得作为健康或允许信号；图表线来自冻结chart分类色，mode.paper/shadow来自冻结mode；所有状态Badge及警告仍消费冻结语义色。PRE-02原tokens.json、安全文案及状态枚举不改写。
+`tokens/workspace.ts`集中非状态chrome扩展（12px状态栏、16px品牌、20px图标）；正文/表格/标题沿用冻结14/13/24px。面板基础边框/背景集中在workspace.css，页面CSS仅保留业务分区布局。ThemeProvider扩展非状态视觉变量：`--q-accent`是装饰/导航品牌强调（dark #31C8F4、light #075985），不得作为健康或允许信号；图表线来自冻结chart分类色，mode.paper/shadow来自冻结mode；所有状态Badge及警告仍消费冻结语义色。PRE-02原tokens.json、安全文案及状态枚举不改写。
 
 Command/Settings复用Frame/Header/Navigation；路由、六步守卫、原受控回调保持调用方所有。P20共用组件组合放入Storybook，明确仅视觉fixture，不提前实现受控下单API或向venue发单。图表附原始数据表，拒绝NaN/Infinity/空数据；表格、危险确认继续复用UI-103。768–1279折叠侧栏；<768仅只读监控，不以CSS隐藏替代服务端权限。
 
