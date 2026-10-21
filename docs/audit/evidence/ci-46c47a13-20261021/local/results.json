@@ -1,0 +1,46 @@
+{
+  "schema": "quantos-ci-remediation/v1",
+  "baseCommit": "46c47a13fab123764dd30abaf0b2d6f099fc89bc",
+  "candidateBinding": "enclosing Git commit plus input hashes",
+  "gate": "PASS_LOCAL_SCOPED",
+  "hostedCandidateGate": "NOT_RUN",
+  "databaseExecution": "NOT_RUN",
+  "checks": [
+    {
+      "command": [
+        "make",
+        "lint"
+      ],
+      "exitCode": 0,
+      "log": "local/lint.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "exitCode": 0,
+      "log": "local/bff-regressions.log",
+      "passed": 240,
+      "ignored": 1,
+      "ignoredReason": "explicit Supabase real logout target test not invoked"
+    },
+    {
+      "command": [
+        "make",
+        "f01-check"
+      ],
+      "exitCode": 0,
+      "log": "local/f01-check.log"
+    }
+  ]
+}

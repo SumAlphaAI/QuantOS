@@ -1,0 +1,204 @@
+node scripts/check-f01.mjs
+{
+  "status": "PASS",
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "moduleReadmes": 48,
+  "inventory": {
+    "rustBinaries": [
+      "bff-gateway",
+      "capacity-monitor",
+      "execution-gateway",
+      "market-ingestor",
+      "portfolio-rebuild",
+      "replay-cli",
+      "runtime-gateway"
+    ],
+    "rustBuildBinaries": [
+      "bff-gateway",
+      "capacity-monitor",
+      "execution-gateway",
+      "f08-approval",
+      "fixture-corpus",
+      "market-ingestor",
+      "portfolio-rebuild",
+      "quantos-proto-json-codegen",
+      "quantos-reconcile",
+      "replay-cli",
+      "runtime-gateway"
+    ],
+    "rustDirectories": [
+      "crates/quantos-auth",
+      "crates/quantos-core",
+      "crates/quantos-engine-manager",
+      "crates/quantos-event",
+      "crates/quantos-evidence",
+      "crates/quantos-execution",
+      "crates/quantos-market",
+      "crates/quantos-observability",
+      "crates/quantos-operations",
+      "crates/quantos-policy",
+      "crates/quantos-portfolio",
+      "crates/quantos-proto",
+      "crates/quantos-reconcile",
+      "crates/quantos-risk",
+      "crates/quantos-runtime",
+      "crates/quantos-storage",
+      "crates/quantos-strategy",
+      "crates/quantos-testkit",
+      "services/bff-gateway",
+      "services/capacity-monitor",
+      "services/execution-gateway",
+      "services/market-ingestor",
+      "services/portfolio-rebuild",
+      "services/replay-cli",
+      "services/runtime-gateway",
+      "tools/proto-json-codegen"
+    ],
+    "js": [
+      {
+        "directory": "apps/terminal",
+        "name": "@sumalpha/terminal",
+        "output": "apps/terminal/out"
+      },
+      {
+        "directory": "apps/website",
+        "name": "@sumalpha/website",
+        "output": "apps/website/out"
+      },
+      {
+        "directory": "packages/api-client",
+        "name": "@sumalpha/api-client",
+        "output": "packages/api-client/dist"
+      },
+      {
+        "directory": "packages/config",
+        "name": "@sumalpha/config",
+        "output": "packages/config/dist"
+      },
+      {
+        "directory": "packages/domain-ui",
+        "name": "@sumalpha/domain-ui",
+        "output": "packages/domain-ui/dist"
+      },
+      {
+        "directory": "packages/platform",
+        "name": "@sumalpha/platform",
+        "output": "packages/platform/dist"
+      },
+      {
+        "directory": "packages/ui",
+        "name": "@sumalpha/ui",
+        "output": "packages/ui/dist"
+      }
+    ],
+    "python": [
+      {
+        "directory": "engines/engine-sdk",
+        "name": "quantos-engine-sdk",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/llmquant",
+        "name": "quantos-llmquant",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/mock-engine",
+        "name": "quantos-mock-engine",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/openbb-adapter",
+        "name": "quantos-openbb-adapter",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/rd-agent",
+        "name": "quantos-rd-agent",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/strategy-lab",
+        "name": "quantos-strategy-lab",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/trading-agents",
+        "name": "quantos-trading-agents",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/vibe-adapter",
+        "name": "quantos-vibe-adapter",
+        "version": "0.1.0"
+      }
+    ],
+    "buildClosure": {
+      "hatchling": "1.27.0",
+      "packaging": "26.3",
+      "pathspec": "1.1.1",
+      "pluggy": "1.6.0",
+      "trove-classifiers": "2026.6.1.19"
+    }
+  }
+}
+node --test scripts/f01-gate-negative.mjs
+✔ formal gate rejects zero, one, two and noninteger runs (0.362041ms)
+✔ all binaries participate in digest and omitted binary fails (2.831291ms)
+✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (2.48625ms)
+✔ manifest inventory cannot omit or add members (0.058416ms)
+✔ dirty and untracked source rejected (59.760875ms)
+✔ deleted module README is rejected (2.269125ms)
+✔ wrong uv version fails toolchain preflight (16.486416ms)
+✔ invalid locks fail real lock entrypoint (62.63075ms)
+✔ Terminal default lint rejects a page TSX violation (841.564042ms)
+✔ invalid run revokes old successful receipt (25.92775ms)
+✔ Cargo manifest drift is rejected by actual lock gate (4618.90075ms)
+✔ uv manifest drift is rejected by actual lock gate (662.518166ms)
+✔ pnpm manifest drift is rejected by actual lock gate (892.904625ms)
+✔ malformed Buf lock is rejected by actual lock gate (672.304167ms)
+✔ broken Desktop is outside phase-one pnpm frozen check (330.310458ms)
+✔ uv output marker is metadata, other unexpected files still fail (2.046125ms)
+✔ build-only tool is required in output inventory without becoming a runtime binary (2.088ms)
+✔ pnpm frozen check rejects missing or changed patch bytes (693.223209ms)
+✔ pnpm patch cannot read outside the repository (161.495958ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9084.950875
+node --test scripts/capture-build-outputs.test.mjs
+✔ a real byte mismatch still fails the Gate, and both versions survive workspace cleanup (4.483542ms)
+✔ changed output cannot be attached to an earlier receipt (2.1995ms)
+✔ capture rejects stale destinations instead of mixing evidence (2.758292ms)
+✔ an invalid run revokes stale raw outputs as well as the success receipt (27.502292ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.902625
+node --test scripts/webpack-module-ids.test.mjs
+✔ old short-ID collision swaps 9311/1692 with traversal order and changes real bundle bytes (50.960542ms)
+✔ terminal actual Next config produces identical executable bytes under both traversal orders (286.87125ms)
+✔ terminal actual Next config rejects a collision in the new namespace (265.340583ms)
+✔ website actual Next config produces identical executable bytes under both traversal orders (29.952792ms)
+✔ website actual Next config rejects a collision in the new namespace (264.567167ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1002.463416

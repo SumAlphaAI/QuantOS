@@ -1,0 +1,79 @@
+
+> @sumalpha/quantos@ test:pre04 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre04-gate-negative.mjs
+
+✖ current full phase-one inventory passes (17.415375ms)
+✔ missing Gap is rejected (11.818291ms)
+✔ undecided realtime dependency is rejected (7.73025ms)
+✔ deleted required actorId field is rejected (9.705459ms)
+✔ nonexistent field source is rejected (9.621916ms)
+✔ wrong field type and optionality are rejected (8.5695ms)
+✔ generated operation deletion is rejected (8.634083ms)
+✔ generated method and path drift are rejected (16.196125ms)
+✔ same-count schema rename is rejected (6.576209ms)
+✔ schema required and enum drift are rejected (15.111416ms)
+✔ same-count Proto message rename is rejected (8.206584ms)
+✔ removed Proto declaration is rejected (7.833167ms)
+✔ same-count JSON Schema replacement is rejected (7.526417ms)
+✔ duplicate contract row is rejected before Map collapse (7.991417ms)
+✔ duplicate Gap row is rejected before Map collapse (7.205333ms)
+✔ nonexistent role owner is rejected (7.270834ms)
+✔ nonexistent backend task is rejected (8.080291ms)
+✔ nonexistent BFF task is rejected (7.444375ms)
+✔ unknown Gap page is rejected (7.382583ms)
+✔ each missing website P0 page is rejected (42.99825ms)
+✔ missing auxiliary risk/audit/order contract is rejected (25.079917ms)
+✔ regressing a fully published Gap to Partial is rejected (7.228792ms)
+✔ omitting published command operation is rejected (8.06275ms)
+✔ published contract cannot claim target implementation (7.770833ms)
+✔ generated-only contract cannot claim Integrated (8.757084ms)
+✔ missing provider evidence is rejected (8.923917ms)
+✔ changed provider receipt is rejected (7.58025ms)
+✔ missing Inventory Fixture is rejected (7.550209ms)
+✔ Desktop contamination is rejected by Web inventory (8.123584ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (16.81575ms)
+✔ removed referenced core task is rejected (8.772208ms)
+✔ catalog source drift is rejected (7.976709ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (28.095041ms)
+✔ each missing implementation evidence category is rejected (91.357708ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (9.072167ms)
+✔ another contract receipt cannot substitute for required evidence (7.542167ms)
+✔ unknown task suffixes are rejected in both backend task columns (44.544292ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (14.726625ms)
+✔ OpenAPI version and counts must agree with controlled inventory and generated source (30.821625ms)
+✔ published domains cannot omit their wire models even with a regenerated dictionary (49.32475ms)
+✔ already published fields cannot be relabelled as planned (10.207167ms)
+✔ a still unpublished contract cannot close its Gap (9.372708ms)
+✔ a partially published synthetic revision still cannot close its Gap (10.23275ms)
+✔ source digest rows cannot be missing or duplicated (16.111542ms)
+✔ legacy source-digest layout cannot masquerade as the current baseline (8.250458ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 44
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 839.977875
+
+✖ failing tests:
+
+test at scripts/pre04-gate-negative.mjs:19:1
+✖ current full phase-one inventory passes (17.415375ms)
+  AssertionError [ERR_ASSERTION]: field dictionary exactly matches reviewed wire/domain/planned mapping
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:21:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.

@@ -6,6 +6,10 @@ use axum::{
     http::Request,
 };
 use tower::ServiceExt;
+#[expect(
+    clippy::too_many_arguments,
+    reason = "HTTP identity, idempotency, version and reauthentication inputs stay explicit in refusal probes"
+)]
 async fn call(
     p: &BffProvider,
     method: &str,

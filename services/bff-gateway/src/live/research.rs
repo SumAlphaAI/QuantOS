@@ -695,6 +695,27 @@ impl Repository for PgPages {
     }
 }
 
+/// One bounded read query; never load artifacts, start a workflow, or call an Engine.
+/// The connection is dropped with all page settings on every path. Target/RLS
+/// execution remains an explicit release obligation.
+pub(super) fn command_source(
+    database: &str,
+    c: &BffSessionContext,
+    now: chrono::DateTime<Utc>,
+) -> Result<Value> {
+    authorize(c, "/v1/research-runs", false)?;
+    let mut client =
+        quantos_auth::connect_bff_database(database).map_err(|_| Fault::unavailable())?;
+    client
+        .batch_execute("set statement_timeout='2s'; set lock_timeout='100ms'")
+        .map_err(|_| Fault::unavailable())?;
+    let a = &c.auth;
+    client.query_one("select set_config('quantos.page_tenant',$1,false),set_config('quantos.page_actor',$2,false),set_config('quantos.page_workspace',$3,false),set_config('quantos.page_account',$4,false),set_config('quantos.page_mode',$5,false)",&[&a.tenant_id.to_string(),&a.actor_id.to_string(),&a.workspace_id.to_string(),&a.account_id.map(|v|v.to_string()).unwrap_or_default(),&a.mode.as_str()]).map_err(|_|Fault::unavailable())?;
+    let rows=client.query("select r.id,r.status,r.created_at from quantos.bff_research_commands c join quantos.workflow_runs r on r.id=c.run_id join quantos.runtime_sessions rs on rs.id=r.runtime_session_id where c.operation='create' and c.completed and c.tenant_id=$1 and c.workspace_id=$2 and c.actor_id=$3 and c.account_id=$4 and c.mode=$5 and r.tenant_id=$1 and r.workspace_id=$2 and r.actor_id=$3 and r.account_id=$4 and rs.tenant_id=$1 and rs.workspace_id=$2 and rs.actor_id=$3 and rs.account_id=$4 and rs.mode=$5 and r.workflow_kind='research' order by r.created_at desc,r.id limit 2001",&[a.tenant_id.as_uuid(),a.workspace_id.as_uuid(),a.actor_id.as_uuid(),&a.account_id.map(|v|*v.as_uuid()),&a.mode.as_str()]).map_err(|_|Fault::unavailable())?;
+    let rows=rows.iter().map(|r|json!({"runId":r.get::<_,Uuid>(0),"status":r.get::<_,String>(1),"createdAt":r.get::<_,chrono::DateTime<Utc>>(2)})).collect::<Vec<_>>();
+    Ok(crate::command::research_source(a, &rows, now))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -760,25 +781,4 @@ mod tests {
         assert_ne!(a, evidence_id(Uuid::new_v4(), "engine-evidence-1"));
         assert_eq!(a.get_version_num(), 4);
     }
-}
-
-/// One bounded read query; never load artifacts, start a workflow, or call an Engine.
-/// The connection is dropped with all page settings on every path. Target/RLS
-/// execution remains an explicit release obligation.
-pub(super) fn command_source(
-    database: &str,
-    c: &BffSessionContext,
-    now: chrono::DateTime<Utc>,
-) -> Result<Value> {
-    authorize(c, "/v1/research-runs", false)?;
-    let mut client =
-        quantos_auth::connect_bff_database(database).map_err(|_| Fault::unavailable())?;
-    client
-        .batch_execute("set statement_timeout='2s'; set lock_timeout='100ms'")
-        .map_err(|_| Fault::unavailable())?;
-    let a = &c.auth;
-    client.query_one("select set_config('quantos.page_tenant',$1,false),set_config('quantos.page_actor',$2,false),set_config('quantos.page_workspace',$3,false),set_config('quantos.page_account',$4,false),set_config('quantos.page_mode',$5,false)",&[&a.tenant_id.to_string(),&a.actor_id.to_string(),&a.workspace_id.to_string(),&a.account_id.map(|v|v.to_string()).unwrap_or_default(),&a.mode.as_str()]).map_err(|_|Fault::unavailable())?;
-    let rows=client.query("select r.id,r.status,r.created_at from quantos.bff_research_commands c join quantos.workflow_runs r on r.id=c.run_id join quantos.runtime_sessions rs on rs.id=r.runtime_session_id where c.operation='create' and c.completed and c.tenant_id=$1 and c.workspace_id=$2 and c.actor_id=$3 and c.account_id=$4 and c.mode=$5 and r.tenant_id=$1 and r.workspace_id=$2 and r.actor_id=$3 and r.account_id=$4 and rs.tenant_id=$1 and rs.workspace_id=$2 and rs.actor_id=$3 and rs.account_id=$4 and rs.mode=$5 and r.workflow_kind='research' order by r.created_at desc,r.id limit 2001",&[a.tenant_id.as_uuid(),a.workspace_id.as_uuid(),a.actor_id.as_uuid(),&a.account_id.map(|v|*v.as_uuid()),&a.mode.as_str()]).map_err(|_|Fault::unavailable())?;
-    let rows=rows.iter().map(|r|json!({"runId":r.get::<_,Uuid>(0),"status":r.get::<_,String>(1),"createdAt":r.get::<_,chrono::DateTime<Utc>>(2)})).collect::<Vec<_>>();
-    Ok(crate::command::research_source(a, &rows, now))
 }

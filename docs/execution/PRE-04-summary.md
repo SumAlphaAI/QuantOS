@@ -34,3 +34,7 @@
 ## 2026-10-03 A2 兼容扩展同步
 
 API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注册材料与能力引用的映射说明，更新当前 provider/test 内容摘要；历史签署 SHA 保留在 baseline 的 historicalReviewedSourceSha，当前快照的正式 reviewedSourceSha 为 null。当前源码的工程回归与 Git notes 见 [BFF-FE-001 整改记录](../audit/BFF-FE-001-remediation-2026-10-03.md)。
+
+## 2026-10-21 CI 源摘要维护
+
+当前 API 1.14.0 / 134 operations / 113 schemas，字段字典 710 行。受控基线 v1.9 更新 C01/C17/C10 共用参考 provider 与 C01/C17 测试的 5 处摘要：公开申请的 expectedMode 已由 WEB101 收敛为 research/paper/shadow，拒绝 assisted_live，并覆盖相应正负测试。历史 provider/test 的差异已逐项核对，历史验收文档及其摘要保持原样，reviewedSourceSha 仍为 null，目标环境仍为 NOT_RUN / NO_RECEIPT。本次本地检查和远端原始失败见 [CI 修复记录](../audit/ci-remediation-46c47a13-2026-10-21.md)；本段不授予新的历史、目标环境或发布验收。
