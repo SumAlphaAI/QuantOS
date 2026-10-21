@@ -1,0 +1,142 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "packages/ui/tests",
+      "packages/domain-ui/tests",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "apps/terminal/tests/ui104-settings.test.ts"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1154,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/unit.log",
+    "logSha256": "sha256:51516d60f271350f7e5a3124e5050a05005548423922d95247c6771f8956de21"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 2413,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/types.log",
+    "logSha256": "sha256:a5465c5f60b0d526bbd005826a35cdbec616e1a4ec26b49df5e0365e0c4a38a1"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1685,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/lint.log",
+    "logSha256": "sha256:e2bf69b029f79dd79d47bcea38cd3bf5f2d0470dab1fe84c3474c9c88797550c"
+  },
+  {
+    "id": "tokens",
+    "command": [
+      "node",
+      "packages/ui/scripts/pre02-checks.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 271,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/tokens.log",
+    "logSha256": "sha256:77ad12075cf7ae3d663e5436076f6ad99cc839a5f8f18cdd9800ba0d6f24cc9d"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "packages/ui/scripts/pre02-gate-negative.mjs",
+      "scripts/frontend-import-boundary.test.mjs",
+      "scripts/ui-vis-000-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 525,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/negative.log",
+    "logSha256": "sha256:58fcdfeb151b216f05e4c8e2fd3334b4d2af6b8fd3e9a7589dff31ab3e8c07c6"
+  },
+  {
+    "id": "storybook",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "build-storybook"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 3488,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/storybook.log",
+    "logSha256": "sha256:be1d8fb395a942e7d6b616d855de71878729e849fb29c2cce890184c6c3c5157"
+  },
+  {
+    "id": "terminal",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 8350,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/terminal.log",
+    "logSha256": "sha256:eb552ff1e210d65d72937448d94fdd1de2ce02628d76e09f5d7a8d1bf1088137"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/command.spec.ts",
+      "tests/e2e/ui104-settings.spec.ts",
+      "--grep-invert",
+      "视觉基线|visual baselines",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 5165,
+    "log": "docs/audit/evidence/ui-vis-000-local-20261021/function-attempt-02/consumer.log",
+    "logSha256": "sha256:66831c80607f0e6967ea7ad4e0ae69303ce8ebf0ff330757620ad444db7ebaa8"
+  }
+]
