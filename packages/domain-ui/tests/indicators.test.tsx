@@ -34,8 +34,14 @@ it("provider locale reaches all domain indicators and unknown connections fail c
   expect(html).toContain("Read-only cache only");expect(html).toContain("Stale");expect(html).toContain("Unknown / upgrade required");expect(html).toContain('data-blocking="true"');
 });
 
-it("snapshot-only connection does not claim a live update subscription", () => {
-  const html = renderToStaticMarkup(<ConnectionStatusBar state="connected" liveUpdates={false} locale="en" />);
-  expect(html).toContain("Read-only snapshot; refresh revalidates");
-  expect(html).not.toContain("Live updates enabled");
+it.each([
+  ["en", "Read-only snapshot; refresh revalidates", "Live updates enabled"],
+  ["zh-CN", "只读投影；刷新时重新验证", "实时更新已启用"],
+] as const)("snapshot-only connection does not claim a live update subscription in %s", (locale, snapshot, live) => {
+  const html = renderToStaticMarkup(<ConnectionStatusBar state="connected" liveUpdates={false} locale={locale} />);
+  expect(html).toContain(snapshot);
+  expect(html).not.toContain(live);
+  const offline = renderToStaticMarkup(<ConnectionStatusBar state="offline" liveUpdates={false} locale={locale} />);
+  expect(offline).not.toContain(snapshot);
+  expect(offline).toContain(locale === "en" ? "trade actions are paused" : "交易操作已暂停");
 });

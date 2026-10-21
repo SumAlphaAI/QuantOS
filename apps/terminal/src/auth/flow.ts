@@ -196,7 +196,7 @@ export async function exchangeCode(
     const session: Session = {
       subject,
       establishedAt: new Date().toISOString(),
-      expiresIn: body.expires_in ?? 300,
+      expiresIn: body.expires_in,
       mfaRequired: body.mfa_required === true,
     };
     if (epoch !== sessionEpoch) throw new AuthError("认证会话已失效，请重新登录。");

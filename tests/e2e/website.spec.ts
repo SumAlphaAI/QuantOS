@@ -69,9 +69,29 @@ test.describe("WEB-101 website", () => {
     await page.getByRole("button", { name: "清除搜索条件" }).click();
     await expect(page.locator(".docs-grid > li")).toHaveCount(6);
     const architectureDetails = page.locator("#architecture details");
-    await architectureDetails.getByText("阅读当前版本", { exact: true }).click();
+    // Filtering replaces the focused clear button and can move WebKit's viewport.
+    // Activate the restored native disclosure by keyboard; pointer behavior has its own case below.
+    const summary = architectureDetails.locator("summary");
+    await summary.focus();
+    await expect(summary).toBeFocused();
+    await summary.press("Enter");
     await expect(architectureDetails).toHaveAttribute("open", "");
     await expect(architectureDetails.getByText("浏览器只访问 Gateway/BFF", { exact: false })).toBeVisible();
+  });
+
+  test("文档详情可通过鼠标展开并收起", async ({ page }) => {
+    await page.goto("/docs");
+    const details = page.locator("#architecture details");
+    const summary = details.locator("summary");
+    const content = details.getByText("浏览器只访问 Gateway/BFF", { exact: false });
+    await expect(details).not.toHaveAttribute("open");
+    await expect(content).toBeHidden();
+    await summary.click();
+    await expect(details).toHaveAttribute("open", "");
+    await expect(content).toBeVisible();
+    await summary.click();
+    await expect(details).not.toHaveAttribute("open");
+    await expect(content).toBeHidden();
   });
 
   test("访问申请表单：校验、honeypot 与受理语义", async ({ page }) => {

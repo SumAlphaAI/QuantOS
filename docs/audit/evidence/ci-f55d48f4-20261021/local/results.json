@@ -1,0 +1,81 @@
+{
+  "schema": "quantos-ci-remediation/v1",
+  "baseCommit": "f55d48f4ee2212d8491a0bf3f6fa5072c2ca281e",
+  "candidateBinding": "enclosing Git commit and manifest input rows",
+  "gate": "PASS_LOCAL_SCOPED",
+  "hostedCandidateGate": "NOT_RUN",
+  "checks": [
+    {
+      "command": [
+        "make",
+        "coverage-web"
+      ],
+      "exitCode": 0,
+      "generalTests": {
+        "passed": 451,
+        "skipped": 3
+      },
+      "criticalTests": {
+        "passed": 349,
+        "skipped": 3
+      },
+      "criticalCoverage": {
+        "files": 6,
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      }
+    },
+    {
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=webkit",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=2",
+        "--reporter=json"
+      ],
+      "exitCode": 0,
+      "passed": 38,
+      "flaky": 0,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=webkit",
+        "--grep",
+        "文档中心无结果|文档详情可通过鼠标",
+        "--repeat-each=30",
+        "--retries=0",
+        "--workers=2",
+        "--reporter=json"
+      ],
+      "exitCode": 0,
+      "passed": 60,
+      "flaky": 0,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/domain-ui",
+        "lint"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "notRun": [
+    "new SHA hosted CI",
+    "local Firefox browser",
+    "complete clean-room/reproducibility",
+    "target database",
+    "deployment/release"
+  ]
+}
