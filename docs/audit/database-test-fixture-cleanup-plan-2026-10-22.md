@@ -16,3 +16,15 @@
 参考：[Supabase Database Size and Read-Only Mode](https://supabase.com/docs/guides/platform/database-size)。只读模式、会话恢复可写与空间回收的约束以该官方页面为依据；实际项目的健康/容量以本轮控制台与 SQL 记录为准。
 
 当前状态：READ_ONLY_PLAN；未删除数据、未停用触发器、未重置 schema、未修改数据库默认配置、未重启项目。完整清理和覆盖率复验仍待执行。
+
+## 2026-10-22 重启授权后的执行追加
+
+用户明确答复“允许重启此测试项目”。控制台随后进入 Restarting，并返回项目页，重启流程已经执行。前述重启审批阻断已解除；原始拒绝与随后授权均保留为历史。
+
+重启未恢复 SQL：只读连接先返回 08006 timeout，结束后返回 57P03。控制台 PostgreSQL 日志 2026-10-22 07:54:06 Asia/Shanghai 明确报 SQLSTATE 53100：`could not write to file "pg_wal/xlogtemp.2566": No space left on device`，随后 startup process 失败并关闭数据库。因此无法在当前状态下执行备份、DELETE、VACUUM 或任何清理 SQL。
+
+Infrastructure 页面显示 Free/Nano，磁盘扩容控件 disabled，Scaling 提示仅 Pro 及以上可用。不可用容量指标显示为 0，不据此声称数据库已清空。没有升级付费、删除项目或重置数据。现有只读备份程序保持待执行。
+
+当前状态更新为 **BLOCKED_DATABASE_BOOT_DISK_FULL**。需先由平台恢复可启动空间，或由用户自行完成付费扩容，再执行上面的备份/定向清理/覆盖率复验顺序。[报障草稿](supabase-disk-recovery-support-draft-2026-10-22.md)已准备但未发送；[恢复证据](evidence/ci-recovery-20261022/)包含用户原始重启授权、SQL 探测和控制台观察记录。原 CI 修复提交 `09e452da` 保持原有范围与阻断状态，不改记为完整 Nightly PASS。
+
+用户随后选择“我自行联系支持”。Codex 未发送报障请求，也未执行付费升级。待用户/平台恢复 PostgreSQL 连接与启动空间后，继续只读备份、定向清理、空间回收及 F05/F07 覆盖率复验；目前清理与完整复验仍为 BLOCKED，不能宣称通过。
