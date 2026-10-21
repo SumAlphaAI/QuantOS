@@ -9,13 +9,13 @@ use std::{
 };
 
 use chrono::{Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{
     Client, NoTls,
     binary_copy::BinaryCopyInWriter,
     types::{Json, Type},
 };
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_core::{ActorId, CorrelationId, EventId, SchemaVersion, TenantId};
 use quantos_event::{
     NewRecordedEvent, RecordedEvent,
@@ -1376,6 +1376,31 @@ fn connect_store(
 
 fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let url = Url::parse(database_url).expect("database URL parses");
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslrootcert" && key != "sslmode")
+        .map(|(k, v)| (k.into_owned(), v.into_owned()))
+        .collect::<Vec<_>>();
+    let mut native_url = url.clone();
+    native_url.set_query(None);
+    native_url.query_pairs_mut().extend_pairs(options);
+    native_url.query_pairs_mut().append_pair(
+        "sslmode",
+        if url
+            .query_pairs()
+            .any(|(k, v)| k == "sslmode" && v == "disable")
+        {
+            "disable"
+        } else {
+            "require"
+        },
+    );
+    let database_url = native_url.as_str();
+
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
@@ -1388,11 +1413,16 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
         let result = if disable_tls {
             Client::connect(database_url, NoTls)
         } else {
-            let mut builder = TlsConnector::builder();
-            if relaxed_tls {
-                builder.danger_accept_invalid_certs(true);
+            let mut builder = SslConnector::builder(SslMethod::tls()).expect("TLS builder");
+            builder.set_verify(SslVerifyMode::PEER);
+            if let Some(root) = &root {
+                builder.set_ca_file(root).expect("CA readable and valid");
             }
-            let connector = builder.build().expect("TLS connector builds");
+
+            if relaxed_tls {
+                builder.set_verify(SslVerifyMode::NONE);
+            }
+            let connector = builder.build();
             Client::connect(database_url, MakeTlsConnector::new(connector))
         };
         match result {
@@ -1420,4 +1450,134 @@ fn live_database_url() -> Option<String> {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
     }
     database_url
+}
+
+#[test]
+fn postgres_market_identity_receipts_conflicts_and_cursor_health() {
+    use quantos_core::ContentHash;
+    let Some(url) = live_database_url() else {
+        return;
+    };
+    let tenant = TenantId::new();
+    let actor = seed_tenant(&url, tenant);
+    let mut store = connect_store(&url, &[tenant])
+        .unwrap()
+        .with_aggregate_scope("market");
+    let hash = ContentHash::sha256_bytes(b"market fixture");
+    let mut event = build_event(tenant, actor, CorrelationId::new(), 1);
+    event.aggregate_type = "market".into();
+    event.aggregate_id = "fixture:BTC/USDT".into();
+    event.schema_version = SchemaVersion::parse("v2").unwrap();
+    assert!(store.last_market_write().is_none());
+    assert!(
+        store
+            .last_market_receipt(tenant, "fixture")
+            .unwrap()
+            .is_none()
+    );
+    for case in 0..7 {
+        let mut events = vec![event.clone()];
+        let (mut provider, mut id) = ("fixture", "tick");
+        match case {
+            0 => provider = " ",
+            1 => id = " ",
+            2 => events.clear(),
+            3 => events[0].tenant_id = TenantId::new(),
+            4 => events[0].actor_id = ActorId::new(),
+            5 => events[0].aggregate_type = "trade".into(),
+            _ => {
+                let mut second = event.clone();
+                second.aggregate_id = "other".into();
+                events.push(second);
+            }
+        }
+        assert!(matches!(
+            store.append_market_events(tenant, actor, provider, id, &hash, &mut events),
+            Err(PgEventStoreError::MarketIdentity)
+        ));
+    }
+    store.configure_market_deadline().unwrap();
+    let mut events = vec![event.clone()];
+    assert!(
+        store
+            .append_market_events(tenant, actor, "fixture", "tick", &hash, &mut events)
+            .unwrap()
+    );
+    assert_eq!(events[0].sequence, 1);
+    assert!(store.last_market_write().is_some());
+    assert!(
+        store
+            .last_market_receipt(tenant, "fixture")
+            .unwrap()
+            .is_some()
+    );
+    assert!(
+        !store
+            .append_market_events(tenant, actor, "fixture", "tick", &hash, &mut events)
+            .unwrap()
+    );
+    assert!(matches!(
+        store.append_market_events(
+            tenant,
+            actor,
+            "fixture",
+            "tick",
+            &ContentHash::sha256_bytes(b"different"),
+            &mut events
+        ),
+        Err(PgEventStoreError::MarketSourceConflict)
+    ));
+    // Invalid schema reaches the database and must leave the receipt absent.
+    let mut invalid = vec![event.clone()];
+    invalid[0].schema_version = SchemaVersion::parse("v1").unwrap();
+    assert!(
+        store
+            .append_market_events(tenant, actor, "fixture", "invalid", &hash, &mut invalid)
+            .is_err()
+    );
+    assert!(store.last_market_write().is_none());
+    assert!(
+        store
+            .binance_cursor(tenant, "fixture", "BTCUSDT")
+            .unwrap()
+            .is_none()
+    );
+    assert!(
+        store
+            .binance_last_response(tenant, "fixture", "BTCUSDT")
+            .unwrap()
+            .is_none()
+    );
+    // Empty successful polls update transport health without inventing market events.
+    assert_eq!(
+        store
+            .append_binance_page(tenant, actor, "fixture", "BTCUSDT", 7, &json!([]))
+            .unwrap(),
+        7
+    );
+    assert_eq!(
+        store.binance_cursor(tenant, "fixture", "BTCUSDT").unwrap(),
+        Some(7)
+    );
+    assert!(
+        store
+            .binance_last_response(tenant, "fixture", "BTCUSDT")
+            .unwrap()
+            .is_some()
+    );
+    assert!(
+        store
+            .append_binance_page(tenant, actor, "fixture", "BTCUSDT", 6, &json!([]))
+            .is_err()
+    );
+    let mut db = connect_client(&url).unwrap();
+    db.execute(
+        "update quantos.actors set is_active=false where tenant_id=$1 and id=$2",
+        &[tenant.as_uuid(), actor.as_uuid()],
+    )
+    .unwrap();
+    assert!(matches!(
+        store.append_market_events(tenant, actor, "fixture", "revoked", &hash, &mut events),
+        Err(PgEventStoreError::ActorNotAuthorized { .. })
+    ));
 }

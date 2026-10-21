@@ -401,21 +401,7 @@ impl PgStorageStore {
             .iter()
             .filter(|l| l.lineage_kind == "market_event_range")
         {
-            let lo = lineage.details["from_sequence"]
-                .as_i64()
-                .or_else(|| lineage.details["first_sequence"].as_i64())
-                .ok_or(SourceAuthorizationError("range start missing"))?;
-            let hi = lineage.details["to_sequence"]
-                .as_i64()
-                .or_else(|| lineage.details["last_sequence"].as_i64())
-                .ok_or(SourceAuthorizationError("range end missing"))?;
-            if lo < 1 || hi < lo || hi - lo >= 10_000 || total + hi - lo + 1 > 10_000 {
-                return Err(SourceAuthorizationError("consumer lineage budget exceeded").into());
-            }
-            let aggregate = lineage
-                .reference
-                .strip_prefix("market:")
-                .ok_or(SourceAuthorizationError("market reference malformed"))?;
+            let (aggregate, lo, hi) = consumer_lineage_range(lineage, total)?;
             let rows = self.client.query_typed(
                 "select payload from quantos.event_log where tenant_id=$1 and aggregate_type='market' and aggregate_id=$2 and sequence between $3 and $4 order by sequence",
                 &[(tenant_id.as_uuid(), Type::UUID), (&aggregate, Type::TEXT), (&lo, Type::INT8), (&hi, Type::INT8)],
@@ -663,3 +649,30 @@ mod connection_tests {
         assert!(matches!(result, Err(super::PgStorageError::Tls(_))));
     }
 }
+
+fn consumer_lineage_range(
+    lineage: &crate::SnapshotLineageEntry,
+    total: i64,
+) -> Result<(&str, i64, i64), crate::provenance::SourceAuthorizationError> {
+    use crate::provenance::SourceAuthorizationError;
+    let lo = lineage.details["from_sequence"]
+        .as_i64()
+        .or_else(|| lineage.details["first_sequence"].as_i64())
+        .ok_or(SourceAuthorizationError("range start missing"))?;
+    let hi = lineage.details["to_sequence"]
+        .as_i64()
+        .or_else(|| lineage.details["last_sequence"].as_i64())
+        .ok_or(SourceAuthorizationError("range end missing"))?;
+    if lo < 1 || hi < lo || hi - lo >= 10_000 || total + hi - lo + 1 > 10_000 {
+        return Err(SourceAuthorizationError("consumer lineage budget exceeded"));
+    }
+    let aggregate = lineage
+        .reference
+        .strip_prefix("market:")
+        .ok_or(SourceAuthorizationError("market reference malformed"))?;
+    Ok((aggregate, lo, hi))
+}
+
+#[cfg(test)]
+#[path = "../tests/unit/consumer_lineage.rs"]
+mod consumer_lineage_tests;

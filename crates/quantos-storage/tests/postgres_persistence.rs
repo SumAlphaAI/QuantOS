@@ -1,9 +1,9 @@
 use std::{collections::BTreeMap, env, time::Instant};
 
 use chrono::Utc;
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, types::Type};
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_core::{ContentHash, SchemaVersion, TenantId};
 use quantos_storage::{
     ArtifactManifest, DataSnapshotInput, DataSnapshotRecord, SnapshotArtifactRef,
@@ -247,6 +247,8 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
         }
     }
 
+    verify_consumer_lineage(&database_url, &mut store, &snapshot, &context);
+
     // Development has already exercised all three functional queries above.
     // Repeated timing and the numerical threshold belong to RELEASE only.
     if env::var("QUANTOS_R02_RELEASE_PERFORMANCE").ok().as_deref() != Some("1") {
@@ -328,6 +330,31 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
 
 fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let url = Url::parse(database_url).expect("database URL parses");
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslrootcert" && key != "sslmode")
+        .map(|(k, v)| (k.into_owned(), v.into_owned()))
+        .collect::<Vec<_>>();
+    let mut native_url = url.clone();
+    native_url.set_query(None);
+    native_url.query_pairs_mut().extend_pairs(options);
+    native_url.query_pairs_mut().append_pair(
+        "sslmode",
+        if url
+            .query_pairs()
+            .any(|(k, v)| k == "sslmode" && v == "disable")
+        {
+            "disable"
+        } else {
+            "require"
+        },
+    );
+    let database_url = native_url.as_str();
+
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
@@ -338,11 +365,254 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     if disable_tls {
         Client::connect(database_url, NoTls)
     } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
+        let mut builder = SslConnector::builder(SslMethod::tls()).expect("TLS builder");
+        builder.set_verify(SslVerifyMode::PEER);
+        if let Some(root) = &root {
+            builder.set_ca_file(root).expect("CA readable and valid");
         }
-        let connector = builder.build().expect("TLS connector builds");
+
+        if relaxed_tls {
+            builder.set_verify(SslVerifyMode::NONE);
+        }
+        let connector = builder.build();
         Client::connect(database_url, MakeTlsConnector::new(connector))
+    }
+}
+
+fn verify_consumer_lineage(
+    url: &str,
+    store: &mut PgStorageStore,
+    base: &DataSnapshotRecord,
+    ctx: &SnapshotWriteContext,
+) {
+    use quantos_proto::quantos::common::v1::{ActorRef, CommandMetadata};
+    use quantos_storage::{
+        SnapshotUsage,
+        provenance::{SnapshotSourcePolicy, SourceApproval},
+        wire::snapshot_to_wire,
+    };
+    let now = Utc::now();
+    let tenant = ctx.tenant_id;
+    let mut db = connect_client(url).unwrap();
+    db.execute("insert into quantos.actor_capabilities(tenant_id,actor_id,capability) values($1,$2,'snapshot.read')", &[tenant.as_uuid(), ctx.actor_id.as_uuid()]).unwrap();
+    store
+        .authorize_snapshot_reader(tenant, ctx.actor_id)
+        .unwrap();
+    assert!(
+        store
+            .authorize_snapshot_reader(tenant, quantos_core::ActorId::new())
+            .is_err()
+    );
+    let policy = SnapshotSourcePolicy::new(vec![SourceApproval {
+        tenant_id: tenant,
+        provider: "fixture".into(),
+        dataset: "ticks".into(),
+        license_label: "fixture-only".into(),
+        approval_reference: "nightly".into(),
+        approval_version: "v1".into(),
+        approval_document_hash: ContentHash::sha256_bytes(b"approval"),
+        scope_hash: ContentHash::sha256_bytes(b"scope"),
+        symbols: vec!["BTCUSDT".into()],
+        allowed_usages: vec![SnapshotUsage::Research],
+        expires_at: now + chrono::Duration::hours(1),
+        enabled: true,
+    }])
+    .unwrap();
+    let payload = json!({"provider":"fixture","dataset":"ticks","license_label":"fixture-only","approval_reference":"nightly","approval_version":"v1","normalized_symbol":"BTCUSDT","source_tick_id":"tick","event_time":now,"quality":"passed"});
+    let event = json!({"tenant_id":tenant,"actor_id":ctx.actor_id,"event_id":ctx.causation_id,"correlation_id":ctx.correlation_id,"causation_id":ctx.causation_id,"aggregate_type":"market","aggregate_id":"fixture:BTCUSDT","sequence":1,"event_kind":"MarketTick","schema_version":"v2","occurred_at":now,"payload":payload,"payload_hash":ContentHash::sha256_bytes(b"event")});
+    db.query_one(
+        "select * from quantos.append_market_source($1,$2,'fixture','tick',$3,$4)",
+        &[
+            tenant.as_uuid(),
+            ctx.actor_id.as_uuid(),
+            &ContentHash::sha256_bytes(b"source").as_str(),
+            &json!([event]),
+        ],
+    )
+    .unwrap();
+    let mut input = base.input();
+    input.sources = vec![SnapshotSourceRef {
+        source_id: "market:fixture:BTCUSDT".into(),
+        provider: "fixture".into(),
+        dataset: "ticks".into(),
+        license_label: "fixture-only".into(),
+    }];
+    input.license_label = "fixture-only".into();
+    input.symbols = vec!["BTCUSDT".into()];
+    input.captured_at = now;
+    input.window = SnapshotWindow {
+        start_at: now,
+        end_at: now,
+    };
+    input.lineage = vec![SnapshotLineageEntry {
+        lineage_kind: "market_event_range".into(),
+        reference: "market:fixture:BTCUSDT".into(),
+        details: json!({"from_sequence":1,"to_sequence":1}),
+    }];
+    let canonical = DataSnapshotRecord::new(tenant, input.clone(), now).unwrap();
+    store.upsert_data_snapshot(&canonical, ctx).unwrap();
+    assert!(
+        store
+            .evaluate_snapshot(tenant, canonical.snapshot_id, SnapshotUsage::Research, now)
+            .unwrap()
+            .allowed
+    );
+    assert!(
+        store
+            .evaluate_snapshot(
+                tenant,
+                quantos_core::SnapshotId::new(),
+                SnapshotUsage::Research,
+                now
+            )
+            .is_err()
+    );
+    let loaded = store
+        .load_authorized_snapshot(
+            tenant,
+            canonical.snapshot_id,
+            SnapshotUsage::Research,
+            now,
+            &policy,
+        )
+        .unwrap()
+        .0;
+    assert_eq!(loaded.content_hash, canonical.content_hash);
+    assert!(
+        store
+            .load_authorized_snapshot(
+                tenant,
+                canonical.snapshot_id,
+                SnapshotUsage::Research,
+                now + chrono::Duration::days(1),
+                &policy
+            )
+            .is_err()
+    );
+    assert!(
+        store
+            .load_authorized_snapshot(
+                tenant,
+                quantos_core::SnapshotId::new(),
+                SnapshotUsage::Research,
+                now,
+                &policy
+            )
+            .is_err()
+    );
+    assert!(
+        store
+            .load_authorized_snapshot(
+                tenant,
+                base.snapshot_id,
+                SnapshotUsage::Research,
+                now,
+                &policy
+            )
+            .is_err()
+    );
+    // Persist real, distinct canonical records; all rejection paths cold-read PG.
+    for case in 0..14 {
+        let mut bad = input.clone();
+        match case {
+            0 => bad.lineage[0].details = json!({"to_sequence":1}),
+            1 => bad.lineage[0].details = json!({"from_sequence":1}),
+            2 => bad.lineage[0].details = json!({"from_sequence":0,"to_sequence":1}),
+            3 => bad.lineage[0].details = json!({"from_sequence":2,"to_sequence":1}),
+            4 => bad.lineage[0].details = json!({"from_sequence":1,"to_sequence":10001}),
+            5 => bad.lineage[0].reference = "malformed".into(),
+            6 => bad.lineage[0].details = json!({"from_sequence":1,"to_sequence":2}),
+            7 => bad.lineage[0].lineage_kind = "artifact".into(),
+            8 => bad.sources.push(SnapshotSourceRef {
+                source_id: "unbound".into(),
+                ..bad.sources[0].clone()
+            }),
+            9 => bad.symbols.push("ETHUSDT".into()),
+            10 => bad.lineage[0].details = json!({"first_sequence":1,"last_sequence":1}),
+            11 => bad.sources[0].source_id = "tick".into(),
+            12 => bad.sources[0].provider = "unapproved".into(),
+            _ => bad.quality = SnapshotQuality::Failed,
+        }
+        let record = DataSnapshotRecord::new(tenant, bad, now).unwrap();
+        if case < 8 {
+            assert!(
+                store.upsert_data_snapshot(&record, ctx).is_err(),
+                "database rejects malformed lineage case {case}"
+            );
+            continue;
+        }
+        store.upsert_data_snapshot(&record, ctx).unwrap();
+        assert_eq!(
+            store
+                .load_authorized_snapshot(
+                    tenant,
+                    record.snapshot_id,
+                    SnapshotUsage::Research,
+                    now,
+                    &policy
+                )
+                .is_ok(),
+            matches!(case, 10 | 11),
+            "lineage case {case}"
+        );
+    }
+    let meta = CommandMetadata {
+        request_id: ctx.causation_id.to_string(),
+        tenant_id: tenant.to_string(),
+        workspace_id: uuid::Uuid::new_v4().to_string(),
+        actor: Some(ActorRef {
+            actor_id: ctx.actor_id.to_string(),
+            actor_kind: 2,
+            display_name: "nightly".into(),
+            capabilities: vec!["snapshot.read".into()],
+        }),
+        correlation_id: ctx.correlation_id.to_string(),
+        causation_id: ctx.causation_id.to_string(),
+        mode: 1,
+        environment: 2,
+        issued_at: Some(quantos_proto::generated::google::protobuf::Timestamp {
+            seconds: now.timestamp(),
+            nanos: 0,
+        }),
+    };
+    let wire = snapshot_to_wire(&canonical, meta).unwrap();
+    assert_eq!(
+        store
+            .resolve_snapshot_reference(&wire, ctx, SnapshotUsage::Research, now, &policy)
+            .unwrap()
+            .snapshot_id,
+        canonical.snapshot_id
+    );
+    for case in 0..7 {
+        let mut bad = wire.clone();
+        match case {
+            0 => bad.metadata = None,
+            1 => bad.metadata.as_mut().unwrap().tenant_id = TenantId::new().to_string(),
+            2 => {
+                bad.metadata
+                    .as_mut()
+                    .unwrap()
+                    .actor
+                    .as_mut()
+                    .unwrap()
+                    .actor_id = quantos_core::ActorId::new().to_string()
+            }
+            3 => {
+                bad.metadata.as_mut().unwrap().correlation_id =
+                    quantos_core::CorrelationId::new().to_string()
+            }
+            4 => {
+                bad.metadata.as_mut().unwrap().causation_id =
+                    quantos_core::EventId::new().to_string()
+            }
+            5 => bad.snapshot_id = "invalid".into(),
+            _ => bad.symbols.push("forged".into()),
+        }
+        assert!(
+            store
+                .resolve_snapshot_reference(&bad, ctx, SnapshotUsage::Research, now, &policy)
+                .is_err(),
+            "wire case {case}"
+        );
     }
 }

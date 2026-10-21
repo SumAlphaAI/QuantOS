@@ -623,6 +623,72 @@ fn postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget() {
     );
 }
 
+#[test]
+fn postgres_research_events_replay_is_owned_ordered_and_bounded() {
+    let Some(url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
+        assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
+        return;
+    };
+    let fixture = seed_runtime_fixture(&url);
+    let now = Utc::now();
+    let mut store = PgRuntimeStore::connect(&url).unwrap();
+    let session = store
+        .create_session(&fixture.auth, now, now + ChronoDuration::hours(1))
+        .unwrap();
+    store
+        .register_tool(fixture.auth.tenant_id, &tool_registration(), now)
+        .unwrap();
+    let mut input = new_run(session.runtime_session_id, 900, now);
+    input.workflow_kind = "research".into();
+    let run = store.schedule_run(&input, now).unwrap();
+    let page = |store: &mut PgRuntimeStore, tenant, actor, id, after| {
+        store.research_page_events(tenant, actor, id, after)
+    };
+    let (tenant, actor, id) = (
+        fixture.auth.tenant_id,
+        fixture.auth.actor_id,
+        run.workflow_run_id,
+    );
+    assert!(page(&mut store, tenant, actor, id, 0).unwrap().is_empty());
+    assert!(page(&mut store, tenant, actor, id, 1).is_err());
+    assert!(page(&mut store, TenantId::new(), actor, id, 0).is_err());
+    assert!(page(&mut store, tenant, ActorId::new(), id, 0).is_err());
+    assert!(
+        page(
+            &mut store,
+            tenant,
+            actor,
+            quantos_core::WorkflowRunId::new(),
+            0
+        )
+        .is_err()
+    );
+    let other = store
+        .schedule_run(&new_run(session.runtime_session_id, 901, now), now)
+        .unwrap();
+    assert!(page(&mut store, tenant, actor, other.workflow_run_id, 0).is_err());
+    store.request_cancel(id, now).unwrap();
+    store.finalize_cancelled(id, now).unwrap();
+    let events = page(&mut store, tenant, actor, id, 0).unwrap();
+    assert_eq!(events.len(), 2);
+    assert_eq!(events[0]["sequence"], 1);
+    assert_eq!(events[1]["sequence"], 2);
+    assert_eq!(
+        events[0]["correlationId"],
+        serde_json::json!(run.correlation_id)
+    );
+    assert_eq!(events[0]["payload"]["type"], "runtime.cancel_requested");
+    assert_eq!(page(&mut store, tenant, actor, id, 1).unwrap(), events[1..]);
+    assert!(page(&mut store, tenant, actor, id, 2).unwrap().is_empty());
+    assert!(page(&mut store, tenant, actor, id, 3).is_err());
+    // Append facts only to this fixture's stream to prove the 2000-event ceiling.
+    let mut db = connect_client(&url).unwrap();
+    db.execute_typed("insert into quantos.audit_entries(tenant_id,actor_id,correlation_id,causation_id,action,details) select $1,$2,$3,$4,'runtime.fixture',jsonb_build_object('workflow_run_id',$5::text) from generate_series(1,1999)", &[
+        (tenant.as_uuid(),Type::UUID),(actor.as_uuid(),Type::UUID),(run.correlation_id.as_uuid(),Type::UUID),(&Uuid::new_v4(),Type::UUID),(&id.to_string(),Type::TEXT)
+    ]).unwrap();
+    assert!(page(&mut store, tenant, actor, id, 0).is_err());
+}
+
 fn tool_registration() -> ToolRegistration {
     let fixture: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/f07-workflow.json")).unwrap();

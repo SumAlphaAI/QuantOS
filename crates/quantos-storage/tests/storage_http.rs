@@ -61,6 +61,12 @@ fn serve(
             }
             let request = String::from_utf8_lossy(&request);
             assert!(request.starts_with(&format!("{method} /storage/v1/object/")));
+            if method == "POST" {
+                assert!(
+                    request.to_lowercase().contains("x-upsert: false"),
+                    "immutable uploads must remain create-only even when the adapter was configured for upsert"
+                );
+            }
             assert!(request.to_lowercase().contains("apikey: test-key"));
             assert!(
                 request
@@ -204,10 +210,38 @@ fn invalid_tenant_is_rejected_before_upload_and_success_persists() {
     let relaxed = parsed
         .query_pairs()
         .any(|(k, v)| k == "sslmode" && matches!(v.as_ref(), "require" | "prefer"));
-    let mut tls_builder = native_tls::TlsConnector::builder();
-    tls_builder.danger_accept_invalid_certs(relaxed);
-    let tls = postgres_native_tls::MakeTlsConnector::new(tls_builder.build().unwrap());
-    let mut db = postgres::Client::connect(&url, tls).unwrap();
+    let mut tls_builder =
+        openssl::ssl::SslConnector::builder(openssl::ssl::SslMethod::tls()).unwrap();
+    tls_builder.set_verify(if relaxed {
+        openssl::ssl::SslVerifyMode::NONE
+    } else {
+        openssl::ssl::SslVerifyMode::PEER
+    });
+    if let Some((_, root)) = parsed.query_pairs().find(|(k, _)| k == "sslrootcert") {
+        tls_builder.set_ca_file(root.as_ref()).unwrap();
+    }
+    let tls = postgres_openssl::MakeTlsConnector::new(tls_builder.build());
+    let mut native_url = parsed.clone();
+    let options = parsed
+        .query_pairs()
+        .filter(|(key, _)| key != "sslrootcert" && key != "sslmode")
+        .map(|(k, v)| (k.into_owned(), v.into_owned()))
+        .collect::<Vec<_>>();
+    native_url.set_query(None);
+    native_url
+        .query_pairs_mut()
+        .extend_pairs(options)
+        .append_pair("sslmode", "require");
+    if parsed
+        .query_pairs()
+        .any(|(k, v)| k == "sslmode" && v == "disable")
+    {
+        native_url
+            .query_pairs_mut()
+            .clear()
+            .append_pair("sslmode", "disable");
+    }
+    let mut db = postgres::Client::connect(native_url.as_str(), tls).unwrap();
     db.execute(
         "insert into quantos.tenants(id,slug,name) values ($1,$2,'http-test')",
         &[
@@ -262,10 +296,121 @@ fn invalid_tenant_is_rejected_before_upload_and_success_persists() {
         2.0,
         "HTTP failures must persist failed outcomes"
     );
+
+    for (status, body, duplicate) in [
+        ("409 Conflict", b"exists".as_slice(), true),
+        (
+            "400 Bad Request",
+            br#"{"statusCode":"409"}"#.as_slice(),
+            true,
+        ),
+        (
+            "400 Bad Request",
+            br#"{"error":"Duplicate"}"#.as_slice(),
+            true,
+        ),
+        ("400 Bad Request", b"invalid JSON".as_slice(), false),
+        (
+            "400 Bad Request",
+            br#"{"error":"Invalid"}"#.as_slice(),
+            false,
+        ),
+        ("503 Unavailable", b"retry".as_slice(), false),
+    ] {
+        let mut responses = vec![("POST", status, body)];
+        if duplicate {
+            responses.push(("GET", "200 OK", b"payload"));
+        }
+        let (base, server) = serve(responses);
+        let result = adapter(base, true).upload_and_register(
+            &mut store,
+            &m,
+            Bytes::from_static(b"payload"),
+            &context,
+        );
+        assert_eq!(result.is_ok(), duplicate);
+        server.join().unwrap();
+    }
+    // Resume a real persisted attempt after the upload outcome was uncertain.
+    let attempt: uuid::Uuid = db.query_one("select id from quantos.artifact_upload_attempts where tenant_id=$1 and state='reconcile' order by created_at desc limit 1", &[m.tenant_id.as_uuid()]).unwrap().get(0);
+    let (base, server) = serve(vec![("GET", "200 OK", b"payload")]);
+    let a = adapter(base, false);
+    assert_eq!(
+        a.reconcile_upload(&mut store, attempt, &context)
+            .unwrap()
+            .content_hash,
+        m.content_hash
+    );
+    assert!(
+        a.reconcile_upload(&mut store, uuid::Uuid::new_v4(), &context)
+            .is_err()
+    );
+    server.join().unwrap();
+    assert_eq!(
+        db.query_one(
+            "select state from quantos.artifact_upload_attempts where id=$1",
+            &[&attempt]
+        )
+        .unwrap()
+        .get::<_, String>(0),
+        "registered"
+    );
+    let (base, server) = serve(vec![]);
+    let a = adapter(base, false);
+    assert!(matches!(
+        a.upload_and_register(&mut store, &m, Bytes::from_static(b"short"), &context),
+        Err(SupabaseStorageError::InvalidManifest)
+    ));
+    assert!(matches!(
+        a.upload_and_register(&mut store, &m, Bytes::from_static(b"forged!"), &context),
+        Err(SupabaseStorageError::HashMismatch { .. })
+    ));
+    for case in 0..6 {
+        let mut bad = context.clone();
+        match case {
+            0 => bad.tenant_id = TenantId::new(),
+            1 => bad.reason.clear(),
+            2 => bad.reason = "x".repeat(513),
+            3 => bad.actor_id = quantos_core::ActorId::from_uuid(uuid::Uuid::nil()),
+            4 => bad.correlation_id = quantos_core::CorrelationId::from_uuid(uuid::Uuid::nil()),
+            _ => bad.causation_id = quantos_core::EventId::from_uuid(uuid::Uuid::nil()),
+        }
+        assert!(
+            a.upload_and_register(&mut store, &m, Bytes::from_static(b"payload"), &bad)
+                .is_err()
+        );
+    }
+    server.join().unwrap();
     db.execute(
         "update quantos.actors set is_active=false where id=$1 and tenant_id=$2",
         &[actor.as_uuid(), m.tenant_id.as_uuid()],
     )
     .unwrap();
     // Preserve the tenant: cascading deletion must not bypass append-only ledger triggers.
+}
+
+#[test]
+fn immutable_upload_verifies_existing_bytes_after_uncertain_write() {
+    let m = manifest(TenantId::new());
+    let (url, server) = serve(vec![
+        ("POST", "200 OK", b""),
+        ("POST", "409 Conflict", b"exists"),
+        ("GET", "200 OK", b"payload"),
+        ("POST", "503 Unavailable", b"uncertain"),
+        ("GET", "200 OK", b"corrupt"),
+    ]);
+    let a = adapter(url, true);
+    a.put_artifact_immutable(&m, Bytes::from_static(b"payload"))
+        .unwrap();
+    a.put_artifact_immutable(&m, Bytes::from_static(b"payload"))
+        .unwrap();
+    assert!(matches!(
+        a.put_artifact_immutable(&m, Bytes::from_static(b"payload")),
+        Err(SupabaseStorageError::HttpStatus { .. })
+    ));
+    assert!(matches!(
+        a.put_artifact_immutable(&m, Bytes::from_static(b"short")),
+        Err(SupabaseStorageError::InvalidManifest)
+    ));
+    server.join().unwrap();
 }

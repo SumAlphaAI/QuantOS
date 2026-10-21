@@ -1637,3 +1637,7 @@ fn row_to_dead_letter_entry(row: &Row) -> DeadLetterEntry {
         created_at: row.get("created_at"),
     }
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/market_deadline.rs"]
+mod market_deadline_tests;
