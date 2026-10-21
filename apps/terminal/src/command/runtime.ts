@@ -12,6 +12,7 @@ export interface CommandRuntimeSource {
   check(step: RouteGuardStep): Promise<GuardCheck>;
   loadProjection(): Promise<CommandProjection>;
   contractMode: "mocked" | "integrated";
+  httpStatus?(): number | undefined;
 }
 
 export interface GuardedCommandResult {
@@ -30,8 +31,16 @@ export async function loadGuardedCommand(source: CommandRuntimeSource): Promise<
     mode: () => source.check("mode"),
     data_freshness: () => source.check("data_freshness"),
   });
-  if (!decision.allowed) return { decision, contractMode: source.contractMode };
-  return { decision, projection: await source.loadProjection(), contractMode: source.contractMode };
+  if (!decision.allowed) {
+    const status = source.httpStatus?.();
+    const destination = status === 401 ? "/login" : status === 403 || status === 404 ? "/unauthorized" : status && status >= 500 ? "/maintenance" : decision.destination;
+    return { decision: { ...decision, destination }, contractMode: source.contractMode };
+  }
+  try {
+    return { decision, projection: await source.loadProjection(), contractMode: source.contractMode };
+  } catch {
+    return { decision: { allowed: false, completedSteps: [...decision.completedSteps.slice(0, -1)], stoppedAt: "data_freshness", destination: "/offline", reason: "数据未能安全加载，请重新验证" }, contractMode: source.contractMode };
+  }
 }
 
 function fixtureDecision(step: RouteGuardStep): GuardCheck {

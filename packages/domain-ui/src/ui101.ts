@@ -20,7 +20,7 @@ export interface RouteGuardDecision {
   allowed: boolean;
   completedSteps: RouteGuardStep[];
   stoppedAt?: RouteGuardStep;
-  destination?: "/login" | "/unauthorized" | "/offline";
+  destination?: "/login" | "/unauthorized" | "/offline" | "/maintenance";
   reason?: string;
 }
 
@@ -129,7 +129,7 @@ export const UI101_NAVIGATION: readonly ShellNavigationItem[] = [
 
 export function visibleShellNavigation(capabilities: readonly string[]): ShellNavigationItem[] {
   const granted = new Set(capabilities);
-  return UI101_NAVIGATION.filter((item) => granted.has(item.capability)).map((item) => ({ ...item }));
+  return UI101_NAVIGATION.filter((item) => (granted.has(item.capability) || (item.route === "/command" && granted.has("ops.read")) || (item.route === "/operations" && granted.has("ops.read")) || (item.route === "/research" && granted.has("research.read")))).map((item) => ({ ...item }));
 }
 
 export type ConnectionState = "live" | "reconnecting" | "offline";
@@ -145,8 +145,7 @@ export function writesAllowed(input: {
   return (
     input.connection === "live" &&
     input.freshness === "fresh" &&
-    input.risk !== "critical" &&
-    input.risk !== "unknown" &&
+    (input.risk === "normal" || input.risk === "elevated") &&
     !input.compactViewport
   );
 }

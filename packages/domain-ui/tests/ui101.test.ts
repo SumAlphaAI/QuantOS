@@ -98,3 +98,12 @@ it("write permission policy covers the full connection/freshness/risk/viewport m
           expect(writesAllowed({ connection,freshness,risk,compactViewport })).toBe(expected);
         }
 });
+
+it("write permission rejects malformed runtime risk values", () => {
+  expect(writesAllowed({ connection: "live", freshness: "fresh", risk: "unexpected" as never, compactViewport: false })).toBe(false);
+});
+
+it("server C02 ops.read maps only to Command and Operations read navigation", () => {
+  expect(visibleShellNavigation(["ops.read"]).map(item => item.route)).toEqual(["/command", "/operations"]);
+  expect(visibleShellNavigation(["research.read"]).map(item => item.route)).toEqual(["/research"]);
+});

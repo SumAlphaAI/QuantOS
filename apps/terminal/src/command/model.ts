@@ -16,6 +16,7 @@ export interface CommandProjection {
   };
   freshness: { state: FreshnessState; asOf: string };
   risk: { posture: RiskPosture; reason: string };
+  summary?: BffComponents["schemas"]["CommandSummary"];
   priority: Array<{ severity: CommandSeverity; label: string; summary: string; age: string; action: string }>;
   services: Array<{ name: string; status: string; tone: "healthy" | "degraded"; latency: string; availability: number }>;
   activity: Array<{ time: string; actor: string; object: string; status: string; tone: "success" | "neutral" | "info" | "warning"; id: string; detail: string }>;
