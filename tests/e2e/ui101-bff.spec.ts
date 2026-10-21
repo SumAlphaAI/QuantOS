@@ -71,3 +71,10 @@ test("authoritative context fits 390px and CSS zoom=2 while staying read-only", 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+test("verified normal risk uses the healthy presentation, while null metrics remain unknown", async ({ page }) => {
+  await boundary(page, path => path === "/v1/command/summary" ? { data: { ...summary(), riskPosture: "normal", sources: summary().sources.map(source => ({ ...source, status: "ready", asOf: new Date().toISOString(), sourceHash: "sha256:" + "a".repeat(64) })) } } : {});
+  await page.goto("/command");
+  const risk = page.locator(".kpi-card").filter({ has: page.getByRole("heading", { name: "开放风险" }) });
+  await expect(risk.locator("p")).toHaveText("normal"); await expect(risk.locator("p")).toHaveClass("good"); await expect(risk.locator("strong")).toHaveText("—");
+});

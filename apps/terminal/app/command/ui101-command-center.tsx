@@ -98,7 +98,7 @@ export function CommandCenter({ projection, contractMode, onRefresh }: CommandCe
 
         <section className="kpi-grid" aria-label="关键状态">
           <article className="kpi-card"><span className="kpi-icon cyan">▤</span><div><h3>数据新鲜度</h3><strong>{contractMode === "mocked" ? "1.2s" : "—"}</strong><p className={freshness === "fresh" ? "good" : "bad"}>{freshness}</p><small>截至 {formatSyncTime(lastSync)}</small></div></article>
-          <article className="kpi-card"><span className="kpi-icon red">!</span><div><h3>开放风险</h3><strong>{summary ? summary.openRiskAlerts ?? "—" : 2}</strong><p className="bad">{risk}</p><small>截至 {formatSyncTime(lastSync)}</small></div></article>
+          <article className="kpi-card"><span className="kpi-icon red">!</span><div><h3>开放风险</h3><strong>{summary ? summary.openRiskAlerts ?? "—" : 2}</strong><p className={risk === "normal" ? "good" : risk === "elevated" ? "warn" : "bad"}>{risk}</p><small>截至 {formatSyncTime(lastSync)}</small></div></article>
           <article className="kpi-card"><span className="kpi-icon cyan">▣</span><div><h3>订单状态</h3><strong>{summary ? summary.orderSummary?.submitted ?? "—" : 18}</strong><p className="cyan-text">{summary ? summary.pendingApprovals ?? "—" : 2} 待确认</p><small>截至 {formatSyncTime(lastSync)}</small></div></article>
           <article className="kpi-card"><span className="kpi-icon violet">⌁</span><div><h3>运行任务</h3><strong>{summary ? summary.runningRuns ?? "—" : 4}</strong><p className="bad">{summary ? summary.failedRuns ?? "—" : 1} Failed</p><small>截至 {formatSyncTime(lastSync)}</small></div></article>
         </section>
