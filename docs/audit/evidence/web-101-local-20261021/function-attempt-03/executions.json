@@ -1,0 +1,182 @@
+[
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 453,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/bff-build.log",
+    "logSha256": "sha256:8a2933ae25e59188be988ea6218274cb341f13d8bc4b533f57b12ececd4be8b3"
+  },
+  {
+    "id": "provider-access",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "public_access_request_validates_origin_and_body_and_writes_audit",
+      "--",
+      "--exact"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1237,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/provider-access.log",
+    "logSha256": "sha256:bc750a5465ec946fe9cd1a2e086ea283e801e27ba6f7d7f4adff06024961879c"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/website/tests"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 4146,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/unit.log",
+    "logSha256": "sha256:59db18650f314ddf88f0afb8df9a082017d4bd7c2a00a4122948e5fa3f01e54d"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 827,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/types.log",
+    "logSha256": "sha256:f80eb2863ee274048f8ebbc6e1bf420632e84db0596f6d8581fe63c9dd5cc786"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 661,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/lint.log",
+    "logSha256": "sha256:e189563b37ab2be0ea3619813918b3039ff01e990beaf64129c517f5cdeda403"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/web-101-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 292,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/negative.log",
+    "logSha256": "sha256:2580d9f812fc551dfbf51534390222d90e9ac71ade1f1227d0b2cb5d79106361"
+  },
+  {
+    "id": "website-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 6673,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/website-build.log",
+    "logSha256": "sha256:c01d479be794973648c2a8a630f565193793f2e1587a99a4bde72a9aada9fe48"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.web101.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/web-101-local-20261021/function-attempt-03/browser/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 21702,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/browser.log",
+    "logSha256": "sha256:4f3a875c4475b42c28696660ae49cf957af0cfce7deacee0491b021fc3197da5"
+  },
+  {
+    "id": "lighthouse",
+    "command": [
+      "node",
+      "scripts/web-101-lighthouse.mjs",
+      "docs/audit/evidence/web-101-local-20261021/function-attempt-03/lighthouse"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 135129,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/lighthouse.log",
+    "logSha256": "sha256:964bd0693266be8f1a752043a6168e6d7443553ebb0c8bca099b6071fa5ecbe6"
+  },
+  {
+    "id": "budget",
+    "command": [
+      "node",
+      "scripts/check-perf-budget.mjs",
+      "apps/website/out"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 460,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/budget.log",
+    "logSha256": "sha256:de115a85f947c31122a06d21b895b56001a4b51675f36818894515969ae57e29"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 157,
+    "log": "docs/audit/evidence/web-101-local-20261021/function-attempt-03/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]
