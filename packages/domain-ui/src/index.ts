@@ -10,3 +10,5 @@ export * from "./execution.js";
 export * from "./ops.js";
 export * from "./ui101.js";
 export * from "./indicators.js";
+
+export * from "./TerminalChrome.js";

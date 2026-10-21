@@ -1886,7 +1886,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：2026-10-21 当前功能复核：共享组件修复及本机组合验证，详见[报告](./audit/UI-103-current-function-review-2026-10-21.md)。INTEGRATION NOT_ASSESSED，人工读屏 NOT_RUN、新完整稿 PENDING；自动化结果不代替正式 ACCEPTED。
+- 状态范围：2026-10-21 原完整稿已由项目用户确认，见[原始答复](./audit/evidence/ui-103-confirmation-20261021/user-confirmation.json)。确认绑定804f52d1原工程证据及f002eedd原稿；INTEGRATION NOT_ASSESSED，人工读屏/原生200%缩放仍NOT_RUN，不提升为READY。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -1904,7 +1904,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-103", "BFF-FE-001", "BFF-FE-010", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
+- 状态范围：共享Frame/Chrome及工作区组件当前功能复核；原P02/P20参考、受控状态及视觉基线见[本轮报告](./audit/UI-VIS-000-current-function-review-2026-10-21.md)。INTEGRATION NOT_ASSESSED；真实BFF/业务联调、人工读屏/原生缩放及RELEASE未执行，新确认PENDING。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

@@ -21,3 +21,6 @@ export { ThemeProvider, createThemeVariables, useTheme } from "./theme/ThemeProv
 export type { ThemeContextValue, ThemeProviderProps } from "./theme/ThemeProvider";
 export { I18nProvider, translate, useI18n, useOptionalI18n } from "./i18n/I18nProvider";
 export type { I18nProviderProps, Locale, TranslationKey } from "./i18n/I18nProvider";
+
+export { TerminalFrame, WorkspacePanel, WorkspaceGrid, WorkspaceField, WorkspaceChart } from "./components/Workspace";
+export type { TerminalFrameProps, ChartPoint } from "./components/Workspace";

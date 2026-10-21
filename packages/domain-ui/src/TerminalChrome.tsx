@@ -1,0 +1,13 @@
+"use client";
+import { useId } from "react";
+import { DataFreshnessIndicator, RiskPostureBadge } from "./indicators";
+const icons:Record<string,string>={home:"⌂",research:"◉",strategy:"↗",portfolio:"◔",markets:"▥",trade:"⇄",performance:"▥",proposals:"▤",approvals:"✓",orders:"▣",audit:"▥",operations:"≋",admin:"⚙"};
+export interface TerminalNavigationItem {route:string;label:string;icon?:string;badge?:number}
+export function TerminalNavigation({items,activeRoute}:{items:TerminalNavigationItem[];activeRoute:string}){return <nav>{items.map(item=><a key={item.route} href={item.route} className={item.route===activeRoute?'active':''} aria-current={item.route===activeRoute?'page':undefined} aria-label={item.label}><span className="nav-icon" aria-hidden="true">{item.icon&&Object.hasOwn(icons,item.icon)?icons[item.icon]:'◇'}</span><span className="nav-label">{item.label}</span>{item.badge?<span className="nav-badge" aria-label={`${item.badge} 条待处理`}>{item.badge}</span>:null}</a>)}</nav>;}
+export interface TerminalHeaderProps {workspace:string;account:string;initials:string;mode?:'paper'|'shadow'|string;collapsed:boolean;onToggle:()=>void;freshness?:'live'|'delayed'|'stale'|'unavailable';risk?:string;notifications?:number}
+export function TerminalHeader({workspace,account,initials,mode='paper',collapsed,onToggle,freshness,risk,notifications=0}:TerminalHeaderProps){const id=useId(),known=mode==='paper'||mode==='shadow';return <>
+ <button className="brand" type="button" onClick={onToggle} aria-label={collapsed?'展开侧栏':'折叠侧栏'} aria-expanded={!collapsed}><span className="brand-mark" aria-hidden="true"><i/><b/><em/></span><span className="brand-word">SUMALPHA</span></button>
+ <span className="context-button workspace-context q-workspace-context" title="当前主工作区（只读）">▣ {workspace}</span><span className="context-button account-context q-workspace-context">{account}</span><span className="q-workspace-mode" data-mode={known?mode:'unknown'}>{known?mode.toUpperCase():'UNKNOWN / 只读'}</span>
+ {freshness?<div className="top-status freshness-status"><DataFreshnessIndicator state={freshness} locale="en"/></div>:null}{risk?<div className="top-status risk-status"><RiskPostureBadge posture={risk} locale="en"/></div>:null}
+ <label className="global-search" htmlFor={id}><span aria-hidden="true">⌕</span><input id={id} aria-label="全局搜索" placeholder="搜索  ⌘K"/></label><button className="icon-button notification-button" type="button" aria-label={`通知，${notifications} 条未读`}>♧{notifications>0?<span>{notifications}</span>:null}</button><button className="icon-button help-button" type="button" aria-label="帮助">?</button><a className="avatar" href="/settings/profile" aria-label="打开个人设置">{initials}</a>
+ </>;}

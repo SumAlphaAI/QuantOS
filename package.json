@@ -182,7 +182,11 @@
     "finalize:g0-development": "node scripts/g0-development.mjs --finalize",
     "test:g0-legacy": "node --test scripts/g0-legacy-functional-gate.test.mjs scripts/legacy-backend-boundary.test.mjs",
     "check:ui-103": "node scripts/ui-103-functional-review.mjs --verify",
-    "test:ui-103": "node --test scripts/ui-103-functional-review.test.mjs && vitest run packages/ui/tests packages/domain-ui/tests"
+    "test:ui-103": "node --test scripts/ui-103-functional-review.test.mjs && vitest run packages/ui/tests packages/domain-ui/tests",
+    "check:ui-103:confirmed": "node scripts/ui103-confirmed-reference.mjs",
+    "check:ui-vis-000": "node scripts/ui-vis-000-review.mjs --verify",
+    "check:ui-vis-000:ci": "node scripts/ui-vis-000-review.mjs --ci",
+    "test:ui-vis-000": "node --test scripts/ui-vis-000-review.test.mjs"
   },
   "dependencies": {
     "pg": "8.16.3"

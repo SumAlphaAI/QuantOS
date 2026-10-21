@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { TerminalFrame } from "@sumalpha/ui";
+import { TerminalHeader, TerminalNavigation } from "@sumalpha/domain-ui/chrome";
 import {
   ConnectionStatusBar,
-  DataFreshnessIndicator,
   RiskPostureBadge,
 } from "@sumalpha/domain-ui/indicators";
 import {
@@ -16,15 +17,6 @@ import {
 import type { CommandProjection, CommandSeverity } from "../../src/command/model";
 
 export interface CommandCenterProps { projection: CommandProjection; contractMode: "mocked" | "integrated" }
-
-function Icon({ name }: { name: string }) {
-  const glyphs: Record<string, string> = {
-    home: "⌂", research: "◉", strategy: "↗", portfolio: "◔", markets: "▥", trade: "⇄",
-    performance: "▥", proposals: "▤", approvals: "✓", orders: "▣", audit: "▥",
-    operations: "≋", admin: "⚙",
-  };
-  return <span className="nav-icon" aria-hidden="true">{glyphs[name] ?? "•"}</span>;
-}
 
 function StatusDot({ tone }: { tone: "good" | "warn" | "bad" }) {
   return <span className={`status-dot ${tone}`} aria-hidden="true" />;
@@ -88,36 +80,11 @@ export function CommandCenter({ projection, contractMode }: CommandCenterProps) 
   }
 
   return (
-    <div className={`terminal-shell ${collapsed ? "sidebar-collapsed" : ""}`} data-ui101-shell data-contract-mode={contractMode}>
-      <header className="terminal-topbar">
-        <button className="brand" type="button" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "展开侧栏" : "折叠侧栏"}>
-          <span className="brand-mark" aria-hidden="true"><i /><b /><em /></span>
-          <span className="brand-word">SUMALPHA</span>
-        </button>
-        <span className="top-divider" />
-        <button className="context-button workspace-context" type="button"><span aria-hidden="true">▣</span>{projection.session.workspaceLabel}<span aria-hidden="true">⌄</span></button>
-        <button className="context-button account-context" type="button">{projection.session.accountLabel}<span aria-hidden="true">⌄</span></button>
-        <span className="mode-chip">PAPER</span>
-        <div className="top-status freshness-status"><DataFreshnessIndicator state={indicatorFreshness(freshness)} locale="en" /></div>
-        <div className="top-status risk-status"><RiskPostureBadge posture={indicatorRisk(risk)} locale="en" /></div>
-        <label className="global-search"><span aria-hidden="true">⌕</span><input aria-label="全局搜索" placeholder="搜索  ⌘K" /></label>
-        <button className="icon-button notification-button" type="button" aria-label="通知，3 条未读">♧<span>3</span></button>
-        <button className="icon-button help-button" type="button" aria-label="帮助">?</button>
-        <a className="avatar" href="/settings/profile" aria-label="打开个人设置">{projection.session.actorInitials}</a>
-      </header>
-
-      <aside className="terminal-sidebar" aria-label="主导航">
-        <nav>
-          {navItems.map((item) => (
-            <a className={item.route === "/command" ? "active" : ""} href={item.route} key={item.route} aria-current={item.route === "/command" ? "page" : undefined}>
-              <Icon name={item.icon} /><span className="nav-label">{item.label}</span>
-              {item.badge ? <span className="nav-badge" aria-label={`${item.badge} 条待处理`}>{item.badge}</span> : null}
-            </a>
-          ))}
-        </nav>
-      </aside>
-
-      <main className="command-main" data-smoke="route-/command">
+    <TerminalFrame collapsed={collapsed} data-ui101-shell data-contract-mode={contractMode} mainClassName="command-main" mainMarker="route-/command"
+      header={<TerminalHeader workspace={projection.session.workspaceLabel} account={projection.session.accountLabel} initials={projection.session.actorInitials} collapsed={collapsed} onToggle={()=>setCollapsed(value=>!value)} freshness={indicatorFreshness(freshness)} risk={indicatorRisk(risk)} notifications={3}/>}
+      navigation={<TerminalNavigation items={navItems} activeRoute="/command"/>}
+      status={<><ConnectionStatusBar state={connection === "live" ? "connected" : connection} lastConnectedAt={lastSync.toISOString()} locale="en"/><span>Data latency: 1.2s</span><span>Last sync {formatSyncTime(lastSync)}</span></>}
+    >
         {connection === "offline" ? <div className="offline-banner" role="alert">网络已断开。当前为只读状态，所有写操作均已禁用；恢复连接后不会自动提交旧意图。</div> : null}
         {contractMode === "mocked" ? <div className="command-contract-banner" role="status">C02 Runtime Guard Mocked · 六步守卫已在页面渲染前执行；Command 聚合契约等待 BFF-FE-002 签署。</div> : null}
         <div className="page-toolbar">
@@ -157,9 +124,6 @@ export function CommandCenter({ projection, contractMode }: CommandCenterProps) 
           <section className="panel quick-panel"><div className="panel-heading"><h2>快速开始</h2></div><button className="quick-action high-risk-action" type="button" disabled={!safeToWrite} onClick={() => setNotice("已进入“发起研究”流程")}><span aria-hidden="true">♙</span><strong>发起研究<small>选择数据快照与 Engine</small></strong><i>›</i></button><button className="quick-action high-risk-action" type="button" disabled={!safeToWrite} onClick={() => setNotice("已进入“创建策略草稿”流程")}><span aria-hidden="true">▧</span><strong>创建策略草稿<small>从受控研究证据开始</small></strong><i>›</i></button><div className="quick-links"><button type="button">▥ 查看市场 ›</button><button type="button">♢ 打开审计 ›</button></div><p className="layout-saved">✓ 布局已保存</p></section>
         </div>
         {notice ? <div className="toast" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")} aria-label="关闭通知">×</button></div> : null}
-      </main>
-
-      <footer className="terminal-statusbar" aria-label="连接状态"><ConnectionStatusBar state={connection === "live" ? "connected" : connection} lastConnectedAt={lastSync.toISOString()} locale="en" /><span>Data latency: 1.2s</span><span>Last sync {formatSyncTime(lastSync)}</span></footer>
-    </div>
+    </TerminalFrame>
   );
 }

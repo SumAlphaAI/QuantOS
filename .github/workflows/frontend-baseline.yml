@@ -59,7 +59,10 @@ jobs:
         run: pnpm check:development-plans && pnpm test:development-plans && node --test scripts/frontend-gate-handoff.test.mjs
 
       - name: UI-103 bound component evidence and behavior regressions
-        run: pnpm check:ui-103 && pnpm test:ui-103
+        run: pnpm check:ui-103:confirmed && pnpm test:ui-103
+
+      - name: UI-VIS-000 scoped evidence and refusal tests
+        run: pnpm check:ui-vis-000:ci && pnpm test:ui-vis-000
 
       - name: Design token & i18n checks (PRE-02)
         run: pnpm check:pre02 && pnpm test:pre02

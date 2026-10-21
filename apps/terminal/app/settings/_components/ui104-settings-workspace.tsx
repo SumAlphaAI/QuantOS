@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { TerminalHeader, TerminalNavigation } from "@sumalpha/domain-ui/chrome";
 import { shouldExposeBrowserSettings, type PlatformKind } from "@sumalpha/platform/adapter";
-import { Button, DangerConfirmDialog, InlineAlert, ThemeProvider } from "@sumalpha/ui";
+import { Button, DangerConfirmDialog, InlineAlert, ThemeProvider, TerminalFrame } from "@sumalpha/ui";
 import {
   canRevokeDevice, canRevokeSession, detectBrowserRuntime, downloadAvailability, notificationFallback,
   type BrowserPermissionState, type BrowserRuntimeCapabilities, type NotificationPreferences, type ProfileSettings, type SettingsBundle,
@@ -64,15 +65,17 @@ function BrowserPanel({ data, runtime, onRequestPermission, notice }: { data: Se
 }
 
 export function SettingsWorkspace({ section, initialData, contractMode = "mocked", pageState = "default", platformKind = "web" }: SettingsWorkspaceProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [profile, setProfile] = useState(initialData.profile); const [notifications, setNotifications] = useState(initialData.notifications); const [sessions, setSessions] = useState(initialData.sessions); const [devices, setDevices] = useState(initialData.devices);
   const [online, setOnline] = useState(true); const [viewportWidth, setViewportWidth] = useState(1440); const [runtime, setRuntime] = useState<BrowserRuntimeCapabilities>(); const [notice, setNotice] = useState("");
   useEffect(() => { const update = () => { setOnline(navigator.onLine); setViewportWidth(window.innerWidth); setRuntime(detectBrowserRuntime(window)); }; update(); window.addEventListener("online", update); window.addEventListener("offline", update); window.addEventListener("resize", update); return () => { window.removeEventListener("online", update); window.removeEventListener("offline", update); window.removeEventListener("resize", update); }; }, []);
   const data = useMemo(() => ({ ...initialData, profile, notifications, sessions, devices }), [devices, initialData, notifications, profile, sessions]);
   async function requestPermission() { if (!("Notification" in window)) { setNotice("当前浏览器不支持通知，已保持站内通知。 "); return; } const permission = await Notification.requestPermission(); setRuntime(detectBrowserRuntime(window)); setNotice(permission === "granted" ? "浏览器通知已授权。" : "浏览器通知未授权，已降级为站内通知且不会重复请求。"); }
-  return <ThemeProvider theme="dark"><div className="settings-shell" data-ui104-section={section}>
-    <header className="settings-topbar"><a href="/command" className="settings-brand"><span>◢</span> SUMALPHA</a><button>▣ Primary workspace⌄</button><button>Paper Account 01⌄</button><b>PAPER</b><span className="settings-spacer" /><label>⌕ <input aria-label="全局搜索" placeholder="搜索 ⌘K" /></label><button aria-label="通知">♧ 3</button><button aria-label="帮助">?</button><button aria-label="个人菜单">AN⌄</button></header>
-    <aside className="settings-main-nav" aria-label="主导航"><a href="/command">⌂ Command</a><a href="/research">◉ Research</a><a href="/strategies">↗ Strategy</a><a href="/portfolio">◔ Portfolio</a><a href="/markets">▥ Markets</a><a href="/trade">⇄ Trade</a><a href="/approvals">✓ Approvals <b>3</b></a><a href="/orders">▣ Orders <b>2</b></a><a href="/audit">▥ Audit</a><a href="/operations">≋ Operations</a><a href="/admin/members">⚙ Admin</a></aside>
-    <main className="settings-main" data-smoke={`route-/settings/${section}`}><SettingsHeader section={section} />{contractMode === "mocked" ? <div className="contract-mocked-banner" role="status">C17 Local Mock · 页面数据来自 OpenAPI 1.2.0 同源 fixture；本地参考 provider 已实现，staging BFF 签署待完成。</div> : null}{(!online || pageState === "offline") ? <InlineAlert tone="danger" title="当前离线">设置保持只读；恢复连接后不会自动重放保存或撤销操作。</InlineAlert> : null}{pageState === "stale" ? <InlineAlert tone="warning" title="数据可能已过期">展示上次同步的设置快照；写操作已暂停，刷新成功后再继续。</InlineAlert> : null}<div className="settings-layout"><SettingsIdentity profile={profile} active={section} platformKind={platformKind} /><div className="settings-content">
+  return <ThemeProvider theme="dark"><TerminalFrame className="settings-shell" collapsed={collapsed} data-ui104-section={section} mainClassName="settings-main" mainMarker={`route-/settings/${section}`}
+    header={<TerminalHeader workspace="Primary workspace" account="Paper Account 01" initials={profile.displayName.split(" ").map(part=>part[0]).join("")} collapsed={collapsed} onToggle={()=>setCollapsed(value=>!value)} notifications={3}/>}
+    navigation={<TerminalNavigation items={[{route:"/command",label:"Command"},{route:"/research",label:"Research"},{route:"/strategies",label:"Strategy"},{route:"/portfolio",label:"Portfolio"},{route:"/markets",label:"Markets"},{route:"/trade",label:"Trade"},{route:"/approvals",label:"Approvals",badge:3},{route:"/orders",label:"Orders",badge:2},{route:"/audit",label:"Audit"},{route:"/operations",label:"Operations"},{route:"/admin/members",label:"Admin"}]} activeRoute="/settings"/>}
+    status={<><span>● Connection: {online ? "Live" : "Offline"}</span><span>● Realtime: {online ? "Connected" : "Disconnected"}</span><span>● Settings synced</span><span>Session protected</span><span>Last sync 11:34:42</span></>}
+  ><SettingsHeader section={section} />{contractMode === "mocked" ? <div className="contract-mocked-banner" role="status">C17 Local Mock · 页面数据来自 OpenAPI 1.2.0 同源 fixture；本地参考 provider 已实现，staging BFF 签署待完成。</div> : null}{(!online || pageState === "offline") ? <InlineAlert tone="danger" title="当前离线">设置保持只读；恢复连接后不会自动重放保存或撤销操作。</InlineAlert> : null}{pageState === "stale" ? <InlineAlert tone="warning" title="数据可能已过期">展示上次同步的设置快照；写操作已暂停，刷新成功后再继续。</InlineAlert> : null}<div className="settings-layout"><SettingsIdentity profile={profile} active={section} platformKind={platformKind} /><div className="settings-content">
       {pageState !== "default" && pageState !== "stale" && pageState !== "offline" ? <SettingsState state={pageState} /> : null}
       {section === "browser" && !shouldExposeBrowserSettings(platformKind) ? <InlineAlert tone="warning" title="仅 Web 提供">浏览器能力设置不会在 Desktop 导航或内容区展示；请使用 Web 终端。</InlineAlert> : null}
       <fieldset className="settings-panels" disabled={!online || pageState === "stale" || pageState === "offline"}>
@@ -81,6 +84,5 @@ export function SettingsWorkspace({ section, initialData, contractMode = "mocked
       {(pageState === "default" || pageState === "stale" || pageState === "offline") && section === "security" ? <SecurityPanel data={data} sessions={sessions} devices={devices} online={online && pageState === "default"} viewportWidth={viewportWidth} onSessionRevoked={(id) => { setSessions((items) => items.filter((item) => item.sessionId !== id)); setNotice("会话撤销已受理；最终状态将由会话撤销事件确认。"); }} onDeviceRevoked={(id) => { setDevices((items) => items.filter((item) => item.deviceId !== id)); setNotice("设备信任撤销已受理。"); }} /> : null}
       {(pageState === "default" || pageState === "stale" || pageState === "offline") && section === "browser" && shouldExposeBrowserSettings(platformKind) ? <BrowserPanel data={data} runtime={runtime} onRequestPermission={() => void requestPermission()} notice={setNotice} /> : null}
       </fieldset>
-    </div></div></main><footer className="settings-statusbar"><span>● Connection: {online ? "Live" : "Offline"}</span><span>● Realtime: {online ? "Connected" : "Disconnected"}</span><span>● Settings synced</span><span>Session protected</span><span>Last sync 11:34:42</span></footer>{notice ? <div className="toast" role="status"><span>{notice}</span><button onClick={() => setNotice("")} aria-label="关闭通知">×</button></div> : null}
-  </div></ThemeProvider>;
+    </div></div>{notice ? <div className="toast" role="status"><span>{notice}</span><button onClick={() => setNotice("")} aria-label="关闭通知">×</button></div> : null}</TerminalFrame></ThemeProvider>;
 }
