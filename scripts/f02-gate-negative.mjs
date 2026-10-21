@@ -27,7 +27,7 @@ test('real Gitleaks positive control and GitHub/Slack leaks',t=>{
  }
 });
 test('historical digest exceptions do not waive fresh credentials in audit JSON',t=>{
- for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json']) {
+ for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json','docs/audit/evidence/bff-fe-010-local-20261020/preflight/history-sha256.json']) {
  const d=fixture(t);pass(run('git',['init','-q'],d));
  const file=path.join(d,relativePath);fs.mkdirSync(path.dirname(file),{recursive:true});
  const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],d));};

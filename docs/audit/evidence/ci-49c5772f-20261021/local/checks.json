@@ -1,0 +1,156 @@
+{
+  "schema": "quantos-ci-scoped-checks/v1",
+  "baseCommit": "49c5772f18f8be3b10eae42a9243336443f53199",
+  "candidateBinding": "Enclosing commit and source hashes; semantic receipts retain execution-time base HEAD with modified input bytes bound independently.",
+  "checks": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "status": "PASS",
+      "before": "rustfmt-before.log",
+      "log": "rustfmt-final.log"
+    },
+    {
+      "command": "node scripts/check-f01.mjs",
+      "status": "PASS_PREFLIGHT_ONLY",
+      "log": "f01-preflight.log"
+    },
+    {
+      "command": "node scripts/check-bff-fe-001.mjs",
+      "status": "PASS",
+      "results": [
+        {
+          "scope": "live policy",
+          "passed": 8
+        },
+        {
+          "scope": "reference provider",
+          "passed": 15
+        },
+        {
+          "scope": "TS consumer",
+          "passed": 29
+        }
+      ],
+      "log": "a2-gate.log"
+    },
+    {
+      "command": "pnpm test:bff-fe-001",
+      "status": "PASS",
+      "negativeTests": 23,
+      "businessMutationsRejected": 9,
+      "ledgerTests": 4,
+      "log": "a2-negative-tests.log"
+    },
+    {
+      "command": "pnpm check:bff-fe-001:ci",
+      "status": "PASS_RECORD_VALIDATION",
+      "admitted": false,
+      "stageStatus": "NOT_ASSESSED",
+      "log": "a2-ci-disposition.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal build (CI public mock environment)",
+      "status": "PASS",
+      "log": "terminal-build.log"
+    },
+    {
+      "command": "pnpm test:browser --project=chromium --reporter=json",
+      "status": "PASS_DARWIN",
+      "passed": 34,
+      "skipped": 0,
+      "flaky": 0,
+      "log": "browser-chromium.json.gz"
+    },
+    {
+      "command": "pnpm exec playwright test --project=webkit --grep-invert '视觉基线|visual baselines' --reporter=json",
+      "status": "PASS_NONVISUAL_DARWIN",
+      "passed": 31,
+      "skipped": 0,
+      "flaky": 0,
+      "log": "browser-webkit.json.gz"
+    },
+    {
+      "command": "node scripts/check-visual-baselines.mjs --platform linux",
+      "status": "PASS_INVENTORY_ONLY",
+      "entries": 24,
+      "log": "visual-inventory.log"
+    },
+    {
+      "command": "Decode independently captured same-source Linux actual PNGs and compare against imported baselines",
+      "status": "PASS_PIXEL_IDENTICAL",
+      "cases": 6,
+      "actualScreenshots": 12,
+      "differingPixels": 0,
+      "log": "independent-linux-comparison.json"
+    },
+    {
+      "command": "node --test scripts/pre06-gate-negative.mjs",
+      "status": "PASS",
+      "passed": 17,
+      "log": "visual-pre06-negative.log"
+    },
+    {
+      "command": "GITLEAKS_BIN=artifacts/tools/gitleaks bash scripts/check-secrets.sh",
+      "status": "PASS_AFTER_VERIFIED_FINGERPRINTS",
+      "commits": 724,
+      "beforeFindings": 4876,
+      "findings": 0,
+      "before": "history-secret-scan.log",
+      "log": "history-secret-scan-after.log"
+    },
+    {
+      "command": "node --test --test-name-pattern='real Gitleaks positive control|historical digest exceptions' scripts/f02-gate-negative.mjs",
+      "status": "PASS",
+      "passed": 2,
+      "log": "secret-rejection-tests.log"
+    },
+    {
+      "command": "node scripts/check-development-plan-order.mjs",
+      "status": "PASS",
+      "log": "plan-order.log"
+    },
+    {
+      "command": "F02 archive YAML conditions inspection",
+      "status": "PASS_CONFIG_ONLY",
+      "log": "archive-policy.json"
+    },
+    {
+      "command": "git diff --cached --check; git diff --cached --no-ext-diff --unified=0 | gitleaks stdin --config .gitleaks.toml --redact --no-banner",
+      "status": "PASS",
+      "leaks": 0,
+      "log": "staged-secret-scan.log"
+    }
+  ],
+  "attempts": [
+    {
+      "status": "FAIL",
+      "log": "../initial-a2-mutants/entrypoint.log",
+      "cause": "missing compile-time migration include_str input; compilation failure was not accepted as mutation rejection"
+    },
+    {
+      "status": "FAIL_ENVIRONMENT",
+      "log": "f01-preflight-cache-denied.log",
+      "cause": "sandbox denied existing uv cache access; same preflight passed after access allowed"
+    },
+    {
+      "status": "INTERRUPTED_NOT_PASS",
+      "log": "firefox-interrupted.json",
+      "cause": "macOS Firefox startup sandbox/graphics failure"
+    },
+    {
+      "status": "FALSE_POSITIVE_NEW_AUDIT_REPRESENTATION",
+      "log": "staged-secret-scan-initial.log",
+      "findings": 3,
+      "resolution": "Raw semantic receipt preserved as gzip plus neutral source-input rows; exact literal scope-summary verifier regex represented with equivalent character classes; no new allowances."
+    }
+  ],
+  "notRun": [
+    "Complete F01 isolated clean room/reproducibility",
+    "Complete F08 stable Gate",
+    "Local Firefox application browser suite after startup failure",
+    "New-commit hosted Linux comparison",
+    "Any PostgreSQL/Supabase connection or migration execution",
+    "SCA/deployment/release acceptance",
+    "Push"
+  ]
+}

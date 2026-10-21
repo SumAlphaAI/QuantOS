@@ -692,10 +692,18 @@ async fn public_access_request_validates_origin_and_body_and_writes_audit() {
     );
 
     for mode in ["research", "shadow", "assisted_live"] {
-        let mut body = valid_body.clone(); body["expectedMode"] = json!(mode);
+        let mut body = valid_body.clone();
+        body["expectedMode"] = json!(mode);
         let mut req = request("POST", "/v1/access-requests", Some(body));
         req.headers_mut().insert("origin", ORIGIN.parse().unwrap());
-        assert_eq!(router.clone().oneshot(req).await.unwrap().status(), if mode == "assisted_live" { StatusCode::UNPROCESSABLE_ENTITY } else { StatusCode::ACCEPTED });
+        assert_eq!(
+            router.clone().oneshot(req).await.unwrap().status(),
+            if mode == "assisted_live" {
+                StatusCode::UNPROCESSABLE_ENTITY
+            } else {
+                StatusCode::ACCEPTED
+            }
+        );
     }
     let mut valid = request("POST", "/v1/access-requests", Some(valid_body));
     valid

@@ -1,0 +1,38 @@
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway/src/live/settings.rs:921:
+     Json(input): Json<Value>,
+ ) -> Result<Response, ApiError> {
+     require_origin(&headers, &state.terminal_origin).map_err(|s| ApiError::new(s, "FORBIDDEN"))?;
+-    if !matches!(input["expectedMode"].as_str(), Some("research" | "paper" | "shadow")) {
+-        return Err(ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_FAILED"));
++    if !matches!(
++        input["expectedMode"].as_str(),
++        Some("research" | "paper" | "shadow")
++    ) {
++        return Err(ApiError::new(
++            StatusCode::UNPROCESSABLE_ENTITY,
++            "VALIDATION_FAILED",
++        ));
+     }
+     let source = hash(&format!("{}:{}", state.terminal_origin, peer.ip()));
+     let payload=tokio::task::spawn_blocking(move||{
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway/tests/auth_settings_provider.rs:692:
+     );
+ 
+     for mode in ["research", "shadow", "assisted_live"] {
+-        let mut body = valid_body.clone(); body["expectedMode"] = json!(mode);
++        let mut body = valid_body.clone();
++        body["expectedMode"] = json!(mode);
+         let mut req = request("POST", "/v1/access-requests", Some(body));
+         req.headers_mut().insert("origin", ORIGIN.parse().unwrap());
+-        assert_eq!(router.clone().oneshot(req).await.unwrap().status(), if mode == "assisted_live" { StatusCode::UNPROCESSABLE_ENTITY } else { StatusCode::ACCEPTED });
++        assert_eq!(
++            router.clone().oneshot(req).await.unwrap().status(),
++            if mode == "assisted_live" {
++                StatusCode::UNPROCESSABLE_ENTITY
++            } else {
++                StatusCode::ACCEPTED
++            }
++        );
+     }
+     let mut valid = request("POST", "/v1/access-requests", Some(valid_body));
+     valid

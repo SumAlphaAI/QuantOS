@@ -1,0 +1,149 @@
+{
+  "sourceCommit": "49c5772f18f8be3b10eae42a9243336443f53199",
+  "schema": "quantos-bff-a2-executed-semantics/v1",
+  "scope": "local reference provider and consumer regressions; live target separate",
+  "results": [
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "live::settings_policy::tests"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "20745da234af6eddfd6c41077c38a61c44512fff3db9d53a89afa8ef53e7ca35"
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "3eaa65e4da717fd64ee3bff70801d8316acf0f3023d8cd098ce3849e1f9a53d4"
+    },
+    {
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@sumalpha/terminal",
+        "exec",
+        "vitest",
+        "run",
+        "tests/auth-bff.test.ts",
+        "tests/ui104-settings.test.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "outputSha256": "1fa2c450c60eaa73cc3168f97415372daafc4fc530d4b9bd2b8a126259880a40"
+    }
+  ],
+  "status": "PASS",
+  "sourceInputs": [
+    {
+      "name": "provider",
+      "path": "services/bff-gateway/src/lib.rs",
+      "sha256": "310e8c6807aaaf9b0afdd29736cb342627657f5e6caf1ab21208bac466166abd"
+    },
+    {
+      "name": "providerTests",
+      "path": "services/bff-gateway/tests/auth_settings_provider.rs",
+      "sha256": "7fed255f4a6a59bd88960e423224c58ef7dd21a3e0e79f5ab80aab15b958e999"
+    },
+    {
+      "name": "liveRouter",
+      "path": "services/bff-gateway/src/live.rs",
+      "sha256": "5d973299c5da02cb6e8b455bd480e2c9eabe7e9a92edbc85a010945ece45dead"
+    },
+    {
+      "name": "authBoundary",
+      "path": "crates/quantos-auth/src/lib.rs",
+      "sha256": "36d28e28f18b1ce4da5ed70622b97cd3785ac47b83ec6047ff06a40d177090d3"
+    },
+    {
+      "name": "liveTests",
+      "path": "scripts/test-bff-fe-001-live.mjs",
+      "sha256": "5829a1e3b81eaa59357d4bfb63d826a5d57021cf0af5949ca84f4fb30086d0d5"
+    },
+    {
+      "name": "schemaGenerator",
+      "path": "scripts/generate-bff-contracts.mjs",
+      "sha256": "9b87c5d4d1cab3cf40ec4172245066ebcdb3fb7cfa9a92d8557f4a674654a5fc"
+    },
+    {
+      "name": "migration",
+      "path": "supabase/migrations/20261003090000_bff_a2_identity_settings.sql",
+      "sha256": "16c99fff333abd48ba206a2edcef86bc61fc6e6feca59934fab93ea7c51afc41"
+    },
+    {
+      "name": "liveProvider",
+      "path": "services/bff-gateway/src/live/settings.rs",
+      "sha256": "729ef9851b4c67a5bf59c82a37046c77ad2951360c73f599b8c0e3fe603a2e64"
+    },
+    {
+      "name": "livePolicy",
+      "path": "services/bff-gateway/src/live/settings_policy.rs",
+      "sha256": "d8e78c1ea645226a1567a5cf0143997df11190dcdc33a735544c1e2b4f31159d"
+    },
+    {
+      "name": "inputGuard",
+      "path": "services/bff-gateway/src/input_contract.rs",
+      "sha256": "f9ef60feecbecebe7406ecde5ce71c884cce647c826a13f2403e6a8b0fe3b3c9"
+    },
+    {
+      "name": "authClient",
+      "path": "apps/terminal/src/auth/bff.ts",
+      "sha256": "b95f147e934378769995083b55e6ee4b8d804d9b75cbf81ecf62d6e0fda24cac"
+    },
+    {
+      "name": "settingsClient",
+      "path": "apps/terminal/src/settings/gateway.ts",
+      "sha256": "adac801684c2970a6f519e17bc5d23e172f01dedacc49085e1978462c0067b93"
+    },
+    {
+      "name": "responseParser",
+      "path": "packages/api-client/src/bff-response.ts",
+      "sha256": "99fbddbf41de29255934341012e2c5c210da175236ebbac5cdd32ebbc637d044"
+    },
+    {
+      "name": "transport",
+      "path": "packages/api-client/src/bff-transport.ts",
+      "sha256": "da9dfa61fee7cf90ac434fd88673a2455bf8d635473a291a7fbdcf245eac7288"
+    },
+    {
+      "name": "client",
+      "path": "packages/api-client/src/bff.ts",
+      "sha256": "e1a765a8254d3a5686e54ca3539e362aeb679868c1e53f0aefd93d2b69d9812b"
+    },
+    {
+      "name": "responseSchemas",
+      "path": "packages/api-client/src/bff-gen/quantos-bff.zod.ts",
+      "sha256": "49c18d0152ddef168c3efc9187258ad4799dc9a16350f1c7f6d86ec16ddf5e87"
+    },
+    {
+      "name": "authTests",
+      "path": "apps/terminal/tests/auth-bff.test.ts",
+      "sha256": "097aaf03e39143a7c5e1c76904bdce2bbf8427137f73e6dc9331935f30cbc011"
+    },
+    {
+      "name": "settingsTests",
+      "path": "apps/terminal/tests/ui104-settings.test.ts",
+      "sha256": "b3b4b76fad58281ce193919e34aa9e53ffa31fc5fb59be4d11d69f2f637a26a0"
+    }
+  ],
+  "rawReceipt": "semantics.json.gz"
+}

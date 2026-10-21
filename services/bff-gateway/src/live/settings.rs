@@ -921,8 +921,14 @@ async fn access_request(
     Json(input): Json<Value>,
 ) -> Result<Response, ApiError> {
     require_origin(&headers, &state.terminal_origin).map_err(|s| ApiError::new(s, "FORBIDDEN"))?;
-    if !matches!(input["expectedMode"].as_str(), Some("research" | "paper" | "shadow")) {
-        return Err(ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_FAILED"));
+    if !matches!(
+        input["expectedMode"].as_str(),
+        Some("research" | "paper" | "shadow")
+    ) {
+        return Err(ApiError::new(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "VALIDATION_FAILED",
+        ));
     }
     let source = hash(&format!("{}:{}", state.terminal_origin, peer.ip()));
     let payload=tokio::task::spawn_blocking(move||{

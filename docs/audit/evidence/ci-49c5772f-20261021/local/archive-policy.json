@@ -1,0 +1,28 @@
+{
+  "condition": "${{ always() && (success() || hashFiles('artifacts/f02/**') != '') }}",
+  "missingFilesPolicy": "error",
+  "scenarios": [
+    {
+      "prior": "failure",
+      "files": false,
+      "archive": false
+    },
+    {
+      "prior": "failure",
+      "files": true,
+      "archive": true
+    },
+    {
+      "prior": "success",
+      "files": false,
+      "archive": true,
+      "missingFiles": "error"
+    },
+    {
+      "prior": "success",
+      "files": true,
+      "archive": true
+    }
+  ],
+  "scope": "configuration inspection only; no GitHub job execution"
+}

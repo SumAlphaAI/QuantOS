@@ -21,7 +21,9 @@ const mutations = [
   ["challenge-freshness", source => source.replace("expires_at: now + Duration::minutes(5)", "expires_at: now + Duration::days(365)").replace(".is_some_and(|at| at + Duration::minutes(5) > now)", ".is_some_and(|at| at + Duration::days(365) > now)"), "challenges_are_fresh_single_use_and_cooldown_precedes_verification"],
 ];
 try {
-  for (const folder of ["crates", "services/bff-gateway"]) cpSync(resolve(root, folder), resolve(scratch, folder), { recursive: true });
+  // Library tests also compile SQL include_str! inputs; preserve those source
+  // bytes in the reduced workspace without executing any database migrations.
+  for (const folder of ["crates", "services/bff-gateway", "supabase/migrations"]) cpSync(resolve(root, folder), resolve(scratch, folder), { recursive: true });
   const manifest = readFileSync(resolve(root, "Cargo.toml"), "utf8").replace(/members = \[[\s\S]*?\]/, 'members = ["services/bff-gateway"]');
   writeFileSync(join(scratch, "Cargo.toml"), manifest);
   cpSync(resolve(root, "Cargo.lock"), join(scratch, "Cargo.lock"));
