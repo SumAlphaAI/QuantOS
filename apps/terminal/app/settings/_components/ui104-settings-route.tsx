@@ -17,7 +17,7 @@ export function SettingsRoute({ section }: { section: SettingsSection }) {
     return () => { controller.close(); actions.current = undefined; current.current = undefined; };
   }, [section]);
   useEffect(() => {
-    const controller = actions.current; if (!controller) return; let active = true; const cancel = new AbortController();
+    const controller = actions.current; if (!controller || generation === 0) return; let active = true; const cancel = new AbortController();
     setLoading(true); setError(false);
     void controller.load(cancel.signal).then(next => {
       if (!active) return;

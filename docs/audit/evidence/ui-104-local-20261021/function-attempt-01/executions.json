@@ -1,0 +1,182 @@
+[
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 513,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/bff-build.log",
+    "logSha256": "sha256:8950be1e8f4499f41b8e38ef15f09a0e2671be53a43aa5dec4d794320908881d"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui104-settings.test.ts",
+      "apps/terminal/tests/ui104-runtime.test.ts",
+      "apps/terminal/tests/ui104-http.test.ts",
+      "apps/terminal/tests/browser-platform-provider-consumer.test.ts",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/ui101-runtime.test.ts"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 3996,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/unit.log",
+    "logSha256": "sha256:8f25107934227801a809d6cac65c6f6afa95d7d7d55dd44a322d43fc3b933282"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 2293,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/types.log",
+    "logSha256": "sha256:d73cfd0d05a7f05b68199d584798871057f48a38271626289dc770cca6f1fae1"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1533,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/lint.log",
+    "logSha256": "sha256:03662393683911cfd64bfb635799a80cf4485c29afa75e8ee099eee96d073c74"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-104-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 323,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/negative.log",
+    "logSha256": "sha256:ddad4862261be059d5e2b414ebf43f921057b0783d712bf957a73bfdbfe529f8"
+  },
+  {
+    "id": "terminal-mock",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 8625,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/terminal-mock.log",
+    "logSha256": "sha256:4531194fc67a7ad6b37f696c8587f487ca3b99a83c9c844ff7cdf5693f2a880b"
+  },
+  {
+    "id": "mock-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/command.spec.ts",
+      "tests/e2e/ui104-settings.spec.ts",
+      "--grep-invert",
+      "视觉基线|visual baselines",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-104-local-20261021/function-attempt-01/mock-browser/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 5523,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/mock-browser.log",
+    "logSha256": "sha256:8ff4d7b163b706b5dd58fff13f32af4ba9a482beef1a94374f977b74013375dc"
+  },
+  {
+    "id": "visual",
+    "command": [
+      "node",
+      "scripts/ui-104-visual.mjs",
+      "docs/audit/evidence/ui-104-local-20261021/function-attempt-01"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 3921,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/visual.log",
+    "logSha256": "sha256:04f2bd93b8a01a85c77692ec966c6c643297a5ef97f29105f5c847ad4333a6aa"
+  },
+  {
+    "id": "terminal-bff",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 8004,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/terminal-bff.log",
+    "logSha256": "sha256:c686c95a248dee2c1fc9bd6edcbc445ab9fdb414e492580bf9c86c8a40fbbcac"
+  },
+  {
+    "id": "bff-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.ui104.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-104-local-20261021/function-attempt-01/bff-browser/results"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 48931,
+    "log": "docs/audit/evidence/ui-104-local-20261021/function-attempt-01/bff-browser.log",
+    "logSha256": "sha256:6e5a2e21573288eedae750fc2b052aa4ca98f1f8f6fdd8ee618d4ff69499eac3"
+  }
+]
