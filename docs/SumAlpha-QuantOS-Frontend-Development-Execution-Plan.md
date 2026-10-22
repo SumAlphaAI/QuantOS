@@ -2210,7 +2210,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 所属阶段：FEP-5
 - 页面级完成标准：服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地
 
-- 当前执行：复用UI-507的C10实际功能，交付四栏高保真、导出抽屉、深浅主题/响应式/键盘、规范资源路由及直接验证。见[UI-P12报告](./audit/UI-P12-current-page-review-2026-10-22.md)、[规程](./operations/ui-p12-audit-workbench.md)、[工程回执](./audit/evidence/ui-p12-local-20261022/receipt.json)。原确认/源码和全部NOT_RUN保持原范围；reference身份/CORS替代、Firefox/WebKit阻塞保留，INTEGRATION/发布不提升，不将G1辅助项作为开发前置。下一原任务UI-204。
+- 当前执行：`PASS_UI_P12_CURRENT_PAGE`，工程`8f1f3763`、540输入/52产物；46单测、14 Chromium、6图/6次axe、49门禁路由通过，联调入口预期拒绝。工具修正`6bb2d19a`仅续核原SHA证据，无功能链复跑。复用UI-507的C10实际功能，交付四栏高保真、导出抽屉、深浅主题/响应式/键盘、规范资源路由及直接验证。见[UI-P12报告](./audit/UI-P12-current-page-review-2026-10-22.md)、[规程](./operations/ui-p12-audit-workbench.md)、[工程回执](./audit/evidence/ui-p12-local-20261022/receipt.json)。原确认/源码和全部NOT_RUN保持原范围；reference身份/CORS替代、Firefox/WebKit阻塞保留，INTEGRATION/发布不提升，不将G1辅助项作为开发前置。下一原任务UI-204。
 
 <a id="task-ui-204"></a>
 ##### UI-204：DataSnapshot 目录/详情、质量/许可/时效
