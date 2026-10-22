@@ -1,0 +1,458 @@
+
+Running 34 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/ui-p15.spec.ts:12:5 › P15 profile and region save only whitelisted facts using actual version, then survive reload (30.1s)
+  ✘   2 [chromium] › tests/e2e/ui-p15.spec.ts:20:5 › P15 theme, contrast and density preview reset without storing business or identity state (30.0s)
+  ✓   3 [chromium] › tests/e2e/ui-p15.spec.ts:27:5 › P15 empty invalid draft survives explicit refresh and never sends a mutation (222ms)
+  ✘   4 [chromium] › tests/e2e/ui-p15.spec.ts:30:5 › P15 notifications support overnight quiet hours and no invented delivery schedule (30.0s)
+  ✓   5 [chromium] › tests/e2e/ui-p15.spec.ts:33:5 › P15 notification conflict rebases metadata only and needs another explicit save (282ms)
+  ✓   6 [chromium] › tests/e2e/ui-p15.spec.ts:37:5 › P15 uncertain notification response retains draft and the identical idempotency key (232ms)
+  ✓   7 [chromium] › tests/e2e/ui-p15.spec.ts:40:5 › P15 readonly contexts cannot write or request native notification permission (152ms)
+  ✓   8 [chromium] › tests/e2e/ui-p15.spec.ts:43:5 › P15 browser notification prompt requires a click and denial never prompts twice (202ms)
+  ✓   9 [chromium] › tests/e2e/ui-p15.spec.ts:48:5 › P15 security reauthentication is real C01 verification without DELETE or persistent token (244ms)
+  ✓  10 [chromium] › tests/e2e/ui-p15.spec.ts:51:130 › P15 device revoke is pending after 202 and cannot be repeated (243ms)
+  ✘  11 [chromium] › tests/e2e/ui-p15.spec.ts:51:130 › P15 factor revoke is pending after 202 and cannot be repeated (30.0s)
+  ✓  12 [chromium] › tests/e2e/ui-p15.spec.ts:54:5 › P15 security cancellation and narrow resize cannot start a security request (246ms)
+  ✓  13 [chromium] › tests/e2e/ui-p15.spec.ts:57:5 › P15 429 blocks writes and never leaks provider detail or automatically replays (223ms)
+  ✓  14 [chromium] › tests/e2e/ui-p15.spec.ts:61:5 › P15 earlier session expiry clears private state and rereads session before new data (180ms)
+  ✓  15 [chromium] › tests/e2e/ui-p15.spec.ts:64:5 › P15 missing fields and foreign member success cannot publish fake saved state (190ms)
+  ✘  16 [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 dark all pages responsive keyboard and axe (7.6s)
+  ✘  17 [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 light all pages responsive keyboard and axe (7.7s)
+  ✓  18 [chromium] › tests/e2e/ui104-bff.spec.ts:31:5 › static settings HTML is guarded before any profile is rendered (329ms)
+  ✓  19 [chromium] › tests/e2e/ui104-bff.spec.ts:32:5 › profile save uses actual context, CSRF/CAS and a real accepted response (300ms)
+  ✓  20 [chromium] › tests/e2e/ui104-bff.spec.ts:33:5 › 409 keeps draft and needs explicit rebase plus another save (289ms)
+  ✓  21 [chromium] › tests/e2e/ui104-bff.spec.ts:34:5 › notifications persist only approved settings fields (193ms)
+  ✓  22 [chromium] › tests/e2e/ui104-bff.spec.ts:35:5 › security confirmation really sends MFA/reauth/delete and 202 keeps the resource pending (250ms)
+  ✓  23 [chromium] › tests/e2e/ui104-bff.spec.ts:36:5 › MFA refusal never reaches reauth or delete and preserves a safe failure (210ms)
+  ✓  24 [chromium] › tests/e2e/ui104-bff.spec.ts:37:5 › offline recovery keeps unsaved drafts and requires explicit revalidation (201ms)
+  ✓  25 [chromium] › tests/e2e/ui104-bff.spec.ts:38:5 › downloads mint no lease on load and consume a fresh lease only on click (191ms)
+  ✓  26 [chromium] › tests/e2e/ui104-bff.spec.ts:39:5 › denied native notification permission is requested only once and falls back (182ms)
+  ✓  27 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 401 refuses before private read (140ms)
+  ✓  28 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 403 refuses before private read (131ms)
+  ✓  29 [chromium] › tests/e2e/ui104-bff.spec.ts:40:39 › settings HTTP 404 refuses before private read (124ms)
+  ✓  30 [chromium] › tests/e2e/ui104-bff.spec.ts:41:5 › four settings pages fit1440/390/CSS zoom and record axe without promoting native checks (1.8s)
+  ✓  31 [chromium] › tests/e2e/ui104-bff.spec.ts:42:5 › read-only profile needs no unrelated downloads and cannot save (136ms)
+  ✓  32 [chromium] › tests/e2e/ui104-bff.spec.ts:43:5 › failed revalidation retains unsaved draft as read-only and explicit recovery restores editing (233ms)
+  ✓  33 [chromium] › tests/e2e/ui104-bff.spec.ts:44:5 › clipboard rejection shows manual copy and never claims success (173ms)
+  ✓  34 [chromium] › tests/e2e/ui104-bff.spec.ts:45:5 › foreign download lease is refused before navigation (172ms)
+
+
+  1) [chromium] › tests/e2e/ui-p15.spec.ts:12:5 › P15 profile and region save only whitelisted facts using actual version, then survive reload 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('时间显示', { exact: true })
+
+
+      13 |   const t = await boundary(page); await page.goto("/settings/profile");
+      14 |   await expect(page.getByRole("region", { name: "分区保存状态" })).toContainText("未保存更改：无");
+    > 15 |   await page.getByLabel("显示名称", { exact: true }).fill("P15 Saved Member"); await page.getByLabel("时间显示", { exact: true }).selectOption("local"); await page.getByLabel("时区", { exact: true }).selectOption("America/New_York");
+         |                                                                                                                           ^
+      16 |   await page.getByRole("button", { name: "保存当前分区" }).click(); await expect(page.locator(".toast")).toContainText("个人资料已保存");
+      17 |   expect(writes(t.requests)).toHaveLength(1); expect(writes(t.requests)[0].postDataJSON()).toMatchObject({ timeDisplay: "local", timezone: "America/New_York" }); expect(writes(t.requests)[0].headers()["if-match"]).toBe("profile-v14");
+      18 |   await page.reload(); await expect(page.getByLabel("显示名称", { exact: true })).toHaveValue("P15 Saved Member"); await expect(page.getByLabel("时间显示", { exact: true })).toHaveValue("local");
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:15:123
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-profile-and-reg-41c87-version-then-survive-reload-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-profile-and-reg-41c87-version-then-survive-reload-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-profile-and-reg-41c87-version-then-survive-reload-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/ui-p15.spec.ts:20:5 › P15 theme, contrast and density preview reset without storing business or identity state 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('主题', { exact: true })
+
+
+      20 | test("P15 theme, contrast and density preview reset without storing business or identity state", async ({ page }) => {
+      21 |   const t = await boundary(page); await page.goto("/settings/profile");
+    > 22 |   await page.getByLabel("主题", { exact: true }).selectOption("light"); await expect(page.locator('.quantos-theme[data-quantos-theme="light"]').first()).toBeVisible();
+         |                                                ^
+      23 |   await page.getByRole("checkbox", { name: "高对比度", exact: true }).check(); await page.getByRole("checkbox", { name: "减少动画", exact: true }).check(); await page.getByLabel("密度", { exact: true }).selectOption("comfortable");
+      24 |   await expect(page.locator('[data-ui-p15]')).toHaveClass(/p15-high-contrast/); await page.getByRole("button", { name: "重置未保存项" }).click(); await expect(page.getByLabel("主题", { exact: true })).toHaveValue("dark"); expect(writes(t.requests)).toHaveLength(0);
+      25 |   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:22:48
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-theme-contrast--06247--business-or-identity-state-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-theme-contrast--06247--business-or-identity-state-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-theme-contrast--06247--business-or-identity-state-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/ui-p15.spec.ts:30:5 › P15 notifications support overnight quiet hours and no invented delivery schedule 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('摘要频率', { exact: true })
+
+
+      29 | });
+      30 | test("P15 notifications support overnight quiet hours and no invented delivery schedule", async ({ page }) => {
+    > 31 |   const t = await boundary(page); await page.goto("/settings/notifications"); await page.getByLabel("静默开始时间").fill("23:30"); await page.getByLabel("静默结束时间").fill("06:15"); await page.getByLabel("摘要频率", { exact: true }).selectOption("weekly"); await page.getByRole("button", { name: "保存通知偏好" }).click(); await expect(page.locator(".toast")).toContainText("通知偏好已保存"); expect(writes(t.requests)[0].postDataJSON()).toMatchObject({ quietHoursStart: "23:30", quietHoursEnd: "06:15", digestFrequency: "weekly" }); expect(writes(t.requests)[0].postDataJSON()).not.toHaveProperty("browserPermission");
+         |                                                                                                                                                                                                                            ^
+      32 | });
+      33 | test("P15 notification conflict rebases metadata only and needs another explicit save", async ({ page }) => {
+      34 |   let first = true; const t = await boundary(page, r => r.method() === "PUT" && first ? (first = false, { status: 409, data: { code: "VERSION_CONFLICT", message: "private", currentVersion: "notification-current", correlationId: id } }) : undefined);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:31:220
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-notifications-s-26302--invented-delivery-schedule-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-notifications-s-26302--invented-delivery-schedule-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-notifications-s-26302--invented-delivery-schedule-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/ui-p15.spec.ts:51:130 › P15 factor revoke is pending after 202 and cannot be repeated 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '撤销 MFA 因素', exact: true }).first()
+        - locator resolved to <button disabled type="button" data-state="closed" aria-expanded="false" aria-haspopup="dialog" class="q-button q-button--default settings-high-risk">撤销 MFA 因素</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        58 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+       5 | test.beforeEach(async ({ page }) => { await page.clock.install({ time: now }); });
+       6 | async function securityDialog(page: Page, button: string, phrase: string) {
+    >  7 |   await page.getByRole("button", { name: button, exact: true }).first().click();
+         |                                                                         ^
+       8 |   await expect(page.getByRole("button", { name: "取消", exact: true })).toBeFocused();
+       9 |   await page.getByLabel(new RegExp(`输入“${phrase}”`)).fill(phrase);
+      10 |   await page.getByLabel("MFA 验证码").fill("123456");
+        at securityDialog (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:7:73)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:52:80
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-factor-revoke-i-f779d--202-and-cannot-be-repeated-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-factor-revoke-i-f779d--202-and-cannot-be-repeated-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-factor-revoke-i-f779d--202-and-cannot-be-repeated-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 dark all pages responsive keyboard and axe ──
+
+    Error: dark/security/390
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+    +     "help": "Scrollable region must have keyboard access",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",
+    +     "id": "scrollable-region-focusable",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"settings-list-table\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".span-two.settings-card:nth-child(2) > .settings-list-table",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"settings-list-table devices\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".devices",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "wcag2a",
+    +       "wcag211",
+    +       "wcag213",
+    +       "TTv5",
+    +       "TT4.a",
+    +       "EN-301-549",
+    +       "EN-9.2.1.1",
+    +       "EN-9.2.1.3",
+    +       "RGAAv4",
+    +       "RGAA-7.3.2",
+    +     ],
+    +   },
+    + ]
+
+      70 |     await page.setViewportSize({ width, height: 900 }); await page.goto(`/settings/${section}`); await expect(page.locator(`[data-ui-p15="${section}"]`)).toBeVisible(); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      71 |     await page.getByRole("link", { name: "关闭设置" }).focus(); await expect(page.getByRole("link", { name: "关闭设置" })).toBeFocused();
+    > 72 |     const a = await new AxeBuilder({ page }).analyze(); scans.push({ section, width, violations: a.violations, incomplete: a.incomplete }); expect(a.violations, `${theme}/${section}/${width}`).toEqual([]);
+         |                                                                                                                                                                                                  ^
+      73 |     const png = info.outputPath(`${section}-${theme}-${width}.png`); await page.screenshot({ path: png, fullPage: true }); await info.attach(`${section}-${width}`, { path: png, contentType: "image/png" });
+      74 |     if (width === 390) { await page.evaluate(() => { document.documentElement.style.zoom = "2"; }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); if (section === "security") await expect(page.locator(".settings-high-risk").first()).toBeHidden(); }
+      75 |   }
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:72:194
+
+    attachment #1: profile-1440 (image/png) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-1440-5d1bd20cd1130db7d67266c25a504d39c1e4f629.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: profile-1024 (image/png) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-1024-2534d63bdce5d93a573e04db22f1bbaaf2f0f911.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: profile-390 (image/png) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-390-56cbf2a41c8c1e4c3c6355455e2bb9ac392ac4a7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: notifications-1440 (image/png) ──────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-1440-95778da3e63c7c7e1b710afdef2462bdd5efd3d6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: notifications-1024 (image/png) ──────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-1024-432111fa2127a921ce47cae5533a6201d669a688.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: notifications-390 (image/png) ───────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-390-9cdced83dc9e2f54d5e4cf0e6a3ac6987bb81d05.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: security-1440 (image/png) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/security-1440-4229781af3a8bc13426c2beda1fd45b60c7d95b9.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: security-1024 (image/png) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/attachments/security-1024-4e5231677de8ca504b1e2c646403f43d0210ea34.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-dark-all-pages-responsive-keyboard-and-axe-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 light all pages responsive keyboard and axe ─
+
+    Error: light/security/390
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+    +     "help": "Scrollable region must have keyboard access",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",
+    +     "id": "scrollable-region-focusable",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"settings-list-table\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".span-two.settings-card:nth-child(2) > .settings-list-table",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"settings-list-table devices\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".devices",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "wcag2a",
+    +       "wcag211",
+    +       "wcag213",
+    +       "TTv5",
+    +       "TT4.a",
+    +       "EN-301-549",
+    +       "EN-9.2.1.1",
+    +       "EN-9.2.1.3",
+    +       "RGAAv4",
+    +       "RGAA-7.3.2",
+    +     ],
+    +   },
+    + ]
+
+      70 |     await page.setViewportSize({ width, height: 900 }); await page.goto(`/settings/${section}`); await expect(page.locator(`[data-ui-p15="${section}"]`)).toBeVisible(); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      71 |     await page.getByRole("link", { name: "关闭设置" }).focus(); await expect(page.getByRole("link", { name: "关闭设置" })).toBeFocused();
+    > 72 |     const a = await new AxeBuilder({ page }).analyze(); scans.push({ section, width, violations: a.violations, incomplete: a.incomplete }); expect(a.violations, `${theme}/${section}/${width}`).toEqual([]);
+         |                                                                                                                                                                                                  ^
+      73 |     const png = info.outputPath(`${section}-${theme}-${width}.png`); await page.screenshot({ path: png, fullPage: true }); await info.attach(`${section}-${width}`, { path: png, contentType: "image/png" });
+      74 |     if (width === 390) { await page.evaluate(() => { document.documentElement.style.zoom = "2"; }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); if (section === "security") await expect(page.locator(".settings-high-risk").first()).toBeHidden(); }
+      75 |   }
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p15.spec.ts:72:194
+
+    attachment #1: profile-1440 (image/png) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-1440-659423ad8b4c1e59ffa668ea04907c55c70c7c82.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: profile-1024 (image/png) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-1024-19a36d54a054fb377d6544cb2e321e95eac63644.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: profile-390 (image/png) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/profile-390-cdceb6cf36110d5fdc2f1cb6e965d97caf94a5ab.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: notifications-1440 (image/png) ──────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-1440-0b77830bca93791700613cd548e19697f7535864.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: notifications-1024 (image/png) ──────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-1024-2d18523835882a9b30deacb66cae3af8b703b0a6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: notifications-390 (image/png) ───────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/notifications-390-63453ba18cef5dccf00f2b85be3283a8d64fb2e3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: security-1440 (image/png) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/security-1440-b44b36e80146b420b4bff52ed864b9ffb4b231ff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: security-1024 (image/png) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/attachments/security-1024-3d92c42dd58aee11d069ca6bf58af27c52880cec.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p15-local-20261022/preflight-01/browser/ui-p15-P15-light-all-pages-responsive-keyboard-and-axe-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    [chromium] › tests/e2e/ui-p15.spec.ts:12:5 › P15 profile and region save only whitelisted facts using actual version, then survive reload 
+    [chromium] › tests/e2e/ui-p15.spec.ts:20:5 › P15 theme, contrast and density preview reset without storing business or identity state 
+    [chromium] › tests/e2e/ui-p15.spec.ts:30:5 › P15 notifications support overnight quiet hours and no invented delivery schedule 
+    [chromium] › tests/e2e/ui-p15.spec.ts:51:130 › P15 factor revoke is pending after 202 and cannot be repeated 
+    [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 dark all pages responsive keyboard and axe ───
+    [chromium] › tests/e2e/ui-p15.spec.ts:67:53 › P15 light all pages responsive keyboard and axe ──
+  28 passed (2.5m)

@@ -1,0 +1,321 @@
+[
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:03.775Z",
+    "elapsedMs": 244,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/bff-build.log",
+    "logSha256": "sha256:c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui-p15-runtime.test.ts",
+      "apps/terminal/tests/ui104-settings.test.ts",
+      "apps/terminal/tests/ui104-runtime.test.ts",
+      "apps/terminal/tests/ui104-http.test.ts",
+      "packages/domain-ui/tests/chrome.test.tsx"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:04.053Z",
+    "elapsedMs": 3269,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/unit.log",
+    "logSha256": "sha256:7bcf6971d14c5e4ede89e48d4a38e0d9031505d52dc1ec2a3ea32b836465e8e0"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:07.322Z",
+    "elapsedMs": 2846,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/types.log",
+    "logSha256": "sha256:5e8ce909b42000a12c12db77adef7dfeca28cca81f1887c1fc461c346074abe4"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:10.168Z",
+    "elapsedMs": 1329,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/lint.log",
+    "logSha256": "sha256:03662393683911cfd64bfb635799a80cf4485c29afa75e8ee099eee96d073c74"
+  },
+  {
+    "id": "test-lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "tests/e2e/ui-p15.spec.ts",
+      "tests/e2e/ui-p15-http.spec.ts",
+      "tests/e2e/ui104-bff.spec.ts",
+      "tests/e2e/fixtures/ui-p15.ts",
+      "tests/e2e/fixtures/ui104.ts",
+      "tests/e2e/ui104-settings.spec.ts",
+      "playwright.config.ts",
+      "playwright.ui-p15.config.ts",
+      "scripts/ui-p15-review.mjs",
+      "scripts/ui-p15-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:11.497Z",
+    "elapsedMs": 593,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/test-lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-p15-review.test.mjs",
+      "scripts/frontend-import-boundary.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:12.090Z",
+    "elapsedMs": 505,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/negative.log",
+    "logSha256": "sha256:82a3f3cb2adde961c228234f52ba7f45a40632b6a5d277cb13fbb50c258a5c3c"
+  },
+  {
+    "id": "terminal-bff",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:12.595Z",
+    "elapsedMs": 7560,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/terminal-bff.log",
+    "logSha256": "sha256:43688960bcf3e606cc8637118bf5cfd173a21e5c89c59fe81529e3481785d2e3"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p15.config.ts",
+      "tests/e2e/ui-p15.spec.ts",
+      "--grep-invert",
+      "visual baseline",
+      "--project=chromium",
+      "--project=webkit",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/browser/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:09:20.156Z",
+    "elapsedMs": 48759,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/browser.log",
+    "logSha256": "sha256:02eaba26de036df2a7f7c4382b65c7a52a0ed8004e6e1166b0da5105c96663cc"
+  },
+  {
+    "id": "local-http",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p15.config.ts",
+      "tests/e2e/ui-p15-http.spec.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/local-http/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:08.916Z",
+    "elapsedMs": 4697,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/local-http.log",
+    "logSha256": "sha256:cad690e178aa70e443e903dbc792accd217f5e581d59f6bd15708b419250eb25"
+  },
+  {
+    "id": "regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p15.config.ts",
+      "tests/e2e/ui104-bff.spec.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/regression/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:13.613Z",
+    "elapsedMs": 6677,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/regression.log",
+    "logSha256": "sha256:fb93b4197b80f5f8eeb1b60f377b325444df2955abd86e6cdbb1619d6223a01e"
+  },
+  {
+    "id": "visual",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p15.config.ts",
+      "tests/e2e/ui-p15.spec.ts",
+      "--grep",
+      "visual baseline",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/visual/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:20.290Z",
+    "elapsedMs": 2368,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/visual.log",
+    "logSha256": "sha256:06dac01fb022b14fdb714bd9e4c58408956b612ba914e2665e7f2863cf916dbb"
+  },
+  {
+    "id": "terminal-mock",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:22.658Z",
+    "elapsedMs": 7629,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/terminal-mock.log",
+    "logSha256": "sha256:3fa5be370d08d13772847c58a88b2c10863a8e364290a571b2f0b9817fe32e45"
+  },
+  {
+    "id": "mock-regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/ui104-settings.spec.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/mock-regression/results"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:30.287Z",
+    "elapsedMs": 3911,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/mock-regression.log",
+    "logSha256": "sha256:3150694688820a069f46756556c8825daff50dc040438c8fdd8d996387393666"
+  },
+  {
+    "id": "firefox-diagnostic",
+    "command": [
+      "node",
+      "scripts/ui-p01-browser-environment.mjs",
+      "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/firefox-environment.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:34.198Z",
+    "elapsedMs": 10271,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/firefox-diagnostic.log",
+    "logSha256": "sha256:fd8eafae61b80cfe2addd7cc31d5c49a92b38d01140ea5997505a1ab7b74281f"
+  },
+  {
+    "id": "baselines",
+    "command": [
+      "node",
+      "scripts/check-visual-baselines.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:44.469Z",
+    "elapsedMs": 885,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/baselines.log",
+    "logSha256": "sha256:494771baf334acc0a9487b5a4378828a89cab52e96df44a51b092119451e3593"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T09:10:45.354Z",
+    "elapsedMs": 161,
+    "log": "docs/audit/evidence/ui-p15-local-20261022/function-attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]
