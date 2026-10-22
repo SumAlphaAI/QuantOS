@@ -1,0 +1,220 @@
+{
+  "schema": "quantos-fep1-functional-scope/v1",
+  "sourceCommit": "08aa95f9b14692a93b78f36a7c6910d816ffec92",
+  "areas": [
+    {
+      "area": "官网首期七页、内容合规与匿名申请",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "apps/website/app/page.tsx",
+          "sha256": "sha256:e37ec3227f410c978fb4cc8650f9adfcd0d41d3908ad3d658559f026c825d820"
+        },
+        {
+          "path": "apps/website/app/access-request/_form.tsx",
+          "sha256": "sha256:0fb47c6ad9ad4bf3c3592fb73112e59102066e7bf996c6f7a05493d4e61b7d12"
+        },
+        {
+          "path": "apps/website/src/access-request.ts",
+          "sha256": "sha256:862080704d45c84d8871b19ea487a1b9ad73b0af1921e1fe6d8fbd5344f27009"
+        }
+      ],
+      "freshTests": [
+        "apps/website/tests/website-compliance.test.ts",
+        "apps/website/tests/web101-access.test.ts"
+      ],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/web-101-local-20261021/receipt.json"
+      ],
+      "scopeBoundary": "Current generated consumer/content tests; original screenshots/27-browser/Lighthouse stay original scope."
+    },
+    {
+      "area": "P01身份、申请与恢复安全路由",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "apps/terminal/app/login/page.tsx",
+          "sha256": "sha256:8e3b50cabecee9b13a4da503faaff1b10521eb21918b4afa6bc49f33684d2e63"
+        },
+        {
+          "path": "apps/terminal/app/auth/callback/page.tsx",
+          "sha256": "sha256:b33dc139c700188ad9fd8cf5752f97ebe181d3767820a2dcc29def79184dda92"
+        },
+        {
+          "path": "apps/terminal/src/auth/flow.ts",
+          "sha256": "sha256:4ae88eb84029bfd602eaa4dba4a128f2aab913f9a9cfab89f4ecefd78fd29094"
+        }
+      ],
+      "freshTests": [],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-p01-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-journey-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Reuse original identity current function and later actual-route loopback flow; real IdP remains NOT_RUN."
+    },
+    {
+      "area": "P02 Command授权、模式与失效",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "apps/terminal/app/command/ui101-command-route.tsx",
+          "sha256": "sha256:fb22228836ade27a11ce4341ce426a0ee7b9df400a5a14a47cbb8708d79320dc"
+        },
+        {
+          "path": "apps/terminal/src/command/runtime.ts",
+          "sha256": "sha256:88983b546d4cc617429c5e2014ea860beb859c801a33a903609ea7428da9283f"
+        }
+      ],
+      "freshTests": [
+        "apps/terminal/tests/ui101-runtime.test.ts"
+      ],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-p02-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-recovery-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-journey-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Fresh ordered guard checks, original route SSE/expiry/late response evidence."
+    },
+    {
+      "area": "P15资料/通知/安全设置",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "apps/terminal/app/settings/_components/ui104-settings-route.tsx",
+          "sha256": "sha256:0a6c9100f2cb6c5c3eaf2d3821b669837b3e9240197fbaf7e4de7725698f5562"
+        },
+        {
+          "path": "apps/terminal/src/settings/runtime.ts",
+          "sha256": "sha256:ed6421b5cfb123d11d4f9859f8184a2ecc84e9c2c907bfb281575776bc626dea"
+        }
+      ],
+      "freshTests": [],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-p15-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-recovery-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-journey-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Reuse original current-function, CAS/unknown/202/429/audit evidence; P15 confirmation remains PENDING."
+    },
+    {
+      "area": "P17浏览器历史与真实下载",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "apps/terminal/app/settings/_components/p17-browser-panel.tsx",
+          "sha256": "sha256:addf02307380dd169c8e735343df44b773ede2d1b2f4891122f9e7a6923a8038"
+        },
+        {
+          "path": "apps/terminal/src/settings/platform.ts",
+          "sha256": "sha256:a83fe64c432ef15103398a8d9303aea7dc085c6c57f304377a017330ad4da239"
+        },
+        {
+          "path": "apps/terminal/src/downloads/lease.ts",
+          "sha256": "sha256:d983b77b0709f83ef1ddb30681238eaf325137dd1e81369c0e14af2450112d57"
+        }
+      ],
+      "freshTests": [],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-p17-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-download-local-20261022/receipt.json",
+        "docs/audit/evidence/g1-journey-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Reuse 4743-byte attestation, one-shot and origin constraints at original SHA; blocked browser/target NOT_RUN unchanged."
+    },
+    {
+      "area": "App Shell与路由导航",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "packages/ui/src/components/Workspace.tsx",
+          "sha256": "sha256:6c45aa5d812bddd83c86d7566155b22a144292237be5e1c1f92609f0bae6ad9f"
+        },
+        {
+          "path": "packages/domain-ui/src/TerminalChrome.tsx",
+          "sha256": "sha256:0140b987e9933a8f3fafefad805e3abe77ab7ede648b2acc03763ee95bcb345c"
+        }
+      ],
+      "freshTests": [
+        "packages/domain-ui/tests/chrome.test.tsx",
+        "packages/ui/tests/workspace.test.tsx"
+      ],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-103-local-20261021/receipt.json",
+        "docs/audit/evidence/g1-journey-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Fresh authorized navigation, readonly mode and frame semantics; original responsive/browser evidence not rebound."
+    },
+    {
+      "area": "主题与i18n基础",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "packages/ui/src/theme/ThemeProvider.tsx",
+          "sha256": "sha256:131ae9e0a112f24cbba5c843447ad6b37726c30a9ca1a7f653be8f860a9997d6"
+        },
+        {
+          "path": "packages/ui/src/i18n/I18nProvider.tsx",
+          "sha256": "sha256:6ec947feee749f3c731047bf500873d915657d270adcb993f77f4ce42866295f"
+        }
+      ],
+      "freshTests": [
+        "packages/ui/tests/ui103.test.tsx",
+        "packages/ui/tests/workspace.test.tsx"
+      ],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-103-local-20261021/receipt.json"
+      ],
+      "scopeBoundary": "Dark/light tokens and zh/en safety copy/formatting foundation. Full-page bilingual launch coverage not claimed or reaccepted."
+    },
+    {
+      "area": "全局状态与风险拒绝",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "packages/ui/src/components/StateBadge/StateBadge.tsx",
+          "sha256": "sha256:62807c8b10b2136681444d44fdbcba76bc1ad8f7e2fee8f3132be53b84601e29"
+        },
+        {
+          "path": "apps/terminal/src/command/runtime.ts",
+          "sha256": "sha256:88983b546d4cc617429c5e2014ea860beb859c801a33a903609ea7428da9283f"
+        }
+      ],
+      "freshTests": [
+        "packages/ui/tests/state-badge.test.tsx",
+        "apps/terminal/tests/ui101-runtime.test.ts"
+      ],
+      "reusedOriginalReceipts": [
+        "docs/audit/evidence/ui-103-local-20261021/receipt.json",
+        "docs/audit/evidence/g1-recovery-local-20261022/receipt.json"
+      ],
+      "scopeBoundary": "Fresh state/guard semantics plus original offline/recovery evidence; no notification or production authority."
+    },
+    {
+      "area": "功能执行与验收门禁分离",
+      "status": "FUNCTION_SCOPE_CLOSED_WITH_REUSE",
+      "currentSources": [
+        {
+          "path": "scripts/development-execution.mjs",
+          "sha256": "sha256:c7968574a79e382e08bfc9336c606569c66b6244a72723462c8daf73be255655"
+        },
+        {
+          "path": "scripts/fep1-function-review.mjs",
+          "sha256": "sha256:3096c661d4e495e99f6b7cba0126c92119a2264fcd1958f960ead62544b44f1f"
+        },
+        {
+          "path": "scripts/development-testing-policy.json",
+          "sha256": "sha256:6b32f80d2563373c7d2dcc54f98176a7ea3389afad3e3770a5d6fdec13c4a49b"
+        }
+      ],
+      "freshTests": [
+        "scripts/development-execution.test.mjs",
+        "scripts/fep1-function-review.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "reusedOriginalReceipts": [],
+      "scopeBoundary": "Current FEP1/UI507 allowed despite NOT_ASSESSED; known affected defects rejected; integration still explicitly denied."
+    }
+  ],
+  "functionExecution": "COMPLETED",
+  "integrationAccepted": false
+}

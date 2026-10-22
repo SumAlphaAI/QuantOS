@@ -1,0 +1,167 @@
+[
+  {
+    "id": "development-start",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-1"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:23:58.358Z",
+    "elapsedMs": 198,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/development-start.log",
+    "logSha256": "sha256:59e1579d3e6c548e6254bb976e6770810d779cc2e639d7d22e6cd438031f0e6a"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-507"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:23:58.556Z",
+    "elapsedMs": 198,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/next-development.log",
+    "logSha256": "sha256:6defa811b84f1e947c38d70524d7d6891a6f877fb35a8f376048a4a89990dbe8"
+  },
+  {
+    "id": "focused-function",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/website/tests/website-compliance.test.ts",
+      "apps/website/tests/web101-access.test.ts",
+      "packages/domain-ui/tests/chrome.test.tsx",
+      "packages/ui/tests/ui103.test.tsx",
+      "packages/ui/tests/workspace.test.tsx",
+      "packages/ui/tests/state-badge.test.tsx",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/fep1-function-local-20261022/attempt-01/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:23:58.754Z",
+    "elapsedMs": 1411,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/focused-function.log",
+    "logSha256": "sha256:92b0c72c6e4d0ad2374f2572d745cd9df4d21f9bbe4286404c9ba96a5a4e21b9"
+  },
+  {
+    "id": "terminal-types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:00.165Z",
+    "elapsedMs": 930,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/terminal-types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "website-types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:01.095Z",
+    "elapsedMs": 1556,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/website-types.log",
+    "logSha256": "sha256:f80eb2863ee274048f8ebbc6e1bf420632e84db0596f6d8581fe63c9dd5cc786"
+  },
+  {
+    "id": "execution-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/development-execution.test.mjs",
+      "scripts/fep1-function-review.test.mjs",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:02.651Z",
+    "elapsedMs": 623,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/execution-negative.log",
+    "logSha256": "sha256:224a82edc4dd012f2092ac200b15574a4265255b4d9c75939c1634050253b8f5"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/development-execution.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/fep1-function-review.mjs",
+      "scripts/fep1-function-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:03.274Z",
+    "elapsedMs": 538,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:03.813Z",
+    "elapsedMs": 71,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-1"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T14:24:03.884Z",
+    "elapsedMs": 202,
+    "log": "docs/audit/evidence/fep1-function-local-20261022/attempt-01/integration-refusal.log",
+    "logSha256": "sha256:9ffcce0317525c97546834aae96accd544068732c1f59734e4551255ed8a520a"
+  }
+]
