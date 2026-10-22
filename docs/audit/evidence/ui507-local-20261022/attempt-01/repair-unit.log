@@ -1,0 +1,44 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/audit-runtime.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 34[2mms[22m[39m
+     [32m✓[39m guards session/context authority before data, and refuses read-only mutation[32m 16[2mms[22m[39m
+     [32m✓[39m sends filters and opaque cursor to server; new query discards the old cursor[32m 2[2mms[22m[39m
+     [32m✓[39m rejects duplicate event page[32m 1[2mms[22m[39m
+     [32m✓[39m rejects loop event page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects expired event page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects oversize event page[32m 0[2mms[22m[39m
+     [32m✓[39m accumulates evidence pages preserving causation and scope-complete semantics[32m 1[2mms[22m[39m
+     [32m✓[39m blocks invalid request, CSRF, offline, expiry and closed route before MFA[32m 1[2mms[22m[39m
+     [32m✓[39m rechecks authority between MFA and reauth so revocation cannot dispatch mutation[32m 1[2mms[22m[39m
+     [32m✓[39m lost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key[32m 5[2mms[22m[39m
+[31m     [31m×[31m honors validated 429 cooldown before MFA then permits explicit retry[39m[32m 3[2mms[22m[39m
+     [32m✓[39m never downloads queued/cancelled/expired jobs and only hands off a valid ready lease[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mhonors validated 429 cooldown before MFA then permits explicit retry
+[31m[1mAuditGatewayError[22m: 请求过于频繁，请等待后显式重试。[39m
+[36m [2m❯[22m fail apps/terminal/src/audit/runtime.ts:[2m15:71[22m[39m
+    [90m 13|[39m   [35mlet[39m uncertain[33m:[39m string [33m|[39m undefined[33m;[39m
+    [90m 14|[39m   const keys = new Map<string,string>(), searchCursors = new Set<strin…
+    [90m 15|[39m   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw …
+    [90m   |[39m                                                                       [31m^[39m
+    [90m 16|[39m   [35mfunction[39m [34mguard[39m(write [33m=[39m [35mfalse[39m) {
+    [90m 17|[39m     config[33m.[39m[34mauthorize[39m()[33m;[39m
+[90m [2m❯[22m guard apps/terminal/src/audit/runtime.ts:[2m22:35[22m[39m
+[90m [2m❯[22m mutation apps/terminal/src/audit/runtime.ts:[2m40:5[22m[39m
+[90m [2m❯[22m apps/terminal/src/audit/runtime.ts:[2m94:14[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/audit/runtime.ts:[2m27:23[22m[39m
+[90m [2m❯[22m Object.create apps/terminal/src/audit/runtime.ts:[2m90:56[22m[39m
+[90m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m60:299[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m19 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 22:50:27
+[2m   Duration [22m 315ms[2m (transform 228ms, setup 0ms, import 403ms, tests 69ms, environment 0ms)[22m
+

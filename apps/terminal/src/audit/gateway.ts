@@ -4,7 +4,7 @@ import type { BffComponents, BffOperations } from "@sumalpha/api-client";
 
 export type AuditSearch = NonNullable<BffOperations["searchAuditEvents"]["parameters"]["query"]>;
 export type ExportRequest = BffOperations["createExport"]["requestBody"]["content"]["application/json"];
-export type AuditEventPage = BffComponents["schemas"]["AuditEventPage"];
+export type AuditEventPage = Omit<BffComponents["schemas"]["AuditEventPage"], "items"> & {items: BffComponents["schemas"]["AuditEvent"][]};
 export type EvidenceChainPage = BffComponents["schemas"]["EvidenceChainPage"];
 export type ExportJob = BffComponents["schemas"]["ExportJob"];
 export type ExportDownloadMetadata = BffComponents["schemas"]["ExportDownloadMetadata"];
@@ -15,20 +15,21 @@ export class AuditGatewayError extends Error {
     readonly operation: string,
     readonly status?: number,
     readonly correlationId?: string,
+    readonly retryAfter?: number,
   ) {
     super(message);
     this.name = "AuditGatewayError";
   }
 }
 
-function failure(operation: string, result: { response: Response; error?: { correlationId?: string } }): AuditGatewayError {
+function failure(operation: string, result: { response: Response; error?: { correlationId?: string; retryAfter?: number } }): AuditGatewayError {
   const status = result.response.status;
   const message = status === 410
     ? "导出已过期，请重新创建。"
     : status === 403 || status === 404
       ? "资源不存在或无权访问。"
       : "审计服务暂不可用，请稍后重试。";
-  return new AuditGatewayError(message, operation, status, result.error?.correlationId);
+  return new AuditGatewayError(message, operation, status, result.error?.correlationId, result.error?.retryAfter);
 }
 
 function required<T>(operation: BffOperationId, result: {data?: T; error?: unknown; response: Response}, expectedId?: string): T {

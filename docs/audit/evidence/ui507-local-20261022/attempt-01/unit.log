@@ -1,0 +1,127 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/audit-runtime.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 31[2mms[22m[39m
+     [32m✓[39m guards session/context authority before data, and refuses read-only mutation[32m 15[2mms[22m[39m
+[31m     [31m×[31m sends filters and opaque cursor to server; new query discards the old cursor[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m rejects duplicate event page[39m[32m 2[2mms[22m[39m
+     [32m✓[39m rejects loop event page[32m 1[2mms[22m[39m
+[31m     [31m×[31m rejects expired event page[39m[32m 1[2mms[22m[39m
+     [32m✓[39m rejects oversize event page[32m 0[2mms[22m[39m
+[31m     [31m×[31m accumulates evidence pages preserving causation and scope-complete semantics[39m[32m 1[2mms[22m[39m
+     [32m✓[39m blocks invalid request, CSRF, offline, expiry and closed route before MFA[32m 2[2mms[22m[39m
+[31m     [31m×[31m rechecks authority between MFA and reauth so revocation cannot dispatch mutation[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m lost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m honors validated 429 cooldown before MFA then permits explicit retry[39m[32m 1[2mms[22m[39m
+     [32m✓[39m never downloads queued/cancelled/expired jobs and only hands off a valid ready lease[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22msends filters and opaque cursor to server; new query discards the old cursor
+[31m[1mAuditGatewayError[22m: 审计服务响应无效，请稍后重试。[39m
+[36m [2m❯[22m required apps/terminal/src/audit/gateway.ts:[2m48:11[22m[39m
+    [90m 46|[39m     [35mreturn[39m value[33m;[39m
+    [90m 47|[39m   } [35mcatch[39m {
+    [90m 48|[39m     throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.r…
+    [90m   |[39m           [31m^[39m
+    [90m 49|[39m   }
+    [90m 50|[39m }
+[90m [2m❯[22m searchAuditEvents apps/terminal/src/audit/gateway.ts:[2m59:10[22m[39m
+[90m [2m❯[22m apps/terminal/src/audit/runtime.ts:[2m76:20[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/audit/runtime.ts:[2m27:17[22m[39m
+[90m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m31:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects duplicate event page
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects expired event page
+[31m[1mAssertionError[22m: expected AuditGatewayError: 审计服务响应无效，请稍后重试。 { …(4) } to match object { status: 410 }
+(4 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "status": 410,[39m
+[31m+ AuditGatewayError {[39m
+[31m+   "status": 200,[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m36:227[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22maccumulates evidence pages preserving causation and scope-complete semantics
+[31m[1mAuditGatewayError[22m: 审计服务响应无效，请稍后重试。[39m
+[36m [2m❯[22m required apps/terminal/src/audit/gateway.ts:[2m48:11[22m[39m
+    [90m 46|[39m     [35mreturn[39m value[33m;[39m
+    [90m 47|[39m   } [35mcatch[39m {
+    [90m 48|[39m     throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.r…
+    [90m   |[39m           [31m^[39m
+    [90m 49|[39m   }
+    [90m 50|[39m }
+[90m [2m❯[22m loadEvidenceChain apps/terminal/src/audit/gateway.ts:[2m72:10[22m[39m
+[90m [2m❯[22m apps/terminal/src/audit/runtime.ts:[2m85:20[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/audit/runtime.ts:[2m27:17[22m[39m
+[90m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m41:34[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrechecks authority between MFA and reauth so revocation cannot dispatch mutation
+[31m[1mAssertionError[22m: expected [Function] to throw error including 'invalidated' but got 'BFF response does not match the publi…'[39m
+
+Expected: [32m"invalidated"[39m
+Received: [31m"BFF response does not match the published contract"[39m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m51:70[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mlost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key
+[31m[1mAssertionError[22m: expected BffResponseError: BFF response does not m… { …(2) } to match object { outcomeUnknown: true }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "outcomeUnknown": true,[39m
+[31m+ BffResponseError {[39m
+[31m+   "message": "BFF response does not match the published contract",[39m
+[31m+   "operation": "mfaChallenge",[39m
+[31m+   "status": 200,[39m
+[31m+   "name": "BffResponseError",[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m55:70[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mhonors validated 429 cooldown before MFA then permits explicit retry
+[31m[1mAssertionError[22m: expected BffResponseError: BFF response does not m… { …(2) } to match object { status: 429 }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "status": 429,[39m
+[31m+ BffResponseError {[39m
+[31m+   "status": 200,[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m60:70[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m13 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 22:49:01
+[2m   Duration [22m 355ms[2m (transform 265ms, setup 0ms, import 468ms, tests 68ms, environment 0ms)[22m
+
