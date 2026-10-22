@@ -1,0 +1,102 @@
+{
+  "schema": "quantos-g1-journey-confirmation-checks/v1",
+  "scope": "CONFIRMATION_CLOSURE_ONLY",
+  "sourceCommit": "38569928f3557f80ca8bf3717d1f77882cf1e5ae",
+  "sourcePacket": "309492b0054747d46ca4a3d587dc64910f78e3c1",
+  "functionalTestsRerun": false,
+  "recursiveDependencyRevalidation": false,
+  "integrationAdmission": "NOT_GRANTED",
+  "releaseAdmission": "NOT_GRANTED",
+  "checks": [
+    {
+      "id": "gate",
+      "command": [
+        "node",
+        "docs/audit/evidence/g1-journey-confirmation-20261022/verify.mjs",
+        "--record"
+      ],
+      "startedAt": "2026-10-22T14:00:05.652Z",
+      "elapsedMs": 648,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/gate.log",
+      "logSha256": "sha256:b5beb70cad069ddb7c2b7d186d8bce19317ebe66043362787eb7532581bbbddf"
+    },
+    {
+      "id": "verification",
+      "command": [
+        "node",
+        "docs/audit/evidence/g1-journey-confirmation-20261022/verify.mjs",
+        "--verify"
+      ],
+      "startedAt": "2026-10-22T14:00:06.300Z",
+      "elapsedMs": 653,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/verification.log",
+      "logSha256": "sha256:b5beb70cad069ddb7c2b7d186d8bce19317ebe66043362787eb7532581bbbddf"
+    },
+    {
+      "id": "confirmation-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "startedAt": "2026-10-22T14:00:06.953Z",
+      "elapsedMs": 78,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/confirmation-tests.log",
+      "logSha256": "sha256:00aa5421197bb8ec741f3b8282dec2a56dbefbb3fb4358c833dd5d7fd8053e5f"
+    },
+    {
+      "id": "engineering-verification",
+      "command": [
+        "node",
+        "scripts/g1-journey-review.mjs",
+        "--verify"
+      ],
+      "startedAt": "2026-10-22T14:00:07.031Z",
+      "elapsedMs": 537,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/engineering-verification.log",
+      "logSha256": "sha256:02c633ac37c483a2e4f3e5f6e3f4496defb64f49edf2cd5e77c35190267bd6a6"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-22T14:00:07.568Z",
+      "elapsedMs": 65,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "docs/audit/evidence/g1-journey-confirmation-20261022/verify.mjs"
+      ],
+      "startedAt": "2026-10-22T14:00:07.633Z",
+      "elapsedMs": 858,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-journey-confirmation-20261022/lint.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
