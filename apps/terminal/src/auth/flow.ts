@@ -1,3 +1,4 @@
+import {publishAuthInvalidation} from "./invalidation";
 import { createBffFetch } from "@sumalpha/api-client";
 import { deriveCodeChallenge, generateCodeVerifier, generateState } from "./pkce";
 
@@ -29,10 +30,12 @@ export const sessionStore = {
   set: (s: Session) => {
     sessionEpoch++;
     currentSession = s;
+    publishAuthInvalidation("context");
   },
   clear: () => {
     sessionEpoch++;
     currentSession = null;
+    publishAuthInvalidation("session");
   },
 };
 

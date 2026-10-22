@@ -6,7 +6,7 @@ import { ui104SettingsFixture } from "./fixture";
 import { loadSettingsSnapshot, notificationInput, profileInput, notificationDraftInput, profileDraftInput, revokeMfaFactor, revokeSettingsSession, revokeTrustedDevice, saveNotificationSettings, saveProfileSettings, SettingsGatewayError, type SettingsSnapshot, type SettingsSection } from "./gateway";
 import { listBrowserDownloads, requestBrowserDownload } from "./platform";
 export type SecurityTarget = "session" | "device" | "factor";
-export interface SettingsRuntimeOptions { mock: boolean; origin?: string; section?: SettingsSection; fetchImpl?: typeof fetch; runtime: () => { online: boolean; width: number; csrf: string }; timeoutMs?: number }
+export interface SettingsRuntimeOptions { mock: boolean; origin?: string; section?: SettingsSection; fetchImpl?: typeof fetch; runtime: () => { online: boolean; width: number; csrf: string }; timeoutMs?: number; authorize?: () => void }
 const mockContext = () => ({ actorId: "11111111-1111-4111-8111-111111111111", tenantId: "22222222-2222-4222-8222-222222222222", workspaceId: "33333333-3333-4333-8333-333333333333", accountId: "44444444-4444-4444-8444-444444444444", mode: "paper" as const, environment: "dev" as const, capabilities: ["settings.read", "settings.write", "audit:read"], mfaState: "verified" as const, expiresAt: "2099-01-01T00:00:00Z" });
 export function createSettingsRuntime(config: SettingsRuntimeOptions) {
   const transport = config.fetchImpl ?? fetch, lifetime = new AbortController();
@@ -16,6 +16,7 @@ export function createSettingsRuntime(config: SettingsRuntimeOptions) {
   const demo = structuredClone(ui104SettingsFixture), keys = new Map<string, string>(), accepted = new Map<string, { status: "accepted"; jobId: string }>();
   function fail(status: number, message = "请求未完成，请重新验证后重试。"): never { if (status === 401) handleAuthHttpStatus(401); throw new SettingsGatewayError(message, "settingsRuntime", undefined, status); }
   function guard(write = false, highRisk = false) {
+    config.authorize?.();
     if (lifetime.signal.aborted || !loaded || !snapshot) fail(403);
     if (Date.parse(snapshot.context.expiresAt) <= Date.now()) fail(401);
     if (write && retryAt > Date.now()) throw new SettingsGatewayError("请求过于频繁，请等待后重试。", "settingsRuntime", undefined, 429, "RATE_LIMITED", undefined, Math.ceil((retryAt - Date.now()) / 1000));
@@ -33,10 +34,10 @@ export function createSettingsRuntime(config: SettingsRuntimeOptions) {
       throw reason;
     } finally { busy = false; } }
   async function freshForDraft() {
-    const previous = guard().context;
+    const previous = guard().context, epoch = generation;
     const fresh = config.mock ? { context: mockContext(), loadedAt: new Date().toISOString(), bundle: { ...structuredClone(demo), downloadsNextCursor: demo.downloadsNextCursor } } : await loadSettingsSnapshot(config.origin!, transport, options, config.section);
     if (["actorId", "tenantId", "workspaceId", "accountId", "mode"].some(key => fresh.context[key as keyof typeof previous] !== previous[key as keyof typeof previous])) fail(403);
-    snapshot = fresh; return fresh;
+    guard(); if (epoch !== generation) fail(403); snapshot = fresh; return fresh;
   }
   return {
     async load(signal?: AbortSignal): Promise<SettingsSnapshot> {
@@ -47,32 +48,32 @@ export function createSettingsRuntime(config: SettingsRuntimeOptions) {
     },
     close() { loaded = false; snapshot = undefined; generation++; lifetime.abort(); keys.clear(); accepted.clear(); },
     saveProfile(draft: ProfileSettings) { return exclusive(async () => {
-      const input = profileInput(draft), intent = identity("profile", [draft.objectVersion, input]); guard(true);
+      const epoch = generation, input = profileInput(draft), intent = identity("profile", [draft.objectVersion, input]); guard(true);
       let saved: ProfileSettings;
       if (config.mock) { if (draft.objectVersion !== demo.profile.objectVersion) fail(409, "版本冲突，草稿已保留。"); saved = { ...demo.profile, ...input, objectVersion: crypto.randomUUID() }; demo.profile = saved; }
       else saved = await saveProfileSettings(config.origin!, input, draft.objectVersion, keyFor(intent), config.runtime().csrf, transport, options);
-      guard(true); if (saved.memberId !== snapshot!.bundle.profile.memberId) fail(403); keys.delete(intent); return saved;
+      guard(true); if (epoch !== generation) fail(403); if (saved.memberId !== snapshot!.bundle.profile.memberId) fail(403); keys.delete(intent); return saved;
     }); },
     saveNotifications(draft: NotificationPreferences) { return exclusive(async () => {
-      const input = notificationInput(draft), intent = identity("notifications", [draft.objectVersion, input]); guard(true);
+      const epoch = generation, input = notificationInput(draft), intent = identity("notifications", [draft.objectVersion, input]); guard(true);
       let saved: NotificationPreferences;
       if (config.mock) { if (draft.objectVersion !== demo.notifications.objectVersion) fail(409, "版本冲突，草稿已保留。"); saved = { ...demo.notifications, ...input, objectVersion: crypto.randomUUID() }; demo.notifications = saved; }
       else saved = await saveNotificationSettings(config.origin!, input, draft.objectVersion, keyFor(intent), config.runtime().csrf, transport, options);
-      guard(true); keys.delete(intent); return saved;
+      guard(true); if (epoch !== generation) fail(403); keys.delete(intent); return saved;
     }); },
     async refreshProfile(draft: ProfileSettings) { const latest = (await freshForDraft()).bundle.profile; return { ...latest, ...profileDraftInput(draft) }; },
     async refreshNotifications(draft: NotificationPreferences) { const latest = (await freshForDraft()).bundle.notifications; if (!latest) fail(403); return { ...latest, ...notificationDraftInput(draft) }; },
     reauthenticate(code: string) { return exclusive(async () => {
-      guard(true, true); if (!/^\d{6}$/.test(code)) fail(422);
+      const epoch = generation; guard(true, true); if (!/^\d{6}$/.test(code)) fail(422);
       if (config.mock) return { expiresAt: new Date(Date.now() + 30000).toISOString() };
       const challenge = await completeSecurityMfa(config.origin!, code, config.runtime().csrf, transport, options);
-      guard(true, true); if (challenge.status !== "verified") fail(422);
+      guard(true, true); if (epoch !== generation) fail(403); if (challenge.status !== "verified") fail(422);
       const grant = await completeRecentAuth(config.origin!, challenge.challengeRef, config.runtime().csrf, transport, options);
-      guard(true, true); if (Date.parse(grant.expiresAt) <= Date.now()) fail(403);
+      guard(true, true); if (epoch !== generation || Date.parse(grant.expiresAt) <= Date.now()) fail(403);
       return { expiresAt: grant.expiresAt };
     }); },
     revoke(kind: SecurityTarget, id: string, phrase: string, code?: string) { return exclusive(async () => {
-      guard(true, true);
+      const epoch = generation; guard(true, true);
       if (phrase !== `REVOKE ${id}` || !/^\d{6}$/.test(code ?? "")) fail(422);
       const data = snapshot!.bundle, runtime = config.runtime();
       if (!data.security || !data.sessions || !data.devices) fail(403);
@@ -88,15 +89,15 @@ export function createSettingsRuntime(config: SettingsRuntimeOptions) {
         if (kind === "factor") demo.security.factors = demo.security.factors.filter(f => f.factorId !== id);
       } else {
         const challenge = await completeSecurityMfa(config.origin!, code!, config.runtime().csrf, transport, options);
-        guard(true, true); if (challenge.status !== "verified") fail(422);
+        guard(true, true); if (epoch !== generation) fail(403); if (challenge.status !== "verified") fail(422);
         const grant = await completeRecentAuth(config.origin!, challenge.challengeRef, config.runtime().csrf, transport, options);
-        guard(true, true); if (Date.parse(grant.expiresAt) <= Date.now()) fail(403);
+        guard(true, true); if (epoch !== generation || Date.parse(grant.expiresAt) <= Date.now()) fail(403);
         const revoke = kind === "session" ? revokeSettingsSession : kind === "device" ? revokeTrustedDevice : revokeMfaFactor;
         const response = await revoke(config.origin!, id, grant.reauthTokenRef, keyFor(intent), config.runtime().csrf, transport, options);
         if (response.status !== "accepted") throw Error("Security request not accepted");
         result = { status: response.status, jobId: response.jobId };
       }
-      accepted.set(intent, result); return result;
+      guard(true, true); if (epoch !== generation) fail(403); accepted.set(intent, result); return result;
     }); },
     moreDownloads(cursor: string) { return exclusive(async () => {
       guard(); const epoch = generation, current = snapshot!.bundle;

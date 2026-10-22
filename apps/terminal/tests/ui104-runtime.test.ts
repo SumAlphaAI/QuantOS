@@ -5,7 +5,7 @@ import { sessionStore } from "../src/auth/flow";
 const id = "11111111-1111-4111-8111-111111111111";
 const ctx = () => ({ actorId: id, tenantId: id, workspaceId: id, accountId: id, mode: "shadow", environment: "dev", mfaState: "verified", expiresAt: new Date(Date.now() + 300000).toISOString(), capabilities: ["settings.read", "settings.write"] });
 const accepted = { status: "accepted", jobId: id, correlationId: id, auditRef: id };
-function setup(override: (request: Request, body: unknown) => Promise<Response | undefined> | Response | undefined = () => undefined, section?: "profile" | "security" | "notifications" | "browser") {
+function setup(override: (request: Request, body: unknown) => Promise<Response | undefined> | Response | undefined = () => undefined, section?: "profile" | "security" | "notifications" | "browser", timeoutMs = 10) {
   const runtime = { online: true, width: 1440, csrf: "csrf-fixture" }; const requests: Request[] = [];
   const data = structuredClone(ui104SettingsFixture);
   const bodies: Record<string, () => unknown> = { "/v1/session": ctx, "/v1/context": ctx, "/v1/settings/profile": () => data.profile, "/v1/settings/notification-preferences": () => data.notifications, "/v1/settings/security": () => data.security, "/v1/settings/sessions": () => data.sessions, "/v1/settings/trusted-devices": () => data.devices, "/v1/settings/downloads": () => ({ items: data.downloads }), "/v1/platform/browser-capabilities": () => data.browserPolicy };
@@ -19,7 +19,7 @@ function setup(override: (request: Request, body: unknown) => Promise<Response |
     if (request.method === "PUT") return Response.json({ ...(path.endsWith("/profile") ? data.profile : data.notifications), ...(body as object), objectVersion: "server-v2" });
     return Response.json(bodies[path]?.() ?? {});
   };
-  const actions = createSettingsRuntime({ mock: false, section, origin: "https://bff.example", fetchImpl, runtime: () => runtime, timeoutMs: 10 });
+  const actions = createSettingsRuntime({ mock: false, section, origin: "https://bff.example", fetchImpl, runtime: () => runtime, timeoutMs });
   return { actions, requests, runtime, data };
 }
 afterEach(() => { sessionStore.clear(); vi.useRealTimers(); });
@@ -78,4 +78,26 @@ it.each(["device","factor"] as const)("%s revocation uses the same verified secu
 });
 it("rebase refuses a switched workspace before exposing merged drafts",async()=>{
  let switched=false;const t=setup(req=>switched&&["/v1/session","/v1/context"].includes(new URL(req.url).pathname)?Response.json({...ctx(),workspaceId:"22222222-2222-4222-8222-222222222222"}):undefined);await t.actions.load();switched=true;await expect(t.actions.refreshProfile(t.data.profile)).rejects.toMatchObject({status:403});
+});
+it("superseded profile save cannot publish success into a reloaded snapshot", async () => {
+  let finish: ((r: Response) => void) | undefined;
+  const t=setup(req=>req.method==="PUT"?new Promise<Response>(r=>{finish=r;}):undefined,"profile",1000);
+  await t.actions.load();const save=t.actions.saveProfile({...t.data.profile,displayName:"Pending old generation"});const rejected=expect(save).rejects.toMatchObject({status:403});
+  await vi.waitFor(()=>expect(finish).toBeTypeOf("function"));await t.actions.load();finish!(Response.json({...t.data.profile,displayName:"Pending old generation",objectVersion:"committed-old"}));await rejected;
+  expect(t.requests.filter(r=>r.method==="PUT")).toHaveLength(1);t.actions.close();
+});
+for(const step of ["challenges","reauth"] as const)it(`superseded security ${step} cannot proceed to another high-risk request`,async()=>{
+ let finish:((r:Response)=>void)|undefined;
+ const t=setup(req=>new URL(req.url).pathname.endsWith('/'+step)?new Promise<Response>(r=>{finish=r;}):undefined,"security",1000);
+ const snapshot=await t.actions.load(),target=snapshot.bundle.sessions![1]!;
+ const pending=t.actions.revoke("session",target.sessionId,`REVOKE ${target.sessionId}`,"123456"),rejected=expect(pending).rejects.toMatchObject({status:403});
+ await vi.waitFor(()=>expect(finish).toBeTypeOf("function"));await t.actions.load();
+ finish!(Response.json(step==="challenges"?{status:"verified",challengeRef:id}:{reauthTokenRef:id,expiresAt:new Date(Date.now()+30000).toISOString()}));await rejected;
+ expect(t.requests.some(r=>r.method==="DELETE")).toBe(false);if(step==="challenges")expect(t.requests.some(r=>r.url.endsWith('/reauth'))).toBe(false);t.actions.close();
+});
+it("route authority assertion fences writes before dispatch even if the UI has not rerendered",async()=>{
+ let permitted=true;
+ const actions=createSettingsRuntime({mock:true,section:"profile",runtime:()=>({online:true,width:1440,csrf:"fixture"}),authorize:()=>{if(!permitted)throw Error("Route lease invalidated");}});
+ const before=await actions.load();permitted=false;await expect(actions.saveProfile({...before.bundle.profile,displayName:"Must not save"})).rejects.toThrow("Route lease invalidated");
+ permitted=true;const after=await actions.load();expect(after.bundle.profile).toEqual(before.bundle.profile);actions.close();
 });
