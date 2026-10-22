@@ -1,0 +1,134 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui-p01-action.test.ts",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/ui102-callback-lifecycle.test.ts",
+      "apps/terminal/tests/deep-link-auth.test.ts",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "apps/terminal/tests/ui104-settings.test.ts"
+    ],
+    "startedAt": "2026-10-22T05:08:34.934Z",
+    "elapsedMs": 848,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/unit.log",
+    "logSha256": "sha256:198f26945d3f7ba1182d290734c521ccede57c6c4fc2949bf1126bb514f127f3"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-22T05:08:35.782Z",
+    "elapsedMs": 2913,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/types.log",
+    "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "startedAt": "2026-10-22T05:08:38.695Z",
+    "elapsedMs": 966,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/lint.log",
+    "logSha256": "sha256:9451b49ef36e0a9e294fb730bfc40b92061d1a9b23645036cf2e1963c1ee467c"
+  },
+  {
+    "id": "test-lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "tests/e2e/ui-p01.spec.ts",
+      "tests/e2e/ui102-auth.spec.ts",
+      "scripts/ui-p01-review.mjs",
+      "scripts/ui-p01-review.test.mjs"
+    ],
+    "startedAt": "2026-10-22T05:08:39.661Z",
+    "elapsedMs": 581,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/test-lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-p01-review.test.mjs",
+      "scripts/frontend-import-boundary.test.mjs"
+    ],
+    "startedAt": "2026-10-22T05:08:40.243Z",
+    "elapsedMs": 526,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/negative.log",
+    "logSha256": "sha256:f45ddb22578f032ae1fd9fc0b578eeccf603e54d074ff8f7bc955296700c3a71"
+  },
+  {
+    "id": "build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "startedAt": "2026-10-22T05:08:40.769Z",
+    "elapsedMs": 8038,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/build.log",
+    "logSha256": "sha256:50563cb4d430579d47fabc4eb8c5c6b2b832fb9df4891842d25ba94de6402dc5"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/ui-p01.spec.ts",
+      "--grep-invert",
+      "visual baselines",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/browser/results"
+    ],
+    "startedAt": "2026-10-22T05:08:48.808Z",
+    "elapsedMs": 203681,
+    "exitCode": 130,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/browser.log",
+    "logSha256": "sha256:3d6e63ecae6068b5da1e085700e0bbbd6e924a3a8c580ee6158ad1ac5a9a8932"
+  }
+]

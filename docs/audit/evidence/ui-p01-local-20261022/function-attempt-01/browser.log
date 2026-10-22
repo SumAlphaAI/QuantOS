@@ -1,0 +1,47 @@
+
+Running 39 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p01.spec.ts:16:5 › C01 access double submit is single-flight and 202 retains audit correlation without granting access (200ms)
+  ✓   2 [chromium] › tests/e2e/ui-p01.spec.ts:28:38 › access 422 is neutral, preserves inputs and permits only explicit retry (242ms)
+  ✓   3 [chromium] › tests/e2e/ui-p01.spec.ts:28:38 › access 429 is neutral, preserves inputs and permits only explicit retry (1.6s)
+  ✓   4 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain network response requires acknowledgement before resubmission (262ms)
+  ✓   5 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain malformed response requires acknowledgement before resubmission (262ms)
+  ✓   6 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain server response requires acknowledgement before resubmission (245ms)
+  ✓   7 [chromium] › tests/e2e/ui-p01.spec.ts:56:5 › offline cancels a waiting access request and reconnect never replays it (176ms)
+  ✓   8 [chromium] › tests/e2e/ui-p01.spec.ts:67:5 › offline before submission blocks access and login but preserves draft for manual recovery (219ms)
+  ✓   9 [chromium] › tests/e2e/ui-p01.spec.ts:76:5 › MFA enforces server cooldown, clears code, and retries only on user action (1.5s)
+  ✓  10 [chromium] › tests/e2e/ui-p01.spec.ts:87:5 › MFA failed or expired challenge remains neutral and restart preserves a safe route (178ms)
+  ✓  11 [chromium] › tests/e2e/ui-p01.spec.ts:94:5 › offline safe recovery, concealed correlation and clipboard failure remain actionable (265ms)
+  ✓  12 [chromium] › tests/e2e/ui-p01.spec.ts:104:7 › P01 five pages dark responsive keyboard and axe (1.6s)
+  ✓  13 [chromium] › tests/e2e/ui-p01.spec.ts:104:7 › P01 five pages light responsive keyboard and axe (1.4s)
+  ✘  14 [firefox] › tests/e2e/ui-p01.spec.ts:16:5 › C01 access double submit is single-flight and 202 retains audit correlation without granting access (0ms)
+  ✘  15 [firefox] › tests/e2e/ui-p01.spec.ts:28:38 › access 422 is neutral, preserves inputs and permits only explicit retry (0ms)
+
+
+  1) [firefox] › tests/e2e/ui-p01.spec.ts:16:5 › C01 access double submit is single-flight and 202 retains audit correlation without granting access 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/anray/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/playwright_firefoxdev_profile-zVvWuh -juggler-pipe -silent
+      - <launched> pid=71023
+      - [pid=71023][err] *** You are running in headless mode.
+      - [pid=71023][err] sandbox_extension_issue_file_to_process failed for /Users/anray/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+      - [pid=71023][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=1.45886) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/browser/results/ui-p01-C01-access-double-s-c2eab-ion-without-granting-access-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/browser/results/ui-p01-C01-access-double-s-c2eab-ion-without-granting-access-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/function-attempt-01/browser/results/ui-p01-C01-access-double-s-c2eab-ion-without-granting-access-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [firefox] › tests/e2e/ui-p01.spec.ts:16:5 › C01 access double submit is single-flight and 202 retains audit correlation without granting access 
+  1 interrupted
+    [firefox] › tests/e2e/ui-p01.spec.ts:28:38 › access 422 is neutral, preserves inputs and permits only explicit retry 
+  24 did not run
+  13 passed (3.4m)

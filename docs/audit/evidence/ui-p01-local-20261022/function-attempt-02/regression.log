@@ -1,0 +1,23 @@
+
+Running 18 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/auth-callback.spec.ts:40:7 › OIDC callback PoC › 完整流：login → PKCE authorize → callback 交换 → 安全 return path (206ms)
+  ✓   2 [chromium] › tests/e2e/auth-callback.spec.ts:56:7 › OIDC callback PoC › 跨站 return_to 被消毒回退到 /command (168ms)
+  ✓   3 [chromium] › tests/e2e/auth-callback.spec.ts:66:7 › OIDC callback PoC › state 不匹配：不发起 token 交换并显示安全错误 (102ms)
+  ✓   4 [chromium] › tests/e2e/auth-callback.spec.ts:78:7 › OIDC callback PoC › IdP 返回 error：不发起交换，错误提示不含敏感细节 (104ms)
+  ✓   5 [chromium] › tests/e2e/ui102-auth.spec.ts:16:7 › UI-102 identity, access and recovery › P01 登录页仅展示安全、审计、Paper/Shadow 三项事实且通过 axe (323ms)
+  ✓   6 [chromium] › tests/e2e/ui102-auth.spec.ts:28:7 › UI-102 identity, access and recovery › MFA 成功后只返回消毒后的安全路由 (173ms)
+  ✓   7 [chromium] › tests/e2e/ui102-auth.spec.ts:45:7 › UI-102 identity, access and recovery › MFA 429 文案不泄露账户存在性并展示等待时间 (188ms)
+  ✓   8 [chromium] › tests/e2e/ui102-auth.spec.ts:59:7 › UI-102 identity, access and recovery › 访问申请 202 只显示已受理而非权限已开通 (189ms)
+  ✓   9 [chromium] › tests/e2e/ui102-auth.spec.ts:74:7 › UI-102 identity, access and recovery › 403 页面与 404 页面使用相同的不可探测资源文案 (103ms)
+  ✓  10 [chromium] › tests/e2e/ui102-auth.spec.ts:83:7 › UI-102 identity, access and recovery › maintenance 明确禁写，offline 强制只读且不自动提交旧意图 (123ms)
+  ✓  11 [chromium] › tests/e2e/ui102-auth.spec.ts:95:7 › UI-102 identity, access and recovery › 390px 与 CSS zoom=2 下认证操作仍可达（原生缩放独立 NOT_RUN） (109ms)
+  ✓  12 [chromium] › tests/e2e/ui102-current.spec.ts:9:5 › provider rejection consumes pending data and strips every callback parameter (141ms)
+  ✓  13 [chromium] › tests/e2e/ui102-current.spec.ts:18:7 › callback mismatch refuses without token exchange; replay remains refused (179ms)
+  ✓  14 [chromium] › tests/e2e/ui102-current.spec.ts:18:7 › callback expired refuses without token exchange; replay remains refused (177ms)
+  ✓  15 [chromium] › tests/e2e/ui102-current.spec.ts:18:7 › callback malformed refuses without token exchange; replay remains refused (177ms)
+  ✓  16 [chromium] › tests/e2e/ui102-current.spec.ts:29:5 › valid mocked MFA callback routes through MFA without retaining PKCE or code (165ms)
+  ✓  17 [chromium] › tests/e2e/ui102-current.spec.ts:36:5 › MFA 401 returns to sanitized login after one attempt (183ms)
+  ✓  18 [chromium] › tests/e2e/ui102-current.spec.ts:49:5 › recovery surfaces expose usable headings, safe navigation and recorded axe findings (1.2s)
+
+  18 passed (5.1s)

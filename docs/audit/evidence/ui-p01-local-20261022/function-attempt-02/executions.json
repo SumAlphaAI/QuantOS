@@ -1,0 +1,218 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui-p01-action.test.ts",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/ui102-callback-lifecycle.test.ts",
+      "apps/terminal/tests/deep-link-auth.test.ts",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "apps/terminal/tests/ui104-settings.test.ts"
+    ],
+    "startedAt": "2026-10-22T05:12:59.678Z",
+    "elapsedMs": 887,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/unit.log",
+    "logSha256": "sha256:c0791a47f12aa21d98f4e0283d5082bc6ec4ee4810146f0cbe624eb9501e5d9d"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-22T05:13:00.565Z",
+    "elapsedMs": 1802,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/types.log",
+    "logSha256": "sha256:abef8a77e759df67db1b5019e02614f3704fa4201c9c34a8cc0c39db155228d2"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "lint"
+    ],
+    "startedAt": "2026-10-22T05:13:02.367Z",
+    "elapsedMs": 916,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/lint.log",
+    "logSha256": "sha256:9451b49ef36e0a9e294fb730bfc40b92061d1a9b23645036cf2e1963c1ee467c"
+  },
+  {
+    "id": "test-lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "tests/e2e/ui-p01.spec.ts",
+      "tests/e2e/ui102-auth.spec.ts",
+      "scripts/ui-p01-review.mjs",
+      "scripts/ui-p01-review.test.mjs",
+      "scripts/ui-p01-browser-environment.mjs"
+    ],
+    "startedAt": "2026-10-22T05:13:03.283Z",
+    "elapsedMs": 567,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/test-lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-p01-review.test.mjs",
+      "scripts/frontend-import-boundary.test.mjs"
+    ],
+    "startedAt": "2026-10-22T05:13:03.850Z",
+    "elapsedMs": 508,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/negative.log",
+    "logSha256": "sha256:ebe51f169afdf96b640d45b696273b4b215e82f48172e665862aed82c1bc48a9"
+  },
+  {
+    "id": "build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "startedAt": "2026-10-22T05:13:04.359Z",
+    "elapsedMs": 7719,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/build.log",
+    "logSha256": "sha256:90470ac608bbfad03c586503ff0cdc6bada8f4a1dfe0e6809ded7b7927512146"
+  },
+  {
+    "id": "firefox-diagnostic",
+    "command": [
+      "node",
+      "scripts/ui-p01-browser-environment.mjs",
+      "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/firefox-environment.json"
+    ],
+    "startedAt": "2026-10-22T05:13:12.079Z",
+    "elapsedMs": 10270,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/firefox-diagnostic.log",
+    "logSha256": "sha256:fd8eafae61b80cfe2addd7cc31d5c49a92b38d01140ea5997505a1ab7b74281f"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/ui-p01.spec.ts",
+      "--grep-invert",
+      "visual baselines",
+      "--project=chromium",
+      "--project=webkit",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/browser/results"
+    ],
+    "startedAt": "2026-10-22T05:13:22.349Z",
+    "elapsedMs": 22366,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/browser.log",
+    "logSha256": "sha256:5e22eb6773e5bcc59ca3090e18524d8f7e1fb1f2e9b65ded73272dc874db2036"
+  },
+  {
+    "id": "regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/ui102-auth.spec.ts",
+      "tests/e2e/ui102-current.spec.ts",
+      "tests/e2e/auth-callback.spec.ts",
+      "--grep-invert",
+      "视觉基线|visual baselines",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/regression/results"
+    ],
+    "startedAt": "2026-10-22T05:13:44.715Z",
+    "elapsedMs": 5578,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/regression.log",
+    "logSha256": "sha256:8e5c9c2c51ddc464036b4d0e4b37abae2010c610e280af61fe7d15c205d155d5"
+  },
+  {
+    "id": "visual",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/ui-p01.spec.ts",
+      "--grep",
+      "visual baselines",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/visual/results"
+    ],
+    "startedAt": "2026-10-22T05:13:50.294Z",
+    "elapsedMs": 3133,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/visual.log",
+    "logSha256": "sha256:8413b8cc929863957a75391eacec2dae35046e0c8639102aec3d2c9a68f8de5c"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-22T05:13:53.427Z",
+    "elapsedMs": 166,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/ui-p01-local-20261022/function-attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]

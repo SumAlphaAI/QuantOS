@@ -1,0 +1,213 @@
+
+Running 15 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p01.spec.ts:16:5 › C01 access double submit is single-flight and 202 retains audit correlation without granting access (342ms)
+  ✓   2 [chromium] › tests/e2e/ui-p01.spec.ts:28:38 › access 422 is neutral, preserves inputs and permits only explicit retry (223ms)
+  ✓   3 [chromium] › tests/e2e/ui-p01.spec.ts:28:38 › access 429 is neutral, preserves inputs and permits only explicit retry (1.5s)
+  ✘   4 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain network response requires acknowledgement before resubmission (197ms)
+  ✘   5 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain malformed response requires acknowledgement before resubmission (232ms)
+  ✘   6 [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain server response requires acknowledgement before resubmission (229ms)
+  ✘   7 [chromium] › tests/e2e/ui-p01.spec.ts:56:5 › offline cancels a waiting access request and reconnect never replays it (212ms)
+  ✓   8 [chromium] › tests/e2e/ui-p01.spec.ts:67:5 › offline before submission blocks access and login but preserves draft for manual recovery (233ms)
+  ✓   9 [chromium] › tests/e2e/ui-p01.spec.ts:76:5 › MFA enforces server cooldown, clears code, and retries only on user action (1.6s)
+  ✘  10 [chromium] › tests/e2e/ui-p01.spec.ts:87:5 › MFA failed or expired challenge remains neutral and restart preserves a safe route (169ms)
+  ✓  11 [chromium] › tests/e2e/ui-p01.spec.ts:94:5 › offline safe recovery, concealed correlation and clipboard failure remain actionable (284ms)
+  ✓  12 [chromium] › tests/e2e/ui-p01.spec.ts:104:7 › P01 five pages dark responsive keyboard and axe (1.5s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-login-dark-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-mfa-dark-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-access-request-dark-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-unauthorized-dark-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-offline-dark-chromium-darwin.png, writing actual.
+  ✓  13 [chromium] › tests/e2e/ui-p01.spec.ts:117:7 › P01 visual baselines dark (2.0s)
+  ✓  14 [chromium] › tests/e2e/ui-p01.spec.ts:104:7 › P01 five pages light responsive keyboard and axe (1.3s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-login-light-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-mfa-light-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-access-request-light-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-unauthorized-light-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts-snapshots/p01-offline-light-chromium-darwin.png, writing actual.
+  ✓  15 [chromium] › tests/e2e/ui-p01.spec.ts:117:7 › P01 visual baselines light (1.6s)
+
+
+  1) [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain network response requires acknowledgement before resubmission 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "结果未知"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="auth-error">请求结果未知，请先核查状态，避免重复提交。</p> aka getByText('请求结果未知，请先核查状态，避免重复提交。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      49 |   });
+      50 |   await page.goto("/access-request"); await fillAccess(page); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+    > 51 |   await expect(page.getByRole("alert")).toContainText("结果未知"); await expect(page.getByRole("button", { name: "提交申请", exact: true })).toBeDisabled();
+         |                                         ^
+      52 |   expect(calls).toBe(1); await page.getByRole("button", { name: "已核查受理状态，允许重新提交" }).click();
+      53 |   await expect(page.getByLabel("工作邮箱")).toHaveValue("research@example.com"); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+      54 |   await expect(page.getByRole("heading", { name: "申请已受理" })).toBeVisible(); expect(calls).toBe(2);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts:51:41
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ne-5c177-dgement-before-resubmission-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ne-5c177-dgement-before-resubmission-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ne-5c177-dgement-before-resubmission-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain malformed response requires acknowledgement before resubmission 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "结果未知"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="auth-error">请求结果未知，请先核查状态，避免重复提交。</p> aka getByText('请求结果未知，请先核查状态，避免重复提交。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      49 |   });
+      50 |   await page.goto("/access-request"); await fillAccess(page); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+    > 51 |   await expect(page.getByRole("alert")).toContainText("结果未知"); await expect(page.getByRole("button", { name: "提交申请", exact: true })).toBeDisabled();
+         |                                         ^
+      52 |   expect(calls).toBe(1); await page.getByRole("button", { name: "已核查受理状态，允许重新提交" }).click();
+      53 |   await expect(page.getByLabel("工作邮箱")).toHaveValue("research@example.com"); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+      54 |   await expect(page.getByRole("heading", { name: "申请已受理" })).toBeVisible(); expect(calls).toBe(2);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts:51:41
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ma-389ba-dgement-before-resubmission-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ma-389ba-dgement-before-resubmission-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-ma-389ba-dgement-before-resubmission-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain server response requires acknowledgement before resubmission 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "结果未知"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="auth-error">请求结果未知，请先核查状态，避免重复提交。</p> aka getByText('请求结果未知，请先核查状态，避免重复提交。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      49 |   });
+      50 |   await page.goto("/access-request"); await fillAccess(page); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+    > 51 |   await expect(page.getByRole("alert")).toContainText("结果未知"); await expect(page.getByRole("button", { name: "提交申请", exact: true })).toBeDisabled();
+         |                                         ^
+      52 |   expect(calls).toBe(1); await page.getByRole("button", { name: "已核查受理状态，允许重新提交" }).click();
+      53 |   await expect(page.getByLabel("工作邮箱")).toHaveValue("research@example.com"); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+      54 |   await expect(page.getByRole("heading", { name: "申请已受理" })).toBeVisible(); expect(calls).toBe(2);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts:51:41
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-se-d4b98-dgement-before-resubmission-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-se-d4b98-dgement-before-resubmission-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-access-uncertain-se-d4b98-dgement-before-resubmission-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/ui-p01.spec.ts:56:5 › offline cancels a waiting access request and reconnect never replays it 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "结果未知"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="auth-error">请求结果未知，请先核查状态，避免重复提交。</p> aka getByText('请求结果未知，请先核查状态，避免重复提交。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      62 |   await page.goto("/access-request"); await fillAccess(page); await page.getByRole("button", { name: "提交申请", exact: true }).click();
+      63 |   await expect.poll(() => calls).toBe(1); await context.setOffline(true); await page.evaluate(() => dispatchEvent(new Event("offline")));
+    > 64 |   await expect(page.getByRole("alert")).toContainText("结果未知"); release(); await context.setOffline(false); await page.evaluate(() => dispatchEvent(new Event("online")));
+         |                                         ^
+      65 |   await expect(page.getByRole("button", { name: "提交申请", exact: true })).toBeDisabled(); expect(calls).toBe(1);
+      66 | });
+      67 | test("offline before submission blocks access and login but preserves draft for manual recovery", async ({ page, context }) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts:64:41
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-offline-cancels-a-w-084d3--reconnect-never-replays-it-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-offline-cancels-a-w-084d3--reconnect-never-replays-it-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-offline-cancels-a-w-084d3--reconnect-never-replays-it-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/ui-p01.spec.ts:87:5 › MFA failed or expired challenge remains neutral and restart preserves a safe route 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert')
+    Expected: visible
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert" class="auth-error">验证码无效或已失效，请重新获取后再试。</p> aka getByText('验证码无效或已失效，请重新获取后再试。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      89 |   await page.route(`${BFF}/v1/auth/mfa/challenges`, route => route.fulfill({ status: route.request().method() === "OPTIONS" ? 204 : 200, headers: cors, json: route.request().method() === "OPTIONS" ? undefined : { challengeRef: accepted.jobId, status: "failed" } }));
+      90 |   await page.goto("/mfa?return_to=%2Fportfolio%2Fpositions"); await digits(page); await page.getByRole("button", { name: "验证并继续" }).click();
+    > 91 |   await expect(page.getByRole("alert")).toBeVisible(); await expect(page.getByRole("link", { name: "重新登录" })).toHaveAttribute("href", "/login?return_to=%2Fportfolio%2Fpositions");
+         |                                         ^
+      92 |   await expect(page.getByLabel("验证码第 1 位")).toHaveValue("");
+      93 | });
+      94 | test("offline safe recovery, concealed correlation and clipboard failure remain actionable", async ({ page }) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p01.spec.ts:91:41
+
+    Error Context: docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-MFA-failed-or-expir-abf1a-tart-preserves-a-safe-route-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-MFA-failed-or-expir-abf1a-tart-preserves-a-safe-route-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p01-local-20261022/preflight-02/browser/ui-p01-MFA-failed-or-expir-abf1a-tart-preserves-a-safe-route-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain network response requires acknowledgement before resubmission 
+    [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain malformed response requires acknowledgement before resubmission 
+    [chromium] › tests/e2e/ui-p01.spec.ts:41:60 › access uncertain server response requires acknowledgement before resubmission 
+    [chromium] › tests/e2e/ui-p01.spec.ts:56:5 › offline cancels a waiting access request and reconnect never replays it 
+    [chromium] › tests/e2e/ui-p01.spec.ts:87:5 › MFA failed or expired challenge remains neutral and restart preserves a safe route 
+  10 passed (14.3s)
