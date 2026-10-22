@@ -21,3 +21,10 @@ test('rejects browser skipped/flaky/failure/empty evidence', () => {
   for (const key of ['unexpected', 'flaky', 'skipped']) assert.throws(() => validateBrowser({ ...r, stats: { ...r.stats, [key]: 1 } }, 39));
   assert.throws(() => validateBrowser(r, 0)); assert.throws(() => validateBrowser({ ...r, errors: [{}] }, 39));
 });
+
+test('ESLint silent success is accepted only for the exact test-lint command with an intact empty log digest', () => {
+  const expected = [{ id: 'test-lint', command: ['pnpm', 'exec', 'eslint', 'file'] }], row = { ...expected[0], exitCode: 0, signal: null, errorCode: null, log: 'log', logSha256: digest('') };
+  validateExecution([row], expected, () => Buffer.from(''));
+  assert.throws(() => validateExecution([{ ...row, exitCode: 1 }], expected, () => Buffer.from('')));
+  assert.throws(() => validateExecution([{ ...row, logSha256: digest('fake') }], expected, () => Buffer.from('')));
+});

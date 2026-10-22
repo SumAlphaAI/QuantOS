@@ -30,7 +30,7 @@ export function snapshot() {
 function sourceCheck(inputs, sha) { assert.match(sha, /^[a-f0-9]{40}$/); for (const e of inputs) assert.equal(digest(execFileSync('git', ['show', `${sha}:${e.path}`], { maxBuffer: 32e6 })), e.sha256, 'source drift ' + e.path); }
 export function validateExecution(actual, expected, readBytes = read) {
   assert.equal(actual.length, expected.length);
-  for (const [i, r] of actual.entries()) { assert.equal(r.id, expected[i].id); assert.deepEqual(r.command, expected[i].command); assert.equal(r.exitCode, 0); assert.equal(r.signal, null); assert.equal(r.errorCode, null); assert(readBytes(r.log).length > 0); assert.equal(digest(readBytes(r.log)), r.logSha256); }
+  for (const [i, r] of actual.entries()) { assert.equal(r.id, expected[i].id); assert.deepEqual(r.command, expected[i].command); assert.equal(r.exitCode, 0); assert.equal(r.signal, null); assert.equal(r.errorCode, null); assert(r.id === 'test-lint' || readBytes(r.log).length > 0); assert.equal(digest(readBytes(r.log)), r.logSha256); }
 }
 export function validateState(r) {
   assert.equal(r.schema, 'quantos-ui-p01-current-function/v1'); assert.equal(r.nodeId, 'FE:UI-P01');
