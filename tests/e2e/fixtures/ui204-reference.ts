@@ -10,7 +10,7 @@ import {resolve,join} from "node:path";
 import {createHash} from "node:crypto";
 export const origin="https://127.0.0.1:4010",terminal="http://localhost:3190",csrf="csrf-token-0000000000000001",correlation="aaaaaaaa-1111-4111-8111-111111111111";
 const hash=(b:Buffer|string)=>createHash("sha256").update(b).digest("hex");
-type Row={method:string;path:string;status:number;source:string;port:string;query?:string;keyHash?:string;bodyHash?:string;responseHash?:string;correlationId?:string;size?:number;sha256?:string};
+type Row={method:string;path:string;status:number;source:string;port:string;query?:string;keyHash?:string;bodyHash?:string;responseHash?:string;correlationId?:string;size?:number;sha256?:string;snapshotIds?:string[]};
 let rows:Row[]=[],child:ChildProcess,port:number,scratch:string,identity="session-current",dropCreate=false,breakStream=false,readonlyAudit=false,slowSession=false,auditFailures=0,snapshotQuality:string|undefined;
 const streams=new Set<ServerResponse>();
 const proxy=createServer({},async(req,res)=>{
@@ -26,7 +26,7 @@ const proxy=createServer({},async(req,res)=>{
   row.status=response.statusCode!;row.correlationId=response.headers["x-correlation-id"] as string|undefined;
   if(path.endsWith("/stream")){res.writeHead(row.status,{"content-type":"text/event-stream"});res.flushHeaders();streams.add(res);response.pipe(res);res.on("close",()=>{streams.delete(res);response.destroy();});return;}
   const output:Buffer[]=[];response.on("data",b=>output.push(Buffer.from(b)));response.on("end",()=>{
-   let bytes=Buffer.concat(output);if(readonlyAudit&&["/v1/session","/v1/context"].includes(path)&&row.status===200){const c=JSON.parse(bytes.toString());c.capabilities=c.capabilities.filter((v:string)=>v!=="snapshot.read");bytes=Buffer.from(JSON.stringify(c));row.source="SYNTHETIC_CAPABILITY_NARROWING";}if(snapshotQuality&&path.startsWith("/v1/data-snapshots/")&&row.status===200){const snapshot=JSON.parse(bytes.toString());snapshot.quality=snapshotQuality;snapshot.qualityBlocked=true;bytes=Buffer.from(JSON.stringify(snapshot));row.source="SYNTHETIC_SNAPSHOT_NARROWING";}row.responseHash=hash(bytes);
+   let bytes=Buffer.concat(output);if(readonlyAudit&&["/v1/session","/v1/context"].includes(path)&&row.status===200){const c=JSON.parse(bytes.toString());c.capabilities=c.capabilities.filter((v:string)=>v!=="snapshot.read");bytes=Buffer.from(JSON.stringify(c));row.source="SYNTHETIC_CAPABILITY_NARROWING";}if(snapshotQuality&&path.startsWith("/v1/data-snapshots/")&&row.status===200){const snapshot=JSON.parse(bytes.toString());snapshot.quality=snapshotQuality;snapshot.qualityBlocked=true;bytes=Buffer.from(JSON.stringify(snapshot));row.source="SYNTHETIC_SNAPSHOT_NARROWING";}if(path==="/v1/data-snapshots"&&row.status===200)row.snapshotIds=JSON.parse(bytes.toString()).items?.map((s:{snapshotId:string})=>s.snapshotId);row.responseHash=hash(bytes);
    if(path.endsWith("/download")&&row.status===200){const m=JSON.parse(bytes.toString());row.sha256=m.sha256;row.size=m.sizeBytes;}
    if(path==="/v1/exports"&&method==="POST"&&dropCreate){dropCreate=false;row.source="REFERENCE_COMMITTED_RESPONSE_DROPPED";res.writeHead(row.status,{"content-type":"application/json","content-length":bytes.length+1});res.write(bytes.subarray(0,5));setTimeout(()=>res.destroy(),20);return;}
    for(const[k,v]of Object.entries(response.headers))if(v!==undefined&&!["connection","transfer-encoding","access-control-allow-origin","content-length"].includes(k))res.setHeader(k,v);
@@ -45,7 +45,8 @@ test.beforeEach(async({context,page})=>{
  const reserved=tcpServer();await new Promise<void>(r=>reserved.listen(0,"127.0.0.1",r));port=(reserved.address()as{port:number}).port;await new Promise<void>(r=>reserved.close(()=>r()));
  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
 });
-test.afterEach(async({context},info)=>{
+test.afterEach(async({context,page},info)=>{
+ if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".snapshot-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
  const file=info.outputPath("ui204.json");await writeFile(file,JSON.stringify({schema:"quantos-ui204-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"NOT_RUN_READ_ONLY_UI204",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui204",{path:file,contentType:"application/json"});
 });
