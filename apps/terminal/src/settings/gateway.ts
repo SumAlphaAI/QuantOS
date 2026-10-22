@@ -50,13 +50,15 @@ export async function loadSettingsSnapshot(origin: string, fetchImpl: typeof fet
       needed("browser") || needed("notifications") ? checked(client.GET("/v1/platform/browser-capabilities"), "getPlatformCapabilities") : undefined,
     ]);
     const policy = browserPolicy ? bffZodSchemas.BrowserCapabilityPolicy.strict().parse(browserPolicy) : undefined;
+    if (policy?.permissionState && Object.keys(policy.permissionState).some(key => !["notifications", "clipboard", "authority", "requestedByServer"].includes(key))) throw Error("Unexpected permission metadata");
     const history = downloads?.items.map(item => {
       const row = bffZodSchemas.DownloadRecord.strict().parse(item);
       if (row.downloadUrl) throw new Error("History must not retain leases");
       return row;
     });
+    if (history && (history.length > 100 || new Set(history.map(row => row.downloadId)).size !== history.length)) throw Error("Invalid download page");
     if (!valid(context)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getSession", undefined, 401); }
-    return { context, loadedAt: new Date().toISOString(), bundle: { profile, notifications, security, sessions, devices, downloads: history, browserPolicy: policy } };
+    return { context, loadedAt: new Date().toISOString(), bundle: { profile, notifications, security, sessions, devices, downloads: history, downloadsNextCursor: downloads?.nextCursor, browserPolicy: policy } };
   } finally {
     group.abort();
     options.signal?.removeEventListener("abort", cancel);

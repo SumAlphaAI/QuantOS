@@ -1,4 +1,5 @@
 import { createBffClient, parseBffResponse, bffZodSchemas, type BffRequestOptions } from "@sumalpha/api-client";
+import { handleAuthHttpStatus } from "../auth/flow";
 import type { BrowserCapabilityPolicy, BrowserRuntimeCapabilities, DownloadRecord } from "./c17";
 
 // A local native permission only narrows the server policy; it grants no domain authority.
@@ -12,7 +13,8 @@ export function resolveBrowserPlatform(policy: BrowserCapabilityPolicy, runtime:
   } as const;
 }
 function checked<T>(operation: "getPlatformCapabilities" | "listDownloads" | "getExportDownload", result: {data?: T; error?: unknown; response: Response}): T {
-  if (result.data === undefined) throw new Error(`Browser platform request refused (${result.response.status})`);
+  if (result.response.status === 401) handleAuthHttpStatus(401);
+  if (result.data === undefined) throw Object.assign(new Error(`Browser platform request refused (${result.response.status})`), {status: result.response.status});
   return parseBffResponse(operation, result.response.status, result.data) as T;
 }
 export async function loadBrowserPlatform(origin: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
@@ -30,10 +32,10 @@ export async function listBrowserDownloads(origin: string, query: {cursor?: stri
 export async function requestBrowserDownload(origin: string, raw: DownloadRecord, nowMs: () => number = Date.now, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
   const record = bffZodSchemas.DownloadRecord.strict().parse(raw);
   const id = bffZodSchemas.UUID.parse(record.downloadId);
-  if (record.status !== "ready" || !record.expiresAt || Date.parse(record.expiresAt) <= nowMs() || record.downloadPath !== `/v1/exports/${id}/download`) throw new Error("Download unavailable; reload history");
+  if (record.downloadUrl || !Number.isFinite(nowMs()) || record.status !== "ready" || !record.expiresAt || !Number.isFinite(Date.parse(record.expiresAt)) || Date.parse(record.expiresAt) <= nowMs() || record.downloadPath !== `/v1/exports/${id}/download`) throw new Error("Download unavailable; reload history");
   const client = createBffClient({baseUrl: origin, fetch: fetchImpl, ...options});
   const lease = checked("getExportDownload", await client.GET("/v1/exports/{exportId}/download", {params: {path: {exportId: id}}}));
   const url = new URL(lease.downloadUrl), base = new URL(origin), now = nowMs(), expiry = Date.parse(lease.expiresAt);
-  if (lease.exportId !== id || url.protocol !== "https:" || url.origin !== base.origin || url.username || url.password || url.search || url.hash || !/^\/_bff\/export-content\/[0-9a-f-]{36}\/[0-9a-f]{64}$/.test(url.pathname) || !Number.isFinite(expiry) || expiry <= now || expiry > now + 300_000) throw new Error("Invalid short-lived download lease");
+  if (!Number.isFinite(now) || Date.parse(record.expiresAt) <= now || expiry > Date.parse(record.expiresAt) || lease.exportId !== id || url.protocol !== "https:" || url.origin !== base.origin || url.username || url.password || url.search || url.hash || !/^\/_bff\/export-content\/[0-9a-f-]{36}\/[0-9a-f]{64}$/.test(url.pathname) || !Number.isFinite(expiry) || expiry <= now || expiry > now + 300_000) throw new Error("Invalid short-lived download lease");
   return {url: url.href, expiresAt: lease.expiresAt};
 }

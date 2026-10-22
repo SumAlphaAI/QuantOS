@@ -21,6 +21,7 @@ export interface SettingsBundle {
   sessions: ActiveSession[];
   devices: TrustedDevice[];
   downloads: DownloadRecord[];
+  downloadsNextCursor?: string;
   browserPolicy: BrowserCapabilityPolicy;
 }
 
@@ -65,19 +66,20 @@ export function detectBrowserRuntime(scope: Window & typeof globalThis): Browser
   const userAgent = scope.navigator.userAgent;
   const secure = scope.isSecureContext === true;
   const chrome = userAgent.match(/(?:Chrome|CriOS)\/(\d+)/)?.[1];
+  const edge = userAgent.match(/Edg(?:e|A|iOS)?\/(\d+)/)?.[1];
   const safari = !chrome && userAgent.match(/Version\/(\d+).+Safari/)?.[1];
   const firefox = userAgent.match(/Firefox\/(\d+)/)?.[1];
   return {
-    browserLabel: chrome ? `Chrome ${chrome}` : firefox ? `Firefox ${firefox}` : safari ? `Safari ${safari}` : "Unknown / upgrade required",
-    operatingSystem: /Mac/.test(userAgent) ? "macOS" : /Win/.test(userAgent) ? "Windows" : /Linux/.test(userAgent) ? "Linux" : "Unknown",
+    browserLabel: edge ? `Edge ${edge}` : chrome ? `Chrome ${chrome}` : firefox ? `Firefox ${firefox}` : safari ? `Safari ${safari}` : "Unknown / upgrade required",
+    operatingSystem: /iPhone|iPad|iPod/.test(userAgent) ? "iOS" : /Android/.test(userAgent) ? "Android" : /Mac/.test(userAgent) ? "macOS" : /Win/.test(userAgent) ? "Windows" : /Linux/.test(userAgent) ? "Linux" : "Unknown",
     notifications: !secure || !("Notification" in scope) ? "unsupported" : scope.Notification.permission,
-    webSocket: "WebSocket" in scope,
-    serverSentEvents: "EventSource" in scope,
-    clipboard: secure && Boolean(scope.navigator.clipboard),
+    webSocket: typeof scope.WebSocket === "function",
+    serverSentEvents: typeof scope.EventSource === "function",
+    clipboard: secure && typeof scope.navigator.clipboard?.writeText === "function",
     downloads: "download" in scope.document.createElement("a"),
     serviceWorker: "serviceWorker" in scope.navigator,
     storageEstimate: Boolean(scope.navigator.storage?.estimate),
     indexedDb: "indexedDB" in scope,
-    passkey: secure && "PublicKeyCredential" in scope,
+    passkey: secure && typeof scope.PublicKeyCredential === "function",
   };
 }
