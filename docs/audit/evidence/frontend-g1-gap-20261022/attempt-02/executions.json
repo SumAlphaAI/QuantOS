@@ -1,0 +1,105 @@
+[
+  {
+    "id": "historical-audit",
+    "command": [
+      "node",
+      "docs/audit/evidence/frontend-g1-gap-20261022/audit.mjs",
+      "--inventory",
+      "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/dependency-audit.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:24.498Z",
+    "elapsedMs": 1401,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/historical-audit.log",
+    "logSha256": "sha256:08b1a7a6f0c21c2a34264c10edbf58b5e425e690570826ed36a4260911cf53e7"
+  },
+  {
+    "id": "bounded-probes",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "docs/audit/evidence/frontend-g1-gap-20261022/probes.test.ts",
+      "apps/terminal/tests/ui-p17-runtime.test.ts",
+      "apps/terminal/tests/ui-p15-runtime.test.ts",
+      "apps/terminal/tests/browser-platform-provider-consumer.test.ts",
+      "apps/terminal/tests/ui101-source.test.ts",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/vitest.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:25.899Z",
+    "elapsedMs": 2629,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/bounded-probes.log",
+    "logSha256": "sha256:a7395ffee2f74af4cbb27e6968db2a1c1dee9b516542f9608f5de243517006d8"
+  },
+  {
+    "id": "audit-negative",
+    "command": [
+      "node",
+      "--test",
+      "docs/audit/evidence/frontend-g1-gap-20261022/audit.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:28.528Z",
+    "elapsedMs": 306,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/audit-negative.log",
+    "logSha256": "sha256:d99f58642f2db24605f0dcabd161bd103b576e9682cdbba009bbb94c2d8c52af"
+  },
+  {
+    "id": "confirmation-policy",
+    "command": [
+      "node",
+      "--test",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:28.834Z",
+    "elapsedMs": 162,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/confirmation-policy.log",
+    "logSha256": "sha256:da2f0d28e23e0af9d84eecd227216005a144421a6c5ceafb404e7435693df3bb"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:28.996Z",
+    "elapsedMs": 158,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "docs/audit/evidence/frontend-g1-gap-20261022/audit.mjs",
+      "docs/audit/evidence/frontend-g1-gap-20261022/audit.test.mjs",
+      "docs/audit/evidence/frontend-g1-gap-20261022/probes.test.ts"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T11:22:29.155Z",
+    "elapsedMs": 831,
+    "log": "docs/audit/evidence/frontend-g1-gap-20261022/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

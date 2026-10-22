@@ -1,0 +1,78 @@
+{
+  "schema": "quantos-g1-recovery-boundaries/v1",
+  "sourceCommit": "2ccceeffe290611ddd75ee22fe5ce56e06909f21",
+  "rows": [
+    {
+      "boundary": "guard order / scope / denied identity",
+      "current": "PASS_BOUNDED_NODE_REFERENCE",
+      "evidence": [
+        "probes.test.ts: invalid-session + viewer-history",
+        "ui101-source.test.ts",
+        "ui101-runtime.test.ts"
+      ],
+      "limitation": "身份使用Node测试cookie桥；浏览器真实Cookie/CORS/IdP NOT_RUN"
+    },
+    {
+      "boundary": "earliest session/context and projection deadline",
+      "current": "PASS_BOUNDED_UNIT",
+      "evidence": [
+        "ui-p15-runtime.test.ts: earlier session lease",
+        "ui101-source.test.ts: before/after read expiry"
+      ],
+      "limitation": "实际路由定时器及跨标签撤权的本轮完整浏览器旅程 NOT_RUN"
+    },
+    {
+      "boundary": "offline / close / superseded download generation",
+      "current": "PASS_BOUNDED_UNIT",
+      "evidence": [
+        "ui-p17-runtime.test.ts: late lease close/offline/reload",
+        "ui104-runtime.test.ts: unmount and stale private reads"
+      ],
+      "limitation": "网络恢复不自动重放的浏览器事实仍参照原P02/P15/P17各自SHA，不改绑新G1候选"
+    },
+    {
+      "boundary": "CAS 409 / preserved draft / unknown outcome idempotency",
+      "current": "PASS_BOUNDED_UNIT",
+      "evidence": [
+        "ui104-runtime.test.ts: uncertain save + 409 rebase"
+      ],
+      "limitation": "仅显式重试；完整真实服务故障注入和持久事务 NOT_RUN"
+    },
+    {
+      "boundary": "429 retryAfter / no automatic retry",
+      "current": "PASS_BOUNDED_UNIT",
+      "evidence": [
+        "ui-p15-runtime.test.ts: 429 blocks retries"
+      ],
+      "limitation": "真实代理/网关限流与跨页面恢复 NOT_RUN"
+    },
+    {
+      "boundary": "202 accepted / resource retained until authoritative reload",
+      "current": "PASS_BOUNDED_UNIT",
+      "evidence": [
+        "ui104-runtime.test.ts: MFA/reauth/revoke + pending until reload"
+      ],
+      "limitation": "不能把202当已撤销；真实目标持久撤销/即时会话失效 NOT_RUN"
+    },
+    {
+      "boundary": "download retention / one-shot ticket / audit / recovery",
+      "current": "PARTIAL_REFUSAL_AND_TEMPLATE_ONLY",
+      "evidence": [
+        "reference-probes.json",
+        "source-findings.json"
+      ],
+      "limitation": "reference交付未实现合规链路；live不同origin拒绝；实际签名/消费/重复/撤销/Storage失败恢复 NOT_RUN"
+    },
+    {
+      "boundary": "authorized realtime event / permission revocation / resnapshot",
+      "current": "GAP_HTTP_SNAPSHOT_ROUTES",
+      "evidence": [
+        "source-findings.json:G1-REC-01",
+        "historical receipts liveCommandStream/liveSettingsStream=NOT_ENABLED_HTTP_SNAPSHOT"
+      ],
+      "limitation": "独立reducer正确不证明路由订阅；按G1-REC-01补实际组合"
+    }
+  ],
+  "completeBusinessJourney": "NOT_RUN",
+  "noHistoricalResultRebinding": true
+}

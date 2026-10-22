@@ -1,0 +1,147 @@
+{
+  "schema": "quantos-g1-reference-gap-probes/v1",
+  "mode": "LOOPBACK_REFERENCE_IN_MEMORY",
+  "responseForwarding": "BYTE_FOR_BYTE_NO_URL_REWRITE",
+  "sensitiveResponses": "HASH_ONLY",
+  "targetDatabase": "NOT_RUN",
+  "realIdp": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_NODE_IDENTITY_BRIDGE",
+  "endToEndAttachment": "NOT_RUN",
+  "outcomes": [
+    {
+      "id": "reference-lease",
+      "assertion": "PASS",
+      "delivery": "GAP_REFERENCE_URL_REJECTED",
+      "contentConsumption": "NOT_RUN"
+    },
+    {
+      "id": "viewer-history",
+      "assertion": "PASS",
+      "outcome": "REFUSED_403"
+    },
+    {
+      "id": "invalid-session",
+      "assertion": "PASS",
+      "outcome": "REFUSED_401_BEFORE_PRIVATE_READ"
+    },
+    {
+      "id": "same-origin-template",
+      "assertion": "PASS",
+      "scope": "SYNTHETIC_CONSUMER_ONLY_NOT_LIVE_SIGNER",
+      "outcome": "ACCEPTED_URL_ONLY_NOT_DELIVERY"
+    },
+    {
+      "id": "split-origin-template",
+      "assertion": "PASS",
+      "scope": "SYNTHETIC_CONSUMER_ONLY_NOT_LIVE_SIGNER",
+      "outcome": "REFUSED_ORIGIN_MISMATCH"
+    }
+  ],
+  "rows": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:27a28c0d29b11714b9ce7e45a2297a9715bebedcc1cbd553bfea1d98d3d4dc00"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:4b4884d7007023c2302d02c4b31b3b334c4689cfac6eca1814c7c071d85db67b"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/exports",
+      "status": 202,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:8ce8fe78fc3c8f63a0af7bdb8eb08a8d6be7b197642c7672ec1041c64b2a1a51"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:581bbf615fdf81067e99d365eb822929f44868e4a79b1a26e3c165136420f902"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:581bbf615fdf81067e99d365eb822929f44868e4a79b1a26e3c165136420f902"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/downloads",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:aed3d8c9af82adf7ea41d095097c1c77be005297285da4b0d83bb3bf7727395d"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/platform/browser-capabilities",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:948d559e3db947bb3aa78b3afb7403ca1587538fca2743d93d4d91c77687cc48"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/exports/{id}/download",
+      "status": 200,
+      "identityFixture": "session-current",
+      "responseSha256": "sha256:e0d4ea9a3a5778d6c9f8c291d83c0e8ff85d1df0d7332156a4fec44374c8b7b7"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "identityFixture": "session-viewer",
+      "responseSha256": "sha256:01ae54d290a1834dd874db28801f8f38e3a96c88557121a80e51a040d983bac8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "identityFixture": "session-viewer",
+      "responseSha256": "sha256:01ae54d290a1834dd874db28801f8f38e3a96c88557121a80e51a040d983bac8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "identityFixture": "session-viewer",
+      "responseSha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/downloads",
+      "status": 403,
+      "identityFixture": "session-viewer",
+      "responseSha256": "sha256:393ec0ed778d29f7ec2ffe5ccd5146bec82fae1db035e1e0977cbf4bfda6adc5"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/platform/browser-capabilities",
+      "status": 200,
+      "identityFixture": "session-viewer",
+      "responseSha256": "sha256:948d559e3db947bb3aa78b3afb7403ca1587538fca2743d93d4d91c77687cc48"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 401,
+      "identityFixture": "invalid-session",
+      "responseSha256": "sha256:e340f189a2d2f9fef276262bafe6aa18b5624991d94127fdb77fd5a35139bdef"
+    }
+  ]
+}

@@ -1,4 +1,6 @@
-> 当前执行（UI-P17 / I1，2026-10-22）：工程冻结dae4d014、1328输入；92单元/组合、66门禁/边界、26 Chromium/WebKit功能、3 actual本机Rust组合、17原BFF回归、2新视觉案例/6图与8 mock回归通过。12组axe零违规，12项incomplete保留。工程/客户端契约PASS，本机组合仅reference；Firefox环境阻塞、WebKit拦截附件接收阻塞，后者只验到内容导航200。COMPLETED（仅原稿当前功能范围），用户确认CONFIRMED、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；实际reference下载投递/目标下载origin拓扑、真实IdP/数据库/Cookie/CORS/通知、人工读屏/原生200%、跨OS、远程CI、性能/长稳/RELEASE均NOT_RUN。见[报告](./audit/UI-P17-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p17-local-20261022/confirmation-draft.md)。下一可执行FRONTEND-GATE:G1 / FEP-1本机联调缺口核对，不直接提升READY。确认见[记录](./audit/evidence/ui-p17-confirmation-20261022/README.md)，仅绑定dae4d014工程/cfb2dba3原稿包，原稿与回执保持原字节。
+> 当前核对（FRONTEND-GATE:G1 / FEP-1，2026-10-22）：观察基线2ccceeff；缺口核对PASS_GAP_ACCOUNTING_ONLY，G1/FEP-1 NOT_READY_GAPS_OPEN。13/26直接依赖、并集27；22原确认、7142原源码输入/128原执行/590附件按原SHA核验，不改绑。98有界probe/单元、34审计负向、17确认规程及计划/lint通过。8项整改OPEN/受阻/P15待确认；下载reference交付与origin契约、实际路由撤权/完整恢复旅程未闭环。全部stage_gate保持NOT_ASSESSED，formalAccepted=false、runtimeAdmission=DENIED，Firefox/WebKit阻塞及全部NOT_RUN保留。见[报告](./audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md)与[机器回执](./audit/evidence/frontend-g1-gap-20261022/receipt.json)。下一可执行G1-DL-01/DL-02离线下载链及封闭origin契约整改，不推送或部署。
+
+> 历史已确认（UI-P17 / I1，2026-10-22）：工程冻结dae4d014、1328输入；92单元/组合、66门禁/边界、26 Chromium/WebKit功能、3 actual本机Rust组合、17原BFF回归、2新视觉案例/6图与8 mock回归通过。12组axe零违规，12项incomplete保留。工程/客户端契约PASS，本机组合仅reference；Firefox环境阻塞、WebKit拦截附件接收阻塞，后者只验到内容导航200。COMPLETED（仅原稿当前功能范围），用户确认CONFIRMED、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；实际reference下载投递/目标下载origin拓扑、真实IdP/数据库/Cookie/CORS/通知、人工读屏/原生200%、跨OS、远程CI、性能/长稳/RELEASE均NOT_RUN。见[报告](./audit/UI-P17-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p17-local-20261022/confirmation-draft.md)。下一可执行FRONTEND-GATE:G1 / FEP-1本机联调缺口核对，不直接提升READY。确认见[记录](./audit/evidence/ui-p17-confirmation-20261022/README.md)，仅绑定dae4d014工程/cfb2dba3原稿包，原稿与回执保持原字节。
 
 > 历史执行（UI-P15 / I1，2026-10-22）：三分区设置工程冻结7bb249d8、1321输入；61单元/组合、61门禁/边界、34 Chromium/WebKit功能、6actual本机Rust组合、17既有BFF回归、2新视觉与8mock回归通过（8图比较）。36组axe零违规，36项incomplete保留。工程/客户端契约PASS，本机组合仅reference种子；Firefox环境阻塞。IMPLEMENTED_PENDING_ACCEPTANCE，确认PENDING、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；真实IdP/目标数据库/持久撤销、真实Cookie/CORS、身份注册恢复码/原生通知、人工读屏/原生200%、跨OS、远程CI、性能/长稳及RELEASE均NOT_RUN。见[报告](./audit/UI-P15-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p15-local-20261022/confirmation-draft.md)。下一可执行FE:UI-P17。
 
@@ -2111,9 +2113,12 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "PROVIDER:ALL"
   ],
   "required_scope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
-  "source_commit": null,
-  "evidence": [],
+  "review_status": "CHANGES_REQUESTED",
+  "source_commit": "2ccceeffe290611ddd75ee22fe5ce56e06909f21",
+  "evidence": [
+    "audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md",
+    "audit/evidence/frontend-g1-gap-20261022/receipt.json"
+  ],
   "stage_gate": {
     "stage": "INTEGRATION",
     "status": "NOT_ASSESSED",
@@ -2122,6 +2127,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   }
 }
 ```
+
+本轮缺口核对已完成，仅代表审计工具与有界probe通过；阶段Gate保持NOT_ASSESSED。8项整改见[清单](./audit/evidence/frontend-g1-gap-20261022/actions.json)，P15原稿待用户确认，既有确认均限原SHA，不授G1/FEP-1 READY。Firefox/WebKit拦截附件阻塞及全部NOT_RUN保留。
 
 <a id="task-fep-1"></a>
 ##### FEP-1：壳与官网
@@ -2134,7 +2141,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: ["CORE:F06", "CORE:F09"]
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。
+- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。 2026-10-22 G1/FEP-1本机缺口核对完成，见[报告](./audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md)；原COMPLETED仅实现历史，当前NOT_READY_GAPS_OPEN/INTEGRATION NOT_ASSESSED，下载链/路由撤权/完整组合/P15确认未闭环，不直接解锁I2联调。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

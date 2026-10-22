@@ -1,0 +1,24 @@
+{
+  "status": "FAILED_METADATA_REFERENCE_PATH",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "docs/audit/evidence/frontend-g1-gap-20261022/audit.mjs",
+        "--verify"
+      ],
+      "exitCode": 1
+    },
+    {
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 1
+    }
+  ],
+  "error": "FRONTEND-GATE:G1: missing evidence reference docs/audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md",
+  "cause": "Checkpoint evidence paths resolve relative to docs, but generated metadata prefixed docs/ twice.",
+  "remediation": "Correct only the two new checkpoint evidence references to audit/...; no runtime, audit tools or test results changed.",
+  "evidenceScope": "Error transcribed from observed command outputs; no claim that redirected stdout captured stderr."
+}
