@@ -8,6 +8,8 @@
 
 无权与未找到共享不可探测文案；关联 ID 仅白名单字符，剪贴板拒绝提供手动复制。帮助、隐私、安全说明可在当前页展开，无虚构外部支持地址。五页默认深色，随系统浅色偏好适配；小屏和 CSS zoom 重排，保留焦点/键盘和原生表单语义。设计稿的示例 ID、锁定时间和背景审计节点不作为业务事实展示。
 
-验证入口：`node scripts/ui-p01-review.mjs --run docs/audit/evidence/ui-p01-local-20261022/function-attempt-NN`。工程文件须先提交；使用隔离的公开 local-mock 配置，排除生产凭据，只启动本机静态服务并使用受控 IdP/BFF HTTP 响应。记录单元、types、lint、直接浏览器回归、三浏览器当前功能、Chromium 双主题视觉比较、10页主题 axe 和计划检查；`--verify` 核验当前输入/源码 SHA/命令/日志/附件。视觉初始化不计为独立设计验收，不替换原 UI-102 历史基线。
+验证入口：`node scripts/ui-p01-review.mjs --run docs/audit/evidence/ui-p01-local-20261022/function-attempt-NN`。工程文件须先提交；使用隔离的公开 local-mock 配置，排除生产凭据，只启动本机静态服务并使用受控 IdP/BFF HTTP 响应。记录单元、types、lint、直接浏览器回归、Chromium/WebKit 当前功能与独立 Firefox 启动诊断、Chromium 双主题视觉比较、20组页面/主题/浏览器 axe 和计划检查；`--verify` 核验当前输入/源码 SHA/命令/日志/附件。视觉初始化不计为独立设计验收，不替换原 UI-102 历史基线。
+
+本机 Firefox 空白启动重复超时，伴随 sandbox_extension_issue_file_to_process 与 RenderCompositorSWGL 错误；完整矩阵第一次批次中断并保留原始130退出和报告，未运行项不计PASS。独立诊断记 BLOCKED_ENVIRONMENT，Firefox当前功能验证另待可用环境。
 
 Gate 仅为当前页面工程与客户端契约组合；依赖任务按原记录引用，不递归重验或提升当前准入。INTEGRATION 保持 NOT_ASSESSED；真实 IdP/MFA、目标 BFF/数据库、原生200%缩放、人工读屏、远程同SHA CI、跨操作系统视觉、RELEASE 均 NOT_RUN。当前界面交付以设计稿简体中文为准；英文完整文案仍需后续专项完善。用户确认按项目统一规程另存新稿与原始答复，本轮不会自批 ACCEPTED。
