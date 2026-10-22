@@ -59,13 +59,16 @@ test.describe("UI-104 profile, security, notifications and browser settings", ()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
-  test("offline mode freezes profile and notification writes", async ({ page, context }) => {
+  test("offline mode clears private settings and requires explicit read recovery", async ({ page, context }) => {
     await page.goto("/settings/profile");
     await context.setOffline(true);
     await page.evaluate(() => window.dispatchEvent(new Event("offline")));
-    await expect(page.getByRole("button", { name: "保存个人资料" })).toBeDisabled();
-    await expect(page.getByText(/恢复连接后不会自动重放保存或撤销操作/)).toBeVisible();
+    await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "保存个人资料" })).toHaveCount(0);
+    await expect(page.getByText(/未完成的操作不会自动重放/)).toBeVisible();
     await context.setOffline(false);
+    await page.getByRole("button", {name: "重新验证访问条件", exact: true}).click();
+    await expect(page.getByRole("button", {name: "保存个人资料"})).toBeEnabled();
   });
 
   test("profile, security and browser pages have no serious or critical axe violations", async ({ page }) => {

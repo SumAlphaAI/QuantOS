@@ -14,4 +14,4 @@ Settings 正常手动刷新在有效授权内保留工作区草稿，并冻结�
 
 验证包括确定性监控/异步 race 单元测试，以及实际构建的路由在 Chromium 对接内存 Rust reference 的 SSE 登出撤权/断线重读。C01变更、最早资源期限、write403和浏览器隐藏用例显式标记为故障注入，不宣称所有响应均真实。代理仅为本机测试身份/CORS端口桥，其他响应字节原样；真实IdP、Cookie/CORS、目标DB/RLS/持久撤销与部署均NOT_RUN。Firefox/WebKit阻塞和全部原NOT_RUN/失败继续保留；live源码的每次流交付重新验证逻辑只作原范围参考，不在本轮运行目标服务。
 
-门禁 `node scripts/g1-recovery-review.mjs --verify`。只运行本功能与直接受影响的 auth/Command/Settings/下载回归、一轮必要Terminal构建、已有BFF二进制构建（Rust源码未改）、Chromium及静态检查；不递归重跑上游或数据库 campaign。工程PASS仅本机 reference 授权失效范围，确认PENDING、G1/FEP-1仍NOT_READY_GAPS_OPEN/INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。下一任务G1-REC-02同候选完整业务旅程，P15独立确认和其余义务继续保留。
+门禁 `node scripts/g1-recovery-review.mjs --verify`。只运行本功能与直接受影响的 auth/Command/Settings/下载回归、integrated/mock各一轮必要Terminal构建（路由两种模式均直接受影响）、已有BFF二进制构建（Rust源码未改）、Chromium及静态检查；不递归重跑上游或数据库 campaign。工程PASS仅本机 reference 授权失效范围，确认PENDING、G1/FEP-1仍NOT_READY_GAPS_OPEN/INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。下一任务G1-REC-02同候选完整业务旅程，P15独立确认和其余义务继续保留。
