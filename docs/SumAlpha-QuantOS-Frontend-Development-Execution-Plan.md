@@ -2187,7 +2187,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C10
 - 验收重点：correlation/causation 链完整；导出异步、短时 URL、授权和审计
 
-- 当前执行：实际 `/audit`、`/exports` 页面及 C10 搜索/分页、因果链、脱敏载荷、MFA/reauth受控创建/取消、异步状态和显式短时下载已实现；本轮有界功能验证与确认稿见[UI-507报告](./audit/UI-507-audit-export-2026-10-22.md)、[功能规程](./operations/ui507-audit-export.md)与[工程回执](./audit/evidence/ui507-local-20261022/receipt.json)。只复用旧范围证据，不将G1-DEP-01等辅助项作为开发前置，不重跑全链；Firefox、WebKit阻塞及全部NOT_RUN保留，159个阶段Gate不提升。下一原任务UI-P12可继续开发，高保真与资源路径映射由其交付。
+- 当前执行：`PASS_UI507_LOCAL_FUNCTION`，工程`9f7552a8`、520项输入，55项直接测试/6个Chromium/39项门禁测试通过，联调入口按预期拒绝。实际 `/audit`、`/exports` 页面及 C10 搜索/分页、因果链、脱敏载荷、MFA/reauth受控创建/取消、异步状态和显式短时下载已实现；本轮有界功能验证与确认稿见[UI-507报告](./audit/UI-507-audit-export-2026-10-22.md)、[功能规程](./operations/ui507-audit-export.md)与[工程回执](./audit/evidence/ui507-local-20261022/receipt.json)。只复用旧范围证据，不将G1-DEP-01等辅助项作为开发前置，不重跑全链；Firefox、WebKit阻塞及全部NOT_RUN保留，159个阶段Gate不提升。下一原任务UI-P12可继续开发，高保真与资源路径映射由其交付。
 
 <a id="task-ui-p12"></a>
 ##### UI-P12：P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png
