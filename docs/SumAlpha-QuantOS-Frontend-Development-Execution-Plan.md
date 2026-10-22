@@ -2254,7 +2254,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 所属阶段：FEP-2
 - 页面级完成标准：目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动
 
-- 当前执行：UI-P05当前页面实现，复用UI-204 C04与用途阻断/授权恢复；交付目录表格、右侧质量/时间窗/来源与许可面板、双主题响应式、键盘标签、两快照只读对比及授权C04元数据JSON下载。见[本轮报告](./audit/UI-P05-current-page-review-2026-10-23.md)、[规程](./operations/ui-p05-data-snapshot-workbench.md)、[当前页面门禁](../scripts/ui-p05-review.mjs)。不合成质量分数/覆盖率/全局总量/许可批准；复用原范围证据、不将G1辅助项作为前置、不重跑全链。reference身份/CORS替代、Firefox/WebKit阻塞及全部NOT_RUN保留，159阶段Gate及G1/FEP-1联调/发布不提升，人工确认待项目用户。下一原任务UI-201可继续开发。
+- 当前执行：`PASS_UI_P05_CURRENT_PAGE`，工程`a76cca21`、539输入/56产物；74项单测、13个Chromium、6图比对/6次axe零violations、50项门禁路由及types/lint/build通过，6项图标对比度incomplete保留。复用UI-204 C04与用途阻断/授权恢复；交付目录表格、右侧质量/时间窗/来源与许可面板、双主题响应式、键盘标签、两快照只读对比及授权C04元数据JSON下载。见[本轮报告](./audit/UI-P05-current-page-review-2026-10-23.md)、[规程](./operations/ui-p05-data-snapshot-workbench.md)、[当前页面门禁](../scripts/ui-p05-review.mjs)。不合成质量分数/覆盖率/全局总量/许可批准；复用原范围证据、不将G1辅助项作为前置、不重跑全链。reference身份/CORS替代、Firefox/WebKit阻塞及全部NOT_RUN保留，159阶段Gate及G1/FEP-1联调/发布不提升，人工确认待项目用户。下一原任务UI-201可继续开发。
 
 <a id="task-ui-201"></a>
 ##### UI-201：Research 列表、新建与表单校验
