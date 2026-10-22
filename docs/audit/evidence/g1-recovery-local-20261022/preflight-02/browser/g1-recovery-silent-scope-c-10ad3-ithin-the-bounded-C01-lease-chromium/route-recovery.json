@@ -1,0 +1,67 @@
+{
+  "schema": "quantos-g1-route-browser/v1",
+  "scenario": "silent scope change is refused on actual /command within the bounded C01 lease",
+  "mode": "ACTUAL_ROUTES_LOCAL_REFERENCE_WITH_EXPLICIT_FAULTS",
+  "realIdp": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_FIXTURE_IDENTITY_BRIDGE",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:db24b6247772ab0811414619993e5e5111fdf20dbb637171b730758c182416aa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:db24b6247772ab0811414619993e5e5111fdf20dbb637171b730758c182416aa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:191d893bc94a2dbea4b3fb80230dea730875e50882f85d886df829f3460e8277"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:db24b6247772ab0811414619993e5e5111fdf20dbb637171b730758c182416aa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:db24b6247772ab0811414619993e5e5111fdf20dbb637171b730758c182416aa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:db24b6247772ab0811414619993e5e5111fdf20dbb637171b730758c182416aa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "SYNTHETIC_C01_SCOPE_CHANGE",
+      "responseSha256": "sha256:d34a6e224fb789a8888f49540c3836eed3335c48fd54563ad808e79da47d63e8"
+    }
+  ]
+}

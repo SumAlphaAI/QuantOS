@@ -1,0 +1,53 @@
+{
+  "schema": "quantos-g1-route-browser/v1",
+  "scenario": "real login initiation broadcasts session invalidation to another authorized tab",
+  "mode": "ACTUAL_ROUTES_LOCAL_REFERENCE_WITH_EXPLICIT_FAULTS",
+  "realIdp": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_FIXTURE_IDENTITY_BRIDGE",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:68cdc41445ef4c04bf6ecc9ff34c6d4a2fafff40c547a85a34a2a96a463a8978"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:68cdc41445ef4c04bf6ecc9ff34c6d4a2fafff40c547a85a34a2a96a463a8978"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:ccfdcc162ab2ca379b8f6a35f31844603ce923ea4ade7649e291a024d0c9b202"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:68cdc41445ef4c04bf6ecc9ff34c6d4a2fafff40c547a85a34a2a96a463a8978"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:68cdc41445ef4c04bf6ecc9ff34c6d4a2fafff40c547a85a34a2a96a463a8978"
+    }
+  ]
+}

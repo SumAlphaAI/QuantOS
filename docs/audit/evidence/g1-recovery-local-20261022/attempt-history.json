@@ -1,0 +1,43 @@
+{
+  "schema": "quantos-g1-recovery-attempt-history/v1",
+  "preflightSourceBinding": "UNFROZEN_WORKTREE; no complete intermediate source snapshots captured. Preflight is diagnostic, not final engineering acceptance.",
+  "attempts": [
+    {
+      "directory": "preflight-01",
+      "status": "FAIL_120_OF_121_UNIT_PASS",
+      "facts": "环境变化负向测试原fixture已staging，却仍设置staging，未构成变化；修正为dev。类型/ESLint通过，无产品授权逻辑放松。"
+    },
+    {
+      "directory": "preflight-02",
+      "status": "MIXED_BOUNDED_PREFLIGHT",
+      "facts": "integrated构建/12实际路由用例通过；新代际race单元沿用10ms请求超时与50ms waitFor轮询相冲突，先TIMEOUT；仅为这3个延迟用例把fixture预算改1000ms，原超时语义回归仍10ms。"
+    },
+    {
+      "directory": "preflight-03",
+      "status": "146_UNIT_AND_15_BROWSER_PASS_LINT_FAIL",
+      "facts": "146单元/15实际路由通过；Playwright afterEach空解构被ESLint拒绝，改为使用page fixture并关闭页面。"
+    },
+    {
+      "directory": "preflight-04",
+      "status": "PASS_STATIC",
+      "facts": "类型/ESLint/39门禁负向通过。"
+    },
+    {
+      "directory": "attempt-01",
+      "status": "PASS_OLD_NINE_CHECK_SCOPE",
+      "sourceCommit": "bd3d9fe42c711acf6ded9f0556144426b77f4d37",
+      "facts": "原9条限定命令、146单元/15路由/6下载/39负向通过；原receipt留在该目录。后续发现既有mock离线断言与新隐私边界冲突，补入直接相关mock模式回归，不能把旧范围拼接为最终通过。"
+    },
+    {
+      "directory": "preflight-05",
+      "status": "PASS_DIRECT_MOCK_SCOPE",
+      "facts": "更新既有mock离线测试为清除私有数据/显式重读，8项回归（含原两PNG基线）通过，未修改PNG。"
+    },
+    {
+      "directory": "attempt-02",
+      "status": "PASS_FINAL_ELEVEN_CHECK_SCOPE",
+      "sourceCommit": "75451b08bf97f3b85d49d6f9eca9da23975e974a",
+      "facts": "11条命令exit0；146单元/消费者、15实际路由Chromium、6下载组合、8mock Chromium及39门禁负向，全部绑定最终591项输入清单，没有拼接旧SHA通过。"
+    }
+  ]
+}

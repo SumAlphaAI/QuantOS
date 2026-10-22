@@ -1,0 +1,39 @@
+{
+  "schema": "quantos-g1-route-browser/v1",
+  "scenario": "late initial Command projection cannot publish after server logout",
+  "mode": "ACTUAL_ROUTES_LOCAL_REFERENCE_WITH_EXPLICIT_FAULTS",
+  "realIdp": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_FIXTURE_IDENTITY_BRIDGE",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:226641efdebabe511653bbaee36ca4e15298eab57c220d432f62dd883edfd855"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:226641efdebabe511653bbaee36ca4e15298eab57c220d432f62dd883edfd855"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:6dd74ced53a282e25adbe33270adc412289d923749c5f997fa9f16c040c29926"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 401,
+      "source": "REFERENCE_BYTE_FOR_BYTE"
+    }
+  ]
+}

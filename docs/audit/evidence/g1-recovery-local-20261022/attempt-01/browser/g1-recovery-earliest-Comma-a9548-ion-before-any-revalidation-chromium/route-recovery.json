@@ -1,0 +1,53 @@
+{
+  "schema": "quantos-g1-route-browser/v1",
+  "scenario": "earliest Command resource deadline clears the actual projection before any revalidation",
+  "mode": "ACTUAL_ROUTES_LOCAL_REFERENCE_WITH_EXPLICIT_FAULTS",
+  "realIdp": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_FIXTURE_IDENTITY_BRIDGE",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:21ce5e9a7ac185825e1bf31706c381a4a78802cd009fbe4d5813ab89bcdbfa99"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:21ce5e9a7ac185825e1bf31706c381a4a78802cd009fbe4d5813ab89bcdbfa99"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "status": 200,
+      "source": "SYNTHETIC_EARLIEST_RESOURCE_DEADLINE",
+      "responseSha256": "sha256:9e407a8aa50d7ca661b524c1f31b1c99706364592e6c2d97d155f04e1184beee"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:21ce5e9a7ac185825e1bf31706c381a4a78802cd009fbe4d5813ab89bcdbfa99"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:21ce5e9a7ac185825e1bf31706c381a4a78802cd009fbe4d5813ab89bcdbfa99"
+    }
+  ]
+}

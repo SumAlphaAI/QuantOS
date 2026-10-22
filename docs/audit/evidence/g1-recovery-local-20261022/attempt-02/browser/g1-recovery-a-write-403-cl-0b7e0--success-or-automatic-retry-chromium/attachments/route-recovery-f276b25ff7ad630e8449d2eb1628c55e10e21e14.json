@@ -1,0 +1,60 @@
+{
+  "schema": "quantos-g1-route-browser/v1",
+  "scenario": "a write 403 clears Settings without claiming success or automatic retry",
+  "mode": "ACTUAL_ROUTES_LOCAL_REFERENCE_WITH_EXPLICIT_FAULTS",
+  "realIdp": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_FIXTURE_IDENTITY_BRIDGE",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:b1b688e626849fd81444ab0c9f096414e9c633cd98e1c778bb42c3a37e14ac12"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:b1b688e626849fd81444ab0c9f096414e9c633cd98e1c778bb42c3a37e14ac12"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:b1b688e626849fd81444ab0c9f096414e9c633cd98e1c778bb42c3a37e14ac12"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "responseSha256": "sha256:b1b688e626849fd81444ab0c9f096414e9c633cd98e1c778bb42c3a37e14ac12"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/settings/profile",
+      "status": 403,
+      "responseSha256": "sha256:efb97c585e58b61ba9f38b7ff183c303a89c52408d46bf894db78e4bb128982f",
+      "source": "SYNTHETIC_WRITE_REFUSAL_BEFORE_FORWARD"
+    }
+  ]
+}

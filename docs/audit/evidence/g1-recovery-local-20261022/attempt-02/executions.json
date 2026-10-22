@@ -1,0 +1,221 @@
+[
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:06.220Z",
+    "elapsedMs": 136,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/bff-build.log",
+    "logSha256": "sha256:c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/g1-route-access.test.ts",
+      "apps/terminal/tests/ui101-source.test.ts",
+      "apps/terminal/tests/ui101-runtime.test.ts",
+      "apps/terminal/tests/ui104-runtime.test.ts",
+      "apps/terminal/tests/ui-p15-runtime.test.ts",
+      "apps/terminal/tests/ui-p17-runtime.test.ts",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/g1-download-contract.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/g1-recovery-local-20261022/attempt-02/unit.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:06.386Z",
+    "elapsedMs": 1037,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/unit.log",
+    "logSha256": "sha256:be6a8839459a89a32c4dcca75a072fd67f436ff326955da40ca71d5fb484d5e0"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:07.423Z",
+    "elapsedMs": 674,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/auth/route-access.ts",
+      "apps/terminal/src/auth/invalidation.ts",
+      "apps/terminal/src/auth/flow.ts",
+      "apps/terminal/src/settings/runtime.ts",
+      "apps/terminal/app/command/ui101-command-route.tsx",
+      "apps/terminal/app/settings/_components/ui104-settings-route.tsx",
+      "apps/terminal/tests/g1-route-access.test.ts",
+      "apps/terminal/tests/ui104-runtime.test.ts",
+      "tests/e2e/g1-recovery.spec.ts",
+      "playwright.g1-recovery.config.ts",
+      "playwright.config.ts",
+      "scripts/g1-recovery-review.mjs",
+      "scripts/g1-recovery-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:08.098Z",
+    "elapsedMs": 636,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:08.734Z",
+    "elapsedMs": 7904,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/terminal-build.log",
+    "logSha256": "sha256:63a830330a81abbfdca64799cca6a7de87154946654a575a82f34bd2b7b2a7bd"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.g1-recovery.config.ts",
+      "--project=chromium",
+      "--retries=0",
+      "--workers=1",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/g1-recovery-local-20261022/attempt-02/browser"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:06:16.638Z",
+    "elapsedMs": 48088,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/browser.log",
+    "logSha256": "sha256:23fa5831866344d0933ab18b9380700bff96e85fc23aafea93abfb1c446e341b"
+  },
+  {
+    "id": "download-regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/integration/g1-download-reference.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/g1-recovery-local-20261022/attempt-02/download/unit.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:07:04.726Z",
+    "elapsedMs": 2998,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/download-regression.log",
+    "logSha256": "sha256:a7455216e18f828f8b2d6008838a37bdcaf5385f9e290ee5aa3a80e3e84b4685"
+  },
+  {
+    "id": "mock-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:07:07.725Z",
+    "elapsedMs": 8021,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/mock-build.log",
+    "logSha256": "sha256:9cf98047da66d7d24ed526a98bacf2106647ae7e66f13dd23a67ba3b30ecd955"
+  },
+  {
+    "id": "mock-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p17.config.ts",
+      "tests/e2e/ui104-settings.spec.ts",
+      "--project=chromium",
+      "--retries=0",
+      "--workers=1",
+      "--update-snapshots=none",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/g1-recovery-local-20261022/attempt-02/mock"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:07:15.747Z",
+    "elapsedMs": 4104,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/mock-browser.log",
+    "logSha256": "sha256:def5354f682dc0565d88aa01ba7d6dbf960671e60a7425c53ca8c547d9a9742f"
+  },
+  {
+    "id": "gate-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g1-recovery-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:07:19.851Z",
+    "elapsedMs": 207,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/gate-negative.log",
+    "logSha256": "sha256:864bdecdb7e222503f2f19bed6beb3a62f83bf8843d491d8407faab22f73b323"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T13:07:20.058Z",
+    "elapsedMs": 59,
+    "log": "docs/audit/evidence/g1-recovery-local-20261022/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]

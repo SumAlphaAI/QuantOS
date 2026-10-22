@@ -1,0 +1,95 @@
+{
+  "schema": "quantos-g1-recovery-matrix/v1",
+  "sourceCommit": "75451b08bf97f3b85d49d6f9eca9da23975e974a",
+  "policy": {
+    "pollMs": 5000,
+    "requestMs": 3000,
+    "maxUnverifiedMs": 8000,
+    "maxFrameChars": 16384
+  },
+  "rows": [
+    {
+      "boundary": "initial private publication",
+      "validation": "original ordered guard/private read → authenticated SSE handshake → full C01 session/context match → publication; late Command logout refused",
+      "evidence": [
+        "unit.json",
+        "browser/report.json"
+      ],
+      "result": "PASS_REFERENCE_AND_EXPLICIT_FAULTS"
+    },
+    {
+      "boundary": "permission_revoked / invalid identity / authority change",
+      "validation": "actual Rust logout pushes terminal event; actual Command/profile/browser clear; C01 synthetic scope changes refused within bounded poll",
+      "evidence": [
+        "browser/report.json",
+        "unit.json"
+      ],
+      "result": "PASS_REFERENCE; TARGET_PERSISTENCE_NOT_RUN"
+    },
+    {
+      "boundary": "late reads / writes / MFA hops",
+      "validation": "cancel/close/generation rejects publication; superseded challenge/reauth cannot send next high-risk request; epoch-mismatched save cannot claim success",
+      "evidence": [
+        "unit.json",
+        "browser/report.json"
+      ],
+      "result": "PASS_BOUNDED_RACES; SERVER_ROLLBACK_NOT_CLAIMED"
+    },
+    {
+      "boundary": "deadline and silent stream",
+      "validation": "5s C01 interval, total 3s probe deadline, authority lease max8s since probe start; earlier session/context/resource wins; sync action guard catches delayed timer",
+      "evidence": [
+        "unit.json",
+        "browser/report.json"
+      ],
+      "result": "PASS_FOREGROUND_MODEL; OS_SCHEDULING_NOT_RUN"
+    },
+    {
+      "boundary": "stream EOF / malformed / oversize / stream identity",
+      "validation": "fail closed, abort all reads, explicit new monitor + snapshot before recovery; no silent authority restoration",
+      "evidence": [
+        "unit.json",
+        "browser/report.json"
+      ],
+      "result": "PASS_BOUNDED"
+    },
+    {
+      "boundary": "offline / hidden / focus / cross-tab",
+      "validation": "clear private UI/drafts and close controller; no writes replay on online; real BroadcastChannel and real beginAuth invalidation; lifecycle hidden fault explicitly synthetic",
+      "evidence": [
+        "browser/report.json",
+        "unit.json"
+      ],
+      "result": "PASS_LOCAL_BROWSER; CROSS_OS_NOT_RUN"
+    },
+    {
+      "boundary": "normal Settings refresh and existing mock mode",
+      "validation": "normal valid-lease refresh preserves draft and freezes writes; mock offline clears data; 8 existing route checks and two original PNG comparisons pass",
+      "evidence": [
+        "mock/report.json",
+        "browser/report.json"
+      ],
+      "result": "PASS_LOCAL_CHROMIUM_ONLY"
+    },
+    {
+      "boundary": "download direct impact",
+      "validation": "current runtime still consumes valid reference content and Chromium receives same attested bytes; one-shot/refusal/cancellation keep source-specific scope",
+      "evidence": [
+        "download/reference-delivery.json",
+        "download/unit.json"
+      ],
+      "result": "PASS_REFERENCE_CONTENT_ONLY"
+    },
+    {
+      "boundary": "complete G1 journey / actual production identity & storage",
+      "validation": "not executed; no G1/FEP-1 integration or release admission",
+      "evidence": [
+        "retained-boundaries.json"
+      ],
+      "result": "NOT_RUN"
+    }
+  ],
+  "noAutomaticWriteReplay": true,
+  "g1Gate": "NOT_READY_GAPS_OPEN",
+  "stageGate": "NOT_ASSESSED"
+}

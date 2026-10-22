@@ -1,0 +1,133 @@
+{
+  "schema": "quantos-g1-recovery-source-findings/v1",
+  "sourceCommit": "75451b08bf97f3b85d49d6f9eca9da23975e974a",
+  "findings": [
+    {
+      "boundary": "actual Command publication waits for live authorization monitor",
+      "evidence": [
+        {
+          "path": "apps/terminal/app/command/ui101-command-route.tsx",
+          "line": 31,
+          "sha256": "sha256:fb22228836ade27a11ce4341ce426a0ee7b9df400a5a14a47cbb8708d79320dc",
+          "excerpt": "        const p = next.projection;\n        await access.bind(p.session, Math.min(Date.parse(p.session.expiresAt), p.summary ? Date.parse(p.summary.expiresAt) : Infinity));\n        access.assertCurrent();if (!active) return;\n      }\n      setResult(next);"
+        },
+        {
+          "path": "apps/terminal/app/command/ui101-command-route.tsx",
+          "line": 20,
+          "sha256": "sha256:fb22228836ade27a11ce4341ce426a0ee7b9df400a5a14a47cbb8708d79320dc",
+          "excerpt": "    const access = createRouteAccess({mock: process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === \"true\", origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, environment: browserAccessEnvironment(), onInvalidate(next) {\n      active = false;cancel.abort();setResult(undefined);setLoss(next);\n      if (next.status === 401 || next.reason === \"revoked\") sessionStore.clear();\n      if (next.status === 401 || next.status === 403 || next.status === 404) {const decision = handleAuthHttpStatus(next.status, \"/command\");if (\"route\" in decision) window.location.replace(decision.route);}\n    }});"
+        }
+      ]
+    },
+    {
+      "boundary": "actual Settings disposal / guarded write / fresh read recovery",
+      "evidence": [
+        {
+          "path": "apps/terminal/app/settings/_components/ui104-settings-route.tsx",
+          "line": 17,
+          "sha256": "sha256:0a6c9100f2cb6c5c3eaf2d3821b669837b3e9240197fbaf7e4de7725698f5562",
+          "excerpt": "    const access = createRouteAccess({mock: process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === \"true\", origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, environment: browserAccessEnvironment(), onInvalidate(next) {\n      controller.close();if (!mounted) return;setSnapshot(undefined);setLoading(false);setLoss(next);\n      if (next.status === 401 || next.reason === \"revoked\") sessionStore.clear();\n      if (next.status === 401 || next.status === 403 || next.status === 404) {const decision = handleAuthHttpStatus(next.status, `/settings/${section}`);if (\"route\" in decision) window.location.replace(decision.route);}\n    }});"
+        },
+        {
+          "path": "apps/terminal/app/settings/_components/ui104-settings-route.tsx",
+          "line": 21,
+          "sha256": "sha256:0a6c9100f2cb6c5c3eaf2d3821b669837b3e9240197fbaf7e4de7725698f5562",
+          "excerpt": "    }});\n    const controller = createSettingsRuntime({section, mock: process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === \"true\", origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, authorize: access.assertCurrent, runtime: () => ({online: navigator.onLine, width: window.innerWidth, csrf: settingsCsrf(document.cookie)})});\n    actions.current = controller;monitor.current = access;setSnapshot(undefined);setLoss(undefined);setLoading(true);\n    const cleanup = () => {mounted = false;controller.close();access.close();if (actions.current === controller) {actions.current = undefined;monitor.current = undefined;}};stop.current = cleanup;"
+        },
+        {
+          "path": "apps/terminal/app/settings/_components/ui104-settings-route.tsx",
+          "line": 32,
+          "sha256": "sha256:0a6c9100f2cb6c5c3eaf2d3821b669837b3e9240197fbaf7e4de7725698f5562",
+          "excerpt": "      if (!active || actions.current !== controller || access.closed) return;\n      await access.bind(next.context);access.assertCurrent();if (!active || actions.current !== controller) return;\n      setSnapshot(next);setLoading(false);\n    }).catch(reason => {if (active && !access.closed && actions.current === controller) {const status = (reason as {status?: number})?.status;access.invalidate({reason: \"unavailable\", status});}});\n    return () => {active = false;cancel.abort();};"
+        }
+      ]
+    },
+    {
+      "boundary": "bounded stream / C01 verification / earliest lease",
+      "evidence": [
+        {
+          "path": "apps/terminal/src/auth/route-access.ts",
+          "line": 7,
+          "sha256": "sha256:af3f89c6a89290551d758fc8c8dbe3df8632a767304de3fd28dce39738b61b24",
+          "excerpt": "// Streaming revocations are primary; C01 revalidation bounds silent failures.\nexport const routeAccessPolicy = {pollMs: 5000, requestMs: 3000, maxUnverifiedMs: 8000, maxFrameChars: 16384} as const;\nexport interface AccessEnvironment {"
+        },
+        {
+          "path": "apps/terminal/src/auth/route-access.ts",
+          "line": 42,
+          "sha256": "sha256:af3f89c6a89290551d758fc8c8dbe3df8632a767304de3fd28dce39738b61b24",
+          "excerpt": "    const checked = <T>(r: {data?: T; response: Response}) => {if (r.response.status !== 200 || !r.data) throw Object.assign(Error(\"Route authorization unavailable\"), {status: r.response.status});return bffZodSchemas.SessionContext.parse(r.data);};\n    const session = checked(await client.GET(\"/v1/session\", {cache: \"no-store\"}));assertCurrent();\n    const context = checked(await client.GET(\"/v1/context\", {cache: \"no-store\"}));assertCurrent();\n    if (!baseline || authority(session) !== authority(context) || authority(context) !== authority(baseline)) {invalidate({reason: \"scope\", status: 403});throw Error(\"Route authority changed\");}\n    const expiry = Math.min(Date.parse(session.expiresAt), Date.parse(context.expiresAt));\n    if (session.mfaState === \"challenged\" || !Number.isFinite(expiry) || expiry <= now()) {invalidate({reason: \"expired\", status: 401});throw Error(\"Route identity expired\");}\n    deadline = Math.min(deadline, expiry);verifiedUntil = started + routeAccessPolicy.maxUnverifiedMs;assertCurrent();armDeadline();"
+        },
+        {
+          "path": "apps/terminal/src/auth/route-access.ts",
+          "line": 63,
+          "sha256": "sha256:af3f89c6a89290551d758fc8c8dbe3df8632a767304de3fd28dce39738b61b24",
+          "excerpt": "          // A terminal hint always narrows authority, even if its sequence is old.\n          if (event.payload.type === \"permission_revoked\") {invalidate({reason: \"revoked\", status: 403});return;}\n          if (streamId && streamId !== event.streamId) throw Error(\"Authorization stream identity changed\");streamId = event.streamId;\n          // This is an invalidation channel, not a domain projection. Live per-user\n          // events have global sequence values, so numeric gaps need not be loss.\n          if (event.sequence <= sequence) continue;sequence = event.sequence;\n          if (event.payload.type !== \"session_revoked\") throw Error(\"Unexpected authorization event\");\n        }\n        if (buffer.length > routeAccessPolicy.maxFrameChars) throw Error(\"Oversized authorization frame\");\n      }\n    } catch {if (!closed) invalidate({reason: \"stream\"});}"
+        },
+        {
+          "path": "apps/terminal/src/auth/route-access.ts",
+          "line": 89,
+          "sha256": "sha256:af3f89c6a89290551d758fc8c8dbe3df8632a767304de3fd28dce39738b61b24",
+          "excerpt": "        try {\n          const response = await createBffFetch(transport, {signal: lifetime.signal, timeoutMs: routeAccessPolicy.requestMs})(new URL(\"/v1/settings/sessions/stream?afterSequence=0\", options.origin), {credentials: \"include\", cache: \"no-store\", headers: {accept: \"text/event-stream\"}});\n          if (response.status !== 200 || !response.body || !response.headers.get(\"content-type\")?.includes(\"text/event-stream\")) {await response.body?.cancel();throw Object.assign(Error(\"Authorization stream unavailable\"), {status: response.status});}\n          opened = true;void readStream(response.body);await probe();assertCurrent();scheduleProbe();\n        } catch (error) {failure(error);throw error;}"
+        }
+      ]
+    },
+    {
+      "boundary": "cross-tab invalidation is never authority",
+      "evidence": [
+        {
+          "path": "apps/terminal/src/auth/invalidation.ts",
+          "line": 23,
+          "sha256": "sha256:95470579e064b53dbe64168a87488a1f112748d7ad37c0550db10e49ebfa9f73",
+          "excerpt": "}\nexport function publishAuthInvalidation(kind: AuthInvalidation) {\n  const message = {version: 1, type: kind};\n  // Deliver synchronously before React can process another private action.\n  deliver(kind);\n  if (typeof window === \"undefined\") return;\n  try {\n    const outgoing = new window.BroadcastChannel(channelName);outgoing.postMessage(message);outgoing.close();\n  } catch {\n    // Transient non-authoritative signal only; never persist a session or draft.\n    try {window.localStorage.setItem(storageKey, JSON.stringify(message));window.localStorage.removeItem(storageKey);} catch { /* C01/SSE still gate access */ }\n  }\n}"
+        },
+        {
+          "path": "apps/terminal/src/auth/flow.ts",
+          "line": 38,
+          "sha256": "sha256:4ae88eb84029bfd602eaa4dba4a128f2aab913f9a9cfab89f4ecefd78fd29094",
+          "excerpt": "    currentSession = null;\n    publishAuthInvalidation(\"session\");\n  },\n};"
+        }
+      ]
+    },
+    {
+      "boundary": "asynchronous Settings generation fences",
+      "evidence": [
+        {
+          "path": "apps/terminal/src/settings/runtime.ts",
+          "line": 55,
+          "sha256": "sha256:ed6421b5cfb123d11d4f9859f8184a2ecc84e9c2c907bfb281575776bc626dea",
+          "excerpt": "      else saved = await saveProfileSettings(config.origin!, input, draft.objectVersion, keyFor(intent), config.runtime().csrf, transport, options);\n      guard(true); if (epoch !== generation) fail(403); if (saved.memberId !== snapshot!.bundle.profile.memberId) fail(403); keys.delete(intent); return saved;\n    }); },\n    saveNotifications(draft: NotificationPreferences) { return exclusive(async () => {"
+        },
+        {
+          "path": "apps/terminal/src/settings/runtime.ts",
+          "line": 70,
+          "sha256": "sha256:ed6421b5cfb123d11d4f9859f8184a2ecc84e9c2c907bfb281575776bc626dea",
+          "excerpt": "      const challenge = await completeSecurityMfa(config.origin!, code, config.runtime().csrf, transport, options);\n      guard(true, true); if (epoch !== generation) fail(403); if (challenge.status !== \"verified\") fail(422);\n      const grant = await completeRecentAuth(config.origin!, challenge.challengeRef, config.runtime().csrf, transport, options);\n      guard(true, true); if (epoch !== generation || Date.parse(grant.expiresAt) <= Date.now()) fail(403);\n      return { expiresAt: grant.expiresAt };\n    }); },"
+        },
+        {
+          "path": "apps/terminal/src/settings/runtime.ts",
+          "line": 100,
+          "sha256": "sha256:ed6421b5cfb123d11d4f9859f8184a2ecc84e9c2c907bfb281575776bc626dea",
+          "excerpt": "      }\n      guard(true, true); if (epoch !== generation) fail(403); accepted.set(intent, result); return result;\n    }); },"
+        }
+      ]
+    },
+    {
+      "boundary": "backend stream support is reference / source inspection only for live target",
+      "evidence": [
+        {
+          "path": "services/bff-gateway/src/lib.rs",
+          "line": 1093,
+          "sha256": "sha256:ffc4164477c95bdf09186e699c4b39bdedcf6ff7c2c54cf162a7949c1f7f8dba",
+          "excerpt": "\nasync fn session_stream(\n    State(data): State<Arc<Mutex<ProviderData>>>,\n    headers: HeaderMap,\n    Query(query): Query<StreamQuery>,\n) -> Response {\n    if let Err(response) = authenticate(&headers, &data).await {\n        return response;"
+        },
+        {
+          "path": "services/bff-gateway/src/live/settings.rs",
+          "line": 553,
+          "sha256": "sha256:729ef9851b4c67a5bf59c82a37046c77ad2951360c73f599b8c0e3fe603a2e64",
+          "excerpt": "                        let capabilities=context.auth.capabilities.iter().map(|c|c.as_str().to_owned()).collect::<Vec<_>>();\n                        // Revalidate expiry, actor, membership, account and capabilities\n                        // for every delivery. No bearer or raw session is needed here.\n                        let row=client.lock().map_err(|_|ApiError::unavailable())?.0.as_mut().ok_or_else(ApiError::unavailable)?.query_typed_one(\n                            \"select exists(\n                              select 1 from quantos.bff_sessions s\n                              join quantos.actors a on a.user_id=s.user_id and a.is_active and a.actor_kind='user'\n                              join quantos.workspace_memberships wm on wm.actor_id=a.id and wm.tenant_id=a.tenant_id"
+        }
+      ],
+      "liveTargetExecution": "NOT_RUN"
+    }
+  ]
+}
