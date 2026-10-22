@@ -65,6 +65,7 @@ test.describe("UI-102 identity, access and recovery", () => {
     await page.getByLabel("组织 / 公司").fill("SumAlpha Research");
     await page.getByLabel("工作邮箱").fill("research@example.com");
     await page.getByLabel("使用场景 / 用途说明").fill("用于受控的 Paper 模式量化研究与策略验证流程。");
+    await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: "提交申请" }).click();
     await expect(page.getByRole("heading", { name: "申请已受理" })).toBeVisible();
     await expect(page.getByText(/不代表访问权限已经开通/)).toBeVisible();

@@ -69,7 +69,7 @@ export function handleAuthHttpStatus(
 export function sanitizeReturnPath(path: string | null | undefined): string {
   if (!path) return "/command";
   if (!/^\/[A-Za-z0-9\-/]*$/.test(path)) return "/command";
-  if (path.startsWith("//")) return "/command";
+  if (path.startsWith("//") || /^\/(?:auth|login|mfa|offline|unauthorized|maintenance|access-request)(?:\/|$)/.test(path)) return "/command";
   return path;
 }
 
