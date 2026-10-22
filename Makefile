@@ -466,6 +466,7 @@ rls-policy-test: ensure-node
 license-check:
 	@test "$$(cargo deny --version)" = "cargo-deny 0.20.2" || (echo "cargo-deny 0.20.2 required" >&2; exit 1)
 	cargo deny --locked check licenses bans sources
+	node --test scripts/npm-license-metadata.test.mjs
 	node ./scripts/check-node-licenses.mjs
 	uv run --locked --project engines --all-packages --all-groups python scripts/check-python-licenses.py
 

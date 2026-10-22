@@ -23,6 +23,14 @@ for (const importer of ['apps/terminal','apps/website']) for (const version of [
     const pnpmLock=structuredClone(current.pnpmLock);pnpmLock.importers[importer].dependencies.next.version=version;rejected({pnpmLock});
   });
 }
+test('Storybook security rollback is rejected even when manifest and ADR agree with the old lock', () => {
+  const pnpmLock=structuredClone(current.pnpmLock),manifests=structuredClone(current.manifests);
+  pnpmLock.importers['packages/ui'].devDependencies.storybook={specifier:'^8.6.18',version:'8.6.18'};
+  manifests['packages/ui'].devDependencies.storybook='^8.6.18';
+  const runtimeAdr=current.runtimeAdr.replace('| storybook | 8.6.19 |','| storybook | 8.6.18 |');
+  const report=validate({pnpmLock,manifests,runtimeAdr});
+  assert(report.failures.includes('packages/ui storybook locked at 8.6.19'));
+});
 for (const version of ['6.4.2','6.4.3','7.0.0']) {
   test(`packages/ui rejects unreviewed Vite ${version}`, () => {
     const pnpmLock=structuredClone(current.pnpmLock);

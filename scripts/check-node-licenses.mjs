@@ -4,6 +4,7 @@ import path from 'node:path';
 import {parse} from 'yaml';
 import crypto from 'node:crypto';
 import {allowed,licenseAllowed} from './license-policy.mjs';
+import {fetchLicenseMetadata} from './lib/npm-license-metadata.mjs';
 const root=path.resolve(new URL('..',import.meta.url).pathname);
 fs.mkdirSync(path.join(root,'artifacts/f02'),{recursive:true});
 fs.writeFileSync(path.join(root,'artifacts/f02/node-licenses.json'),JSON.stringify({status:'RUNNING'}));
@@ -17,7 +18,7 @@ for(const p of projects)visit(p);
 const lock=parse(fs.readFileSync(path.join(root,'pnpm-lock.yaml'),'utf8'));
 const policy=JSON.parse(fs.readFileSync(path.join(root,'security/node-license-allowlist.json')));
 const evidence=JSON.parse(fs.readFileSync(path.join(root,'security/license-evidence.json')));
-const packages=[],failures=[];
+const packages=[],failures=[],metadataRequests=[];
 const entries=Object.entries(lock.packages);
 async function worker(){
  while(entries.length){
@@ -25,10 +26,10 @@ async function worker(){
   const name=key.slice(0,split),version=key.slice(split+1);
   let manifest=installed.get(key),source='installed';
   if(!manifest){
-   const response=await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/${encodeURIComponent(version)}`,{signal:AbortSignal.timeout(60000)});
-   if(!response.ok)throw Error(`License metadata unavailable: ${key} ${response.status}`);
-   manifest=await response.json();source='registry metadata for uninstalled/platform-specific package';
-   if(manifest.dist?.integrity!==value.resolution?.integrity)throw Error(`License metadata integrity mismatch: ${key}`);
+   manifest=await fetchLicenseMetadata(name,version,value.resolution?.integrity,{
+    onAttempt:attempt=>metadataRequests.push({package:key,...attempt}),
+   });
+   source='registry metadata for uninstalled/platform-specific package';
   }
   let license=typeof manifest.license==='string'?manifest.license:manifest.license?.type;
   if(!license && evidence[key]) {
@@ -43,10 +44,16 @@ async function worker(){
   packages.push({name,version,license:license??null,source,scope:approval?.scope??"approved"});
  }
 }
-await Promise.all(Array.from({length:6},worker));
+await Promise.all(Array.from({length:6},worker)).catch(error=>{
+ fs.writeFileSync(path.join(root,'artifacts/f02/node-licenses.json'),JSON.stringify({
+  status:'FAIL',lockSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'pnpm-lock.yaml'))).digest('hex'),
+  error:error.message,metadataRequests,packages,failures,
+ },null,2)+'\n');
+ throw error;
+});
 if(packages.length!==Object.keys(lock.packages).length)throw Error('License inventory incomplete');
 if(!fs.existsSync(path.join(root,'THIRD_PARTY_NOTICES.md')))throw Error('NOTICE required');
 fs.mkdirSync(path.join(root,'artifacts/f02'),{recursive:true});
-fs.writeFileSync(path.join(root,'artifacts/f02/node-licenses.json'),JSON.stringify({lockSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'pnpm-lock.yaml'))).digest('hex'),status:failures.length?'FAIL':'PASS',scope:'every pnpm lock package including dev/build and other-platform optional packages',packages:packages.sort((a,b)=>(a.name+a.version).localeCompare(b.name+b.version)),failures},null,2)+'\n');
+fs.writeFileSync(path.join(root,'artifacts/f02/node-licenses.json'),JSON.stringify({lockSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'pnpm-lock.yaml'))).digest('hex'),status:failures.length?'FAIL':'PASS',scope:'every pnpm lock package including dev/build and other-platform optional packages',metadataRequests,packages:packages.sort((a,b)=>(a.name+a.version).localeCompare(b.name+b.version)),failures},null,2)+'\n');
 if(failures.length)throw Error(`LICENSE_DENIED: ${failures.join('; ')}`);
 console.log(`Licensed all ${packages.length} locked packages across ${projects.length} workspaces`);
