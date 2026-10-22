@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {executionDecision,readPolicy,readFollowups} from './development-execution.mjs';
+import {nodesFromPlans} from './provider-a1-receipts.mjs';
+function fixture(){return{nodes:nodesFromPlans(),policy:readPolicy(),followups:readFollowups()};}
+test('FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups',()=>{const r=executionDecision('FE:FEP-1');assert.equal(r.allowed,true);assert.equal(r.stageGate,'NOT_ASSESSED');assert.deepEqual(r.auxiliaryPrerequisites,[]);assert(r.dependencies.some(d=>d.nodeId==='FRONTEND-GATE:G1'&&d.status==='NOT_ASSESSED'));assert.equal(r.stagePromotion,false);});
+test('next original I2 UI-507 can develop without claiming G1 readiness',()=>{const r=executionDecision('FE:UI-507');assert.equal(r.allowed,true);assert(r.dependencies.every(d=>d.admission==='NOT_CLAIMED'));});
+for(const id of ['G1-DEP-01','G1-CONF-01','G1-ENV-01','G1-TARGET-01'])test('retained '+id+' never becomes a development prerequisite',()=>{const f=fixture();f.followups.items.find(x=>x.id===id).status='OPEN';assert.equal(executionDecision('FE:FEP-1',f).allowed,true);});
+for(const status of ['NOT_ASSESSED','BLOCKED'])test('unready dependency '+status+' does not prohibit development or grant integration',()=>{const f=fixture();f.nodes.get('FRONTEND-GATE:G1').stage_gate.status=status;assert.equal(executionDecision('FE:FEP-1',f).allowed,true);assert.equal(executionDecision('FE:FEP-1',{...f,phase:'INTEGRATION'}).allowed,false);});
+test('known affected functional defect blocks its task even when all dependencies ready',()=>{const f=fixture();for(const n of f.nodes.values())n.stage_gate.status='READY';const a=f.followups.items.find(x=>x.id==='G1-DL-01');a.status='OPEN';assert.equal(executionDecision('FE:FEP-1',f).allowed,false);assert.deepEqual(executionDecision('FE:FEP-1',f).blockers,['G1-DL-01']);assert.equal(executionDecision('FE:UI-507',f).allowed,true);});
+test('unknown defect status fails closed instead of claiming verification',()=>{const f=fixture();f.followups.items.find(x=>x.id==='G1-DL-01').status='IMPLEMENTED_VERIFIED_FAKE';assert.equal(executionDecision('FE:FEP-1',f).allowed,false);});
+test('caller cannot omit actual affected scope',()=>{const f=fixture();f.followups.items[0].affectedNodes=['missing'];assert.throws(()=>executionDecision('FE:FEP-1',f));});
+test('accounting cannot add independent auxiliary prerequisites',()=>{const f=fixture();f.followups.items[0].developmentPrerequisite=true;assert.throws(()=>executionDecision('FE:FEP-1',f));});
+test('unknown finding kind rejects',()=>{const f=fixture();f.followups.items[0].kind='IGNORE_SAFETY';assert.throws(()=>executionDecision('FE:FEP-1',f));});
+test('finding evidence must exist',()=>{const f=fixture();f.followups.items[0].evidence='docs/missing-evidence.json';assert.throws(()=>executionDecision('FE:FEP-1',f));});
+test('invented task IDs cannot replace original plan sequence',()=>assert.throws(()=>executionDecision('G1-DEP-01')));
+for(const key of ['dependencyStageReadyRequiredToStart','historicalConfirmationRequiredToStart','auxiliaryActionsArePrerequisites'])test('reject policy that restores development prerequisite '+key,()=>{const f=fixture();f.policy.development.executionAdmission[key]=true;assert.throws(()=>executionDecision('FE:FEP-1',f));});
+for(const key of ['knownAffectedFunctionalDefectsBlock','stageReadinessUnchanged'])test('reject weakening '+key,()=>{const f=fixture();f.policy.development.executionAdmission[key]=false;assert.throws(()=>executionDecision('FE:FEP-1',f));});
+test('dependency READY alone cannot grant milestone READY',()=>{const f=fixture();for(const d of f.nodes.get('FE:FEP-1').dependencies)f.nodes.get(d).stage_gate.status='READY';assert.equal(executionDecision('FE:FEP-1',{...f,phase:'INTEGRATION'}).allowed,false);});
+test('milestone READY alone cannot bypass dependency stage',()=>{const f=fixture();f.nodes.get('FE:FEP-1').stage_gate.status='READY';assert.equal(executionDecision('FE:FEP-1',{...f,phase:'INTEGRATION'}).allowed,false);});
+test('release remains denied even if every stage is marked ready',()=>{const f=fixture();for(const n of f.nodes.values())n.stage_gate.status='READY';assert.equal(executionDecision('FE:FEP-1',{...f,phase:'RELEASE'}).allowed,false);});

@@ -1,4 +1,6 @@
-> 当前组合验证（G1-REC-02，2026-10-22）：工程38569928、577输入；实际登录/Command/P15/P17下载、审计关联与恢复矩阵完成本机reference验证，IdP/session为显式替身、导出创建为NODE_CONTROL_PORT。必要修复reference旧settings审计不可查询；30 Rust/10 Chromium/77门禁及9条限定检查通过，4743字节附件与签发/内容hash一致。REC-02 IMPLEMENTED_VERIFIED_LOCAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS、原稿用户确认CONFIRMED（仅38569928端口替代范围）；G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。Firefox/WebKit、全部原NOT_RUN/失败及其他4项义务不变，真实无替身旅程未验。见[报告](./audit/G1-REC02-local-journey-review-2026-10-22.md)、[回执](./audit/evidence/g1-journey-local-20261022/receipt.json)、[状态](./audit/evidence/g1-journey-confirmation-20261022/remediation-status.json)及[完整确认稿](./audit/evidence/g1-journey-local-20261022/confirmation-draft.md)；下一G1-DEP-01，不推送或部署。 确认见[原始记录与门禁](./audit/evidence/g1-journey-confirmation-20261022/README.md)；原稿/回执/证据包309492b0保持原字节，确认不提升G1/FEP-1联调或发布验收状态。
+> 当前执行纠偏（2026-10-22）：直接执行I1原任务FEP-1功能收口；G1-DL/REC/DEP等为整改或辅助记录，不加入主计划任务图、不作为开发前置。复用已有整改及原SHA证据，仅做本任务/直接影响检查。开发允许不等于G1/FEP-1联调READY，Firefox/WebKit阻塞、P15原确认待办、全部NOT_RUN和历史失败保留。实际入口见[FEP-1规程](./operations/fep1-function-closure.md)、[调度账本](./execution/development-followups.json)及[本轮报告](./audit/FEP-1-function-closure-2026-10-22.md)。FEP-1收口后下一原计划功能项UI-507，不先执行G1-DEP-01。
+
+> 历史已确认组合（G1-REC-02，2026-10-22）：工程38569928、577输入；实际登录/Command/P15/P17下载、审计关联与恢复矩阵完成本机reference验证，IdP/session为显式替身、导出创建为NODE_CONTROL_PORT。必要修复reference旧settings审计不可查询；30 Rust/10 Chromium/77门禁及9条限定检查通过，4743字节附件与签发/内容hash一致。REC-02 IMPLEMENTED_VERIFIED_LOCAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS、原稿用户确认CONFIRMED（仅38569928端口替代范围）；G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。Firefox/WebKit、全部原NOT_RUN/失败及其他4项义务不变，真实无替身旅程未验。见[报告](./audit/G1-REC02-local-journey-review-2026-10-22.md)、[回执](./audit/evidence/g1-journey-local-20261022/receipt.json)、[状态](./audit/evidence/g1-journey-confirmation-20261022/remediation-status.json)及[完整确认稿](./audit/evidence/g1-journey-local-20261022/confirmation-draft.md)；下一G1-DEP-01，不推送或部署。 确认见[原始记录与门禁](./audit/evidence/g1-journey-confirmation-20261022/README.md)；原稿/回执/证据包309492b0保持原字节，确认不提升G1/FEP-1联调或发布验收状态。
 
 > 历史已确认整改（G1-REC-01，2026-10-22）：最终工程75451b08、591输入；实际Command/Settings已接授权SSE+5秒C01复查/8秒观测期限及最早资源期限，失效清私有投影/敏感草稿、取消在途、代际拒绝，显式新读恢复且不重放写入。146单元/15实际路由Chromium/6下载/8mock/39门禁负向及11条限定检查通过；REC-01 IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、原稿用户确认CONFIRMED（仅75451b08路由整改范围）。G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；Firefox/WebKit阻塞、全部原NOT_RUN与其他5项义务保留。见[报告](./audit/G1-REC01-route-recovery-review-2026-10-22.md)、[回执](./audit/evidence/g1-recovery-local-20261022/receipt.json)、[状态](./audit/evidence/g1-recovery-confirmation-20261022/remediation-status.json)；下一G1-REC-02完整同候选旅程，不推送或部署。 确认见[原始记录与门禁](./audit/evidence/g1-recovery-confirmation-20261022/README.md)；原稿/回执/证据包2369d204保持原字节，确认不提升G1/FEP-1阶段状态。
 
@@ -2139,6 +2141,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 }
 ```
 
+当前调度说明：以下8项是历史发现/整改账本，不构成FEP-1或后续功能开发的新前置。G1-DEP-01只作随任务登记，P15确认、浏览器/目标义务分别保留；当前执行以文首FEP-1规程为准，原“下一G1-DEP-01”建议不再适用。
+
 原8项清单与原证据保持不变。DL-01/02原稿CONFIRMED仅原71b26d54范围；REC-01现IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、原稿用户确认CONFIRMED（仅工程75451b08路由整改范围），REC-02现IMPLEMENTED_VERIFIED_LOCAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS、原稿用户确认CONFIRMED（仅工程38569928端口替代范围），其他4项义务保留，见[最新状态](./audit/evidence/g1-journey-confirmation-20261022/remediation-status.json)。阶段Gate仍NOT_ASSESSED、review_status仍CHANGES_REQUESTED。P15待独立确认，Firefox/WebKit阻塞及全部原NOT_RUN/incomplete不变，不授G1/FEP-1 READY。
 
 <a id="task-fep-1"></a>
@@ -2159,7 +2163,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
 - 主要后端依赖：CORE:F06、CORE:F09
 - 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
-- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+- 范围说明：本记录位于I1功能窗口末尾。功能执行与收口可直接进行，G1-DEP-01等辅助项、历史确认待办与环境NOT_RUN不作为开发前置；已确认的当前功能缺陷仍在受影响范围修复。depends_on保留阶段评估关系，最终INTEGRATION READY仍须适用G1与依赖证据，正式发布复审独立。closes_core不作为页面开发前置。
+
+- 当前执行：按[FEP-1规程](./operations/fep1-function-closure.md)复用原范围功能和整改，限定验证正在记录；不执行独立G1-DEP-01，阶段Gate保持NOT_ASSESSED。
 
 #### 迭代 I2：W17–W18
 
