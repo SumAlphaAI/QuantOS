@@ -65,6 +65,7 @@ test.describe("Command Center（/command）", () => {
 
   test("视觉基线：1440 深主题", async ({ page }) => {
     const snapshot = "command-1440-dark";
+    await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/command");
     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });

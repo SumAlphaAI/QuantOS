@@ -1,4 +1,5 @@
 import {bffZodSchemas,createBffClient,SseStreamReducer,type BffComponents,type SseEventEnvelope} from "@sumalpha/api-client";
+import {commandItemPath} from "./presentation";
 export const commandClient=(origin:string,transport:typeof fetch=fetch)=>createBffClient({baseUrl:origin,fetch:transport,timeoutMs:10000});
 export function commandView(raw:unknown,accountId:string,mode:BffComponents["schemas"]["RuntimeMode"],now=Date.now()){
  const v=bffZodSchemas.CommandSummary.parse(raw);
@@ -8,6 +9,15 @@ export function commandView(raw:unknown,accountId:string,mode:BffComponents["sch
  const execution=v.sources.find(s=>s.domain==="execution")!,operations=v.sources.find(s=>s.domain==="operations")!;
  if(execution.status!=="ready"&&(v.riskPosture!=="unknown"||v.orderSummary!==null))throw Error("Command risk source unavailable");
  if(operations.status!=="ready"&&(v.systemHealth!==null||v.openRiskAlerts!==null))throw Error("Command health source unavailable");
+ const research=v.sources.find(s=>s.domain==="research")!,strategy=v.sources.find(s=>s.domain==="strategy")!;
+ if(research.status!=="ready"&&(v.runningRuns!==null||v.failedRuns!==null))throw Error("Command research source unavailable");
+ if((execution.status!=="ready"||strategy.status!=="ready")&&v.pendingApprovals!==null)throw Error("Command approval source unavailable");
+ if(v.orderSummary&&v.orderSummary.mode!==mode)throw Error("Command order mode changed");
+ for(const source of v.sources)if(source.status==="ready"&&(!source.asOf||!source.sourceHash||Date.parse(source.asOf)>now+1000||Date.parse(source.asOf)>Date.parse(v.sampledAt)+1000||Date.parse(v.sampledAt)-Date.parse(source.asOf)>=(source.domain==="execution"?60000:30000)))throw Error("Command source metadata unavailable");
+ if(v.asOf&&(Date.parse(v.asOf)>now+1000||Date.parse(v.asOf)>Date.parse(v.sampledAt)+1000))throw Error("Command asOf invalid");
+ if([...v.priority,...v.recentActivity].some(row=>!commandItemPath(row)))throw Error("Command item resource changed");
+ if(Date.parse(v.expiresAt)>Date.parse(v.sampledAt)+30000||v.sources.some(source=>source.status==="ready"&&Date.parse(v.expiresAt)>Date.parse(source.asOf!)+(source.domain==="execution"?60000:30000)))throw Error("Command lease exceeds source deadline");
+ if(v.partial!==v.sources.some(source=>source.status!=="ready"))throw Error("Command partial state changed");
  return structuredClone(v);
 }
 export class CommandFacts {

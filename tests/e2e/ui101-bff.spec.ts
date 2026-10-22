@@ -24,7 +24,7 @@ test("non-mock build loads generated session/context/summary and shows scoped fa
   await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
   expect(paths).toEqual(["/v1/session", "/v1/context", "/v1/command/summary"]);
   const risk = page.locator(".kpi-card").filter({ has: page.getByRole("heading", { name: "开放风险" }) }); await expect(risk.locator("strong")).toHaveText("—");
-  await expect(page.getByRole("button", { name: /发起研究/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /发起研究/ })).toHaveCount(0);
   const axe = await new AxeBuilder({ page }).analyze(); const path = info.outputPath("axe.json"); await writeFile(path, JSON.stringify({ violations: axe.violations, incomplete: axe.incomplete }, null, 2)); await info.attach("axe.json", { path, contentType: "application/json" });
   expect(axe.violations.filter(v => ["serious", "critical"].includes(v.impact ?? ""))).toEqual([]);
   const capture = info.outputPath("command-bff-shadow.png"); await page.screenshot({ path: capture, fullPage: true }); await info.attach("command-bff-shadow.png", { path: capture, contentType: "image/png" });
@@ -50,7 +50,7 @@ test("network recovery revalidates; it cannot promote stale data to fresh", asyn
   await browser.setOffline(true); await page.evaluate(() => dispatchEvent(new Event("offline"))); await expect(page.getByRole("alert").filter({ hasText: "网络已断开" })).toBeVisible();
   await browser.setOffline(false); await page.evaluate(() => dispatchEvent(new Event("online")));
   await expect.poll(() => paths.filter(p => p === "/v1/command/summary").length).toBeGreaterThanOrEqual(2);
-  await expect(page.locator(".freshness-status")).toContainText("Stale"); await expect(page.locator(".kpi-card").first()).toContainText("stale");
+  await expect(page.locator(".freshness-status")).toContainText("Stale"); await expect(page.locator(".p02-data-notice")).toContainText("陈旧");
 });
 test("expired summary refuses with no fallback data", async ({ page }) => {
   await boundary(page, path => path === "/v1/command/summary" ? { data: { ...summary(), expiresAt: "2000-01-01T00:00:00Z" } } : {});
@@ -73,7 +73,7 @@ test("authoritative context fits 390px and CSS zoom=2 while staying read-only", 
 });
 
 test("verified normal risk uses the healthy presentation, while null metrics remain unknown", async ({ page }) => {
-  await boundary(page, path => path === "/v1/command/summary" ? { data: { ...summary(), riskPosture: "normal", sources: summary().sources.map(source => ({ ...source, status: "ready", asOf: new Date().toISOString(), sourceHash: "sha256:" + "a".repeat(64) })) } } : {});
+  await boundary(page, path => path === "/v1/context" ? { data: { ...context(), capabilities: [...context().capabilities, "execution.operate"] } } : path === "/v1/command/summary" ? { data: { ...summary(), partial: false, riskPosture: "normal", sources: summary().sources.map(source => ({ ...source, status: "ready", asOf: new Date().toISOString(), sourceHash: "sha256:" + "a".repeat(64) })) } } : {});
   await page.goto("/command");
   const risk = page.locator(".kpi-card").filter({ has: page.getByRole("heading", { name: "开放风险" }) });
   await expect(risk.locator("p")).toHaveText("normal"); await expect(risk.locator("p")).toHaveClass("good"); await expect(risk.locator("strong")).toHaveText("—");

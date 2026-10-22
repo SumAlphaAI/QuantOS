@@ -17,6 +17,7 @@ export const ui101CommandFixture = {
     mode: "paper",
     environment: "staging",
     capabilities: [
+      "ops.read", "research.read", "execution.operate", "strategy.write",
       "command:read", "research:read", "strategy:read", "portfolio:read", "market:read",
       "trade:read", "performance:read", "proposal:read", "approval:read", "order:read",
       "audit:read", "operations:read", "admin:read",
@@ -27,6 +28,19 @@ export const ui101CommandFixture = {
   guard: { resourceAvailable: true, dataAvailable: true },
   freshness: { state: "fresh", asOf: "2026-08-14T10:42:08+08:00" },
   risk: { posture: "normal", reason: "主工作区风险规则正常" },
+  summary: {
+    accountId: "44444444-4444-4444-8444-444444444444", mode: "paper", sampledAt: "2026-08-14T10:42:08+08:00", asOf: "2026-08-14T10:42:06+08:00", expiresAt: "2099-08-16T10:42:08+08:00",
+    revision: "sha256:" + "a".repeat(64), partial: false, dataFreshness: "fresh", riskPosture: "normal", systemHealth: "healthy", openRiskAlerts: 2, pendingApprovals: 3, runningRuns: 4, failedRuns: 1,
+    orderSummary: { mode: "paper", submitted: 18, filled: 12, rejected: 0 },
+    priority: [
+      { kind: "approval", id: "55555555-5555-4555-8555-555555555555", severity: "warning", status: "pending", occurredAt: null, objectRef: "/approvals/55555555-5555-4555-8555-555555555555" },
+      { kind: "alert", id: "66666666-6666-4666-8666-666666666666", severity: "critical", status: "open", occurredAt: "2026-08-14T10:40:08+08:00", objectRef: "/operations/alerts/66666666-6666-4666-8666-666666666666" },
+      { kind: "run", id: "77777777-7777-4777-8777-777777777777", severity: "critical", status: "failed", occurredAt: "2026-08-14T10:36:08+08:00", objectRef: "/research/runs/77777777-7777-4777-8777-777777777777" },
+    ],
+    recentActivity: [{ kind: "order", id: "88888888-8888-4888-8888-888888888888", severity: "info", status: "filled", occurredAt: "2026-08-14T10:36:08+08:00", objectRef: "/orders/88888888-8888-4888-8888-888888888888" }],
+    sources: ["research", "execution", "operations", "strategy"].map(domain => ({ domain: domain as "research", status: "ready" as const, asOf: "2026-08-14T10:42:06+08:00", sourceHash: "sha256:" + "a".repeat(64) })),
+    bounded: { sourceCount: 4, rowLimit: 2000, itemLimit: 50, truncated: false },
+  },
   priority: [
     { severity: "warning", label: "审批待办", summary: "策略 release-042 等待风险审批", age: "6 分钟", action: "查看审批" },
     { severity: "critical", label: "风险告警", summary: "BTCUSDT 数据新鲜度接近阈值", age: "2 分钟", action: "查看风险" },

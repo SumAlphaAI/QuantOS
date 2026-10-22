@@ -1,0 +1,68 @@
+/* UI-P02 only: shared chrome tokens retain their established values. */
+.p02-shell .panel-link { display: flex; justify-content: center; align-items: center; text-decoration: none; padding: 8px 12px; }
+.p02-shell .panel-link:disabled { cursor: default; }
+.p02-shell .p02-disabled { display: block; color: var(--q-text-secondary); text-align: center; font-size: 11px; padding: 8px; }
+.p02-shell .p02-data-notice { margin-top: 12px; border: 1px solid var(--q-warning); background: var(--q-surface-1); color: var(--q-text-primary); padding: 9px 13px; border-radius: 5px; font-size: 12px; }
+.p02-shell .p02-health-state { margin-left: auto; font-size: 12px; color: var(--q-text-secondary); }
+.p02-shell .p02-window { white-space: nowrap; }
+.p02-shell .p02-layout { margin-top: 12px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border: 1px solid var(--q-border); padding: 12px; border-radius: 5px; background: var(--q-surface-1); }
+.p02-shell .p02-layout button { padding: 8px 12px; color: var(--q-text-primary); background: var(--q-surface-2); border: 1px solid var(--q-border-strong); border-radius: 4px; cursor: pointer; }
+.p02-shell .p02-layout p { margin: 0; color: var(--q-text-secondary); font-size: 12px; }
+.p02-shell .priority-row { grid-template-columns: 30px 90px minmax(80px, 1fr) 82px 50px; gap: 8px; }
+.p02-shell .priority-row a, .p02-shell .activity-row a { color: var(--q-accent); text-decoration: none; }
+.p02-shell .priority-row > span, .p02-shell .priority-row code { min-width: 0; overflow-wrap: anywhere; }
+.p02-shell .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.p02-shell .kpi-card { min-width: 0; gap: 16px; }
+.p02-shell .kpi-card strong { font-size: 30px; }
+.p02-shell .kpi-card .p02-metric-note { color: var(--q-text-secondary); font-size: 11px; }
+.p02-shell .kpi-card small { white-space: normal; }
+.p02-shell .activity-row { grid-template-columns: 78px 45px 85px 1fr 100px 50px; min-width: 620px; }
+.p02-shell .activity-row > * { min-width: 0; overflow-wrap: anywhere; }
+.p02-shell .activity-row .activity-state { display: inline-block; white-space: normal; }
+.p02-shell .p02-empty-activity { text-align: center; padding: 15px; color: var(--q-text-secondary); }
+.p02-shell .quick-links a { padding: 14px 4px; color: var(--q-accent); text-decoration: none; text-align: center; }
+.p02-shell .quick-links a + a { border-left: 1px solid var(--q-border); }
+.p02-shell .p02-bounds, .p02-shell .p02-help { color: var(--q-text-secondary); font-size: 11px; line-height: 1.7; margin-top: 12px; }
+.p02-shell .p02-help summary { cursor: pointer; }
+.p02-shell .p02-help:target { outline: 2px solid var(--q-focus); outline-offset: 3px; }
+.p02-shell .help-button { display: inline-grid; place-items: center; text-decoration: none; }
+.p02-shell .health-row, .p02-shell .health-head { grid-template-columns: 1fr 1fr .75fr .65fr 1fr; gap: 8px; }
+.p02-shell .health-row { min-height: 38px; }
+.p02-shell .page-toolbar p, .p02-shell .breadcrumb strong, .p02-shell .health-head, .p02-shell .health-row code, .p02-shell .activity-row, .p02-shell .activity-head, .p02-shell .kpi-card small, .p02-shell .layout-saved { color: var(--q-text-secondary); }
+.p02-shell .priority-row code { color: var(--q-text-primary); }
+.p02-shell .segmented button { background: var(--q-surface-2); color: var(--q-text-primary); border-color: var(--q-border-strong); }
+.p02-shell .segmented button.selected { color: var(--q-accent); border-color: var(--q-accent); background: var(--q-surface-1); }
+.p02-shell .quick-action { color: var(--q-text-primary); background: var(--q-surface-2); }
+.p02-shell .quick-action small { color: var(--q-text-secondary); }
+.p02-shell .mode-banner { color: var(--q-accent); background: var(--q-surface-2); border-color: var(--q-accent); }
+.p02-shell .warn { color: var(--q-warning); }
+.p02-shell.command-compact .priority-row { min-height: 36px; }
+.p02-shell.command-compact .kpi-card { min-height: 100px; padding-block: 10px; }
+.p02-shell.command-compact .health-row { min-height: 30px; }
+@media (min-width: 1280px) { .p02-shell .overview-grid { grid-template-columns: 1.08fr 1fr; } }
+@media (max-width: 767px) {
+  .p02-shell .panel-heading { align-items: flex-start; gap: 12px; flex-direction: column; padding-block: 12px; }
+  .p02-shell .segmented { margin-left: 0; width: 100%; gap: 6px; flex-wrap: wrap; overflow: visible; }
+  .p02-shell .segmented button { min-width: 58px; }
+  .p02-shell .priority-row { grid-template-columns: 22px 70px minmax(0, 1fr); padding: 10px; }
+  .p02-shell .priority-row code { display: block; grid-column: 2; }
+  .p02-shell .priority-row a, .p02-shell .priority-row .p02-disabled { grid-column: 3; }
+  .p02-shell .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .p02-shell .toolbar-actions { flex-wrap: wrap; overflow: visible; }
+  .p02-shell .p02-layout { align-items: flex-start; flex-direction: column; }
+  .p02-shell .health-head, .p02-shell .health-row { min-width: 540px; }
+  .p02-shell .p02-bounds, .p02-shell .p02-help { overflow-wrap: anywhere; }
+}
+.p02-shell .toolbar-actions > span { color: var(--q-text-secondary); }
+.p02-shell a.panel-link, .p02-shell button.panel-link { color: var(--q-accent); }
+.p02-shell .page-toolbar { min-height: 65px; }
+.p02-shell .panel-heading { min-height: 42px; }
+.p02-shell .health-row { min-height: 32px; }
+.p02-shell .panel-link { min-height: 36px; }
+.p02-shell .kpi-card { padding: 12px 16px; }
+.p02-shell .kpi-card h3 { line-height: 18px; }
+.p02-shell .kpi-card strong { line-height: 34px; }
+.p02-shell .kpi-card p { line-height: 18px; }
+.p02-shell .kpi-card small { line-height: 14px; margin-top: 4px; }
+.p02-shell .activity-state.neutral { color: var(--q-text-secondary); }
+.p02-shell .command-contract-banner { color: var(--q-text-primary); background: var(--q-surface-2); border-color: var(--q-warning); }

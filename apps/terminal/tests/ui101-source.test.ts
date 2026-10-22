@@ -7,7 +7,8 @@ import { sessionStore } from "../src/auth/flow";
 
 const context = () => ({ ...structuredClone(ui101CommandFixture.session), capabilities: ["ops.read", "research.read"] });
 export function summary(): BffComponents["schemas"]["CommandSummary"] {
-  return { accountId: context().accountId, mode: "paper", sampledAt: new Date().toISOString(), asOf: new Date().toISOString(), expiresAt: new Date(Date.now() + 60_000).toISOString(), revision: "sha256:" + "a".repeat(64), partial: false, dataFreshness: "fresh", riskPosture: "normal", systemHealth: "healthy", pendingApprovals: 0, failedRuns: 0, runningRuns: 0, openRiskAlerts: 0, orderSummary: null, priority: [], recentActivity: [], sources: ["research", "execution", "operations", "strategy"].map(domain => ({ domain: domain as "research", status: "ready", asOf: new Date().toISOString(), sourceHash: "sha256:" + "a".repeat(64) })), bounded: { sourceCount: 4, rowLimit: 2000, itemLimit: 50, truncated: false } };
+  const now = Date.now();
+  return { accountId: context().accountId, mode: "paper", sampledAt: new Date(now).toISOString(), asOf: new Date(now).toISOString(), expiresAt: new Date(now + 30_000).toISOString(), revision: "sha256:" + "a".repeat(64), partial: false, dataFreshness: "fresh", riskPosture: "normal", systemHealth: "healthy", pendingApprovals: 0, failedRuns: 0, runningRuns: 0, openRiskAlerts: 0, orderSummary: null, priority: [], recentActivity: [], sources: ["research", "execution", "operations", "strategy"].map(domain => ({ domain: domain as "research", status: "ready", asOf: new Date(now).toISOString(), sourceHash: "sha256:" + "a".repeat(64) })), bounded: { sourceCount: 4, rowLimit: 2000, itemLimit: 50, truncated: false } };
 }
 function transport(options: { session?: unknown; context?: unknown; summary?: unknown; fail?: string; status?: number } = {}) {
   const paths: string[] = [];

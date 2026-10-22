@@ -7,6 +7,8 @@ import { createConfiguredCommandSource } from "../../src/command/source";
 import { CommandCenter } from "./ui101-command-center";
 
 export function CommandRoute() {
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  useEffect(() => { const media = matchMedia("(prefers-color-scheme: light)"); const sync = () => setTheme(media.matches ? "light" : "dark"); sync(); media.addEventListener("change", sync); return () => media.removeEventListener("change", sync); }, []);
   const [generation, setGeneration] = useState(0);
   const [result, setResult] = useState<GuardedCommandResult>();
   const refresh = useCallback(() => { setResult(undefined); setGeneration(value => value + 1); }, []);
@@ -26,7 +28,7 @@ export function CommandRoute() {
     const timer = window.setTimeout(refresh, Math.max(0, Math.min(expiresAt - Date.now(), 2_147_483_647)));
     return () => window.clearTimeout(timer);
   }, [result, refresh]);
-  if (!result) return <ThemeProvider theme="dark"><main className="command-guard-screen" data-guard-state="checking" aria-busy="true"><span aria-hidden="true">◌</span><h1>正在验证访问条件</h1><p>按 session → workspace → capability → resource → mode → data 顺序安全检查。</p></main></ThemeProvider>;
-  if (!result.decision.allowed || !result.projection) return <ThemeProvider theme="dark"><main className="command-guard-screen" data-guard-state="denied" role="alert"><span aria-hidden="true">⊘</span><h1>访问已安全阻断</h1><p>停止于 {result.decision.stoppedAt}；未展示后续 Command 数据，正在转到安全页面。</p></main></ThemeProvider>;
-  return <ThemeProvider theme="dark"><div data-guard-state="allowed" data-guard-steps={result.decision.completedSteps.join(",")}><CommandCenter projection={result.projection} contractMode={result.contractMode} onRefresh={refresh} /></div></ThemeProvider>;
+  if (!result) return <ThemeProvider theme={theme}><main className="command-guard-screen" data-guard-state="checking" aria-busy="true"><span aria-hidden="true">◌</span><h1>正在验证访问条件</h1><p>按 session → workspace → capability → resource → mode → data 顺序安全检查。</p></main></ThemeProvider>;
+  if (!result.decision.allowed || !result.projection) return <ThemeProvider theme={theme}><main className="command-guard-screen" data-guard-state="denied" role="alert"><span aria-hidden="true">⊘</span><h1>访问已安全阻断</h1><p>停止于 {result.decision.stoppedAt}；未展示后续 Command 数据，正在转到安全页面。</p></main></ThemeProvider>;
+  return <ThemeProvider theme={theme}><div data-guard-state="allowed" data-guard-steps={result.decision.completedSteps.join(",")}><CommandCenter projection={result.projection} contractMode={result.contractMode} onRefresh={refresh} /></div></ThemeProvider>;
 }

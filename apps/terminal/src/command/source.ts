@@ -41,13 +41,13 @@ export function createCommandBffSource(origin: string, fetchImpl: typeof fetch =
           const summary = commandView(raw, context!.accountId, context!.mode);
           if (summary.dataFreshness === "unavailable" || !summary.asOf || Date.parse(summary.asOf) > Date.now() + 1000) return "unknown";
           projection = {
-            session: { ...context!, workspaceLabel: `Workspace ${context!.workspaceId.slice(0, 8)}…`, accountLabel: `Account ${context!.accountId.slice(0, 8)}…`, actorInitials: context!.actorId.slice(0, 2).toUpperCase() },
+            session: { ...context!, expiresAt: new Date(Math.min(Date.parse(session!.expiresAt), Date.parse(context!.expiresAt))).toISOString(), workspaceLabel: `Workspace ${context!.workspaceId.slice(0, 8)}…`, accountLabel: `Account ${context!.accountId.slice(0, 8)}…`, actorInitials: context!.actorId.slice(0, 2).toUpperCase() },
             guard: { resourceAvailable: true, dataAvailable: true },
             freshness: { state: summary.dataFreshness, asOf: summary.asOf },
             risk: { posture: summary.riskPosture === "halted" ? "critical" : summary.riskPosture, reason: "C02 服务端风险事实" },
             summary,
             priority: summary.priority.map(row => ({ severity: row.severity, label: row.kind, summary: row.objectRef, age: row.occurredAt ?? "时间未知", action: "查看" })),
-            services: summary.sources.map(row => ({ name: row.domain, status: row.status, tone: row.status === "ready" ? "healthy" : "degraded", latency: "—", availability: row.status === "ready" ? 5 : 0 })),
+            services: summary.sources.map(row => ({ name: row.domain, status: row.status, tone: row.status === "ready" ? "healthy" : "degraded", latency: "—", availability: null })),
             activity: summary.recentActivity.map(row => ({ time: row.occurredAt ?? "时间未知", actor: "—", object: row.objectRef, status: row.status, tone: "neutral", id: row.id, detail: "查看" })),
           };
           return "allow";
