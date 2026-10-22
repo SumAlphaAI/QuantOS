@@ -2244,7 +2244,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-204", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2255,6 +2255,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 页面级完成标准：目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动
 
 - 当前执行：`PASS_UI_P05_CURRENT_PAGE`，工程`a76cca21`、539输入/56产物；74项单测、13个Chromium、6图比对/6次axe零violations、50项门禁路由及types/lint/build通过，6项图标对比度incomplete保留。复用UI-204 C04与用途阻断/授权恢复；交付目录表格、右侧质量/时间窗/来源与许可面板、双主题响应式、键盘标签、两快照只读对比及授权C04元数据JSON下载。见[本轮报告](./audit/UI-P05-current-page-review-2026-10-23.md)、[规程](./operations/ui-p05-data-snapshot-workbench.md)、[当前页面门禁](../scripts/ui-p05-review.mjs)。不合成质量分数/覆盖率/全局总量/许可批准；复用原范围证据、不将G1辅助项作为前置、不重跑全链。reference身份/CORS替代、Firefox/WebKit阻塞及全部NOT_RUN保留，159阶段Gate及G1/FEP-1联调/发布不提升，人工确认待项目用户。下一原任务UI-201可继续开发。
+- 确认执行：项目用户已确认原完整稿，仅绑定工程`a76cca21`及原文稿证据包`35e07003`；COMPLETED仅表示原稿当前页面功能范围确认。见[原始确认与范围](./audit/evidence/ui-p05-confirmation-20261023/README.md)和[确认门禁](../scripts/ui-p05-confirmed-reference.mjs)。reference身份/CORS替代、Firefox/WebKit阻塞、6项图标对比度incomplete及全部NOT_RUN保留；G1/FEP-1、INTEGRATION/发布状态不提升，元数据下载不授予业务用途，下一原任务UI-201可继续开发，无G1辅助项前置。
 
 <a id="task-ui-201"></a>
 ##### UI-201：Research 列表、新建与表单校验
