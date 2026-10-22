@@ -1,4 +1,4 @@
-> 当前整改（G1-REC-01，2026-10-22）：最终工程75451b08、591输入；实际Command/Settings已接授权SSE+5秒C01复查/8秒观测期限及最早资源期限，失效清私有投影/敏感草稿、取消在途、代际拒绝，显式新读恢复且不重放写入。146单元/15实际路由Chromium/6下载/8mock/39门禁负向及11条限定检查通过；REC-01 IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、确认PENDING。G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；Firefox/WebKit阻塞、全部原NOT_RUN与其他5项义务保留。见[报告](./audit/G1-REC01-route-recovery-review-2026-10-22.md)、[回执](./audit/evidence/g1-recovery-local-20261022/receipt.json)、[状态](./audit/evidence/g1-recovery-local-20261022/remediation-status.json)；下一G1-REC-02完整同候选旅程，不推送或部署。
+> 当前整改（G1-REC-01，2026-10-22）：最终工程75451b08、591输入；实际Command/Settings已接授权SSE+5秒C01复查/8秒观测期限及最早资源期限，失效清私有投影/敏感草稿、取消在途、代际拒绝，显式新读恢复且不重放写入。146单元/15实际路由Chromium/6下载/8mock/39门禁负向及11条限定检查通过；REC-01 IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、原稿用户确认CONFIRMED（仅75451b08路由整改范围）。G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；Firefox/WebKit阻塞、全部原NOT_RUN与其他5项义务保留。见[报告](./audit/G1-REC01-route-recovery-review-2026-10-22.md)、[回执](./audit/evidence/g1-recovery-local-20261022/receipt.json)、[状态](./audit/evidence/g1-recovery-confirmation-20261022/remediation-status.json)；下一G1-REC-02完整同候选旅程，不推送或部署。 确认见[原始记录与门禁](./audit/evidence/g1-recovery-confirmation-20261022/README.md)；原稿/回执/证据包2369d204保持原字节，确认不提升G1/FEP-1阶段状态。
 
 > 历史已确认整改（G1-DL-01 / G1-DL-02，2026-10-22）：工程71b26d54、354输入；reference真实内容交付与封闭BFF HTTPS origin契约已实现，40 Rust/107 Vitest（6本机内容组合含Chromium4743字节实收）/44门禁负向及16条限定检查通过。DL-01/02 IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、原稿用户确认CONFIRMED（仅71b26d54下载整改范围）；其他6项缺口、Firefox/WebKit阻塞及全部原NOT_RUN保留。G1/FEP-1仍NOT_READY_GAPS_OPEN、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。见[报告](./audit/G1-DL01-DL02-reference-download-review-2026-10-22.md)、[回执](./audit/evidence/g1-download-local-20261022/receipt.json)与[状态](./audit/evidence/g1-download-confirmation-20261022/remediation-status.json)。下一可执行G1-REC-01路由撤权/失效与恢复，随后REC-02完整组合；无推送或部署。 确认见[原始记录与门禁](./audit/evidence/g1-download-confirmation-20261022/README.md)，原稿/回执/证据包1698bea1保持原字节，确认不提升G1/FEP-1阶段状态。
 
@@ -2122,6 +2122,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [
     "audit/G1-REC01-route-recovery-review-2026-10-22.md",
     "audit/evidence/g1-recovery-local-20261022/receipt.json",
+    "audit/evidence/g1-recovery-confirmation-20261022/README.md",
     "audit/evidence/g1-download-confirmation-20261022/README.md"
   ],
   "stage_gate": {
@@ -2133,7 +2134,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 }
 ```
 
-原8项清单与原证据保持不变。DL-01/02原稿CONFIRMED仅原71b26d54范围；REC-01现IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、确认PENDING（工程75451b08），其他5项义务保留，见[最新状态](./audit/evidence/g1-recovery-local-20261022/remediation-status.json)。阶段Gate仍NOT_ASSESSED、review_status仍CHANGES_REQUESTED。P15待独立确认，Firefox/WebKit阻塞及全部原NOT_RUN/incomplete不变，不授G1/FEP-1 READY。
+原8项清单与原证据保持不变。DL-01/02原稿CONFIRMED仅原71b26d54范围；REC-01现IMPLEMENTED_VERIFIED_LOCAL_REFERENCE、原稿用户确认CONFIRMED（仅工程75451b08路由整改范围），其他5项义务保留，见[最新状态](./audit/evidence/g1-recovery-confirmation-20261022/remediation-status.json)。阶段Gate仍NOT_ASSESSED、review_status仍CHANGES_REQUESTED。P15待独立确认，Firefox/WebKit阻塞及全部原NOT_RUN/incomplete不变，不授G1/FEP-1 READY。
 
 <a id="task-fep-1"></a>
 ##### FEP-1：壳与官网
@@ -2146,7 +2147,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: ["CORE:F06", "CORE:F09"]
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。 2026-10-22 G1/FEP-1本机缺口核对完成，见[报告](./audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md)；原COMPLETED仅实现历史，当前NOT_READY_GAPS_OPEN/INTEGRATION NOT_ASSESSED，71b26d54已完成本机reference下载链/封闭origin整改、原稿确认CONFIRMED（仅下载整改范围），目标live交付仍NOT_RUN；75451b08已完成本机路由授权失效/恢复整改（仅reference，确认PENDING）；完整组合/P15确认及目标义务未闭环，不直接解锁I2联调。
+- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。 2026-10-22 G1/FEP-1本机缺口核对完成，见[报告](./audit/FRONTEND-G1-FEP1-local-gap-review-2026-10-22.md)；原COMPLETED仅实现历史，当前NOT_READY_GAPS_OPEN/INTEGRATION NOT_ASSESSED，71b26d54已完成本机reference下载链/封闭origin整改、原稿确认CONFIRMED（仅下载整改范围），目标live交付仍NOT_RUN；75451b08已完成本机路由授权失效/恢复整改（仅reference，原稿确认CONFIRMED，仅75451b08范围）；完整组合/P15确认及目标义务未闭环，不直接解锁I2联调。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

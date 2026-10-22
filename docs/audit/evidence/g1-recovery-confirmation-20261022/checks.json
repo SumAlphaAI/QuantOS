@@ -1,0 +1,102 @@
+{
+  "schema": "quantos-g1-recovery-confirmation-checks/v1",
+  "scope": "CONFIRMATION_CLOSURE_ONLY",
+  "sourceCommit": "75451b08bf97f3b85d49d6f9eca9da23975e974a",
+  "sourcePacket": "2369d204cce05948dc71420a26a56311348f851e",
+  "functionalTestsRerun": false,
+  "recursiveDependencyRevalidation": false,
+  "integrationAdmission": "NOT_GRANTED",
+  "releaseAdmission": "NOT_GRANTED",
+  "checks": [
+    {
+      "id": "gate",
+      "command": [
+        "node",
+        "docs/audit/evidence/g1-recovery-confirmation-20261022/verify.mjs",
+        "--record"
+      ],
+      "startedAt": "2026-10-22T13:21:14.030Z",
+      "elapsedMs": 539,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/gate.log",
+      "logSha256": "sha256:5f6f5f2781a51469ec19b10ba2520c566b7bf76392e4d93075eecad6e5761be2"
+    },
+    {
+      "id": "verification",
+      "command": [
+        "node",
+        "docs/audit/evidence/g1-recovery-confirmation-20261022/verify.mjs",
+        "--verify"
+      ],
+      "startedAt": "2026-10-22T13:21:14.570Z",
+      "elapsedMs": 526,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/verification.log",
+      "logSha256": "sha256:5f6f5f2781a51469ec19b10ba2520c566b7bf76392e4d93075eecad6e5761be2"
+    },
+    {
+      "id": "confirmation-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "startedAt": "2026-10-22T13:21:15.097Z",
+      "elapsedMs": 63,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/confirmation-tests.log",
+      "logSha256": "sha256:f6ebc7d0585f09a3cd5693c0581a145813d2f7378ff9987f03a7926ef8b2d932"
+    },
+    {
+      "id": "engineering-verification",
+      "command": [
+        "node",
+        "scripts/g1-recovery-review.mjs",
+        "--verify"
+      ],
+      "startedAt": "2026-10-22T13:21:15.161Z",
+      "elapsedMs": 381,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/engineering-verification.log",
+      "logSha256": "sha256:3d1ede03d6f6dae8b0df3b9d203657aebd2dee6d3db44695963451f33d2aae26"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-22T13:21:15.543Z",
+      "elapsedMs": 58,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "docs/audit/evidence/g1-recovery-confirmation-20261022/verify.mjs"
+      ],
+      "startedAt": "2026-10-22T13:21:15.601Z",
+      "elapsedMs": 473,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "log": "docs/audit/evidence/g1-recovery-confirmation-20261022/lint.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
