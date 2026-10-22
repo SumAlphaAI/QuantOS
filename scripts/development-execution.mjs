@@ -20,7 +20,7 @@ export function executionDecision(nodeId,{phase='DEVELOPMENT',nodes=nodesFromPla
  // A confirmed current correctness/security defect still blocks its affected work.
  const blockers=followups.items.filter(f=>f.kind==='FUNCTIONAL_DEFECT'&&f.affectedNodes.includes(nodeId)&&!['IMPLEMENTED_VERIFIED_LOCAL_REFERENCE','IMPLEMENTED_VERIFIED_LOCAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS'].includes(f.status)).map(f=>f.id);
  let allowed=blockers.length===0,reason=allowed?'FUNCTION_AND_IMPACT_SCOPE':'KNOWN_AFFECTED_FUNCTIONAL_DEFECT';
- if(phase==='INTEGRATION'){allowed=n.stage_gate.status==='READY'&&dependencies.every(d=>d.status==='READY');reason=allowed?'EXISTING_STAGE_READY_ONLY':'STAGE_NOT_READY';}
+ if(phase==='INTEGRATION'){allowed=blockers.length===0&&n.stage_gate.status==='READY'&&dependencies.every(d=>d.status==='READY');reason=blockers.length?'KNOWN_AFFECTED_FUNCTIONAL_DEFECT':allowed?'EXISTING_STAGE_READY_ONLY':'STAGE_NOT_READY';}
  if(phase==='RELEASE'){allowed=false;reason='USE_FROZEN_RELEASE_ACCEPTANCE_GATE';}
  return{schema:'quantos-development-execution/v1',nodeId,phase,allowed,reason,blockers:phase==='DEVELOPMENT'?blockers:[],dependencies,auxiliaryPrerequisites:[],dependencyRevalidation:'NOT_RUN_NOT_REQUIRED_FOR_DEVELOPMENT',stageGate:n.stage_gate.status,stagePromotion:false,formalAccepted:false,runtimeAdmission:'DENIED'};
 }
