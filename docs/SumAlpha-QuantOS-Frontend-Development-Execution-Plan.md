@@ -2267,13 +2267,15 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Research 列表、新建与表单校验
 - 接口绑定：C03、C04
 - 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示
+
+- 当前执行：UI-201 仅当前功能范围实现与验证，交付 `/research`、`/research/new` 的 C03 列表/分页筛选、C04 快照选择、预算/deadline/capability 表单校验、422 字段定位与 202 审计回执；未知结果原幂等键显式重试及撤权清理。见[本轮报告](./audit/UI-201-current-function-review-2026-10-23.md)、[规程](./operations/ui201-research-list-create.md)、[功能门禁](../scripts/ui201-review.mjs)。复用 UI-204/UI-P05 原范围证据，不将 G1 辅助项作为开发前置，不重跑全链；reference 身份/CORS 替代、Firefox/WebKit 阻塞、P05 六项图标对比度 incomplete 及全部 NOT_RUN 保留。159 阶段 Gate、G1/FEP-1、联调/发布状态不提升；项目用户确认待定。下一原任务 UI-P03 可继续开发。
 
 <a id="task-ui-p03"></a>
 ##### UI-P03：P03-Research-List-and-New-Research-High-Fidelity-v1.png

@@ -20,8 +20,11 @@ const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css
 createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   const resourceDocument=terminalStaticDocument(url.pathname,routeMap);
-  let p = join(dir, resourceDocument ?? (url.pathname === "/" ? "index.html" : url.pathname));
-  if (!existsSync(p)) p = `${p}.html`;
+  let p = join(dir, resourceDocument ?? (url.pathname === "/" ? "index.html" : url.pathname.replace(/\/$/, "")));
+  if (!existsSync(p) || statSync(p).isDirectory()) {
+    const exported = `${p}.html`;
+    if (existsSync(exported) && statSync(exported).isFile()) p = exported;
+  }
   if (!existsSync(p) || statSync(p).isDirectory()) p = join(dir, url.pathname, "index.html");
   if (!existsSync(p)) {
     res.writeHead(404, { "content-type": "text/html" });

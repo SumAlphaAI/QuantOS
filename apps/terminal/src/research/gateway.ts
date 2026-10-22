@@ -4,10 +4,16 @@ export type ResearchInput = BffOperations["createResearchRun"]["requestBody"]["c
 export type ResearchQuery = NonNullable<BffOperations["listResearchRuns"]["parameters"]["query"]>;
 export type SnapshotQuery = NonNullable<BffOperations["listDataSnapshots"]["parameters"]["query"]>;
 export class ResearchGatewayError extends Error {
-  constructor(readonly operation: string, readonly status: number) { super(status === 403 || status === 404 ? "资源不存在或无权访问。" : status === 410 ? "列表已过期，请刷新。" : "研究服务响应无效或暂不可用。"); }
+  constructor(readonly operation: string, readonly status: number, readonly fields: Record<string,string> = {}, readonly correlationId?: string, readonly retryAfter?: number) { super(status === 403 || status === 404 ? "资源不存在或无权访问。" : status === 410 ? "列表已过期，请刷新。" : "研究服务响应无效或暂不可用。"); }
+  get outcomeUnknown() {return this.operation === "createResearchRun" && (this.status >= 500 || this.status < 400);}
 }
-function required<T>(operation: BffOperationId, result: { data?: T; response: Response }, expected?: { field: string; value: string }): T {
-  if (result.data === undefined) throw new ResearchGatewayError(operation, result.response.status);
+function required<T>(operation: BffOperationId, result: { data?: T; error?: unknown; response: Response }, expected?: { field: string; value: string }): T {
+  if (result.data === undefined) {
+    const parsed=bffZodSchemas.ErrorEnvelope.safeParse(result.error), e=parsed.success?parsed.data:undefined;
+    const allowed=["capability","dataSnapshotId","question","budget","deadlineAt","attachments"];
+    const fields=Object.fromEntries(Object.keys(e?.fieldErrors??{}).filter(k=>allowed.includes(k)).map(k=>[k,"服务端拒绝此字段，请核对后重新提交。"]));
+    throw new ResearchGatewayError(operation,result.response.status,result.response.status===422?fields:{},e?.correlationId,e?.retryAfter);
+  }
   try {
     const data = parseBffResponse(operation, result.response.status, result.data) as T;
     const value = data as Record<string, unknown>;
@@ -18,7 +24,7 @@ function required<T>(operation: BffOperationId, result: { data?: T; response: Re
 }
 const client = (origin: string, fetchImpl: typeof fetch, options: BffRequestOptions) => createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
 export async function listResearchRuns(origin: string, query: ResearchQuery = {}, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
-  return required("listResearchRuns", await client(origin, fetchImpl, options).GET("/v1/research-runs", { params: { query } }));
+  return required("listResearchRuns", await client(origin, fetchImpl, options).GET("/v1/research-runs", { cache: "no-store", params: { query } }));
 }
 export async function createResearchRun(origin: string, body: ResearchInput, key: string, csrf: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
   return required("createResearchRun", await client(origin, fetchImpl, options).POST("/v1/research-runs", { body, params: { header: { "Idempotency-Key": key, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrf } } }));

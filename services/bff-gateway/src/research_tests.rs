@@ -666,3 +666,45 @@ async fn snapshot_read_capability_matches_reference_resource_owner() {
         assert!(matches!(response.status().as_u16(), 401 | 403));
     }
 }
+
+#[tokio::test]
+async fn research_capabilities_match_current_reference_owner_only() {
+    let p = BffProvider::default();
+    for path in ["/v1/session", "/v1/context"] {
+        let (status, body) = call(&p, "GET", path, None, Uuid::new_v4()).await;
+        assert_eq!(status, 200);
+        for cap in ["research.read", "research.write"] {
+            assert!(
+                body["capabilities"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(cap))
+            );
+        }
+    }
+    for session in ["session-other", "session-approver", "session-owner"] {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "cookie",
+            format!("quantos_session={session}").parse().unwrap(),
+        );
+        let payload = crate::session_payload(&headers, Utc::now() + Duration::hours(1));
+        for cap in ["research.read", "research.write"] {
+            assert!(
+                !payload["capabilities"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(cap))
+            );
+        }
+        for method in ["GET", "POST"] {
+            let mut req = request(method, "/v1/research-runs", None, Uuid::new_v4());
+            req.headers_mut().insert(
+                "cookie",
+                format!("quantos_session={session}").parse().unwrap(),
+            );
+            let response = p.router().oneshot(req).await.unwrap();
+            assert!(matches!(response.status().as_u16(), 401 | 403));
+        }
+    }
+}

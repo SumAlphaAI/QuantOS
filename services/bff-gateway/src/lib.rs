@@ -643,7 +643,9 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
             "audit:export",
             "execution.operate",
             "strategy.write",
-            // The same current reference identity already owns C04 reads.
+            // The current reference identity owns C03 commands/reads and C04 reads.
+            "research.read",
+            "research.write",
             "snapshot.read"
         ])
     } else if matches!(
