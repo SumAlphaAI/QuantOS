@@ -1,0 +1,68 @@
+{
+  "mode": "LOCAL_REFERENCE_SEEDED_PROVIDERS",
+  "scenario": "browser",
+  "identityFixture": "session-current",
+  "realIdp": "NOT_RUN",
+  "targetDatabase": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_TEST_BRIDGE",
+  "responseForwarding": "BYTE_FOR_BYTE",
+  "referenceLease": "REJECTED_UNTRUSTED_URL_NOT_DELIVERY",
+  "setupRows": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "bodySha256": "sha256:59672fb2e8fb7338e061bc13e13518f4316514e4ecf3e2b3e8a6d53ec8bf507c"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "bodySha256": "sha256:3bb5c1f206d540773bc67667c78bd74e799f33b0d650c1896a40dab1806ca7f0"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/exports",
+      "status": 202,
+      "bodySha256": "sha256:b7909c22ba1ec61a8a0c4e7f42dd8eb12c46735a6a9694a38678fa4e9cde806a"
+    }
+  ],
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "bodySha256": "sha256:30faf7281458309bc804639cae529393d1f299a5699e9d959d37dce980391426"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "bodySha256": "sha256:30faf7281458309bc804639cae529393d1f299a5699e9d959d37dce980391426"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "bodySha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/downloads",
+      "status": 200,
+      "bodySha256": "sha256:b30b86a49ebd996c5fcf1331adfb9f02f98d8687e95b13574083640c5de85037"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/platform/browser-capabilities",
+      "status": 200,
+      "bodySha256": "sha256:948d559e3db947bb3aa78b3afb7403ca1587538fca2743d93d4d91c77687cc48"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/exports/01a16328-5e39-73a2-a5a5-64d2ed28d097/download",
+      "status": 200,
+      "bodySha256": "sha256:94ec62787f1fabcf79e71534707fe5acdb489a048a94a687f5313a766b4dd805"
+    }
+  ]
+}

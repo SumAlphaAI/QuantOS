@@ -1,0 +1,62 @@
+
+Running 26 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p17.spec.ts:6:5 › P17 actual estimate and explicit rescan do not request permission or connect (333ms)
+  ✓   2 [chromium] › tests/e2e/ui-p17.spec.ts:10:5 › P17 native denial prompts once and retains in app fallback (204ms)
+  ✓   3 [chromium] › tests/e2e/ui-p17.spec.ts:13:5 › P17 allowlisted cleanup confirms cancel keyboard and preserves all unrelated storage (268ms)
+  ✓   4 [chromium] › tests/e2e/ui-p17.spec.ts:16:5 › P17 unknown estimate never displays invented healthy storage (150ms)
+  ✓   5 [chromium] › tests/e2e/ui-p17.spec.ts:17:5 › P17 cursor pagination and filter preserve bounded owned records (203ms)
+  ✓   6 [chromium] › tests/e2e/ui-p17.spec.ts:20:5 › P17 current expiry disables download without issuing a lease (159ms)
+  ✓   7 [chromium] › tests/e2e/ui-p17.spec.ts:21:5 › P17 clipboard refusal exposes safe manual route and safe new tab (194ms)
+  ✓   8 [chromium] › tests/e2e/ui-p17.spec.ts:22:5 › P17 offline reconnect requires explicit revalidation and never replays (204ms)
+  ✓   9 [chromium] › tests/e2e/ui-p17.spec.ts:23:5 › P17 scope denial occurs before private browser reads (135ms)
+  ✓  10 [chromium] › tests/e2e/ui-p17.spec.ts:24:5 › P17 lease 401 returns to login and never displays provider details (221ms)
+  ✓  11 [chromium] › tests/e2e/ui-p17.spec.ts:25:5 › P17 fresh same origin signed ticket downloads only on explicit click (194ms)
+  ✓  12 [chromium] › tests/e2e/ui-p17.spec.ts:26:50 › P17 dark responsive keyboard and axe (2.5s)
+  ✓  13 [chromium] › tests/e2e/ui-p17.spec.ts:26:50 › P17 light responsive keyboard and axe (2.5s)
+  ✓  14 [webkit] › tests/e2e/ui-p17.spec.ts:6:5 › P17 actual estimate and explicit rescan do not request permission or connect (740ms)
+  ✓  15 [webkit] › tests/e2e/ui-p17.spec.ts:10:5 › P17 native denial prompts once and retains in app fallback (368ms)
+  ✓  16 [webkit] › tests/e2e/ui-p17.spec.ts:13:5 › P17 allowlisted cleanup confirms cancel keyboard and preserves all unrelated storage (462ms)
+  ✓  17 [webkit] › tests/e2e/ui-p17.spec.ts:16:5 › P17 unknown estimate never displays invented healthy storage (294ms)
+  ✓  18 [webkit] › tests/e2e/ui-p17.spec.ts:17:5 › P17 cursor pagination and filter preserve bounded owned records (365ms)
+  ✓  19 [webkit] › tests/e2e/ui-p17.spec.ts:20:5 › P17 current expiry disables download without issuing a lease (287ms)
+  ✓  20 [webkit] › tests/e2e/ui-p17.spec.ts:21:5 › P17 clipboard refusal exposes safe manual route and safe new tab (309ms)
+  ✓  21 [webkit] › tests/e2e/ui-p17.spec.ts:22:5 › P17 offline reconnect requires explicit revalidation and never replays (385ms)
+  ✓  22 [webkit] › tests/e2e/ui-p17.spec.ts:23:5 › P17 scope denial occurs before private browser reads (261ms)
+  ✓  23 [webkit] › tests/e2e/ui-p17.spec.ts:24:5 › P17 lease 401 returns to login and never displays provider details (356ms)
+  ✘  24 [webkit] › tests/e2e/ui-p17.spec.ts:25:5 › P17 fresh same origin signed ticket downloads only on explicit click (30.0s)
+  ✓  25 [webkit] › tests/e2e/ui-p17.spec.ts:26:50 › P17 dark responsive keyboard and axe (4.0s)
+  ✓  26 [webkit] › tests/e2e/ui-p17.spec.ts:26:50 › P17 light responsive keyboard and axe (3.8s)
+
+
+  1) [webkit] › tests/e2e/ui-p17.spec.ts:25:5 › P17 fresh same origin signed ticket downloads only on explicit click 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForEvent: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for event "download"
+    ============================================================
+
+      23 | test("P17 scope denial occurs before private browser reads",async({page})=>{const t=await boundary(page,r=>new URL(r.url()).pathname==="/v1/context"?{data:{...context(),capabilities:[]}}:undefined);await page.goto("/settings/browser");await expect(page).toHaveURL(/\/unauthorized$/);expect(t.requests.map(r=>new URL(r.url()).pathname)).toEqual(["/v1/session","/v1/context"]);});
+      24 | test("P17 lease 401 returns to login and never displays provider details",async({page})=>{await boundary(page,r=>new URL(r.url()).pathname.endsWith("/download")?{status:401,data:{code:"UNAUTHENTICATED",message:"private-details",correlationId:id}}:undefined);await page.goto("/settings/browser");await page.getByRole("button",{name:"下载",exact:true}).and(page.locator("button:not(:disabled)")).first().click();await expect(page).toHaveURL(/\/login\?return_to=/);await expect(page.locator("body")).not.toContainText("private-details");});
+    > 25 | test("P17 fresh same origin signed ticket downloads only on explicit click",async({page})=>{let mints=0;await boundary(page,(r,data)=>new URL(r.url()).pathname.endsWith("/download")?(mints++,{data:{exportId:data.downloads[0].downloadId,downloadUrl:`${bff}/_bff/export-content/${id}/${"a".repeat(64)}`,expiresAt:new Date(now.getTime()+30000).toISOString(),sha256:"b".repeat(64),sizeBytes:4,mediaType:"text/csv",watermarked:true,retentionUntil:data.downloads[0].expiresAt,auditRef:id}}):undefined);await page.route(`${bff}/_bff/export-content/**`,route=>route.fulfill({contentType:"application/octet-stream",headers:{"access-control-allow-origin":"http://localhost:3190","content-length":"4","content-disposition":"attachment; filename=p17.csv"},body:"a,b\n"}));await page.goto("/settings/browser");expect(mints).toBe(0);const download=page.waitForEvent("download");await page.getByRole("button",{name:"下载",exact:true}).and(page.locator("button:not(:disabled)")).first().click();expect((await download).suggestedFilename()).toBe("p17.csv");expect(mints).toBe(1);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
+      26 | for(const theme of ["dark","light"] as const)test(`P17 ${theme} responsive keyboard and axe`,async({page},info)=>{await boundary(page,()=>undefined,theme);const scans=[];for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});await page.goto("/settings/browser");await expect(page.locator("[data-ui-p17]")).toBeVisible();await expect(page.getByRole("button",{name:"重新检测兼容性"})).toBeEnabled();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);await page.getByRole("region",{name:"最近下载记录"}).focus();await expect(page.getByRole("region",{name:"最近下载记录"})).toBeFocused();const r=await new AxeBuilder({page}).analyze();scans.push({width,violations:r.violations,incomplete:r.incomplete});expect(r.violations).toEqual([]);}await page.evaluate(()=>document.documentElement.style.zoom="2");expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);const path=info.outputPath(`axe-${theme}.json`);await writeFile(path,JSON.stringify(scans,null,2));await info.attach("axe",{path,contentType:"application/json"});});
+      27 | for(const theme of ["dark","light"] as const)test(`P17 visual baseline ${theme}`,async({page})=>{await boundary(page,()=>undefined,theme);await page.addInitScript(()=>Object.defineProperty(navigator,"storage",{value:{estimate:async()=>({usage:1048576,quota:8388608})}}));await page.setViewportSize({width:1440,height:1000});await page.goto("/settings/browser");await expect(page.getByRole("button",{name:"重新检测兼容性"})).toBeEnabled();await expect(page).toHaveScreenshot(`p17-browser-1440-${theme}.png`,{fullPage:true,maxDiffPixelRatio:0.005});});
+      28 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p17.spec.ts:25:840
+
+    Error Context: docs/audit/evidence/ui-p17-local-20261022/preflight-07/browser/ui-p17-P17-fresh-same-orig-bbba6-oads-only-on-explicit-click-webkit/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p17-local-20261022/preflight-07/browser/ui-p17-P17-fresh-same-orig-bbba6-oads-only-on-explicit-click-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p17-local-20261022/preflight-07/browser/ui-p17-P17-fresh-same-orig-bbba6-oads-only-on-explicit-click-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit] › tests/e2e/ui-p17.spec.ts:25:5 › P17 fresh same origin signed ticket downloads only on explicit click 
+  25 passed (50.8s)

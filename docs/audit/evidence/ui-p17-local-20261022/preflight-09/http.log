@@ -1,0 +1,75 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal browser (230ms)
+  ✘  2 [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal readonly (5.1s)
+  ✓  3 [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal invalid (176ms)
+
+
+  1) [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal browser 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      26 |  else{await expect(page.locator("[data-ui-p17]")).toBeVisible();await expect(page.locator("body")).not.toContainText("C17 Local Mock");await expect(page.getByRole("region",{name:"最近下载记录"})).toBeVisible();
+      27 |   const download=page.getByRole("button",{name:"下载",exact:true}).and(page.locator("button:not(:disabled)"));
+    > 28 |   if(scenario==="browser"){expect(await download.count()).toBeGreaterThan(0);await download.first().click();await expect(page.locator(".toast")).toContainText("请求未完成");expect(rows.filter(r=>r.path.endsWith("/download"))).toHaveLength(1);await expect(page).toHaveURL(/\/settings\/browser/);}
+         |                                                           ^
+      29 |  }
+      30 |  const path=info.outputPath("reference-http.json");await writeFile(path,JSON.stringify({mode:"LOCAL_REFERENCE_SEEDED_PROVIDERS",scenario,identityFixture:identity,realIdp:"NOT_RUN",targetDatabase:"NOT_RUN",browserCookieCors:"NOT_RUN_TEST_BRIDGE",responseForwarding:"BYTE_FOR_BYTE",referenceLease:"REJECTED_UNTRUSTED_URL_NOT_DELIVERY",rows},null,2));await info.attach("reference-http",{path,contentType:"application/json"});
+      31 | });
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p17-http.spec.ts:28:59
+
+    Error Context: docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-c93b0-y-and-lease-refusal-browser-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-c93b0-y-and-lease-refusal-browser-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-c93b0-y-and-lease-refusal-browser-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-c93b0-y-and-lease-refusal-browser-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal readonly 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-ui-p17]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-ui-p17]')
+
+
+      24 |  await page.goto("/settings/browser");
+      25 |  if(scenario==="invalid"){await expect(page).toHaveURL(/\/login\?return_to=/);expect(rows.map(r=>r.path)).toEqual(["/v1/session"]);}
+    > 26 |  else{await expect(page.locator("[data-ui-p17]")).toBeVisible();await expect(page.locator("body")).not.toContainText("C17 Local Mock");await expect(page.getByRole("region",{name:"最近下载记录"})).toBeVisible();
+         |                                                   ^
+      27 |   const download=page.getByRole("button",{name:"下载",exact:true}).and(page.locator("button:not(:disabled)"));
+      28 |   if(scenario==="browser"){expect(await download.count()).toBeGreaterThan(0);await download.first().click();await expect(page.locator(".toast")).toContainText("请求未完成");expect(rows.filter(r=>r.path.endsWith("/download"))).toHaveLength(1);await expect(page).toHaveURL(/\/settings\/browser/);}
+      29 |  }
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p17-http.spec.ts:26:51
+
+    Error Context: docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-a31ea--and-lease-refusal-readonly-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-a31ea--and-lease-refusal-readonly-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-a31ea--and-lease-refusal-readonly-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p17-local-20261022/preflight-09/http/ui-p17-http-P17-actual-Rus-a31ea--and-lease-refusal-readonly-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal browser 
+    [chromium] › tests/e2e/ui-p17-http.spec.ts:15:73 › P17 actual Rust C01/C17 policy history and lease refusal readonly 
+  1 passed (13.0s)

@@ -1,0 +1,62 @@
+{
+  "mode": "LOCAL_REFERENCE_SEEDED_PROVIDERS",
+  "scenario": "readonly",
+  "identityFixture": "session-viewer",
+  "realIdp": "NOT_RUN",
+  "targetDatabase": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_TEST_BRIDGE",
+  "responseForwarding": "BYTE_FOR_BYTE",
+  "referenceLease": "REJECTED_UNTRUSTED_URL_NOT_DELIVERY",
+  "setupRows": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "bodySha256": "sha256:08450c71fb2e27a8a6ced1bd1bd1cc64816c6b3defc7971c0dce51407db5a590"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "bodySha256": "sha256:769aa3fcf7338cd3fa276794b43eafbca69823e6eb3cd85fbd799a7524c5e0dc"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/exports",
+      "status": 202,
+      "bodySha256": "sha256:f65b7dbf7f72237faf62143dcf828f66c3b43fcedff79979b1b2b82572d90d93"
+    }
+  ],
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "bodySha256": "sha256:29c6018875218d0e5094cb18248b01617c955001c2c1e5c54d3130b4471c629e"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "bodySha256": "sha256:29c6018875218d0e5094cb18248b01617c955001c2c1e5c54d3130b4471c629e"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "bodySha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/downloads",
+      "status": 403,
+      "bodySha256": "sha256:0d181de540b5bbfa58a07d07a0e886ef31fbbc53412f4641ca31453527599bb8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/platform/browser-capabilities",
+      "status": 200,
+      "bodySha256": "sha256:948d559e3db947bb3aa78b3afb7403ca1587538fca2743d93d4d91c77687cc48"
+    }
+  ]
+}

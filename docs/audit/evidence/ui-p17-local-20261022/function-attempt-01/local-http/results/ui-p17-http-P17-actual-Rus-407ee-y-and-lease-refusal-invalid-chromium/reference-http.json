@@ -1,0 +1,38 @@
+{
+  "mode": "LOCAL_REFERENCE_SEEDED_PROVIDERS",
+  "scenario": "invalid",
+  "identityFixture": "invalid-session",
+  "realIdp": "NOT_RUN",
+  "targetDatabase": "NOT_RUN",
+  "browserCookieCors": "NOT_RUN_TEST_BRIDGE",
+  "responseForwarding": "BYTE_FOR_BYTE",
+  "referenceLease": "REJECTED_UNTRUSTED_URL_NOT_DELIVERY",
+  "setupRows": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "bodySha256": "sha256:3d48978b5f54d3371066b1a102355750cd31c815bc6586e8bc0a9dcee393342a"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "bodySha256": "sha256:6f0c9635f1597fca3339f5717d53c10c259225a768c071a169423832649b76e2"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/exports",
+      "status": 202,
+      "bodySha256": "sha256:5b358729ff835c862d04a008768652ef7a4cf5d78cebe194b61ad2df493592bf"
+    }
+  ],
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 401,
+      "bodySha256": "sha256:a7626ed4943024d06ba13cc5115f07223729d073a9ce21f800f1169b6b6f3ac3"
+    }
+  ]
+}
