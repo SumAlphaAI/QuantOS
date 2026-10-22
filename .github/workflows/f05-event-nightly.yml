@@ -1,15 +1,20 @@
-name: F05 Event Nightly
+name: F05 Event Manual Maintenance
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "41 18 * * *"
+    inputs:
+      confirm_full_database_run:
+        description: "Manually run retained database fixtures, recovery and full coverage"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   branch-and-database:
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm_full_database_run
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -23,6 +28,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       QUANTOS_SKIP_ENV: "1"
+      QUANTOS_MANUAL_F05_F07: "1"
       F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres?sslmode=disable
       RUSTUP_TOOLCHAIN: nightly
     steps:
@@ -43,7 +49,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: f05-nightly-${{ github.sha }}
+          name: f05-manual-${{ github.sha }}
           path: |
             artifacts/f05/
           if-no-files-found: error

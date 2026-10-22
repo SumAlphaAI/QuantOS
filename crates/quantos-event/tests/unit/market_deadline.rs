@@ -3,6 +3,10 @@ use super::*;
 
 #[test]
 fn transaction_pool_deadlines_are_local_and_failed_statements_roll_back() {
+    if std::env::var("QUANTOS_RUN_F05_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Ok(url) = std::env::var("DATABASE_URL") else {
         assert_ne!(
             std::env::var("QUANTOS_RUN_F05_POSTGRES_TESTS").as_deref(),

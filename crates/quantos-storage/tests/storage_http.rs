@@ -168,16 +168,20 @@ fn invalid_configuration_fails_before_requests() {
 }
 #[test]
 fn invalid_tenant_is_rejected_before_upload_and_success_persists() {
-    let Ok(url) = std::env::var("DATABASE_URL") else {
-        assert_ne!(
-            std::env::var("QUANTOS_RUN_F05_POSTGRES_TESTS")
-                .ok()
-                .as_deref(),
-            Some("1"),
-            "DATABASE_URL required"
-        );
+    if ![
+        "QUANTOS_RUN_F05_POSTGRES_TESTS",
+        "QUANTOS_RUN_R02_POSTGRES_TESTS",
+    ]
+    .iter()
+    .any(|name| std::env::var(name).as_deref() == Ok("1"))
+    {
+        eprintln!("NOT RUN: explicit manual database test switch required");
         return;
-    };
+    }
+    let url = std::env::var("DATABASE_URL")
+        .ok()
+        .filter(|url| !url.trim().is_empty())
+        .expect("DATABASE_URL required for explicit database maintenance");
     let mut store = PgStorageStore::connect(&url).unwrap();
     let m = manifest(TenantId::new()); // no tenant: FK must reject registration
     let actor = quantos_core::ActorId::new();

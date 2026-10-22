@@ -537,6 +537,10 @@ fn runtime_run(session_id: RuntimeSessionId, index: usize) -> NewWorkflowRun {
 
 #[test]
 fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
+    if std::env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(raw_database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.is_empty())

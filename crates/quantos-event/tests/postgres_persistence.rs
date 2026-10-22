@@ -1439,6 +1439,10 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
 
 fn live_database_url() -> Option<String> {
     let required = env::var("QUANTOS_RUN_F05_POSTGRES_TESTS").ok().as_deref() == Some("1");
+    if !required {
+        eprintln!("NOT RUN: set QUANTOS_RUN_F05_POSTGRES_TESTS=1 for manual database maintenance");
+        return None;
+    }
     let database_url = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty());

@@ -55,6 +55,10 @@ struct RuntimeFixture {
 
 #[test]
 fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
+    if env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
@@ -326,6 +330,10 @@ fn postgres_runtime_worker_child_claims_checkpoints_and_waits() {
 
 #[test]
 fn postgres_runtime_records_cancel_and_timeout_audits() {
+    if env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
@@ -419,6 +427,10 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
 
 #[test]
 fn postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow() {
+    if env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
         assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
         return;
@@ -526,6 +538,10 @@ fn postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow() 
 
 #[test]
 fn postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget() {
+    if env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
         assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
         return;
@@ -625,6 +641,10 @@ fn postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget() {
 
 #[test]
 fn postgres_research_events_replay_is_owned_ordered_and_bounded() {
+    if env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
         assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
         return;

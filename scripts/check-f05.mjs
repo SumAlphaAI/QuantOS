@@ -52,8 +52,9 @@ for (const marker of [
   'QUANTOS_RUN_F05_POSTGRES_TESTS',
 ]) check(inputs.test.includes(marker), `F05 acceptance test includes ${marker}`);
 check(inputs.makefile.includes('f05-check:') && inputs.makefile.includes('f05-db-check:') && inputs.makefile.includes('f05-target-check:'), 'Makefile exposes local, disposable-db and target F05 Gates');
-check(inputs.workflow.includes('make f05-check') && inputs.workflow.includes('make f05-db-check'), 'main CI runs both F05 Gates');
-check(inputs.nightly.includes('RUSTUP_TOOLCHAIN: nightly') && inputs.nightly.includes('QUANTOS_F05_BRANCH') && inputs.nightly.includes('make f05-db-coverage'), 'nightly F05 workflow enforces measured branch coverage');
+check(inputs.workflow.includes('make f05-check') && !inputs.workflow.includes('make f05-db-check'), 'main CI retains offline F05 checks without full database fixtures');
+check(inputs.nightly.includes('RUSTUP_TOOLCHAIN: nightly') && inputs.nightly.includes('QUANTOS_F05_BRANCH') && inputs.nightly.includes('make f05-db-coverage'), 'manual F05 workflow retains optional measured branch coverage');
+check(!inputs.nightly.includes('schedule:') && inputs.nightly.includes('confirm_full_database_run') && inputs.nightly.includes('QUANTOS_MANUAL_F05_F07'), 'F05 full coverage is manual opt-in only');
 check(inputs.targetGate.includes("QUANTOS_F05_TARGET_ISOLATED !== '1'") && inputs.targetGate.includes("QUANTOS_DB_RESET_CONFIRM !== 'reset_remote_schema'") && inputs.targetGate.includes("run('db-reset')"), 'target F05 Gate requires two explicit isolation/reset confirmations and rebuilds migrations');
 check(inputs.runbook.includes('dead-letter-requeue') && inputs.runbook.includes('lease_token'), 'Runbook documents fenced dead-letter recovery');
 

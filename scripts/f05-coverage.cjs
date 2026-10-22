@@ -1,3 +1,4 @@
+const { requireManualDatabaseRun } = require('./lib/manual-database-policy.cjs');
 // Used only by the clean-SHA database and target acceptance Gates.
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
@@ -11,16 +12,20 @@ const branch = () => process.env.QUANTOS_F05_BRANCH === '1';
 const coverageArgs = () => branch() ? ['--branch'] : [];
 module.exports = {
   start() {
+    requireManualDatabaseRun();
     for (const name of ['coverage.json', 'coverage-summary.json']) fs.rmSync(path.join(root, 'artifacts/f05', name), { force: true });
     run(['llvm-cov', 'clean', '--workspace']);
   },
   tests(packageName, databaseUrl) {
+    requireManualDatabaseRun();
     run(['llvm-cov', '--no-report', ...coverageArgs(), '-p', packageName, '--lib', '--test', 'postgres_persistence', ...(packageName === 'quantos-storage' ? ['--test', 'storage_http'] : []), '--locked', '--', '--test-threads=1', '--nocapture'], { DATABASE_URL: databaseUrl, QUANTOS_RUN_F05_POSTGRES_TESTS: '1' });
   },
   storageLive() {
+    requireManualDatabaseRun();
     run(['llvm-cov', '--no-report', ...coverageArgs(), '-p', 'quantos-storage', '--test', 'supabase_storage_integration', '--locked', '--', '--nocapture'], { QUANTOS_RUN_SUPABASE_STORAGE_TESTS: '1' });
   },
   finish() {
+    requireManualDatabaseRun();
     const output = 'artifacts/f05/coverage.json';
     run(['llvm-cov', 'report', '-p', 'quantos-event', '-p', 'quantos-storage', '--json', '--output-path', output]);
     const result = spawnSync(process.execPath, ['scripts/check-f05-coverage.mjs', output, ...(branch() ? ['--branch'] : [])], { cwd: root, encoding: 'utf8' });

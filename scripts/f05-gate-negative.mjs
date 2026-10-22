@@ -10,11 +10,17 @@ import { parse } from 'yaml';
 const postgres = readFileSync('crates/quantos-event/src/pg.rs', 'utf8');
 const migration = readFileSync('supabase/migrations/20260921090000_f05_ledger_integrity_and_replay.sql', 'utf8');
 
-test('disposable F05 workflow consumers explicitly select their plaintext PostgreSQL transport', () => {
+test('F05 database workflows are manual; disposable consumers select explicit transport', () => {
   for (const filename of ['.github/workflows/ci.yml', '.github/workflows/f05-event-nightly.yml']) {
     const workflow = parse(readFileSync(filename, 'utf8'));
     const consumers = Object.values(workflow.jobs).filter(job => job.steps.some(step => /\bmake f05-db-(?:check|coverage)\b/.test(step.run ?? '')));
-    assert.ok(consumers.length, `${filename} must retain its F05 database Gate`);
+    if (filename.endsWith('/ci.yml')) {
+      assert.equal(consumers.length, 0, 'daily CI cannot execute full F05 database fixtures');
+      continue;
+    }
+    assert.deepEqual(Object.keys(workflow.on), ['workflow_dispatch']);
+    assert.equal(workflow.on.workflow_dispatch.inputs.confirm_full_database_run.default, false);
+    assert.ok(consumers.length, 'manual workflow keeps its diagnostic entry');
     for (const job of consumers) {
       assert.match(job.services.postgres.image, /^postgres:/);
       const target = new URL(job.env.F02_PG_ADMIN_URL);

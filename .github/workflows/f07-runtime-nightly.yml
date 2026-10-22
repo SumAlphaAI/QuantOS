@@ -1,18 +1,24 @@
-name: F07 Runtime Nightly
+name: F07 Runtime Manual Maintenance
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "17 19 * * *"
+    inputs:
+      confirm_full_database_run:
+        description: "Manually run retained database fixtures and full coverage with 10-task recovery sample"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   branch-and-recovery:
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm_full_database_run
     runs-on: ubuntu-24.04
     env:
       QUANTOS_SKIP_ENV: "1"
+      QUANTOS_MANUAL_F05_F07: "1"
       DATABASE_URL: ${{ secrets.F07_DATABASE_URL }}
       SUPABASE_URL: ${{ secrets.F07_SUPABASE_URL }}
       QUANTOS_F07_NIGHTLY_BRANCH: "1"
@@ -35,11 +41,13 @@ jobs:
           printf '%s\n' "$F07_CA_PEM" > "$RUNNER_TEMP/f07-ca.pem"
           echo "QUANTOS_BFF_SSLROOTCERT=$RUNNER_TEMP/f07-ca.pem" >> "$GITHUB_ENV"
       - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
-      - name: Measure F07 recovery, line, region and branch coverage
+      - name: Measure F07 coverage and bounded recovery sample (manual)
+        env:
+          QUANTOS_F07_COVERAGE_DIAGNOSTIC: "1"
         run: make f07-db-check
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: f07-nightly-${{ github.sha }}
+          name: f07-manual-${{ github.sha }}
           path: artifacts/f07/
           if-no-files-found: error

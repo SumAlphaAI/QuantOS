@@ -12,6 +12,8 @@
 
 证据记录实际 HEAD、精确输入摘要、命令、范围、时间、退出码、信号、超时和日志摘要。未受影响的历史结果仅供原范围参考，不改绑成新候选 PASS/READY。停止的检查记 INTERRUPTED/NOT_RUN；已完成结果保留，不把中断包装成全部通过。元数据或文档更新只执行对应检查；功能输入变化使相关证据失效时，仅重跑有影响的范围，扩大到联调/发布须显式说明原因。
 
+2026-10-22 用户进一步调整 F05/F07：日常数据库正确性、恢复、权限测试改为人工维护；取消日常全量数据库及覆盖率强制执行，包括 push/PR/schedule。离线功能/静态检查继续；新缺陷不能以人工维护为由放任。完整工具仅在 `QUANTOS_MANUAL_F05_F07=1` 下手工运行，GitHub 仅 `workflow_dispatch` 并确认输入。发布矩阵按候选另行人工组织，缺失结果仍为 `NOT_RUN`。该条优先于旧任务卡及旧验收文档中的 F05/F07 Nightly 要求，详见 [维护与数据保留规程](f05-f07-manual-maintenance.md)。
+
 机器策略为 `scripts/development-testing-policy.json`。`provider-a1-receipts.mjs::assess` 是旧聚合执行器，现要求显式 `campaign={phase:'INTEGRATION'|'RELEASE', reason:'具体业务链及扩大范围理由'}`，默认调用在调度和创建证据目录前拒绝；旧 recorder 不再能自动发起开发全闭包。现有聚合回执仍可按原范围审计；执行器参数不会把结果自动升级为对应阶段验收。后续任务应像 X03 一样建立当前功能/影响范围清单，再进入记录器，不应复制旧全闭包入口作为默认开发 Gate。
 
 X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-scope.mjs`：12 组当前功能与直接影响检查，逐组 reason。`record-x03-local.mjs` 不调用聚合 assess、不读取历史 READY、不修改上游 canonical 产物；在新目录记录真实结果，只有全部必要检查正常退出、输入未漂移及覆盖率满足后才事务写入 X03 manifest 和两份计划。SIGTERM/SIGINT 中断会停止当前子进程组、保存 INTERRUPTED 并拒绝发布。

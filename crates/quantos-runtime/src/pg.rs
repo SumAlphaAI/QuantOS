@@ -1213,6 +1213,10 @@ mod tests {
 
     #[test]
     fn broad_admin_login_cannot_impersonate_runtime_service() {
+        if std::env::var("QUANTOS_F07_DB_REQUIRED").as_deref() != Ok("1") {
+            eprintln!("NOT RUN: explicit manual database test switch required");
+            return;
+        }
         let Some(database_url) = env::var("DATABASE_URL")
             .ok()
             .filter(|value| !value.is_empty())

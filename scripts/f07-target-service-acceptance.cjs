@@ -1,3 +1,6 @@
+const manualPolicy = require('./lib/manual-database-policy.cjs');
+manualPolicy.loadLocalDatabaseEnvironment();
+manualPolicy.requireManualDatabaseRun();
 const {connectBeforeStatements}=require('./lib/postgres-bootstrap.cjs');
 const { runAuthLoginAttempts } = require('./lib/auth-login-retry.cjs');
 const { requireAuthResponse } = require('./lib/supabase-auth-result.cjs');
@@ -174,6 +177,7 @@ async function main() {
     receipt.phase = 'database-connect'; save();
     receipt.bootstrapConnection = {};
     db = await connectBeforeStatements(adminClient, {record:receipt.bootstrapConnection,onAttempt:save});
+    receipt.databaseBytesBefore = await manualPolicy.requireDatabaseHeadroom(db);
     assertDatabaseHealthy = observeClientErrors(db, () => {
       receipt.status = 'FAIL';
       receipt.databaseError = 'Target database connection failed outside a query';

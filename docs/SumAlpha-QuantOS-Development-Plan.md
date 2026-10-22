@@ -340,6 +340,8 @@
 | 安全与审计 | 授权/RLS 默认拒绝、actor/tenant/correlation/causation、secret scan、高危依赖处置；错误/日志/导出无秘密 | 跨租户与高风险业务 E2E、取消后无副作用、持久审计 | 发布制品完整供应链、签名与同 SHA 远程 CI；适用环境/用途批准 |
 | 可运维性 | 健康检查、结构化日志、trace、指标、失败/恢复语义与 Runbook | 连通真实服务，验证断连补偿、监测缺口和功能恢复 | 授权环境的容量、持续运行、进程/主机死亡通知、部署/回滚与实际通知回执 |
 
+2026-10-22 F05/F07 专项策略：取消日常全量覆盖率与数据库 campaign 强制执行；数据库正确性、恢复和权限例行检查由人工维护。push/PR/schedule 不调用完整入口，保留离线功能/静态检查；完整测量仅 `QUANTOS_MANUAL_F05_F07=1` 手工运行。发布候选的适用矩阵另行组织，未执行保留 `NOT_RUN`，不改写历史结论。见[维护规程](./operations/f05-f07-manual-maintenance.md)。
+
 ### 2.3 测试资产规则
 
 - `quantos-testkit` 提供固定 clock、ID、market replay、策略/订单 fixture 和 mock Engine；确定性功能测试不得依赖真实账户、实时公共数据或未固定的模型输出。真实服务联调、provider 与发布验证另列证据，必须在对应授权范围内执行。
@@ -1325,7 +1327,7 @@ flowchart TD
 - 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施
 - 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook
 - 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链
-- 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。
+- 阶段执行：2026-10-22 起，日常保留离线功能/静态检查；真实数据库正确性、RLS、恢复及权限由人工维护，不强制日常全量覆盖率或 1 万事件/1,000 次并发 campaign。规模用例和覆盖率检查器保留为显式手工工具，未执行记 NOT_RUN。受控重建仅在独立授权内进行，发布矩阵按 RELEASE-GATE:BETA 另行组织。
 - 依赖：F03、F04
 - 当前工程复核：[全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、30/30 检查点通过；共享库串扰修复、万条一致性、受控重建/drift/RLS 历史回执见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。跨区域 ID 链时延不代表完整载荷性能验收。 当前开发范围：2026-10-12冻结e4c45a7c随TP03/TP04/F0必要14节点、56组完整复验。本地检查通过，严格必要闭包10项目标只读失败，本节点保持NOT_ASSESSED，未重新授予READY。详见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)；历史正式/CI不迁移。
 
@@ -1367,9 +1369,9 @@ flowchart TD
 - 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额
 - 交付物：`quantos-runtime`、workflow fixtures
 - 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms
-- 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。
+- 阶段执行：2026-10-22 起，日常执行离线功能/静态检查，数据库恢复、checkpoint、Artifact 去重、权限及 cancel/timeout 审计由人工维护；不强制日常全量覆盖率或 100 次持久恢复。完整恢复与覆盖率为分开的显式手工入口，未执行记 NOT_RUN；发布矩阵、调度 P95、拟发布 HTTPS/受限 Storage 按 L04/RELEASE-GATE:BETA 另行归档。
 - 依赖：F04–F06
-- 阶段验收边界：F07 原开发验收回执的源码/环境范围保留在复审记录；当前功能准入使用工程 BFF/Runtime、已配置 Supabase 的真实功能、拒绝与恢复证据。P95、正式同 SHA CI、部署 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据由 L04 负责归档，并在首次使用这些服务的 RELEASE-GATE:BETA 验收；新增执行区范围归 RELEASE-GATE:LIVE-READINESS，不以开发准入代替发布批准。
+- 阶段验收边界：F07 原开发验收回执的源码/环境范围保留在复审记录；当前日常准入按 2026-10-22 人工维护策略执行；工程 BFF/Runtime、Supabase 真实功能、拒绝与恢复工具保留为手工验证入口。P95、正式同 SHA CI、部署 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据由 L04 负责归档，并在首次使用这些服务的 RELEASE-GATE:BETA 验收；新增执行区范围归 RELEASE-GATE:LIVE-READINESS，不以开发准入代替发布批准。
 - 当前工程复核：[当前全面复审](./audit/F07-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；原 12/12 问题关闭，18/18 开发检查及 3/3 量化标准属于 `f599374` 基线；逐项证据见[关闭复核](./audit/F07-closure-recheck-2026-09-25.md)。部署 HTTPS、受限 Storage 与调度性能继续由 L04/RELEASE 收口。 当前开发范围：2026-10-12冻结e4c45a7c随TP03/TP04/F0必要14节点、56组完整复验。本地检查通过；目标recovery/coverage只读失败，service在Auth创建前明确拒绝，未启动服务，fixtureCleanup PASS。本节点NOT_ASSESSED。详见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)；历史正式/CI不迁移。
 
 <a id="task-f08"></a>

@@ -8,9 +8,42 @@
     "wholeWorkspaceByDefault": false,
     "threeIndependentBuildsByDefault": false,
     "requireImpactReasonForExpansion": true,
-    "mustVerify": ["correctness", "authorization", "data-integrity", "idempotency", "atomicity", "expiry", "recovery", "risk-refusal"]
+    "mustVerify": [
+      "correctness",
+      "authorization",
+      "data-integrity",
+      "idempotency",
+      "atomicity",
+      "expiry",
+      "recovery",
+      "risk-refusal"
+    ]
   },
-  "integration": {"scope": "BUSINESS_CHAIN_AND_WORKSPACE", "statusIndependentOfDevelopment": true},
-  "release": {"scope": "FROZEN_CANDIDATE_FULL_APPLICABLE_MATRIX", "sameCandidateEvidence": true, "actualTargetEvidence": true},
-  "evidence": {"preserveFailuresAndInterruptions": true, "stoppedChecksArePass": false, "rebindHistoricalResults": false}
+  "integration": {
+    "scope": "BUSINESS_CHAIN_AND_WORKSPACE",
+    "statusIndependentOfDevelopment": true
+  },
+  "release": {
+    "scope": "FROZEN_CANDIDATE_FULL_APPLICABLE_MATRIX",
+    "sameCandidateEvidence": true,
+    "actualTargetEvidence": true
+  },
+  "evidence": {
+    "preserveFailuresAndInterruptions": true,
+    "stoppedChecksArePass": false,
+    "rebindHistoricalResults": false
+  },
+  "manualDatabaseMaintenance": {
+    "effectiveFrom": "2026-10-22",
+    "modules": [
+      "F05",
+      "F07"
+    ],
+    "automaticFullCoverage": false,
+    "automaticDatabaseCampaigns": false,
+    "optIn": "QUANTOS_MANUAL_F05_F07=1",
+    "allowedCiEvent": "workflow_dispatch",
+    "routineCorrectnessRecoveryPermissions": "MANUAL_MAINTENANCE",
+    "omittedEvidenceStatus": "NOT_RUN"
+  }
 }

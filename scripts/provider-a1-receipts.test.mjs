@@ -77,8 +77,8 @@ test('development policy retains explicit build, coverage, volume and target sto
 });
 
 test('static make commands cannot reload .env.local or inherit target database opt-ins',()=>{
- const env=staticEnvironment({PATH:'tools',DATABASE_URL:'private',QUANTOS_BFF_DATABASE_URL:'private',SUPABASE_SERVICE_ROLE_KEY:'private',QUANTOS_RUN_F05_POSTGRES_TESTS:'1',QUANTOS_SKIP_ENV:'0',NEXT_PUBLIC_QUANTOS_ENV:'local-mock'});
- assert.equal(env.QUANTOS_SKIP_ENV,'1');assert.equal(env.PATH,'tools');assert.equal(env.NEXT_PUBLIC_QUANTOS_ENV,'local-mock');assert(Object.keys(env).every(k=>!/DATABASE_URL|SUPABASE|QUANTOS_RUN_.*TESTS/.test(k)));
+ const env=staticEnvironment({PATH:'tools',DATABASE_URL:'private',QUANTOS_BFF_DATABASE_URL:'private',SUPABASE_SERVICE_ROLE_KEY:'private',QUANTOS_RUN_F05_POSTGRES_TESTS:'1',QUANTOS_F07_DB_REQUIRED:'1',QUANTOS_SKIP_ENV:'0',NEXT_PUBLIC_QUANTOS_ENV:'local-mock'});
+ assert.equal(env.QUANTOS_SKIP_ENV,'1');assert.equal(env.PATH,'tools');assert.equal(env.NEXT_PUBLIC_QUANTOS_ENV,'local-mock');assert(Object.keys(env).every(k=>!/DATABASE_URL|SUPABASE|QUANTOS_RUN_.*TESTS|QUANTOS_F07_DB_REQUIRED/.test(k)));
 });
 
 test('volume retry restarts the complete check only on a closed PostgreSQL transport',()=>{let n=0;const r=runDatabaseAttempts(()=>++n===1?{status:101,stdout:'Postgres(Error { kind: Closed, cause: None })'}:{status:0});assert.equal(r.length,2);assert.equal(r[1].status,0);});

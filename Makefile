@@ -215,13 +215,13 @@ f04-check:
 	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only
 
 f05-coverage:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	cargo llvm-cov --package quantos-event --package quantos-storage --lib --ignore-filename-regex '(pg|supabase_storage)\.rs' --fail-under-lines 90 --fail-under-regions 85 --summary-only
 
 f05-check:
 	node scripts/check-f05.mjs
-	node --test scripts/f05-gate-negative.mjs scripts/f05-coverage.test.mjs
+	node --test scripts/f05-gate-negative.mjs scripts/f05-coverage.test.mjs scripts/manual-database-policy.test.cjs
 	cargo test -p quantos-event -p quantos-storage --lib --locked
-	$(MAKE) f05-coverage
 
 f05-db-coverage:
 	QUANTOS_F05_COVERAGE=1 $(MAKE) f05-db-check
@@ -230,26 +230,32 @@ f05-target-coverage:
 	QUANTOS_F05_COVERAGE=1 $(MAKE) f05-target-check
 
 f05-db-check:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$F02_PG_ADMIN_URL" || (echo "F02_PG_ADMIN_URL is required for the disposable F05 PostgreSQL Gate." >&2; exit 1)
 	node scripts/f05-db-gate.cjs
 
 f07-db-check:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for the F07 Supabase Gate." >&2; exit 1)
 	node scripts/f07-db-gate.cjs
 
 f07-recovery-diagnostic:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F07 recovery diagnostics." >&2; exit 1)
 	QUANTOS_F07_RECOVERY_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
 
 f07-coverage-diagnostic:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F07 coverage diagnostics." >&2; exit 1)
 	QUANTOS_F07_COVERAGE_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
 
 f07-gateway-test:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F07 gateway test." >&2; exit 1)
 	QUANTOS_F07_DB_REQUIRED=1 cargo test -p runtime-gateway --bin runtime-gateway --locked gateway_executes_owned_run_and_retrieves_verified_artifact -- --nocapture
 
 f07-target-service-acceptance:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	cargo build -p bff-gateway -p runtime-gateway --locked
 	@node scripts/f07-target-service-acceptance.cjs
 
@@ -260,6 +266,7 @@ f07-fixture-retire:
 	QUANTOS_F07_FIXTURE_RETIRE=1 node scripts/f07-fixture-check.cjs --retire
 
 f07-forward-migration:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	QUANTOS_F07_MIGRATION_ONLY=1 node scripts/f07-db-gate.cjs
 
 f08-check:
@@ -281,6 +288,7 @@ f08-nightly-check:
 	F08_COVERAGE_MODE=nightly node --test scripts/f08-coverage-negative.mjs
 
 f05-target-check:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	node scripts/f05-target-gate.cjs
 
 lint-web:
@@ -324,6 +332,7 @@ f09-source-coverage-check: ensure-node
 	node scripts/f09-source-coverage.cjs
 
 test-f05-live:
+	@node -e "require('./scripts/lib/manual-database-policy.cjs').requireManualDatabaseRun()"
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 PostgreSQL acceptance Gate." >&2; exit 1)
 	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-event --test postgres_persistence --locked -- --test-threads=1 --nocapture
 	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-storage --test postgres_persistence --locked -- --test-threads=1 --nocapture
@@ -925,3 +934,7 @@ provider-a5-local-check:
 	pnpm check:provider-a5:development
 provider-a5-local-assess:
 	node scripts/record-provider-a5-functional.mjs $(ATTEMPT)
+
+.PHONY: database-hygiene
+database-hygiene:
+	node scripts/database-hygiene.cjs

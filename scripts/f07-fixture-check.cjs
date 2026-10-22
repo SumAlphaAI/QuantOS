@@ -1,3 +1,6 @@
+const manualPolicy = require('./lib/manual-database-policy.cjs');
+manualPolicy.loadLocalDatabaseEnvironment();
+if (process.argv.includes('--retire')) manualPolicy.requireManualDatabaseRun();
 const fs = require('node:fs');
 const { Client } = require('pg');
 

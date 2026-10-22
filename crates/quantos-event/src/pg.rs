@@ -919,7 +919,9 @@ impl PgEventStore {
         tx.commit()?;
         // Projection completion is the actual end-to-end event latency. The
         // Realtime wakeup is only advisory; the polling recovery path uses the
-        // same sample. Keep telemetry failure outside the event transaction.
+        // same sample. Persist one conservative maximum per tenant/batch instead
+        // of duplicating every ledger event in transient telemetry. Keep metric
+        // failure outside the event transaction; facts and audit stay unchanged.
         if let Err(error) = self.client.execute_typed(
             "with input as (
                 select * from jsonb_to_recordset($1::jsonb) as x(
@@ -929,12 +931,16 @@ impl PgEventStore {
                 tenant_id, metric_name, metric_value, source, correlation_id,
                 attributes, observed_at)
              select input.tenant_id, 'realtime_projection_delay_secs',
-                    greatest(extract(epoch from (input.completed_at - e.ingested_at)), 0)::float8,
-                    'realtime_projection_delay_secs', e.correlation_id,
-                    '{}'::jsonb, input.completed_at
+                    max(greatest(extract(epoch from (input.completed_at - e.ingested_at)), 0))::float8,
+                    'realtime_projection_delay_secs',
+                    case when count(distinct e.correlation_id) = 1
+                         then (array_agg(e.correlation_id))[1] else null end,
+                    jsonb_build_object('aggregation', 'batch_max', 'sample_count', count(*)),
+                    max(input.completed_at)
              from input
              join quantos.outbox_event o on o.id = input.outbox_id
-             join quantos.event_log e on e.id = o.event_log_id",
+             join quantos.event_log e on e.id = o.event_log_id
+             group by input.tenant_id",
             &[(&input, Type::JSONB)],
         ) {
             eprintln!("event projection delay metric persist failed: {error}");

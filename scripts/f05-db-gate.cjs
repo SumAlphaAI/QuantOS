@@ -1,3 +1,6 @@
+const manualPolicy = require('./lib/manual-database-policy.cjs');
+manualPolicy.loadLocalDatabaseEnvironment();
+manualPolicy.requireManualDatabaseRun();
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');

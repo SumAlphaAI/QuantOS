@@ -40,6 +40,10 @@ impl Drop for Cleanup {
 
 #[test]
 fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
@@ -180,6 +184,10 @@ fn f06_dedicated_bff_auth_read_p95() {
 
 #[test]
 fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
@@ -241,6 +249,10 @@ fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
 
 #[test]
 fn cross_tenant_authorization_edges_are_rejected_by_database_constraints() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
         assert_ne!(
             env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
@@ -371,6 +383,10 @@ fn cross_tenant_authorization_edges_are_rejected_by_database_constraints() {
 
 #[test]
 fn authenticated_role_cannot_read_other_tenant_workspace() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
         assert_ne!(
             env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
@@ -461,6 +477,10 @@ fn authenticated_role_cannot_read_other_tenant_workspace() {
 
 #[test]
 fn f06_four_category_denial_matrix() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let database_url = match env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) {
         Some(url) => url,
         None => {
@@ -600,6 +620,10 @@ fn f06_four_category_denial_matrix() {
 
 #[test]
 fn bff_session_is_bound_to_its_primary_account_and_revocation() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let database_url = match env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) {
         Some(url) => url,
         None => {
@@ -683,6 +707,10 @@ fn bff_session_is_bound_to_its_primary_account_and_revocation() {
 
 #[test]
 fn operator_connection_cannot_be_reused_without_verified_tls() {
+    if env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
         assert_ne!(
             env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
@@ -713,6 +741,9 @@ fn operator_connection_cannot_be_reused_without_verified_tls() {
 
 #[test]
 fn dedicated_bff_login_uses_verified_tls_and_narrow_role() {
+    if env::var("QUANTOS_RUN_F06_BFF_LOGIN_TESTS").as_deref() != Ok("1") {
+        return;
+    }
     let database_url = match env::var("QUANTOS_BFF_DATABASE_URL")
         .ok()
         .filter(|v| !v.is_empty())

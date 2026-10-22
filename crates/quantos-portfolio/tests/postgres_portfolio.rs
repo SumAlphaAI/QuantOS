@@ -127,13 +127,21 @@ fn f09_portfolio_and_risk_queries_persist_actual_latency_samples() {
 
 #[test]
 fn postgres_portfolio_store_persists_and_reads_projection() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    if ![
+        "QUANTOS_RUN_PORTFOLIO_POSTGRES_TESTS",
+        "QUANTOS_RUN_F09_POSTGRES_TESTS",
+        "QUANTOS_RUN_X01_POSTGRES_TESTS",
+    ]
+    .iter()
+    .any(|name| env::var(name).as_deref() == Ok("1"))
+    {
+        eprintln!("NOT RUN: explicit manual database test switch required");
         return;
-    };
+    }
+    let database_url = env::var("DATABASE_URL")
+        .ok()
+        .filter(|url| !url.trim().is_empty())
+        .expect("DATABASE_URL required for explicit database maintenance");
 
     let tenant_id = TenantId::new();
     let (_cleanup, account_id) = seed_context(&database_url, tenant_id);

@@ -1,5 +1,7 @@
 # F05 Database Polling Consumer Recovery
 
+As of 2026-10-22, full database and coverage campaigns are manual maintenance only; push/PR/schedule do not run them. See [manual maintenance and retention](../operations/f05-f07-manual-maintenance.md).
+
 This runbook covers the early-stage F05 event pipeline where PostgreSQL is the source of truth and Supabase Realtime is only a wakeup or projection notification path.
 
 ## Core rules
@@ -84,9 +86,9 @@ structured metrics with tenant labels restricted to the operator boundary:
 
 ## Deployment and rollback
 
-1. Apply all migrations to a disposable database with `make f05-db-check`.
+1. Apply all migrations to a disposable database with `QUANTOS_MANUAL_F05_F07=1 make f05-db-check`.
    For an authorized isolated Supabase project or database branch, run
-   `make f05-target-check`; it writes an exact-SHA, migration-digest receipt to
+   `QUANTOS_MANUAL_F05_F07=1 make f05-target-check`; it writes an exact-SHA, migration-digest receipt to
    `artifacts/f05/target.json` and fails if any target credential is absent.
    Set `QUANTOS_F05_TARGET_ISOLATED=1` only for a disposable Supabase project or
    database branch; the acceptance suite intentionally preserves append-only
@@ -115,11 +117,11 @@ receipt does not establish that target result.
 
 ## Coverage and capacity acceptance
 
-- Run `make f05-db-coverage` for full persistence coverage against a fresh
-  loopback database. Nightly sets `RUSTUP_TOOLCHAIN=nightly` and
+- Run `QUANTOS_MANUAL_F05_F07=1 make f05-db-coverage` for full persistence coverage against a fresh
+  CI loopback database (never start one locally). The manual workflow sets `RUSTUP_TOOLCHAIN=nightly` and
   `QUANTOS_F05_BRANCH=1` and enforces 85% measured branches.
 - For the already approved disposable Supabase target, run
-  `make QUANTOS_F05_TARGET_ISOLATED=1 QUANTOS_DB_RESET_CONFIRM=reset_remote_schema f05-target-coverage`.
+  `QUANTOS_MANUAL_F05_F07=1 make QUANTOS_F05_TARGET_ISOLATED=1 QUANTOS_DB_RESET_CONFIRM=reset_remote_schema f05-target-coverage`.
   The Gate refuses to run without both confirmations, resets only the `quantos`
   schema, reapplies every repository migration, and then starts the tests. Keep
   credentials in `.env.local`; never copy them into receipts. This includes the

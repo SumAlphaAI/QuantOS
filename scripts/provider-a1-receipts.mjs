@@ -87,7 +87,7 @@ export function developmentEnvironment(template,overrides={},base=process.env) {
  return {...privateEnv,...vars,...overrides,QUANTOS_CLIENT_PROFILE:'mock',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};
 }
 export function staticEnvironment(base) {
- const env={...base,QUANTOS_SKIP_ENV:'1'};for(const key of Object.keys(env))if(/DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(key))delete env[key];return env;
+ const env={...base,QUANTOS_SKIP_ENV:'1'};for(const key of Object.keys(env))if(/DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS|QUANTOS_F07_DB_REQUIRED/.test(key))delete env[key];return env;
 }
 export function policy(base=root){return JSON.parse(readFileSync(resolve(base,'scripts/provider-a1-policy.json'),'utf8'));}
 export function validateReproducibility(r,source) {
@@ -289,15 +289,15 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
  if(profile)assert.deepEqual(rootIds,localPolicy(profile).roots,'local projection roots differ from authorized profile');
  const directory=outputDirectory;
  assert.equal(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),'','commit source before recording functional execution');
- const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=[...new Set(rootIds.flatMap(id=>closure(nodes,id)))];const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);assert(!existsSync(resolve(out,'execution-results.json')),'assessment evidence already exists; select a fresh directory');mkdirSync(resolve(out,'logs'),{recursive:true});
+ const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=[...new Set(rootIds.flatMap(id=>closure(nodes,id)))];const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);assert(!existsSync(resolve(out,'execution-results.json')),'assessment evidence already exists; select a fresh directory');
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
- const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=profile?orderedLocalChecks(nodes,p,profile):[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));const results=new Map();const deferred=[];
+ const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=profile?orderedLocalChecks(nodes,p,profile):[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));if(all.some(id=>p.checks[id].manualMaintenance))require('./lib/manual-database-policy.cjs').requireManualDatabaseRun();mkdirSync(resolve(out,'logs'),{recursive:true});const results=new Map();const deferred=[];
  const engineBaselineDir=all.some(id=>p.checks[id].artifactKind==='r1-process-cleanup')?mkdtempSync(resolve(tmpdir(),'quantos-r1-engine-scope-')):null;
  const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
  const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
  if(engineBaseline){environment.engineProcessScope=engineScope;writeFileSync(engineBaseline,JSON.stringify({...engineSnapshot(root),scopeTag:engineScope}));}
  for(const id of all){const spec=p.checks[id];if(profile){assert(!spec.external&&!spec.database&&!spec.target&&!spec.performance,'local profiles cannot execute target checks');assert(Object.keys(spec.env??{}).every(k=>! /DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(k)),'local check cannot inject credentials or database switches');}const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
-  if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
+  if(spec.database){require('./lib/manual-database-policy.cjs').loadLocalDatabaseEnvironment();Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   if(spec.staticOnly||profile){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});
   if(['X03_LOCAL','X02_LOCAL','X01_LOCAL','S2-SERVICE_LOCAL','EVAL-TP12_LOCAL','EVAL-TP07_LOCAL','SERVICE-S04_LOCAL','S03_LOCAL','S02_LOCAL','TP06_LOCAL','S01_LOCAL','SERVICE-TP01_LOCAL','TP01-G_LOCAL','TP01-F_LOCAL','TP01-E_LOCAL','TP02_LOCAL','R1_LOCAL','A2_LOCAL','BFF003_LOCAL','BFF005_LOCAL','A3_LOCAL','A3_EXECUTION'].includes(profile)){env.CARGO_NET_OFFLINE='true';env.UV_OFFLINE='1';env.npm_config_offline='true';env.QUANTOS_RELEASE_PERFORMANCE='0';}

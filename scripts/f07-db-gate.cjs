@@ -1,3 +1,6 @@
+const manualPolicy = require('./lib/manual-database-policy.cjs');
+manualPolicy.loadLocalDatabaseEnvironment();
+manualPolicy.requireManualDatabaseRun();
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -65,6 +68,7 @@ async function main() {
     receipt.status='FAIL';receipt.error='Target database connection failed outside a query';save();
   });
   try {
+    receipt.databaseBytesBefore = await manualPolicy.requireDatabaseHeadroom(client);
     const info = (await client.query(`select current_setting('server_version_num')::int as version,
       exists(select 1 from pg_namespace where nspname='auth') as has_auth,
       to_regclass('quantos.schema_migrations') is not null as has_ledger`)).rows[0];
@@ -125,16 +129,7 @@ async function main() {
       });
     } finally { run(process.execPath, ['scripts/f07-fixture-check.cjs', '--retire'], { QUANTOS_F07_FIXTURE_RETIRE: '1' }); }
     receipt.checks.push('100 task recoveries after an OS-killed worker, unique artifacts, cancel and timeout audit, scheduling P95 <=200ms');
-    run('cargo', ['llvm-cov', '--package', 'quantos-runtime', '--package', 'runtime-gateway', '--lib', '--bins', '--test', 'postgres_runtime',
-      '--locked', ...(process.env.QUANTOS_F07_NIGHTLY_BRANCH === '1' ? ['--branch'] : []),
-      '--json', '--output-path', coveragePath, '--', '--test-threads=1', '--nocapture'], {
-      DATABASE_URL: url.toString(), QUANTOS_F07_DB_REQUIRED: '1',
-      QUANTOS_RUNTIME_RECOVERY_RUNS: '100', QUANTOS_F07_COVERAGE_MEASUREMENT: '1',
-    });
-    run(process.execPath, ['scripts/f07-coverage-check.cjs', coveragePath]);
-    receipt.checks.push(process.env.QUANTOS_F07_NIGHTLY_BRANCH === '1'
-      ? 'F07 Rust line >=90%, region >=85%, nightly branch >=85%'
-      : 'F07 Rust line >=90% and stable region >=85%');
+    receipt.coverage = { status: 'NOT_RUN', reason: 'Optional manual coverage is a separate diagnostic; full recovery is not repeated for instrumentation.' };
     receipt.status = 'PASS';
   } finally {
     await client.end();

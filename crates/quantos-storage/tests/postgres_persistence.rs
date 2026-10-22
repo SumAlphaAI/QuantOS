@@ -42,6 +42,10 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
     ]
     .iter()
     .any(|name| env::var(name).ok().as_deref() == Some("1"));
+    if !explicitly_required {
+        eprintln!("NOT RUN: explicit manual database test switch required");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
