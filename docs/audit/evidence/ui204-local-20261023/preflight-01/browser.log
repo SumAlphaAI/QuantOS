@@ -1,0 +1,139 @@
+
+Running 5 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui204.spec.ts:4:5 › C04 actual reference catalog, server paging, detail and conservative purpose checks (7.1s)
+  ✘  2 [chromium] › tests/e2e/ui204.spec.ts:12:5 › canonical and legacy details load through host aliases; license missing blocks use (6.9s)
+  ✘  3 [chromium] › tests/e2e/ui204.spec.ts:15:5 › offline clears facts and requires explicit authorized recovery (6.9s)
+  ✓  4 [chromium] › tests/e2e/ui204.spec.ts:18:5 › capability narrowing refuses snapshot HTTP and ambiguous references dispatch nothing (2.0s)
+  ✘  5 [chromium] › tests/e2e/ui204.spec.ts:22:5 › filtered empty page, mobile layout and slow identity publish no early facts (6.9s)
+
+
+  1) [chromium] › tests/e2e/ui204.spec.ts:4:5 › C04 actual reference catalog, server paging, detail and conservative purpose checks 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+      3 | const id="11111111-1111-4111-8111-000000000001",failed="11111111-1111-4111-8111-000000000002";
+      4 | test("C04 actual reference catalog, server paging, detail and conservative purpose checks",async({page})=>{
+    > 5 |  await page.goto("/data-snapshots");await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();await expect(page.getByRole("button",{name:id,exact:true})).toBeVisible();
+        |                                                                                                    ^
+      6 |  await page.getByLabel("每页",{exact:true}).fill("1");await page.getByLabel("排序",{exact:true}).selectOption("snapshotId:asc");await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.getByRole("button",{name:"下一页",exact:true})).toBeEnabled();
+      7 |  await page.getByRole("button",{name:id,exact:true}).click();await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();await expect(page.getByRole("link",{name:"快照永久引用"})).toHaveAttribute("href","/data-snapshots/"+id);
+      8 |  await page.getByRole("button",{name:"下一页",exact:true}).click();await expect(page.getByRole("button",{name:failed,exact:true})).toBeVisible();await page.getByRole("button",{name:failed,exact:true}).click();await expect(page.locator('[data-snapshot-eligible="false"]')).toContainText("质量失败");await expect(page.getByRole("button",{name:"核对策略用途"})).toBeDisabled();await expect(page.getByRole("button",{name:"核对交易用途"})).toBeDisabled();
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui204.spec.ts:5:100
+
+    attachment #1: ui204 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-C04-actual-reference-60861-conservative-purpose-checks-chromium/attachments/ui204-f0459511663c8cbd6fc5e7394c4b0281d3e04abb.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-C04-actual-reference-60861-conservative-purpose-checks-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-C04-actual-reference-60861-conservative-purpose-checks-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui204.spec.ts:12:5 › canonical and legacy details load through host aliases; license missing blocks use 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-snapshot-eligible="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-snapshot-eligible="true"]')
+
+
+      11 | });
+      12 | test("canonical and legacy details load through host aliases; license missing blocks use",async({page})=>{
+    > 13 |  await page.goto("/data-snapshots/"+id);await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();await page.goto("/data-snapshots?snapshotId=11111111-1111-4111-8111-000000000003");await expect(page.locator('[data-snapshot-eligible="false"]')).toContainText("缺少许可");
+         |                                                                                                       ^
+      14 | });
+      15 | test("offline clears facts and requires explicit authorized recovery",async({page,context})=>{
+      16 |  await page.goto("/data-snapshots/"+id);await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();await context.setOffline(true);await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();await expect(page.getByText(id,{exact:true})).toHaveCount(0);await context.setOffline(false);await page.getByRole("button",{name:"重新验证访问条件"}).click();await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui204.spec.ts:13:103
+
+    attachment #1: ui204 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-canonical-and-legacy-46ef1--license-missing-blocks-use-chromium/attachments/ui204-6a076382d0fa21b9a5b7e9195086b6c973b49ed8.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-canonical-and-legacy-46ef1--license-missing-blocks-use-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-canonical-and-legacy-46ef1--license-missing-blocks-use-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui204.spec.ts:15:5 › offline clears facts and requires explicit authorized recovery 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-snapshot-eligible="true"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-snapshot-eligible="true"]')
+
+
+      14 | });
+      15 | test("offline clears facts and requires explicit authorized recovery",async({page,context})=>{
+    > 16 |  await page.goto("/data-snapshots/"+id);await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();await context.setOffline(true);await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();await expect(page.getByText(id,{exact:true})).toHaveCount(0);await context.setOffline(false);await page.getByRole("button",{name:"重新验证访问条件"}).click();await expect(page.locator('[data-snapshot-eligible="true"]')).toBeVisible();
+         |                                                                                                       ^
+      17 | });
+      18 | test("capability narrowing refuses snapshot HTTP and ambiguous references dispatch nothing",async({page})=>{
+      19 |  fault({readonly:true});await page.goto("/data-snapshots");await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();expect(networkRows().some(r=>r.path.includes("data-snapshots"))).toBe(false);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui204.spec.ts:16:103
+
+    attachment #1: ui204 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-offline-clears-facts-80995-xplicit-authorized-recovery-chromium/attachments/ui204-846bf56d7dcc6e758ac00d3bf473dbf75bb192cf.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-offline-clears-facts-80995-xplicit-authorized-recovery-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-offline-clears-facts-80995-xplicit-authorized-recovery-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui204.spec.ts:22:5 › filtered empty page, mobile layout and slow identity publish no early facts 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+      21 | });
+      22 | test("filtered empty page, mobile layout and slow identity publish no early facts",async({page})=>{
+    > 23 |  fault({slow:true});await page.setViewportSize({width:390,height:844});await page.goto("/data-snapshots");await expect(page.locator('[data-route-access="checking"]')).toBeVisible();expect(networkRows().some(r=>r.path.includes("data-snapshots"))).toBe(false);await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();await page.getByLabel("质量",{exact:true}).selectOption("degraded");await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.getByText("当前查询无快照。",{exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:test.info().outputPath("ui204-mobile-empty.png"),fullPage:true});
+         |                                                                                                                                                                                                                                                                                                                                  ^
+      24 | });
+      25 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui204.spec.ts:23:322
+
+    attachment #1: ui204 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-filtered-empty-page--15674-tity-publish-no-early-facts-chromium/attachments/ui204-230d88f1e1436ce6e89a83bcc23193fcf5af09a8.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-filtered-empty-page--15674-tity-publish-no-early-facts-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui204-local-20261023/preflight-01/browser/ui204-filtered-empty-page--15674-tity-publish-no-early-facts-chromium/error-context.md
+
+  4 failed
+    [chromium] › tests/e2e/ui204.spec.ts:4:5 › C04 actual reference catalog, server paging, detail and conservative purpose checks 
+    [chromium] › tests/e2e/ui204.spec.ts:12:5 › canonical and legacy details load through host aliases; license missing blocks use 
+    [chromium] › tests/e2e/ui204.spec.ts:15:5 › offline clears facts and requires explicit authorized recovery 
+    [chromium] › tests/e2e/ui204.spec.ts:22:5 › filtered empty page, mobile layout and slow identity publish no early facts 
+  1 passed (32.0s)

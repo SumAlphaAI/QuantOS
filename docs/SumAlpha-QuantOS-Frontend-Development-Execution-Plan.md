@@ -2231,7 +2231,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C04
 - 验收重点：`failed/degraded/expired/license missing` 明确阻断后续策略/交易用途
 
-- 当前执行：UI-204当前功能实现，C04目录/详情、服务端分页与过滤、质量/许可/时效保守阻断、撤权/离线清除及显式恢复；用途核对只读重取最新快照，不授予策略/交易许可。见[本轮报告](./audit/UI-204-data-snapshots-2026-10-23.md)、[规程](./operations/ui204-data-snapshots.md)、[当前功能门禁](../scripts/ui204-review.mjs)。工程证据由独立回执绑定；复用既有原范围证据，不将G1辅助项作为前置、不重跑全链。reference身份/CORS替代、Firefox/WebKit阻塞和全部NOT_RUN保留，159阶段Gate及G1/FEP-1联调/发布状态不提升，人工确认待项目用户。下一原任务UI-P05可继续开发。
+- 当前执行：`PASS_UI204_CURRENT_FUNCTION`，工程`54ab042b`、524输入/33产物；23项Rust、110项前端直接测试、6项Chromium、50项门禁/路由及types/lint/build通过。首轮a7706db4失败记录保留，最终仅绑定当前候选；C04目录/详情、服务端分页与过滤、质量/许可/时效保守阻断、撤权/离线清除及显式恢复；用途核对只读重取最新快照，不授予策略/交易许可。见[本轮报告](./audit/UI-204-data-snapshots-2026-10-23.md)、[规程](./operations/ui204-data-snapshots.md)、[当前功能门禁](../scripts/ui204-review.mjs)。工程证据由独立回执绑定；复用既有原范围证据，不将G1辅助项作为前置、不重跑全链。reference身份/CORS替代、Firefox/WebKit阻塞和全部NOT_RUN保留，159阶段Gate及G1/FEP-1联调/发布状态不提升，人工确认待项目用户。下一原任务UI-P05可继续开发。
 
 <a id="task-ui-p05"></a>
 ##### UI-P05：P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png

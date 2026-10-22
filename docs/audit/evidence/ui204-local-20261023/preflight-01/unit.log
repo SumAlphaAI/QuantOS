@@ -1,0 +1,101 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/research-gateway.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/data-snapshot.test.ts [2m([22m[2m55 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 29[2mms[22m[39m
+     [32m✓[39m requires explicit owner allowance, verified quality, license and both freshness clocks[32m 2[2mms[22m[39m
+     [32m✓[39m blocks failed even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks degraded even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks expired even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks license_missing even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks provisional even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks unknown even when qualityBlocked=false[32m 0[2mms[22m[39m
+     [32m✓[39m blocks absent or true owner block flag true[32m 0[2mms[22m[39m
+     [32m✓[39m blocks absent or true owner block flag undefined[32m 0[2mms[22m[39m
+     [32m✓[39m blocks absent or true owner block flag null[32m 0[2mms[22m[39m
+     [32m✓[39m blocks missing license [32m 0[2mms[22m[39m
+     [32m✓[39m blocks missing license    [32m 0[2mms[22m[39m
+     [32m✓[39m expires exactly at the older window/capture deadline[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"capturedAt":"2099-01-01T00:00:00Z"}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"window":{"start":"2026-10-23T00:00:00Z","end":"2026-10-22T23:30:00Z"}}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"window":{"start":"2026-10-22T22:00:00Z","end":"2026-10-22T23:50:00Z"}}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"maxAgeSeconds":9007199254740991}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"sources":[]}[32m 0[2mms[22m[39m
+     [32m✓[39m rejects inconsistent metadata {"contentHash":"fake"}[32m 0[2mms[22m[39m
+     [32m✓[39m never synthesizes authority for missing or malformed input[32m 0[2mms[22m[39m
+     [32m✓[39m accepts canonical and legacy resource references[32m 0[2mms[22m[39m
+     [32m✓[39m refuses ambiguous resource /data-snapshots/nope [32m 0[2mms[22m[39m
+     [32m✓[39m refuses ambiguous resource /data-snapshots/11111111-1111-4111-8111-000000000001 ?snapshotId=11111111-1111-4111-8111-000000000002[32m 0[2mms[22m[39m
+     [32m✓[39m refuses ambiguous resource /data-snapshots ?snapshotId=11111111-1111-4111-8111-000000000001&snapshotId=11111111-1111-4111-8111-000000000001[32m 0[2mms[22m[39m
+     [32m✓[39m refuses ambiguous resource /data-snapshots ?unknown=x[32m 0[2mms[22m[39m
+     [32m✓[39m refuses ambiguous resource /data-snapshots/11111111-1111-4111-8111-000000000001/extra [32m 0[2mms[22m[39m
+[31m     [31m×[31m loads matching session/context then reads C04 through bounded no-store transport[39m[32m 13[2mms[22m[39m
+     [32m✓[39m refuses scope before C04 dispatch[32m 1[2mms[22m[39m
+     [32m✓[39m refuses capability before C04 dispatch[32m 0[2mms[22m[39m
+     [32m✓[39m refuses mfa before C04 dispatch[32m 0[2mms[22m[39m
+     [32m✓[39m refuses offline reads[32m 0[2mms[22m[39m
+     [32m✓[39m refuses revoked reads[32m 0[2mms[22m[39m
+     [32m✓[39m refuses expired reads[32m 0[2mms[22m[39m
+     [32m✓[39m refuses closed reads[32m 0[2mms[22m[39m
+     [32m✓[39m pins opaque cursor and filters; fresh query drops cursor[32m 1[2mms[22m[39m
+     [32m✓[39m rejects duplicate page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects oversize page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects loop page[32m 1[2mms[22m[39m
+[31m     [31m×[31m rejects missing page[39m[32m 1[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"pageSize":0}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"pageSize":201}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"pageSize":1.2}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"sort":"private:asc"}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"quality":"unknown"}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid query before HTTP {"filter":"licenseLabel:eq:yes"}[32m 0[2mms[22m[39m
+     [32m✓[39m binds detail ID and hides raw server errors[32m 0[2mms[22m[39m
+     [32m✓[39m revocation after response prevents publication[32m 0[2mms[22m[39m
+     [32m✓[39m rereads latest detail for each purpose and never submits a business command[32m 0[2mms[22m[39m
+     [32m✓[39m fresh response degraded blocks use after an earlier valid detail[32m 0[2mms[22m[39m
+     [32m✓[39m fresh response expired blocks use after an earlier valid detail[32m 0[2mms[22m[39m
+     [32m✓[39m fresh response license_missing blocks use after an earlier valid detail[32m 0[2mms[22m[39m
+     [32m✓[39m fresh response failed blocks use after an earlier valid detail[32m 0[2mms[22m[39m
+     [32m✓[39m capability cannot be escalated from snapshot read to purpose check[32m 0[2mms[22m[39m
+     [32m✓[39m 429 has bounded explicit retry and no automatic repeat[32m 0[2mms[22m[39m
+     [32m✓[39m refuses concurrent reads and cancels pending requests on close[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m61 passed[39m[22m[90m (63)[39m
+[2m   Start at [22m 00:36:41
+[2m   Duration [22m 342ms[2m (transform 259ms, setup 0ms, import 464ms, tests 53ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/data-snapshot.test.ts[2m > [22mUI-204 guarded C04 runtime[2m > [22mloads matching session/context then reads C04 through bounded no-store transport
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m apps/terminal/tests/data-snapshot.test.ts:[2m20:324[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/data-snapshot.test.ts[2m > [22mUI-204 guarded C04 runtime[2m > [22mrejects missing page
+[31m[1mAssertionError[22m: expected Error: 研究服务响应无效或暂不可用。 { …(2) } to match object { status: 502 }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "status": 502,[39m
+[31m+ ResearchGatewayError {[39m
+[31m+   "status": 200,[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/data-snapshot.test.ts:[2m24:427[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
