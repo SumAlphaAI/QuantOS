@@ -878,3 +878,87 @@ async fn readonly_session_cannot_write_settings_or_reuse_another_sessions_reauth
     );
     assert_eq!(provider.audit_count().await, 0);
 }
+
+#[tokio::test]
+async fn settings_actions_are_searchable_redacted_and_idempotent_in_c10() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let mut write = mutation(
+        "PUT",
+        "/v1/settings/profile",
+        Some(
+            json!({"displayName":"PRIVATE_JOURNEY_NAME","locale":"zh-CN","timezone":"Asia/Shanghai","theme":"dark","numberFormat":"comma_dot","timeDisplay":"utc_local","defaultRoute":"/command","density":"comfortable","highContrast":false,"reducedMotion":false}),
+        ),
+    );
+    write
+        .headers_mut()
+        .insert("if-match", "profile-v1".parse().unwrap());
+    write.headers_mut().insert(
+        "idempotency-key",
+        uuid_key("journey-profile").parse().unwrap(),
+    );
+    let saved = router.clone().oneshot(write).await.unwrap();
+    assert_eq!(saved.status(), StatusCode::OK);
+    let correlation = saved.headers()["x-correlation-id"]
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let response = router
+        .clone()
+        .oneshot(authenticated(
+            "GET",
+            &format!("/v1/audit/events?correlationId={correlation}&kind=profile.save"),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = json_body(response).await;
+    assert_eq!(body["items"].as_array().unwrap().len(), 1);
+    let event = &body["items"][0];
+    assert_eq!(event["correlationId"], correlation);
+    assert_eq!(event["kind"], "profile.save");
+    assert_eq!(event["route"], "/settings/profile");
+    assert_eq!(event["redactionApplied"], true);
+    assert!(!body.to_string().contains("PRIVATE_JOURNEY_NAME"));
+    let reauth = recent_auth(&router).await;
+    let revoke = router
+        .clone()
+        .oneshot(protected_mutation(
+            "DELETE",
+            "/v1/settings/sessions/session-remote",
+            "journey-revoke",
+            &reauth,
+        ))
+        .await
+        .unwrap();
+    let accepted = json_body(revoke).await;
+    let replay = router
+        .clone()
+        .oneshot(protected_mutation(
+            "DELETE",
+            "/v1/settings/sessions/session-remote",
+            "journey-revoke",
+            &reauth,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(json_body(replay).await, accepted);
+    let response = router
+        .clone()
+        .oneshot(authenticated(
+            "GET",
+            &format!(
+                "/v1/audit/events?correlationId={}&kind=session.revoke",
+                accepted["correlationId"].as_str().unwrap()
+            ),
+            None,
+        ))
+        .await
+        .unwrap();
+    let body = json_body(response).await;
+    assert_eq!(body["items"].as_array().unwrap().len(), 1);
+    assert_eq!(body["items"][0]["eventId"], accepted["auditRef"]);
+    assert_eq!(body["items"][0]["route"], "/settings/security");
+    assert_eq!(provider.audit_count().await, 2);
+}

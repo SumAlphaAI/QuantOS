@@ -11,7 +11,7 @@ export default defineConfig({
   // Playwright PR diff capture fetches --depth=1, truncating history needed by security gates.
   captureGitInfo: { commit: true, diff: false },
   testDir: "./tests/e2e",
-  testIgnore: ["g1-recovery.spec.ts", "website.spec.ts", "web101-current.spec.ts", "deep-link-reauth.spec.ts", "ui101-bff.spec.ts", "ui104-bff.spec.ts", "ui-p02.spec.ts", "ui-p02-http.spec.ts", "ui-p15.spec.ts", "ui-p15-http.spec.ts", "ui-p17.spec.ts", "ui-p17-http.spec.ts"],
+  testIgnore: ["g1-journey.spec.ts", "g1-recovery.spec.ts", "website.spec.ts", "web101-current.spec.ts", "deep-link-reauth.spec.ts", "ui101-bff.spec.ts", "ui104-bff.spec.ts", "ui-p02.spec.ts", "ui-p02-http.spec.ts", "ui-p15.spec.ts", "ui-p15-http.spec.ts", "ui-p17.spec.ts", "ui-p17-http.spec.ts"],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

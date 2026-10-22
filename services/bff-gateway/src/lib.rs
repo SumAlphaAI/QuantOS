@@ -304,7 +304,7 @@ impl BffProvider {
             .await
             .audits
             .iter()
-            .filter(|entry| entry.get("eventId").is_none())
+            .filter(|entry| entry.get("eventId").is_none() || entry.get("action").is_some())
             .count()
     }
 
@@ -594,15 +594,42 @@ impl IdempotentCommand {
     }
 }
 
+// Identity/settings actions must be searchable through C10, not only counted
+// in a legacy internal ledger. Do not copy user input, MFA or idempotency keys.
+fn record_settings_action(
+    data: &mut ProviderData,
+    action: &str,
+    correlation: &str,
+    resource: &str,
+) -> String {
+    let audit_ref = record_audit_action(
+        data,
+        action,
+        correlation,
+        resource,
+        json!({"outcome":"succeeded"}),
+    );
+    let event = data
+        .audits
+        .last_mut()
+        .expect("just appended settings audit");
+    event["action"] = json!(action); // preserve existing internal action consumers
+    event["route"] = json!(match action {
+        "profile.save" => "/settings/profile",
+        "notification_preferences.save" => "/settings/notifications",
+        _ => "/settings/security",
+    });
+    audit_ref
+}
+
 fn accepted(data: &mut ProviderData, command: IdempotentCommand, action: &str) -> Value {
-    let audit_ref = Uuid::now_v7().to_string();
     let correlation = correlation_id();
+    let resource = command.intent[0].as_str().unwrap_or("security");
+    let audit_ref = record_settings_action(data, action, &correlation, resource);
     let payload = json!({
         "jobId": Uuid::now_v7(), "status":"accepted", "correlationId":correlation,
         "auditRef":audit_ref
     });
-    data.audits
-        .push(json!({"auditRef":audit_ref,"action":action,"correlationId":correlation}));
     command.save(data, payload)
 }
 
@@ -944,9 +971,7 @@ async fn save_profile(
         command.save(&mut state, payload)
     };
     let correlation = correlation_id();
-    state.audits.push(
-        json!({"auditRef":Uuid::now_v7(),"action":"profile.save","correlationId":correlation}),
-    );
+    record_settings_action(&mut state, "profile.save", &correlation, "profile");
     response(StatusCode::OK, payload, &correlation)
 }
 
@@ -1009,7 +1034,12 @@ async fn save_notifications(
         command.save(&mut state, payload)
     };
     let correlation = correlation_id();
-    state.audits.push(json!({"auditRef":Uuid::now_v7(),"action":"notification_preferences.save","correlationId":correlation}));
+    record_settings_action(
+        &mut state,
+        "notification_preferences.save",
+        &correlation,
+        "notification-preferences",
+    );
     response(StatusCode::OK, payload, &correlation)
 }
 
