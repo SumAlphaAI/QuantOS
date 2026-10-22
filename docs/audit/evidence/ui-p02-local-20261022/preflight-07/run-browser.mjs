@@ -1,0 +1,10 @@
+import { spawn } from 'node:child_process';
+import { createWriteStream } from 'node:fs';
+import { resolve } from 'node:path';
+import process from 'node:process';
+import { webEnvironment } from '../../../../../scripts/p0-functional-scope.mjs';
+const directory = 'docs/audit/evidence/ui-p02-local-20261022/preflight-07';
+const log = createWriteStream(directory + '/browser.log');
+const child = spawn('pnpm', ['exec', 'playwright', 'test', '--config=playwright.ui-p02.config.ts', '--grep', 'visual baseline', '--project=chromium', '--workers=1', '--retries=0', '--update-snapshots=all', '--reporter=list,json', '--output=' + directory + '/browser'], { env: { ...webEnvironment(), PLAYWRIGHT_JSON_OUTPUT_NAME: resolve(directory, 'browser-report.json') } });
+for (const stream of [child.stdout, child.stderr]) stream.on('data', bytes => { log.write(bytes); process.stdout.write(bytes); });
+child.on('exit', code => { log.end(); process.exitCode = code ?? 1; });

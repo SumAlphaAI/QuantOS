@@ -1,0 +1,225 @@
+
+Running 34 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p02.spec.ts:18:5 › P02 guarded real-mode transport renders server counts and truthful source metadata (358ms)
+  ✓   2 [chromium] › tests/e2e/ui-p02.spec.ts:27:5 › capabilities crop cards and private list rows instead of showing leaked values (184ms)
+  ✓   3 [chromium] › tests/e2e/ui-p02.spec.ts:33:5 › forbidden research data stays concealed even if rows arrive in a partial response (179ms)
+  ✓   4 [chromium] › tests/e2e/ui-p02.spec.ts:37:5 › zero, unknown and stale metrics remain distinct with no synthetic order or run fallback (172ms)
+  ✓   5 [chromium] › tests/e2e/ui-p02.spec.ts:41:5 › local severity filters and bounded expansions work by keyboard with exact safe resource destinations (248ms)
+  ✓   6 [chromium] › tests/e2e/ui-p02.spec.ts:48:5 › empty truncated snapshots disclose incompleteness and disable empty expansion controls (167ms)
+  ✓   7 [chromium] › tests/e2e/ui-p02.spec.ts:52:5 › refresh drops the old snapshot, rechecks scope and recovers without any write (262ms)
+  ✓   8 [chromium] › tests/e2e/ui-p02.spec.ts:56:5 › offline freezes resource links, reconnect refuses revoked capability and never replays old intent (230ms)
+  ✓   9 [chromium] › tests/e2e/ui-p02.spec.ts:61:91 › malformed resource summary refuses without fixture fallback (152ms)
+  ✓  10 [chromium] › tests/e2e/ui-p02.spec.ts:61:91 › malformed order-mode summary refuses without fixture fallback (153ms)
+  ✓  11 [chromium] › tests/e2e/ui-p02.spec.ts:61:91 › malformed future-source summary refuses without fixture fallback (149ms)
+  ✓  12 [chromium] › tests/e2e/ui-p02.spec.ts:61:91 › malformed partial summary refuses without fixture fallback (154ms)
+  ✓  13 [chromium] › tests/e2e/ui-p02.spec.ts:61:91 › malformed expired summary refuses without fixture fallback (151ms)
+  ✓  14 [chromium] › tests/e2e/ui-p02.spec.ts:65:5 › earlier session deadline removes the shell even when context and snapshot remain valid (206ms)
+  ✓  15 [chromium] › tests/e2e/ui-p02.spec.ts:68:5 › layout preferences persist booleans only and do not alter server authority (304ms)
+  ✓  16 [chromium] › tests/e2e/ui-p02.spec.ts:72:5 › storage refusal preserves interactive layout and help remains reachable (248ms)
+  ✘  17 [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 dark responsive layouts, keyboard and axe (30.1s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p02.spec.ts-snapshots/p02-command-dark-chromium-darwin.png, writing actual.
+  ✓  18 [chromium] › tests/e2e/ui-p02.spec.ts:88:7 › P02 visual baseline dark (377ms)
+  ✘  19 [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 light responsive layouts, keyboard and axe (30.1s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p02.spec.ts-snapshots/p02-command-light-chromium-darwin.png, writing actual.
+  ✓  20 [chromium] › tests/e2e/ui-p02.spec.ts:88:7 › P02 visual baseline light (367ms)
+  ✘  21 [chromium] › tests/e2e/ui101-bff.spec.ts:15:5 › non-mock build loads generated session/context/summary and shows scoped facts without synthetic zeroes (573ms)
+  ✓  22 [chromium] › tests/e2e/ui101-bff.spec.ts:32:45 › summary 401 clears projection and reaches safe recovery (172ms)
+  ✓  23 [chromium] › tests/e2e/ui101-bff.spec.ts:32:45 › summary 403 clears projection and reaches safe recovery (145ms)
+  ✓  24 [chromium] › tests/e2e/ui101-bff.spec.ts:32:45 › summary 404 clears projection and reaches safe recovery (143ms)
+  ✓  25 [chromium] › tests/e2e/ui101-bff.spec.ts:32:45 › summary 503 clears projection and reaches safe recovery (154ms)
+  ✓  26 [chromium] › tests/e2e/ui101-bff.spec.ts:37:61 › workspace refusal stops before summary (121ms)
+  ✓  27 [chromium] › tests/e2e/ui101-bff.spec.ts:37:61 › capability refusal stops before summary (120ms)
+  ✓  28 [chromium] › tests/e2e/ui101-bff.spec.ts:37:61 › mode refusal stops before summary (135ms)
+  ✓  29 [chromium] › tests/e2e/ui101-bff.spec.ts:41:5 › refresh rechecks authorization and removes an already displayed projection (188ms)
+  ✓  30 [chromium] › tests/e2e/ui101-bff.spec.ts:48:5 › network recovery revalidates; it cannot promote stale data to fresh (262ms)
+  ✓  31 [chromium] › tests/e2e/ui101-bff.spec.ts:55:5 › expired summary refuses with no fallback data (160ms)
+  ✓  32 [chromium] › tests/e2e/ui101-bff.spec.ts:59:5 › session deadline removes the mounted shell and rechecks before loading data (2.5s)
+  ✓  33 [chromium] › tests/e2e/ui101-bff.spec.ts:66:5 › authoritative context fits 390px and CSS zoom=2 while staying read-only (162ms)
+  ✓  34 [chromium] › tests/e2e/ui101-bff.spec.ts:75:5 › verified normal risk uses the healthy presentation, while null metrics remain unknown (152ms)
+
+
+  1) [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 dark responsive layouts, keyboard and axe ────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: frame.evaluate: Test timeout of 30000ms exceeded.
+
+      79 |     for (const width of [1440, 1024, 390]) {
+      80 |       await page.setViewportSize({ width, height: 900 }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    > 81 |       const result = await new AxeBuilder({ page }).analyze(); scans.push({ width, theme, violations: result.violations, incomplete: result.incomplete }); expect(result.violations).toEqual([]);
+         |                      ^
+      82 |       if (width === 390) { await expect(page.locator(".high-risk-action").first()).toBeHidden(); await page.evaluate(() => { document.documentElement.style.zoom = "2"; }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); }
+      83 |       const path = info.outputPath(`command-${theme}-${width}.png`); await page.screenshot({ path, fullPage: true }); await info.attach(`command-${width}`, { path, contentType: "image/png" });
+      84 |       await page.evaluate(() => { document.documentElement.style.zoom = "1"; });
+        at AxeBuilder.runPartialRecursive (/Users/anray/Documents/project/SumAlpha/QuantOS/node_modules/.pnpm/@axe-core+playwright@4.13.0_playwright-core@1.62.1/node_modules/@axe-core/playwright/dist/index.js:318:34)
+        at AxeBuilder.analyze (/Users/anray/Documents/project/SumAlpha/QuantOS/node_modules/.pnpm/@axe-core+playwright@4.13.0_playwright-core@1.62.1/node_modules/@axe-core/playwright/dist/index.js:245:28)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p02.spec.ts:81:22
+
+    Error Context: docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-dark-responsive-layouts-keyboard-and-axe-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-dark-responsive-layouts-keyboard-and-axe-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-dark-responsive-layouts-keyboard-and-axe-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 light responsive layouts, keyboard and axe ───
+
+    Test timeout of 30000ms exceeded.
+
+    Error: frame.evaluate: Test timeout of 30000ms exceeded.
+
+      79 |     for (const width of [1440, 1024, 390]) {
+      80 |       await page.setViewportSize({ width, height: 900 }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    > 81 |       const result = await new AxeBuilder({ page }).analyze(); scans.push({ width, theme, violations: result.violations, incomplete: result.incomplete }); expect(result.violations).toEqual([]);
+         |                      ^
+      82 |       if (width === 390) { await expect(page.locator(".high-risk-action").first()).toBeHidden(); await page.evaluate(() => { document.documentElement.style.zoom = "2"; }); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); }
+      83 |       const path = info.outputPath(`command-${theme}-${width}.png`); await page.screenshot({ path, fullPage: true }); await info.attach(`command-${width}`, { path, contentType: "image/png" });
+      84 |       await page.evaluate(() => { document.documentElement.style.zoom = "1"; });
+        at AxeBuilder.runPartialRecursive (/Users/anray/Documents/project/SumAlpha/QuantOS/node_modules/.pnpm/@axe-core+playwright@4.13.0_playwright-core@1.62.1/node_modules/@axe-core/playwright/dist/index.js:318:34)
+        at AxeBuilder.analyze (/Users/anray/Documents/project/SumAlpha/QuantOS/node_modules/.pnpm/@axe-core+playwright@4.13.0_playwright-core@1.62.1/node_modules/@axe-core/playwright/dist/index.js:245:28)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p02.spec.ts:81:22
+
+    Error Context: docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-light-responsive-layouts-keyboard-and-axe-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-light-responsive-layouts-keyboard-and-axe-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui-p02-P02-light-responsive-layouts-keyboard-and-axe-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/ui101-bff.spec.ts:15:5 › non-mock build loads generated session/context/summary and shows scoped facts without synthetic zeroes 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f7f9fc",
+    +               "contrastRatio": 2.67,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#8b9cac",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.67 (foreground color: #8b9cac, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div data-ui101-shell=\"true\" data-ui-p02=\"true\" data-contract-mode=\"integrated\" class=\"q-terminal-frame terminal-shell p02-shell\">",
+    +                 "target": Array [
+    +                   ".q-terminal-frame",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.67 (foreground color: #8b9cac, background color: #f7f9fc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"p02-window\">当前快照</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p02-window",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ffffff",
+    +               "contrastRatio": 2.1,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#42bff1",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.1 (foreground color: #42bff1, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<section class=\"panel health-panel\" aria-labelledby=\"health-heading\">",
+    +                 "target": Array [
+    +                   ".health-panel",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.1 (foreground color: #42bff1, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"panel-link\" href=\"/operations\">打开 Operations <span aria-hidden=\"true\">›</span></a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".panel-link[href$=\"operations\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      27 |   await expect(page.getByRole("button", { name: /发起研究/ })).toHaveCount(0);
+      28 |   const axe = await new AxeBuilder({ page }).analyze(); const path = info.outputPath("axe.json"); await writeFile(path, JSON.stringify({ violations: axe.violations, incomplete: axe.incomplete }, null, 2)); await info.attach("axe.json", { path, contentType: "application/json" });
+    > 29 |   expect(axe.violations.filter(v => ["serious", "critical"].includes(v.impact ?? ""))).toEqual([]);
+         |                                                                                        ^
+      30 |   const capture = info.outputPath("command-bff-shadow.png"); await page.screenshot({ path: capture, fullPage: true }); await info.attach("command-bff-shadow.png", { path: capture, contentType: "image/png" });
+      31 | });
+      32 | for (const status of [401,403,404,503]) test(`summary ${status} clears projection and reaches safe recovery`, async ({ page }) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui101-bff.spec.ts:29:88
+
+    attachment #1: axe.json (application/json) ─────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui101-bff-non-mock-build-l-d9710-ts-without-synthetic-zeroes-chromium/attachments/axe-json-d37bdfbd697f02dc1a72f2a55cd719894c8a112e.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui101-bff-non-mock-build-l-d9710-ts-without-synthetic-zeroes-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui101-bff-non-mock-build-l-d9710-ts-without-synthetic-zeroes-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p02-local-20261022/preflight-01/browser/ui101-bff-non-mock-build-l-d9710-ts-without-synthetic-zeroes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 dark responsive layouts, keyboard and axe ─────
+    [chromium] › tests/e2e/ui-p02.spec.ts:77:7 › P02 light responsive layouts, keyboard and axe ────
+    [chromium] › tests/e2e/ui101-bff.spec.ts:15:5 › non-mock build loads generated session/context/summary and shows scoped facts without synthetic zeroes 
+  31 passed (1.2m)

@@ -1,0 +1,109 @@
+
+Running 7 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/command.spec.ts:13:7 › Command Center（/command） › 静态首屏只渲染守卫状态，不提前泄露 Command 投影 (324ms)
+  ✓  2 [chromium] › tests/e2e/command.spec.ts:21:7 › Command Center（/command） › 路由可打开且渲染共享壳标记 (155ms)
+  ✓  3 [chromium] › tests/e2e/command.spec.ts:31:7 › Command Center（/command） › 复用 UI-103 的 freshness、risk 与 connection 领域组件 (130ms)
+  ✘  4 [chromium] › tests/e2e/command.spec.ts:40:7 › Command Center（/command） › axe 无严重/高等级可访问性问题（执行计划 7.1） (593ms)
+  ✓  5 [chromium] › tests/e2e/command.spec.ts:47:7 › Command Center（/command） › 优先级筛选与侧栏折叠可交互 (190ms)
+  ✓  6 [chromium] › tests/e2e/command.spec.ts:56:7 › Command Center（/command） › 390px 小屏保持只读监控并隐藏高风险入口 (138ms)
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/command.spec.ts-snapshots/command-1440-dark-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/command.spec.ts-snapshots/command-1440-dark-chromium-darwin.png is re-generated, writing actual.
+  ✓  7 [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 (326ms)
+
+
+  1) [chromium] › tests/e2e/command.spec.ts:40:7 › Command Center（/command） › axe 无严重/高等级可访问性问题（执行计划 7.1） 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#dad5cc",
+    +               "contrastRatio": 1.13,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#eec36b",
+    +               "fontSize": "7.5pt (10px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 1.13 (foreground color: #eec36b, background color: #dad5cc, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"command-contract-banner\" role=\"status\">C02 Runtime Guard Mocked · 本地演示数据；不代表真实会话或当前业务状态。</div>",
+    +                 "target": Array [
+    +                   ".command-contract-banner",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<div data-ui101-shell=\"true\" data-ui-p02=\"true\" data-contract-mode=\"mocked\" class=\"q-terminal-frame terminal-shell p02-shell\">",
+    +                 "target": Array [
+    +                   ".q-terminal-frame",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 1.13 (foreground color: #eec36b, background color: #dad5cc, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<div class=\"command-contract-banner\" role=\"status\">C02 Runtime Guard Mocked · 本地演示数据；不代表真实会话或当前业务状态。</div>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".command-contract-banner",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      42 |     const results = await new AxeBuilder({ page }).analyze();
+      43 |     const blocking = results.violations.filter((v) => ["critical", "serious"].includes(v.impact ?? ""));
+    > 44 |     expect(blocking).toEqual([]);
+         |                      ^
+      45 |   });
+      46 |
+      47 |   test("优先级筛选与侧栏折叠可交互", async ({ page }) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/command.spec.ts:44:22
+
+    Error Context: docs/audit/evidence/ui-p02-local-20261022/preflight-04/browser/command-Command-Center（-command）-axe-无严重-高等级可访问性问题（执行计划-7-1）-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p02-local-20261022/preflight-04/browser/command-Command-Center（-command）-axe-无严重-高等级可访问性问题（执行计划-7-1）-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/ui-p02-local-20261022/preflight-04/browser/command-Command-Center（-command）-axe-无严重-高等级可访问性问题（执行计划-7-1）-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/command.spec.ts:40:7 › Command Center（/command） › axe 无严重/高等级可访问性问题（执行计划 7.1） 
+  6 passed (3.3s)

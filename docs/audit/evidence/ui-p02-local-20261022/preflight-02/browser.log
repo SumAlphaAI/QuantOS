@@ -1,0 +1,15 @@
+(node:33515) Warning: Failed to load the ES module: /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/tests/helpers/reference-bff.ts. Make sure to set "type": "module" in the nearest package.json file or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SyntaxError: Cannot use 'import.meta' outside a module
+
+   at ui-p02-http.spec.ts:5
+
+  3 | import { createServer } from "node:net";
+  4 | import { writeFile } from "node:fs/promises";
+> 5 | import { referenceBffExecutable, referenceBffRoot, referenceBffSourceEnv } from "../../apps/terminal/tests/helpers/reference-bff";
+    | ^
+  6 | let child: ChildProcess, origin: string;
+  7 | test.beforeAll(async () => {
+  8 |   const server = createServer(); await new Promise<void>(r => server.listen(0, "127.0.0.1", r)); const port = (server.address() as { port: number }).port; await new Promise<void>(r => server.close(() => r())); origin = `http://127.0.0.1:${port}`;
+    at Object.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p02-http.spec.ts:5:1)
+

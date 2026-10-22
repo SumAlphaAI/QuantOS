@@ -1,4 +1,6 @@
-> 当前执行（UI-P01 / I1，2026-10-22）：五页身份/申请/恢复工程实现，冻结5f7aec51、1001输入；102单元/组合、54门禁/边界、26 Chromium/WebKit功能、18认证回归、10张双主题视觉比较及20组axe零违规。页面工程/客户端契约组合PASS，Firefox环境阻塞；COMPLETED（仅原稿当前功能范围），INTEGRATION NOT_ASSESSED，原稿已由项目用户确认；真实目标IdP/BFF/数据库、人工读屏/原生200%、远程CI及RELEASE未执行。见[报告](./audit/UI-P01-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p01-local-20261022/confirmation-draft.md)。确认见[记录](./audit/evidence/ui-p01-confirmation-20261022/README.md)，仅绑定5f7aec51工程与67a14867原稿包。下一可执行FE:UI-P02。
+> 当前执行（UI-P02 / I1，2026-10-22）：Command Center高保真工程冻结a2132f51、1311输入；76单元/组合、58门禁/边界、38 Chromium/WebKit功能、4真实本机Rust组合、14守卫回归、2新视觉及7mock回归通过。12组axe零违规，24项incomplete保留。工程/客户端契约PASS，本机组合仅reference fixtures；Firefox环境阻塞。IMPLEMENTED_PENDING_ACCEPTANCE，确认PENDING、INTEGRATION NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；真实IdP/BFF/数据库、真实Cookie/CORS、人工读屏/原生200%、跨OS、远程CI、性能/长稳及RELEASE均NOT_RUN。见[报告](./audit/UI-P02-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p02-local-20261022/confirmation-draft.md)。下一可执行FE:UI-P15。
+
+> 历史已确认（UI-P01 / I1，2026-10-22）：五页身份/申请/恢复工程实现，冻结5f7aec51、1001输入；102单元/组合、54门禁/边界、26 Chromium/WebKit功能、18认证回归、10张双主题视觉比较及20组axe零违规。页面工程/客户端契约组合PASS，Firefox环境阻塞；COMPLETED（仅原稿当前功能范围），INTEGRATION NOT_ASSESSED，原稿已由项目用户确认；真实目标IdP/BFF/数据库、人工读屏/原生200%、远程CI及RELEASE未执行。见[报告](./audit/UI-P01-current-function-review-2026-10-22.md)与[完整稿](./audit/evidence/ui-p01-local-20261022/confirmation-draft.md)。确认见[记录](./audit/evidence/ui-p01-confirmation-20261022/README.md)，仅绑定5f7aec51工程与67a14867原稿包。原轮次下一任务FE:UI-P02已进入本轮开发。
 
 > 历史执行（UI-VIS-000 / I1，2026-10-21）：冻结45f3a307、244输入，10组限定检查PASS；78单测/3跳过、79 Node、直接浏览器13例，新8故事双主题/20axe及3张本机1440基线初始化后同构建比较通过。工程/组件组合PASS，INTEGRATION NOT_ASSESSED，新完整稿PENDING；人工读屏/原生200%、跨平台基线迁移、真实业务联调与RELEASE未执行。UI-103已按本会话确认保存，未提升其NOT_RUN。见[报告](./audit/UI-VIS-000-current-function-review-2026-10-21.md)与[完整稿](./audit/evidence/ui-vis-000-local-20261021/confirmation-draft.md)。下一开发项FE:UI-102当前功能复核。
 
@@ -2028,7 +2030,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - core_prerequisites: []
 - closes_core: []
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：2026-10-22 当前Command页面实现C02事实与capability裁剪、逐源健康/未知/部分数据、资源导航、只读刷新/恢复与布局偏好；本轮证据见[报告](./audit/UI-P02-current-function-review-2026-10-22.md)。原依赖及确认不改绑；INTEGRATION NOT_ASSESSED，真实IdP/目标数据库、远程CI及RELEASE保持NOT_RUN，新稿确认PENDING。
+- 状态范围：2026-10-22 当前Command页面实现C02事实与capability裁剪、逐源健康/未知/部分数据、资源导航、只读刷新/恢复与布局偏好；冻结a2132f51、1311输入，76单元/组合、58门禁/边界及65浏览器用例通过（含2新视觉、7mock直接回归）；Firefox环境阻塞，12组axe零违规、24项incomplete保留；本轮证据见[报告](./audit/UI-P02-current-function-review-2026-10-22.md)。原依赖及确认不改绑；INTEGRATION NOT_ASSESSED，真实IdP/目标数据库、远程CI及RELEASE保持NOT_RUN，新稿确认PENDING。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

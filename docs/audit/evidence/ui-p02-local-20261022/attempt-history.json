@@ -1,0 +1,64 @@
+{
+  "schema": "quantos-ui-p02-attempt-history/v1",
+  "sourceCommit": "a2132f51276d6fb802ec0094ab40fba3052fc860",
+  "attempts": [
+    {
+      "directory": "preflight-01",
+      "status": "FAILED_THEN_PARTIAL_PREFLIGHT",
+      "facts": "默认Vitest的AppRouter JSX运行发生React未定义；曾用临时automatic JSX配置通过48项，最终改为纯模型单测并用浏览器验证实际组件。浏览器34项31通过3失败：两项axe因暂停时钟超时、浅色对比度失败；后续恢复axe时钟并修复样式。此处截图初始化不算独立视觉验收。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-02",
+      "status": "FAILED_NOT_RUN",
+      "facts": "Playwright测试加载使用import.meta的TS辅助文件时报CJS/ESM错误，测试未执行；改为进程cwd定位Rust binary。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-03",
+      "status": "PREFLIGHT_PASS_WITH_STATIC_FAILURE",
+      "facts": "当时38项Chromium页面/HTTP/守卫检查通过，尚非最终源码；视觉登记校验失败，原P01十张基线与新P02两张未登记。后补完整登记，P01图像字节及原验收包未改绑。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-04",
+      "status": "FAILED",
+      "facts": "原mock Command 7项有1项浅色Mocked横幅对比度失败，6通过；修复明确演示横幅配色。保留旧Command图像和登记原件。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-05",
+      "status": "PREFLIGHT_PASS",
+      "facts": "mock Command 7通过，初始化本机新基线；不是冻结候选证据。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-06",
+      "status": "PREFLIGHT_PASS_AFTER_FIXTURE_CLOCK_FIX",
+      "facts": "最终纯模型+共享测试48通过。另一次临时运行47通过1失败：fixture多次Date.now造成expiresAt超出sampledAt+30秒约1ms；失败输出仅会话工具中可见，未生成独立日志。保留修复前fixture原件，改为单一采样时钟。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "preflight-07",
+      "status": "BASELINE_INITIALIZATION_ONLY",
+      "facts": "最终文案下深浅P02两张基线初始化2通过；冻结后的function-attempt-01以update-snapshots=none再次比较。",
+      "sourceAdmission": "NOT_CLAIMED"
+    },
+    {
+      "directory": "function-attempt-01",
+      "status": "ENGINEERING_PASS_WITH_ENVIRONMENT_BLOCKER",
+      "facts": "最终冻结工程16命令全部退出0；76单元/组合、58门禁/边界、38浏览器功能、4本机Rust浏览器组合、14守卫回归、2视觉和7mock回归通过。Firefox诊断命令退出0仅代表诊断完成，实际启动TimeoutError，功能BLOCKED_ENVIRONMENT。",
+      "sourceAdmission": "FROZEN_SOURCE"
+    }
+  ],
+  "authorizationAttempt": {
+    "status": "AUTO_REVIEW_TIMEOUT_NO_EXECUTION",
+    "facts": "第一次较长预检启动命令的自动审批超时，没有获得执行结果；后改为短的已保存wrapper重试成功。非产品测试PASS，不存在未处理的安全拒绝。"
+  },
+  "historicalEvidence": "All preflight failures, incomplete scans, traces and original baseline bytes retained; no historical READY rebound.",
+  "whitespaceCheck": {
+    "status": "FAILED_RAW_EVIDENCE_THEN_NARROW_EXCEPTION",
+    "log": "precommit-whitespace-before.log",
+    "facts": "暂存检查发现四份原始Playwright error-context源码摘录带行尾空格；原件不改写，仅在.gitattributes为这四个精确路径关闭whitespace检查。"
+  }
+}
