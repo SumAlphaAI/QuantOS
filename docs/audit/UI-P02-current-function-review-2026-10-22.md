@@ -1,6 +1,6 @@
 # UI-P02 当前页面功能报告（2026-10-22）
 
-`/command` 已实现P02高保真布局与C02事实展示，页面工程、客户端契约和受控本机组合通过；状态为 `IMPLEMENTED_PENDING_ACCEPTANCE`。确认稿PENDING，INTEGRATION NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED。未推送、部署或使用生产凭据。
+`/command` 已实现P02高保真布局与C02事实展示，页面工程、客户端契约和受控本机组合通过；状态为 `COMPLETED`（仅原完整稿当前功能范围）。项目用户已在本会话确认，确认门禁见[记录](./evidence/ui-p02-confirmation-20261022/README.md)；原稿及原receipt保留PENDING历史字节，独立closure-proof记录本次CONFIRMED。INTEGRATION NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED。未推送、部署或使用生产凭据。
 
 冻结工程 `a2132f51276d6fb802ec0094ab40fba3052fc860`，1311项输入，`sha256:be750de6b01800f7ea5f8b6c674edf2bc55ba651f507b2b21125a498a08fb748`。原始记录见[机器回执](./evidence/ui-p02-local-20261022/receipt.json)、[输入](./evidence/ui-p02-local-20261022/function-attempt-01/inputs.json)、[实际执行](./evidence/ui-p02-local-20261022/function-attempt-01/executions.json)、[完整确认稿](./evidence/ui-p02-local-20261022/confirmation-draft.md)、[历史](./evidence/ui-p02-local-20261022/attempt-history.json)。后续文档/证据提交不改绑为新HEAD通过；16项直接前提仅冻结原需求引用，无递归复验或新READY授予。
 
@@ -44,9 +44,9 @@ Rust本机组合使用现有reference BFF进程与种子来源，浏览器通过
 - Firefox独立启动10秒超时，原始[环境诊断](./evidence/ui-p02-local-20261022/function-attempt-01/firefox-environment.json)保留；功能BLOCKED_ENVIRONMENT，不计PASS。
 - 真实IdP/MFA、目标BFF/数据库、真实浏览器Cookie/CORS、人工读屏、原生200%缩放、跨OS视觉、远程同SHA CI、性能/容量/长稳及RELEASE均NOT_RUN。CSS zoom=2不替代原生缩放；自动axe incomplete不替代人工读屏。
 - 当前是租约内HTTP快照，非实时SSE；权限刷新/到期/网络恢复才重新核验。目标研究/策略创建及资源详情等后续页面不在此任务实现；搜索/通知契约缺失时明确禁用，完整英文文案后续完善。
-- 当前功能工程PASS、客户端契约PASS、受控本机组合PASS_REFERENCE_FIXTURES_ONLY；用户确认PENDING，INTEGRATION NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED。原P01及所有既有确认/NOT_RUN保持原范围。
+- 当前功能工程PASS、客户端契约PASS、受控本机组合PASS_REFERENCE_FIXTURES_ONLY；用户已确认原稿当前功能范围，INTEGRATION NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED。原P01及所有既有确认/NOT_RUN保持原范围。
 
-按验收流程已拟[完整六维确认稿](./evidence/ui-p02-local-20261022/confirmation-draft.md)，本轮没有代用户批准。下一可执行开发任务 **FE:UI-P15 / I1**；不等待无关联调或发布campaign。
+项目用户已确认[完整六维原稿](./evidence/ui-p02-local-20261022/confirmation-draft.md)，[原始答复](./evidence/ui-p02-confirmation-20261022/raw-user-message.txt)与范围摘要独立保存；仅绑定a2132f51工程及a9a3dbc7证据包，原稿不改写，未授予后续HEAD、联调、运行或发布准入。下一可执行开发任务 **FE:UI-P15 / I1**；不等待无关联调或发布campaign。
 
 ## 工程变更文件
 
