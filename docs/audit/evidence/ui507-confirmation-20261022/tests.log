@@ -1,0 +1,49 @@
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/ui507-confirmed-reference.test.mjs:11
+for(const[name,change]of [['other candidate',r=>r.request.sourceCommit='a'.repeat(40)],['request digest',r=>r.request.inputsDigest='sha256:'+'0'.repeat(64)],['wrong identity',r=>r.approver='Codex'],['not confirmed',r=>r.decision='PENDING'],['future timestamp',r=>r.confirmedAt='2099-01-01T00:00:00Z'],['different draft hash',r=>r.documentSha256='sha256:'+'0'.repeat(64)],['other packet',r=>r.documentCommit='b'.repeat(40)],['different manifest',r=>r.approvedTechnicalManifest.sha256='sha256:'+'0'.repeat(64)],['raw answer changed',r=>r.confirmationSource.text+=' approve release'],['NOT_RUN rewritten',r=>r.historicalBoundaries.value.additionalNotRun.fullUnsubstitutedIdentityJourney='PASS']]])test('refuse '+name,()=>{const f=fixture(change);assert.throws(()=>validateRecord(f.approval,request,f.reader));});
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+SyntaxError: Unexpected token ']'
+    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:111:18)
+    at #translate (node:internal/modules/esm/loader:473:20)
+    at afterLoad (node:internal/modules/esm/loader:529:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:534:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:571:36)
+    at afterResolve (node:internal/modules/esm/loader:624:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:630:12)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:649:32)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+
+Node.js v24.12.0
+✖ scripts/ui507-confirmed-reference.test.mjs (25.600667ms)
+✔ one current user confirmation validates all documented review dimensions (2.121041ms)
+✔ user confirmation rejects assistant self-approval (0.647833ms)
+✔ user confirmation rejects unconfirmed draft (0.18225ms)
+✔ user confirmation rejects workflow instruction alone (0.171459ms)
+✔ user confirmation rejects missing user message (0.892833ms)
+✔ user confirmation rejects missing identity (0.15875ms)
+✔ user confirmation rejects old historical confirmation (0.144708ms)
+✔ user confirmation rejects future confirmation (0.127459ms)
+✔ user confirmation rejects wrong node (0.413125ms)
+✔ user confirmation rejects wrong stage (0.224875ms)
+✔ user confirmation rejects wrong input digest (0.156417ms)
+✔ user confirmation rejects wrong draft path (0.105833ms)
+✔ user confirmation rejects parent traversal (0.089542ms)
+✔ user confirmation rejects wrong document hash (0.097209ms)
+✔ changed original user record is rejected even with unchanged scope (0.098375ms)
+✔ rehashing a draft cannot authorize a different scope (0.192667ms)
+✔ draft must retain every review dimension even with updated document hash (0.122792ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.54325
+
+✖ failing tests:
+
+test at scripts/ui507-confirmed-reference.test.mjs:1:1
+✖ scripts/ui507-confirmed-reference.test.mjs (25.600667ms)
+  'test failed'

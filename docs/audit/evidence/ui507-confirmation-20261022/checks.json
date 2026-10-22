@@ -1,0 +1,120 @@
+{
+  "schema": "quantos-ui507-confirmation-checks/v1",
+  "scope": "CONFIRMATION_AND_ORIGINAL_EVIDENCE_ONLY_NO_FUNCTION_RERUN",
+  "checks": [
+    {
+      "id": "gate",
+      "command": [
+        "node",
+        "scripts/ui507-confirmed-reference.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:05.476Z",
+      "elapsedMs": 1026,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-gate.log",
+      "logSha256": "sha256:43a9ab03f97d265af97f6459afad201271e01f6cfbb25efdb6cb2c61dd8c5f1e"
+    },
+    {
+      "id": "confirmation-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ui507-confirmed-reference.test.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:06.503Z",
+      "elapsedMs": 1095,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-confirmation-tests.log",
+      "logSha256": "sha256:6c2c6dec0f4974516713f42287dde0edbe374dc61753a7ccde8162a0a68d2aaf"
+    },
+    {
+      "id": "policy-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:07.598Z",
+      "elapsedMs": 75,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-policy-tests.log",
+      "logSha256": "sha256:cfd72cf3ad31831ad8f2caeb682f89ce3f347bbf4423d2cd532b3ec535eaf3ea"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "scripts/ui507-confirmed-reference.mjs",
+        "scripts/ui507-confirmed-reference.test.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:07.673Z",
+      "elapsedMs": 549,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-lint.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:08.223Z",
+      "elapsedMs": 64,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    },
+    {
+      "id": "integration-refusal",
+      "command": [
+        "node",
+        "scripts/development-execution.mjs",
+        "--integration",
+        "FE:UI-507"
+      ],
+      "expectedExitCode": 1,
+      "exitCode": 1,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:08.287Z",
+      "elapsedMs": 199,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-integration-refusal.log",
+      "logSha256": "sha256:b1840f727e5290d5b8ec8d4c2b1fe5ec9744b4e9cebd39d26ca4079fd1a7129d"
+    },
+    {
+      "id": "next-development",
+      "command": [
+        "node",
+        "scripts/development-execution.mjs",
+        "--development",
+        "FE:UI-P12"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-22T15:25:08.487Z",
+      "elapsedMs": 203,
+      "log": "docs/audit/evidence/ui507-confirmation-20261022/final-next-development.log",
+      "logSha256": "sha256:c22eab87382392fb2296c32057dd78c058fb90fd09835a2b8109584856746432"
+    }
+  ]
+}

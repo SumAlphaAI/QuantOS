@@ -1,0 +1,49 @@
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/ui507-confirmed-reference.test.mjs:16
+for(const[name,mutate]of [['stage promotion',s=>s.replace('"status":"NOT_ASSESSED"','"status":"READY"')],['confirmation marker removed',s=>s.replace(confirmationLine+'\n','')],['other task altered',s=>s+'\nUnrelated task change\n'],['completion removed',s=>s.replace('- development_status: `COMPLETED`\n- workflow:', '- development_status: `UNSPECIFIED`\n- workflow:')]])test('reject plan '+name,()=>assert.throws(()=>validatePlanText(before,mutate(after)))));
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+
+SyntaxError: Unexpected token ')'
+    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:111:18)
+    at #translate (node:internal/modules/esm/loader:473:20)
+    at afterLoad (node:internal/modules/esm/loader:529:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:534:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:571:36)
+    at afterResolve (node:internal/modules/esm/loader:624:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:630:12)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:649:32)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+
+Node.js v24.12.0
+✖ scripts/ui507-confirmed-reference.test.mjs (25.595167ms)
+✔ one current user confirmation validates all documented review dimensions (1.909625ms)
+✔ user confirmation rejects assistant self-approval (0.621583ms)
+✔ user confirmation rejects unconfirmed draft (0.163625ms)
+✔ user confirmation rejects workflow instruction alone (0.167125ms)
+✔ user confirmation rejects missing user message (0.677958ms)
+✔ user confirmation rejects missing identity (0.41125ms)
+✔ user confirmation rejects old historical confirmation (0.169084ms)
+✔ user confirmation rejects future confirmation (0.112542ms)
+✔ user confirmation rejects wrong node (0.374584ms)
+✔ user confirmation rejects wrong stage (0.207292ms)
+✔ user confirmation rejects wrong input digest (0.142208ms)
+✔ user confirmation rejects wrong draft path (0.104667ms)
+✔ user confirmation rejects parent traversal (0.08825ms)
+✔ user confirmation rejects wrong document hash (0.087667ms)
+✔ changed original user record is rejected even with unchanged scope (0.098708ms)
+✔ rehashing a draft cannot authorize a different scope (0.162833ms)
+✔ draft must retain every review dimension even with updated document hash (0.111291ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.400875
+
+✖ failing tests:
+
+test at scripts/ui507-confirmed-reference.test.mjs:1:1
+✖ scripts/ui507-confirmed-reference.test.mjs (25.595167ms)
+  'test failed'
