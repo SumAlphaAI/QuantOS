@@ -1,0 +1,60 @@
+{
+  "schema": "quantos-ui-p01-confirmation-checks/v1",
+  "scope": "CONFIRMATION_CLOSURE_ONLY",
+  "sourceCommit": "5f7aec514f20f1dacbc9d7e6f5580186d3aeca2d",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "docs/audit/evidence/ui-p01-confirmation-20261022/verify.mjs",
+        "--record"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/ui-p01-confirmation-20261022/gate.log",
+      "logSha256": "sha256:b5b210f3e16bf43ef508365623dab9e02e9ccae47e19898057161a72a073d0b1"
+    },
+    {
+      "command": [
+        "node",
+        "docs/audit/evidence/ui-p01-confirmation-20261022/verify.mjs",
+        "--verify"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/ui-p01-confirmation-20261022/verification.log",
+      "logSha256": "sha256:b5b210f3e16bf43ef508365623dab9e02e9ccae47e19898057161a72a073d0b1"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/ui-p01-confirmation-20261022/confirmation-tests.log",
+      "logSha256": "sha256:c38797dd15e06af782e474829711bb197bb0528522caf2dd80bde73b66ab46ba"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/ui-p01-confirmation-20261022/plans.log",
+      "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "docs/audit/evidence/ui-p01-confirmation-20261022/verify.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/ui-p01-confirmation-20261022/lint.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "functionalTestsRerun": false,
+  "integrationAdmission": "NOT_GRANTED",
+  "releaseAdmission": "NOT_GRANTED"
+}
