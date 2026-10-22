@@ -36,7 +36,8 @@ export async function loadSettingsSnapshot(origin: string, fetchImpl: typeof fet
     const session = required(await client.GET("/v1/session"), "getSession");
     const valid = (s: typeof session) => Date.parse(s.expiresAt) > Date.now() && s.mfaState !== "challenged";
     if (!valid(session)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getSession", undefined, 401); }
-    const context = required(await client.GET("/v1/context"), "getContext");
+    const currentContext = required(await client.GET("/v1/context"), "getContext");
+    const context = { ...currentContext, expiresAt: new Date(Math.min(Date.parse(session.expiresAt), Date.parse(currentContext.expiresAt))).toISOString() };
     if (!valid(context)) { handleAuthHttpStatus(401); throw new SettingsGatewayError("会话已失效，请重新登录。", "getContext", undefined, 401); }
     if (context.actorId !== session.actorId || context.tenantId !== session.tenantId || context.workspaceId !== session.workspaceId || context.accountId !== session.accountId || context.mode !== session.mode || !["research", "paper", "shadow"].includes(context.mode) || !context.capabilities.includes("settings.read")) throw new SettingsGatewayError("无法访问此设置。", "getContext", undefined, 403);
     const checked = <T>(promise: Promise<{ data?: T; error?: unknown; response: Response }>, operation: BffOperationId) =>
@@ -67,15 +68,17 @@ export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch
   if (!b.notifications || !b.security || !b.sessions || !b.devices || !b.downloads || !b.browserPolicy) throw Error("Incomplete settings aggregate");
   return { profile: b.profile, notifications: b.notifications, security: b.security, sessions: b.sessions, devices: b.devices, downloads: b.downloads, browserPolicy: b.browserPolicy };
 }
-export function profileInput(value: ProfileSettingsInput): ProfileSettingsInput {
+export function profileDraftInput(value: ProfileSettingsInput): ProfileSettingsInput {
   const keys = ["displayName", "title", "team", "locale", "timezone", "theme", "numberFormat", "timeDisplay", "defaultRoute", "density", "highContrast", "reducedMotion"] as const;
-  return bffZodSchemas.ProfileSettingsInput.parse(Object.fromEntries(keys.filter(k => value[k] !== undefined).map(k => [k, value[k]])));
+  return Object.fromEntries(keys.filter(k => value[k] !== undefined).map(k => [k, value[k]])) as unknown as ProfileSettingsInput;
 }
-export function notificationInput(value: NotificationPreferencesInput): NotificationPreferencesInput {
+export function notificationDraftInput(value: NotificationPreferencesInput): NotificationPreferencesInput {
   const { quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency } = value;
   const rules = value.rules.map(({ key, severity, inApp, desktop, email, browser }) => ({ key, severity, inApp, desktop, email, browser }));
-  return bffZodSchemas.NotificationPreferencesInput.parse({ rules, quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency });
+  return { rules, quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency };
 }
+export const profileInput = (value: ProfileSettingsInput) => bffZodSchemas.ProfileSettingsInput.parse(profileDraftInput(value));
+export const notificationInput = (value: NotificationPreferencesInput) => bffZodSchemas.NotificationPreferencesInput.parse(notificationDraftInput(value));
 export type SettingsSection = "profile" | "notifications" | "security" | "browser";
 export type SettingsSnapshot = Awaited<ReturnType<typeof loadSettingsSnapshot>>;
 

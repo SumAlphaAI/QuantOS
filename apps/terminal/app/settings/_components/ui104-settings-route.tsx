@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeProvider } from "@sumalpha/ui";
+import { settingsCsrf } from "../../../src/settings/presentation";
 import { createSettingsRuntime } from "../../../src/settings/runtime";
 import type { SettingsSnapshot } from "../../../src/settings/gateway";
 import { SettingsWorkspace, type SettingsSection } from "./ui104-settings-workspace";
@@ -12,7 +13,7 @@ export function SettingsRoute({ section }: { section: SettingsSection }) {
     if (status === 401 || status === 403 || status === 404) { current.current = undefined; setSnapshot(undefined); window.location.replace(status === 401 ? "/login?return_to=" + encodeURIComponent(`/settings/${section}`) : "/unauthorized"); }
   }, [section]);
   useEffect(() => {
-    const controller = createSettingsRuntime({ section, mock: process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === "true", origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, runtime: () => ({ online: navigator.onLine, width: window.innerWidth, csrf: decodeURIComponent(document.cookie.match(/(?:^|; )quantos_csrf=([^;]+)/)?.[1] ?? "") }) });
+    const controller = createSettingsRuntime({ section, mock: process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === "true", origin: process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN, runtime: () => ({ online: navigator.onLine, width: window.innerWidth, csrf: settingsCsrf(document.cookie) }) });
     actions.current = controller; setGeneration(value => value + 1);
     return () => { controller.close(); actions.current = undefined; current.current = undefined; };
   }, [section]);
