@@ -1,3 +1,4 @@
+import {checkedDownloadOrigin, validateDownloadLease} from "../downloads/lease";
 import { createBffClient, parseBffResponse, bffZodSchemas, type BffOperationId, type BffRequestOptions } from "@sumalpha/api-client";
 import type { BffComponents, BffOperations } from "@sumalpha/api-client";
 
@@ -40,13 +41,6 @@ function required<T>(operation: BffOperationId, result: {data?: T; error?: unkno
     if (expectedId) {
       const identity = operation === "getEvidenceChain" ? (value as EvidenceChainPage).correlationId : (value as ExportJob).exportId;
       if (identity !== expectedId) throw Error("Mismatched response resource");
-    }
-    if (operation === "getExportDownload") {
-      const meta = value as ExportDownloadMetadata;
-      const url = new URL(meta.downloadUrl);
-      const expires = Date.parse(meta.expiresAt);
-      const retention = Date.parse(meta.retentionUntil);
-      if (url.protocol !== "https:" || url.username || url.password || expires <= Date.now() || expires > Date.now() + 300_000 || expires > retention || retention <= Date.now()) throw Error("Invalid download lease");
     }
     return value;
   } catch {
@@ -122,8 +116,11 @@ export async function getControlledExportDownload(
   fetchImpl: typeof fetch = fetch,
   options: BffRequestOptions = {},
 ): Promise<ExportDownloadMetadata> {
+  try {checkedDownloadOrigin(origin);} catch {throw new AuditGatewayError("下载服务配置无效。", "getExportDownload");}
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options }).GET("/v1/exports/{exportId}/download", {
     params: { path: { exportId } },
   });
-  return required("getExportDownload", result, exportId);
+  const metadata = required("getExportDownload", result, exportId);
+  try {validateDownloadLease(origin, metadata, exportId, Date.now());} catch {throw new AuditGatewayError("审计服务响应无效，请稍后重试。", "getExportDownload", result.response.status);}
+  return metadata;
 }

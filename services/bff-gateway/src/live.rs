@@ -42,6 +42,7 @@ struct LiveState {
     verifier: SupabaseAuthVerifier,
     middleware: Mutex<GatewayAuthMiddleware>,
     terminal_origin: String,
+    download_origin: crate::download_contract::DownloadOrigin,
     environment: String,
     a2: Mutex<settings::A2Store>,
     database_url: String,
@@ -124,6 +125,32 @@ pub fn router(
         terminal_origin,
         environment,
         observability,
+        None,
+    )
+}
+/// Explicit public BFF origin for APIs and content, independent of Terminal CORS.
+#[allow(clippy::too_many_arguments)]
+pub fn router_with_download_origin(
+    database_url: &str,
+    project_url: &str,
+    publishable_key: String,
+    terminal_origin: String,
+    public_origin: String,
+    environment: String,
+    observability: Arc<ServiceObservability>,
+) -> anyhow::Result<Router> {
+    router_with_origins(
+        database_url,
+        project_url,
+        publishable_key,
+        terminal_origin,
+        public_origin,
+        environment,
+        observability,
+        None,
+        None,
+        None,
+        None,
         None,
     )
 }
@@ -242,6 +269,40 @@ pub fn router_with_operations(
     performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
     operations: Option<Arc<Mutex<crate::operations::OperationsHost>>>,
 ) -> anyhow::Result<Router> {
+    // Existing owner-injected compositions explicitly keep the single-origin topology.
+    let public_origin = terminal_origin.clone();
+    router_with_origins(
+        database_url,
+        project_url,
+        publishable_key,
+        terminal_origin,
+        public_origin,
+        environment,
+        observability,
+        execution,
+        strategy,
+        reconciliation,
+        performance,
+        operations,
+    )
+}
+#[allow(clippy::too_many_arguments)]
+fn router_with_origins(
+    database_url: &str,
+    project_url: &str,
+    publishable_key: String,
+    terminal_origin: String,
+    public_origin: String,
+    environment: String,
+    observability: Arc<ServiceObservability>,
+    execution: Option<Arc<Mutex<crate::execution::ExecutionService>>>,
+    strategy: Option<Arc<Mutex<crate::strategy::StrategyHost>>>,
+    reconciliation: Option<Arc<Mutex<crate::reconciliation::ReconciliationHost>>>,
+    performance: Option<Arc<Mutex<crate::performance::PerformanceHost>>>,
+    operations: Option<Arc<Mutex<crate::operations::OperationsHost>>>,
+) -> anyhow::Result<Router> {
+    let download_origin = crate::download_contract::DownloadOrigin::parse(&public_origin)?;
+    crate::download_contract::DownloadOrigin::parse(&terminal_origin)?;
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
         "live BFF requires an HTTPS Terminal origin"
@@ -267,6 +328,7 @@ pub fn router_with_operations(
         mfa: settings::SupabaseMfa::new(project_url, publishable_key)?,
         middleware: Mutex::new(GatewayAuthMiddleware::connect_as_bff(database_url)?),
         terminal_origin,
+        download_origin,
         environment,
     });
     audit::start_worker(database_url, observability.clone())?;

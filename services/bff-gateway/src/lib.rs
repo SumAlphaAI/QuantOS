@@ -1,9 +1,11 @@
 mod audit_core;
 pub mod command;
+mod download_contract;
 pub mod operations;
 pub mod performance;
 mod platform;
 pub mod reconciliation;
+mod reference_download;
 pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -59,6 +61,7 @@ struct MfaWindow {
 #[derive(Debug)]
 struct ProviderData {
     platform: platform::History,
+    downloads: reference_download::Downloads,
     command: command::CommandStreams,
     reference_shadow: bool,
     reconciliation: Option<reconciliation::ReconciliationHost>,
@@ -99,6 +102,7 @@ impl Default for ProviderData {
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
             platform: Default::default(),
+            downloads: Default::default(),
             command: Default::default(),
             reference_shadow: false,
             execution: None,
@@ -227,6 +231,16 @@ impl BffProvider {
         state.session_expires_at = state.now() + Duration::minutes(5);
     }
 
+    /// Configure the externally visible HTTPS API/content origin before sharing.
+    pub fn with_download_origin(mut self, origin: &str) -> anyhow::Result<Self> {
+        let origin = download_contract::DownloadOrigin::parse(origin)?;
+        let data = Arc::get_mut(&mut self.data).ok_or_else(|| {
+            anyhow::anyhow!("configure download origin before sharing the provider")
+        })?;
+        data.get_mut().downloads.origin = origin;
+        Ok(self)
+    }
+
     pub fn router(&self) -> Router {
         Router::new()
             .merge(research::reference_routes())
@@ -273,6 +287,10 @@ impl BffProvider {
             .route("/v1/exports/:export_id", get(get_export_status))
             .route("/v1/exports/:export_id/cancel", post(cancel_export))
             .route("/v1/exports/:export_id/download", get(get_export_download))
+            .route(
+                "/_bff/export-content/:ticket/:signature",
+                get(reference_download::content),
+            )
             .with_state(self.data.clone())
             .layer(axum::middleware::from_fn_with_state(
                 self.data.clone(),
@@ -1885,66 +1903,7 @@ async fn get_export_download(
     Path(export_id): Path<String>,
     headers: HeaderMap,
 ) -> Response {
-    if let Err(response) = require_capability(&headers, &data, "audit:export").await {
-        return response;
-    }
-    let mut state = data.lock().await;
-    let Some(job) = expire_reference_export(&mut state, &export_id) else {
-        return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
-    };
-    if job["status"] == "expired" {
-        return error(
-            StatusCode::GONE,
-            "EXPORT_EXPIRED",
-            "导出已过期，请重新创建。",
-        );
-    }
-    if job["status"] != "ready" {
-        return error(StatusCode::CONFLICT, "EXPORT_NOT_READY", "导出尚未就绪。");
-    }
-    let job_correlation = job["correlationId"].as_str().unwrap_or(AUDIT_CORRELATION);
-    let retention = chrono::DateTime::parse_from_rfc3339(job["retentionUntil"].as_str().unwrap())
-        .unwrap()
-        .with_timezone(&Utc);
-    if retention <= state.now() {
-        return error(
-            StatusCode::GONE,
-            "EXPORT_EXPIRED",
-            "导出已过期，请重新创建。",
-        );
-    }
-    let Some(expires_at) = platform::lease_expiry(state.now(), retention, state.session_expires_at)
-    else {
-        return error(StatusCode::UNAUTHORIZED, "UNAUTHENTICATED", "会话已过期。");
-    };
-    let audit_ref = record_audit_action(
-        &mut state,
-        "export.download_issued",
-        job_correlation,
-        &export_id,
-        json!({
-            "expiresAt":expires_at.to_rfc3339(),"watermarked":true,
-            "retentionUntil":job["retentionUntil"]
-        }),
-    );
-    let media_type = match job["format"].as_str() {
-        Some("csv") => "text/csv",
-        Some("pdf") => "application/pdf",
-        _ => "application/x-ndjson",
-    };
-    let (bytes, _) = state
-        .export_artifacts
-        .get(&export_id)
-        .expect("reference artifact");
-    let payload = json!({
-        "exportId":export_id,
-        "downloadUrl":format!("https://downloads.invalid/v1/exports/{export_id}?ticket={}", Uuid::now_v7()),
-        "expiresAt":expires_at.to_rfc3339(),"sha256":audit_core::digest(bytes),
-        "sizeBytes":bytes.len(),"mediaType":media_type,"watermarked":true,
-        "retentionUntil":job["retentionUntil"],"auditRef":audit_ref
-    });
-    let correlation = job_correlation.to_owned();
-    response(StatusCode::OK, payload, &correlation)
+    reference_download::issue(State(data), Path(export_id), headers).await
 }
 
 fn push_event(data: &mut ProviderData, kind: &str, object_id: &str) {

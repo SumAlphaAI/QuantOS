@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import process from 'node:process';
+import console from 'node:console';
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -96,7 +98,7 @@ export function validateBffFe007(inputs) {
   fail(JSON.stringify(schemas.ExportDownloadMetadata?.properties?.watermarked?.enum) === "[true]", "download metadata requires a watermark");
   fail((schemas.ExportDownloadMetadata?.required ?? []).includes("expiresAt") && (schemas.ExportDownloadMetadata?.required ?? []).includes("retentionUntil") && (schemas.ExportDownloadMetadata?.required ?? []).includes("auditRef"), "download metadata binds URL expiry, retention and audit reference");
 
-  for (const marker of ["search_audit_events", "get_evidence_chain", "create_export", "cancel_export", "get_export_download", "downloads.invalid", "audit:export", "[REDACTED]"]) {
+  for (const marker of ["search_audit_events", "get_evidence_chain", "create_export", "cancel_export", "get_export_download", "reference_download::content", "audit:export", "[REDACTED]"]) {
     fail(inputs.provider.includes(marker), `local reference provider implements ${marker}`);
   }
   for (const marker of ["audit_search_is_capability_guarded_redacted_and_cursor_paginated", "evidence_chain_preserves_causation_order_and_hides_missing_resources", "export_lifecycle_is_idempotent_watermarked_short_lived_and_audited", "export_cancel_expiry_and_validation_fail_closed"]) {

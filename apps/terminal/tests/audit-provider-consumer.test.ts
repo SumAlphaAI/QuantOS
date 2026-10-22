@@ -36,6 +36,13 @@ beforeAll(async () => {
 }, 35000);
 afterAll(async () => { if (child && child.exitCode === null) { child.kill(); await new Promise(r => child.once("close", r)); } });
 
+// This legacy scenario uses an HTTP transport for API recovery; keep the logical
+// download API/content origin HTTPS and forward original bytes without URL edits.
+const downloadOrigin = "https://bff.reference.invalid";
+const downloadTransport: typeof fetch = async (input, init) => {
+  const request = new Request(input, init);expect(new URL(request.url).origin).toBe(downloadOrigin);
+  return transport(new Request(origin + new URL(request.url).pathname, request));
+};
 const correlation="aaaaaaaa-1111-4111-8111-111111111111";
 it("recovers a lost create response with the same key and traverses actual redacted export evidence", async () => {
   const page=await searchAuditEvents(origin,{correlationId:correlation,pageSize:3},transport);
@@ -53,14 +60,14 @@ it("recovers a lost create response with the same key and traverses actual redac
   expect(recovered.correlationId).not.toBe(correlation);
   expect((await searchAuditEvents(origin,{kind:"export.created"},transport)).items).toHaveLength(1);
   const ready=await loadExportStatus(origin,recovered.exportId,transport);expect(ready.status).toBe("ready");
-  const metadata=await getControlledExportDownload(origin,recovered.exportId,transport);expect(metadata.watermarked).toBe(true);expect(Date.parse(metadata.expiresAt)).toBeLessThanOrEqual(Date.now()+300_000);
-  // Metadata only: reference URLs are intentionally not fetched.
+  const metadata=await getControlledExportDownload(downloadOrigin,recovered.exportId,downloadTransport);expect(metadata.watermarked).toBe(true);expect(Date.parse(metadata.expiresAt)).toBeLessThanOrEqual(Date.now()+300_000);
+  // Metadata only in this recovery case; G1 download integration separately consumes real bytes.
   const chain=await loadEvidenceChain(origin,recovered.correlationId,{pageSize:2},transport);
   expect(chain.items[0]?.eventId).toBe(recovered.auditRef);expect(chain.complete).toBe(false);
   const tail=await loadEvidenceChain(origin,recovered.correlationId,{pageSize:2,cursor:chain.nextCursor},transport);
   expect(tail.items.every(e=>e.causationId===recovered.auditRef)).toBe(true);
   const cancelKey=crypto.randomUUID();const cancelled=await cancelControlledExport(origin,recovered.exportId,cancelKey,csrf,grant.reauthTokenRef,transport);
   expect(await cancelControlledExport(origin,recovered.exportId,cancelKey,csrf,grant.reauthTokenRef,transport)).toEqual(cancelled);
-  await expect(getControlledExportDownload(origin,recovered.exportId,transport)).rejects.toMatchObject({status:409});
-  await expect(getControlledExportDownload(origin,"eeeeeeee-1111-4111-8111-111111111111",transport)).rejects.toMatchObject({status:410,message:"导出已过期，请重新创建。"});
+  await expect(getControlledExportDownload(downloadOrigin,recovered.exportId,downloadTransport)).rejects.toMatchObject({status:409});
+  await expect(getControlledExportDownload(downloadOrigin,"eeeeeeee-1111-4111-8111-111111111111",downloadTransport)).rejects.toMatchObject({status:410,message:"导出已过期，请重新创建。"});
 },15000);

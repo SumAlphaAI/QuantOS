@@ -36,15 +36,18 @@ async fn main() -> anyhow::Result<()> {
             .context("live BFF requires SUPABASE_PUBLISHABLE_KEY")?;
         let terminal_origin = env::var("QUANTOS_TERMINAL_ORIGIN")
             .context("live BFF requires QUANTOS_TERMINAL_ORIGIN")?;
+        let public_origin = env::var("QUANTOS_BFF_PUBLIC_ORIGIN")
+            .context("live BFF requires QUANTOS_BFF_PUBLIC_ORIGIN matching the configured browser BFF origin")?;
         let environment = env::var("QUANTOS_BFF_ENVIRONMENT")
             .context("live BFF requires QUANTOS_BFF_ENVIRONMENT")?;
         let observer = observer.clone();
         tokio::task::spawn_blocking(move || {
-            bff_gateway::live::router(
+            bff_gateway::live::router_with_download_origin(
                 &database_url,
                 &project_url,
                 publishable_key,
                 terminal_origin,
+                public_origin,
                 environment,
                 observer,
             )
@@ -64,7 +67,9 @@ async fn main() -> anyhow::Result<()> {
                 let _ = feed.renew_operations_reference().await;
             });
         }
-        provider.router()
+        let public_origin = env::var("QUANTOS_BFF_PUBLIC_ORIGIN")
+            .unwrap_or_else(|_| "https://bff.reference.invalid".to_owned());
+        provider.with_download_origin(&public_origin)?.router()
     };
     println!(
         r#"{{"service":"bff-gateway","ready":true,"mode":"{}","address":"{address}"}}"#,

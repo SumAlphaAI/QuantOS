@@ -1251,7 +1251,9 @@
         "downloadUrl": {
           "type": "string",
           "format": "uri",
-          "description": "一次性不透明签名 URL，最长 5 分钟"
+          "maxLength": 2048,
+          "pattern": "^https://[^/?#@\\s\\\\]+/_bff/export-content/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{64}$",
+          "description": "C10/C17 封闭内容 origin：必须与浏览器配置的 BFF API HTTPS origin 相同； 服务端仅使用 QUANTOS_BFF_PUBLIC_ORIGIN，不使用 Terminal origin、Host 或 Forwarded。 路径含 opaque ticket（不是 exportId）及 HMAC-SHA256，无 userinfo/query/fragment； 有效期为 min(当前会话期限, retentionUntil, 签发时刻+300秒)。 GET 内容端点重新校验当前身份、权限与资源范围，原子一次性消费；失败后须由用户重新申请租约。 API 与 /_bff/export-content 均须代理到同一 BFF，内容为 no-store/nosniff/attachment/no-referrer； 禁止写入日志、历史、遥测或持久化。"
         },
         "expiresAt": {
           "$ref": "#/components/schemas/DateTime"

@@ -9,8 +9,8 @@ use crate::audit_core::{self, ExportInput};
 use axum::{
     Json, Router,
     extract::{Path, Query, State},
-    http::{HeaderMap, StatusCode, header},
-    response::{IntoResponse, Response},
+    http::{HeaderMap, Method, StatusCode, Uri},
+    response::Response,
     routing::{get, post},
 };
 use chrono::{DateTime, Duration, Utc};
@@ -670,7 +670,7 @@ async fn download(
   let ticket=Uuid::new_v4();let signature=objects.sign(ticket)?;
   tx.execute("insert into quantos.bff_export_tickets(ticket_id,signature_hash,export_id,user_id,session_hash,expires_at) values($1,$2,$3,$4,$5,$6)", &[&ticket,&settings::hash(&signature),&id,&identity.0.user_id,&identity.1,&until])?;
   let audit=log(&mut tx,&identity,"export.download_issued",uuid(job["correlationId"].as_str().unwrap())?,&id.to_string(),json!({"outcome":"succeeded"}))?;
-  let value=json!({"exportId":id,"downloadUrl":format!("{}/_bff/export-content/{ticket}/{signature}",state.terminal_origin.trim_end_matches('/')),"expiresAt":until.to_rfc3339(),"sha256":row.get::<_,Option<String>>("sha256"),"sizeBytes":row.get::<_,Option<i64>>("size_bytes"),"mediaType":row.get::<_,Option<String>>("media_type"),"watermarked":true,"retentionUntil":job["retentionUntil"],"auditRef":audit});tx.commit()?;Ok(value)
+  let value=json!({"exportId":id,"downloadUrl":state.download_origin.url(ticket, &signature),"expiresAt":until.to_rfc3339(),"sha256":row.get::<_,Option<String>>("sha256"),"sizeBytes":row.get::<_,Option<i64>>("size_bytes"),"mediaType":row.get::<_,Option<String>>("media_type"),"watermarked":true,"retentionUntil":job["retentionUntil"],"auditRef":audit});tx.commit()?;Ok(value)
  }).await.map_err(|_|ApiError::unavailable())??;
     Ok(response(StatusCode::OK, value))
 }
@@ -678,7 +678,18 @@ async fn content(
     State(state): State<Arc<LiveState>>,
     Path((ticket, signature)): Path<(String, String)>,
     headers: HeaderMap,
+    method: Method,
+    uri: Uri,
 ) -> Result<Response, ApiError> {
+    if method != Method::GET {
+        return Err(ApiError::new(
+            StatusCode::METHOD_NOT_ALLOWED,
+            "METHOD_NOT_ALLOWED",
+        ));
+    }
+    if uri.query().is_some() {
+        return Err(invalid());
+    }
     let (context, session) = settings::authorized(state.clone(), headers, false).await?;
     let identity = TrustedIdentity(context, session);
     let ticket = uuid(&ticket)?;
@@ -696,19 +707,7 @@ async fn content(
   if Some(audit_core::digest(&bytes))!=row.get::<_,Option<String>>("sha256") || Some(bytes.len() as i64)!=row.get::<_,Option<i64>>("size_bytes") {log(&mut tx,&identity,"export.integrity_failed",uuid(job["correlationId"].as_str().unwrap())?,&id.to_string(),json!({"outcome":"failed"}))?;tx.commit()?;return Err(ApiError::unavailable());}
   log(&mut tx,&identity,"export.download_consumed",uuid(job["correlationId"].as_str().unwrap())?,&id.to_string(),json!({"outcome":"succeeded"}))?;let media:String=row.get("media_type");tx.commit()?;Ok((bytes,media))
  }).await.map_err(|_|ApiError::unavailable())??;
-    Ok((
-        [
-            (header::CONTENT_TYPE, media),
-            (header::CACHE_CONTROL, "no-store".to_owned()),
-            (
-                header::CONTENT_DISPOSITION,
-                "attachment; filename=quantos-audit-export".to_owned(),
-            ),
-            (header::X_CONTENT_TYPE_OPTIONS, "nosniff".to_owned()),
-        ],
-        bytes,
-    )
-        .into_response())
+    Ok(crate::download_contract::content_response(bytes, media))
 }
 
 fn worker_scope(tx: &mut Transaction<'_>, row: &postgres::Row) -> Result<(), ApiError> {

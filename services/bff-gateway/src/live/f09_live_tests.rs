@@ -169,6 +169,7 @@ fn real_logout_db_write_matches_persistent_trace() {
         mfa: settings::SupabaseMfa::new(&project_url, "unused-test-key".into())
             .expect("MFA config"),
         terminal_origin: origin.into(),
+        download_origin: crate::download_contract::DownloadOrigin::parse(origin).unwrap(),
         environment: "dev".into(),
     });
     let router = Router::new()

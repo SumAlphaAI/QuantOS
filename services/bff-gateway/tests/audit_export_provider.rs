@@ -321,7 +321,7 @@ async fn export_lifecycle_is_idempotent_watermarked_short_lived_and_audited() {
         download_body["downloadUrl"]
             .as_str()
             .unwrap()
-            .starts_with("https://downloads.invalid/")
+            .starts_with("https://bff.reference.invalid/_bff/export-content/")
     );
     let expires_at = DateTime::parse_from_rfc3339(download_body["expiresAt"].as_str().unwrap())
         .unwrap()

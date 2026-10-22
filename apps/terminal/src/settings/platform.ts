@@ -1,4 +1,5 @@
 import { createBffClient, parseBffResponse, bffZodSchemas, type BffRequestOptions } from "@sumalpha/api-client";
+import { checkedDownloadOrigin, validateDownloadLease } from "../downloads/lease";
 import { handleAuthHttpStatus } from "../auth/flow";
 import type { BrowserCapabilityPolicy, BrowserRuntimeCapabilities, DownloadRecord } from "./c17";
 
@@ -30,12 +31,12 @@ export async function listBrowserDownloads(origin: string, query: {cursor?: stri
 }
 // Called only by an explicit download gesture. Never persist/log the returned lease.
 export async function requestBrowserDownload(origin: string, raw: DownloadRecord, nowMs: () => number = Date.now, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  checkedDownloadOrigin(origin);
   const record = bffZodSchemas.DownloadRecord.strict().parse(raw);
   const id = bffZodSchemas.UUID.parse(record.downloadId);
   if (record.downloadUrl || !Number.isFinite(nowMs()) || record.status !== "ready" || !record.expiresAt || !Number.isFinite(Date.parse(record.expiresAt)) || Date.parse(record.expiresAt) <= nowMs() || record.downloadPath !== `/v1/exports/${id}/download`) throw new Error("Download unavailable; reload history");
   const client = createBffClient({baseUrl: origin, fetch: fetchImpl, ...options});
   const lease = checked("getExportDownload", await client.GET("/v1/exports/{exportId}/download", {params: {path: {exportId: id}}}));
-  const url = new URL(lease.downloadUrl), base = new URL(origin), now = nowMs(), expiry = Date.parse(lease.expiresAt);
-  if (!Number.isFinite(now) || Date.parse(record.expiresAt) <= now || expiry > Date.parse(record.expiresAt) || lease.exportId !== id || url.protocol !== "https:" || url.origin !== base.origin || url.username || url.password || url.search || url.hash || !/^\/_bff\/export-content\/[0-9a-f-]{36}\/[0-9a-f]{64}$/.test(url.pathname) || !Number.isFinite(expiry) || expiry <= now || expiry > now + 300_000) throw new Error("Invalid short-lived download lease");
+  const url = validateDownloadLease(origin, lease, id, nowMs(), record.expiresAt);
   return {url: url.href, expiresAt: lease.expiresAt};
 }
