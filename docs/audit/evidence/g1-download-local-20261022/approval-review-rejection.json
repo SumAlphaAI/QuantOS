@@ -1,0 +1,9 @@
+{
+  "action": "node scripts/g1-download-review.mjs --run docs/audit/evidence/g1-download-local-20261022/attempt-01",
+  "executed": false,
+  "kind": "AUTO_REVIEW_REJECTED",
+  "reason": "命令将复用并可能覆盖已有的 attempt-01 证据目录；该目录包含应保留的历史失败记录，且脚本规程明确要求不可复用目录，应改用全新的 attempt-NN 目录以避免不可逆证据破坏。",
+  "inspection": "find showed only preflight-01 through preflight-05 in this packet; test ! -e new attempt-02 exit 0; script asserts nonexistence before mkdir.",
+  "resolution": "Used new attempt-02 through approved scoped escalation. No existing directory was overwritten.",
+  "unresolvedBlocker": false
+}

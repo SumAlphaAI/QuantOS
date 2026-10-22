@@ -1,0 +1,311 @@
+[
+  {
+    "id": "rust-reference",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "reference_download",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:00.488Z",
+    "elapsedMs": 7538,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/rust-reference.log",
+    "logSha256": "sha256:9bd2805c3ba47d44f28b10ba5f9ee0dc3e94f038d66e3ef8b050bb6539799247"
+  },
+  {
+    "id": "rust-origin",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "download_contract",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:08.027Z",
+    "elapsedMs": 159,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/rust-origin.log",
+    "logSha256": "sha256:a36edd298228ed7fbd2cd9d9d81fc18d204d248c937f744e4bbec13f85910b12"
+  },
+  {
+    "id": "rust-platform",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "platform::tests",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:08.186Z",
+    "elapsedMs": 1837,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/rust-platform.log",
+    "logSha256": "sha256:8033af2cc3cc2f89f5306fa1ef0dc05c4b11ad435b6ae822c0847b84e646ffc7"
+  },
+  {
+    "id": "rust-audit",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "audit_export_provider",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:10.023Z",
+    "elapsedMs": 4024,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/rust-audit.log",
+    "logSha256": "sha256:e0be11238f7b192b7c4525a2f96367c1b5b22e5bc8caa02f6db8b50ba8a7f520"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:14.047Z",
+    "elapsedMs": 147,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/build.log",
+    "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+  },
+  {
+    "id": "reference-delivery",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/integration/g1-download-reference.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/g1-download-local-20261022/attempt-02/integration-vitest.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:14.226Z",
+    "elapsedMs": 4097,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/reference-delivery.log",
+    "logSha256": "sha256:2b4884efd645228620517b6f7514674954e04b58b906abe4163ee6e6dd10604c"
+  },
+  {
+    "id": "consumers",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/g1-download-contract.test.ts",
+      "apps/terminal/tests/browser-platform-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p17-runtime.test.ts",
+      "apps/terminal/tests/ui104-runtime.test.ts",
+      "apps/terminal/tests/audit-provider-consumer.test.ts",
+      "apps/terminal/tests/audit-gateway.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/g1-download-local-20261022/attempt-02/consumer-vitest.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:18.324Z",
+    "elapsedMs": 2745,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/consumers.log",
+    "logSha256": "sha256:5fe3fbf5080a2b2ecd1deafddd09871b7f33a33e2ae997c1f5cf24d2f1e5e31b"
+  },
+  {
+    "id": "contract",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/contract",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/g1-download-local-20261022/attempt-02/contract-vitest.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:21.070Z",
+    "elapsedMs": 1148,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/contract.log",
+    "logSha256": "sha256:2b1c4f50391639e8d32f81b4d051d4f9348603e12b3a1174f6a5ecce61292b17"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:22.218Z",
+    "elapsedMs": 565,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/generated.log",
+    "logSha256": "sha256:ae0a0f777dbfdaa7127900a57435f0af0b8d7714c4f6eb752afe009eff6fbd36"
+  },
+  {
+    "id": "bff007-contract",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-007.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:22.783Z",
+    "elapsedMs": 147,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/bff007-contract.log",
+    "logSha256": "sha256:f83e1e9f56c4c114026631ee8acabcbac7ede0c743f5e4bc8d3bfcbe16e8ccd4"
+  },
+  {
+    "id": "bff007-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-007-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:22.930Z",
+    "elapsedMs": 216,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/bff007-negative.log",
+    "logSha256": "sha256:86b28fa9f0a2268dbb8b6d1425573971b2c34a05ef476203c4b1e4299950dea3"
+  },
+  {
+    "id": "typecheck",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:23.146Z",
+    "elapsedMs": 845,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/typecheck.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/settings/platform.ts",
+      "apps/terminal/src/downloads/lease.ts",
+      "apps/terminal/src/audit/gateway.ts",
+      "apps/terminal/tests/audit-gateway.test.ts",
+      "apps/terminal/tests/audit-provider-consumer.test.ts",
+      "apps/terminal/tests/g1-download-contract.test.ts",
+      "tests/integration/g1-download-reference.test.ts",
+      "scripts/g1-download-review.mjs",
+      "scripts/g1-download-review.test.mjs",
+      "scripts/check-bff-fe-007.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:23.992Z",
+    "elapsedMs": 810,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "format",
+    "command": [
+      "rustfmt",
+      "--check",
+      "--edition",
+      "2024",
+      "services/bff-gateway/src/download_contract.rs",
+      "services/bff-gateway/src/reference_download.rs",
+      "services/bff-gateway/src/lib.rs",
+      "services/bff-gateway/src/main.rs",
+      "services/bff-gateway/src/live.rs",
+      "services/bff-gateway/src/live/audit.rs",
+      "services/bff-gateway/src/live/f09_live_tests.rs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:24.803Z",
+    "elapsedMs": 328,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g1-download-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:25.131Z",
+    "elapsedMs": 235,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/gate-negative.log",
+    "logSha256": "sha256:234d4de6fb9d8880ee4c640942578abb88c9eadb9bbb1a71db64fca46130565c"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-22T12:20:25.367Z",
+    "elapsedMs": 60,
+    "log": "docs/audit/evidence/g1-download-local-20261022/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]

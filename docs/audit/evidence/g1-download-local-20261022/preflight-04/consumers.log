@@ -1,0 +1,40 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/g1-download-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/browser-platform-provider-consumer.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/audit-gateway.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 37[2mms[22m[39m
+     [32m✓[39m retrieves evidence and export status through authenticated BFF routes[32m 12[2mms[22m[39m
+     [32m✓[39m uses server-side cursor filters for audit search[32m 1[2mms[22m[39m
+     [32m✓[39m forwards idempotency, CSRF and recent-auth for create and cancel[32m 1[2mms[22m[39m
+     [32m✓[39m maps expired downloads without exposing transport details[32m 1[2mms[22m[39m
+   [32m✓[39m every controlled audit operation conceals denied resources and rejects transport failures[32m 3[2mms[22m[39m
+[31m   [31m×[31m validates every success schema and rejects unsafe download leases[39m[32m 5[2mms[22m[39m
+   [32m✓[39m binds chain, status, cancel and download responses to the requested resource[32m 1[2mms[22m[39m
+   [32m✓[39m bounds uncertain export writes, supports cancellation and never retries automatically[32m 12[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui-p17-runtime.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui104-runtime.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1853[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m68 passed[39m[22m[90m (69)[39m
+[2m   Start at [22m 20:16:24
+[2m   Duration [22m 2.14s[2m (transform 685ms, setup 0ms, import 1.30s, tests 2.04s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-gateway.test.ts[2m > [22mvalidates every success schema and rejects unsafe download leases
+[31m[1mAuditGatewayError[22m: 审计服务响应无效，请稍后重试。[39m
+[36m [2m❯[22m required apps/terminal/src/audit/gateway.ts:[2m53:11[22m[39m
+    [90m 51|[39m     [35mreturn[39m value[33m;[39m
+    [90m 52|[39m   } [35mcatch[39m {
+    [90m 53|[39m     throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.r…
+    [90m   |[39m           [31m^[39m
+    [90m 54|[39m   }
+    [90m 55|[39m }
+[90m [2m❯[22m getControlledExportDownload apps/terminal/src/audit/gateway.ts:[2m128:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/audit-gateway.test.ts:[2m120:133[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

@@ -1,0 +1,42 @@
+{
+  "schema": "quantos-g1-download-attempt-history/v1",
+  "preflightSourceBinding": "UNCOMMITTED_WORKTREE_NOT_FINAL_ACCEPTANCE; sourceCommit in preflight reference-delivery.json is observed Git HEAD only. No full original intermediate source snapshots were captured.",
+  "attempts": [
+    {
+      "directory": "preflight-01",
+      "status": "FAIL_COMPILE",
+      "facts": "LiveState新增download_origin，既有F09 gated test initializer缺字段；补初始化并去除unused import。该F09目标测试只编译，没有连接/执行目标。"
+    },
+    {
+      "directory": "preflight-02",
+      "status": "FAIL_8_OF_10_REFERENCE_TESTS_PASS",
+      "facts": "测试错误地预期原始watermark（实际按原策略hash脱敏）和logout202（契约实际204）；修正测试断言，未放松水印/身份边界。"
+    },
+    {
+      "directory": "preflight-03",
+      "status": "MIXED_BOUNDED_PREFLIGHT",
+      "facts": "10Rust/36初步消费者/5真实内容组合（含Chromium）通过；拓展消费者遇loopback EPERM，旧checker lint缺node globals导入；generated/31契约/类型通过。源码尚未冻结，不能作为最终SHA证据。"
+    },
+    {
+      "directory": "preflight-04",
+      "status": "FAIL_68_OF_69_CONSUMERS_PASS",
+      "facts": "允许loopback后，旧audit-gateway正向fixture使用ticket/signature占位路径，新的generated schema正确拒绝；随后更新fixture并统一C10/C17消费者策略、适配旧HTTP transport场景的逻辑HTTPS下载origin。"
+    },
+    {
+      "directory": "preflight-05",
+      "status": "PASS_DIRECT_PREFLIGHT",
+      "facts": "70消费者、类型、lint、32门禁负向通过；仍属冻结前核对，不拼接最终PASS。"
+    },
+    {
+      "directory": "attempt-01",
+      "status": "NOT_EXECUTED_AUTO_REVIEW_REJECTION",
+      "facts": "自动审批误判可能覆盖已有attempt-01证据，命令未执行；只读核实本包只有preflight目录。改用确认不存在的attempt-02；原记录无改动。"
+    },
+    {
+      "directory": "attempt-02",
+      "status": "PASS_FROZEN_CURRENT_SCOPE",
+      "sourceCommit": "71b26d54998c3117391f01cac9a7e8681c5880ac",
+      "facts": "16条命令exit0；40 Rust、107前端/契约/真实组合、44门禁负向通过；Chromium实际4743字节与metadata/runtime hash一致。只认可本次限定范围。"
+    }
+  ]
+}

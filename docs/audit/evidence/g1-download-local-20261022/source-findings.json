@@ -1,0 +1,116 @@
+{
+  "schema": "quantos-g1-download-source-findings/v1",
+  "sourceCommit": "71b26d54998c3117391f01cac9a7e8681c5880ac",
+  "findings": [
+    {
+      "boundary": "closed origin and shared content headers",
+      "evidence": [
+        {
+          "path": "services/bff-gateway/src/download_contract.rs",
+          "line": 12,
+          "sha256": "sha256:3fa26f0995023b51c54dd7874157bf4067fcac1bda14abe834cb95521a65dab4",
+          "excerpt": "impl DownloadOrigin {\n    pub(crate) fn parse(raw: &str) -> anyhow::Result<Self> {\n        let url = url::Url::parse(raw)?;\n        anyhow::ensure!(\n            url.scheme() == \"https\"\n                && url.host_str().is_some()\n                && url.username().is_empty()\n                && url.password().is_none()\n                && url.path() == \"/\"\n                && url.query().is_none()\n                && url.fragment().is_none()\n                && !raw.contains(['\\\\', '\\n', '\\r', '\\t'])\n                && (raw == url.origin().ascii_serialization()\n                    || raw == format!(\"{}/\", url.origin().ascii_serialization())),\n            \"download origin must be a canonical HTTPS origin without path, credentials, query or fragment\"\n        );\n        Ok(Self(url.origin().ascii_serialization()))\n    }"
+        },
+        {
+          "path": "services/bff-gateway/src/download_contract.rs",
+          "line": 34,
+          "sha256": "sha256:3fa26f0995023b51c54dd7874157bf4067fcac1bda14abe834cb95521a65dab4",
+          "excerpt": "\npub(crate) fn content_response(bytes: Vec<u8>, media: String) -> Response {\n    (\n        [\n            (header::CONTENT_TYPE, media),\n            (header::CACHE_CONTROL, \"no-store\".to_owned()),\n            (\n                header::CONTENT_DISPOSITION,\n                \"attachment; filename=quantos-audit-export\".to_owned(),\n            ),\n            (header::X_CONTENT_TYPE_OPTIONS, \"nosniff\".to_owned()),\n            (header::REFERRER_POLICY, \"no-referrer\".to_owned()),\n        ],\n        bytes,\n    )\n        .into_response()\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n    #[test]\n    fn origin_is_closed_and_never_a_caller_controlled_url_prefix() {"
+        }
+      ]
+    },
+    {
+      "boundary": "reference atomic issue / consume / explicit recovery",
+      "evidence": [
+        {
+          "path": "services/bff-gateway/src/reference_download.rs",
+          "line": 129,
+          "sha256": "sha256:f6fb41c995a458527185148c776d713441cb9075bb26ad8170200cee902b3ad3",
+          "excerpt": "\npub(crate) async fn issue(\n    State(data): State<Arc<Mutex<ProviderData>>>,\n    Path(export_id): Path<String>,\n    headers: HeaderMap,\n) -> Response {\n    let mut state = data.lock().await;\n    if let Err(r) = authorized(&state, &headers) {\n        record_audit_action(\n            &mut state,"
+        },
+        {
+          "path": "services/bff-gateway/src/reference_download.rs",
+          "line": 276,
+          "sha256": "sha256:f6fb41c995a458527185148c776d713441cb9075bb26ad8170200cee902b3ad3",
+          "excerpt": "    // fresh explicit lease; retrying this URL never returns content.\n    state.downloads.tickets.get_mut(&id).unwrap().consumed = true;\n    #[cfg(test)]\n    if std::mem::take(&mut state.downloads.fail_next_read) {\n        record_audit_action(\n            &mut state,\n            \"export.download_failed\",\n            correlation,\n            &t.export_id,\n            json!({\"outcome\":\"failed\"}),\n        );\n        return error(\n            StatusCode::SERVICE_UNAVAILABLE,\n            \"DEPENDENCY_UNAVAILABLE\",\n            \"读取失败，请重新申请下载。\","
+        },
+        {
+          "path": "services/bff-gateway/src/reference_download.rs",
+          "line": 64,
+          "sha256": "sha256:f6fb41c995a458527185148c776d713441cb9075bb26ad8170200cee902b3ad3",
+          "excerpt": "// between an auth guard and content delivery. The reference has one export owner.\nfn authorized(state: &ProviderData, headers: &HeaderMap) -> Result<(), Box<Response>> {\n    let session = cookies(headers).get(\"quantos_session\").copied();\n    if state.now() >= state.session_expires_at\n        || session.is_none()\n        || (session == Some(CURRENT_SESSION)\n            && (!state.session_active || !state.sessions.contains_key(CURRENT_SESSION)))\n    {\n        return Err(Box::new(error(\n            StatusCode::UNAUTHORIZED,\n            \"UNAUTHENTICATED\",\n            \"会话已失效。\",\n        )));\n    }\n    if session != Some(CURRENT_SESSION) {\n        let authenticated = matches!(\n            session,\n            Some(\"session-viewer\" | \"session-approver\" | \"session-owner\")\n        ) || session.is_some_and(|s| state.sessions.contains_key(s));\n        return Err(Box::new(error(\n            if authenticated {\n                StatusCode::FORBIDDEN\n            } else {\n                StatusCode::UNAUTHORIZED\n            },\n            if authenticated {\n                \"FORBIDDEN\"\n            } else {\n                \"UNAUTHENTICATED\""
+        }
+      ]
+    },
+    {
+      "boundary": "live configured public BFF origin / startup compatibility",
+      "evidence": [
+        {
+          "path": "services/bff-gateway/src/live/audit.rs",
+          "line": 673,
+          "sha256": "sha256:0b5e8e8a8a7f0719325e40088f15bb939eb11bb5560aa137d77615d2f8a4f1d2",
+          "excerpt": "  let audit=log(&mut tx,&identity,\"export.download_issued\",uuid(job[\"correlationId\"].as_str().unwrap())?,&id.to_string(),json!({\"outcome\":\"succeeded\"}))?;\n  let value=json!({\"exportId\":id,\"downloadUrl\":state.download_origin.url(ticket, &signature),\"expiresAt\":until.to_rfc3339(),\"sha256\":row.get::<_,Option<String>>(\"sha256\"),\"sizeBytes\":row.get::<_,Option<i64>>(\"size_bytes\"),\"mediaType\":row.get::<_,Option<String>>(\"media_type\"),\"watermarked\":true,\"retentionUntil\":job[\"retentionUntil\"],\"auditRef\":audit});tx.commit()?;Ok(value)\n }).await.map_err(|_|ApiError::unavailable())??;"
+        },
+        {
+          "path": "services/bff-gateway/src/main.rs",
+          "line": 39,
+          "sha256": "sha256:3c2e1bb108a6bb9f48d7db55930840c035eb2abfda4c7b63723036d24e984f61",
+          "excerpt": "            .context(\"live BFF requires QUANTOS_TERMINAL_ORIGIN\")?;\n        let public_origin = env::var(\"QUANTOS_BFF_PUBLIC_ORIGIN\")\n            .context(\"live BFF requires QUANTOS_BFF_PUBLIC_ORIGIN matching the configured browser BFF origin\")?;\n        let environment = env::var(\"QUANTOS_BFF_ENVIRONMENT\")"
+        },
+        {
+          "path": "services/bff-gateway/src/live.rs",
+          "line": 133,
+          "sha256": "sha256:3ff172c23e5c0d44e8a1526a36c556d7c9b75acfe13cf15a4a73d49347b39388",
+          "excerpt": "#[allow(clippy::too_many_arguments)]\npub fn router_with_download_origin(\n    database_url: &str,\n    project_url: &str,\n    publishable_key: String,\n    terminal_origin: String,\n    public_origin: String,\n    environment: String,\n    observability: Arc<ServiceObservability>,\n) -> anyhow::Result<Router> {\n    router_with_origins(\n        database_url,\n        project_url,\n        publishable_key,\n        terminal_origin,\n        public_origin,"
+        },
+        {
+          "path": "services/bff-gateway/src/live.rs",
+          "line": 272,
+          "sha256": "sha256:3ff172c23e5c0d44e8a1526a36c556d7c9b75acfe13cf15a4a73d49347b39388",
+          "excerpt": ") -> anyhow::Result<Router> {\n    // Existing owner-injected compositions explicitly keep the single-origin topology.\n    let public_origin = terminal_origin.clone();\n    router_with_origins(\n        database_url,"
+        }
+      ]
+    },
+    {
+      "boundary": "C10/C17 share strict consumer contract",
+      "evidence": [
+        {
+          "path": "apps/terminal/src/downloads/lease.ts",
+          "line": 10,
+          "sha256": "sha256:d983b77b0709f83ef1ddb30681238eaf325137dd1e81369c0e14af2450112d57",
+          "excerpt": "}\nexport function validateDownloadLease(origin: string, lease: Lease, exportId: string, now: number, historyRetention?: string): URL {\n  const base = checkedDownloadOrigin(origin), url = new URL(lease.downloadUrl), expiry = Date.parse(lease.expiresAt), retention = Date.parse(lease.retentionUntil);\n  if (!Number.isFinite(now) || !Number.isFinite(retention) || retention <= now || expiry > retention || (historyRetention !== undefined && retention !== Date.parse(historyRetention)) || lease.exportId !== exportId || url.href !== lease.downloadUrl || url.protocol !== \"https:\" || url.origin !== base.origin || url.username || url.password || url.search || url.hash || !/^\\/_bff\\/export-content\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{64}$/.test(url.pathname) || !Number.isFinite(expiry) || expiry <= now || expiry > now + 300_000) throw new Error(\"Invalid short-lived download lease\");\n  return url;\n}"
+        },
+        {
+          "path": "apps/terminal/src/audit/gateway.ts",
+          "line": 124,
+          "sha256": "sha256:5be1086914b7627296fded10bcc090f7a66c021bddd158fe683ae6688abd15e3",
+          "excerpt": "  const metadata = required(\"getExportDownload\", result, exportId);\n  try {validateDownloadLease(origin, metadata, exportId, Date.now());} catch {throw new AuditGatewayError(\"审计服务响应无效，请稍后重试。\", \"getExportDownload\", result.response.status);}\n  return metadata;\n}"
+        },
+        {
+          "path": "apps/terminal/src/settings/platform.ts",
+          "line": 40,
+          "sha256": "sha256:a83fe64c432ef15103398a8d9303aea7dc085c6c57f304377a017330ad4da239",
+          "excerpt": "  const lease = checked(\"getExportDownload\", await client.GET(\"/v1/exports/{exportId}/download\", {params: {path: {exportId: id}}}));\n  const url = validateDownloadLease(origin, lease, id, nowMs(), record.expiresAt);\n  return {url: url.href, expiresAt: lease.expiresAt};\n}"
+        },
+        {
+          "path": "bff/openapi/quantos-bff.v1.yaml",
+          "line": 11740,
+          "sha256": "sha256:954bb8f085e944479ed8eb8455886f8544d2f9dcab3e56943d86c72330e8392b",
+          "excerpt": "          description: >-\n            C10/C17 封闭内容 origin：必须与浏览器配置的 BFF API HTTPS origin 相同；\n            服务端仅使用 QUANTOS_BFF_PUBLIC_ORIGIN，不使用 Terminal origin、Host 或 Forwarded。\n            路径含 opaque ticket（不是 exportId）及 HMAC-SHA256，无 userinfo/query/fragment；\n            有效期为 min(当前会话期限, retentionUntil, 签发时刻+300秒)。\n            GET 内容端点重新校验当前身份、权限与资源范围，原子一次性消费；失败后须由用户重新申请租约。\n            API 与 /_bff/export-content 均须代理到同一 BFF，内容为 no-store/nosniff/attachment/no-referrer；\n            禁止写入日志、历史、遥测或持久化。\n        expiresAt:\n          $ref: \"#/components/schemas/DateTime\""
+        }
+      ]
+    },
+    {
+      "boundary": "Chromium actual loopback content bytes, no interception",
+      "evidence": [
+        {
+          "path": "tests/integration/g1-download-reference.test.ts",
+          "line": 90,
+          "sha256": "sha256:89cec252caa38e3332c624378a322774c5e0fd931dace174921f58eeebcb0500",
+          "excerpt": "});\nit(\"Chromium receives actual reference attachment bytes through HTTPS without response interception\", async () => {\n  const record = await readyRecord();const lease = await requestBrowserDownload(origin, record, Date.now, consumerFetch());\n  const browser = await chromium.launch({headless: true});try {\n    const context = await browser.newContext({ignoreHTTPSErrors: true, acceptDownloads: true});await context.addCookies([{name: \"quantos_session\", value: \"session-current\", url: origin, httpOnly: true, secure: true, sameSite: \"Lax\"}]);\n    const page = await context.newPage();await page.goto(origin + \"/probe\");await page.locator(\"#download\").evaluate((node, url) => {node.setAttribute(\"href\", url);}, lease.url);\n    const received = page.waitForEvent(\"download\", {timeout: 15000});await page.locator(\"#download\").click();const download = await received;expect(await download.failure()).toBeNull();const local = await download.path();expect(local).toBeTruthy();const bytes = await readFile(local!);\n    expect(bytes.toString()).toContain(\"QuantOS restricted copy\");expect(hash(bytes)).toBe(outcomes.find(o => o.id === \"generated-runtime-delivery\")!.contentSha256);expect(download.suggestedFilename()).toBe(\"quantos-audit-export\");\n    expect((await call(new URL(lease.url).pathname)).status).toBe(410);outcomes.push({id: \"chromium-real-attachment\", status: \"PASS\", contentSha256: hash(bytes), bytes: bytes.length, scope: \"CONTENT_TRANSPORT_ONLY_NOT_FULL_P17_UI\", responseInterception: false});await context.close();\n  } finally {await browser.close();}\n}, 30000);\nit(\"metadata attests bytes and the history/audit never retain ticket URLs; cancellation refuses old leases\", async () => {\n  const r = await call(`/v1/exports/${exportId}/download`);expect(r.status).toBe(200);const l = await r.json();const content = await call(new URL(l.downloadUrl).pathname);const bytes = new Uint8Array(await content.arrayBuffer());expect(hash(bytes)).toBe(\"sha256:\" + l.sha256);expect(bytes.length).toBe(l.sizeBytes);"
+        }
+      ],
+      "dynamic": "docs/audit/evidence/g1-download-local-20261022/attempt-02/reference-delivery.json"
+    }
+  ]
+}

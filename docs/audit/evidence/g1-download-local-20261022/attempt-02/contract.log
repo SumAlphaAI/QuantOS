@@ -1,0 +1,41 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m tests/contract/bff-market.test.ts[2m > [22mC12 market contract[2m > [22mvalidates exact decimals, authorized book, provenance and gaps through generated schemas[32m 33[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts[2m > [22mC12 market contract[2m > [22mthe generated client preserves market dimension query strings and response data[32m 10[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts[2m > [22mC12 market contract[2m > [22mrejects forged watchlist context, missing CSRF/idempotency/version, and corrupted response[32m 14[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22mOpenAPI 同源生成的 Zod schema 校验 session/error/proposal fixtures[32m 4[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22msession fixture 通过 OpenAPI 生成的 schema 校验[32m 18[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22munauthorized fixture 通过错误 envelope 校验（403 不泄露对象存在性）[32m 4[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22mproposal fixture 通过 OpenAPI 生成的 TradeProposal schema 且 executable=false[32m 8[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22m故意破坏 schema → 校验失败[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22m故意破坏权限不变量（executable=true）→ 校验失败[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22m故意注入敏感字段（venueApiKey）→ 校验失败[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 contract fixtures：schema 驱动[2m > [22m409 conflict 与 429 rate-limit fixtures 通过统一 ErrorEnvelope[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 MSW contract handlers[2m > [22m授权请求返回 200 且响应通过 schema 校验[32m 20[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 MSW contract handlers[2m > [22m未授权请求返回 401 错误 envelope[32m 2[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 MSW contract handlers[2m > [22m未配置 operation 默认返回 501 且不伪造成功 fixture[32m 1[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 MSW contract handlers[2m > [22m版本冲突返回 409/currentVersion，客户端不得静默覆盖[32m 8[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 MSW contract handlers[2m > [22mMFA 限流返回 429/retryAfter 且不泄露账户存在性[32m 5[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 complete fixture and sensitive-key policy[2m > [22mall declared positive/negative fixtures match their schema and purpose[32m 15[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 complete fixture and sensitive-key policy[2m > [22mequivalent forbidden keys are rejected recursively without rejecting public fields[32m 3[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 complete fixture and sensitive-key policy[2m > [22mgetProposal response is schema-valid and never executable[32m 4[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts[2m > [22mPRE-06 complete fixture and sensitive-key policy[2m > [22mfresh version returns schema-valid StrategyDraft[32m 4[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mpreserves strategy maps and open extension data while rejecting forbidden fields[32m 21[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mall attached request/success examples validate against their operation schemas[32m 201[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mrequest contracts reject forged context, missing headers and unsafe sort/filter[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mvalid cookie succeeds; bearer-only and malformed writes fail through real MSW handlers[32m 15[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mrejects provider response schema, header, status and sensitive-field drift[32m 2[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mrequires conflict version, rate retry and matching error correlation without debug extensions[32m 5[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mmock enforces CSRF origin and preserves idempotent replay while rejecting changed payload[32m 7[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mchecks successful accepted envelope correlation on every replay[32m 0[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mC15 nullable read projections stay strictly typed[2m > [22mpreserves unissued auditRef and end cursor null but refuses arbitrary object/number substitutes[32m 2[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22maccepts C15 exact sort expressions and preserves field-based order sorts[32m 1[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts[2m > [22mrejects unregistered C15 expressions and unsafe field sorts[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+[2m   Start at [22m 20:20:21
+[2m   Duration [22m 646ms[2m (transform 173ms, setup 0ms, import 884ms, tests 415ms, environment 0ms)[22m
+
+JSON report written to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/g1-download-local-20261022/attempt-02/contract-vitest.json
