@@ -2200,7 +2200,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-507", "UI-VIS-000", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2211,6 +2211,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 页面级完成标准：服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地
 
 - 当前执行：`PASS_UI_P12_CURRENT_PAGE`，工程`8f1f3763`、540输入/52产物；46单测、14 Chromium、6图/6次axe、49门禁路由通过，联调入口预期拒绝。工具修正`6bb2d19a`仅续核原SHA证据，无功能链复跑。复用UI-507的C10实际功能，交付四栏高保真、导出抽屉、深浅主题/响应式/键盘、规范资源路由及直接验证。见[UI-P12报告](./audit/UI-P12-current-page-review-2026-10-22.md)、[规程](./operations/ui-p12-audit-workbench.md)、[工程回执](./audit/evidence/ui-p12-local-20261022/receipt.json)。原确认/源码和全部NOT_RUN保持原范围；reference身份/CORS替代、Firefox/WebKit阻塞保留，INTEGRATION/发布不提升，不将G1辅助项作为开发前置。下一原任务UI-204。
+- 确认执行：项目用户已确认原完整稿，仅绑定工程`8f1f3763`、校验工具修复`6bb2d19a`及原文稿证据包`db5faf89`；COMPLETED仅表示原稿当前页面功能范围确认。见[原始确认与范围](./audit/evidence/ui-p12-confirmation-20261023/README.md)和[确认门禁](../scripts/ui-p12-confirmed-reference.mjs)。reference身份/CORS替代、Firefox/WebKit阻塞及全部NOT_RUN保留；G1/FEP-1、INTEGRATION/发布状态不提升，下一原任务UI-204可继续开发，无G1辅助项前置。
 
 <a id="task-ui-204"></a>
 ##### UI-204：DataSnapshot 目录/详情、质量/许可/时效
