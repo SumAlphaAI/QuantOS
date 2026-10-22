@@ -1,0 +1,165 @@
+[
+  {
+    "id": "rust-auth",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider"
+    ],
+    "startedAt": "2026-10-22T13:41:56.570Z",
+    "elapsedMs": 1211,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/rust-auth.log",
+    "logSha256": "sha256:6ba33b76495add57ae66cf907e9567120784a6680c34f6df5a8de6137e5e32da"
+  },
+  {
+    "id": "rust-audit",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "audit_export_provider"
+    ],
+    "startedAt": "2026-10-22T13:41:57.783Z",
+    "elapsedMs": 1100,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/rust-audit.log",
+    "logSha256": "sha256:61bed6ea39a2f1f196b44ab1d0abd4829cfd72413e6a9261912f3289e76c2a73"
+  },
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "startedAt": "2026-10-22T13:41:58.883Z",
+    "elapsedMs": 125,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/bff-build.log",
+    "logSha256": "sha256:a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-22T13:41:59.037Z",
+    "elapsedMs": 653,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "tests/e2e/g1-journey.spec.ts",
+      "playwright.g1-journey.config.ts",
+      "playwright.config.ts",
+      "scripts/g1-journey-review.mjs",
+      "scripts/g1-journey-review.test.mjs"
+    ],
+    "startedAt": "2026-10-22T13:41:59.690Z",
+    "elapsedMs": 466,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "startedAt": "2026-10-22T13:42:00.156Z",
+    "elapsedMs": 7298,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/terminal-build.log",
+    "logSha256": "sha256:0da45072baa2bbd3f8b2e8debb20037cd3e88365ebe4a84aa9747c93a344c680"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.g1-journey.config.ts",
+      "--project=chromium",
+      "--retries=0",
+      "--workers=1",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser"
+    ],
+    "startedAt": "2026-10-22T13:42:07.455Z",
+    "elapsedMs": 30072,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser.log",
+    "logSha256": "sha256:7af960eca4d58bde8f48d9d15add79b554720884ca2b6a6e13192127c1e2613f"
+  },
+  {
+    "id": "gate-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g1-journey-review.test.mjs"
+    ],
+    "startedAt": "2026-10-22T13:42:37.527Z",
+    "elapsedMs": 198,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/gate-negative.log",
+    "logSha256": "sha256:fbfb0ad6ff9fc4f6468d4eebc23c840de875796999b866507ac87dcc2166428c"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-22T13:42:37.725Z",
+    "elapsedMs": 55,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  }
+]

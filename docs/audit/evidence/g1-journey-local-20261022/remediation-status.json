@@ -1,0 +1,130 @@
+{
+  "schema": "quantos-g1-journey-remediation-status/v1",
+  "sourceCommit": "38569928f3557f80ca8bf3717d1f77882cf1e5ae",
+  "supersedesOnlyLocalDownloadGapObservationAt": "adec155931a9e0bc86a25e6c6fc12093943405be",
+  "localReferenceTasksVerified": 4,
+  "otherObligationsRetained": 4,
+  "g1Gate": "NOT_READY_GAPS_OPEN",
+  "stageGate": "NOT_ASSESSED",
+  "actions": [
+    {
+      "id": "G1-DEP-01",
+      "priority": "P1",
+      "owner": "FE/BFF owners + Codex",
+      "originalStatus": "OPEN",
+      "originalSummary": "冻结G1功能候选与直接依赖适用范围",
+      "originalAcceptance": "13项G1、26项FEP-1前提逐项登记当前阶段适用证据/原确认/输入差异；按受影响模块补组合，不机械重跑全部上游；必要阶段评估完成后才能申请READY。",
+      "status": "OPEN",
+      "scope": "UNCHANGED_OPEN_OBLIGATION",
+      "evidence": "docs/audit/evidence/frontend-g1-gap-20261022/actions.json"
+    },
+    {
+      "id": "G1-CONF-01",
+      "priority": "P1",
+      "owner": "ProjectUser confirms; Codex records and validates",
+      "originalStatus": "AWAITING_PROJECT_USER",
+      "originalSummary": "P15原完整稿尚待独立确认",
+      "originalAcceptance": "用户明确确认UI-P15原稿与工程7bb249d8范围后，保存原始答复并执行独立确认门禁。已确认其他原稿不重复索取回执。",
+      "status": "AWAITING_PROJECT_USER",
+      "scope": "UNCHANGED_OPEN_OBLIGATION",
+      "evidence": "docs/audit/evidence/frontend-g1-gap-20261022/actions.json"
+    },
+    {
+      "id": "G1-DL-01",
+      "priority": "P0",
+      "owner": "BFF + FE download contract owners",
+      "originalStatus": "OPEN",
+      "originalSummary": "参考provider租约与真实内容消费链未闭环",
+      "originalAcceptance": "参考实现签发符合明确issuer/content-origin策略的短链，提供实际文件内容及审计，原字节provider→generated consumer成功；过期/撤销/篡改/跨scope/重复消费/Storage失败后重取新链有用例。不能在测试桥重写URL。",
+      "status": "IMPLEMENTED_VERIFIED_LOCAL_REFERENCE",
+      "sourceCommit": "71b26d54998c3117391f01cac9a7e8681c5880ac",
+      "engineeringGate": "PASS_REFERENCE_DOWNLOAD_SCOPE",
+      "formalAccepted": false,
+      "targetTopologyAndLiveDelivery": "NOT_RUN",
+      "confirmation": "CONFIRMED",
+      "evidence": "docs/audit/evidence/g1-download-local-20261022/receipt.json",
+      "confirmationRecord": "docs/audit/evidence/g1-download-confirmation-20261022/user-confirmation.json"
+    },
+    {
+      "id": "G1-DL-02",
+      "priority": "P0",
+      "owner": "BFF + FE + deployment configuration owners",
+      "originalStatus": "OPEN",
+      "originalSummary": "live terminal-origin与消费者BFF-origin限定需统一",
+      "originalAcceptance": "明确单origin反向代理或受信内容origin配置方案，写入C10/C17契约/环境模板并测试相同与分离origin、协议/userinfo/query/hash、TTL=min(session,retention,300s)、opaque ticket；禁止任意跨域放行。",
+      "status": "IMPLEMENTED_VERIFIED_LOCAL_REFERENCE",
+      "sourceCommit": "71b26d54998c3117391f01cac9a7e8681c5880ac",
+      "engineeringGate": "PASS_REFERENCE_DOWNLOAD_SCOPE",
+      "formalAccepted": false,
+      "targetTopologyAndLiveDelivery": "NOT_RUN",
+      "confirmation": "CONFIRMED",
+      "evidence": "docs/audit/evidence/g1-download-local-20261022/receipt.json",
+      "confirmationRecord": "docs/audit/evidence/g1-download-confirmation-20261022/user-confirmation.json"
+    },
+    {
+      "id": "G1-REC-01",
+      "priority": "P0",
+      "owner": "Identity/BFF + FE route owners",
+      "originalStatus": "OPEN",
+      "originalSummary": "撤权事件到实际路由失效的组合证据不足",
+      "originalAcceptance": "同一候选验证授权stream或经明确评审的有界快照失效策略，跨标签/迟到响应/重连/最早会话期限均停止私有投影与后续写入；不能只凭独立reducer测试声称路由已接入SSE。",
+      "status": "IMPLEMENTED_VERIFIED_LOCAL_REFERENCE",
+      "evidence": "docs/audit/evidence/g1-recovery-local-20261022/receipt.json",
+      "sourceCommit": "75451b08bf97f3b85d49d6f9eca9da23975e974a",
+      "engineeringGate": "PASS_ROUTE_INVALIDATION_REFERENCE_SCOPE",
+      "confirmation": "CONFIRMED",
+      "formalAccepted": false,
+      "targetPersistentRevocation": "NOT_RUN",
+      "confirmationRecord": "docs/audit/evidence/g1-recovery-confirmation-20261022/user-confirmation.json"
+    },
+    {
+      "id": "G1-REC-02",
+      "priority": "P1",
+      "owner": "FE + BFF + QA",
+      "originalStatus": "OPEN",
+      "originalSummary": "完整本机G1业务旅程与审计/恢复矩阵尚未冻结执行",
+      "originalAcceptance": "同一候选实际UI/Auth/BFF组合覆盖登录→Command→P15变更→P17历史→导出内容→401/403→重连，核验correlation审计、CAS/幂等、未知结果、429、202受理后重读及不重放；端口替代清楚标注。",
+      "status": "IMPLEMENTED_VERIFIED_LOCAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS",
+      "scope": "LOCAL_REFERENCE_JOURNEY_ONLY_NOT_FULL_G1",
+      "evidence": "docs/audit/evidence/g1-journey-local-20261022/receipt.json",
+      "sourceCommit": "38569928f3557f80ca8bf3717d1f77882cf1e5ae",
+      "engineeringGate": "PASS_LOCAL_JOURNEY_WITH_EXPLICIT_PORT_SUBSTITUTIONS",
+      "confirmation": "PENDING",
+      "formalAccepted": false,
+      "fullG1BusinessJourney": "NOT_RUN",
+      "idpSession": "SYNTHETIC_LOOPBACK_PKCE_AND_SESSION_BRIDGE",
+      "exportCreation": "NODE_CONTROL_PORT_NO_EXPORT_UI"
+    },
+    {
+      "id": "G1-ENV-01",
+      "priority": "P1",
+      "owner": "QA/browser environment owner",
+      "originalStatus": "BLOCKED_ENVIRONMENT",
+      "originalSummary": "Firefox与WebKit拦截附件接收及人工可访问性保留",
+      "originalAcceptance": "在获准环境取得Firefox关键功能与WebKit实际内容端点附件字节证据；保留旧启动/下载事件失败；另行执行人工读屏和原生200%。",
+      "status": "BLOCKED_ENVIRONMENT",
+      "scope": "UNCHANGED_OPEN_OBLIGATION",
+      "evidence": "docs/audit/evidence/frontend-g1-gap-20261022/actions.json"
+    },
+    {
+      "id": "G1-TARGET-01",
+      "priority": "P1",
+      "owner": "Core F06/F09 + provider/environment owners",
+      "originalStatus": "NOT_RUN_AUTHORIZED_ENVIRONMENT_REQUIRED",
+      "originalSummary": "核心服务当前阶段与目标端口证据缺口需单独组织",
+      "originalAcceptance": "按实际授权非生产环境核对F06身份/权限与F09审计/错误/恢复必要功能证据，保留历史只读失败与无实际tick；完整部署、性能、长稳和远程同SHA CI仍按RELEASE矩阵组织。",
+      "status": "NOT_RUN_AUTHORIZED_ENVIRONMENT_REQUIRED",
+      "scope": "UNCHANGED_OPEN_OBLIGATION",
+      "evidence": "docs/audit/evidence/frontend-g1-gap-20261022/actions.json"
+    }
+  ],
+  "nextExecutable": [
+    "G1-DEP-01"
+  ],
+  "priorStatus": {
+    "path": "docs/audit/evidence/g1-recovery-confirmation-20261022/remediation-status.json",
+    "sha256": "sha256:d04c726791c6e98e4f2b13475ad3f8476cf6e0f53da00a077673ee3849501408",
+    "commit": "08a0161cc3e398599dc696005d14f1cf118b4984"
+  },
+  "confirmation": "PENDING_G1_REC02_ONLY"
+}

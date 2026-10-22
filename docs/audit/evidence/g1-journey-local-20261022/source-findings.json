@@ -1,0 +1,58 @@
+[
+  {
+    "path": "services/bff-gateway/src/lib.rs",
+    "line": 599,
+    "sha256": "sha256:34894397382fc1172efaac45cd2a2bf635167b14cef4215158d64952dca7cc0d",
+    "gitBlob": "ba1b06bb698c888f1d8de14142e71c69bbffa880",
+    "purpose": "searchable redacted settings actions with compatibility alias",
+    "excerpt": "fn record_settings_action(\n    data: &mut ProviderData,\n    action: &str,\n    correlation: &str,"
+  },
+  {
+    "path": "services/bff-gateway/src/lib.rs",
+    "line": 1462,
+    "sha256": "sha256:34894397382fc1172efaac45cd2a2bf635167b14cef4215158d64952dca7cc0d",
+    "gitBlob": "ba1b06bb698c888f1d8de14142e71c69bbffa880",
+    "purpose": "C10 excludes legacy entries without eventId",
+    "excerpt": "async fn search_audit_events(\n    State(data): State<Arc<Mutex<ProviderData>>>,\n    headers: HeaderMap,\n    Query(query): Query<AuditQuery>,"
+  },
+  {
+    "path": "services/bff-gateway/tests/auth_settings_provider.rs",
+    "line": 883,
+    "sha256": "sha256:7df309b2d562582ab1ee5dd3cf8178ec4c831ab8c593986b04a9c003d4930662",
+    "gitBlob": "3cff0713c91fb0ba2979e9c2eadeed17b4266020",
+    "purpose": "actual C10 correlation/auditRef/idempotency regression",
+    "excerpt": "async fn settings_actions_are_searchable_redacted_and_idempotent_in_c10() {\n    let provider = BffProvider::default();\n    let router = provider.router();\n    let mut write = mutation("
+  },
+  {
+    "path": "tests/e2e/g1-journey.spec.ts",
+    "line": 82,
+    "sha256": "sha256:8fafac7d3ef2456faafc2c3cf9e96b06e3e86e44fc2cb28114ff77ae2bf5cc15",
+    "gitBlob": "309752283a461ca19193b61249071697109f1242",
+    "purpose": "actual routes with explicit IdP/session and export creation ports",
+    "excerpt": "test(\"login to Command to P15 to P17 real attachment and correlated audit journey\",async({page})=>{\n await login(page);await page.goto(\"/settings/profile\");await authorized(page);await page.getByLabel(\"显示名称\",{exact:true}).fill(\"Journey confirmed profile\");await page.getByRole(\"button\",{name:\"保存个人资料\",exact:true}).click();await expect(page.locator(\".toast\")).toContainText(\"个人资料已保存\");\n const save=rows.find(r=>r.path===\"/v1/settings/profile\"&&r.method===\"PUT\")!;const profileAudit=await audit(\"profile.save\",save.correlationId);expect(profileAudit).toHaveLength(1);\n await page.getByRole(\"link\",{name:\"通知设置\",exact:true}).click();await authorized(page);await page.getByRole(\"checkbox\",{name:\"启用静默时段\",exact:true}).check();await page.getByRole(\"button\",{name:\"保存通知偏好\",exact:true}).click();await expect(page.locator(\".toast\")).toContainText(\"通知偏好已保存\");const notification=rows.find(r=>r.path===\"/v1/settings/notification-preferences\"&&r.method===\"PUT\")!;expect(await audit(\"notification_preferences.save\",notification.correlationId)).toHaveLength(1);"
+  },
+  {
+    "path": "tests/e2e/g1-journey.spec.ts",
+    "line": 100,
+    "sha256": "sha256:8fafac7d3ef2456faafc2c3cf9e96b06e3e86e44fc2cb28114ff77ae2bf5cc15",
+    "gitBlob": "309752283a461ca19193b61249071697109f1242",
+    "purpose": "committed unknown outcome and exact intent retry",
+    "excerpt": "test(\"committed save with lost response explicitly retries same intent once\",async({page})=>{\n await login(page);await page.goto(\"/settings/profile\");await authorized(page);dropProfile=true;await page.getByLabel(\"显示名称\",{exact:true}).fill(\"Unknown outcome profile\");await page.getByRole(\"button\",{name:\"保存个人资料\",exact:true}).click();await expect(page.locator(\".toast\")).toContainText(\"请求结果未知\");await page.waitForTimeout(300);let writes=rows.filter(r=>r.method===\"PUT\");expect(writes).toHaveLength(1);expect(writes[0].source).toBe(\"REFERENCE_COMMITTED_RESPONSE_DROPPED\");await expect(page.getByLabel(\"显示名称\",{exact:true})).toHaveValue(\"Unknown outcome profile\");await page.getByRole(\"button\",{name:\"保存个人资料\",exact:true}).click();await expect(page.locator(\".toast\")).toContainText(\"个人资料已保存\");writes=rows.filter(r=>r.method===\"PUT\");expect(writes).toHaveLength(2);for(const key of [\"idempotencySha256\",\"requestSha256\",\"version\"]as const)expect(writes[0][key]).toBe(writes[1][key]);const read=await call(\"/v1/settings/profile\");expect(read.body.objectVersion).toBe(\"profile-v2\");expect(await audit(\"profile.save\")).toHaveLength(1);checks.push({id:\"unknown-save-exact-intent-no-auto-replay\",status:\"PASS\"});\n});\ntest(\"committed 202 lost response never replays DELETE and explicit read resolves\",async({page})=>{"
+  },
+  {
+    "path": "tests/e2e/g1-journey.spec.ts",
+    "line": 109,
+    "sha256": "sha256:8fafac7d3ef2456faafc2c3cf9e96b06e3e86e44fc2cb28114ff77ae2bf5cc15",
+    "gitBlob": "309752283a461ca19193b61249071697109f1242",
+    "purpose": "real 429 with 60 second expiry not run",
+    "excerpt": "test(\"actual reference MFA 429 never reaches reauth or DELETE\",async({page})=>{\n await login(page);await page.goto(\"/settings/security\");await authorized(page);await securityDialog(page,\"000000\");for(let i=0;i<5;i++){await page.getByRole(\"button\",{name:\"确认撤销会话\",exact:true}).click();await expect.poll(()=>rows.filter(r=>r.path===\"/v1/auth/mfa/challenges\").length).toBe(i+1);await expect(page.locator(\".toast\")).toBeVisible();await expect(page.getByLabel(\"MFA 验证码\")).toHaveValue(\"\");if(i<4)await page.getByLabel(\"MFA 验证码\").fill(\"000000\");}expect(rows.filter(r=>r.path===\"/v1/auth/mfa/challenges\").map(r=>r.status)).toEqual([200,200,200,200,429]);expect(rows.some(r=>r.path===\"/v1/auth/reauth\"||r.method===\"DELETE\")).toBe(false);await page.waitForTimeout(250);expect(rows.filter(r=>r.path===\"/v1/auth/mfa/challenges\")).toHaveLength(5);checks.push({id:\"actual-mfa-429\",status:\"PASS\",cooldownExpiry:\"NOT_RUN_60_SECOND_REFERENCE_WINDOW\"});\n});\ntest(\"actual provider 403 on changed fixture identity clears private UI\",async({page})=>{"
+  },
+  {
+    "path": "scripts/g1-journey-review.mjs",
+    "line": 29,
+    "sha256": "sha256:1de1f4a2a2bbf455b9ff014678daee982977c140403c89251adc0aa29c9b718e",
+    "gitBlob": "61340858a4dc5c8d7f78a757263cd5b9ab7b3370",
+    "purpose": "frozen source/log/binary/buildId/browser and stage boundary gate",
+    "excerpt": "export function verify(r){validateBoundary(r);assert.deepEqual(sourceInputs(),r.inputs);verifyInputs(r.sourceCommit,r.inputs);assert.equal(planCheck(),159);assert.deepEqual(r.history,history());assert.equal(r.executions.length,checks.length);for(const[i,e]of r.executions.entries()){assert.equal(e.id,checks[i].id);assert.deepEqual(e.command,checks[i].command.map(x=>x.replaceAll('{attempt}',r.attempt)));assert.equal(e.exitCode,0);assert.equal(e.signal,null);assert.equal(e.errorCode,null);assert.equal(hash(read(e.log)),e.logSha256);}for(const a of r.artifacts){assert(a.path.startsWith(r.attempt+'/')&&!a.path.includes('..'));assert.equal(hash(read(a.path)),a.sha256);}validateBrowser(json(r.attempt+'/browser/report.json'),10);const binary=json(r.attempt+'/binary.json');assert.equal(binary.sourceCommit,r.sourceCommit);assert.equal(json(r.attempt+'/terminal-build.json').buildId,'terminal-'+r.sourceCommit);const probes=r.artifacts.filter(a=>a.path.endsWith('/journey.json')).map(a=>json(a.path));assert.equal(probes.length,10);for(const p of probes)validateScenario(p,r.sourceCommit,binary.sha256);validateAggregate(probes);for(const id of ['rust-auth','rust-audit'])assert.match(read(r.attempt+'/'+id+'.log').toString(),/test result: ok\\. \\d+ passed; 0 failed; 0 ignored/);return{sourceCommit:r.sourceCommit,engineeringGate:r.engineeringGate,confirmation:'PENDING',g1Gate:r.g1Gate,fep1Gate:r.fep1Gate,stageGate:r.stageGate,formalAccepted:false,runtimeAdmission:'DENIED',preservedPlanStageGates:159,browserCases:10};}\nexport function run(attempt){assert(attempt.startsWith(directory+'/attempt-')&&!attempt.includes('..'));assert(!existsSync(attempt),'never overwrite evidence');mkdirSync(attempt,{recursive:true});const sourceCommit=git('rev-parse','HEAD').trim(),inputs=sourceInputs();verifyInputs(sourceCommit,inputs);planCheck();const executions=[];writeFileSync(attempt+'/inputs.json',JSON.stringify({sourceCommit,inputs},null,2)+'\\n');const env={...webEnvironment(),NEXT_PUBLIC_QUANTOS_ENV:'local-integrated',NEXT_PUBLIC_QUANTOS_MOCK_ENABLED:'false',NEXT_PUBLIC_QUANTOS_BFF_ORIGIN:'https://127.0.0.1:4010',NEXT_PUBLIC_QUANTOS_OIDC_ISSUER:'https://127.0.0.1:4010',CARGO_NET_OFFLINE:'true',CI:'1',GITHUB_SHA:sourceCommit,G1_JOURNEY_SOURCE:sourceCommit,PLAYWRIGHT_JSON_OUTPUT_NAME:resolve(attempt,'browser/report.json')};for(const check of checks){const command=check.command.map(x=>x.replaceAll('{attempt}',attempt)),startedAt=new Date().toISOString(),start=Date.now(),out=spawnSync(command[0],command.slice(1),{env,encoding:'utf8',maxBuffer:64e6,timeout:600000});const log=attempt+'/'+check.id+'.log';writeFileSync(log,(out.stdout??'')+(out.stderr??''));executions.push({id:check.id,command,startedAt,elapsedMs:Date.now()-start,exitCode:out.status,signal:out.signal,errorCode:out.error?.code??null,log,logSha256:hash(read(log))});writeFileSync(attempt+'/executions.json',JSON.stringify(executions,null,2)+'\\n');console.log(check.id,out.status);if(out.status!==0)throw Error(check.id+' failed; preserve '+attempt);if(check.id==='bff-build')writeFileSync(attempt+'/binary.json',JSON.stringify({sourceCommit,path:'target/debug/bff-gateway',sha256:hash(read('target/debug/bff-gateway'))},null,2)+'\\n');if(check.id==='terminal-build')writeFileSync(attempt+'/terminal-build.json',read('apps/terminal/out/pre03-build.json'));}const r={...boundary(sourceCommit),attempt,inputs,history:history(),executions,artifacts:files(attempt).map(path=>({path,sha256:hash(read(path))}))};verify(r);writeFileSync(directory+'/receipt.json',JSON.stringify(r,null,2)+'\\n');console.log(JSON.stringify(verify(r)));}\nif(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--run')run(process.argv[3]);else{assert.equal(process.argv[2],'--verify');console.log(JSON.stringify(verify(json(directory+'/receipt.json'))));}}catch(e){console.error(e.stack);process.exitCode=1;}}"
+  }
+]

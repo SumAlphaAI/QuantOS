@@ -1,0 +1,198 @@
+{
+  "schema": "quantos-g1-journey-browser/v1",
+  "scenario": "committed save with lost response explicitly retries same intent once",
+  "mode": "ACTUAL_ROUTES_RUST_REFERENCE_EXPLICIT_PORT_SUBSTITUTIONS",
+  "sourceCommit": "38569928f3557f80ca8bf3717d1f77882cf1e5ae",
+  "binarySha256": "sha256:a901fa03b4300b174e8addae522fed29a4e85f6ff18b579f495234d277ece6d7",
+  "topology": "HTTPS_LOOPBACK_ORIGINAL_PROVIDER_BYTES_NO_URL_REWRITE",
+  "idpSession": "SYNTHETIC_LOOPBACK_PKCE_AND_SESSION_BRIDGE",
+  "exportCreation": "NODE_CONTROL_PORT_NO_EXPORT_UI",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "targetDatabaseStorage": "NOT_RUN",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "checks": [
+    {
+      "id": "unknown-save-exact-intent-no-auto-replay",
+      "status": "PASS"
+    }
+  ],
+  "rows": [
+    {
+      "method": "GET",
+      "path": "/authorize",
+      "status": 302,
+      "source": "SYNTHETIC_LOOPBACK_IDP",
+      "port": "ACTUAL_BROWSER"
+    },
+    {
+      "method": "POST",
+      "path": "/token",
+      "status": 200,
+      "source": "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+      "port": "ACTUAL_BROWSER",
+      "requestSha256": "sha256:de74af4435be637149295913b70d6728d72d73b1aad2d874fd5c18447537a9ad",
+      "responseSha256": "sha256:93e36365e11c2cf648ff907f836ecd84203faff8f742c74838aca826449b4651"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/session",
+      "status": 204,
+      "source": "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT",
+      "port": "ACTUAL_BROWSER"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-229d-7691-a244-5e4722b2e9ff",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-22a0-7402-9bf5-68223a0dafe4",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/command/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-22d0-7f60-8338-9ed5c8b97d60",
+      "responseSha256": "sha256:7af0555ce015aa796dd322d6c449f69e1501db5bce20a23a3a84f9c4414de74a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-22d5-7181-b2df-3fad78461932"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-22d7-79f2-a2e1-94d87205a6f6",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-22d9-73c3-861a-c65e03c2233e",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-230c-7992-b547-97137a8afc7f",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-2311-7de0-bf2b-6d579c35c055",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-2313-73d3-bdcd-28310f14144e",
+      "responseSha256": "sha256:ca8c80d4e88a1d8b938c9b006a32f493b93cbd1ad30c71cf64e4a4283cc7e14c"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-2316-78c0-9fb8-d009b6cd5aaa"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-2319-7bb0-a99a-dd7488b157bf",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "correlationId": "01a163d9-231b-74a2-a5b4-4944b3991a7e",
+      "responseSha256": "sha256:ff7dd91ba248604251927c38722b39ab1cf53bae51288b8d1ca934574b993621"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "source": "REFERENCE_COMMITTED_RESPONSE_DROPPED",
+      "port": "ACTUAL_BROWSER",
+      "requestSha256": "sha256:a54a1feb7a222cb3fc844a7ecaa9201a7aab889194c532cc952a5af9b9c07663",
+      "requestId": "f6ee6b00-c054-40a4-99f5-806cdcbde487",
+      "idempotencySha256": "sha256:ace83218f2fa71867820dbd85a66c0ecc131987f5703df021160b8ecc38b396d",
+      "version": "profile-v1",
+      "correlationId": "01a163d9-2347-7e12-a750-07da158e5d7e",
+      "responseSha256": "sha256:e8f612a91032805a1d9856b1376014835da18067d22c6ba130a38a10bafa3b55"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "ACTUAL_BROWSER",
+      "requestSha256": "sha256:a54a1feb7a222cb3fc844a7ecaa9201a7aab889194c532cc952a5af9b9c07663",
+      "requestId": "7c01d2fa-3189-4a4c-bc48-28211048ee55",
+      "idempotencySha256": "sha256:ace83218f2fa71867820dbd85a66c0ecc131987f5703df021160b8ecc38b396d",
+      "version": "profile-v1",
+      "correlationId": "01a163d9-24e2-7ea1-9a00-542a7bbfb2f5",
+      "responseSha256": "sha256:e8f612a91032805a1d9856b1376014835da18067d22c6ba130a38a10bafa3b55"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "NODE_CONTROL_PORT",
+      "requestId": "cc8f01fc-e301-4398-aca4-6641d543cb01",
+      "correlationId": "01a163d9-24fb-7d02-978a-07c8407223d4",
+      "responseSha256": "sha256:e8f612a91032805a1d9856b1376014835da18067d22c6ba130a38a10bafa3b55"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/events",
+      "status": 200,
+      "source": "REFERENCE_BYTE_FOR_BYTE",
+      "port": "NODE_CONTROL_PORT",
+      "requestId": "7a45aa2d-64f9-429e-be6e-6af55f1ea460",
+      "correlationId": "01a163d9-24fc-73b3-b659-2d32262071db",
+      "responseSha256": "sha256:da29d0c68e2abf6d39bec70b24a237e14426c9f3a039161cf8e838af94293306"
+    }
+  ]
+}

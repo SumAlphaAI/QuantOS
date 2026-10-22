@@ -1,0 +1,203 @@
+{
+  "schema": "quantos-g1-local-journey-matrix/v1",
+  "sourceCommit": "38569928f3557f80ca8bf3717d1f77882cf1e5ae",
+  "browser": "chromium",
+  "cases": [
+    {
+      "scenario": "actual provider 403 on changed fixture identity clears private UI",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-actual-provider-6a1d2--identity-clears-private-UI-chromium/journey.json",
+      "sha256": "sha256:44dccbc5437de93eb602d0c12ced4ca98fef261ff4f69a0812ed688e5ee1af5d",
+      "outcome": {
+        "id": "actual-403-fixture-identity-change",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER"
+      ]
+    },
+    {
+      "scenario": "actual provider 401 requires new local login before cross-page recovery",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-actual-provider-fc3bd--before-cross-page-recovery-chromium/journey.json",
+      "sha256": "sha256:695a5c618eb2cc75db846a4aa7b8420aaffb5f2cecdd641f784935796426b146",
+      "outcome": {
+        "id": "actual-401-explicit-local-login",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER"
+      ]
+    },
+    {
+      "scenario": "actual reference MFA 429 never reaches reauth or DELETE",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/journey.json",
+      "sha256": "sha256:ca55e00f771681fd426a1ece9dd8e7fd2f53ad29bfe985ef193db4865d4be54f",
+      "outcome": {
+        "id": "actual-mfa-429",
+        "status": "PASS",
+        "cooldownExpiry": "NOT_RUN_60_SECOND_REFERENCE_WINDOW"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER"
+      ]
+    },
+    {
+      "scenario": "committed 202 lost response never replays DELETE and explicit read resolves",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/journey.json",
+      "sha256": "sha256:f6bffedb297e3eef02b68dfc243b9bd8bfed27bd732eb02d1a1de2625f7331a3",
+      "outcome": {
+        "id": "unknown-202-read-fact-no-delete-replay",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "REFERENCE_COMMITTED_RESPONSE_DROPPED",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER",
+        "NODE_CONTROL_PORT"
+      ]
+    },
+    {
+      "scenario": "committed save with lost response explicitly retries same intent once",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/journey.json",
+      "sha256": "sha256:8ed8ff57ade3d1a8d9298ba0e350698bac77fd72f0342f26600b97dd83c04ac1",
+      "outcome": {
+        "id": "unknown-save-exact-intent-no-auto-replay",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "REFERENCE_COMMITTED_RESPONSE_DROPPED",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER",
+        "NODE_CONTROL_PORT"
+      ]
+    },
+    {
+      "scenario": "disconnect and offline cross-page recovery do not replay writes",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-disconnect-and--29328-covery-do-not-replay-writes-chromium/journey.json",
+      "sha256": "sha256:87fae72e6507cdc2c8bf5a140e4809305aa2c35f047a1dc6c03e4145e0669286",
+      "outcome": {
+        "id": "disconnect-offline-fresh-cross-page-read",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER"
+      ]
+    },
+    {
+      "scenario": "login to Command to P15 to P17 real attachment and correlated audit journey",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-login-to-Comman-0fb6c-nd-correlated-audit-journey-chromium/journey.json",
+      "sha256": "sha256:ea0aefff937f9d4c182aec9d08591fd10ca56a2351a25b928527c67a15dedfa3",
+      "outcome": {
+        "id": "complete-local-port-substituted-journey",
+        "status": "PASS",
+        "profileCorrelation": "01a163d9-0fe1-7460-933f-4e0f4c88585e",
+        "notificationCorrelation": "01a163d9-106e-76d3-8500-9c453e2aec0b",
+        "revokeCorrelation": "01a163d9-1116-78b0-a341-07d3b78e2dd3",
+        "exportId": "01a163d9-115b-7342-b217-9e894d823c51",
+        "contentSha256": "sha256:604823a2c52cb93afacaeb5cc5e6dd39d8d7674f10a88b4f5682bfdfa0673cd6",
+        "bytes": 4743,
+        "acceptedIsNotFinal": true,
+        "historyContainsLease": false,
+        "attachmentMatchesAttestation": true,
+        "auditReferenceResolved": true,
+        "oneShotRefused": true
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER",
+        "NODE_CONTROL_PORT"
+      ]
+    },
+    {
+      "scenario": "real CAS conflict preserves draft and requires explicit rebase and save",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-real-CAS-confli-79d24-es-explicit-rebase-and-save-chromium/journey.json",
+      "sha256": "sha256:47a60281f04b373e9dae2d6857392a217cfad3cb1da2603b0388d133c1560ab8",
+      "outcome": {
+        "id": "cas-rebase",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER",
+        "NODE_CONTROL_PORT"
+      ]
+    },
+    {
+      "scenario": "synthetic bounded 429 blocks save until user explicitly retries real provider",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-synthetic-bound-0f552-citly-retries-real-provider-chromium/journey.json",
+      "sha256": "sha256:cc199b9dd193c55fe383c72809d705f19fdb2b98743d962ca7b8c1b9ad814876",
+      "outcome": {
+        "id": "synthetic-429-explicit-resume",
+        "status": "PASS"
+      },
+      "sources": [
+        "REFERENCE_BYTE_FOR_BYTE",
+        "SYNTHETIC_429_BEFORE_FORWARD",
+        "SYNTHETIC_LOOPBACK_IDP",
+        "SYNTHETIC_LOOPBACK_IDP_PKCE_CHECK",
+        "SYNTHETIC_REFERENCE_SESSION_ESTABLISHMENT"
+      ],
+      "ports": [
+        "ACTUAL_BROWSER",
+        "NODE_CONTROL_PORT"
+      ]
+    },
+    {
+      "scenario": "tampered callback state consumes pending auth and never establishes server session",
+      "path": "docs/audit/evidence/g1-journey-local-20261022/attempt-01/browser/g1-journey-tampered-callba-2cf0e--establishes-server-session-chromium/journey.json",
+      "sha256": "sha256:45dca8e31e941061dee1c4a0da95a5444cdb927da98e07e00d0d1d811a5f0466",
+      "outcome": {
+        "id": "tampered-state-no-session",
+        "status": "PASS",
+        "fault": "SYNTHETIC_CALLBACK_NAVIGATION"
+      },
+      "sources": [],
+      "ports": []
+    }
+  ],
+  "fullG1BusinessJourney": "NOT_RUN",
+  "portSubstitutionsExplicit": true
+}

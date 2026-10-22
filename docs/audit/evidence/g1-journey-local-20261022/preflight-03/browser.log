@@ -1,0 +1,143 @@
+
+Running 10 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/g1-journey.spec.ts:78:5 › login to Command to P15 to P17 real attachment and correlated audit journey (3.7s)
+  ✓   2 [chromium] › tests/e2e/g1-journey.spec.ts:89:5 › real CAS conflict preserves draft and requires explicit rebase and save (2.3s)
+  ✘   3 [chromium] › tests/e2e/g1-journey.spec.ts:94:5 › committed save with lost response explicitly retries same intent once (7.3s)
+  ✘   4 [chromium] › tests/e2e/g1-journey.spec.ts:97:5 › committed 202 lost response never replays DELETE and explicit read resolves (7.3s)
+  ✓   5 [chromium] › tests/e2e/g1-journey.spec.ts:100:5 › synthetic bounded 429 blocks save until user explicitly retries real provider (5.0s)
+  ✘   6 [chromium] › tests/e2e/g1-journey.spec.ts:103:5 › actual reference MFA 429 never reaches reauth or DELETE (7.3s)
+  ✓   7 [chromium] › tests/e2e/g1-journey.spec.ts:106:5 › actual provider 403 on changed fixture identity clears private UI (2.3s)
+  ✓   8 [chromium] › tests/e2e/g1-journey.spec.ts:109:5 › actual provider 401 requires new local login before cross-page recovery (2.4s)
+  ✓   9 [chromium] › tests/e2e/g1-journey.spec.ts:112:5 › disconnect and offline cross-page recovery do not replay writes (2.7s)
+  ✓  10 [chromium] › tests/e2e/g1-journey.spec.ts:115:5 › tampered callback state consumes pending auth and never establishes server session (2.2s)
+
+
+  1) [chromium] › tests/e2e/g1-journey.spec.ts:94:5 › committed save with lost response explicitly retries same intent once 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.toast')
+    Expected substring: "请求结果未知"
+    Received string:    "个人资料已保存；角色与权限由服务端决定。×"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('.toast')
+        13 × locator resolved to <div class="toast" role="status">…</div>
+           - unexpected value "个人资料已保存；角色与权限由服务端决定。×"
+
+
+      93 | });
+      94 | test("committed save with lost response explicitly retries same intent once",async({page})=>{
+    > 95 |  await login(page);await page.goto("/settings/profile");await authorized(page);dropProfile=true;await page.getByLabel("显示名称",{exact:true}).fill("Unknown outcome profile");await page.getByRole("button",{name:"保存个人资料",exact:true}).click();await expect(page.locator(".toast")).toContainText("请求结果未知");await page.waitForTimeout(300);let writes=rows.filter(r=>r.method==="PUT");expect(writes).toHaveLength(1);expect(writes[0].source).toBe("REFERENCE_COMMITTED_RESPONSE_DROPPED");await expect(page.getByLabel("显示名称",{exact:true})).toHaveValue("Unknown outcome profile");await page.getByRole("button",{name:"保存个人资料",exact:true}).click();await expect(page.locator(".toast")).toContainText("个人资料已保存");writes=rows.filter(r=>r.method==="PUT");expect(writes).toHaveLength(2);for(const key of ["idempotencySha256","requestSha256","version"]as const)expect(writes[0][key]).toBe(writes[1][key]);const read=await call("/v1/settings/profile");expect(read.body.objectVersion).toBe("profile-v2");expect(await audit("profile.save")).toHaveLength(1);checks.push({id:"unknown-save-exact-intent-no-auto-replay",status:"PASS"});
+         |                                                                                                                                                                                                                                                                                   ^
+      96 | });
+      97 | test("committed 202 lost response never replays DELETE and explicit read resolves",async({page})=>{
+      98 |  await login(page);await page.goto("/settings/security");await authorized(page);dropDelete=true;await securityDialog(page);await page.getByRole("button",{name:"确认撤销会话",exact:true}).click();await expect(page.locator(".toast")).toContainText("请求结果未知");await expect(page.locator(".settings-list-row code").filter({hasText:"session-remote"})).toBeVisible();await page.getByRole("button",{name:"取消",exact:true}).click();await page.waitForTimeout(300);expect(rows.filter(r=>r.method==="DELETE")).toHaveLength(1);await page.getByRole("button",{name:"重新验证并保留草稿",exact:true}).click();await expect(page.locator(".settings-list-row code").filter({hasText:"session-remote"})).toHaveCount(0);expect(await audit("session.revoke")).toHaveLength(1);checks.push({id:"unknown-202-read-fact-no-delete-replay",status:"PASS"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/g1-journey.spec.ts:95:275
+
+    attachment #1: journey (application/json) ──────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/attachments/journey-3b1e6988f0e41c910e279fc7259a1fb7117a0919.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-save--9e8d7-ly-retries-same-intent-once-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/g1-journey.spec.ts:97:5 › committed 202 lost response never replays DELETE and explicit read resolves 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.toast')
+    Expected substring: "请求结果未知"
+    Received string:    "会话撤销已受理；记录暂不移除，请重新读取核验最终状态。×"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('.toast')
+        13 × locator resolved to <div class="toast" role="status">…</div>
+           - unexpected value "会话撤销已受理；记录暂不移除，请重新读取核验最终状态。×"
+
+
+       96 | });
+       97 | test("committed 202 lost response never replays DELETE and explicit read resolves",async({page})=>{
+    >  98 |  await login(page);await page.goto("/settings/security");await authorized(page);dropDelete=true;await securityDialog(page);await page.getByRole("button",{name:"确认撤销会话",exact:true}).click();await expect(page.locator(".toast")).toContainText("请求结果未知");await expect(page.locator(".settings-list-row code").filter({hasText:"session-remote"})).toBeVisible();await page.getByRole("button",{name:"取消",exact:true}).click();await page.waitForTimeout(300);expect(rows.filter(r=>r.method==="DELETE")).toHaveLength(1);await page.getByRole("button",{name:"重新验证并保留草稿",exact:true}).click();await expect(page.locator(".settings-list-row code").filter({hasText:"session-remote"})).toHaveCount(0);expect(await audit("session.revoke")).toHaveLength(1);checks.push({id:"unknown-202-read-fact-no-delete-replay",status:"PASS"});
+          |                                                                                                                                                                                                                                   ^
+       99 | });
+      100 | test("synthetic bounded 429 blocks save until user explicitly retries real provider",async({page})=>{
+      101 |  await login(page);await page.goto("/settings/profile");await authorized(page);rateProfile=true;await page.getByLabel("显示名称",{exact:true}).fill("Rate limited draft");await page.getByRole("button",{name:"保存个人资料",exact:true}).click();await expect(page.getByRole("button",{name:"保存个人资料",exact:true})).toBeDisabled();await page.waitForTimeout(2600);expect(rows.filter(r=>r.method==="PUT")).toHaveLength(1);await expect(page.getByRole("button",{name:"保存个人资料",exact:true})).toBeEnabled();await page.getByRole("button",{name:"保存个人资料",exact:true}).click();await expect(page.locator(".toast")).toContainText("个人资料已保存");const writes=rows.filter(r=>r.method==="PUT");expect(writes.map(r=>r.status)).toEqual([429,200]);expect(writes[0].idempotencySha256).toBe(writes[1].idempotencySha256);expect(await audit("profile.save")).toHaveLength(1);checks.push({id:"synthetic-429-explicit-resume",status:"PASS"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/g1-journey.spec.ts:98:227
+
+    attachment #1: journey (application/json) ──────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/attachments/journey-4952a576c9ff0ff467c9b52e541b85a6f574e703.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-committed-202-l-02122--and-explicit-read-resolves-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/g1-journey.spec.ts:103:5 › actual reference MFA 429 never reaches reauth or DELETE 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '确认撤销会话', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '确认撤销会话', exact: true })
+        14 × locator resolved to <button disabled type="button" class="q-button q-button--danger">确认撤销会话</button>
+           - unexpected value "disabled"
+
+
+      102 | });
+      103 | test("actual reference MFA 429 never reaches reauth or DELETE",async({page})=>{
+    > 104 |  await login(page);await page.goto("/settings/security");await authorized(page);await securityDialog(page,"000000");for(let i=0;i<5;i++){await page.getByRole("button",{name:"确认撤销会话",exact:true}).click();await expect.poll(()=>rows.filter(r=>r.path==="/v1/auth/mfa/challenges").length).toBe(i+1);await expect(page.locator(".toast")).toBeVisible();await expect(page.getByRole("button",{name:"确认撤销会话",exact:true})).toBeEnabled();}expect(rows.filter(r=>r.path==="/v1/auth/mfa/challenges").map(r=>r.status)).toEqual([200,200,200,200,429]);expect(rows.some(r=>r.path==="/v1/auth/reauth"||r.method==="DELETE")).toBe(false);await page.waitForTimeout(250);expect(rows.filter(r=>r.path==="/v1/auth/mfa/challenges")).toHaveLength(5);checks.push({id:"actual-mfa-429",status:"PASS",cooldownExpiry:"NOT_RUN_60_SECOND_REFERENCE_WINDOW"});
+          |                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+      105 | });
+      106 | test("actual provider 403 on changed fixture identity clears private UI",async({page})=>{
+      107 |  await login(page);await page.goto("/settings/profile");await authorized(page);identity="session-viewer";await page.getByLabel("显示名称",{exact:true}).fill("Denied write");await page.getByRole("button",{name:"保存个人资料",exact:true}).click();await expect(page).toHaveURL(/\/unauthorized$/);const writes=rows.filter(r=>r.method==="PUT");expect(writes).toHaveLength(1);expect(writes[0].status).toBe(403);expect(writes[0].source).toBe("REFERENCE_BYTE_FOR_BYTE");checks.push({id:"actual-403-fixture-identity-change",status:"PASS"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/g1-journey.spec.ts:104:412
+
+    attachment #1: journey (application/json) ──────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/attachments/journey-4832a394dee30669f26d1995922149729216c306.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/audit/evidence/g1-journey-local-20261022/preflight-03/browser/g1-journey-actual-referenc-2b213-er-reaches-reauth-or-DELETE-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests/e2e/g1-journey.spec.ts:94:5 › committed save with lost response explicitly retries same intent once 
+    [chromium] › tests/e2e/g1-journey.spec.ts:97:5 › committed 202 lost response never replays DELETE and explicit read resolves 
+    [chromium] › tests/e2e/g1-journey.spec.ts:103:5 › actual reference MFA 429 never reaches reauth or DELETE 
+  7 passed (44.7s)

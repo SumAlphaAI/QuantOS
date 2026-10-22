@@ -1,0 +1,79 @@
+
+running 16 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test readonly_session_cannot_write_settings_or_reuse_another_sessions_reauth ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test revoked_stream_discards_backlog_before_delivering_any_settings_event ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... FAILED
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test settings_actions_are_searchable_redacted_and_idempotent_in_c10 ... FAILED
+test concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once ... FAILED
+test notification_save_is_idempotent_and_audited ... FAILED
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test security_retries_execute_once_and_match_success_correlation ... FAILED
+test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... FAILED
+test session_stream_stays_open_for_other_session_and_closes_revoked_target ... ok
+
+failures:
+
+---- session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit stdout ----
+
+thread 'session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit' (2582242) panicked at services/bff-gateway/tests/auth_settings_provider.rs:254:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- settings_actions_are_searchable_redacted_and_idempotent_in_c10 stdout ----
+
+thread 'settings_actions_are_searchable_redacted_and_idempotent_in_c10' (2582244) panicked at services/bff-gateway/tests/auth_settings_provider.rs:912:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+
+---- concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once stdout ----
+
+thread 'concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once' (2582233) panicked at services/bff-gateway/tests/auth_settings_provider.rs:846:9:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- notification_save_is_idempotent_and_audited stdout ----
+
+thread 'notification_save_is_idempotent_and_audited' (2582237) panicked at services/bff-gateway/tests/auth_settings_provider.rs:757:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+---- security_retries_execute_once_and_match_success_correlation stdout ----
+
+thread 'security_retries_execute_once_and_match_success_correlation' (2582241) panicked at services/bff-gateway/tests/auth_settings_provider.rs:484:5:
+assertion `left == right` failed
+  left: 0
+ right: 4
+
+---- settings_roundtrip_preserves_inputs_and_separates_idempotent_intents stdout ----
+
+thread 'settings_roundtrip_preserves_inputs_and_separates_idempotent_intents' (2582296) panicked at services/bff-gateway/tests/auth_settings_provider.rs:423:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+
+
+failures:
+    concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once
+    notification_save_is_idempotent_and_audited
+    security_retries_execute_once_and_match_success_correlation
+    session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit
+    settings_actions_are_searchable_redacted_and_idempotent_in_c10
+    settings_roundtrip_preserves_inputs_and_separates_idempotent_intents
+
+test result: FAILED. 10 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.15s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.51s
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-db144e8813038afd)
+error: test failed, to rerun pass `-p bff-gateway --test auth_settings_provider`
