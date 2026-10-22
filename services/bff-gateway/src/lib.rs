@@ -642,7 +642,9 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
             "audit:read",
             "audit:export",
             "execution.operate",
-            "strategy.write"
+            "strategy.write",
+            // The same current reference identity already owns C04 reads.
+            "snapshot.read"
         ])
     } else if matches!(
         cookies(headers).get("quantos_session").copied(),

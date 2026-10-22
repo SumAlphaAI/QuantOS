@@ -616,3 +616,53 @@ fn current_function_snapshot_expiry_preserves_subsecond_window_and_overflow_boun
     snapshot["maxAgeSeconds"] = json!(i64::MAX);
     assert_eq!(fixture.snapshot(id).unwrap()["qualityBlocked"], true);
 }
+
+#[tokio::test]
+async fn snapshot_read_capability_matches_reference_resource_owner() {
+    let p = BffProvider::default();
+    for path in ["/v1/session", "/v1/context"] {
+        let (status, body) = call(&p, "GET", path, None, Uuid::new_v4()).await;
+        assert_eq!(status, 200);
+        assert!(
+            body["capabilities"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("snapshot.read"))
+        );
+    }
+    let (status, _) = call(
+        &p,
+        "GET",
+        &format!("/v1/data-snapshots/{SNAPSHOT}"),
+        None,
+        Uuid::new_v4(),
+    )
+    .await;
+    assert_eq!(status, 200);
+    for session in ["session-other", "session-approver", "session-owner"] {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "cookie",
+            format!("quantos_session={session}").parse().unwrap(),
+        );
+        let payload = crate::session_payload(&headers, Utc::now() + Duration::hours(1));
+        assert!(
+            !payload["capabilities"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("snapshot.read"))
+        );
+        let mut req = request(
+            "GET",
+            &format!("/v1/data-snapshots/{SNAPSHOT}"),
+            None,
+            Uuid::new_v4(),
+        );
+        req.headers_mut().insert(
+            "cookie",
+            format!("quantos_session={session}").parse().unwrap(),
+        );
+        let response = p.router().oneshot(req).await.unwrap();
+        assert!(matches!(response.status().as_u16(), 401 | 403));
+    }
+}

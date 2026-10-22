@@ -86,7 +86,7 @@ export function CommandCenter({ projection, contractMode, onRefresh }: CommandCe
       <section className="panel quick-panel" aria-labelledby="quick-heading"><div className="panel-heading"><h2 id="quick-heading">快速开始</h2></div>
         {view.visible("research") ? <button className="quick-action high-risk-action" type="button" disabled title="研究创建在后续研究模块提供，本页仅监控"><span aria-hidden="true">♙</span><strong>发起研究<small>进入研究模块后重新验证创建权限</small></strong><i aria-hidden="true">›</i></button> : null}
         {view.visible("strategy") ? <button className="quick-action high-risk-action" type="button" disabled title="策略创建在后续策略模块提供，本页仅监控"><span aria-hidden="true">▧</span><strong>创建策略草稿<small>进入策略模块后重新验证写权限</small></strong><i aria-hidden="true">›</i></button> : null}
-        <div className="quick-links">{view.visible("research") && !offline ? <a href="/research">查看研究 ›</a> : null}{projection.session.capabilities.includes("audit:read") && !offline ? <a href="/audit">打开审计 ›</a> : null}</div><p className="layout-saved" role="status">只读监控 · {layoutStatus}</p>
+        <div className="quick-links">{projection.session.capabilities.includes("snapshot.read") && !offline ? <a href="/data-snapshots">查看数据快照 ›</a> : null}{view.visible("research") && !offline ? <a href="/research">查看研究 ›</a> : null}{projection.session.capabilities.includes("audit:read") && !offline ? <a href="/audit">打开审计 ›</a> : null}</div><p className="layout-saved" role="status">只读监控 · {layoutStatus}</p>
       </section>
     </div>
     {summary ? <p className="p02-bounds">{summary.bounded.truncated ? "部分结果已截断。" : ""}每类最多展示 {summary.bounded.itemLimit} 项；数据为服务端有界快照，空列表不代表完整历史为空。</p> : null}

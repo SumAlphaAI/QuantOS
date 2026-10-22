@@ -30,10 +30,10 @@ export async function cancelResearchRun(origin: string, runId: string, key: stri
   return required("cancelResearchRun", await client(origin, fetchImpl, options).POST("/v1/research-runs/{runId}/cancel", { params: { path: { runId }, header: { "Idempotency-Key": key, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrf } } }), { field: "jobId", value: runId });
 }
 export async function listDataSnapshots(origin: string, query: SnapshotQuery = {}, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
-  return required("listDataSnapshots", await client(origin, fetchImpl, options).GET("/v1/data-snapshots", { params: { query } }));
+  return required("listDataSnapshots", await client(origin, fetchImpl, options).GET("/v1/data-snapshots", { cache: "no-store", params: { query } }));
 }
 export async function getDataSnapshot(origin: string, snapshotId: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
-  return required("getDataSnapshot", await client(origin, fetchImpl, options).GET("/v1/data-snapshots/{snapshotId}", { params: { path: { snapshotId } } }), { field: "snapshotId", value: snapshotId });
+  return required("getDataSnapshot", await client(origin, fetchImpl, options).GET("/v1/data-snapshots/{snapshotId}", { cache: "no-store", params: { path: { snapshotId } } }), { field: "snapshotId", value: snapshotId });
 }
 export async function getResearchArtifact(origin: string, artifactId: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
   return required("getArtifact", await client(origin, fetchImpl, options).GET("/v1/artifacts/{artifactId}", { params: { path: { artifactId } } }), { field: "artifactId", value: artifactId });
