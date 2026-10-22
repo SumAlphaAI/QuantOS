@@ -41,3 +41,10 @@ GitHub 上现有 `F07_DATABASE_URL`、`F07_SUPABASE_URL`、`F07_CA_PEM` 仍为�
 代码、工作流与本地最新配置验证已完成；远程 secrets 同步须单独明确授权。本地提交未推送，远端工作流定义也尚未更新，取消 schedule 的实际生效需后续用户推送。新库完整业务初始化及候选发布验收另行组织，不能把 TEMP 组件测试提升为业务数据库验收。
 
 [维护规程](../operations/f05-f07-manual-maintenance.md)与[证据目录](evidence/f05-f07-manual-20261022/)包含命令、失败及最终日志、目标只读结果、生产 SQL 摘要和源码清单。本轮状态：功能/策略修复 PASS；SQL 组件验证 PASS；完整业务数据库验收 NOT_RUN；GitHub secrets 同步 BLOCKED_APPROVAL。
+
+
+## 2026-10-22 授权后同步结果
+
+用户随后明确答复“授权更新这三个 secrets”，授权向 `SumAlphaAI/QuantOS` 写入 `F07_DATABASE_URL`、`F07_SUPABASE_URL`、`F07_CA_PEM`。已从最新 `.env.local` 和其引用的 CA 文件读取配置，经标准输入调用 `gh secret set`，三个命令均退出 0。只读核对 GitHub 更新时间分别为 `2026-10-22T01:11:55Z`、`01:11:57Z`、`01:11:59Z`；凭据未输出、未进入 Git。GitHub 不提供明文回读，本次验证范围为写入成功回执和更新时间。
+
+当前远程配置状态更新为 **PASS_WRITE_ACK_AND_METADATA**，前述 BLOCKED_APPROVAL 为授权前历史，原记录保留。[用户授权与执行结果](evidence/f05-f07-secrets-20261022/authorization-and-result.json)记录确切目的地、三个名称和更新时间。未推送源码、未启动 CI、未连接或修改数据库；取消 schedule 的工作流定义仍须后续用户推送才生效，完整业务数据库与托管 CI 验收仍为 NOT_RUN。

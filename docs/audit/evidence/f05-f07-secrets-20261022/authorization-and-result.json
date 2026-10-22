@@ -1,0 +1,41 @@
+{
+  "schema": "quantos-actions-secret-rotation/v1",
+  "repository": "SumAlphaAI/QuantOS",
+  "authorization": {
+    "source": "direct human reply to pending authorization question",
+    "reply": "授权更新这三个 secrets",
+    "scope": [
+      "F07_DATABASE_URL",
+      "F07_SUPABASE_URL",
+      "F07_CA_PEM"
+    ]
+  },
+  "inputSource": "latest ignored .env.local and its referenced CA file",
+  "transport": "gh secret set; values supplied through stdin; values not logged or stored in evidence",
+  "status": "PASS_WRITE_ACK_AND_METADATA",
+  "secrets": [
+    {
+      "name": "F07_DATABASE_URL",
+      "writeExitCode": 0,
+      "updatedAt": "2026-10-22T01:11:55Z"
+    },
+    {
+      "name": "F07_SUPABASE_URL",
+      "writeExitCode": 0,
+      "updatedAt": "2026-10-22T01:11:57Z"
+    },
+    {
+      "name": "F07_CA_PEM",
+      "writeExitCode": 0,
+      "updatedAt": "2026-10-22T01:11:59Z"
+    }
+  ],
+  "verification": "gh secret list --repo SumAlphaAI/QuantOS --json name,updatedAt; plaintext values cannot be read back",
+  "supersedes": "prior BLOCKED_APPROVAL outcome only; prior refusal and local validation evidence retained",
+  "sourceChangeCommit": "cb85c1a57902c53f6b3ee427eea8deb2ca3f2f20",
+  "codePush": false,
+  "workflowDispatch": false,
+  "databaseMutation": false,
+  "hostedWorkflowAcceptance": "NOT_RUN",
+  "businessDatabaseAcceptance": "NOT_RUN"
+}
