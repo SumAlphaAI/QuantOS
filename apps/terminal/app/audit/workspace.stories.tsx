@@ -1,0 +1,12 @@
+import type {Meta,StoryObj} from "@storybook/react";
+import {ThemeProvider} from "@sumalpha/ui";
+import {P12StateSurface} from "./workspace";
+const meta={title:"Terminal/P12/Audit state boundaries",component:P12StateSurface,decorators:[Story=><ThemeProvider><Story/></ThemeProvider>],args:{title:"Audit Explorer",description:"展示当前授权范围；本故事为状态呈现，不是服务联调证据。"}} satisfies Meta<typeof P12StateSurface>;
+export default meta;type Story=StoryObj<typeof meta>;
+export const Default:Story={args:{state:"default"}};
+export const Loading:Story={args:{state:"loading",title:"正在验证审计访问条件"}};
+export const Empty:Story={args:{state:"empty",title:"没有匹配的审计记录"}};
+export const Error:Story={args:{state:"error",title:"审计读取未完成"}};
+export const Unauthorized:Story={args:{state:"unauthorized",title:"未找到或无权访问"}};
+export const Stale:Story={args:{state:"stale",title:"访问期限已到"}};
+export const Offline:Story={args:{state:"offline",title:"当前离线，请重新验证"}};

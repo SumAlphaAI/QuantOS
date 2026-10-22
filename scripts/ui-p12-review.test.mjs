@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {boundary,validateBoundary,checks,validateExecutions,validateBrowser,focusedTests} from './ui-p12-review.mjs';
+import {hash} from './ui507-review.mjs';
+const source='a'.repeat(40);
+test('page scope carries preserved reference and stage boundaries',()=>{validateBoundary(boundary(source));assert.equal(focusedTests.length,3);assert.equal(checks.length,10);assert(!checks.some(c=>c.command.includes('cargo')||c.command.some(s=>/--workspace|workflow_dispatch|--update-snapshots/.test(s))));});
+for(const[k,v]of Object.entries({engineeringGate:'READY',confirmation:'CONFIRMED',stageGate:'READY',formalAccepted:true,runtimeAdmission:'ALLOWED',currentHeadAcceptance:'ACCEPTED',g1Gate:'READY',fep1Gate:'READY',businessIntegration:'PASS',releaseAcceptance:'PASS',recursiveDependencyRevalidation:true,fullChainRerun:true,auxiliaryPrerequisites:true,identity:'REAL_IDP',cors:'VERIFIED',firefoxBrowser:'PASS',webKitAttachmentBrowser:'PASS',productionHostingRewrite:'PASS',manualScreenReader:'PASS',nativeZoom200:'PASS',crossOsVisual:'PASS',productionCredentialsUsed:true,pushed:true,deployed:true,nextTask:'G1-DEP-01'}))test('reject boundary change '+k,()=>assert.throws(()=>validateBoundary({...boundary(source),[k]:v})));
+function fixture(){const attempt=mkdtempSync(join(tmpdir(),'quantos-p12-gate-'));const rows=checks.map(c=>{const log=join(attempt,c.id+'.log');writeFileSync(log,'unit fixture only');return{id:c.id,command:c.command.map(s=>s.replaceAll('{attempt}',attempt)),expectedExitCode:c.exit,exitCode:c.exit,signal:null,errorCode:null,log,logSha256:hash('unit fixture only')};});return{attempt,rows,close:()=>rmSync(attempt,{recursive:true,force:true})};}
+test('source command hashes and expected integration refusal validate',()=>{const f=fixture();try{validateExecutions(f.rows,f.attempt);}finally{f.close();}});
+for(const[name,mutate]of [['omitted',r=>r.pop()],['changed command',r=>r[0].command=['true']],['not run',r=>r[0].exitCode=null],['interruption',r=>r[0].signal='SIGTERM'],['timeout',r=>r[0].errorCode='TIMEOUT'],['refusal promoted',r=>r.find(e=>e.id==='integration-refusal').exitCode=0],['log overwritten',r=>writeFileSync(r[0].log,'changed')]])test('reject execution '+name,()=>{const f=fixture();try{mutate(f.rows);assert.throws(()=>validateExecutions(f.rows,f.attempt));}finally{f.close();}});
+function browser(){return{errors:[],stats:{expected:14,unexpected:0,skipped:0,flaky:0},suites:[{specs:Array.from({length:14},()=>({tests:[{projectName:'chromium',results:[{status:'passed'}]}]}))}]};}
+test('all fourteen browser cases pass exactly once',()=>validateBrowser(browser()));
+for(const[name,mutate]of [['skip',r=>r.stats.skipped++],['missing',r=>r.suites[0].specs.pop()],['wrong browser',r=>r.suites[0].specs[0].tests[0].projectName='firefox'],['failure',r=>r.suites[0].specs[0].tests[0].results[0].status='failed'],['retry',r=>r.suites[0].specs[0].tests[0].results.push({status:'passed'})]])test('reject browser '+name,()=>{const r=browser();mutate(r);assert.throws(()=>validateBrowser(r));});

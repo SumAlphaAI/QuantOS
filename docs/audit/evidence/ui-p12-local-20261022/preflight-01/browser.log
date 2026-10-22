@@ -1,0 +1,62 @@
+
+Running 14 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p12.spec.ts:6:5 › P12 canonical chain reload, event details, tabs, clipboard fallback and static aliases (2.5s)
+  ✓   2 [chromium] › tests/e2e/ui-p12.spec.ts:9:5 › P12 canonical export refresh, explicit download and drawer focus recovery (2.4s)
+  ✓   3 [chromium] › tests/e2e/ui-p12.spec.ts:12:5 › P12 pinned filters stay in memory, reset safely, and service errors require explicit read (2.5s)
+  ✓   4 [chromium] › tests/e2e/ui-p12.spec.ts:15:5 › P12 conflicting and malformed references fail before audit or export dispatch (2.0s)
+  ✘   5 [chromium] › tests/e2e/ui-p12.spec.ts:18:5 › P12 UI only narrows export capability and never invents permission or progress (7.0s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-dark-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-dark-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-dark-390-chromium-darwin.png, writing actual.
+  ✓   6 [chromium] › tests/e2e/ui-p12.spec.ts:21:49 › P12 dark actual reference layout, keyboard, axe and three widths (3.8s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-light-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-light-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts-snapshots/p12-light-390-chromium-darwin.png, writing actual.
+  ✓   7 [chromium] › tests/e2e/ui-p12.spec.ts:21:49 › P12 light actual reference layout, keyboard, axe and three widths (3.9s)
+  ✓   8 [chromium] › tests/e2e/ui-p12.spec.ts:26:5 › P12 checking state shows no private rows before authorization (4.7s)
+  ✓   9 [chromium] › tests/e2e/ui507.spec.ts:54:5 › Audit search, causation chain, UI-created export, attachment and correlated audit (2.5s)
+  ✓  10 [chromium] › tests/e2e/ui507.spec.ts:61:5 › cancel uses MFA and accepted response stays non-downloadable (2.2s)
+  ✓  11 [chromium] › tests/e2e/ui507.spec.ts:64:5 › lost create response requires explicit identical-intent retry with same key (2.5s)
+  ✓  12 [chromium] › tests/e2e/ui507.spec.ts:67:5 › stream disconnect and offline clear private UI; fresh recovery never replays writes (2.2s)
+  ✓  13 [chromium] › tests/e2e/ui507.spec.ts:70:5 › actual denied identity and concealed missing export never expose audit data (2.3s)
+  ✓  14 [chromium] › tests/e2e/ui507.spec.ts:73:5 › mobile audit search remains usable and has no horizontal page overflow (2.2s)
+
+
+  1) [chromium] › tests/e2e/ui-p12.spec.ts:18:5 › P12 UI only narrows export capability and never invents permission or progress 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui-p12-reference.ts:38
+
+      36 | });
+      37 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui-p12-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 38 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      39 | export async function create(page:Page){await page.getByLabel("导出 Correlation IDs（逗号分隔）").fill(correlation);await page.getByLabel("导出理由",{exact:true}).fill("P12 controlled audit export");await page.getByLabel("水印",{exact:true}).fill("P12 restricted copy");await page.getByLabel("MFA 验证码").fill("123456");await page.getByRole("button",{name:"确认创建导出",exact:true}).click();await expect(page.locator("[data-export-status]")).toHaveAttribute("data-export-status","queued");}
+      40 | export const exportWrites=()=>rows.filter(r=>r.path==="/v1/exports"&&r.method==="POST");
+      41 | test.beforeAll(async()=>{
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui-p12-reference.ts:38:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p12.spec.ts:19:82
+
+    attachment #1: ui-p12 (application/json) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p12-local-20261022/preflight-01/browser/ui-p12-P12-UI-only-narrows-fc1ce-ents-permission-or-progress-chromium/attachments/ui-p12-ebde8278dd9d86c01becdcc0186b16468e8bb406.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p12-local-20261022/preflight-01/browser/ui-p12-P12-UI-only-narrows-fc1ce-ents-permission-or-progress-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p12-local-20261022/preflight-01/browser/ui-p12-P12-UI-only-narrows-fc1ce-ents-permission-or-progress-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p12.spec.ts:18:5 › P12 UI only narrows export capability and never invents permission or progress 
+  13 passed (44.5s)

@@ -54,6 +54,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
     }
   }
   return {
+    assertCurrent() {guard();},
     get deadline() {return Math.min(context ? Date.parse(context.expiresAt) : Infinity,...(page?.items??[]).map(i=>Date.parse(i.retentionUntil)),...(chain?.items??[]).map(i=>Date.parse(i.retentionUntil)));},
     get retryAt() {return retryAt;},
     get uncertain() {return Boolean(uncertain);},
