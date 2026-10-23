@@ -15,3 +15,5 @@ CORE:S04完整复审同时执行真实StrategyService TCP测试：Python UDS产�
 实际IPC产物揭示并修复两项当前C05缺陷：serde JSON Number可输出科学计数法，而DecimalString只接受普通十进制；现对有限浮点用最短往返Display展开、整数保留精度。Python24.0经JS回传24会误报参数冲突；现在仅对相等安全整数的JSON表示等价，保存时还原可信输入原表示、Release响应取核验过的报告参数。字符串金额、键、数组顺序、非安全整数均不放宽。保持原参数/报告/Release hash算法，不把声明为字符串的金额转数值。
 
 全仓首轮6ff11941：Rust harness730通过/14 ignored、Python1908通过；Web通用schema样例错误使用普通URI替代受限ExportDownloadMetadata URL，工具修复后重跑Web。`--continue`只对原Rust/Python命令保留原SHA/原日志，并逐个核对相关输入未变，显式REFERENCE_NOT_CURRENT_SHA_REEXECUTION；不复制旧日志冒充新执行、不授予新候选全仓READY。Web/浏览器与S04核心组合在新候选执行。
+
+3d8f9775自动44浏览器/18基线通过后，人工查看真实C10长路由事件截图发现固定15px行导致文字重叠，保留原36条incomplete及原receipt在history。改时间线行高为内容自适应，并对真实长事件/对象引用断言上下边界不重叠。仅Web呈现/测试变化；Rust/Python仍只引用输入未变的6ff原结果，新Web/构建/浏览器完整复验。
