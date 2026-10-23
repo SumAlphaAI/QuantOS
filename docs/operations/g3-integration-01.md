@@ -15,3 +15,5 @@ C04 worker Artifact 的 contentHash 与 attachment 字节来自保留的真实�
 执行器：`node scripts/g3-integration-01-review.mjs --run docs/audit/evidence/g3-integration-01-20261023/attempt-NN`。必须先提交冻结源码；每次使用新目录，保存真实退出码、信号、失败和未运行命令，不覆盖历史。`--verify` 核对源输入、二进制/构建摘要、真实 worker 及浏览器数量、原始字节/ID/因果边和阶段拒绝。最终事实以本任务 receipt、审阅报告和待确认文稿为准，状态 IMPLEMENTED_PENDING_ACCEPTANCE。
 
 仍未执行：Research 创建 HTTP→持久 worker 队列、生产或目标部署、真实身份/MFA/cookie/CORS、Supabase/RLS/Storage/跨进程恢复、目标性能/长稳、同 SHA hosted CI、Firefox/WebKit/跨 OS、屏幕阅读器与原生 200% 缩放、Storybook 和正式发布验收。身份与 TLS/CORS 桥及审批控制会话仍是明确 reference 替代。历史全部 NOT_RUN 保持原样；本轮本机 worker PASS 不更新历史回执。完整 G3 阶段准入另行评估，不能由本任务局部工程结果自动放行。
+
+项目用户已在本会话确认限定候选696bef71及原待确认文稿，证据包绑定156f21c5。原文/摘要/395原文件绑定见 `docs/audit/evidence/g3-integration-01-confirmation-20261023/`；当前限定事项COMPLETED_SCOPED_LOCAL。原证据包不改写，历史incomplete与全部NOT_RUN保留，完整G3/CORE:S04未放行；本次不重新执行或改绑原业务结果。

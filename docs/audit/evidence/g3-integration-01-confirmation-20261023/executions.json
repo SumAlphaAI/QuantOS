@@ -1,0 +1,84 @@
+[
+  {
+    "id": "confirmation",
+    "command": [
+      "node",
+      "scripts/g3-integration-01-confirmed-reference.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "error": null,
+    "startedAt": "2026-10-23T10:52:16.828Z",
+    "finishedAt": "2026-10-23T10:52:20.690Z",
+    "log": "docs/audit/evidence/g3-integration-01-confirmation-20261023/confirmation.log",
+    "sha256": "sha256:88e7c2d34c97bc834410dd1f806e74084a4acb80ddc7686868cda35d27069cb1"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "error": null,
+    "startedAt": "2026-10-23T10:52:20.690Z",
+    "finishedAt": "2026-10-23T10:52:20.851Z",
+    "log": "docs/audit/evidence/g3-integration-01-confirmation-20261023/plans.log",
+    "sha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "g3-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G3"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "error": null,
+    "startedAt": "2026-10-23T10:52:20.851Z",
+    "finishedAt": "2026-10-23T10:52:21.131Z",
+    "log": "docs/audit/evidence/g3-integration-01-confirmation-20261023/g3-refusal.log",
+    "sha256": "sha256:db175812a49cd3528c6e08fb2f1d1761ce7810c4086340ee06304bd61dcab724"
+  },
+  {
+    "id": "s04-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:S04"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "error": null,
+    "startedAt": "2026-10-23T10:52:21.132Z",
+    "finishedAt": "2026-10-23T10:52:21.406Z",
+    "log": "docs/audit/evidence/g3-integration-01-confirmation-20261023/s04-refusal.log",
+    "sha256": "sha256:aa7447fa7d75aefea2936c4e39729d2a17aa13dc11948bd9e28d06cf30be20ed"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/g3-integration-01-confirmed-reference.mjs",
+      "scripts/g3-integration-01-confirmed-reference.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "error": null,
+    "startedAt": "2026-10-23T10:52:21.407Z",
+    "finishedAt": "2026-10-23T10:52:22.274Z",
+    "log": "docs/audit/evidence/g3-integration-01-confirmation-20261023/lint.log",
+    "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

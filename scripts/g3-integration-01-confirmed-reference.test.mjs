@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {directory,validateRecord,verify} from './g3-integration-01-confirmed-reference.mjs';
+test('worker confirmation binds exact original candidate draft packet and raw reply',()=>{const v=verify();assert.equal(v.status,'CONFIRMED');assert.equal(v.originalFiles,395);assert.equal(v.businessRerun,false);});
+test('worker confirmation refuses source packet raw reply scope and stage promotion',()=>{const r=JSON.parse(readFileSync(directory+'/user-confirmation.json')),raw=readFileSync(directory+'/raw-user-message.txt','utf8');for(const change of [{request:{...r.request,sourceCommit:'a'.repeat(40)}},{packetCommit:'a'.repeat(40)},{document:'docs/other.md'},{formalAccepted:true},{fullG3Admission:'GRANTED'},{g3Gate:'READY'},{coreS04Gate:'READY'},{stageGate:'READY'},{runtimeAdmission:'ALLOWED'},{functionRerun:true},{allNotRunRetained:false},{incomplete:{}},{notRun:{}},{historicalAdditionalNotRun:{}},{currentExecution:{...r.currentExecution,researchHttpToPersistentWorkerQueue:'PASS'}}])assert.throws(()=>validateRecord({...r,...change},raw));assert.throws(()=>validateRecord(r,raw+'extra'));assert.throws(()=>validateRecord({...r,confirmationSource:{...r.confirmationSource,text:r.confirmationSource.text+'扩大范围'}},raw));});

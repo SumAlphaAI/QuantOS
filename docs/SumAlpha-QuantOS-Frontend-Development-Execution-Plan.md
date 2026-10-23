@@ -2566,7 +2566,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 ```
 
 - 当前 G3 联调：执行20份实际自有Strategy Lab IPC产物的C04/P06/C05/S01–S04/C08/P07/C10浏览器组合，补充拒绝/过期/20路竞争、恢复、全仓功能测试和CORE:S04复审；证据见 `docs/audit/evidence/frontend-g3-local-20261023/`。可信宿主注册、reference身份/CORS为明确替代，R03 worker→策略目录注册完整旅程NOT_RUN；G3未授予READY，阶段NOT_ASSESSED，当前新稿确认PENDING。
-- G3-INTEGRATION-01：原限定候选9a463495/证据包05c427f2已获本会话用户确认，记录见 `docs/audit/evidence/frontend-g3-confirmation-20261023/`。新增R03双引擎worker、受信完成产物注册与C04/C05/C08/C10因果交接，状态IMPLEMENTED_PENDING_ACCEPTANCE，范围与执行回执见 `docs/operations/g3-integration-01.md`；本次新候选独立待确认。历史incomplete、原全部NOT_RUN不改写；G3仍IN_REVIEW/NOT_ASSESSED，CORE:S04仍NOT_READY，formalAccepted=false、runtimeAdmission=DENIED。
+- G3-INTEGRATION-01：原限定候选9a463495/证据包05c427f2已获本会话用户确认，记录见 `docs/audit/evidence/frontend-g3-confirmation-20261023/`。新增R03双引擎worker、受信完成产物注册与C04/C05/C08/C10因果交接，限定本地范围COMPLETED_SCOPED_LOCAL（仅696bef71/156f21c5）；本会话确认原文、摘要及校验见 `docs/audit/evidence/g3-integration-01-confirmation-20261023/`，范围与原执行回执见 `docs/operations/g3-integration-01.md`。历史incomplete、原全部NOT_RUN不改写；G3仍IN_REVIEW/NOT_ASSESSED，CORE:S04仍NOT_READY，formalAccepted=false、runtimeAdmission=DENIED。
 
 <a id="task-fep-3"></a>
 ##### FEP-3：策略治理
