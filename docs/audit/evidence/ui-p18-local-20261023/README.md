@@ -9,3 +9,5 @@ preflight-02为独立预检，不是源码冻结候选；所有实际结果见�
 范围：生成client + 实际本机reference C01/C12/R01/C16，受控合成行情与临时TLS/cookie/CORS替代。24h数据/可执行交易/单标的告警规则缺失不伪造。完整INTEGRATION/目标/RELEASE、人工读屏/native200%、跨浏览器/远程CI/性能长稳均NOT_RUN；formalAccepted=false / runtimeAdmission=DENIED。下一原任务FE:UI-501。
 
 preflight-02：实际consumer1/1通过（含Viewer403和Owner隔离），Chromium14/15通过。视觉矩阵在detail首组发现breadcrumb链接仅靠颜色区分（axe link-in-text-block，serious）；保留7组扫描、6张overview截图和失败上下文，修复为常驻下划线，随后对新冻结候选重新执行完整P18矩阵。其余预检不改记PASS。
+
+attempt-01：源码068068980494a3617eed4b530d4768fd1cdbf424，162单测/consumer、18 C12、1 C16、19路由/Gate、15 Chromium与12组矩阵通过，0 violation / 12 incomplete。截图复核发现中屏详情卡被相邻列拉长，以及小屏选中标的后需要自动聚焦/滚动到真实详情；补齐布局与导航行为，并新增第16项实际手机流程断言。原回执保留为 retained-attempt-01-receipt.json/result.json，最终候选使用独立attempt。12条incomplete包括nonBmp图标和滚动区未完全露出的文字对比度，不能统一说成仅图标；保留人工核查，完整无障碍验收未授予。

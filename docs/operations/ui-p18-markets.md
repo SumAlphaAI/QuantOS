@@ -30,7 +30,7 @@ reference Viewer 有 market.read 但没有 alerts.read，C16应403并显示不�
 
 ## 验证与阶段
 
-`node scripts/ui-p18-review.mjs --run docs/audit/evidence/ui-p18-local-20261023/attempt-NN` 冻结新源码候选后执行；`--verify` 复核源码输入、原始命令/日志、binary/build hashes、C12/C16网络副作用范围、15项实际Chromium场景、12组视觉/axe和三栏几何。已有attempt不能覆盖。临时TLS/cookie注入/CORS代理和市场fixture都明确为本机替代；实际使用生成consumer、reference BFF、R01/C12/C16，不使用生产凭据或数据库。
+`node scripts/ui-p18-review.mjs --run docs/audit/evidence/ui-p18-local-20261023/attempt-NN` 冻结新源码候选后执行；`--verify` 复核源码输入、原始命令/日志、binary/build hashes、C12/C16网络副作用范围、16项实际Chromium场景、12组视觉/axe和三栏几何。已有attempt不能覆盖。临时TLS/cookie注入/CORS代理和市场fixture都明确为本机替代；实际使用生成consumer、reference BFF、R01/C12/C16，不使用生产凭据或数据库。
 
 仅运行P18、UI401、自选/行情consumer/recovery、route monitor的直接回归，C12专项与C16订阅/流绑定专项、路由/门禁测试、types/lint、一次Terminal build及专用Chromium矩阵。没有递归全部上游、全仓、全量覆盖率、F05/F07 campaign或目标数据库操作。
 
