@@ -13,3 +13,5 @@ CORE:S04完整复审同时执行真实StrategyService TCP测试：Python UDS产�
 `node scripts/frontend-g3-review.mjs --run docs/audit/evidence/frontend-g3-local-20261023/attempt-NN`只接受冻结源码。原始命令/退出/失败/信号/全部输出及摘要保存，`--verify`复核。工程成功不改写历史页receipt、incomplete或NOT_RUN。若全仓出现失败，记录真实失败与影响，不拼接旧PASS或以缩小命令范围冒充全仓通过。G3/CORE:S04正式INTEGRATION READY须另有完整阶段证据、依赖准入和项目用户对本轮新稿的确认。
 
 实际IPC产物揭示并修复两项当前C05缺陷：serde JSON Number可输出科学计数法，而DecimalString只接受普通十进制；现对有限浮点用最短往返Display展开、整数保留精度。Python24.0经JS回传24会误报参数冲突；现在仅对相等安全整数的JSON表示等价，保存时还原可信输入原表示、Release响应取核验过的报告参数。字符串金额、键、数组顺序、非安全整数均不放宽。保持原参数/报告/Release hash算法，不把声明为字符串的金额转数值。
+
+全仓首轮6ff11941：Rust harness730通过/14 ignored、Python1908通过；Web通用schema样例错误使用普通URI替代受限ExportDownloadMetadata URL，工具修复后重跑Web。`--continue`只对原Rust/Python命令保留原SHA/原日志，并逐个核对相关输入未变，显式REFERENCE_NOT_CURRENT_SHA_REEXECUTION；不复制旧日志冒充新执行、不授予新候选全仓READY。Web/浏览器与S04核心组合在新候选执行。

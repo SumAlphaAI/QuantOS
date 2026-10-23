@@ -34,6 +34,7 @@ function specimen(schema: Schema): unknown {
     if (schema.format === "date") return "2026-10-18";
     if (schema.format === "date-time") return "2026-10-03T00:00:00Z";
     if (schema.format === "email") return "fixture@example.invalid";
+    if (schema.pattern?.includes("/_bff/export-content/")) return `https://fixture.invalid/_bff/export-content/${uuid}/${"a".repeat(64)}`;
     if (schema.format === "uri") return "https://example.invalid/resource";
     if (schema.pattern === "^[A-Z]{3}$") return "USD";
     if (schema.pattern?.startsWith("^/v1/exports/")) return `/v1/exports/${uuid}/download`;
