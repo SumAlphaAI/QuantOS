@@ -1,0 +1,117 @@
+[
+  {
+    "id": "gate-write",
+    "command": [
+      "node",
+      "scripts/ui201-confirmed-reference.mjs",
+      "--write"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:34.958Z",
+    "finishedAt": "2026-10-23T00:14:37.303Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/gate-write-final.log",
+    "logSha256": "sha256:ac137898a1097c3f92f0e085b2b621859163528d6d20190c23001b8d83b4d693"
+  },
+  {
+    "id": "confirmation-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui201-confirmed-reference.test.mjs",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:37.303Z",
+    "finishedAt": "2026-10-23T00:14:39.640Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/confirmation-tests-final.log",
+    "logSha256": "sha256:af79ce49f2c3c52713ae26d90c3c73cfe4147ec89a91e0166be0b2ca95022cfe"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/ui201-confirmed-reference.mjs",
+      "scripts/ui201-confirmed-reference.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:39.640Z",
+    "finishedAt": "2026-10-23T00:14:40.192Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/lint-final.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:40.192Z",
+    "finishedAt": "2026-10-23T00:14:40.358Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/plans-final.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:UI-201"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:40.358Z",
+    "finishedAt": "2026-10-23T00:14:40.639Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/integration-refusal-final.log",
+    "logSha256": "sha256:58b3ec101fda07bf168fcee947a16f76e0db30045bc6d2e94fca86d20e719eb4"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-P03"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:40.639Z",
+    "finishedAt": "2026-10-23T00:14:40.914Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/next-development-final.log",
+    "logSha256": "sha256:550b5fc68e332979ef6f510c16a7a92f7cd3e8dccf532495bea5141d4cc3efa9"
+  },
+  {
+    "id": "confirmation-gate",
+    "command": [
+      "node",
+      "scripts/ui201-confirmed-reference.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T00:14:40.915Z",
+    "finishedAt": "2026-10-23T00:14:43.228Z",
+    "log": "docs/audit/evidence/ui201-confirmation-20261023/confirmation-gate-final.log",
+    "logSha256": "sha256:ac137898a1097c3f92f0e085b2b621859163528d6d20190c23001b8d83b4d693"
+  }
+]

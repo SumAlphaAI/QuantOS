@@ -2267,7 +2267,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2277,6 +2277,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 
 - 当前执行：`PASS_UI201_CURRENT_FUNCTION`，工程 `e3776999`、541输入/44产物；122单测、24 Rust、8 Chromium、52门禁/路由、types/lint/build通过，8截图/8次axe零violations，另2项小屏表头对比度incomplete保留；交付 `/research`、`/research/new` 的 C03 列表/分页筛选、C04 快照选择、预算/deadline/capability 表单校验、422 字段定位与 202 审计回执；未知结果原幂等键显式重试及撤权清理。见[本轮报告](./audit/UI-201-current-function-review-2026-10-23.md)、[规程](./operations/ui201-research-list-create.md)、[功能门禁](../scripts/ui201-review.mjs)。复用 UI-204/UI-P05 原范围证据，不将 G1 辅助项作为开发前置，不重跑全链；reference 身份/CORS 替代、Firefox/WebKit 阻塞、P05 六项图标对比度 incomplete 及全部 NOT_RUN 保留。159 阶段 Gate、G1/FEP-1、联调/发布状态不提升；项目用户确认待定。下一原任务 UI-P03 可继续开发。
 
+- 确认执行：项目用户已确认原完整稿，仅绑定工程 `e3776999` 及原文稿证据包 `89da61ee`；COMPLETED 仅表示原稿 UI-201 当前功能范围确认。见[原始确认与范围](./audit/evidence/ui201-confirmation-20261023/README.md)及[确认门禁](../scripts/ui201-confirmed-reference.mjs)。reference 身份/CORS 替代、Firefox/WebKit 阻塞、原6项图标及本轮2项表头对比度 incomplete、全部 NOT_RUN 与原失败记录保留；G1/FEP-1、INTEGRATION/发布不提升，runtimeAdmission=DENIED。下一原任务 UI-P03 开发允许，无 G1 辅助项前置。
 <a id="task-ui-p03"></a>
 ##### UI-P03：P03-Research-List-and-New-Research-High-Fidelity-v1.png
 
