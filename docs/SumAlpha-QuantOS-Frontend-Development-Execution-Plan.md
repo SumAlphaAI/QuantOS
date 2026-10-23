@@ -2311,13 +2311,15 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-201", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Research 详情、SSE 流、取消与恢复
 - 接口绑定：C03
 - 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消
+
+- 当前执行：UI-202 当前功能验证中；交付 `/research/:runId` 详情、sequence 去重与 afterSequence 回补、取消受理及未知结果显式重试。复用 UI-201/UI-P03 原范围证据，不以 G1 辅助项作为开发前置，不重跑上游全链。见[规程](./operations/ui202-research-detail-stream-cancel.md)与[功能门禁](../scripts/ui202-review.mjs)。reference 身份/CORS 替代、Firefox/WebKit 阻塞、原6+2项及UI-P03本轮12条incomplete、全部NOT_RUN保留；阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定。下一原任务 UI-203 可继续开发。
 
 <a id="task-ui-203"></a>
 ##### UI-203：Artifact/Evidence 详情与交叉跳转
