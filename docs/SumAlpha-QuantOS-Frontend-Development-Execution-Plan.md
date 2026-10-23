@@ -2288,7 +2288,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-201", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2297,6 +2297,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 契约绑定：C03、C04
 - 所属阶段：FEP-2
 - 页面级完成标准：列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确
+
+- 当前执行：UI-P03 当前页面实现与验证；交付 Terminal 工作台、左侧研究列表/筛选/当前页统计和右侧创建/快照摘要/预算deadline核对、范围勾选及关闭确认，复用 UI-201 runtime/policy/gateway 与原证据，不将 G1 辅助项作为开发前置，不重复上游全链。见[本轮报告](./audit/UI-P03-current-page-review-2026-10-23.md)、[规程](./operations/ui-p03-research-workbench.md)、[页面门禁](../scripts/ui-p03-review.mjs)。不虚构进度、引擎健康、许可批准或全局总量；reference身份/CORS替代、Firefox/WebKit阻塞、原6项图标及2项表头incomplete与全部NOT_RUN保留。阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定；下一原任务UI-202可继续开发。
 
 <a id="task-ui-202"></a>
 ##### UI-202：Research 详情、SSE 流、取消与恢复

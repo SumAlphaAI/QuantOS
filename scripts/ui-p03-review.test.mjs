@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boundary,validateBoundary,validateBrowser,checks,planCheck} from './ui-p03-review.mjs';
+import {executionDecision} from './development-execution.mjs';
+const source='a'.repeat(40);
+test('current-function boundary is accepted',()=>validateBoundary(boundary(source)));
+for(const[key,value]of Object.entries(boundary(source)).filter(([k])=>k!=='sourceCommit'))test('reject boundary widening '+key,()=>assert.throws(()=>validateBoundary({...boundary(source),[key]:typeof value==='boolean'?!value:'INVALID'})));
+test('reject invalid source identity',()=>assert.throws(()=>validateBoundary(boundary('HEAD'))));
+const report=()=>({errors:[],stats:{expected:11,unexpected:0,skipped:0,flaky:0},suites:[{specs:[{tests:Array.from({length:11},()=>({projectName:'chromium',results:[{status:'passed'}]}))}]}]});
+test('accept all eleven Chromium probes',()=>validateBrowser(report()));
+for(const key of ['unexpected','skipped','flaky'])test('reject browser '+key,()=>{const r=report();r.stats[key]=1;assert.throws(()=>validateBrowser(r));});
+test('never substitute a different browser',()=>{const r=report();r.suites[0].specs[0].tests[0].projectName='firefox';assert.throws(()=>validateBrowser(r));});
+test('bounded commands and exactly one expected integration refusal',()=>{assert.equal(checks.length,10);assert.deepEqual(checks.filter(c=>c.exit!==0).map(c=>c.id),['integration-refusal']);assert(!checks.some(c=>c.command.some(s=>/campaign|live-check/.test(s))));});
+test('159 stages unchanged, next page development allowed, integration denied',()=>{assert.equal(planCheck(),159);assert.equal(executionDecision('FE:UI-202').allowed,true);assert.equal(executionDecision('FE:UI-P03',{phase:'INTEGRATION'}).reason,'STAGE_NOT_READY');});
