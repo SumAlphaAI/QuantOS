@@ -49,7 +49,7 @@ export class PortfolioFacts {
   revoke() { this.closed = true; this.value = undefined; this.stream = undefined; this.sequence = 0; }
   seed(raw: unknown, now?: number) { if (this.closed) throw Error('Portfolio revoked'); this.accept(snapshot(raw, this.accountId, now)); }
   private accept(pair: Snapshot) {
-    if (this.value && (Date.parse(pair.portfolio.asOf) < Date.parse(this.value.portfolio.asOf) || BigInt(pair.risk.objectVersion!) < BigInt(this.value.risk.objectVersion!) || pair.risk.objectVersion === this.value.risk.objectVersion && pair.risk.asOf === this.value.risk.asOf && JSON.stringify(pair.risk) !== JSON.stringify(this.value.risk))) throw Error('Portfolio regressed');
+    if (this.value && (Date.parse(pair.portfolio.asOf) < Date.parse(this.value.portfolio.asOf) || BigInt(pair.risk.objectVersion!) < BigInt(this.value.risk.objectVersion!) || pair.risk.objectVersion === this.value.risk.objectVersion && pair.risk.killSwitch.state !== this.value.risk.killSwitch.state)) throw Error('Portfolio regressed');
     this.value = pair;
   }
   apply(raw: SseEventEnvelope, now = Date.now()) {

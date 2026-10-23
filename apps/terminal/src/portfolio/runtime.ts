@@ -104,7 +104,7 @@ export function createPortfolioRuntime(config: { origin: string; authorize: () =
       receipt = result; pending = undefined; connected = false; status = 'ready'; emit();
       await refresh();
     } catch (e) {
-      if (pending && dispatched) status = 'uncertain';
+      if (pending && dispatched) { status = 'uncertain'; connected = false; }
       else if (!pending) status = 'error';
       throw e;
     }

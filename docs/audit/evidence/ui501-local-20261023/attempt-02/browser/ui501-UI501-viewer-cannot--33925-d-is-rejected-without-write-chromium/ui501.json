@@ -1,0 +1,129 @@
+{
+  "schema": "quantos-ui501-browser/v1",
+  "scenario": "UI501 viewer cannot obtain portfolio and a foreign account payload is rejected without write",
+  "status": "passed",
+  "sourceCommit": "14b8d335083d63db0a763c4e1ee550b20cded174",
+  "binarySha256": "f7850b07b25706abe3197a28541b4d0f6062afe2a3e76fc545367069e5cd83cf",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "LOCAL_REFERENCE_C01_STEP_UP_C06_ACCOUNT_KILL",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "814adf95a0fa7289546174fea566e454560adc0e18224cf084b24779322b2d00"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "814adf95a0fa7289546174fea566e454560adc0e18224cf084b24779322b2d00"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "17a8d5137447ef14600a8b19937a265a62baa1452a3d432a5ad72c6667a4696c"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/portfolio",
+      "status": 200,
+      "source": "SYNTHETIC_STALE_OR_FOREIGN_NEGATIVE_PROBE",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "778f9f13de96eacf0b2dd4a074165a6699a5a8e8f2ca0c1abaeba681322cab36"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/risk",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "bc93ab86946382b213481d3f5570c5eef37bb0daf662ad22a8ffda8aadd7bec3"
+    }
+  ]
+}
