@@ -1,0 +1,132 @@
+import { bffZodSchemas, createBffClient, createBffFetch, parseSse, type BffComponents } from '@sumalpha/api-client';
+import { AuthBffError, completeSecurityMfa, completeRecentAuth } from '../auth/bff';
+import type { RouteContext } from '../auth/route-access';
+import { PortfolioFacts, fresh, portfolioPolicy, riskAlerts, snapshot, type Risk } from './policy';
+export class PortfolioError extends Error {
+  constructor(readonly status: number, readonly correlationId?: string) { super('组合/风险请求未完成'); }
+}
+const authority = (c: RouteContext) => JSON.stringify([c.actorId,c.tenantId,c.workspaceId,c.accountId,c.mode,c.environment,c.mfaState,[...new Set(c.capabilities)].sort()]);
+type Intent = { action: 'engage' | 'release'; key: string; reviewedVersion: string; body: { accountId: string; reason: string; mfaChallengeRef: string; reauthTokenRef: string; confirmPhrase?: string } };
+export function createPortfolioRuntime(config: { origin: string; authorize: () => void; online: () => boolean; csrf: () => string; invalidate: (status: number) => void; fetchImpl?: typeof fetch; now?: () => number }) {
+  const now = config.now ?? Date.now, life = new AbortController(), listeners = new Set<() => void>();
+  const options = { signal: life.signal, timeoutMs: 5000 }, client = createBffClient({ baseUrl: config.origin, fetch: config.fetchImpl, ...options });
+  const transport = createBffFetch(config.fetchImpl ?? fetch, options);
+  let context: RouteContext | undefined, facts: PortfolioFacts | undefined, busy = false, connected = false, verifiedUntil = 0, pending: Intent | undefined, retryAt = 0;
+  let status: 'empty' | 'ready' | 'error' | 'uncertain' = 'empty', receipt: Risk | undefined;
+  let alerts: BffComponents['schemas']['OpsAlert'][] = [], alertStatus: 'unavailable' | 'ready' | 'forbidden' = 'unavailable', nextCursor: string | undefined;
+  const emit = () => listeners.forEach(fn => fn());
+  const fail = (code: number): never => { throw new PortfolioError(code); };
+  function guard(write = false) {
+    config.authorize();
+    if (life.signal.aborted || !config.online() || !context || !context.capabilities.includes('execution.operate') || !['paper', 'shadow', 'research'].includes(context.mode)) fail(403);
+    if (!Number.isFinite(now()) || now() >= Date.parse(context!.expiresAt)) fail(401);
+    if (write && (!config.csrf() || !connected || now() >= verifiedUntil || !fresh(facts?.current, now()))) fail(409);
+  }
+  function checked<T>(r: { data?: T; error?: unknown; response: Response }, invalidate = true): T {
+    config.authorize(); if (life.signal.aborted) fail(403);
+    if (r.response.status === 200 && r.data !== undefined) return r.data;
+    const e = bffZodSchemas.ErrorEnvelope.safeParse(r.error);
+    if (invalidate && [401,403].includes(r.response.status)) config.invalidate(r.response.status);
+    if (r.response.status === 429) retryAt = now() + Math.min(Math.max(e.success ? e.data.retryAfter ?? 60 : 60, 1), 3600) * 1000;
+    throw new PortfolioError(r.response.status, e.success ? e.data.correlationId : undefined);
+  }
+  async function load() {
+    config.authorize(); if (!config.origin || life.signal.aborted || !config.online()) fail(503);
+    const a = bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/session', { cache: 'no-store' })));
+    const b = bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/context', { cache: 'no-store' })));
+    if (authority(a) !== authority(b) || context && authority(context) !== authority(b) || b.mfaState === 'challenged') { config.invalidate(403); fail(403); }
+    context = { ...b, expiresAt: new Date(Math.min(Date.parse(a.expiresAt), Date.parse(b.expiresAt), context ? Date.parse(context.expiresAt) : Infinity)).toISOString() };
+    guard(); facts ??= new PortfolioFacts(context.accountId); return structuredClone(context);
+  }
+  async function exclusive(action: () => Promise<void>) {
+    guard(); if (busy) fail(409); busy = true; emit();
+    try { await action(); } catch (e) { if (e instanceof AuthBffError && e.status === 429) retryAt = now() + Math.min(Math.max(e.retryAfter ?? 60, 1), 3600) * 1000; throw e; } finally { busy = false; emit(); }
+  }
+  async function readAlerts() {
+    guard(); alerts = []; nextCursor = undefined; alertStatus = 'unavailable';
+    if (!context!.capabilities.includes('ops.read')) { alertStatus = 'forbidden'; return; }
+    try {
+      const r = await client.GET('/v1/alerts', { cache: 'no-store', params: { query: { accountId: context!.accountId, domain: 'risk', pageSize: 100, sort: 'id:asc' } } });
+      if (r.response.status === 401) checked(r);
+      const page = checked(r, false); guard(); alerts = riskAlerts(page.items, context!); nextCursor = page.nextCursor ?? undefined; alertStatus = 'ready';
+    } catch { guard(); alerts = []; alertStatus = 'unavailable'; }
+  }
+  async function poll(target = facts!, publish = true) {
+    guard(); const started = now(), signal = AbortSignal.any([life.signal, AbortSignal.timeout(5000)]);
+    const url = new URL('/v1/portfolio/stream', config.origin); url.searchParams.set('accountId', context!.accountId); url.searchParams.set('afterSequence', String(target.afterSequence));
+    try {
+      const r = await transport(url, { credentials: 'include', cache: 'no-store', signal, headers: { accept: 'text/event-stream' } }); guard();
+      if (r.status !== 200 || !r.body || !r.headers.get('content-type')?.includes('text/event-stream')) { await r.body?.cancel(); if ([401,403].includes(r.status)) config.invalidate(r.status); fail(r.status === 200 ? 502 : r.status); }
+      // The reference returns a finite journal. This bounded poll also accepts a live stream.
+      let buffer = ''; const decoder = new TextDecoder('utf-8', { fatal: true });
+      const bounded = r.body!.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({ transform(chunk, out) {
+        buffer += decoder.decode(chunk, { stream: true }); let at: number;
+        while ((at = buffer.search(/\r?\n\r?\n/)) >= 0) { if (at > portfolioPolicy.frameChars) throw Error('Oversized portfolio frame'); buffer = buffer.slice(at + (buffer[at] === '\r' ? 4 : 2)); }
+        if (buffer.length > portfolioPolicy.frameChars) throw Error('Oversized portfolio frame'); out.enqueue(chunk);
+      } }));
+      for await (const event of parseSse(bounded)) { guard(); target.apply(event, now()); if (publish) { connected = true; verifiedUntil = now() + portfolioPolicy.maxUnverifiedMs; emit(); } }
+      guard(); if (!target.afterSequence) fail(502); connected = true; verifiedUntil = started + portfolioPolicy.maxUnverifiedMs;
+    } catch (e) { connected = false; if (!life.signal.aborted) { status = pending ? 'uncertain' : 'error'; if ((e as {status?:number}).status === 403) config.invalidate(403); } throw e; }
+  }
+  async function refresh() {
+    connected = false; emit();
+    try {
+      await load();
+      const params = { query: { accountId: context!.accountId } };
+      const p = checked(await client.GET('/v1/portfolio', { params, cache: 'no-store' }));
+      const r = checked(await client.GET('/v1/risk', { params, cache: 'no-store' })); guard();
+      // A full refresh resets the journal only after a validated, scoped snapshot.
+      const pair = snapshot({ portfolio: p, risk: r }, context!.accountId, now());
+      const previous = facts?.current;
+      const comparison = new PortfolioFacts(context!.accountId); if (previous) comparison.seed(previous, now()); comparison.seed(pair, now());
+      const next = new PortfolioFacts(context!.accountId);
+      await poll(next, false);
+      if (!next.current || Date.parse(next.current.portfolio.asOf) < Date.parse(pair.portfolio.asOf) || BigInt(next.current.risk.objectVersion!) < BigInt(pair.risk.objectVersion!)) fail(502);
+      facts = next;
+      await readAlerts(); status = pending ? 'uncertain' : 'ready';
+    } catch (e) { connected = false; status = pending ? 'uncertain' : 'error'; throw e; }
+  }
+  async function send(intent: Intent, recovering: boolean) {
+    guard(true); let dispatched = false;
+    try {
+      const h = { 'Idempotency-Key': intent.key, 'X-Request-Id': crypto.randomUUID(), 'X-CSRF-Token': config.csrf() };
+      dispatched = true;
+      const r = intent.action === 'engage'
+        ? await client.POST('/v1/risk/kill-switch/engage', { params: { header: h }, body: { ...intent.body, confirmPhrase: intent.body.confirmPhrase! } })
+        : await client.POST('/v1/risk/kill-switch/release', { params: { header: h }, body: intent.body });
+      if (r.response.status !== 200) {
+        const known = bffZodSchemas.ErrorEnvelope.safeParse(r.error).success && [401,403,409,422,429].includes(r.response.status);
+        if (known && !recovering) pending = undefined;
+        checked(r, r.response.status === 401);
+      }
+      const result = bffZodSchemas.RiskView.parse(checked(r, false)); guard();
+      if (result.accountId !== context!.accountId || result.hitRules.includes('AccountKill') !== (intent.action === 'engage') || !result.auditRef || !result.correlationId || !result.objectVersion || !/^\d{1,30}$/.test(result.objectVersion) || BigInt(result.objectVersion) <= BigInt(intent.reviewedVersion) || Date.parse(result.asOf) > now() || result.hitRules.some(v => v === 'AccountKill' || v === 'GlobalKill') !== (result.killSwitch.state === 'engaged')) fail(502);
+      receipt = result; pending = undefined; connected = false; status = 'ready'; emit();
+      await refresh();
+    } catch (e) {
+      if (pending && dispatched) status = 'uncertain';
+      else if (!pending) status = 'error';
+      throw e;
+    }
+  }
+  return {
+    load, assertCurrent: guard,
+    subscribe(fn: () => void) { listeners.add(fn); return () => { listeners.delete(fn); }; },
+    get view() { return structuredClone({ context, snapshot: facts?.current, busy, connected: connected && now() < verifiedUntil, writable: connected && now() < verifiedUntil && fresh(facts?.current, now()), status, pending: !!pending, action: pending?.action, receipt, retryAt, alerts, alertStatus, nextCursor }); },
+    refresh() { return exclusive(refresh); },
+    poll() { return exclusive(async () => { await poll(); status = pending ? 'uncertain' : 'ready'; }); },
+    act(action: Intent['action'], reason: string, phrase: string, code: string) { return exclusive(async () => {
+      guard(true); if (pending || now() < retryAt || !reason.trim() || reason.trim().length > 1000 || !/^\d{6}$/.test(code) || phrase !== (action === 'engage' ? 'ENGAGE KILL SWITCH' : 'RELEASE KILL SWITCH') || facts!.current!.risk.hitRules.includes('AccountKill') === (action === 'engage')) fail(422);
+      await load(); guard(true);
+      const challenge = await completeSecurityMfa(config.origin, code, config.csrf(), config.fetchImpl, options); guard(true);
+      if (challenge.status !== 'verified') fail(403);
+      const grant = await completeRecentAuth(config.origin, challenge.challengeRef, config.csrf(), config.fetchImpl, options); guard(true);
+      if (Date.parse(grant.expiresAt) <= now()) fail(403);
+      const body = { accountId: context!.accountId, reason: reason.trim(), mfaChallengeRef: challenge.challengeRef, reauthTokenRef: grant.reauthTokenRef, ...(action === 'engage' ? { confirmPhrase: phrase } : {}) };
+      pending = { action, key: crypto.randomUUID(), reviewedVersion: facts!.current!.risk.objectVersion!, body }; await send(pending, false);
+    }); },
+    retry() { return exclusive(async () => { guard(true); if (!pending || now() < retryAt) fail(409); await load(); guard(true); await send(pending!, true); }); },
+    close() { life.abort(); facts?.revoke(); facts = undefined; context = undefined; pending = undefined; receipt = undefined; alerts = []; connected = false; status = 'empty'; listeners.clear(); }
+  };
+}
+export type PortfolioRuntime = ReturnType<typeof createPortfolioRuntime>;

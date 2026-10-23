@@ -2648,13 +2648,16 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-101", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Portfolio 与 Risk
 - 接口绑定：C06、C16
 - 验收重点：asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作
+
+- 功能交付：`/portfolio`、`/risk` 接入 C01/C06/C16；仓位/精确 P&L/敞口、同帧风险规则/聚合 Kill Switch、账户风险告警、MFA/重新认证与原幂等请求恢复；陈旧/断流/撤权即禁写，角色由 BFF 判定。详见 [UI501操作文档](./operations/ui501-portfolio-risk.md)。
+- 有界工程证据见 [UI501证据](./audit/evidence/ui501-local-20261023/README.md)，复核 `node scripts/ui501-review.mjs --verify`；本机参考组合不提升 INTEGRATION/RELEASE。formalAccepted=false、runtimeAdmission=DENIED；真实目标/远程CI/性能长稳及P08高保真仍NOT_RUN。下一原任务FE:UI-P08。
 
 <a id="task-ui-p08"></a>
 ##### UI-P08：P08-Portfolio-and-Risk-High-Fidelity-v1.png

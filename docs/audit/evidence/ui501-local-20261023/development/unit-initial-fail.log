@@ -1,0 +1,62 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/ui501.test.ts (36 tests | 1 failed) 53ms
+     × atomically applies dense broadcasts, clones, ignores duplicates and rejects gaps, leases, rollback and late revoke 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/ui501.test.ts > UI501 exact C06 facts > atomically applies dense broadcasts, clones, ignores duplicates and rejects gaps, leases, rollback and late revoke
+AssertionError: expected { portfolio: { …(6) }, risk: { …(6) } } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "portfolio": {
+    "accountId": "11111111-1111-4111-8111-111111111111",
+    "asOf": "2026-10-23T00:00:00.000Z",
+    "exposure": "9007199254740993.123456789",
+    "pnl": {
+      "currencyCode": "USD",
+      "nanos": -123456789,
+      "units": "-9007199254740993",
+    },
+    "positions": [
+      {
+        "avgPrice": "100.000000001",
+        "quantity": "9007199254740993.123456789",
+        "side": "long",
+        "symbol": "BTC/USDT",
+      },
+    ],
+    "stale": false,
+  },
+  "risk": {
+    "accountId": "11111111-1111-4111-8111-111111111111",
+    "asOf": "2026-10-23T00:00:00.000Z",
+    "hitRules": [
+      "AccountKill",
+    ],
+    "killSwitch": {
+      "state": "engaged",
+    },
+    "limitIds": [
+      "11111111-1111-4111-8111-111111111111",
+    ],
+    "objectVersion": "1",
+  },
+}
+
+ ❯ apps/terminal/tests/ui501.test.ts:36:859
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 passed (36)
+   Start at  21:37:33
+   Duration  310ms (transform 115ms, setup 0ms, import 192ms, tests 53ms, environment 0ms)
+

@@ -50,7 +50,7 @@ export function parseCommandLayout(raw: string | null): { collapsed: boolean; co
 /** Navigation aliases are read destinations; target routes must reauthorize. */
 export function commandNavigationCapabilities(capabilities: readonly string[]) {
   const result = new Set(capabilities);
-  if (result.has("execution.operate")) for (const cap of ["trade:read", "order:read", "proposal:read", "approval:read"]) result.add(cap);
+  if (result.has("execution.operate")) for (const cap of ["portfolio:read", "trade:read", "order:read", "proposal:read", "approval:read"]) result.add(cap);
   if (result.has("strategy.write") || result.has("strategy.approve")) for (const cap of ["strategy:read", "approval:read", "proposal:read"]) result.add(cap);
   return [...result];
 }
