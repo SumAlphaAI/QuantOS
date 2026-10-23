@@ -25,6 +25,6 @@ KPI/仓位保持 MoneyValue 与 DecimalValue 原始精度、asOf、币种（来�
 - ST-P08-05：视图保存；只有实际返回审计关联引用时提供审计链接，无 Order/Proposal 引用及报告能力则禁用。
 - ACC-P08-S3/S4/S7：加载/空/失败关联 ID、数据保留与禁写；断网显示最后同步并按高敏页面策略清除业务事实，恢复不重发。
 
-响应：1672px 左右双栏，1024px 风险区下移双列，390px 单列与表内横向滚动；规则详情导航聚焦标题并移动到可读位置。明暗主题、键盘/弹窗和 axe/截图只证明本机范围；人工读屏、native200%、跨 OS/多浏览器、真实长期 SSE/持久目标、远程同 SHA CI/完整I4/RELEASE 仍 NOT_RUN。
+主区 Kill banner 与固定底栏同时显示聚合状态；底栏在移动规则详情滚动位置仍常驻。响应：1672px 左右双栏，1024px 风险区下移双列，390px 单列与表内横向滚动；规则详情导航聚焦标题并移动到可读位置。明暗主题、键盘/弹窗和 axe/截图只证明本机范围；人工读屏、native200%、跨 OS/多浏览器、真实长期 SSE/持久目标、远程同 SHA CI/完整I4/RELEASE 仍 NOT_RUN。
 
 执行和复核：`node scripts/ui-p08-review.mjs --run <新 attempt>` / `--verify`。冻结源码/设计稿/输入/二进制/命令/日志/构建产物/网络/截图哈希，保留失败，不改绑 UI501 历史结果。状态 `IMPLEMENTED_PENDING_ACCEPTANCE`、INTEGRATION/NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。下一原任务 FE:UI-502。
