@@ -1,0 +1,100 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui504.spec.ts >> UI504 self approval identity cannot become approval capability by UI action
+- Location: tests/e2e/ui504.spec.ts:13:5
+
+# Error details
+
+```
+Error: expect(locator).toContainText(expected) failed
+
+Locator: getByTestId('approval-detail')
+Expected substring: "禁止审批自己发起"
+Received string:    "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 56业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toContainText" with timeout 5000ms
+  - waiting for getByTestId('approval-detail')
+    6 × locator resolved to <section aria-label="审批详情" data-testid="approval-detail">…</section>
+      - unexpected value "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 60业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+    2 × locator resolved to <section aria-label="审批详情" data-testid="approval-detail">…</section>
+      - unexpected value "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 59业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+    2 × locator resolved to <section aria-label="审批详情" data-testid="approval-detail">…</section>
+      - unexpected value "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 58业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+    2 × locator resolved to <section aria-label="审批详情" data-testid="approval-detail">…</section>
+      - unexpected value "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 57业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+    2 × locator resolved to <section aria-label="审批详情" data-testid="approval-detail">…</section>
+      - unexpected value "审批事实Approval / 版本01a16991-fe49-76a3-8dca-b5896779cf03 / 0状态 / 签发状态pending / not_issued发起人11111111-1111-4111-8111-111111111111当前审批身份11111111-1111-4111-8111-111111111111到期 / 剩余秒数2026-10-23T16:23:17.905078Z / 56业务类型 / 对象未提供 / 未提供关联 ID01a16991-fe43-7ec2-82b9-24abe55f3d39风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。查看授权审计链刷新审批详情当前身份、模式或权限不允许审批。审批决定批准拒绝需要更多信息审批原因拒绝与需要更多信息必须填写原因；将写入审计。审阅并确认审批"
+
+```
+
+```yaml
+- region "审批详情":
+  - heading "审批事实" [level=2]
+  - term: Approval / 版本
+  - definition: 01a16991-fe49-76a3-8dca-b5896779cf03 / 0
+  - term: 状态 / 签发状态
+  - definition: pending / not_issued
+  - term: 发起人
+  - definition: 11111111-1111-4111-8111-111111111111
+  - term: 当前审批身份
+  - definition: 11111111-1111-4111-8111-111111111111
+  - term: 到期 / 剩余秒数
+  - definition: 2026-10-23T16:23:17.905078Z / 56
+  - term: 业务类型 / 对象
+  - definition: 未提供 / 未提供
+  - term: 关联 ID
+  - definition: 01a16991-fe43-7ec2-82b9-24abe55f3d39
+  - paragraph: 风险与额度在服务端最终校验；当前 C08 未提供完整 RiskDecision，不能从审批状态推断交易准入。
+  - link "查看授权审计链":
+    - /url: /audit?correlationId=01a16991-fe43-7ec2-82b9-24abe55f3d39
+  - button "刷新审批详情"
+  - alert: 当前身份、模式或权限不允许审批。
+  - text: 审批决定
+  - combobox "审批决定":
+    - option "批准" [selected]
+    - option "拒绝"
+    - option "需要更多信息"
+  - text: 审批原因
+  - textbox "审批原因"
+  - paragraph: 拒绝与需要更多信息必须填写原因；将写入审计。
+  - button "审阅并确认审批" [disabled]
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect,type Page} from '@playwright/test';
+  2  | import AxeBuilder from '@axe-core/playwright';
+  3  | import {writeFile} from 'node:fs/promises';
+  4  | import {installReferenceHooks,authorized,networkRows,fault,control} from './fixtures/ui504-reference';
+  5  | installReferenceHooks();
+  6  | const detail=(p:Page)=>p.getByTestId('approval-detail'),receipt=(p:Page)=>p.getByRole('region',{name:'服务端审批回执',exact:true}),errors=(p:Page)=>p.locator('.approvals-workspace > [role=alert]');
+  7  | async function seed(){const p=(await control('/v1/proposals')).body.items as Record<string,unknown>[];const v=p[0];const q=await control(`/v1/trade-preflight?accountId=${v.accountId}&proposalId=${v.proposalId}`);expect((await control(`/v1/proposals/${v.proposalId}/risk-evaluations`,{contextHash:q.body.contextHash},v.objectVersion as string,{method:'POST'})).status).toBe(202);const a=(await control('/v1/approvals',undefined,undefined,{session:'session-approver'})).body.items as Record<string,unknown>[];return a.find(a=>a.correlationId===v.correlationId)!.approvalId as string;}
+  8  | async function open(p:Page){const id=await seed();await p.goto('/approvals/'+id);await authorized(p);await expect(detail(p)).toBeVisible();return id;}
+  9  | async function dialog(p:Page,code='123456',decision='approve'){await p.getByRole('button',{name:'审阅并确认审批',exact:true}).click();const d=p.getByRole('dialog');await expect(d.getByRole('button',{name:'取消',exact:true})).toBeFocused();await d.getByLabel('输入“CONFIRM '+decision.toUpperCase()+'”以确认').fill('CONFIRM '+decision.toUpperCase());await d.getByLabel('MFA 验证码',{exact:true}).fill(code);return d;}
+  10 | const decisions=()=>networkRows().filter(r=>!r.control&&r.method==='POST'&&r.path.endsWith('/decisions'));
+  11 | test('UI504 actual independent MFA approval never submits command or optimistically updates',async({page})=>{await open(page);await expect(receipt(page)).toHaveCount(0);const d=await dialog(page);await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(receipt(page)).toContainText('approve · approved');await expect(receipt(page)).toContainText('短时 Command 引用');expect(decisions()).toHaveLength(1);expect(networkRows().some(r=>r.path==='/v1/commands')).toBe(false);await expect(page.getByRole('button',{name:'审阅并确认审批',exact:true})).toBeDisabled();});
+  12 | for(const decision of ['reject','request_info'])test('UI504 '+decision+' requires audited reason and actual server refusal receipt',async({page})=>{await open(page);await page.getByLabel('审批决定',{exact:true}).selectOption(decision);await expect(page.getByRole('button',{name:'审阅并确认审批',exact:true})).toBeDisabled();await page.getByLabel('审批原因',{exact:true}).fill('Owned UI504 refusal reason');const d=await dialog(page,'123456',decision);await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(receipt(page)).toContainText(decision+' · rejected');await expect(receipt(page)).toContainText('未返回可提交');expect(decisions()).toHaveLength(1);});
+> 13 | test('UI504 self approval identity cannot become approval capability by UI action',async({page})=>{fault({actor:'session-current'});await open(page);await expect(detail(page)).toContainText('禁止审批自己发起');await expect(page.getByRole('button',{name:'审阅并确认审批',exact:true})).toBeDisabled();expect(decisions()).toHaveLength(0);});
+     |                                                                                                                                                                                 ^ Error: expect(locator).toContainText(expected) failed
+  14 | test('UI504 boundary expiry blocks confirmation and never requests MFA',async({page})=>{fault({expired:true});await open(page);await expect(detail(page)).toContainText('审批已过期');await expect(page.getByRole('button',{name:'审阅并确认审批',exact:true})).toBeDisabled();expect(networkRows().filter(r=>!r.control&&r.method==='POST')).toHaveLength(0);});
+  15 | test('UI504 conflict stops pending flow and requires explicit refreshed review',async({page})=>{await open(page);fault({conflict:true});const d=await dialog(page);await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(errors(page)).toContainText('版本冲突');await expect(receipt(page)).toHaveCount(0);await expect(detail(page)).toHaveCount(0);expect(decisions()).toHaveLength(1);fault({});await page.reload();await authorized(page);await expect(detail(page)).toContainText('pending');expect(decisions()).toHaveLength(1);});
+  16 | test('UI504 committed lost response only recovers original key body and version without new MFA',async({page})=>{await open(page);fault({drop:true});const d=await dialog(page);await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(page.getByRole('region',{name:'未知结果',exact:true})).toBeVisible();await expect(receipt(page)).toHaveCount(0);expect(decisions()).toHaveLength(1);await page.getByRole('button',{name:'恢复原审批请求',exact:true}).click();await expect(receipt(page)).toContainText('approved');const [a,b]=decisions();expect(a.keyHash).toBe(b.keyHash);expect(a.bodyHash).toBe(b.bodyHash);expect(a.version).toBe(b.version);expect(networkRows().filter(r=>!r.control&&r.path==='/v1/auth/mfa/challenges')).toHaveLength(1);});
+  17 | test('UI504 actual kill after review changes risk and refuses approval without receipt',async({page})=>{await open(page);const m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-owner'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-owner'});expect((await control('/v1/risk/kill-switch/engage',{accountId:'44444444-4444-4444-8444-444444444444',reason:'Owned UI504 current risk refusal',confirmPhrase:'ENGAGE KILL SWITCH',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},undefined,{method:'POST',session:'session-owner'})).status).toBe(200);await page.getByRole('button',{name:'刷新审批详情',exact:true}).click();const d=await dialog(page);await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(errors(page)).toContainText('风险、额度或健康已变化');await expect(receipt(page)).toHaveCount(0);expect(decisions()[0].status).toBe(409);});
+  18 | test('UI504 wrong MFA never dispatches decision; cancel and Escape make no writes',async({page})=>{await open(page);await page.getByRole('button',{name:'审阅并确认审批',exact:true}).click();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);expect(networkRows().filter(r=>!r.control&&r.method==='POST')).toHaveLength(0);const d=await dialog(page,'000000');await d.getByRole('button',{name:'重新认证并提交审批',exact:true}).click();await expect(receipt(page)).toHaveCount(0);expect(decisions()).toHaveLength(0);});
+  19 | test('UI504 unauthorized and unknown routes do not invent authority',async({page})=>{fault({readonly:true});await page.goto('/approvals');await expect(page.locator('[data-route-access="denied"]')).toBeVisible();expect(networkRows().some(r=>!r.control&&r.path==='/v1/approvals')).toBe(false);fault({});await page.goto('/approvals/aaaaaaaa-1111-4111-8111-111111111111');await authorized(page);await expect(errors(page)).toContainText('审批不存在');const before=networkRows().length;await page.goto('/approvals?actorId=evil');await expect(page.getByRole('heading',{name:'Approval 引用无效',exact:true})).toBeVisible();expect(networkRows()).toHaveLength(before);expect((await page.goto('/approvals/nope'))?.status()).toBe(404);});
+  20 | test('UI504 429 waits for explicit retry and hides private backend messages',async({page})=>{const id=await seed();fault({rateLimit:true});await page.goto('/approvals/'+id);await authorized(page);await expect(errors(page)).toContainText('冷却');await expect(page.getByText('private SQL',{exact:false})).toHaveCount(0);await expect(page.getByRole('button',{name:'刷新审批列表',exact:true})).toBeDisabled();});
+  21 | test('UI504 offline clears facts, receipt and recovery references without automatic retry',async({page,context})=>{await open(page);await context.setOffline(true);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(detail(page)).toHaveCount(0);await expect(page.getByText(/^最后同步时间：/)).toBeVisible();await context.setOffline(false);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();expect(decisions()).toHaveLength(0);});
+  22 | test('UI504 actual logout revocation clears facts immediately',async({page})=>{await open(page);expect((await control('/v1/auth/logout',undefined,undefined,{method:'POST',session:'session-approver'})).status).toBe(204);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(detail(page)).toHaveCount(0);});
+  23 | test('UI504 empty loading and list deep link remain closed to write',async({page})=>{fault({empty:true,slow:true});await page.goto('/approvals');await authorized(page);await expect(page.getByText('正在读取审批…',{exact:true})).toBeVisible();await expect(page.getByText('当前授权的审批页为空。',{exact:true})).toBeVisible();expect(decisions()).toHaveLength(0);});
+  24 | test('UI504 dark light desktop mobile layout axe and reload retain server-only approval facts',async({page},info)=>{await open(page);const scans=[];for(const theme of ['dark','light']as const){await page.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('ui504-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`approvals-${theme}-${width}.png`),fullPage:true});}}await page.reload();await authorized(page);await expect(detail(page)).toContainText('pending');expect(decisions()).toHaveLength(0);});
+  25 | 
+```

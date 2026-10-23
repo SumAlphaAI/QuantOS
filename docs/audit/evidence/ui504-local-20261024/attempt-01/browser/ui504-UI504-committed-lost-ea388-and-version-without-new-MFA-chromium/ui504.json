@@ -1,0 +1,296 @@
+{
+  "schema": "quantos-ui504-browser/v1",
+  "scenario": "UI504 committed lost response only recovers original key body and version without new MFA",
+  "status": "passed",
+  "sourceCommit": "c19a92f700778866a298319a73a1455e82d6ad4e",
+  "binarySha256": "5a8e079844e23d7a15f5180223b760654d6f7a7582e9657b86fdd60acfdeb662",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "C08_DECISIONS_MFA_REAUTH_AND_EXPLICIT_SETUP_CONTROLS",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/proposals",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": true,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9100ecf6711be60f8b3e4d3ecb1fa9441dce87600f25dab6f24a133cff8445ef"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "proposalId": "dc1200b9-ec30-4cff-8835-c0c286b28347"
+      },
+      "method": "GET",
+      "path": "/v1/trade-preflight",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": true,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "e4a7dc0f2d854603bee04f3f4bbe3388eee2a076368fca1256b8cf8e36caca67"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/proposals/dc1200b9-ec30-4cff-8835-c0c286b28347/risk-evaluations",
+      "status": 202,
+      "source": "REFERENCE_BYTES",
+      "control": true,
+      "bodyHash": "de1b8f800e4f3981c39d6552e9799bfc3f2f7fc93a2a0b5f076f7bafad67ca31",
+      "version": "0",
+      "keyHash": "3a1a7997cdc3278142cfcf2a7113bd523decb3f32d7595eeba2d398eb2e671b6",
+      "responseHash": "03c99e3a6f0fe127f2d9e06174109f28530329b292162519d4784ee2e5725f04"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/approvals",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": true,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "eb74cca4b6f6c0a915045e85c198fd77a164a5701f247d74b9fa2fa6e60587dd"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {
+        "pageSize": "50"
+      },
+      "method": "GET",
+      "path": "/v1/approvals",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "eb74cca4b6f6c0a915045e85c198fd77a164a5701f247d74b9fa2fa6e60587dd"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/approvals/01a16992-2c51-7c70-9236-f612fe7fc9a5",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "3c7b402289a857bfd71959bd374831e598fba7ed848e209bfa38064a0e91f282"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/approvals/01a16992-2c51-7c70-9236-f612fe7fc9a5",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "3c7b402289a857bfd71959bd374831e598fba7ed848e209bfa38064a0e91f282"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "9ff0379a9ce1fd9ce255726df932dc87554ec2b93c09ad901ccbbb6e707f8704",
+      "responseHash": "b3c9c4dd6e614334e68ad8df59ae9f7fe0591dc76a572ddb252125f2cd16019d"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "6668887286a46837da61f72ca73bc3d07c250d636d0367be38bc2260a4461570",
+      "responseHash": "81588a0be53de2364cbbb8149c510d2984f8c885f2f54d14d9103ebaf73e3c59"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/approvals/01a16992-2c51-7c70-9236-f612fe7fc9a5",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "3c7b402289a857bfd71959bd374831e598fba7ed848e209bfa38064a0e91f282"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/approvals/01a16992-2c51-7c70-9236-f612fe7fc9a5/decisions",
+      "status": 200,
+      "source": "REFERENCE_COMMITTED_RESPONSE_DROPPED",
+      "control": false,
+      "bodyHash": "2b8c1eebdb3788d2258d67fbe07de2ff5590ed0f646db15d90a659744522590e",
+      "version": "0",
+      "keyHash": "b1e65cea688fcdcb98b461e545a3f62acea18f34872f6d28e7ca6703f37322dc",
+      "responseHash": "1632bada36e1f823d354916f1acb5ca0cb5657aee5d9c3afe95f81fedd98a835"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "f9a431e0224f4e395c1a44e290ede73482813b927e3cd2ad06e40cb76345fcc7"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/approvals/01a16992-2c51-7c70-9236-f612fe7fc9a5/decisions",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "2b8c1eebdb3788d2258d67fbe07de2ff5590ed0f646db15d90a659744522590e",
+      "version": "0",
+      "keyHash": "b1e65cea688fcdcb98b461e545a3f62acea18f34872f6d28e7ca6703f37322dc",
+      "responseHash": "1632bada36e1f823d354916f1acb5ca0cb5657aee5d9c3afe95f81fedd98a835"
+    }
+  ]
+}
