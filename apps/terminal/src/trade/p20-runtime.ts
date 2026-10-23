@@ -18,7 +18,8 @@ export function createControlledTicket(config:Config){
  async function exclusive(fn:()=>Promise<void>,recover=false){guard();if(busy)throw new TicketError(409,'BUSY');if(now()<retryAt)throw new TicketError(429,'RATE_LIMITED');if(unknown()&&!recover)throw new TicketError(409,'RECOVERY_REQUIRED');busy=true;emit();try{await fn();guard();}catch(e){verifiedUntil=0;throw e;}finally{busy=false;emit();}}
  // Source runtimes are never rebound to another proposal while there is an unresolved write.
  async function matchApproval(){
-  guard();await risk.open(ticket.view.selectedId!);const p=risk.view.selected!;
+  guard();await risk.open(ticket.view.selectedId!);const p=risk.view.selected!,reviewed=ticket.view.snapshot?.proposal;
+  if(!reviewed||identity(p)!==identity(reviewed))throw new TicketError(409,'SOURCE_CHANGED');
   if(!['awaiting_approval','approved','command_ready','rejected','request_info','submitted'].includes(p.status??''))throw new TicketError(409,'EVALUATION_REQUIRED');
   const all:Approval[]=[],seen=new Set<string>();let cursor:string|undefined;
   do{const r=await client.GET('/v1/approvals',{params:{query:{pageSize:50,...cursor?{cursor}:{}}},cache:'no-store'});guard();
