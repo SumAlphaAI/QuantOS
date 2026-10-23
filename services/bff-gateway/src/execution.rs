@@ -567,6 +567,20 @@ impl ExecutionService {
             json!({"proposalId":pid,"correlationId":p.correlation,"accountId":p.intent.account_id,"mode":self.auth.mode.as_str(),"contextHash":self.context_hash(p),"objectVersion":p.page["objectVersion"],"asOf":self.input.portfolio.as_of,"expiresAt":p.record.expires_at.min(d.expires_at),"verdict":match d.verdict{RiskVerdict::Allow=>"allow",RiskVerdict::ApprovalRequired=>"approval_required",RiskVerdict::Deny=>"deny"},"hitRules":d.hit_rules().map(|c|format!("{:?}",c.rule)).collect::<Vec<_>>(),"executable":false}),
         )
     }
+    fn ticket_context(&self, pid: Uuid) -> Result<Value> {
+        let p = self.proposal(pid)?;
+        let equity = rust_decimal::Decimal::from_f64_retain(self.financials.equity)
+            .ok_or_else(Fault::unavailable)?;
+        let policy = self.guard.policy();
+        Ok(
+            json!({"symbol":p.intent.symbol,"quantity":p.intent.quantity,"limitPrice":p.intent.limit_price,
+            "quoteUnit":self.financials.quote_unit,"equity":equity.normalize().to_string(),"availableCash":null,
+            "financialAsOf":self.financials.as_of,"venue":self.venue.venue,"venueHealthy":self.venue.healthy,
+            "venueObservedAt":self.venue.observed_at,"policyVersion":policy.version,
+            "policyRevision":self.guard.revision().map_err(|_|Fault::unavailable())?.to_string(),
+            "inputHash":self.input.input_hash,"maxAgeSeconds":policy.max_age_seconds.min(60)}),
+        )
+    }
     fn event(&mut self, key: &str, body: Value, now: DateTime<Utc>) -> Result<Value> {
         if self.journals.len() >= 1000 && !self.journals.contains_key(key) {
             return Err(Fault::unavailable());
@@ -707,7 +721,7 @@ impl ExecutionService {
         let parts: Vec<_> = path.trim_matches('/').split('/').collect();
         let resource = parts.get(2).and_then(|s| Uuid::parse_str(s).ok());
         if !write {
-            let val = match path {
+            let mut val = match path {
                 "/v1/portfolio" => self.portfolio(now),
                 "/v1/risk" => self.risk(now)?,
                 "/v1/order-capabilities" => {
@@ -791,6 +805,17 @@ impl ExecutionService {
                     _ => return Err(Fault::hidden()),
                 },
             };
+            if path == "/v1/trade-preflight" {
+                match q.get("includeTicketContext").map(String::as_str) {
+                    Some("true") => {
+                        val["ticketContext"] = self.ticket_context(crate::research::uuid(
+                            q.get("proposalId").ok_or_else(Fault::invalid)?,
+                        )?)?
+                    }
+                    Some("false") | None => {}
+                    _ => return Err(Fault::invalid()),
+                }
+            }
             if path.ends_with("/stream") {
                 let vals = self.event(
                     &format!(

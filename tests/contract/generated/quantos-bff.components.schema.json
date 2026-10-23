@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.14.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.15.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -2827,6 +2827,78 @@
         },
         "correlationId": {
           "$ref": "#/$defs/UUID"
+        },
+        "ticketContext": {
+          "$ref": "#/$defs/TradeTicketContext",
+          "description": "Only returned when includeTicketContext=true. Read-only proposal-bound source facts, not a submitted or evaluated browser intent."
+        }
+      }
+    },
+    "TradeTicketContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "quantity",
+        "limitPrice",
+        "quoteUnit",
+        "equity",
+        "availableCash",
+        "financialAsOf",
+        "venue",
+        "venueHealthy",
+        "venueObservedAt",
+        "policyVersion",
+        "policyRevision",
+        "inputHash",
+        "maxAgeSeconds"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "limitPrice": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "quoteUnit": {
+          "type": "string"
+        },
+        "equity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "availableCash": {
+          "type": "null",
+          "description": "Current account source supplies equity only; never infer available cash or cash sufficiency."
+        },
+        "financialAsOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venueHealthy": {
+          "type": "boolean"
+        },
+        "venueObservedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "policyRevision": {
+          "type": "string"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "maxAgeSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
         }
       }
     },

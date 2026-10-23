@@ -2769,13 +2769,16 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-401", "UI-501", "UI-502", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Trade Ticket preflight
 - 接口绑定：C12、C13、C07
 - 验收重点：每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command
+
+- 功能交付：`/trade?proposalId=UUID`，C07建议引用与严格查询解析；每次选择/推进/预填均重读C01、C07版本、C12精确venue参考报价、C13预检/限额/健康/财务只读投影与密集流。来源变化返回审阅；仅内存intent草稿，executable=false、submissionReady=false，零业务写入，不创建command。C13显式opt-in保持旧读取结构；权益余额不冒充未提供的可用现金。见 [UI503说明](./operations/ui503-trade-preflight.md)。
+- 有界证据见 [UI503证据](./audit/evidence/ui503-local-20261023/README.md)，`node scripts/ui503-review.mjs --verify`复核。IMPLEMENTED_PENDING_ACCEPTANCE不提升INTEGRATION/RELEASE，formalAccepted=false、runtimeAdmission=DENIED；可用现金来源/真实执行报价对齐/目标环境/远程CI/性能长稳仍NOT_RUN。下一原任务FE:UI-504。
 
 <a id="task-ui-504"></a>
 ##### UI-504：Approval、MFA、职责分离

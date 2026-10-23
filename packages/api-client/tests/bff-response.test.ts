@@ -29,6 +29,7 @@ function specimen(schema: Schema): unknown {
   }
   if (schema.type === "integer" || schema.type === "number") return Math.max(1, schema.minimum ?? 0);
   if (schema.type === "boolean") return true;
+  if (schema.type === "null") return null;
   if (schema.type === "string") {
     if (schema.format === "uuid") return uuid;
     if (schema.format === "date") return "2026-10-18";

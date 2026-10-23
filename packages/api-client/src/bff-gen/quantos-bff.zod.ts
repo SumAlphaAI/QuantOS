@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.14.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.15.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -647,6 +647,24 @@ export const TradePreflightSchema = z.object({
   "hitRules": z.array(z.string()),
   "executable": z.literal(false),
   "correlationId": z.lazy(() => UUIDSchema).optional(),
+  "ticketContext": z.lazy(() => TradeTicketContextSchema).optional(),
+}).strict();
+
+export const TradeTicketContextSchema = z.object({
+  "symbol": z.string(),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "limitPrice": z.lazy(() => DecimalValueSchema),
+  "quoteUnit": z.string(),
+  "equity": z.lazy(() => DecimalValueSchema),
+  "availableCash": z.null().describe("Current account source supplies equity only; never infer available cash or cash sufficiency."),
+  "financialAsOf": z.lazy(() => DateTimeSchema),
+  "venue": z.string(),
+  "venueHealthy": z.boolean(),
+  "venueObservedAt": z.lazy(() => DateTimeSchema),
+  "policyVersion": z.string(),
+  "policyRevision": z.string(),
+  "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "maxAgeSeconds": z.number().int().min(1).max(60),
 }).strict();
 
 export const ReconciliationEvidenceRefSchema = z.object({
@@ -1243,6 +1261,7 @@ export const bffZodSchemas = {
   CandleSeries: CandleSeriesSchema,
   OrderCapabilities: OrderCapabilitiesSchema,
   TradePreflight: TradePreflightSchema,
+  TradeTicketContext: TradeTicketContextSchema,
   ReconciliationEvidenceRef: ReconciliationEvidenceRefSchema,
   ReconciliationRun: ReconciliationRunSchema,
   ReconciliationBreak: ReconciliationBreakSchema,

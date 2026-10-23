@@ -2625,6 +2625,25 @@ export interface components {
             /** @enum {boolean} */
             executable: false;
             correlationId?: components["schemas"]["UUID"];
+            /** @description Only returned when includeTicketContext=true. Read-only proposal-bound source facts, not a submitted or evaluated browser intent. */
+            ticketContext?: components["schemas"]["TradeTicketContext"];
+        };
+        TradeTicketContext: {
+            symbol: string;
+            quantity: components["schemas"]["DecimalValue"];
+            limitPrice: components["schemas"]["DecimalValue"];
+            quoteUnit: string;
+            equity: components["schemas"]["DecimalValue"];
+            /** @description Current account source supplies equity only; never infer available cash or cash sufficiency. */
+            availableCash: null;
+            financialAsOf: components["schemas"]["DateTime"];
+            venue: string;
+            venueHealthy: boolean;
+            venueObservedAt: components["schemas"]["DateTime"];
+            policyVersion: string;
+            policyRevision: string;
+            inputHash: string;
+            maxAgeSeconds: number;
         };
         ReconciliationEvidenceRef: {
             /** @enum {string} */
@@ -6811,6 +6830,8 @@ export interface operations {
             query: {
                 accountId: components["schemas"]["UUID"];
                 proposalId: components["schemas"]["UUID"];
+                /** @description Opt-in read-only current financial, venue and intent projection; no command authority. Available cash is explicitly unavailable in the current source. */
+                includeTicketContext?: "true" | "false";
             };
             header?: never;
             path?: never;

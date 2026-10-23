@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.14.0
+  version: 1.15.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -5449,6 +5449,13 @@ paths:
           required: true
           schema:
             $ref: "#/components/schemas/UUID"
+        - name: includeTicketContext
+          in: query
+          required: false
+          description: Opt-in read-only current financial, venue and intent projection; no command authority. Available cash is explicitly unavailable in the current source.
+          schema:
+            type: string
+            enum: ["true", "false"]
       responses:
         "200":
           description: 组合视图
@@ -12863,6 +12870,46 @@ components:
             - false
         correlationId:
           $ref: "#/components/schemas/UUID"
+        ticketContext:
+          $ref: "#/components/schemas/TradeTicketContext"
+          description: Only returned when includeTicketContext=true. Read-only proposal-bound source facts, not a submitted or evaluated browser intent.
+    TradeTicketContext:
+      type: object
+      additionalProperties: false
+      required: [symbol, quantity, limitPrice, quoteUnit, equity, availableCash, financialAsOf, venue, venueHealthy, venueObservedAt, policyVersion, policyRevision, inputHash, maxAgeSeconds]
+      properties:
+        symbol:
+          type: string
+        quantity:
+          $ref: "#/components/schemas/DecimalValue"
+        limitPrice:
+          $ref: "#/components/schemas/DecimalValue"
+        quoteUnit:
+          type: string
+        equity:
+          $ref: "#/components/schemas/DecimalValue"
+        availableCash:
+          type: 'null'
+          description: Current account source supplies equity only; never infer available cash or cash sufficiency.
+        financialAsOf:
+          $ref: "#/components/schemas/DateTime"
+        venue:
+          type: string
+        venueHealthy:
+          type: boolean
+        venueObservedAt:
+          $ref: "#/components/schemas/DateTime"
+        policyVersion:
+          type: string
+        policyRevision:
+          type: string
+        inputHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        maxAgeSeconds:
+          type: integer
+          minimum: 1
+          maximum: 60
     ReconciliationEvidenceRef:
       type: object
       additionalProperties: false

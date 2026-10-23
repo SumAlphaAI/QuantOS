@@ -1121,3 +1121,98 @@ fn expired_order_control_ref_recovers_without_renewing_submit() {
     assert!(call(&mut s, &a, "/v1/commands", body, &headers(None), later).is_err());
     assert_eq!(s.downstream_counts(), (Some(1), Some(1)));
 }
+
+#[test]
+fn ui503_ticket_projection_is_opt_in_read_only_and_does_not_invent_cash() {
+    let mut s = ExecutionService::reference();
+    let a = s.auth.clone();
+    let pid = *s.proposals.keys().next().unwrap();
+    let mut q = BTreeMap::from([
+        ("accountId".into(), a.account_id.unwrap().to_string()),
+        ("proposalId".into(), pid.to_string()),
+    ]);
+    let read = |s: &mut ExecutionService, q: &BTreeMap<String, String>| {
+        s.handle(
+            &a,
+            "owned-session",
+            &Method::GET,
+            "/v1/trade-preflight",
+            q,
+            &HeaderMap::new(),
+            &Value::Null,
+            None,
+            Utc::now(),
+        )
+        .unwrap()
+        .1
+    };
+    assert!(read(&mut s, &q).get("ticketContext").is_none());
+    q.insert("includeTicketContext".into(), "true".into());
+    let p = read(&mut s, &q);
+    assert_eq!(p["ticketContext"]["equity"], "1000000");
+    assert!(p["ticketContext"]["availableCash"].is_null());
+    assert_eq!(p["ticketContext"]["quantity"], "1500");
+    assert_eq!(p["ticketContext"]["limitPrice"], "100");
+    assert_eq!(p["ticketContext"]["venue"], "OWNED_PAPER");
+    assert_eq!(p["ticketContext"]["venueHealthy"], true);
+    assert_eq!(p["executable"], false);
+    assert!(s.replays.is_empty());
+    assert!(s.orders.is_empty());
+    assert!(
+        s.proposals
+            .values()
+            .all(|v| v.command.is_none() && v.approval.is_none())
+    );
+}
+#[test]
+fn ui503_every_read_reflects_current_financial_venue_and_policy_facts() {
+    let mut s = ExecutionService::reference();
+    let pid = *s.proposals.keys().next().unwrap();
+    let old = s.preflight(pid, Utc::now()).unwrap();
+    let old_context = s.ticket_context(pid).unwrap();
+    s.financials.equity = 500000.0;
+    s.venue.healthy = false;
+    let new = s.preflight(pid, Utc::now()).unwrap();
+    let context = s.ticket_context(pid).unwrap();
+    assert_ne!(new["contextHash"], old["contextHash"]);
+    assert_ne!(context["equity"], old_context["equity"]);
+    assert_eq!(context["venueHealthy"], false);
+    assert_eq!(new["verdict"], "deny");
+    assert_eq!(context["inputHash"], s.input.input_hash.to_string());
+    assert_eq!(
+        context["policyRevision"],
+        s.guard.revision().unwrap().to_string()
+    );
+}
+#[test]
+fn ui503_opt_in_rejects_invalid_query_and_foreign_account_without_mutation() {
+    let mut s = ExecutionService::reference();
+    let a = s.auth.clone();
+    let pid = *s.proposals.keys().next().unwrap();
+    for (account, flag) in [
+        (a.account_id.unwrap().to_string(), "junk"),
+        (Uuid::new_v4().to_string(), "true"),
+    ] {
+        let q = BTreeMap::from([
+            ("accountId".into(), account),
+            ("proposalId".into(), pid.to_string()),
+            ("includeTicketContext".into(), flag.into()),
+        ]);
+        assert!(
+            s.handle(
+                &a,
+                "owned-session",
+                &Method::GET,
+                "/v1/trade-preflight",
+                &q,
+                &HeaderMap::new(),
+                &Value::Null,
+                None,
+                Utc::now()
+            )
+            .is_err()
+        );
+    }
+    assert!(s.orders.is_empty());
+    assert!(s.replays.is_empty());
+}

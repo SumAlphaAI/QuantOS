@@ -1,0 +1,19 @@
+import {spawn,type ChildProcess} from 'node:child_process';
+import {createServer} from 'node:net';
+import {beforeAll,afterAll,expect,it} from 'vitest';
+import {createBffClient} from '@sumalpha/api-client';
+import {createTicketRuntime} from '../src/trade/runtime';
+import {referenceBffExecutable,referenceBffRoot,referenceBffSourceEnv} from './helpers/reference-bff';
+let child:ChildProcess,origin:string;const csrf='csrf-token-0000000000000001';
+const requests:Request[]=[];
+const transport=(session='session-current'):typeof fetch=>async(input,init)=>{const r=new Request(input,init);requests.push(r.clone());r.headers.set('cookie',`quantos_session=${session}; quantos_csrf=${csrf}`);r.headers.set('origin','http://localhost:3190');return fetch(r);};
+beforeAll(async()=>{expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,'127.0.0.1',r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(referenceBffExecutable(),[],{cwd:referenceBffRoot,env:{...referenceBffSourceEnv(),NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('reference startup timeout')),15000);child.once('error',e=>{clearTimeout(timer);reject(e);});child.stdout?.on('data',b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});},20000);
+afterAll(async()=>{if(child?.exitCode===null){child.kill();await new Promise(r=>child.once('close',r));}});
+it('actual C01/C07/C12/C13 opt-in projection, every-step rereads and no command or mutation',async()=>{
+ const runtime=createTicketRuntime({origin,fetchImpl:transport(),authorize:()=>{},online:()=>true,invalidate:()=>{}});
+ await runtime.load();await runtime.list();const p=runtime.view.rows[0],i=runtime.view.instruments.find(i=>i.canonicalSymbol.replace('/','')===p.symbol)!;
+ await runtime.select(p.proposalId,i.instrumentId);expect(runtime.view.current).toBe(true);expect(runtime.view.snapshot?.ticket.venue).toBe('OWNED_PAPER');expect(runtime.view.snapshot?.ticket.availableCash).toBeNull();expect(runtime.view.snapshot?.ticket.equity).toBe('1000000');await runtime.advance();await runtime.advance();expect(runtime.view.draft).toMatchObject({proposalId:p.proposalId,quantity:p.quantity,limitPrice:'100',executable:false});expect(runtime.view.submissionReady).toBe(false);
+ expect(requests.every(r=>r.method==='GET')).toBe(true);expect(requests.filter(r=>new URL(r.url).pathname==='/v1/markets/quotes')).toHaveLength(3);expect(requests.filter(r=>new URL(r.url).pathname==='/v1/trade-preflight'&&new URL(r.url).searchParams.get('includeTicketContext')==='true')).toHaveLength(6);
+ const client=createBffClient({baseUrl:origin,fetch:transport()});const old=await client.GET('/v1/trade-preflight',{params:{query:{accountId:p.accountId,proposalId:p.proposalId}}});expect(old.data?.ticketContext).toBeUndefined();const viewer=createBffClient({baseUrl:origin,fetch:transport('session-viewer')});expect((await viewer.GET('/v1/trade-preflight',{params:{query:{accountId:p.accountId,proposalId:p.proposalId,includeTicketContext:'true'}}})).response.status).toBe(403);expect((await client.GET('/v1/trade-preflight',{params:{query:{accountId:crypto.randomUUID(),proposalId:p.proposalId,includeTicketContext:'true'}}})).response.status).toBe(404);
+ runtime.close();expect(runtime.view.draft).toBeUndefined();expect(runtime.view.snapshot).toBeUndefined();
+},20000);
