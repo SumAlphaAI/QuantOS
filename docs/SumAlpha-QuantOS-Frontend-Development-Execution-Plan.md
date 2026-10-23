@@ -2353,7 +2353,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-202", "UI-203", "UI-VIS-000", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2362,6 +2362,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 契约绑定：C03、C04、C10
 - 所属阶段：FEP-2
 - 页面级完成标准：SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地
+
+- 当前执行：UI-P04 当前页面实现与受影响验证进行中；复用 UI-202/UI-203，交付7/5时间线与证据面板、Artifact正文/版本/血缘布局和显式缺失态。见[规程](./operations/ui-p04-research-artifact-detail.md)与[当前页面门禁](../scripts/ui-p04-review.mjs)。不将G1辅助项作为前置，不重跑全链；reference身份/CORS替代、Firefox/WebKit阻塞、历史6+2+12条incomplete与全部NOT_RUN保留，阶段Gate及联调/发布不提升。下一原任务FRONTEND-GATE:G2可执行范围核对，READY另按证据评估。
 
 <a id="acceptance-frontend-gate-g2"></a>
 ##### FRONTEND-GATE:G2：验收检查点
