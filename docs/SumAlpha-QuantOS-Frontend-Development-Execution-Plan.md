@@ -2625,7 +2625,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-401", "UI-VIS-000", "BFF-FE-005", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2634,6 +2634,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 契约绑定：C12、C16
 - 所属阶段：FEP-4
 - 页面级完成标准：市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化
+
+- 功能交付：`/markets` 与严格编码 `/markets/:symbol`，P18三栏视觉结构、自选/最近/筛选/布局保存、逐venue比较、标的详情/许可血缘、选中报价流及显式恢复、C16市场域偏好CAS/冲突/原意图恢复；见 [P18操作与契约适配](./operations/ui-p18-markets.md)。
+- 有界证据：冻结源码、生成consumer/实际reference C12+C16、Chromium成功/拒绝/恢复及明暗×1672/1024/390视觉与axe见 [P18证据](./audit/evidence/ui-p18-local-20261023/README.md)，复核 `node scripts/ui-p18-review.mjs --verify`。24h指标/交易状态/单标的告警规则未由契约提供，明确不可用；P19 K线/后续交易入口条件未满足，不生成交易动作。stage_gate不提升，真实目标、完整I4/RELEASE、人工读屏/native200%、远程CI与性能长稳仍NOT_RUN，formalAccepted=false、runtimeAdmission=DENIED。下一原任务FE:UI-501。
 
 <a id="task-ui-501"></a>
 ##### UI-501：Portfolio 与 Risk
