@@ -17,6 +17,8 @@ export const checks = [
  c('unit',['pnpm','exec','vitest','run',...focusedTests,'--reporter=json','--outputFile={attempt}/unit.json']),
  c('rust-conflict',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','strategy::tests::concurrent_edit_is_unique_and_returns_current_diff','--','--nocapture']),
  c('rust-idempotency',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','strategy::tests::lost_save_response_replays_original_and_changed_intent_conflicts','--','--nocapture']),
+ c('auth-stream',['cargo','test','--locked','--offline','-p','bff-gateway','--test','auth_settings_provider','session_stream','--','--nocapture']),
+ c('auth-backlog',['cargo','test','--locked','--offline','-p','bff-gateway','--test','auth_settings_provider','revoked_stream_discards_backlog','--','--nocapture']),
  c('reference-build',['cargo','build','--locked','--offline','-p','bff-gateway','--bin','bff-gateway']),
  c('types',['pnpm','--filter','@sumalpha/terminal','typecheck']),
  c('lint',['pnpm','exec','eslint','apps/terminal/src/strategy/policy.ts','apps/terminal/src/strategy/runtime.ts','apps/terminal/app/strategies','apps/terminal/tests/ui301.test.ts','scripts/ui301-review.mjs','scripts/ui301-review.test.mjs','scripts/terminal-static-routes.mjs','scripts/terminal-static-routes.test.mjs','playwright.config.ts','playwright.ui301.config.ts','tests/e2e/ui301.spec.ts','tests/e2e/fixtures/ui301-reference.ts']),
@@ -45,13 +47,14 @@ export function verify(r) {
  assert.deepEqual(r.artifacts.map(f => f.path).sort(),files(r.attempt).sort());for (const f of r.artifacts) {assert(f.path.startsWith(r.attempt+'/') && !f.path.includes('..'));assert.equal(hash(read(f.path)),f.sha256);}
  const unit = json(validationAttempt+'/unit.json');assert.equal(unit.success,true);assert.equal(unit.numTotalTests,38);assert.equal(unit.numPassedTests,38);assert.equal(unit.numPendingTests,0);
  for (const id of ['rust-conflict','rust-idempotency']) assert.match(read(validationAttempt+'/'+id+'.log').toString(),/test result: ok\. 1 passed; 0 failed;/);
+ assert.match(read(validationAttempt+'/auth-stream.log').toString(),/test result: ok\. 2 passed; 0 failed;/);assert.match(read(validationAttempt+'/auth-backlog.log').toString(),/test result: ok\. 1 passed; 0 failed;/);
  validateBrowser(json(r.attempt+'/browser/report.json'));const binary = json(validationAttempt+'/binary.json');assert.equal(binary.sourceCommit,r.sourceCommit);
  const probes = r.artifacts.filter(f => f.path.endsWith('/ui301.json'));assert.equal(probes.length,6);for (const f of probes) {const p = json(f.path);assert.equal(p.status,'passed');assert.equal(p.sourceCommit,r.toolingCommit ?? r.sourceCommit);assert.equal('sha256:'+p.binarySha256,binary.sha256);assert.equal(p.identity,r.identity);assert.equal(p.cors,r.cors);assert.equal(p.businessWrites,'LOCAL_REFERENCE_C05_DRAFT_ONLY');assert(p.rows.every(row => row.method === 'GET' || row.method === 'PUT' && /^\/v1\/strategies\/[^/]+\/draft$/.test(row.path)));}
  const axes = r.artifacts.filter(f => f.path.endsWith('/axe.json'));assert.equal(axes.length,1);const a = json(axes[0].path);assert.equal(a.scans.length,12);for (const scan of a.scans) assert.equal(scan.violations.length,0);assert.equal(a.manualScreenReader,'NOT_RUN');assert.equal(a.nativeZoom200,'NOT_RUN');
  assert.equal(json(validationAttempt+'/terminal-build.json').buildId,'terminal-'+r.sourceCommit);
  const decision = json(r.attempt+'/integration-refusal.log');assert.equal(decision.allowed,false);assert.equal(decision.reason,'STAGE_NOT_READY');assert.equal(json(r.attempt+'/next-development.log').allowed,true);
  const node = nodesFromPlans().get('FE:UI-301');assert.equal(node.development_status,'IMPLEMENTED_PENDING_ACCEPTANCE');assert.deepEqual(node.stage_gate,{stage:'INTEGRATION',status:'NOT_ASSESSED',input_digest:null,evidence:[]});
- return {sourceCommit:r.sourceCommit,toolingCommit:r.toolingCommit ?? r.sourceCommit,reusedFromAttempt:r.reusedFromAttempt ?? null,engineeringGate:r.engineeringGate,functionTests:38,rustTests:2,chromiumCases:6,axeScans:12,axeIncomplete:a.scans.reduce((n,s) => n+s.incomplete.length,0),stageGate:r.stageGate,confirmation:r.confirmation,formalAccepted:false,nextTask:r.nextTask};
+ return {sourceCommit:r.sourceCommit,toolingCommit:r.toolingCommit ?? r.sourceCommit,reusedFromAttempt:r.reusedFromAttempt ?? null,engineeringGate:r.engineeringGate,functionTests:38,rustTests:5,chromiumCases:6,axeScans:12,axeIncomplete:a.scans.reduce((n,s) => n+s.incomplete.length,0),stageGate:r.stageGate,confirmation:r.confirmation,formalAccepted:false,nextTask:r.nextTask};
 }
 /** Test-only correction: retain the original application/build SHA and rerun browser only. */
 export function runBrowser(attempt,previousAttempt) {

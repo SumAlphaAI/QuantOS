@@ -412,16 +412,22 @@ fn cookies(headers: &HeaderMap) -> BTreeMap<&str, &str> {
         .collect()
 }
 
+// Built-in reference identities are also accepted by C01. Use the same
+// predicate for its invalidation stream; an approver must not revoke itself.
+fn reference_session_active(state: &ProviderData, session: &str) -> bool {
+    matches!(
+        session,
+        VIEWER_SESSION | "session-approver" | "session-owner"
+    ) || state.sessions.contains_key(session)
+}
+
 async fn authenticate(
     headers: &HeaderMap,
     data: &Arc<Mutex<ProviderData>>,
 ) -> Result<(), Response> {
     let session = cookies(headers).get("quantos_session").copied();
     let state = data.lock().await;
-    let active = session.is_some_and(|id| {
-        matches!(id, VIEWER_SESSION | "session-approver" | "session-owner")
-            || state.sessions.contains_key(id)
-    });
+    let active = session.is_some_and(|id| reference_session_active(&state, id));
     if matches!(
         session,
         Some(CURRENT_SESSION | "session-owner" | "session-approver")
@@ -1148,7 +1154,7 @@ async fn session_stream(
                 let state = data.lock().await;
                 // Revalidate before every delivery, including queued replay events.
                 if state.now() >= state.session_expires_at
-                    || (session != VIEWER_SESSION && !state.sessions.contains_key(&session))
+                    || !reference_session_active(&state, &session)
                     || (session == CURRENT_SESSION && !state.session_active)
                 {
                     let frame = format!(

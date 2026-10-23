@@ -12,8 +12,8 @@ C05 当前没有浏览器创建策略接口，`/strategies/new` 提供服务端�
 
 最终结果以[限定证据 receipt](evidence/ui301-local-20261023/receipt.json)及[索引](evidence/ui301-local-20261023/README.md)为准。来源 SHA 固定在 receipt.sourceCommit；提交证据之后不改绑为新 HEAD PASS。执行脚本保存命令、开始/结束时间、退出码、信号、日志、输入与产物哈希；失败尝试永久保留。
 
-验证范围：当前状态机/契约及 DraftBuffer 回归；C05 并发冲突和丢失响应幂等服务用例；重新构建 reference BFF；Terminal 类型、lint、一轮构建与 client-secret 检查；静态路由/主机与门禁拒绝测试；Chromium 实际页面成功、409、未知结果、拒绝、权限恢复、深链和双主题/移动布局。扩大到两个 C05 服务用例和共享路由回归的原因是验证真实版本/幂等语义及新增 Lab 静态路由，未执行全仓或递归上游闭包。
+验证范围：当前状态机/契约及 DraftBuffer 回归；C05 并发冲突和丢失响应幂等服务用例；只读审批者/owner 会话流及真实撤权、过期和积压事件回归；重新构建 reference BFF；Terminal 类型、lint、一轮构建与 client-secret 检查；静态路由/主机与门禁拒绝测试；Chromium 实际页面成功、409、未知结果、拒绝、权限恢复、深链和双主题/移动布局。扩大到两个 C05 服务用例和共享路由回归的原因是验证真实版本/幂等语义及新增 Lab 静态路由，未执行全仓或递归上游闭包。
 
 浏览器业务响应为实际本机 reference C05。身份 cookie 桥接、TLS/CORS 代理为替代；422 为标记的合成故障，只读路径使用真实 reference 审批者身份。真实 IdP/MFA/CORS、Supabase/RLS/事务、目标 Storage、托管平台 rewrite、Firefox/WebKit、远程同 SHA CI、性能/容量/长稳、读屏/native 200% 及完整 I3/FEP-3/发布验收均 `NOT_RUN`。
 
-`development_status=IMPLEMENTED_PENDING_ACCEPTANCE`；工程功能 Gate 由最终 receipt 判定；`stage_gate=INTEGRATION/NOT_ASSESSED`、`confirmation=PENDING`、`formalAccepted=false`、`runtimeAdmission=DENIED`。没有以本任务实现或证据提交替代用户确认。下一原计划任务为 **UI-P06 Strategy Catalog/Lab 高保真页面交付**。
+`development_status=IMPLEMENTED_PENDING_ACCEPTANCE`；工程功能 Gate 由最终 receipt 判定；`stage_gate=INTEGRATION/NOT_ASSESSED`、`confirmation=PENDING`、`formalAccepted=false`、`runtimeAdmission=DENIED`。reference C01 修复审批者/owner 认证有效但撤权流立即失效的不一致，不放宽前端拒绝。没有以本任务实现或证据提交替代用户确认。下一原计划任务为 **UI-P06 Strategy Catalog/Lab 高保真页面交付**。

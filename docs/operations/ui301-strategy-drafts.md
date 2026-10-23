@@ -16,7 +16,7 @@
 
 执行 `node scripts/ui301-review.mjs --run <全新 attempt 路径>`；随后 `node scripts/ui301-review.mjs --verify` 核对来源提交、输入哈希、命令退出码、日志和浏览器产物。源代码先提交，回执另提交；后续证据/报告提交不改绑来源 SHA。
 
-只执行当前状态机/契约测试、DraftBuffer 回归、两个 C05 并发/幂等服务测试、reference BFF 构建、Terminal 类型/静态检查与一轮构建，以及 Chromium 实际页面场景。共享静态路由新增 Lab 后，直接回归路由解析和静态服务器。无全仓、无递归上游闭包、无三轮构建、无 F05/F07 数据库 campaign。
+只执行当前状态机/契约测试、DraftBuffer 回归、两个 C05 并发/幂等服务测试及三个直接相关会话流测试、reference BFF 构建、Terminal 类型/静态检查与一轮构建，以及 Chromium 实际页面场景。reference C01 会话流复用认证身份有效性判断，修正内置只读审批者/owner 被错误立即撤权；真实撤权、过期和积压事件仍拒绝。共享静态路由新增 Lab 后，直接回归路由解析和静态服务器。无全仓、无递归上游闭包、无三轮构建、无 F05/F07 数据库 campaign。
 
 浏览器使用新构建的本机 reference BFF，业务响应为实际 C05 字节。身份 cookie 注入及 loopback HTTPS/CORS 代理为显式替代，不构成真实 IdP/CORS/目标服务联调；422 注入明确标记为合成故障。409 来自真实并发保存，丢失响应发生在真实保存成功后。浏览器仅写 reference 进程内草稿。
 

@@ -583,6 +583,34 @@ async fn challenges_are_fresh_single_use_and_cooldown_precedes_verification() {
 }
 
 #[tokio::test]
+async fn session_stream_accepts_reference_approvers_until_identity_expires() {
+    for session in ["session-approver", "session-owner"] {
+        let provider = BffProvider::default();
+        let router = provider.router();
+        let mut read = authenticated("GET", "/v1/settings/sessions/stream", None);
+        read.headers_mut().insert(
+            "cookie",
+            format!("quantos_session={session}").parse().unwrap(),
+        );
+        let response = router.clone().oneshot(read).await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let mut body = response.into_body();
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(100), body.frame())
+                .await
+                .is_err()
+        );
+        provider
+            .advance_reference_time(chrono::Duration::minutes(6))
+            .await;
+        let event = frame_event(&mut body).await;
+        assert_eq!(event["payload"]["type"], "permission_revoked");
+        assert_eq!(event["payload"]["objectId"], session);
+        assert!(body.frame().await.is_none());
+    }
+}
+
+#[tokio::test]
 async fn session_stream_stays_open_for_other_session_and_closes_revoked_target() {
     let provider = BffProvider::default();
     let router = provider.router();
