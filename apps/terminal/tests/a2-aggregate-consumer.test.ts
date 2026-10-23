@@ -18,6 +18,14 @@ const transport: typeof fetch = async (input, init) => {
   requests.push(request.url);
   return fetch(request);
 };
+// Explicit test transport substitution: validate the configured HTTPS API/content
+// origin, then carry bytes over the owned loopback HTTP listener. No real TLS claim.
+const downloadOrigin = "https://bff.reference.invalid";
+const downloadTransport: typeof fetch = (input, init) => {
+  const request = new Request(input, init), url = new URL(request.url);
+  if (url.origin !== downloadOrigin) throw Error("Unexpected test download origin");
+  return transport(new Request(origin + url.pathname + url.search, request));
+};
 beforeAll(async () => {
   const reserve = createServer();
   await new Promise<void>(r => reserve.listen(0, "127.0.0.1", r));
@@ -54,7 +62,7 @@ it("joins identity and audit consumers in one session: causal export evidence an
   const job = await createControlledExport(origin, exportBody, exportKey, csrf, grant.reauthTokenRef, transport);
   expect(await createControlledExport(origin, exportBody, exportKey, csrf, grant.reauthTokenRef, transport)).toEqual(job);
   expect((await loadExportStatus(origin, job.exportId, transport)).status).toBe("ready");
-  expect((await getControlledExportDownload(origin, job.exportId, transport)).watermarked).toBe(true);
+  expect((await getControlledExportDownload(downloadOrigin, job.exportId, downloadTransport)).watermarked).toBe(true);
   const chain = await loadEvidenceChain(origin, job.correlationId, {}, transport);
   expect(chain.items[0]?.eventId).toBe(job.auditRef);
   expect(chain.correlationId).toBe(job.correlationId);
@@ -85,6 +93,6 @@ it("joins identity and audit consumers in one session: causal export evidence an
   expect(requests.some(url => url.includes("afterSequence=1"))).toBe(true);
   await expect(loadSettingsBundle(origin, transport)).rejects.toMatchObject({ status: 401 });
   await expect(loadExportStatus(origin, job.exportId, transport)).rejects.toMatchObject({ status: 401 });
-  await expect(getControlledExportDownload(origin, job.exportId, transport)).rejects.toMatchObject({ status: 401 });
+  await expect(getControlledExportDownload(downloadOrigin, job.exportId, downloadTransport)).rejects.toMatchObject({ status: 401 });
   await expect(loadEvidenceChain(origin, job.correlationId, {}, transport)).rejects.toMatchObject({ status: 401 });
 }, 15000);
