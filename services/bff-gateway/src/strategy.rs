@@ -566,7 +566,7 @@ impl StrategyHost {
             ("POST", ["v1", "strategies", _, "static-checks"]) => {
                 let v = self.static_check(a, id.unwrap())?;
                 status = StatusCode::ACCEPTED;
-                json!({"jobId":correlation,"status":"accepted","result":v})
+                json!({"jobId":correlation,"status":"accepted","strategyId":id.unwrap(),"objectVersion":self.draft(a,id.unwrap())?.page["objectVersion"],"dataSnapshotId":self.draft(a,id.unwrap())?.page["dataSnapshotId"],"result":v})
             }
             ("POST", ["v1", "backtests"]) => {
                 let sid = uid(b, "strategyId")?;
@@ -591,7 +591,7 @@ impl StrategyHost {
                     metrics.insert(k.clone(), json!(v.to_string()));
                 }
                 let artifact = Uuid::now_v7();
-                let r = json!({"runId":run,"strategyId":sid,"objectVersion":b["objectVersion"],"dataSnapshotId":b["dataSnapshotId"],"status":"succeeded","metrics":metrics,"leakViolations":[],"reportArtifactId":artifact,"reportHash":v["report"]["report_hash"],"report":v["report"],"parameters":d.page["parameters"],"createdAt":now});
+                let r = json!({"runId":run,"strategyId":sid,"objectVersion":b["objectVersion"],"dataSnapshotId":b["dataSnapshotId"],"status":"succeeded","metrics":metrics,"leakViolations":[],"reportArtifactId":artifact,"reportHash":v["report"]["report_hash"],"report":v["report"],"executionInputs":{"costModel":self.inputs[&d.input].request.cost_model},"parameters":d.page["parameters"],"createdAt":now});
                 self.runs.insert(run, r.clone());
                 let stream = Uuid::new_v4();
                 self.journals.insert(run,vec![json!({"streamId":stream,"sequence":1,"eventId":Uuid::now_v7(),"payloadVersion":"v1","occurredAt":now,"correlationId":correlation,"payload":r})]);
@@ -855,7 +855,7 @@ pub(crate) fn seed(data: &mut crate::ProviderData) {
     data.strategy = Some(host);
 }
 fn report_artifact(r: &Value) -> Value {
-    json!({"artifactId":r["reportArtifactId"],"hypothesis":"Strategy hypothesis evaluated by real S02 adapter","summary":"Owner-supplied inputs evaluated by bounded S02; lease-scoped report, no target acceptance claim","engineVersion":"quantos-strategy.backtest.v2","promptVersion":"none","codeVersion":r["report"]["candidate"]["source_commit"],"environmentHash":r["report"]["environment_hash"],"dataSnapshotId":r["dataSnapshotId"],"createdAt":r["createdAt"],"payloadHash":r["reportHash"],"backtestReport":r["report"]})
+    json!({"artifactId":r["reportArtifactId"],"hypothesis":"Strategy hypothesis evaluated by real S02 adapter","summary":"Owner-supplied inputs evaluated by bounded S02; lease-scoped report, no target acceptance claim","engineVersion":"quantos-strategy.backtest.v2","promptVersion":"none","codeVersion":r["report"]["candidate"]["source_commit"],"environmentHash":r["report"]["environment_hash"],"dataSnapshotId":r["dataSnapshotId"],"createdAt":r["createdAt"],"payloadHash":r["reportHash"],"backtestReport":r["report"],"executionInputs":r["executionInputs"]})
 }
 pub(crate) fn publish_reports(data: &mut crate::ProviderData) {
     if let Some(host) = &data.strategy {

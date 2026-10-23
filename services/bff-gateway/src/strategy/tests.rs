@@ -831,3 +831,50 @@ async fn strategy_audit_roots_and_response_ids_form_closed_evidence_chain() {
         reference_auth(crate::CURRENT_SESSION).actor_id.to_string()
     );
 }
+
+#[tokio::test]
+async fn ui302_static_and_report_expose_server_owned_pinned_inputs() {
+    let (p, r, d) = setup().await;
+    let id = d["strategyId"].as_str().unwrap();
+    let key = Uuid::new_v4();
+    let path = format!("/v1/strategies/{id}/static-checks");
+    let (s, check) = call(&r, "POST", &path, None, crate::CURRENT_SESSION, key, None).await;
+    assert_eq!(s, 202, "{check}");
+    assert_eq!(check["strategyId"], d["strategyId"]);
+    assert_eq!(check["objectVersion"], d["objectVersion"]);
+    assert_eq!(check["dataSnapshotId"], d["dataSnapshotId"]);
+    assert_eq!(check["result"]["passed"], true);
+    assert_eq!(
+        check["result"]["version"].to_string(),
+        d["objectVersion"].as_str().unwrap()
+    );
+    let (_, replay) = call(&r, "POST", &path, None, crate::CURRENT_SESSION, key, None).await;
+    assert_eq!(replay, check);
+    let accepted = backtest(&r, &d).await;
+    let (s, report) = call(
+        &r,
+        "GET",
+        &format!("/v1/backtests/{}", accepted["jobId"].as_str().unwrap()),
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert_eq!(s, 200, "{report}");
+    let state = p.data.lock().await;
+    let host = state.strategy.as_ref().unwrap();
+    let draft = &host.drafts[&Uuid::parse_str(id).unwrap()];
+    assert_eq!(
+        report["executionInputs"]["costModel"],
+        json!(host.inputs[&draft.input].request.cost_model)
+    );
+    assert_eq!(report["report"]["snapshot_id"], d["dataSnapshotId"]);
+    assert_eq!(report["report"]["report_hash"], report["reportHash"]);
+    assert!(report["report"]["candidate"]["clock"].is_string());
+    assert!(report["report"]["environment_hash"].is_string());
+    assert_eq!(
+        report_artifact(&report)["executionInputs"],
+        report["executionInputs"]
+    );
+}

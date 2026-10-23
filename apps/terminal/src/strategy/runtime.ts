@@ -11,6 +11,9 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
  let context: RouteContext | undefined, buffer: DraftBuffer | undefined, base: StrategyDraft | undefined, head: StrategyDraft | undefined;
  let status: "empty" | "saved" | "dirty" | "saving" | "conflict" | "uncertain" | "error" = "empty", busy = false, retryAt = 0;
  let pending: {submitted: ReturnType<DraftBuffer["captureSave"]>; key: string} | undefined;
+ let validation: {status:"idle"|"running"|"passed"|"rejected"|"uncertain";version?:string;versionHash?:string;correlationId?:string}={status:"idle"};
+ let command: {kind:"check"|"backtest";key:string;strategyId:string;objectVersion:string;dataSnapshotId:string}|undefined;
+ let queue: {runId:string;strategyId:string;objectVersion:string;dataSnapshotId:string;status:"accepted"}[]=[];
  let query: {pageSize: number; sort: string} | undefined, cursor: string | undefined;
  const cursors = new Set<string>();
  const emit = () => listeners.forEach(f => f());
@@ -41,10 +44,34 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
  async function exclusive<T>(action: () => Promise<T>): Promise<T> {
   guard();if (busy) fail(409);busy = true;emit();try {return await action();} finally {busy = false;emit();}
  }
+ async function experiment(kind:"check"|"backtest") {return exclusive(async()=>{
+  guard(true);if(!base||!buffer||status!=="saved"||now()<retryAt||command&&command.kind!==kind)fail(409);
+  const uncertain=Boolean(command);let dispatched=false;
+  try{
+   await checkContext();guard(true);
+   if(!command){const current=await readHead(base!.strategyId);if(current.objectVersion!==buffer!.expectedVersion)fail(409);if(kind==="backtest"&&(validation.status!=="passed"||validation.version!==current.objectVersion||queue.length>=25))fail(409);if(!current.dataSnapshotId)fail(422);command={kind,key:crypto.randomUUID(),strategyId:current.strategyId,objectVersion:current.objectVersion,dataSnapshotId:current.dataSnapshotId!};}
+   const p=command!,headers={"Idempotency-Key":p.key,"X-CSRF-Token":config.csrf(),"X-Request-Id":crypto.randomUUID()};
+   if(kind==="check")validation={status:"running",version:p.objectVersion};emit();dispatched=true;
+   const r=kind==="check"?await client.POST("/v1/strategies/{strategyId}/static-checks",{params:{path:{strategyId:p.strategyId},header:headers}}):await client.POST("/v1/backtests",{params:{header:headers},body:{strategyId:p.strategyId,objectVersion:p.objectVersion,dataSnapshotId:p.dataSnapshotId}});guard(true);
+   if(r.response.status!==202||!r.data){const e=bffZodSchemas.ErrorEnvelope.safeParse(r.error);if(r.response.status===429&&e.success)retryAt=now()+Math.min(Math.max(e.data.retryAfter??60,1),3600)*1000;throw new StrategyError(r.response.status,e.success?e.data.correlationId:undefined);}
+   const receipt=bffZodSchemas.AsyncAccepted.parse(r.data);
+   if(kind==="check"){
+    const raw=r.data as Record<string,unknown>,result=raw.result as Record<string,unknown>|undefined;
+    if(raw.strategyId!==p.strategyId||raw.objectVersion!==p.objectVersion||raw.dataSnapshotId!==p.dataSnapshotId||result?.passed!==true||String(result.version)!==p.objectVersion||typeof result.version_hash!=="string"||!/^sha256:[a-f0-9]{64}$/.test(result.version_hash))fail(502);
+    const current=await readHead(p.strategyId);if(current.objectVersion!==p.objectVersion){command=undefined;validation={status:"rejected"};fail(409);}
+    validation={status:"passed",version:p.objectVersion,versionHash:result!.version_hash as string,correlationId:receipt.correlationId};
+   }else{if(!queue.some(q=>q.runId===receipt.jobId))queue=[{runId:receipt.jobId,strategyId:p.strategyId,objectVersion:p.objectVersion,dataSnapshotId:p.dataSnapshotId,status:"accepted"},...queue];}
+   command=undefined;
+  }catch(error){if(lifetime.signal.aborted)throw error;const code=(error as {status?:number}).status;
+   if(uncertain||dispatched&&(code===undefined||code>=500||code<400)){if(kind==="check")validation={status:"uncertain",version:command?.objectVersion};}
+   else{command=undefined;if(kind==="check")validation={status:"rejected"};}
+   throw error;
+  }
+ });}
  return {
   assertCurrent: guard,
   subscribe(fn: () => void) {listeners.add(fn);return () => {listeners.delete(fn);};},
-  get snapshot() {return {status,busy,retryAt,version:buffer?.expectedVersion,local:buffer?.pending,base:base && structuredClone(base),head:head && structuredClone(head),diff:base && head && buffer ? draftDiff(base,buffer.pending,head) : []};},
+  get snapshot() {return {validation:structuredClone(validation),queue:structuredClone(queue),pendingCommand:command?.kind,status,busy,retryAt,version:buffer?.expectedVersion,local:buffer?.pending,base:base && structuredClone(base),head:head && structuredClone(head),diff:base && head && buffer ? draftDiff(base,buffer.pending,head) : []};},
   load: checkContext,
   list(input: {pageSize?: number; sort?: string} = {}, more = false) {return exclusive(async () => {
    if (more && (!cursor || !query || cursors.size >= 49)) fail(422);
@@ -58,8 +85,8 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
   });},
   open(id: string) {return exclusive(async () => {bffZodSchemas.UUID.parse(id);if (buffer) fail(409);base = await readHead(id);guard();buffer = new DraftBuffer(base);status = "saved";});},
   edit(files: string, parameters: string) {
-   guard(true);if (!buffer || status === "uncertain") fail(409);
-   const content = parseDraftContent(files,parameters);buffer!.edit(content.files,content.parameters);
+   guard(true);if (!buffer || status === "uncertain" || command || busy && status !== "saving") fail(409);
+   const content = parseDraftContent(files,parameters);validation={status:"idle"};buffer!.edit(content.files,content.parameters);
    if (status !== "conflict" && status !== "saving") status = "dirty";emit();
   },
   async refreshConflict() {return exclusive(async () => {if (status !== "conflict" || !base) fail(409);const value = await readHead(base!.strategyId);if (BigInt(value.objectVersion) < BigInt(buffer!.expectedVersion)) fail(502);head = value;});},
@@ -69,7 +96,7 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
    // Explicit save required after merge. A 409 never schedules an automatic write.
   },
   save() {return exclusive(async () => {
-   guard(true);if (!buffer || !base || status === "conflict" || now() < retryAt) fail(409);
+   guard(true);if (command || !buffer || !base || status === "conflict" || now() < retryAt) fail(409);
    if (status === "saved") return;
    const wasUncertain = status === "uncertain";status = "saving";emit();
    try {
@@ -93,7 +120,9 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
     throw error;
    }
   });},
-  close() {lifetime.abort();context = undefined;buffer = undefined;base = undefined;head = undefined;pending = undefined;cursor = undefined;query = undefined;status = "empty";cursors.clear();listeners.clear();},
+  check:()=>experiment("check"),
+  backtest:()=>experiment("backtest"),
+  close() {command=undefined;queue=[];validation={status:"idle"};lifetime.abort();context = undefined;buffer = undefined;base = undefined;head = undefined;pending = undefined;cursor = undefined;query = undefined;status = "empty";cursors.clear();listeners.clear();},
  };
 }
 export type StrategyRuntime = ReturnType<typeof createStrategyRuntime>;

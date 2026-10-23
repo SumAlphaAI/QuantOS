@@ -15,7 +15,7 @@ let rows: Row[] = [], child: ChildProcess, port: number, scratch: string, drop =
 const streams = new Set<ServerResponse>();
 const proxy = createServer({},async (req,res) => {
  const path = new URL(req.url!,origin).pathname, method = req.method!;
- for (const [k,v] of Object.entries({"access-control-allow-origin":terminal,"access-control-allow-credentials":"true","access-control-allow-headers":"content-type,x-csrf-token,x-request-id,idempotency-key,if-match","access-control-allow-methods":"GET,PUT,OPTIONS","cache-control":"no-store"})) res.setHeader(k,v);
+ for (const [k,v] of Object.entries({"access-control-allow-origin":terminal,"access-control-allow-credentials":"true","access-control-allow-headers":"content-type,x-csrf-token,x-request-id,idempotency-key,if-match","access-control-allow-methods":"GET,PUT,POST,OPTIONS","cache-control":"no-store"})) res.setHeader(k,v);
  if (method === "OPTIONS") {res.writeHead(204);res.end();return;}
  const chunks: Buffer[] = [];for await (const b of req) chunks.push(Buffer.from(b));const body = Buffer.concat(chunks);
  const row: Row = {method,path,status:0,source:"REFERENCE_BYTES",control:Boolean(req.headers["x-ui301-control"]),bodyHash:hash(body),version:req.headers["if-match"] as string | undefined,keyHash:req.headers["idempotency-key"] ? hash(String(req.headers["idempotency-key"])) : undefined};rows.push(row);
@@ -28,7 +28,7 @@ const proxy = createServer({},async (req,res) => {
   const output: Buffer[] = [];response.on("data",b => output.push(Buffer.from(b)));response.on("end",() => {
    const bytes = Buffer.concat(output);
    row.responseHash = hash(bytes);
-   if (drop && method === "PUT" && row.status === 200) {drop = false;row.source = "REFERENCE_COMMITTED_RESPONSE_DROPPED";res.writeHead(200,{"content-type":"application/json","content-length":bytes.length+1});res.write(bytes.subarray(0,5));setTimeout(() => res.destroy(),20);return;}
+   if (drop && (method === "PUT" && row.status === 200 || method === "POST" && row.status === 202)) {drop = false;row.source = "REFERENCE_COMMITTED_RESPONSE_DROPPED";res.writeHead(200,{"content-type":"application/json","content-length":bytes.length+1});res.write(bytes.subarray(0,5));setTimeout(() => res.destroy(),20);return;}
    res.writeHead(row.status,{"content-type":"application/json","content-length":bytes.length});if(slow&&path==="/v1/session")setTimeout(()=>res.end(bytes),800);else res.end(bytes);
   });
  });upstream.on("error",() => {if (!res.headersSent) res.writeHead(502);res.end();});res.on("close",() => upstream.destroy());upstream.end(body);
@@ -53,7 +53,7 @@ test.beforeEach(async ({context,page}) => {
 });
 test.afterEach(async ({context,page},info) => {
  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
- await writeFile(info.outputPath("ui301.json"),JSON.stringify({schema:"quantos-ui301-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C05_DRAFT_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",rows},null,2));
+ await writeFile(info.outputPath("ui301.json"),JSON.stringify({schema:"quantos-ui301-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C05_DRAFT_STATIC_BACKTEST_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",rows},null,2));
  await context.close();for (const s of streams) s.destroy();streams.clear();proxy.closeAllConnections();if (child?.exitCode === null) {child.kill();await new Promise(r => child.once("close",r));}
 });
 test.afterAll(async () => {proxy.closeAllConnections();await new Promise<void>(r => proxy.close(() => r()));await rm(scratch,{recursive:true,force:true});});

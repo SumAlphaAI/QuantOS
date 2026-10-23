@@ -953,6 +953,26 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn ui302_cost_and_slippage_are_pinned_in_environment() {
+        let request = honest_request();
+        let baseline = run_backtest(&request, &mut MomentumAdapter::new(6, 20, -10)).unwrap();
+        for fee_change in [true, false] {
+            let mut changed = request.clone();
+            if fee_change {
+                changed.cost_model.fee_bps += 1;
+            } else {
+                changed.cost_model.slippage_bps += 1;
+            }
+            let other = run_backtest(&changed, &mut MomentumAdapter::new(6, 20, -10)).unwrap();
+            assert_eq!(baseline.snapshot_id, other.snapshot_id);
+            assert_eq!(baseline.candidate.clock, other.candidate.clock);
+            assert_ne!(baseline.environment_hash, other.environment_hash);
+            assert_ne!(baseline.input_hash, other.input_hash);
+            assert_ne!(baseline.report_hash, other.report_hash);
+        }
+    }
+
+    #[test]
     fn s02_candidate_parameters_clock_and_report_bytes_are_bound() {
         let request = honest_request();
         let baseline = run_backtest(&request, &mut MomentumAdapter::new(6, 20, -10)).unwrap();
