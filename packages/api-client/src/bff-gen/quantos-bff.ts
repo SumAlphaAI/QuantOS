@@ -881,7 +881,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 按 correlation ID 分页还原 causation 证据链 */
+        /**
+         * 按 correlation ID 分页还原 causation 证据链
+         * @description Approvers may read only an existing authorized approval correlation via approval.evidence.read; this does not grant global audit search or export.
+         */
         get: operations["getEvidenceChain"];
         put?: never;
         post?: never;
@@ -2415,7 +2418,74 @@ export interface components {
             status?: "active" | "awaiting_approval" | "approved" | "command_ready" | "request_info" | "rejected" | "expired" | "submitted";
             correlationId?: components["schemas"]["UUID"];
         };
+        ApprovalRuleCheck: {
+            rule: string;
+            breached: boolean;
+            limitId: string;
+        };
+        ApprovalRiskDecision: {
+            decisionId: components["schemas"]["UUID"];
+            proposalId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            /** @enum {string} */
+            verdict: "allow" | "deny" | "approval_required";
+            checks: components["schemas"]["ApprovalRuleCheck"][];
+            policyVersion: string;
+            policyRevision: string;
+            signer: string;
+            signatureVerifiedByOwner: boolean;
+            snapshotHash: string;
+            factsHash: string;
+            intentHash: string;
+            contextHash: string;
+            decidedAt: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            /** @enum {boolean} */
+            issuable: false;
+        };
+        ApprovalCurrentRisk: {
+            contextHash: string;
+            asOf: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            verdict: "allow" | "deny" | "approval_required";
+            checks: components["schemas"]["ApprovalRuleCheck"][];
+            policyVersion: string;
+            policyRevision: string;
+        };
+        ApprovalImpact: {
+            quoteUnit: string;
+            equity: components["schemas"]["DecimalValue"];
+            grossBefore: components["schemas"]["DecimalValue"];
+            grossAfter: components["schemas"]["DecimalValue"];
+            symbolBefore: components["schemas"]["DecimalValue"];
+            symbolAfter: components["schemas"]["DecimalValue"];
+            portfolioAsOf: components["schemas"]["DateTime"];
+            financialAsOf: components["schemas"]["DateTime"];
+            venue: string;
+            venueHealthy: boolean;
+            maxOrderNotional: components["schemas"]["DecimalValue"];
+            maxLeverage: components["schemas"]["DecimalValue"];
+            maxConcentration: components["schemas"]["DecimalValue"];
+            approvalThreshold: components["schemas"]["DecimalValue"];
+            maxDailyLoss: components["schemas"]["DecimalValue"];
+            /** @enum {string} */
+            model: "x02_conservative_gross_addition";
+        };
+        ApprovalReviewContext: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            proposal: components["schemas"]["TradeProposal"];
+            riskDecision: components["schemas"]["ApprovalRiskDecision"];
+            currentRisk: components["schemas"]["ApprovalCurrentRisk"];
+            impact: components["schemas"]["ApprovalImpact"];
+        };
         Approval: {
+            /** @description Opt-in read-only current review. Not an issuable risk decision or trade authority. */
+            reviewContext?: components["schemas"]["ApprovalReviewContext"];
             approvalId: components["schemas"]["UUID"];
             /** @description 发起人 actorId（禁自批判定） */
             originator: string;
@@ -5691,6 +5761,8 @@ export interface operations {
     listApprovals: {
         parameters: {
             query?: {
+                /** @description Opt-in approver-only read projection; default response remains unchanged. */
+                includeReviewContext?: "true" | "false";
                 /** @description 不透明分页游标 */
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
@@ -5731,7 +5803,10 @@ export interface operations {
     };
     getApproval: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Opt-in approver-only read projection; default response remains unchanged. */
+                includeReviewContext?: "true" | "false";
+            };
             header?: never;
             path: {
                 approvalId: string;

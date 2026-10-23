@@ -1,5 +1,5 @@
 {
-  "version": "1.15.0",
+  "version": "1.16.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -1922,6 +1922,277 @@
         }
       }
     },
+    "ApprovalRuleCheck": {
+      "type": "object",
+      "required": [
+        "rule",
+        "breached",
+        "limitId"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string"
+        },
+        "breached": {
+          "type": "boolean"
+        },
+        "limitId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalRiskDecision": {
+      "type": "object",
+      "required": [
+        "decisionId",
+        "proposalId",
+        "accountId",
+        "mode",
+        "verdict",
+        "checks",
+        "policyVersion",
+        "policyRevision",
+        "signer",
+        "signatureVerifiedByOwner",
+        "snapshotHash",
+        "factsHash",
+        "intentHash",
+        "contextHash",
+        "decidedAt",
+        "expiresAt",
+        "issuable"
+      ],
+      "properties": {
+        "decisionId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "proposalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "deny",
+            "approval_required"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ApprovalRuleCheck"
+          }
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "policyRevision": {
+          "type": "string"
+        },
+        "signer": {
+          "type": "string"
+        },
+        "signatureVerifiedByOwner": {
+          "type": "boolean"
+        },
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "factsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "intentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "decidedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "issuable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalCurrentRisk": {
+      "type": "object",
+      "required": [
+        "contextHash",
+        "asOf",
+        "expiresAt",
+        "verdict",
+        "checks",
+        "policyVersion",
+        "policyRevision"
+      ],
+      "properties": {
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "deny",
+            "approval_required"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ApprovalRuleCheck"
+          }
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "policyRevision": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalImpact": {
+      "type": "object",
+      "required": [
+        "quoteUnit",
+        "equity",
+        "grossBefore",
+        "grossAfter",
+        "symbolBefore",
+        "symbolAfter",
+        "portfolioAsOf",
+        "financialAsOf",
+        "venue",
+        "venueHealthy",
+        "maxOrderNotional",
+        "maxLeverage",
+        "maxConcentration",
+        "approvalThreshold",
+        "maxDailyLoss",
+        "model"
+      ],
+      "properties": {
+        "quoteUnit": {
+          "type": "string"
+        },
+        "equity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "grossBefore": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "grossAfter": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "symbolBefore": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "symbolAfter": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "portfolioAsOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "financialAsOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venueHealthy": {
+          "type": "boolean"
+        },
+        "maxOrderNotional": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "maxLeverage": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "maxConcentration": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "approvalThreshold": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "maxDailyLoss": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "x02_conservative_gross_addition"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalReviewContext": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "mode",
+        "proposal",
+        "riskDecision",
+        "currentRisk",
+        "impact"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "proposal": {
+          "$ref": "#/components/schemas/TradeProposal"
+        },
+        "riskDecision": {
+          "$ref": "#/components/schemas/ApprovalRiskDecision"
+        },
+        "currentRisk": {
+          "$ref": "#/components/schemas/ApprovalCurrentRisk"
+        },
+        "impact": {
+          "$ref": "#/components/schemas/ApprovalImpact"
+        }
+      },
+      "additionalProperties": false
+    },
     "Approval": {
       "type": "object",
       "required": [
@@ -1933,6 +2204,10 @@
         "correlationId"
       ],
       "properties": {
+        "reviewContext": {
+          "$ref": "#/components/schemas/ApprovalReviewContext",
+          "description": "Opt-in read-only current review. Not an issuable risk decision or trade authority."
+        },
         "approvalId": {
           "$ref": "#/components/schemas/UUID"
         },
@@ -8647,6 +8922,18 @@
       "operationId": "listApprovals",
       "parameters": [
         {
+          "name": "includeReviewContext",
+          "in": "query",
+          "description": "Opt-in approver-only read projection; default response remains unchanged.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "true",
+              "false"
+            ]
+          }
+        },
+        {
           "name": "cursor",
           "in": "query",
           "schema": {
@@ -8720,6 +9007,18 @@
       "method": "GET",
       "operationId": "getApproval",
       "parameters": [
+        {
+          "name": "includeReviewContext",
+          "in": "query",
+          "description": "Opt-in approver-only read projection; default response remains unchanged.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "true",
+              "false"
+            ]
+          }
+        },
         {
           "name": "approvalId",
           "in": "path",

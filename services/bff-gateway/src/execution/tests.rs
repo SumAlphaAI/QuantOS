@@ -1253,3 +1253,196 @@ fn ui504_changed_financial_headroom_or_venue_refuses_approval_without_transition
         assert_eq!(s.downstream_counts().0, Some(0));
     }
 }
+
+#[test]
+fn p10_opt_in_review_preserves_original_signed_decision_and_reads_current_risk() {
+    let mut s = ExecutionService::reference();
+    let now = Utc::now();
+    let (pid, _) = pending(&mut s, now);
+    let (owner, reviewer) = actors(&s);
+    let p = s.proposal(pid).unwrap();
+    let q = BTreeMap::from([("includeReviewContext".into(), "true".into())]);
+    assert!(s.review_page(&owner, p, &q, now).is_err());
+    let before = s.review_page(&reviewer, p, &q, now).unwrap();
+    assert_eq!(before["reviewContext"]["riskDecision"]["issuable"], false);
+    assert_eq!(
+        before["reviewContext"]["riskDecision"]["signatureVerifiedByOwner"],
+        true
+    );
+    assert_eq!(
+        before["reviewContext"]["riskDecision"]["checks"]
+            .as_array()
+            .unwrap()
+            .len(),
+        15
+    );
+    assert!(!before.to_string().contains("command_key"));
+    assert!(!before.to_string().contains("source_ref"));
+    assert!(
+        s.review_page(&reviewer, p, &Default::default(), now)
+            .unwrap()
+            .get("reviewContext")
+            .is_none()
+    );
+    let frozen = before["reviewContext"]["riskDecision"].clone();
+    s.financials.equity = 1.0;
+    let changed = s
+        .review_page(&reviewer, s.proposal(pid).unwrap(), &q, now)
+        .unwrap();
+    assert_eq!(changed["reviewContext"]["riskDecision"], frozen);
+    assert_eq!(changed["reviewContext"]["currentRisk"]["verdict"], "deny");
+    assert_ne!(
+        changed["reviewContext"]["currentRisk"]["contextHash"],
+        before["reviewContext"]["currentRisk"]["contextHash"]
+    );
+    assert!(s.proposal(pid).unwrap().command.is_none());
+    assert_eq!(s.downstream_counts().0, Some(0));
+}
+
+#[tokio::test]
+async fn p10_approver_evidence_chain_is_scoped_without_global_audit_or_export_authority() {
+    use crate::strategy::tests::call as http;
+    let provider = crate::BffProvider::default();
+    let r = provider.router();
+    let (_, proposals) = http(
+        &r,
+        "GET",
+        "/v1/proposals",
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    let p = &proposals["items"][0];
+    let (_, pre) = http(
+        &r,
+        "GET",
+        &format!(
+            "/v1/trade-preflight?accountId={}&proposalId={}",
+            p["accountId"].as_str().unwrap(),
+            p["proposalId"].as_str().unwrap()
+        ),
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert_eq!(
+        http(
+            &r,
+            "POST",
+            &format!(
+                "/v1/proposals/{}/risk-evaluations",
+                p["proposalId"].as_str().unwrap()
+            ),
+            Some(json!({"contextHash":pre["contextHash"]})),
+            crate::CURRENT_SESSION,
+            Uuid::new_v4(),
+            Some("0")
+        )
+        .await
+        .0,
+        202
+    );
+    let (_, approvals) = http(
+        &r,
+        "GET",
+        "/v1/approvals?includeReviewContext=true",
+        None,
+        "session-approver",
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert!(
+        approvals["items"][0].get("reviewContext").is_some(),
+        "{approvals}"
+    );
+    assert_eq!(
+        http(
+            &r,
+            "GET",
+            "/v1/approvals?includeReviewContext=true",
+            None,
+            crate::CURRENT_SESSION,
+            Uuid::new_v4(),
+            None
+        )
+        .await
+        .0,
+        403
+    );
+    let (_, d) = http(
+        &r,
+        "GET",
+        &format!(
+            "/v1/approvals/{}?includeReviewContext=true",
+            approvals["items"][0]["approvalId"].as_str().unwrap()
+        ),
+        None,
+        "session-approver",
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert!(d.get("reviewContext").is_some());
+    let corr = p["correlationId"].as_str().unwrap();
+    assert_eq!(
+        http(
+            &r,
+            "GET",
+            &format!("/v1/audit/evidence-chains/{corr}"),
+            None,
+            "session-approver",
+            Uuid::new_v4(),
+            None
+        )
+        .await
+        .0,
+        200
+    );
+    assert_eq!(
+        http(
+            &r,
+            "GET",
+            &format!("/v1/audit/evidence-chains/{}", crate::AUDIT_CORRELATION),
+            None,
+            "session-approver",
+            Uuid::new_v4(),
+            None
+        )
+        .await
+        .0,
+        404
+    );
+    assert_eq!(
+        http(
+            &r,
+            "GET",
+            "/v1/audit/events",
+            None,
+            "session-approver",
+            Uuid::new_v4(),
+            None
+        )
+        .await
+        .0,
+        403
+    );
+    assert_eq!(
+        http(
+            &r,
+            "POST",
+            "/v1/exports",
+            Some(json!({"correlationId":corr})),
+            "session-approver",
+            Uuid::new_v4(),
+            None
+        )
+        .await
+        .0,
+        403
+    );
+}

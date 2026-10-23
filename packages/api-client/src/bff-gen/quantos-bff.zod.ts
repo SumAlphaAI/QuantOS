@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.15.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.16.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -456,7 +456,72 @@ export const TradeProposalSchema = z.object({
   "correlationId": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
+export const ApprovalRuleCheckSchema = z.object({
+  "rule": z.string(),
+  "breached": z.boolean(),
+  "limitId": z.string(),
+}).strict();
+
+export const ApprovalRiskDecisionSchema = z.object({
+  "decisionId": z.lazy(() => UUIDSchema),
+  "proposalId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "verdict": z.enum(["allow","deny","approval_required"]),
+  "checks": z.array(z.lazy(() => ApprovalRuleCheckSchema)),
+  "policyVersion": z.string(),
+  "policyRevision": z.string(),
+  "signer": z.string(),
+  "signatureVerifiedByOwner": z.boolean(),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "factsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "intentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "decidedAt": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "issuable": z.literal(false),
+}).strict();
+
+export const ApprovalCurrentRiskSchema = z.object({
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "asOf": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "verdict": z.enum(["allow","deny","approval_required"]),
+  "checks": z.array(z.lazy(() => ApprovalRuleCheckSchema)),
+  "policyVersion": z.string(),
+  "policyRevision": z.string(),
+}).strict();
+
+export const ApprovalImpactSchema = z.object({
+  "quoteUnit": z.string(),
+  "equity": z.lazy(() => DecimalValueSchema),
+  "grossBefore": z.lazy(() => DecimalValueSchema),
+  "grossAfter": z.lazy(() => DecimalValueSchema),
+  "symbolBefore": z.lazy(() => DecimalValueSchema),
+  "symbolAfter": z.lazy(() => DecimalValueSchema),
+  "portfolioAsOf": z.lazy(() => DateTimeSchema),
+  "financialAsOf": z.lazy(() => DateTimeSchema),
+  "venue": z.string(),
+  "venueHealthy": z.boolean(),
+  "maxOrderNotional": z.lazy(() => DecimalValueSchema),
+  "maxLeverage": z.lazy(() => DecimalValueSchema),
+  "maxConcentration": z.lazy(() => DecimalValueSchema),
+  "approvalThreshold": z.lazy(() => DecimalValueSchema),
+  "maxDailyLoss": z.lazy(() => DecimalValueSchema),
+  "model": z.literal("x02_conservative_gross_addition"),
+}).strict();
+
+export const ApprovalReviewContextSchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "proposal": z.lazy(() => TradeProposalSchema),
+  "riskDecision": z.lazy(() => ApprovalRiskDecisionSchema),
+  "currentRisk": z.lazy(() => ApprovalCurrentRiskSchema),
+  "impact": z.lazy(() => ApprovalImpactSchema),
+}).strict();
+
 export const ApprovalSchema = z.object({
+  "reviewContext": z.lazy(() => ApprovalReviewContextSchema).optional(),
   "approvalId": z.lazy(() => UUIDSchema),
   "originator": z.string().describe("发起人 actorId（禁自批判定）"),
   "objectVersion": z.string(),
@@ -1246,6 +1311,11 @@ export const bffZodSchemas = {
   RiskView: RiskViewSchema,
   Signal: SignalSchema,
   TradeProposal: TradeProposalSchema,
+  ApprovalRuleCheck: ApprovalRuleCheckSchema,
+  ApprovalRiskDecision: ApprovalRiskDecisionSchema,
+  ApprovalCurrentRisk: ApprovalCurrentRiskSchema,
+  ApprovalImpact: ApprovalImpactSchema,
+  ApprovalReviewContext: ApprovalReviewContextSchema,
   Approval: ApprovalSchema,
   Fill: FillSchema,
   Order: OrderSchema,

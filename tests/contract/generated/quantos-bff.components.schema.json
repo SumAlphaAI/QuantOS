@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.15.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.16.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -1924,6 +1924,277 @@
         }
       }
     },
+    "ApprovalRuleCheck": {
+      "type": "object",
+      "required": [
+        "rule",
+        "breached",
+        "limitId"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string"
+        },
+        "breached": {
+          "type": "boolean"
+        },
+        "limitId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalRiskDecision": {
+      "type": "object",
+      "required": [
+        "decisionId",
+        "proposalId",
+        "accountId",
+        "mode",
+        "verdict",
+        "checks",
+        "policyVersion",
+        "policyRevision",
+        "signer",
+        "signatureVerifiedByOwner",
+        "snapshotHash",
+        "factsHash",
+        "intentHash",
+        "contextHash",
+        "decidedAt",
+        "expiresAt",
+        "issuable"
+      ],
+      "properties": {
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "proposalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "deny",
+            "approval_required"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ApprovalRuleCheck"
+          }
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "policyRevision": {
+          "type": "string"
+        },
+        "signer": {
+          "type": "string"
+        },
+        "signatureVerifiedByOwner": {
+          "type": "boolean"
+        },
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "factsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "intentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "decidedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "issuable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalCurrentRisk": {
+      "type": "object",
+      "required": [
+        "contextHash",
+        "asOf",
+        "expiresAt",
+        "verdict",
+        "checks",
+        "policyVersion",
+        "policyRevision"
+      ],
+      "properties": {
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "deny",
+            "approval_required"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ApprovalRuleCheck"
+          }
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "policyRevision": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalImpact": {
+      "type": "object",
+      "required": [
+        "quoteUnit",
+        "equity",
+        "grossBefore",
+        "grossAfter",
+        "symbolBefore",
+        "symbolAfter",
+        "portfolioAsOf",
+        "financialAsOf",
+        "venue",
+        "venueHealthy",
+        "maxOrderNotional",
+        "maxLeverage",
+        "maxConcentration",
+        "approvalThreshold",
+        "maxDailyLoss",
+        "model"
+      ],
+      "properties": {
+        "quoteUnit": {
+          "type": "string"
+        },
+        "equity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "grossBefore": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "grossAfter": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "symbolBefore": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "symbolAfter": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "portfolioAsOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "financialAsOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venueHealthy": {
+          "type": "boolean"
+        },
+        "maxOrderNotional": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "maxLeverage": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "maxConcentration": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "approvalThreshold": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "maxDailyLoss": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "x02_conservative_gross_addition"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApprovalReviewContext": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "mode",
+        "proposal",
+        "riskDecision",
+        "currentRisk",
+        "impact"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "proposal": {
+          "$ref": "#/$defs/TradeProposal"
+        },
+        "riskDecision": {
+          "$ref": "#/$defs/ApprovalRiskDecision"
+        },
+        "currentRisk": {
+          "$ref": "#/$defs/ApprovalCurrentRisk"
+        },
+        "impact": {
+          "$ref": "#/$defs/ApprovalImpact"
+        }
+      },
+      "additionalProperties": false
+    },
     "Approval": {
       "type": "object",
       "required": [
@@ -1935,6 +2206,10 @@
         "correlationId"
       ],
       "properties": {
+        "reviewContext": {
+          "$ref": "#/$defs/ApprovalReviewContext",
+          "description": "Opt-in read-only current review. Not an issuable risk decision or trade authority."
+        },
         "approvalId": {
           "$ref": "#/$defs/UUID"
         },

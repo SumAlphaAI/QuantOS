@@ -1,6 +1,7 @@
 //! C06–C09/C13. Page references never carry executable payloads. All execution
 //! passes through the X03 issuer and X04 gateway. This host is process local;
 //! loss of its lease must stop admission, never rebuild a command from a browser.
+mod approval_review;
 pub(crate) mod reference_seed;
 use crate::research::{Fault, Result, digest};
 use axum::{
@@ -44,6 +45,7 @@ struct Proposal {
     intent: TradeIntent,
     page: Value,
     approval: Option<ApprovalReceipt>,
+    review_decision: Option<(GuardDecision, String)>,
     command: Option<(Uuid, SignedCommand)>,
     correlation: Uuid,
     last_decision: Option<String>,
@@ -255,6 +257,7 @@ impl ExecutionService {
                 intent: intent.clone(),
                 page,
                 approval: None,
+                review_decision: None,
                 command: None,
                 correlation: Uuid::now_v7(),
                 last_decision: None,
@@ -769,11 +772,12 @@ impl ExecutionService {
                     return Ok((StatusCode::OK, self.page(a, path, q, rows, now)?));
                 }
                 "/v1/approvals" => {
+                    Self::review_access(a, q)?;
                     let mut rows = self
                         .proposals
                         .values()
                         .filter(|p| p.approval.is_some())
-                        .map(|p| self.approval_page(p, now))
+                        .map(|p| self.review_page(a, p, q, now))
                         .collect::<Result<Vec<_>>>()?;
                     rows.extend(self.linked_approvals.clone());
                     return Ok((StatusCode::OK, self.page(a, path, q, rows, now)?));
@@ -799,7 +803,7 @@ impl ExecutionService {
                                     .is_some_and(|r| Some(*r.id.as_uuid()) == resource)
                             })
                             .ok_or_else(Fault::hidden)?;
-                        self.approval_page(p, now)?
+                        self.review_page(a, p, q, now)?
                     }
                     Some("orders") => self.order(resource.ok_or_else(Fault::invalid)?, now)?,
                     _ => return Err(Fault::hidden()),
@@ -967,6 +971,8 @@ impl ExecutionService {
                     p.record.expires_at.min(now + Duration::seconds(60)),
                 ))?;
                 self.proposals.get_mut(&pid).unwrap().approval = Some(receipt);
+                self.proposals.get_mut(&pid).unwrap().review_decision =
+                    Some((d, self.context_hash(&p)));
             }
             (
                 StatusCode::ACCEPTED,
@@ -1339,6 +1345,11 @@ async fn reference(
         }
         _ => auth.role = Role::Viewer,
     };
+    if uri.path().starts_with("/v1/approvals") {
+        if let Err(e) = ExecutionService::review_access(&auth, &q) {
+            return e.response();
+        }
+    }
     let now = Utc::now() + elapsed;
     service.linked_approvals = linked;
     let consumed_proof = proof.clone();

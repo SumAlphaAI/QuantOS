@@ -1,0 +1,239 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/ui-p10.test.ts [2m([22m[2m19 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[32m 29[2mms[22m[39m
+[31m   [31m×[31m validates real review and separates original/current fingerprints from read clock[39m[32m 5[2mms[22m[39m
+   [32m✓[39m rejects scope without displaying approvable context[32m 1[2mms[22m[39m
+   [32m✓[39m rejects signature without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects issuable without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects rules without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects verdict without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects future without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects amount without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m rejects unknown-rule without displaying approvable context[32m 0[2mms[22m[39m
+   [32m✓[39m missing trade review fails closed while typed release is explicitly not applicable[32m 0[2mms[22m[39m
+   [32m✓[39m loaded-subset filtering, priority sorting, expiry and exact search do not fabricate global counts[32m 1[2mms[22m[39m
+   [32m✓[39m nonapprover loads no domain data[32m 13[2mms[22m[39m
+[31m   [31m×[31m MFA flow reports phases and only creates a receipt after the real response shape[39m[32m 3[2mms[22m[39m
+[31m   [31m×[31m current denial stops approve, but still permits explicit reject[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m stale current preview disables actions and an explicit read is required[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m source changes after MFA never dispatch a decision[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m unknown outcome original key recovery is preserved and mismatched response stays unknown[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m scoped evidence is independent, bounded and cleared on resource mismatch/close[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m a missing evidence capability never issues C10 read[39m[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui-p10-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 3301[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504-provider-consumer.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 3327[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 00:43:33
+[2m   Duration [22m 3.64s[2m (transform 538ms, setup 0ms, import 1.07s, tests 6.75s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22mvalidates real review and separates original/current fingerprints from read clock
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m review apps/terminal/src/approvals/p10-presentation.ts:[2m9:220[22m[39m
+
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m12:100[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22mMFA flow reports phases and only creates a receipt after the real response shape
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m17:113[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22mcurrent denial stops approve, but still permits explicit reject
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m18:96[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22mstale current preview disables actions and an explicit read is required
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m19:104[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22msource changes after MFA never dispatch a decision
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m20:83[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22munknown outcome original key recovery is preserved and mismatched response stays unknown
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m21:121[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22mscoped evidence is independent, bounded and cleared on resource mismatch/close
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m22:111[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p10.test.ts[2m > [22ma missing evidence capability never issues C10 read
+[31m[1mZodError[22m: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "uuid",
+    "pattern": "/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/",
+    "path": [
+      "reviewContext",
+      "proposal",
+      "evidenceRefs",
+      0
+    ],
+    "message": "Invalid UUID"
+  }
+][39m
+[36m [2m❯[22m approval apps/terminal/src/approvals/policy.ts:[2m7:161[22m[39m
+
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:491[22m[39m
+[90m [2m❯[22m apps/terminal/src/approvals/runtime.ts:[2m28:475[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/approvals/runtime.ts:[2m17:145[22m[39m
+[90m [2m❯[22m Object.init apps/terminal/tests/ui-p10.test.ts:[2m11:1472[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p10.test.ts:[2m23:151[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯[22m[39m
+

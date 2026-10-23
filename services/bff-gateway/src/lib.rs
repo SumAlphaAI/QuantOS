@@ -667,10 +667,16 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
                 "settings.read",
                 "execution.operate",
                 "strategy.approve",
+                "approval.evidence.read",
                 "strategy.write"
             ])
         } else {
-            json!(["settings.read", "execution.operate", "strategy.approve"])
+            json!([
+                "settings.read",
+                "execution.operate",
+                "strategy.approve",
+                "approval.evidence.read"
+            ])
         }
     } else if cookies(headers).get("quantos_session").copied() == Some(VIEWER_SESSION) {
         json!(["settings.read", "market.read"])
@@ -1637,7 +1643,34 @@ async fn get_evidence_chain(
     headers: HeaderMap,
     Query(query): Query<EvidenceQuery>,
 ) -> Response {
-    if let Err(response) = require_capability(&headers, &data, "audit:read").await {
+    let session = cookies(&headers)
+        .get("quantos_session")
+        .copied()
+        .unwrap_or("")
+        .to_owned();
+    if matches!(session.as_str(), "session-approver" | "session-owner") {
+        if let Err(response) = authenticate(&headers, &data).await {
+            return response;
+        }
+        let state = data.lock().await;
+        let auth = strategy::reference_auth(&session);
+        let allowed = !state.reference_shadow
+            && (state
+                .execution
+                .as_ref()
+                .is_some_and(|e| e.has_approval_correlation(&correlation_id_value))
+                || state
+                    .strategy
+                    .as_ref()
+                    .and_then(|s| s.checked_approvals(&auth, state.now()).ok())
+                    .is_some_and(|rows| {
+                        rows.iter()
+                            .any(|v| v["correlationId"] == correlation_id_value)
+                    }));
+        if !allowed {
+            return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
+        }
+    } else if let Err(response) = require_capability(&headers, &data, "audit:read").await {
         return response;
     }
     if Uuid::parse_str(&correlation_id_value).is_err() {
