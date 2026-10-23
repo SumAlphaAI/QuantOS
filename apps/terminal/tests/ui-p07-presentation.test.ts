@@ -1,0 +1,10 @@
+import {describe,it,expect} from "vitest";
+import {reportFills,cumulativeCosts,exactMetric,ratioLabel,compactRef,utcLabel} from "../src/strategy/p07-presentation";
+const fill={execution_bar:2,signal_bar:1,side:"long",quantity:1,reference_price:100,fill_price:101,fee:.25,slippage:1};
+describe('P07 actual report presentation',()=>{
+ it('charts only real indexed fills without synthetic timestamp or equity',()=>{const raw=[fill,{...fill,execution_bar:4,signal_bar:3,side:'flat'}],fills=reportFills(raw)!;expect(cumulativeCosts(fills)).toEqual([{bar:2,fees:.25,slippage:1,total:1.25},{bar:4,fees:.5,slippage:2,total:2.5}]);expect(fills[0]).not.toHaveProperty('timestamp');expect(fills[0]).not.toHaveProperty('equity');expect(raw[0]).toEqual(fill);});
+ it.each([undefined,{},[],[{...fill,side:'buy'}],[{...fill,fee:-1}],[{...fill,signal_bar:2}],[{...fill,quantity:Infinity}],[{...fill,fill_price:NaN}],Array(2001).fill(fill),[{...fill,fee:1e308,slippage:1e308}],[{...fill,execution_bar:4},fill]])('rejects unsupported or unsafe fill input %#',raw=>{if(Array.isArray(raw)&&!raw.length)expect(reportFills(raw)).toEqual([]);else expect(reportFills(raw)).toBeUndefined();});
+ it('preserves decimal money and metric precision as literal strings',()=>{for(const value of ['9007199254740993.123456789','-0.0000001','1e-12'])expect(exactMetric(value)).toBe(value);for(const value of [1,NaN,'NaN','Infinity','<script>',''])expect(exactMetric(value)).toBe('未提供');});
+ it('ratio approximations explicitly format percent without rewriting exact financial strings',()=>{expect(ratioLabel('-0.000024964832084473088',true)).toBe('-0.0025%');expect(ratioLabel('-1.414618811065336')).toBe('-1.415');expect(ratioLabel('9007199254740993.123456789')).toBe('9007199254740993.123456789');expect(ratioLabel('NaN')).toBe('未提供');});
+ it('short references never alter original routing data and UTC has explicit zone',()=>{const id='012345678901234567890123456789012345';expect(compactRef(id)).toBe('012345678901…89012345');expect(id).toHaveLength(36);expect(utcLabel('2026-10-23T08:30:00+08:00')).toBe('2026-10-23 00:30:00 UTC');expect(utcLabel('invalid')).toBe('时间无效');});
+});

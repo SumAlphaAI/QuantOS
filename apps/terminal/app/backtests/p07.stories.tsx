@@ -1,0 +1,13 @@
+import type {Meta,StoryObj} from "@storybook/react";
+import {ThemeProvider} from "@sumalpha/ui";
+import {P07StateSurface} from "./p07-components";
+const meta={title:"Terminal/P07/Backtest Release boundaries",component:P07StateSurface,decorators:[Story=><ThemeProvider><Story/></ThemeProvider>],args:{title:"Backtest / Strategy Release",description:"呈现状态故事；真实权限、哈希绑定、审批与恢复以运行时证据为准。"}} satisfies Meta<typeof P07StateSurface>;
+export default meta;
+type Story=StoryObj<typeof meta>;
+export const Default:Story={args:{state:"default"}};
+export const Loading:Story={args:{state:"loading"}};
+export const Empty:Story={args:{state:"empty"}};
+export const Error:Story={args:{state:"error"}};
+export const Unauthorized:Story={args:{state:"unauthorized"}};
+export const Stale:Story={args:{state:"stale"}};
+export const Offline:Story={args:{state:"offline"}};
