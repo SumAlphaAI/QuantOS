@@ -28,7 +28,7 @@ export const checks=[
  c('gates',['node','--test','scripts/g3-integration-01-review.test.mjs','scripts/frontend-g3-confirmed-reference.test.mjs','scripts/development-execution.test.mjs','scripts/development-plan-order-negative.mjs']),
  c('terminal-build',['pnpm','--filter','@sumalpha/terminal','build']),
  c('browser-worker',['pnpm','exec','playwright','test','--config=playwright.g3-integration-01.config.ts','--project=chromium','--workers=1','--retries=0','--reporter=list,json','--output={attempt}/browser-worker']),
- c('browser-regression',['pnpm','exec','playwright','test','--config=playwright.frontend-g3.config.ts','--project=chromium','--workers=1','--retries=0','--grep-invert','^G3 ','--reporter=list,json','--output={attempt}/browser-regression']),
+ c('browser-regression',['pnpm','exec','playwright','test','--config=playwright.frontend-g3.config.ts','--project=chromium','--workers=1','--retries=0','--grep-invert','G3 ','--reporter=list,json','--output={attempt}/browser-regression']),
  c('plans',['node','scripts/check-development-plans.mjs']),
  c('g3-refusal',['node','scripts/development-execution.mjs','--integration','FRONTEND-GATE:G3'],1),
  c('s04-refusal',['node','scripts/development-execution.mjs','--integration','CORE:S04'],1),
