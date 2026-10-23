@@ -13,7 +13,8 @@ export function decimal(value: string, nonnegative = false) {
 /** Exact string formatting: no monetary/quantity conversion to binary floating point. */
 export function money(value: Portfolio['pnl']) {
   if (!/^-?(0|[1-9]\d*)$/.test(value.units) || value.units.length > 30 || !Number.isInteger(value.nanos) || Math.abs(value.nanos) >= 1e9 || BigInt(value.units) > 0n && value.nanos < 0 || BigInt(value.units) < 0n && value.nanos > 0 || !/^[A-Z]{3}$/.test(value.currencyCode)) throw Error('Invalid money');
-  const negative = value.units.startsWith('-') || value.nanos < 0;
+  if (BigInt(value.units) < -(2n ** 63n) || BigInt(value.units) >= 2n ** 63n) throw Error('Money units exceed int64');
+  const negative = BigInt(value.units) < 0n || value.nanos < 0;
   const fraction = String(Math.abs(value.nanos)).padStart(9, '0').replace(/0+$/, '');
   return `${negative ? '-' : ''}${value.units.replace(/^-/, '')}${fraction ? '.' + fraction : ''} ${value.currencyCode}`;
 }
