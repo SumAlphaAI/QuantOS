@@ -2591,6 +2591,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 
 - 本轮独立功能收口：21项直接依赖及8份原范围确认独立登记；修复保存回执内容不匹配、成功回测参数漂移、Release/报告参数交叉绑定三个当前前端缺口。COMPLETED仅表示前端功能收口，实际执行事实见 `docs/operations/fep3-function-closure.md` 及其冻结回执；原范围确认不改绑当前SHA，历史incomplete和全部NOT_RUN保留，完整G3/CORE:S04仍未放行，stage_gate NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。下一原任务FE:UI-401。
 
+- 用户确认执行：仅接受原FEP-3前端功能候选 `0e30eb28` 与证据包 `0afd83f3`；确认原文、文稿/范围摘要及门禁见 [FEP-3限定确认](./audit/evidence/fep3-confirmation-20261023/README.md)。development_status维持COMPLETED，review_status与159项stage_gate不提升；历史及本轮incomplete、全部NOT_RUN、原失败及完整G3/CORE:S04未放行保留，formalAccepted=false、runtimeAdmission=DENIED，不授予保存确认后的HEAD验收。下一原任务FE:UI-401。
 #### 迭代 I4：W21–W22
 
 <a id="task-ui-401"></a>
