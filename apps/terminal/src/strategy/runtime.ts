@@ -39,7 +39,7 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
   const draft = bffZodSchemas.StrategyDraft.parse(checked(r));if (draft.strategyId !== id || !/^(0|[1-9]\d*)$/.test(draft.objectVersion) || BigInt(draft.objectVersion) > 18446744073709551615n) fail(502);return draft;
  }
  async function exclusive<T>(action: () => Promise<T>): Promise<T> {
-  guard();if (busy) fail(409);busy = true;try {return await action();} finally {busy = false;emit();}
+  guard();if (busy) fail(409);busy = true;emit();try {return await action();} finally {busy = false;emit();}
  }
  return {
   assertCurrent: guard,

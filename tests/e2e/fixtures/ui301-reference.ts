@@ -11,7 +11,7 @@ import {createHash} from "node:crypto";
 const origin = "https://127.0.0.1:4010", terminal = "http://localhost:3190", csrf = "csrf-token-0000000000000001";
 const hash = (b: Buffer | string) => createHash("sha256").update(b).digest("hex");
 type Row = {method: string;path: string;status: number;source: string;control: boolean;keyHash?: string;bodyHash: string;version?: string;responseHash?: string};
-let rows: Row[] = [], child: ChildProcess, port: number, scratch: string, drop = false, readonly = false, invalid = false;
+let rows: Row[] = [], child: ChildProcess, port: number, scratch: string, drop = false, readonly = false, invalid = false, empty = false, listError = false, slow = false;
 const streams = new Set<ServerResponse>();
 const proxy = createServer({},async (req,res) => {
  const path = new URL(req.url!,origin).pathname, method = req.method!;
@@ -19,6 +19,8 @@ const proxy = createServer({},async (req,res) => {
  if (method === "OPTIONS") {res.writeHead(204);res.end();return;}
  const chunks: Buffer[] = [];for await (const b of req) chunks.push(Buffer.from(b));const body = Buffer.concat(chunks);
  const row: Row = {method,path,status:0,source:"REFERENCE_BYTES",control:Boolean(req.headers["x-ui301-control"]),bodyHash:hash(body),version:req.headers["if-match"] as string | undefined,keyHash:req.headers["idempotency-key"] ? hash(String(req.headers["idempotency-key"])) : undefined};rows.push(row);
+ if(method==="GET"&&path==="/v1/strategies"&&(empty||listError)){row.status=listError?503:200;row.source=listError?"SYNTHETIC_CATALOG_FAILURE":"SYNTHETIC_EMPTY_CATALOG";res.writeHead(row.status,{"content-type":"application/json"});res.end(JSON.stringify(listError?{code:"UNAVAILABLE",message:"private SQL",correlationId:"aaaaaaaa-1111-4111-8111-111111111111"}:{items:[]}));return;}
+
  if (invalid && method === "PUT") {row.status = 422;row.source = "SYNTHETIC_VALIDATION_REJECTION";res.writeHead(422,{"content-type":"application/json"});res.end(JSON.stringify({code:"INVALID_REQUEST",message:"private SQL must not display",correlationId:"aaaaaaaa-1111-4111-8111-111111111111"}));return;}
   const upstream = request({host:"127.0.0.1",port,path:req.url,method,headers:{...req.headers,cookie:`quantos_session=${readonly ? "session-approver" : "session-current"}; quantos_csrf=${csrf}`,origin:terminal}},response => {
   row.status = response.statusCode!;
@@ -27,17 +29,18 @@ const proxy = createServer({},async (req,res) => {
    const bytes = Buffer.concat(output);
    row.responseHash = hash(bytes);
    if (drop && method === "PUT" && row.status === 200) {drop = false;row.source = "REFERENCE_COMMITTED_RESPONSE_DROPPED";res.writeHead(200,{"content-type":"application/json","content-length":bytes.length+1});res.write(bytes.subarray(0,5));setTimeout(() => res.destroy(),20);return;}
-   res.writeHead(row.status,{"content-type":"application/json","content-length":bytes.length});res.end(bytes);
+   res.writeHead(row.status,{"content-type":"application/json","content-length":bytes.length});if(slow&&path==="/v1/session")setTimeout(()=>res.end(bytes),800);else res.end(bytes);
   });
  });upstream.on("error",() => {if (!res.headersSent) res.writeHead(502);res.end();});res.on("close",() => upstream.destroy());upstream.end(body);
 });
 export const networkRows = () => rows;
-export function fault(options: {drop?: boolean;readonly?: boolean;invalid?: boolean}) {drop = options.drop ?? false;readonly = options.readonly ?? false;invalid = options.invalid ?? false;}
+export function fault(options: {drop?: boolean;readonly?: boolean;invalid?: boolean;empty?:boolean;listError?:boolean;slow?:boolean}) {drop = options.drop ?? false;readonly = options.readonly ?? false;invalid = options.invalid ?? false;empty=options.empty??false;listError=options.listError??false;slow=options.slow??false;}
 export async function control(path: string,body?: unknown,version?: string): Promise<{status: number;body: Record<string,unknown>}> {
  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
 }
 export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
-export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+export async function openLab(page: Page,raw=true) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:/^打开 Lab/}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);if(raw)await page.getByRole("tab",{name:"全部文件 JSON",exact:true}).click();await expect(page.getByLabel(raw?"文件 JSON":"文件内容",{exact:true})).toBeVisible();return href;}
+export function installReferenceHooks(){
 test.beforeAll(async () => {
  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
 });
@@ -54,3 +57,5 @@ test.afterEach(async ({context,page},info) => {
  await context.close();for (const s of streams) s.destroy();streams.clear();proxy.closeAllConnections();if (child?.exitCode === null) {child.kill();await new Promise(r => child.once("close",r));}
 });
 test.afterAll(async () => {proxy.closeAllConnections();await new Promise<void>(r => proxy.close(() => r()));await rm(scratch,{recursive:true,force:true});});
+
+}

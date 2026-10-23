@@ -1,0 +1,13 @@
+import type {Meta,StoryObj} from "@storybook/react";
+import {ThemeProvider} from "@sumalpha/ui";
+import {P06StateSurface} from "./p06-components";
+import "./workspace.css";
+const meta={title:"Terminal/P06/Strategy state boundaries",component:P06StateSurface,decorators:[Story=><ThemeProvider><Story/></ThemeProvider>],args:{title:"Strategy Lab",description:"状态呈现故事；不代替实际C05、权限、恢复或页面验收。"}} satisfies Meta<typeof P06StateSurface>;
+export default meta;type Story=StoryObj<typeof meta>;
+export const Default:Story={args:{state:"default"}};
+export const Loading:Story={args:{state:"loading",title:"正在验证 Strategy 访问条件"}};
+export const Empty:Story={args:{state:"empty",title:"当前目录为空"}};
+export const Error:Story={args:{state:"error",title:"请求未完成，请显式重试"}};
+export const Unauthorized:Story={args:{state:"unauthorized",title:"访问条件已变化"}};
+export const Stale:Story={args:{state:"stale",title:"访问期限已到"}};
+export const Offline:Story={args:{state:"offline",title:"当前离线，已清除草稿"}};
