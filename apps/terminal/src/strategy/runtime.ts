@@ -19,13 +19,14 @@ export function createStrategyRuntime(config: {origin: string; authorize: () => 
   config.authorize();
   if (lifetime.signal.aborted || !config.online() || !context) fail(403);
   if (!Number.isFinite(now()) || now() >= Date.parse(context!.expiresAt)) fail(401);
-  if (!context!.capabilities.includes("strategy.read") || write && (!context!.capabilities.includes("strategy.write") || !config.csrf())) fail(403);
+  // C05 has no strategy.read capability: writers and independent approvers read.
+  if (!context!.capabilities.some(c => ["strategy.write","strategy.approve"].includes(c)) || write && (!context!.capabilities.includes("strategy.write") || !config.csrf())) fail(403);
  }
  async function checkContext() {
   if (!config.origin || lifetime.signal.aborted || !config.online()) fail(503);
   const read = async (path: "/v1/session" | "/v1/context") => {const r = await client.GET(path,{cache:"no-store"});config.authorize();if (!r.data) fail(r.response.status);return bffZodSchemas.SessionContext.parse(r.data);};
   const a = await read("/v1/session"), b = await read("/v1/context");
-  if (authority(a) !== authority(b) || context && authority(context) !== authority(b) || b.mfaState === "challenged" || !["research","paper","shadow"].includes(b.mode)) fail(403);
+  if (authority(a) !== authority(b) || context && authority(context) !== authority(b) || b.mfaState === "challenged" || !["paper","shadow"].includes(b.mode)) fail(403);
   context = {...b,expiresAt: new Date(Math.min(Date.parse(a.expiresAt),Date.parse(b.expiresAt),context ? Date.parse(context.expiresAt) : Infinity)).toISOString()};guard();return structuredClone(context);
  }
  function checked<T>(r: {data?: T; error?: unknown; response: Response}): T {

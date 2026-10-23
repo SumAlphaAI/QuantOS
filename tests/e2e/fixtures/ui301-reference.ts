@@ -20,12 +20,11 @@ const proxy = createServer({},async (req,res) => {
  const chunks: Buffer[] = [];for await (const b of req) chunks.push(Buffer.from(b));const body = Buffer.concat(chunks);
  const row: Row = {method,path,status:0,source:"REFERENCE_BYTES",control:Boolean(req.headers["x-ui301-control"]),bodyHash:hash(body),version:req.headers["if-match"] as string | undefined,keyHash:req.headers["idempotency-key"] ? hash(String(req.headers["idempotency-key"])) : undefined};rows.push(row);
  if (invalid && method === "PUT") {row.status = 422;row.source = "SYNTHETIC_VALIDATION_REJECTION";res.writeHead(422,{"content-type":"application/json"});res.end(JSON.stringify({code:"INVALID_REQUEST",message:"private SQL must not display",correlationId:"aaaaaaaa-1111-4111-8111-111111111111"}));return;}
- const upstream = request({host:"127.0.0.1",port,path:req.url,method,headers:{...req.headers,cookie:`quantos_session=session-current; quantos_csrf=${csrf}`,origin:terminal}},response => {
+  const upstream = request({host:"127.0.0.1",port,path:req.url,method,headers:{...req.headers,cookie:`quantos_session=${readonly ? "session-approver" : "session-current"}; quantos_csrf=${csrf}`,origin:terminal}},response => {
   row.status = response.statusCode!;
   if (path.endsWith("/stream")) {res.writeHead(row.status,{"content-type":"text/event-stream"});res.flushHeaders();streams.add(res);response.pipe(res);res.on("close",() => {streams.delete(res);response.destroy();});return;}
   const output: Buffer[] = [];response.on("data",b => output.push(Buffer.from(b)));response.on("end",() => {
-   let bytes = Buffer.concat(output);
-   if (readonly && ["/v1/session","/v1/context"].includes(path) && row.status === 200) {const c = JSON.parse(bytes.toString());c.capabilities = c.capabilities.filter((v: string) => v !== "strategy.write");bytes = Buffer.from(JSON.stringify(c));row.source = "SYNTHETIC_CAPABILITY_NARROWING";}
+   const bytes = Buffer.concat(output);
    row.responseHash = hash(bytes);
    if (drop && method === "PUT" && row.status === 200) {drop = false;row.source = "REFERENCE_COMMITTED_RESPONSE_DROPPED";res.writeHead(200,{"content-type":"application/json","content-length":bytes.length+1});res.write(bytes.subarray(0,5));setTimeout(() => res.destroy(),20);return;}
    res.writeHead(row.status,{"content-type":"application/json","content-length":bytes.length});res.end(bytes);

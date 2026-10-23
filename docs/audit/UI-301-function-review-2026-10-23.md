@@ -14,6 +14,6 @@ C05 当前没有浏览器创建策略接口，`/strategies/new` 提供服务端�
 
 验证范围：当前状态机/契约及 DraftBuffer 回归；C05 并发冲突和丢失响应幂等服务用例；重新构建 reference BFF；Terminal 类型、lint、一轮构建与 client-secret 检查；静态路由/主机与门禁拒绝测试；Chromium 实际页面成功、409、未知结果、拒绝、权限恢复、深链和双主题/移动布局。扩大到两个 C05 服务用例和共享路由回归的原因是验证真实版本/幂等语义及新增 Lab 静态路由，未执行全仓或递归上游闭包。
 
-浏览器业务响应为实际本机 reference C05。身份 cookie 桥接、TLS/CORS 代理为替代；422 和只读身份缩减为标记的合成故障。真实 IdP/MFA/CORS、Supabase/RLS/事务、目标 Storage、托管平台 rewrite、Firefox/WebKit、远程同 SHA CI、性能/容量/长稳、读屏/native 200% 及完整 I3/FEP-3/发布验收均 `NOT_RUN`。
+浏览器业务响应为实际本机 reference C05。身份 cookie 桥接、TLS/CORS 代理为替代；422 为标记的合成故障，只读路径使用真实 reference 审批者身份。真实 IdP/MFA/CORS、Supabase/RLS/事务、目标 Storage、托管平台 rewrite、Firefox/WebKit、远程同 SHA CI、性能/容量/长稳、读屏/native 200% 及完整 I3/FEP-3/发布验收均 `NOT_RUN`。
 
 `development_status=IMPLEMENTED_PENDING_ACCEPTANCE`；工程功能 Gate 由最终 receipt 判定；`stage_gate=INTEGRATION/NOT_ASSESSED`、`confirmation=PENDING`、`formalAccepted=false`、`runtimeAdmission=DENIED`。没有以本任务实现或证据提交替代用户确认。下一原计划任务为 **UI-P06 Strategy Catalog/Lab 高保真页面交付**。
