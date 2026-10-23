@@ -1,0 +1,176 @@
+
+Running 11 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui302.spec.ts:6:5 › real C05 static check, pinned backtest, report SSE and deep link (4.5s)
+  ✓   2 [chromium] › tests/e2e/ui302.spec.ts:9:5 › real static failure blocks backtest; repaired saved version can check again (4.9s)
+  ✓   3 [chromium] › tests/e2e/ui302.spec.ts:12:5 › lost committed backtest explicitly replays same key, no duplicate run (2.2s)
+  ✓   4 [chromium] › tests/e2e/ui302.spec.ts:15:5 › approver reads Lab but cannot check or create backtest (2.1s)
+  ✓   5 [chromium] › tests/e2e/ui302.spec.ts:16:5 › missing report and malformed deep links disclose no invented facts or writes (2.0s)
+  ✘   6 [chromium] › tests/e2e/ui303.spec.ts:9:5 › actual immutable Release, submission C08 and approved backend target selection (7.3s)
+  ✘   7 [chromium] › tests/e2e/ui303.spec.ts:12:5 › lost create and lost submission reuse original keys, versions and intent (7.4s)
+  ✘   8 [chromium] › tests/e2e/ui303.spec.ts:15:5 › stale saved head after reviewed report blocks Release before POST (7.4s)
+  ✘   9 [chromium] › tests/e2e/ui303.spec.ts:18:5 › readonly approver can inspect immutable evidence but cannot submit (7.4s)
+  ✘  10 [chromium] › tests/e2e/ui303.spec.ts:19:5 › offline clears Release and explicit recovery only reads server facts (7.4s)
+  ✓  11 [chromium] › tests/e2e/ui303.spec.ts:20:5 › empty catalog, missing object and malformed UUID remain closed read-only states (2.1s)
+
+
+  1) [chromium] › tests/e2e/ui303.spec.ts:9:5 › actual immutable Release, submission C08 and approved backend target selection 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+        14 × locator resolved to <button disabled>创建不可变 Release</button>
+           - unexpected value "disabled"
+
+
+      4 | import {openLab,authorized,fault,networkRows,control,installReferenceHooks} from "./fixtures/ui301-reference";
+      5 | installReferenceHooks();
+    > 6 | async function report(page:Page){await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();}
+        |                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      7 | async function release(page:Page){await report(page);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();const link=page.getByRole('link',{name:'查看 Release 详情',exact:true});await expect(link).toBeVisible();const href=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();return href;}
+      8 | async function approve(approvalId:string){const opts={method:'POST' as const,session:'session-approver' as const};const mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,opts);expect(mfa.status).toBe(200);const step=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,opts);expect(step.status).toBe(200);const decision=await control(`/v1/approvals/${approvalId}/decisions`,{decision:'approve',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:step.body.reauthTokenRef},'0',opts);expect(decision.status).toBe(200);}
+      9 | test('actual immutable Release, submission C08 and approved backend target selection',async({page},info)=>{
+        at report (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:6:400)
+        at release (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:7:35)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:10:13
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-actual-immutable-Rel-911f8-ed-backend-target-selection-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-actual-immutable-Rel-911f8-ed-backend-target-selection-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui303.spec.ts:12:5 › lost create and lost submission reuse original keys, versions and intent 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+        14 × locator resolved to <button disabled>创建不可变 Release</button>
+           - unexpected value "disabled"
+
+
+      4 | import {openLab,authorized,fault,networkRows,control,installReferenceHooks} from "./fixtures/ui301-reference";
+      5 | installReferenceHooks();
+    > 6 | async function report(page:Page){await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();}
+        |                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      7 | async function release(page:Page){await report(page);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();const link=page.getByRole('link',{name:'查看 Release 详情',exact:true});await expect(link).toBeVisible();const href=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();return href;}
+      8 | async function approve(approvalId:string){const opts={method:'POST' as const,session:'session-approver' as const};const mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,opts);expect(mfa.status).toBe(200);const step=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,opts);expect(step.status).toBe(200);const decision=await control(`/v1/approvals/${approvalId}/decisions`,{decision:'approve',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:step.body.reauthTokenRef},'0',opts);expect(decision.status).toBe(200);}
+      9 | test('actual immutable Release, submission C08 and approved backend target selection',async({page},info)=>{
+        at report (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:6:400)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:13:2
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-lost-create-and-lost-14e34-al-keys-versions-and-intent-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-lost-create-and-lost-14e34-al-keys-versions-and-intent-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui303.spec.ts:15:5 › stale saved head after reviewed report blocks Release before POST 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+        14 × locator resolved to <button disabled>创建不可变 Release</button>
+           - unexpected value "disabled"
+
+
+      4 | import {openLab,authorized,fault,networkRows,control,installReferenceHooks} from "./fixtures/ui301-reference";
+      5 | installReferenceHooks();
+    > 6 | async function report(page:Page){await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();}
+        |                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      7 | async function release(page:Page){await report(page);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();const link=page.getByRole('link',{name:'查看 Release 详情',exact:true});await expect(link).toBeVisible();const href=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();return href;}
+      8 | async function approve(approvalId:string){const opts={method:'POST' as const,session:'session-approver' as const};const mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,opts);expect(mfa.status).toBe(200);const step=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,opts);expect(step.status).toBe(200);const decision=await control(`/v1/approvals/${approvalId}/decisions`,{decision:'approve',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:step.body.reauthTokenRef},'0',opts);expect(decision.status).toBe(200);}
+      9 | test('actual immutable Release, submission C08 and approved backend target selection',async({page},info)=>{
+        at report (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:6:400)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:16:2
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-stale-saved-head-aft-63618--blocks-Release-before-POST-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-stale-saved-head-aft-63618--blocks-Release-before-POST-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui303.spec.ts:18:5 › readonly approver can inspect immutable evidence but cannot submit 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+        14 × locator resolved to <button disabled>创建不可变 Release</button>
+           - unexpected value "disabled"
+
+
+      4 | import {openLab,authorized,fault,networkRows,control,installReferenceHooks} from "./fixtures/ui301-reference";
+      5 | installReferenceHooks();
+    > 6 | async function report(page:Page){await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();}
+        |                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      7 | async function release(page:Page){await report(page);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();const link=page.getByRole('link',{name:'查看 Release 详情',exact:true});await expect(link).toBeVisible();const href=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();return href;}
+      8 | async function approve(approvalId:string){const opts={method:'POST' as const,session:'session-approver' as const};const mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,opts);expect(mfa.status).toBe(200);const step=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,opts);expect(step.status).toBe(200);const decision=await control(`/v1/approvals/${approvalId}/decisions`,{decision:'approve',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:step.body.reauthTokenRef},'0',opts);expect(decision.status).toBe(200);}
+      9 | test('actual immutable Release, submission C08 and approved backend target selection',async({page},info)=>{
+        at report (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:6:400)
+        at release (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:7:35)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:18:91
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-readonly-approver-ca-3e470--evidence-but-cannot-submit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-readonly-approver-ca-3e470--evidence-but-cannot-submit-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui303.spec.ts:19:5 › offline clears Release and explicit recovery only reads server facts 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator:  getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+        14 × locator resolved to <button disabled>创建不可变 Release</button>
+           - unexpected value "disabled"
+
+
+      4 | import {openLab,authorized,fault,networkRows,control,installReferenceHooks} from "./fixtures/ui301-reference";
+      5 | installReferenceHooks();
+    > 6 | async function report(page:Page){await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();}
+        |                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      7 | async function release(page:Page){await report(page);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();const link=page.getByRole('link',{name:'查看 Release 详情',exact:true});await expect(link).toBeVisible();const href=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();return href;}
+      8 | async function approve(approvalId:string){const opts={method:'POST' as const,session:'session-approver' as const};const mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,opts);expect(mfa.status).toBe(200);const step=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,opts);expect(step.status).toBe(200);const decision=await control(`/v1/approvals/${approvalId}/decisions`,{decision:'approve',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:step.body.reauthTokenRef},'0',opts);expect(decision.status).toBe(200);}
+      9 | test('actual immutable Release, submission C08 and approved backend target selection',async({page},info)=>{
+        at report (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:6:400)
+        at release (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:7:35)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui303.spec.ts:19:93
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-offline-clears-Relea-5a20a-ery-only-reads-server-facts-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui303-local-20261023/exploratory/browser01/ui303-offline-clears-Relea-5a20a-ery-only-reads-server-facts-chromium/error-context.md
+
+  5 failed
+    [chromium] › tests/e2e/ui303.spec.ts:9:5 › actual immutable Release, submission C08 and approved backend target selection 
+    [chromium] › tests/e2e/ui303.spec.ts:12:5 › lost create and lost submission reuse original keys, versions and intent 
+    [chromium] › tests/e2e/ui303.spec.ts:15:5 › stale saved head after reviewed report blocks Release before POST 
+    [chromium] › tests/e2e/ui303.spec.ts:18:5 › readonly approver can inspect immutable evidence but cannot submit 
+    [chromium] › tests/e2e/ui303.spec.ts:19:5 › offline clears Release and explicit recovery only reads server facts 
+  6 passed (57.8s)
