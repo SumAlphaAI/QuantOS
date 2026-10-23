@@ -206,6 +206,13 @@ impl StrategyHost {
         if !r["submitted"].as_bool().unwrap_or(false) && r["approvalState"] == "pending" {
             r["approvalState"] = json!("none")
         }
+        if let Some((approval, _)) = self
+            .approvals
+            .iter()
+            .find(|(_, v)| v["objectRef"] == id.to_string())
+        {
+            r["approvalRef"] = json!(approval);
+        }
         Ok(r)
     }
     /// Resolve only server-created reports in this exact lease and workspace.
@@ -640,7 +647,7 @@ impl StrategyHost {
                 )?;
                 let release = &raw["release"];
                 let id = crate::research::uuid(text(release, "release_id")?)?;
-                let page = json!({"releaseId":id,"strategyId":sid,"objectVersion":release["content_hash"],"contentHash":release["content_hash"],"backtestReportArtifactId":r["reportArtifactId"],"sourceDigest":release["source_digest"],"imageDigest":release["image_digest"],"parameterHash":release["parameter_hash"],"parameters":b["parameters"],"snapshotId":release["data_snapshot_id"],"allowedTargets":release["allowed_targets"],"approvalState":"none","createdAt":release["created_at"],"expiresAt":self.inputs[&self.drafts[&sid].input].request.snapshot.expires_at,"approvalTimeline":[],"submitted":false});
+                let page = json!({"releaseId":id,"strategyId":sid,"objectVersion":release["content_hash"],"contentHash":release["content_hash"],"backtestReportArtifactId":r["reportArtifactId"],"sourceDigest":release["source_digest"],"imageDigest":release["image_digest"],"parameterHash":release["parameter_hash"],"parameters":b["parameters"],"snapshotId":release["data_snapshot_id"],"name":release["name"],"draftObjectVersion":release["draft_version"].to_string(),"backtestRunId":run,"backtestReportHash":release["backtest_report_hash"],"evidenceRefs":release["evidence_refs"],"allowedTargets":release["allowed_targets"],"approvalState":"none","createdAt":release["created_at"],"expiresAt":self.inputs[&self.drafts[&sid].input].request.snapshot.expires_at,"approvalTimeline":[],"submitted":false});
                 self.releases.entry(id).or_insert(page);
                 status = StatusCode::CREATED;
                 self.release(a, id)?

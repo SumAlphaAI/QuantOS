@@ -878,3 +878,78 @@ async fn ui302_static_and_report_expose_server_owned_pinned_inputs() {
         report["executionInputs"]
     );
 }
+
+#[tokio::test]
+async fn ui303_release_seals_all_evidence_and_submission_resolves_same_c08_ref() {
+    let (_p, r, d) = setup().await;
+    let created = release(&r, &d).await;
+    let id = created["releaseId"].as_str().unwrap();
+    assert_eq!(created["draftObjectVersion"], d["objectVersion"]);
+    assert_eq!(created["evidenceRefs"], d["artifactRefs"]);
+    assert_eq!(created["contentHash"], created["objectVersion"]);
+    let (s, report) = call(
+        &r,
+        "GET",
+        &format!(
+            "/v1/backtests/{}",
+            created["backtestRunId"].as_str().unwrap()
+        ),
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert_eq!(s, 200);
+    assert_eq!(created["backtestReportHash"], report["reportHash"]);
+    assert_eq!(created["parameterHash"], report["report"]["parameter_hash"]);
+    assert_eq!(created["snapshotId"], report["dataSnapshotId"]);
+    assert_eq!(
+        created["sourceDigest"],
+        report["report"]["candidate"]["source_commit"]
+    );
+    let accepted = submit(&r, &created).await;
+    let (s, current) = call(
+        &r,
+        "GET",
+        &format!("/v1/releases/{id}"),
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert_eq!(s, 200);
+    assert_eq!(current["approvalRef"], accepted["jobId"]);
+    assert_eq!(current["approvalState"], "pending");
+    for key in [
+        "contentHash",
+        "objectVersion",
+        "parameters",
+        "parameterHash",
+        "sourceDigest",
+        "imageDigest",
+        "snapshotId",
+        "backtestRunId",
+        "backtestReportArtifactId",
+        "backtestReportHash",
+        "draftObjectVersion",
+        "evidenceRefs",
+        "allowedTargets",
+    ] {
+        assert_eq!(current[key], created[key], "{key}");
+    }
+    let (s, a) = call(
+        &r,
+        "GET",
+        &format!("/v1/approvals/{}", accepted["jobId"].as_str().unwrap()),
+        None,
+        crate::CURRENT_SESSION,
+        Uuid::new_v4(),
+        None,
+    )
+    .await;
+    assert_eq!(s, 200);
+    assert_eq!(a["objectRef"], created["releaseId"]);
+    assert_eq!(a["status"], "pending");
+}

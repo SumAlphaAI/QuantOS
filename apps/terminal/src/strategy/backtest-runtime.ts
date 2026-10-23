@@ -15,7 +15,7 @@ export function createBacktestRuntime(config:{origin:string;runId:string;authori
  try{for await(const action of consumeSse({url:new URL(`/v1/backtests/${config.runId}/stream`,config.origin).href,reducer,signal,fetchImpl:bounded,maxReconnects:config.maxReconnects??5,retryDelayMs:config.retryDelayMs??250})){guard();if(action.type==="closed"){failure(new StrategyError(403));return;}if(action.type==="gap"){stream="recovering";emit();continue;}if(action.type!=="apply")continue;arm();stream="live";await read();if(report&&terminalBacktest(report.status)){stream="complete";emit();return;}}}
  catch(e){if(!closed&&watcher===controller){stream="unavailable";failure(e);}}finally{clearTimeout(timer);if(watcher===controller)watcher=undefined;}
  }
- return{get view(){return {report:report&&structuredClone(report),busy,stream,error,sequence:reducer?.resumeAfter??0};},subscribe(f:()=>void){listeners.add(f);return()=>{listeners.delete(f);};},load:identity.load,
+ return{assertCurrent:guard,get view(){return {report:report&&structuredClone(report),busy,stream,error,sequence:reducer?.resumeAfter??0};},subscribe(f:()=>void){listeners.add(f);return()=>{listeners.delete(f);};},load:identity.load,
  async refresh(){guard();if(busy)throw new StrategyError(409);watcher?.abort();watcher=undefined;busy=true;error=undefined;emit();try{await identity.load();await read();}catch(e){if(!closed)failure(e);throw e;}finally{busy=false;emit();}void watch();},
  close(){closed=true;watcher?.abort();life.abort();identity.close();report=undefined;baseline=undefined;reducer=undefined;listeners.clear();}};
 }
