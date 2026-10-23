@@ -2441,7 +2441,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C05
 - 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端
 
-- 当前功能执行（2026-10-23）：Strategy 目录、版本化 Lab 草稿、1000ms 自动保存、409 基础/本地/服务端 diff 与显式合并、丢失响应同键重试、权限失效清除已实现；限定本机验证见[规程](./operations/ui301-strategy-drafts.md)、[报告](./audit/UI-301-function-review-2026-10-23.md)、[证据索引](./audit/evidence/ui301-local-20261023/README.md)。C05 无浏览器新建策略接口，`/strategies/new` 明示由服务端注册。功能门禁与完整联调/发布分开记账；stage_gate 保持 NOT_ASSESSED，用户确认待定、formalAccepted=false、runtimeAdmission=DENIED；真实 IdP/CORS、Supabase/Storage、托管 rewrite、Firefox/WebKit、读屏/native 200%、远程 CI、性能与发布均 NOT_RUN。下一原任务 UI-P06 可继续功能开发。
+- 当前功能执行（2026-10-23）：Strategy 目录、版本化 Lab 草稿、1000ms 自动保存、409 基础/本地/服务端 diff 与显式合并、丢失响应同键重试、权限失效清除已实现；源码`0642eaad`最终attempt-06的38项前端、5项Rust、14项路由/门禁、6项Chromium、类型/lint/构建通过，工程Gate=PASS_UI301_CURRENT_FUNCTION；12次axe零violations并保留8项color-contrast incomplete；修复reference审批者/owner被会话流错误撤权。限定本机验证见[规程](./operations/ui301-strategy-drafts.md)、[报告](./audit/UI-301-function-review-2026-10-23.md)、[证据索引](./audit/evidence/ui301-local-20261023/README.md)。C05 无浏览器新建策略接口，`/strategies/new` 明示由服务端注册。功能门禁与完整联调/发布分开记账；stage_gate 保持 NOT_ASSESSED，用户确认待定、formalAccepted=false、runtimeAdmission=DENIED；真实 IdP/CORS、Supabase/Storage、托管 rewrite、Firefox/WebKit、读屏/native 200%、远程 CI、性能与发布均 NOT_RUN。下一原任务 UI-P06 可继续功能开发。
 
 <a id="task-ui-p06"></a>
 ##### UI-P06：P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png

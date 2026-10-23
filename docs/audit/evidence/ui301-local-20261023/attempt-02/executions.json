@@ -1,0 +1,210 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-301"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:19.221Z",
+    "finishedAt": "2026-10-23T05:26:19.403Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/development.log",
+    "logSha256": "sha256:2a9dddccfb2702dc56231fbb3818433b3c88856e2d7d4d31bc36d9a7cdeb863b"
+  },
+  {
+    "id": "unit",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui301.test.ts",
+      "apps/terminal/tests/strategy-recovery.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/ui301-local-20261023/attempt-02/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:19.403Z",
+    "finishedAt": "2026-10-23T05:26:20.160Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/unit.log",
+    "logSha256": "sha256:73b905c7342afee99956ae2940ae9f96dc2bf6eb92edb8565177802d831c8a1e"
+  },
+  {
+    "id": "rust-conflict",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "strategy::tests::concurrent_edit_is_unique_and_returns_current_diff",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:20.160Z",
+    "finishedAt": "2026-10-23T05:26:22.499Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/rust-conflict.log",
+    "logSha256": "sha256:80e79c8c4e07ecf3b808426e110ebdaa01ce11ab53c5ee41aebd19c62e2abf09"
+  },
+  {
+    "id": "rust-idempotency",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "strategy::tests::lost_save_response_replays_original_and_changed_intent_conflicts",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:22.499Z",
+    "finishedAt": "2026-10-23T05:26:24.420Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/rust-idempotency.log",
+    "logSha256": "sha256:7436a9823ab03a7ba2916e694f4f258cbea8db386fd758385bd39c0f7754558e"
+  },
+  {
+    "id": "reference-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:24.420Z",
+    "finishedAt": "2026-10-23T05:26:24.570Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/reference-build.log",
+    "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:24.605Z",
+    "finishedAt": "2026-10-23T05:26:25.558Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/strategy/policy.ts",
+      "apps/terminal/src/strategy/runtime.ts",
+      "apps/terminal/app/strategies",
+      "apps/terminal/tests/ui301.test.ts",
+      "scripts/ui301-review.mjs",
+      "scripts/ui301-review.test.mjs",
+      "scripts/terminal-static-routes.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "playwright.config.ts",
+      "playwright.ui301.config.ts",
+      "tests/e2e/ui301.spec.ts",
+      "tests/e2e/fixtures/ui301-reference.ts"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:25.558Z",
+    "finishedAt": "2026-10-23T05:26:26.229Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "routes-gate",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui301-review.test.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "scripts/serve-static.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:26.229Z",
+    "finishedAt": "2026-10-23T05:26:26.444Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/routes-gate.log",
+    "logSha256": "sha256:43a551e03c5e1f4496e58a8efeb31ef1e75d8a90dd467a5afa0a0df1753f8cf1"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:26.444Z",
+    "finishedAt": "2026-10-23T05:26:36.388Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/terminal-build.log",
+    "logSha256": "sha256:eb6c3eba73fa1a4f4c06b5016c90eba8513ee2c77b4e7a0835ef0b66bd2984a9"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui301.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui301-local-20261023/attempt-02/browser"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T05:26:36.389Z",
+    "finishedAt": "2026-10-23T05:27:23.473Z",
+    "log": "docs/audit/evidence/ui301-local-20261023/attempt-02/browser.log",
+    "logSha256": "sha256:64df44129be7b3f4530064c6b600f3a55cf5100ccacd211853aa51470b83b00f"
+  }
+]

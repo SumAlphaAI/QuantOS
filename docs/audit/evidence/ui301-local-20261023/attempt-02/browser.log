@@ -1,0 +1,204 @@
+
+Running 6 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint (8.1s)
+  ✘  2 [chromium] › tests/e2e/ui301.spec.ts:13:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head (7.1s)
+  ✘  3 [chromium] › tests/e2e/ui301.spec.ts:20:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry (7.1s)
+  ✘  4 [chromium] › tests/e2e/ui301.spec.ts:23:5 › UI301 invalid JSON, backend rejection and readonly never auto retry (7.1s)
+  ✘  5 [chromium] › tests/e2e/ui301.spec.ts:27:5 › UI301 access loss clears draft; explicit recovery never replays save (7.1s)
+  ✘  6 [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots (7.1s)
+
+
+  1) [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:7:15
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-catalog-deep-L-d0ec5--no-browser-create-endpoint-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-catalog-deep-L-d0ec5--no-browser-create-endpoint-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui301.spec.ts:13:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:14:15
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-true-competing-00b90-verwrites-newer-server-head-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-true-competing-00b90-verwrites-newer-server-head-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui301.spec.ts:20:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:21:2
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-committed-resp-5f203-y-version-on-explicit-retry-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-committed-resp-5f203-y-version-on-explicit-retry-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui301.spec.ts:23:5 › UI301 invalid JSON, backend rejection and readonly never auto retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:24:2
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-invalid-JSON-b-297a5-d-readonly-never-auto-retry-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-invalid-JSON-b-297a5-d-readonly-never-auto-retry-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui301.spec.ts:27:5 › UI301 access loss clears draft; explicit recovery never replays save 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:28:2
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-access-loss-cl-8ccb1-recovery-never-replays-save-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-access-loss-cl-8ccb1-recovery-never-replays-save-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:40
+
+      38 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      39 | }
+    > 40 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      41 | export async function openLab(page: Page) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:"打开 Lab"}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);await expect(page.getByLabel("文件 JSON",{exact:true})).toBeVisible();return href;}
+      42 | test.beforeAll(async () => {
+      43 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:40:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:81)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:31:15
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-real-pages-ret-9e7d5-k-light-axe-and-screenshots-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui301-local-20261023/attempt-02/browser/ui301-UI301-real-pages-ret-9e7d5-k-light-axe-and-screenshots-chromium/error-context.md
+
+  6 failed
+    [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint 
+    [chromium] › tests/e2e/ui301.spec.ts:13:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head 
+    [chromium] › tests/e2e/ui301.spec.ts:20:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry 
+    [chromium] › tests/e2e/ui301.spec.ts:23:5 › UI301 invalid JSON, backend rejection and readonly never auto retry 
+    [chromium] › tests/e2e/ui301.spec.ts:27:5 › UI301 access loss clears draft; explicit recovery never replays save 
+    [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots 
