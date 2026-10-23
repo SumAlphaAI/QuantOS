@@ -10,12 +10,12 @@ pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
 pub mod execution;
+#[cfg(test)]
+mod g3_research_tests;
 mod input_contract;
 pub mod live;
 mod market;
 mod research;
-#[cfg(test)]
-mod g3_research_tests;
 
 use axum::{
     Json, Router,
@@ -654,7 +654,9 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
             // The current reference identity owns C03 commands/reads and C04 reads.
             "research.read",
             "research.write",
-            "snapshot.read"
+            "snapshot.read",
+            "market.read",
+            "market.watchlist.write"
         ])
     } else if matches!(
         cookies(headers).get("quantos_session").copied(),
@@ -670,6 +672,8 @@ fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Va
         } else {
             json!(["settings.read", "execution.operate", "strategy.approve"])
         }
+    } else if cookies(headers).get("quantos_session").copied() == Some(VIEWER_SESSION) {
+        json!(["settings.read", "market.read"])
     } else {
         json!(["settings.read"])
     };

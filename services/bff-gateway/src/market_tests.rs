@@ -626,3 +626,84 @@ async fn current_function_watchlist_audit_resolves_and_retries_append_once() {
         crate::audit_core::payload_hash(&facts[0]["redactedPayload"])
     );
 }
+
+#[tokio::test]
+async fn ui401_reference_c01_market_capabilities_and_viewer_isolation() {
+    let p = crate::BffProvider::default();
+    let (code, saved) = call(
+        &p,
+        "PUT",
+        "/v1/markets/watchlist",
+        Some(json!({"instrumentIds":["binance:spot:BTC/USDT"]})),
+        Uuid::new_v4(),
+        "watchlist-0",
+    )
+    .await;
+    assert_eq!(code, 200);
+    for session in [crate::CURRENT_SESSION, crate::VIEWER_SESSION] {
+        for path in [
+            "/v1/session",
+            "/v1/context",
+            "/v1/markets/catalog",
+            "/v1/markets/watchlist",
+            "/v1/markets/quotes?symbol=BTC%2FUSDT&venue=binance&product=spot",
+        ] {
+            let response = p
+                .router()
+                .oneshot(
+                    Request::builder()
+                        .uri(path)
+                        .header("cookie", format!("quantos_session={session}"))
+                        .body(Body::empty())
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(response.status(), StatusCode::OK);
+            let value: Value =
+                serde_json::from_slice(&to_bytes(response.into_body(), 1048576).await.unwrap())
+                    .unwrap();
+            if path == "/v1/session" || path == "/v1/context" {
+                let capabilities = value["capabilities"].as_array().unwrap();
+                assert!(capabilities.contains(&json!("market.read")));
+                assert_eq!(
+                    capabilities.contains(&json!("market.watchlist.write")),
+                    session == crate::CURRENT_SESSION
+                );
+            }
+            if path == "/v1/markets/watchlist" {
+                assert_eq!(
+                    value["instrumentIds"],
+                    if session == crate::CURRENT_SESSION {
+                        saved["instrumentIds"].clone()
+                    } else {
+                        json!([])
+                    }
+                );
+            }
+        }
+    }
+    let response = p
+        .router()
+        .oneshot(
+            Request::builder()
+                .method("PUT")
+                .uri("/v1/markets/watchlist")
+                .header(
+                    "cookie",
+                    format!(
+                        "quantos_session={}; quantos_csrf={}",
+                        crate::VIEWER_SESSION,
+                        crate::CSRF_TOKEN
+                    ),
+                )
+                .header("origin", crate::ALLOWED_ORIGIN)
+                .header("x-csrf-token", crate::CSRF_TOKEN)
+                .header("content-type", "application/json")
+                .body(Body::from(json!({"instrumentIds":[]}).to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
+}

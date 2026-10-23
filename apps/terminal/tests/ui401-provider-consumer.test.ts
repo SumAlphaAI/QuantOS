@@ -1,0 +1,22 @@
+import { referenceBffExecutable, referenceBffRoot, referenceBffSourceEnv } from "./helpers/reference-bff";
+import { spawn, type ChildProcess } from "node:child_process";
+import { createServer } from "node:net";
+import { beforeAll, afterAll, expect, it } from "vitest";
+import { createBffClient } from "@sumalpha/api-client";
+import {createMarketRuntime} from "../src/markets/runtime";
+import { loadEvidenceChain } from "../src/audit/gateway";
+let child:ChildProcess,origin:string,lose=false;
+const csrf="csrf-token-0000000000000001";
+const transport:typeof fetch=async(input,init)=>{const req=new Request(input,init);req.headers.set("cookie",`quantos_session=session-current; quantos_csrf=${csrf}`);req.headers.set("origin","http://localhost:3190");const res=await fetch(req);if(lose&&req.method==="PUT"){lose=false;await res.body?.cancel();throw Error("synthetic response lost after commit");}return res;};
+beforeAll(async()=>{const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,"127.0.0.1",r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(referenceBffExecutable(),[],{ cwd: referenceBffRoot,env:{ ...referenceBffSourceEnv(),NODE_ENV:"test",PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const t=setTimeout(()=>reject(Error("reference startup timeout")),30000);child.once("error",e=>{clearTimeout(t);reject(e);});child.once("exit",()=>{clearTimeout(t);reject(Error("reference exited"));});child.stdout?.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(t);resolve();}});});},35000);
+afterAll(async()=>{if(child&&child.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}});
+it("UI401 actual runtime loads C01/C12, isolates venue quotes, recovers loss and resolves competing versions",async()=>{
+ const runtime=createMarketRuntime({origin,online:()=>true,csrf:()=>csrf,authorize:()=>{},fetchImpl:transport});
+ const context=await runtime.load();expect(context.capabilities).toContain('market.watchlist.write');await runtime.refresh();expect(runtime.view.rows).toHaveLength(4);
+ const btc=runtime.view.rows.filter(r=>r.instrument.canonicalSymbol==='BTC/USDT');expect(btc).toHaveLength(2);expect(new Set(btc.map(r=>r.quote.provenance.venue)).size).toBe(2);expect(btc[0].quote.bid).not.toBe(btc[1].quote.bid);
+ const selected=runtime.view.rows[0].instrument.instrumentId;runtime.toggle(selected);lose=true;await expect(runtime.save()).rejects.toThrow();expect(runtime.view.status).toBe('uncertain');await runtime.save();expect(runtime.view.status).toBe('saved');const saved=runtime.view.base!;const chain=await loadEvidenceChain(origin,saved.correlationId!,{},transport);expect(chain.items).toHaveLength(1);expect(chain.items[0].eventId).toBe(saved.auditRef);
+ const viewerTransport:typeof fetch=async(input,init)=>{const req=new Request(input,init);req.headers.set('cookie',`quantos_session=session-viewer; quantos_csrf=${csrf}`);req.headers.set('origin','http://localhost:3190');return fetch(req);};
+ const viewer=createMarketRuntime({origin,online:()=>true,csrf:()=>csrf,authorize:()=>{},fetchImpl:viewerTransport});expect((await viewer.load()).capabilities).toContain('market.read');await viewer.refresh();expect(viewer.view.rows).toHaveLength(4);expect(viewer.view.local).toEqual([]);expect(()=>viewer.toggle(selected)).toThrow();viewer.close();
+ const competitor=createBffClient({baseUrl:origin,fetch:transport});const c=await competitor.PUT('/v1/markets/watchlist',{body:{instrumentIds:[]},params:{header:{'If-Match':saved.objectVersion,'Idempotency-Key':crypto.randomUUID(),'X-Request-Id':crypto.randomUUID(),'X-CSRF-Token':csrf}}});expect(c.response.status).toBe(200);
+ const other=runtime.view.rows[1].instrument.instrumentId;runtime.toggle(other);await expect(runtime.save()).rejects.toMatchObject({status:409});expect(runtime.view.status).toBe('conflict');await runtime.refreshConflict();expect(runtime.view.head!.objectVersion).toBe(c.data!.objectVersion);runtime.resolveConflict(true);await runtime.save();expect(runtime.view.local).toEqual([selected,other]);runtime.close();expect(runtime.view.rows).toEqual([]);
+},20000);

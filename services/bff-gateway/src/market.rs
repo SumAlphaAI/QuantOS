@@ -628,9 +628,21 @@ async fn reference(
     if let Err(e) = crate::authenticate(&headers, &state).await {
         return e;
     }
-    if crate::cookies(&headers).get("quantos_session") != Some(&crate::CURRENT_SESSION) {
+    let session = crate::cookies(&headers)
+        .get("quantos_session")
+        .copied()
+        .unwrap_or("")
+        .to_owned();
+    if session != crate::CURRENT_SESSION
+        && !(session == crate::VIEWER_SESSION && method == Method::GET)
+    {
         return Fault(StatusCode::FORBIDDEN, "FORBIDDEN").response();
     }
+    let watch_scope = if session == crate::CURRENT_SESSION {
+        "reference-current"
+    } else {
+        "reference-viewer"
+    };
     let q = match query {
         Ok(Query(q)) => q,
         Err(_) => return Fault::invalid().response(),
@@ -662,7 +674,7 @@ async fn reference(
             let current = m
                 .watches
                 .records
-                .get("reference-current")
+                .get(watch_scope)
                 .cloned()
                 .unwrap_or_else(empty_watchlist);
             if method == Method::PUT {

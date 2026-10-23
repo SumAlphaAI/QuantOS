@@ -2604,13 +2604,16 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-101", "UI-204", "BFF-FE-005", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Market Catalog、Watchlist、VenueQuote
 - 接口绑定：C12
 - 验收重点：每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并
+
+- 功能实现：已交付 `/markets` C12目录/逐venue-product报价、自选版本保存/冲突审阅/结果未知原意图恢复、权限失效清屏与逐行source/venue/asOf/latency/quality/capability/许可；见 [UI401操作与范围](./operations/ui401-market-workspace.md)。
+- 有界验收：当前源码冻结、命令日志、真实reference consumer与Chromium成功/拒绝/恢复、四组明暗/宽窄截图及axe见 [UI401证据](./audit/evidence/ui401-local-20261023/README.md)，复核入口 `node scripts/ui401-review.mjs --verify`。仅本机合成reference功能范围，不递归重验上游，不提升159项stage_gate；完整INTEGRATION/目标/RELEASE、人工读屏/native200%、远程CI及UI-P18高保真保留NOT_RUN，formalAccepted=false、runtimeAdmission=DENIED。下一原任务FE:UI-P18。
 
 <a id="task-ui-p18"></a>
 ##### UI-P18：P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png

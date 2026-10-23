@@ -129,7 +129,7 @@ export const UI101_NAVIGATION: readonly ShellNavigationItem[] = [
 
 export function visibleShellNavigation(capabilities: readonly string[]): ShellNavigationItem[] {
   const granted = new Set(capabilities);
-  return UI101_NAVIGATION.filter((item) => (granted.has(item.capability) || (item.route === "/command" && granted.has("ops.read")) || (item.route === "/operations" && granted.has("ops.read")) || (item.route === "/research" && granted.has("research.read")))).map((item) => ({ ...item }));
+  return UI101_NAVIGATION.filter((item) => (granted.has(item.capability) || (item.route === "/command" && granted.has("ops.read")) || (item.route === "/operations" && granted.has("ops.read")) || (item.route === "/research" && granted.has("research.read")) || (item.route === "/markets" && granted.has("market.read")))).map((item) => ({ ...item }));
 }
 
 export type ConnectionState = "live" | "reconnecting" | "offline";
