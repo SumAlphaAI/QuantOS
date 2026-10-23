@@ -1,0 +1,67 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui201.spec.ts >> UI201 lost committed response explicitly retries original idempotency key and creates only one run
+- Location: tests/e2e/ui201.spec.ts:15:5
+
+# Error details
+
+```
+Error: expect(locator).toHaveCount(expected) failed
+
+Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+Expected: 1
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" with timeout 5000ms
+  - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect,type Page} from "@playwright/test";
+  2  | import {AxeBuilder} from "@axe-core/playwright";
+  3  | import {writeFile} from "node:fs/promises";
+  4  | import {authorized,networkRows,fault,call} from "./fixtures/ui201-reference";
+  5  | const id="11111111-1111-4111-8111-000000000001";
+> 6  | async function fill(page:Page,question="UI201 bounded reference research"){await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByLabel("数据快照",{exact:true}).selectOption(id);await page.getByLabel("研究问题",{exact:true}).fill(question);await page.getByLabel("截止时间（UTC）",{exact:true}).fill(new Date(Date.now()+3600000).toISOString());}
+     |                                                                                                                                                                ^ Error: expect(locator).toHaveCount(expected) failed
+  7  | async function submit(page:Page){await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();}
+  8  | test("UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+  9  |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};expect((await call(`/v1/audit/evidence/${first.correlationId}`)).status).toBe(200);
+  10 |  await page.getByRole("button",{name:"填写另一项研究",exact:true}).click();await fill(page,"UI201 second independent intent");await submit(page);await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.getByRole("table")).toContainText(first.jobId);await page.getByLabel("每页条数",{exact:true}).selectOption("1");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.locator("tbody tr")).toHaveCount(1);await page.getByRole("button",{name:"下一页",exact:true}).click();await expect(page.getByRole("button",{name:"下一页",exact:true})).toBeDisabled();const q=networkRows().filter(r=>r.path==="/v1/research-runs"&&r.method==="GET");expect(q.some(r=>r.query?.includes("cursor="))).toBe(true);await page.getByLabel("任务状态",{exact:true}).selectOption("failed");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.getByText("当前查询无研究任务。",{exact:true})).toBeVisible();expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
+  11 | });
+  12 | test("UI201 local form errors focus fields, backend rejection stays inline and hides raw private text",async({page})=>{
+  13 |  await page.goto("/research/new");await authorized(page);await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("数据快照",{exact:true})).toBeFocused();await fill(page);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("01");await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("10");fault({fieldReject:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator("#error-budget")).toContainText("服务端拒绝此字段");await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();await expect(page.locator("main")).not.toContainText("private SQL");fault({});await submit(page);
+  14 | });
+  15 | test("UI201 lost committed response explicitly retries original idempotency key and creates only one run",async({page})=>{
+  16 |  await page.goto("/research/new");await authorized(page);await fill(page);fault({dropCreate:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("button",{name:"以原内容重试确认",exact:true})).toBeVisible();await expect(page.getByLabel("研究问题",{exact:true})).toBeDisabled();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);await page.getByRole("button",{name:"以原内容重试确认",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();const writes=networkRows().filter(r=>r.method==="POST");expect(writes).toHaveLength(2);expect(writes[0].keyHash).toBe(writes[1].keyHash);expect(writes[0].bodyHash).toBe(writes[1].bodyHash);expect(writes[0].accepted).toEqual(writes[1].accepted);await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.locator("tbody tr")).toHaveCount(1);
+  17 | });
+  18 | test("UI201 snapshot becomes blocked before submission; no C03 command leaves browser",async({page})=>{
+  19 |  await page.goto("/research/new");await authorized(page);await fill(page);fault({snapshotQuality:"degraded"});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator("#error-dataSnapshotId")).toContainText("快照质量、许可或时效受限");expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);
+  20 | });
+  21 | test("UI201 narrowed authority and offline clear form; explicit recovery never replays",async({page})=>{
+  22 |  await page.goto("/research/new");await authorized(page);await fill(page);fault({readonly:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);fault({});await page.getByRole("button",{name:"重新验证访问条件",exact:true}).click();await authorized(page);await expect(page.getByLabel("研究问题",{exact:true})).toHaveValue("");await page.evaluate(()=>window.dispatchEvent(new Event("offline")));await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();await expect(page.getByRole("form")).toHaveCount(0);await page.getByRole("button",{name:"重新验证访问条件",exact:true}).click();await authorized(page);expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);
+  23 | });
+  24 | test("UI201 cursor expiration and rate limit need explicit retry, never auto repeat",async({page})=>{
+  25 |  await page.goto("/research");await authorized(page);await expect(page.getByText("当前查询无研究任务。",{exact:true})).toBeVisible();fault({listExpired:true});await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.getByRole("alert")).toContainText("分页已失效");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.getByText("当前查询无研究任务。",{exact:true})).toBeVisible();await page.getByRole("link",{name:"新建研究",exact:true}).click();await authorized(page);await fill(page);fault({rateLimited:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("alert")).toContainText("请求过于频繁");fault({});await expect(page.getByRole("button",{name:"提交研究",exact:true})).toBeEnabled();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);await submit(page);
+  26 | });
+  27 | test("UI201 read-only identity cannot create and checking state reveals no form",async({page})=>{
+  28 |  fault({slow:true,readonly:true});await page.goto("/research/new");await expect(page.locator('[data-route-access="checking"]')).toBeVisible();await expect(page.getByRole("form")).toHaveCount(0);await authorized(page);await expect(page.getByRole("alert")).toContainText("缺少研究写入");expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);
+  29 | });
+  30 | test("UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings",async({page},info)=>{
+  31 |  const scans=[];for(const theme of ["dark","light"] as const){await page.emulateMedia({colorScheme:theme});for(const path of ["/research","/research/new"]){await page.goto(path);await authorized(page);await expect(page.getByRole("button",{name:path.endsWith("new")?"提交研究":"刷新列表",exact:true})).toBeEnabled();for(const width of [1440,390]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,path,width,violations:scan.violations,incomplete:scan.incomplete});expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`ui201-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`),fullPage:true});}}}await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",previousP05Incomplete:6},null,2));
+  32 | });
+  33 | 
+```

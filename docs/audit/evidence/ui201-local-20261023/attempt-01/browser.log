@@ -1,0 +1,39 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages (3.3s)
+  ✓  2 [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text (2.1s)
+  ✓  3 [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run (2.1s)
+  ✓  4 [chromium] › tests/e2e/ui201.spec.ts:18:5 › UI201 snapshot becomes blocked before submission; no C03 command leaves browser (2.0s)
+  ✓  5 [chromium] › tests/e2e/ui201.spec.ts:21:5 › UI201 narrowed authority and offline clear form; explicit recovery never replays (2.1s)
+  ✓  6 [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat (4.1s)
+  ✓  7 [chromium] › tests/e2e/ui201.spec.ts:27:5 › UI201 read-only identity cannot create and checking state reveals no form (3.7s)
+  ✘  8 [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings (2.6s)
+
+
+  1) [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      29 | });
+      30 | test("UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings",async({page},info)=>{
+    > 31 |  const scans=[];for(const theme of ["dark","light"] as const){await page.emulateMedia({colorScheme:theme});for(const path of ["/research","/research/new"]){await page.goto(path);await authorized(page);await expect(page.getByRole("button",{name:path.endsWith("new")?"提交研究":"刷新列表",exact:true})).toBeEnabled();for(const width of [1440,390]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,path,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",previousP05Incomplete:6},null,2));if(width===390&&path==="/research"){await page.getByRole("region",{name:"可横向滚动的研究任务表格"}).focus();await expect(page.getByRole("region",{name:"可横向滚动的研究任务表格"})).toBeFocused();}expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`ui201-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`),fullPage:true});}}}await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",previousP05Incomplete:6},null,2));
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      32 | });
+      33 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:31:468
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/attempt-01/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/attachments/ui201-9e3976ec35862d884bd178a37a86d7b937773d79.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/attempt-01/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/attempt-01/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 
+  7 passed (23.2s)

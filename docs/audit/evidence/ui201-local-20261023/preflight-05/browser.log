@@ -1,0 +1,288 @@
+
+Running 8 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages (37.1s)
+  ✘  2 [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text (7.2s)
+  ✘  3 [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run (37.1s)
+  ✓  4 [chromium] › tests/e2e/ui201.spec.ts:18:5 › UI201 snapshot becomes blocked before submission; no C03 command leaves browser (2.1s)
+  ✓  5 [chromium] › tests/e2e/ui201.spec.ts:21:5 › UI201 narrowed authority and offline clear form; explicit recovery never replays (2.1s)
+  ✘  6 [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat (36.8s)
+  ✓  7 [chromium] › tests/e2e/ui201.spec.ts:27:5 › UI201 read-only identity cannot create and checking state reveals no form (3.7s)
+  ✘  8 [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings (36.8s)
+
+
+  1) [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:10:224
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+      54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+       at fixtures/ui201-reference.ts:54
+
+      52 | test.afterEach(async({context,page},info)=>{
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+    > 54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+         |  ^
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+      56 | });
+      57 | test.afterAll(async()=>{proxy.closeAllConnections();await new Promise<void>(r=>proxy.close(()=>r()));await rm(scratch,{recursive:true,force:true});});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:54:2
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-creates-one-au-5ac82--and-immutable-cursor-pages-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-creates-one-au-5ac82--and-immutable-cursor-pages-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByLabel('预算（整数成本单位）', { exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" with timeout 5000ms
+      - waiting for getByLabel('预算（整数成本单位）', { exact: true })
+        14 × locator resolved to <input value="10" name="budget" autocomplete="off" aria-invalid="true" id="research-budget" aria-label="预算（整数成本单位）" aria-describedby="error-budget"/>
+           - unexpected value "inactive"
+
+
+      11 | });
+      12 | test("UI201 local form errors focus fields, backend rejection stays inline and hides raw private text",async({page})=>{
+    > 13 |  await page.goto("/research/new");await authorized(page);await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("数据快照",{exact:true})).toBeFocused();await fill(page);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("01");await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("10");fault({fieldReject:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator("#error-budget")).toContainText("服务端拒绝此字段");await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();await expect(page.locator("main")).not.toContainText("private SQL");fault({});await submit(page);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      14 | });
+      15 | test("UI201 lost committed response explicitly retries original idempotency key and creates only one run",async({page})=>{
+      16 |  await page.goto("/research/new");await authorized(page);await fill(page);fault({dropCreate:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("button",{name:"以原内容重试确认",exact:true})).toBeVisible();await expect(page.getByLabel("研究问题",{exact:true})).toBeDisabled();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);await page.getByRole("button",{name:"以原内容重试确认",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();const writes=networkRows().filter(r=>r.method==="POST");expect(writes).toHaveLength(2);expect(writes[0].keyHash).toBe(writes[1].keyHash);expect(writes[0].bodyHash).toBe(writes[1].bodyHash);expect(writes[0].accepted).toEqual(writes[1].accepted);await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.locator("tbody tr")).toHaveCount(1);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:13:842
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/attachments/ui201-c31366923e8e187836ae273f569914a0966c7b18.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:16:845
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+      54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+       at fixtures/ui201-reference.ts:54
+
+      52 | test.afterEach(async({context,page},info)=>{
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+    > 54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+         |  ^
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+      56 | });
+      57 | test.afterAll(async()=>{proxy.closeAllConnections();await new Promise<void>(r=>proxy.close(()=>r()));await rm(scratch,{recursive:true,force:true});});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:54:2
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-lost-committed-339a4-ey-and-creates-only-one-run-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-lost-committed-339a4-ey-and-creates-only-one-run-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:25:47
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText({timeout:1000}).catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(()=>{});}
+      54 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+      55 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> /Users/anray/Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/playwright_chromiumdev_profile-wY152R --remote-debugging-pipe --no-startup-window
+    <launched> pid=25838
+    [pid=25838][err] [1023/075037.829323:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838][err] [1023/075037.849300:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838][err] [1023/075039.887179:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838][err] [1023/075039.904136:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838][err] [1023/075040.063140:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838][err] [1023/075040.112533:ERROR:net/socket/ssl_client_socket_impl.cc:964] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=25838] <gracefully close start>
+
+       at fixtures/ui201-reference.ts:54
+
+      52 | test.afterEach(async({context,page},info)=>{
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText({timeout:1000}).catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(()=>{});}
+    > 54 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+         |  ^
+      55 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      56 | });
+      57 | test.afterAll(async()=>{proxy.closeAllConnections();await new Promise<void>(r=>proxy.close(()=>r()));await rm(scratch,{recursive:true,force:true});});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:54:2
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-cursor-expirat-2debf-cit-retry-never-auto-repeat-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-cursor-expirat-2debf-cit-retry-never-auto-repeat-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:31:195
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText({timeout:1000}).catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(()=>{});}
+      54 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+      55 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+       at fixtures/ui201-reference.ts:54
+
+      52 | test.afterEach(async({context,page},info)=>{
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText({timeout:1000}).catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(()=>{});}
+    > 54 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+         |  ^
+      55 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      56 | });
+      57 | test.afterAll(async()=>{proxy.closeAllConnections();await new Promise<void>(r=>proxy.close(()=>r()));await rm(scratch,{recursive:true,force:true});});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:54:2
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-05/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+  5 failed
+    [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+    [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text 
+    [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run 
+    [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat 
+    [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 
+  3 passed (2.8m)

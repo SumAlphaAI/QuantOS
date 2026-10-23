@@ -2275,7 +2275,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C03、C04
 - 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示
 
-- 当前执行：UI-201 仅当前功能范围实现与验证，交付 `/research`、`/research/new` 的 C03 列表/分页筛选、C04 快照选择、预算/deadline/capability 表单校验、422 字段定位与 202 审计回执；未知结果原幂等键显式重试及撤权清理。见[本轮报告](./audit/UI-201-current-function-review-2026-10-23.md)、[规程](./operations/ui201-research-list-create.md)、[功能门禁](../scripts/ui201-review.mjs)。复用 UI-204/UI-P05 原范围证据，不将 G1 辅助项作为开发前置，不重跑全链；reference 身份/CORS 替代、Firefox/WebKit 阻塞、P05 六项图标对比度 incomplete 及全部 NOT_RUN 保留。159 阶段 Gate、G1/FEP-1、联调/发布状态不提升；项目用户确认待定。下一原任务 UI-P03 可继续开发。
+- 当前执行：`PASS_UI201_CURRENT_FUNCTION`，工程 `e3776999`、541输入/44产物；122单测、24 Rust、8 Chromium、52门禁/路由、types/lint/build通过，8截图/8次axe零violations，另2项小屏表头对比度incomplete保留；交付 `/research`、`/research/new` 的 C03 列表/分页筛选、C04 快照选择、预算/deadline/capability 表单校验、422 字段定位与 202 审计回执；未知结果原幂等键显式重试及撤权清理。见[本轮报告](./audit/UI-201-current-function-review-2026-10-23.md)、[规程](./operations/ui201-research-list-create.md)、[功能门禁](../scripts/ui201-review.mjs)。复用 UI-204/UI-P05 原范围证据，不将 G1 辅助项作为开发前置，不重跑全链；reference 身份/CORS 替代、Firefox/WebKit 阻塞、P05 六项图标对比度 incomplete 及全部 NOT_RUN 保留。159 阶段 Gate、G1/FEP-1、联调/发布状态不提升；项目用户确认待定。下一原任务 UI-P03 可继续开发。
 
 <a id="task-ui-p03"></a>
 ##### UI-P03：P03-Research-List-and-New-Research-High-Fidelity-v1.png

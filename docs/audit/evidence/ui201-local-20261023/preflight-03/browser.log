@@ -1,0 +1,309 @@
+
+Running 8 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages (8.2s)
+  ✘  2 [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text (7.1s)
+  ✘  3 [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run (7.0s)
+  ✘  4 [chromium] › tests/e2e/ui201.spec.ts:18:5 › UI201 snapshot becomes blocked before submission; no C03 command leaves browser (7.0s)
+  ✘  5 [chromium] › tests/e2e/ui201.spec.ts:21:5 › UI201 narrowed authority and offline clear form; explicit recovery never replays (7.0s)
+  ✘  6 [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat (36.9s)
+  ✘  7 [chromium] › tests/e2e/ui201.spec.ts:27:5 › UI201 read-only identity cannot create and checking state reveals no form (3.7s)
+  ✘  8 [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings (36.8s)
+
+
+  1) [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      4 | import {authorized,networkRows,fault,call} from "./fixtures/ui201-reference";
+      5 | const id="11111111-1111-4111-8111-000000000001";
+    > 6 | async function fill(page:Page,question="UI201 bounded reference research"){await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByLabel("数据快照",{exact:true}).selectOption(id);await page.getByLabel("研究问题",{exact:true}).fill(question);await page.getByLabel("截止时间（UTC）",{exact:true}).fill(new Date(Date.now()+3600000).toISOString());}
+        |                                                                                                                                                                ^
+      7 | async function submit(page:Page){await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();}
+      8 | test("UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+      9 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};expect((await call(`/v1/audit/evidence/${first.correlationId}`)).status).toBe(200);
+        at fill (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:6:160)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:9:64
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-creates-one-au-5ac82--and-immutable-cursor-pages-chromium/attachments/ui201-152a3f1b3770074b5f498033f033ae4bc68e7cdf.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-creates-one-au-5ac82--and-immutable-cursor-pages-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-creates-one-au-5ac82--and-immutable-cursor-pages-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      11 | });
+      12 | test("UI201 local form errors focus fields, backend rejection stays inline and hides raw private text",async({page})=>{
+    > 13 |  await page.goto("/research/new");await authorized(page);await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("数据快照",{exact:true})).toBeFocused();await fill(page);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("01");await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("10");fault({fieldReject:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator("#error-budget")).toContainText("服务端拒绝此字段");await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();await expect(page.locator("main")).not.toContainText("private SQL");fault({});await submit(page);
+         |                                                                                                                                              ^
+      14 | });
+      15 | test("UI201 lost committed response explicitly retries original idempotency key and creates only one run",async({page})=>{
+      16 |  await page.goto("/research/new");await authorized(page);await fill(page);fault({dropCreate:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("button",{name:"以原内容重试确认",exact:true})).toBeVisible();await expect(page.getByLabel("研究问题",{exact:true})).toBeDisabled();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);await page.getByRole("button",{name:"以原内容重试确认",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();const writes=networkRows().filter(r=>r.method==="POST");expect(writes).toHaveLength(2);expect(writes[0].keyHash).toBe(writes[1].keyHash);expect(writes[0].bodyHash).toBe(writes[1].bodyHash);expect(writes[0].accepted).toEqual(writes[1].accepted);await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.locator("tbody tr")).toHaveCount(1);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:13:142
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/attachments/ui201-d6aad898638719757d0ac10e20a7c1b5b1122821.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-local-form-err-d9094--and-hides-raw-private-text-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      4 | import {authorized,networkRows,fault,call} from "./fixtures/ui201-reference";
+      5 | const id="11111111-1111-4111-8111-000000000001";
+    > 6 | async function fill(page:Page,question="UI201 bounded reference research"){await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByLabel("数据快照",{exact:true}).selectOption(id);await page.getByLabel("研究问题",{exact:true}).fill(question);await page.getByLabel("截止时间（UTC）",{exact:true}).fill(new Date(Date.now()+3600000).toISOString());}
+        |                                                                                                                                                                ^
+      7 | async function submit(page:Page){await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();}
+      8 | test("UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+      9 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};expect((await call(`/v1/audit/evidence/${first.correlationId}`)).status).toBe(200);
+        at fill (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:6:160)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:16:64
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-lost-committed-339a4-ey-and-creates-only-one-run-chromium/attachments/ui201-853b99cd5524faa7c08542cdcc4b79d7db9c9093.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-lost-committed-339a4-ey-and-creates-only-one-run-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-lost-committed-339a4-ey-and-creates-only-one-run-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui201.spec.ts:18:5 › UI201 snapshot becomes blocked before submission; no C03 command leaves browser 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      4 | import {authorized,networkRows,fault,call} from "./fixtures/ui201-reference";
+      5 | const id="11111111-1111-4111-8111-000000000001";
+    > 6 | async function fill(page:Page,question="UI201 bounded reference research"){await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByLabel("数据快照",{exact:true}).selectOption(id);await page.getByLabel("研究问题",{exact:true}).fill(question);await page.getByLabel("截止时间（UTC）",{exact:true}).fill(new Date(Date.now()+3600000).toISOString());}
+        |                                                                                                                                                                ^
+      7 | async function submit(page:Page){await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();}
+      8 | test("UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+      9 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};expect((await call(`/v1/audit/evidence/${first.correlationId}`)).status).toBe(200);
+        at fill (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:6:160)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:19:64
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-snapshot-becom-f1047--C03-command-leaves-browser-chromium/attachments/ui201-a389665dcad8b63a176bb8c90d0a5fd0e8ae2272.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-snapshot-becom-f1047--C03-command-leaves-browser-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-snapshot-becom-f1047--C03-command-leaves-browser-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui201.spec.ts:21:5 › UI201 narrowed authority and offline clear form; explicit recovery never replays 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByLabel('数据快照', { exact: true }).locator('option[value="11111111-1111-4111-8111-000000000001"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      4 | import {authorized,networkRows,fault,call} from "./fixtures/ui201-reference";
+      5 | const id="11111111-1111-4111-8111-000000000001";
+    > 6 | async function fill(page:Page,question="UI201 bounded reference research"){await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByLabel("数据快照",{exact:true}).selectOption(id);await page.getByLabel("研究问题",{exact:true}).fill(question);await page.getByLabel("截止时间（UTC）",{exact:true}).fill(new Date(Date.now()+3600000).toISOString());}
+        |                                                                                                                                                                ^
+      7 | async function submit(page:Page){await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();}
+      8 | test("UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+      9 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};expect((await call(`/v1/audit/evidence/${first.correlationId}`)).status).toBe(200);
+        at fill (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:6:160)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:22:64
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-narrowed-autho-f71c1-icit-recovery-never-replays-chromium/attachments/ui201-8bc12a55121b2a797d64ef88bde752d3b22c1fbb.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-narrowed-autho-f71c1-icit-recovery-never-replays-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-narrowed-autho-f71c1-icit-recovery-never-replays-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:25:47
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+      54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-cursor-expirat-2debf-cit-retry-never-auto-repeat-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-cursor-expirat-2debf-cit-retry-never-auto-repeat-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/ui201.spec.ts:27:5 › UI201 read-only identity cannot create and checking state reveals no form 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "缺少研究写入"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert">当前身份缺少研究写入或快照读取权限，不能新建。</p> aka getByText('当前身份缺少研究写入或快照读取权限，不能新建。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      26 | });
+      27 | test("UI201 read-only identity cannot create and checking state reveals no form",async({page})=>{
+    > 28 |  fault({slow:true,readonly:true});await page.goto("/research/new");await expect(page.locator('[data-route-access="checking"]')).toBeVisible();await expect(page.getByRole("form")).toHaveCount(0);await authorized(page);await expect(page.getByRole("alert")).toContainText("缺少研究写入");expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);
+         |                                                                                                                                                                                                                                                                ^
+      29 | });
+      30 | test("UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings",async({page},info)=>{
+      31 |  const scans=[];for(const theme of ["dark","light"] as const){await page.emulateMedia({colorScheme:theme});for(const path of ["/research","/research/new"]){await page.goto(path);await authorized(page);await expect(page.getByRole("button",{name:path.endsWith("new")?"提交研究":"刷新列表",exact:true})).toBeEnabled();for(const width of [1440,390]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,path,width,violations:scan.violations,incomplete:scan.incomplete});expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`ui201-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`),fullPage:true});}}}await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",previousP05Incomplete:6},null,2));
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:28:256
+
+    attachment #1: ui201 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-read-only-iden-6aed7-cking-state-reveals-no-form-chromium/attachments/ui201-d097f2e9add466a4950015a5fc7cd1a9b6d47e45.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-read-only-iden-6aed7-cking-state-reveals-no-form-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-read-only-iden-6aed7-cking-state-reveals-no-form-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui201-reference.ts:42
+
+      40 | });
+      41 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui201-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+    > 42 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                            ^
+      43 | test.beforeAll(async()=>{
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui201-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+      45 | });
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:42:108)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui201.spec.ts:31:195
+
+    Test timeout of 30000ms exceeded while running "afterEach" hook.
+
+       at fixtures/ui201-reference.ts:52
+
+      50 |  child=spawn(resolve("target/debug/bff-gateway"),[],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.stdout!.on("data",b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});await page.bringToFront();
+      51 | });
+    > 52 | test.afterEach(async({context,page},info)=>{
+         |      ^
+      53 |  if(info.status!=="passed"&&!page.isClosed()){await writeFile(info.outputPath("page-state.txt"),await page.locator(".research-workspace").innerText().catch(()=>"unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true}).catch(()=>{});}
+      54 |  await context.close();for(const s of streams)s.destroy();streams.clear();proxy.closeAllConnections();if(child?.exitCode===null){child.kill();await new Promise(r=>child.once("close",r));}
+      55 |  const file=info.outputPath("ui201.json");await writeFile(file,JSON.stringify({schema:"quantos-ui201-browser/v1",scenario:info.title,status:info.status,sourceCommit:process.env.GITHUB_SHA,binarySha256:hash(await readFile("target/debug/bff-gateway")),identity:"EXPLICIT_REFERENCE_COOKIE_BRIDGE",cors:"LOOPBACK_PROXY_SUBSTITUTION",businessWrites:"LOCAL_REFERENCE_C03_CREATE_ONLY",realIdp:"NOT_RUN",realCookieCors:"NOT_RUN",firefox:"BLOCKED_ENVIRONMENT",webKitAttachment:"BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",rows},null,2));await info.attach("ui201",{path:file,contentType:"application/json"});
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui201-reference.ts:52:6
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui201-local-20261023/preflight-03/browser/ui201-UI201-actual-new-lis-28f52-tain-accessibility-findings-chromium/error-context.md
+
+  8 failed
+    [chromium] › tests/e2e/ui201.spec.ts:8:5 › UI201 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+    [chromium] › tests/e2e/ui201.spec.ts:12:5 › UI201 local form errors focus fields, backend rejection stays inline and hides raw private text 
+    [chromium] › tests/e2e/ui201.spec.ts:15:5 › UI201 lost committed response explicitly retries original idempotency key and creates only one run 
+    [chromium] › tests/e2e/ui201.spec.ts:18:5 › UI201 snapshot becomes blocked before submission; no C03 command leaves browser 
+    [chromium] › tests/e2e/ui201.spec.ts:21:5 › UI201 narrowed authority and offline clear form; explicit recovery never replays 
+    [chromium] › tests/e2e/ui201.spec.ts:24:5 › UI201 cursor expiration and rate limit need explicit retry, never auto repeat 
+    [chromium] › tests/e2e/ui201.spec.ts:27:5 › UI201 read-only identity cannot create and checking state reveals no form 
+    [chromium] › tests/e2e/ui201.spec.ts:30:5 › UI201 actual new/list pages in both themes at desktop and mobile retain accessibility findings 

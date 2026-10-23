@@ -1,0 +1,67 @@
+$ node scripts/ui201-review.mjs --verify
+{"sourceCommit":"e3776999ad2aee625ec38faee5547a3b6ff9e68a","engineeringGate":"PASS_UI201_CURRENT_FUNCTION","sourceInputs":541,"artifacts":44,"functionTests":122,"rustTests":24,"chromiumCases":8,"stageGate":"NOT_ASSESSED","confirmation":"PENDING","formalAccepted":false,"nextTask":"FE:UI-P03"}
+
+exitCode=0
+
+$ node scripts/check-development-plans.mjs
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1463,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22,
+  "development_handoffs": {
+    "status": "PASS",
+    "tasks": 22,
+    "checkpoints": 16,
+    "externalDevelopmentGates": 0,
+    "performanceDevelopmentGates": 0,
+    "targetAcceptance": "NOT_RUN"
+  },
+  "frontend_handoffs": {
+    "status": "PASS",
+    "after": "FE:BFF-FE-003",
+    "tasks": 64,
+    "checkpoints": 16,
+    "externalEarlyGates": 0,
+    "performanceEarlyGates": 0,
+    "targetAcceptance": "NOT_RUN",
+    "formalAccepted": false
+  }
+}
+
+exitCode=0
+
+$ cargo fmt --package bff-gateway -- --check
+
+exitCode=0
+
+$ git diff --check
+
+exitCode=0
+
+PASS: 217 packet hashes, 219 task paths; exact source/receipt, preserved history, 159 stage gates unchanged; confirmation=PENDING. No function rerun or source rebind in sealing checks.
