@@ -1,0 +1,5 @@
+# attempt-01: verification rejected (not accepted)
+
+Application source 3f7f37cd1acb20f97962fd9fefcac212eb021eed. All 16 commands reached their expected exit, including 11/11 Chromium. No receipt was minted because the verifier raised `SyntaxError: Unexpected end of JSON input` at ui302-review.mjs verify while parsing the test-specific report.json.
+
+The report page rendered actual C05 facts, but the collector used innerText on a closed details/pre node and wrote an empty file. That empty file, report screenshots, network transcript and complete executions remain unchanged in attempt-01. A tooling repair changes textContent extraction and verifier reuse accounting; no application source is changed. The repair reruns lint, gate/route tests and browser collection, retaining all other original commands, binary and terminal build at their original source commit. Browser fixture GITHUB_SHA must equal actual tooling checkout; that provenance is recorded separately from application and binary build commits. No historical result is promoted to a new application candidate.

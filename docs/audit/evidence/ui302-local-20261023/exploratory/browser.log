@@ -1,0 +1,75 @@
+
+Running 11 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui301.spec.ts:7:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint (4.8s)
+  ✓   2 [chromium] › tests/e2e/ui301.spec.ts:14:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head (3.6s)
+  ✓   3 [chromium] › tests/e2e/ui301.spec.ts:21:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry (3.5s)
+  ✘   4 [chromium] › tests/e2e/ui301.spec.ts:24:5 › UI301 invalid JSON, backend rejection and readonly never auto retry (8.4s)
+  ✓   5 [chromium] › tests/e2e/ui301.spec.ts:28:5 › UI301 access loss clears draft; explicit recovery never replays save (2.3s)
+  ✓   6 [chromium] › tests/e2e/ui301.spec.ts:31:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots (5.5s)
+  ✓   7 [chromium] › tests/e2e/ui302.spec.ts:6:5 › real C05 static check, pinned backtest, report SSE and deep link (2.6s)
+  ✓   8 [chromium] › tests/e2e/ui302.spec.ts:9:5 › real static failure blocks backtest; repaired saved version can check again (4.9s)
+  ✓   9 [chromium] › tests/e2e/ui302.spec.ts:12:5 › lost committed backtest explicitly replays same key, no duplicate run (2.3s)
+  ✓  10 [chromium] › tests/e2e/ui302.spec.ts:15:5 › approver reads Lab but cannot check or create backtest (2.1s)
+  ✘  11 [chromium] › tests/e2e/ui302.spec.ts:16:5 › missing report and malformed deep links disclose no invented facts or writes (2.0s)
+
+
+  1) [chromium] › tests/e2e/ui301.spec.ts:24:5 › UI301 invalid JSON, backend rejection and readonly never auto retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main').getByRole('alert').filter({ hasText: '服务端拒绝草稿内容，请修正后保存。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('main').getByRole('alert').filter({ hasText: '服务端拒绝草稿内容，请修正后保存。' })
+
+
+      23 | });
+      24 | test("UI301 invalid JSON, backend rejection and readonly never auto retry",async ({page}) => {
+    > 25 |  await openLab(page);const f = page.getByLabel("文件 JSON",{exact:true}),files = await f.inputValue();await f.fill("bad json");await expect(page.getByText(/内容须为有效 JSON/)).toBeVisible();await page.waitForTimeout(1200);expect(browserWrites()).toHaveLength(0);fault({invalid:true});await f.fill(files);await expect(page.locator("main").getByRole("alert").filter({hasText:"服务端拒绝草稿内容，请修正后保存。"})).toBeVisible();await page.waitForTimeout(1200);expect(browserWrites()).toHaveLength(1);await expect(page.locator("main")).not.toContainText("private SQL");
+         |                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      26 |  fault({readonly:true});await page.reload();await authorized(page);await page.getByRole("tab",{name:"全部文件 JSON",exact:true}).click();await expect(page.getByLabel("文件 JSON",{exact:true})).toBeDisabled();await expect(page.getByText("当前身份仅可读取草稿。",{exact:true})).toBeVisible();
+      27 | });
+      28 | test("UI301 access loss clears draft; explicit recovery never replays save",async ({page}) => {
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:25:390
+
+    Error Context: docs/audit/evidence/ui302-local-20261023/exploratory/browser/ui301-UI301-invalid-JSON-b-297a5-d-readonly-never-auto-retry-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui302-local-20261023/exploratory/browser/ui301-UI301-invalid-JSON-b-297a5-d-readonly-never-auto-retry-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui302.spec.ts:16:5 › missing report and malformed deep links disclose no invented facts or writes 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "报告不可用"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert">报告不可用（404）。请核对任务引用、授权或稍后显式刷新。</p> aka getByText('报告不可用（404）。请核对任务引用、授权或稍后显式刷新。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      14 | });
+      15 | test("approver reads Lab but cannot check or create backtest",async({page})=>{fault({readonly:true});await openLab(page,false);await expect(page.getByRole('button',{name:'运行静态检查',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'创建回测',exact:true})).toBeDisabled();expect(networkRows().some(r=>r.method==='POST')).toBe(false);});
+    > 16 | test("missing report and malformed deep links disclose no invented facts or writes",async({page})=>{await page.goto('/backtests/aaaaaaaa-1111-4111-8111-111111111111');await authorized(page);await expect(page.getByRole('alert')).toContainText('报告不可用');await expect(page.getByRole('heading',{name:'Metrics',exact:true})).toHaveCount(0);expect(networkRows().some(r=>r.method!=='GET')).toBe(false);const response=await page.goto('/backtests/not-a-uuid');expect(response?.status()).toBe(404);});
+         |                                                                                                                                                                                                                                     ^
+      17 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui302.spec.ts:16:229
+
+    Error Context: docs/audit/evidence/ui302-local-20261023/exploratory/browser/ui302-missing-report-and-m-cf31e-no-invented-facts-or-writes-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui302-local-20261023/exploratory/browser/ui302-missing-report-and-m-cf31e-no-invented-facts-or-writes-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/ui301.spec.ts:24:5 › UI301 invalid JSON, backend rejection and readonly never auto retry 
+    [chromium] › tests/e2e/ui302.spec.ts:16:5 › missing report and malformed deep links disclose no invented facts or writes 
+  9 passed (43.6s)
