@@ -11,3 +11,5 @@ preflight-02：使用获准的 loopback 测试方式；unit/consumer 通过，�
 范围：实际生成 API client + 本机 reference BFF/C01/C12/R01；受控合成输入、临时 TLS/cookie/CORS 替代；不等于真实市场、生产身份或持久数据库。完整INTEGRATION stage_gate NOT_ASSESSED；formalAccepted=false，runtimeAdmission=DENIED。目标Supabase/许可/IdP/Cookie/CORS/持久恢复、全I4/发布、跨浏览器/人工读屏/native200%、远程同SHA CI及性能长稳均 NOT_RUN。下一原任务 FE:UI-P18。
 
 attempt-01：源码 `98e6851be5d066f6d69db1f2153710b3e5b7ff6b`，108单测/consumer、18 C12、12 C01、9 Chromium、5 gate负向测试、构建/static通过；axe 0 violation / 8 incomplete。复核 incomplete 明细发现市场目录 div 的 aria-label 无对应role（aria-prohibited-attr），作为当前缺陷修复，补role=region和浏览器/回执拒绝此项的断言。该回执保留为 retained-attempt-01-receipt.json / result.json，不作为最终修复候选通过。其余color-contrast incomplete为非文本图标（nonBmp），仍需人工核查。下一attempt重新绑定修复候选，不拼接旧PASS。
+
+最终结果：attempt-02 绑定 `0d019762d5f6f2fd2d97cfadb0d3660e0118ec65`，工程 Gate `PASS_UI401_REFERENCE_FUNCTION`。108/108前端/consumer、18/18 C12、12/12 C01、5/5 Gate负向、9/9 Chromium、types/lint/rustfmt/Terminal build/plan/source-artifact verify通过。四组axe 0 violation，4条color-contrast incomplete（nonBmp图标，共14节点），人工核查仍未执行。完整报告见 `docs/audit/UI401-function-delivery-2026-10-23.md`。完整INTEGRATION依旧预期拒绝，下一FE:UI-P18开发入口允许；证据保存提交后的HEAD不自动获得新候选验收。
