@@ -1,0 +1,66 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/ui-p09.test.ts [2m([22m[2m27 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 55[2mms[22m[39m
+     [32m✓[39m tabs are local current snapshots and do not infer approval, global totals or severity[32m 1[2mms[22m[39m
+     [32m✓[39m case-insensitive id/symbol/release search and release filter do not alter exact values[32m 0[2mms[22m[39m
+     [32m✓[39m expiry sorting is stable, does not mutate rows and does not use float conversions[32m 0[2mms[22m[39m
+     [32m✓[39m countdown uses earliest real deadline and unknown is never active[32m 0[2mms[22m[39m
+     [32m✓[39m chain pages bind real correlation, preserve sequence gaps and clone data without trusting route[32m 2[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"correlationId":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"complete":true,"nextCursor":"bad"}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"complete":false}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"nextCursor":"          ","complete":false}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z"},{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:00:00.000Z"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.001Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":9007199254740992,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"forged","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses invalid chain scope, ordering, retention or extensions {"items":[{"eventId":"11111111-1111-4111-8111-111111111111","sequence":1,"kind":"owned.assessment.accepted","objectRef":"/v1/proposals/11111111-1111-4111-8111-111111111111","occurredAt":"2026-10-23T00:00:00.000Z","payloadHash":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","route":"/untrusted-route","retentionUntil":"2026-10-23T00:01:00.000Z","commandRef":"22222222-2222-4222-8222-222222222222"}]}[32m 0[2mms[22m[39m
+     [32m✓[39m refuses descending sequences and oversized pages[32m 6[2mms[22m[39m
+     [32m✓[39m reads only current real correlation with no writes and clears chain on close[32m 17[2mms[22m[39m
+[31m     [31m×[31m requires audit:read independently and never queries without proposal correlation[39m[32m 3[2mms[22m[39m
+     [32m✓[39m revalidates C01 and proposal before reading and does not inherit changed scope or correlation[32m 4[2mms[22m[39m
+     [32m✓[39m appends valid opaque pages; duplicate or loop clears entire chain[32m 4[2mms[22m[39m
+     [32m✓[39m C10 403 clears chain but never changes Proposal receipt or evaluates[32m 2[2mms[22m[39m
+     [32m✓[39m C10 404 clears chain but never changes Proposal receipt or evaluates[32m 2[2mms[22m[39m
+     [32m✓[39m C10 410 clears chain but never changes Proposal receipt or evaluates[32m 2[2mms[22m[39m
+     [32m✓[39m C10 503 clears chain but never changes Proposal receipt or evaluates[32m 2[2mms[22m[39m
+     [32m✓[39m 429 cooldown cannot be extended by repeated local attempts[32m 2[2mms[22m[39m
+     [32m✓[39m expired retention clears visible chain; changing resource cannot reuse old chain[32m 2[2mms[22m[39m
+     [32m✓[39m closing an in-flight C10 read prevents late facts from resurrecting[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui502.test.ts [2m([22m[2m52 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m78 passed[39m[22m[90m (79)[39m
+[2m   Start at [22m 23:14:13
+[2m   Duration [22m 603ms[2m (transform 220ms, setup 0ms, import 374ms, tests 409ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui-p09.test.ts[2m > [22mP09 C10 proposal-bound read runtime[2m > [22mrequires audit:read independently and never queries without proposal correlation
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "correlationId"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m ProposalFacts.apply apps/terminal/src/proposals/policy.ts:[2m42:86[22m[39m
+    [90m 40|[39m   revoke(){this.closed=true;this.value=undefined;this.sequence=0;this.…
+    [90m 41|[39m   [34mapply[39m(raw[33m:[39m[33mSseEventEnvelope[39m[33m,[39mnow[33m=[39m[33mDate[39m[33m.[39m[34mnow[39m()){
+    [90m 42|[39m     if(this.closed)throw Error('Proposal revoked');const e=bffZodSchem…
+    [90m   |[39m                                                                                      [31m^[39m
+    [90m 43|[39m     if(e.payload.type==='permission_revoked'){this.revoke();throw Obje…
+    [90m 44|[39m     if(this.stream&&this.stream!==e.streamId||!Number.isSafeInteger(e.…
+[90m [2m❯[22m stream apps/terminal/src/proposals/runtime.ts:[2m35:94[22m[39m
+[90m [2m❯[22m open apps/terminal/src/proposals/runtime.ts:[2m40:89[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/proposals/runtime.ts:[2m29:104[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui-p09.test.ts:[2m22:357[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
