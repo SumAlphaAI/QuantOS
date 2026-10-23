@@ -1,0 +1,209 @@
+{
+  "schema": "quantos-p08-browser/v1",
+  "scenario": "P08 stale is explicit and disables danger confirmation, then manual refresh restores valid state",
+  "status": "passed",
+  "sourceCommit": "4ed8a29506774812f265ce442ca6049d34faf020",
+  "binarySha256": "f7850b07b25706abe3197a28541b4d0f6062afe2a3e76fc545367069e5cd83cf",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "LOCAL_REFERENCE_C01_STEP_UP_C06_ACCOUNT_KILL",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/portfolio",
+      "status": 200,
+      "source": "SYNTHETIC_STALE_OR_FOREIGN_NEGATIVE_PROBE",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "562f6f6d8decf20c6ed2f85225b8af6baccad6fab1e0849109d8842a1c7ae6e9"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/risk",
+      "status": 200,
+      "source": "SYNTHETIC_STALE_OR_FOREIGN_NEGATIVE_PROBE",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "45f3fc6ada5db0814ba857f5d9bc391e32357f8588cb94aff4afea492c2c20d5"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/portfolio/stream",
+      "status": 200,
+      "source": "SYNTHETIC_STALE_OR_FOREIGN_NEGATIVE_PROBE",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "37c43d36c6e411470c78bf74aa3341169961a02a0456335edd550eb965118fce"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "domain": "risk",
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/alerts",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "34b65588013e2afac56ac430240183677a8c716f4b73fe80bfc7b82908609d61"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/portfolio",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "ad98c11c3cdb569a2fb041168dad58b0dc8c1d6e99d8e2757acd2b5cb2845773"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444"
+      },
+      "method": "GET",
+      "path": "/v1/risk",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "45f3fc6ada5db0814ba857f5d9bc391e32357f8588cb94aff4afea492c2c20d5"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/portfolio/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "4d3fd16bbf4c99d7dc0d6cf1b3e03623106b33779384ccbc57bfe4d6ed6c9d4e"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "domain": "risk",
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/alerts",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    }
+  ]
+}
