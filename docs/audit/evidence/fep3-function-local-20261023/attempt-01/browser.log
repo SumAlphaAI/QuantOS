@@ -1,0 +1,43 @@
+
+Running 23 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/fep3-function.spec.ts:8:5 › FEP3 mismatched save echo locks editor and retries the same committed request (3.7s)
+  ✘   2 [chromium] › tests/e2e/fep3-function.spec.ts:13:5 › FEP3 terminal report parameter drift clears report and blocks Release (2.4s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/fep3-function.spec.ts:13:5 › FEP3 terminal report parameter drift clears report and blocks Release 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "报告不可用"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert">报告不可用（502）。请核对任务引用、授权或稍后显式刷新。</p> aka getByText('报告不可用（502）。请核对任务引用、授权或稍后显式刷新。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      14 |  await report(page);const before=JSON.parse((await page.getByTestId("raw-backtest-report").textContent())!);let injected=0;
+      15 |  await page.route(/\/v1\/backtests\/[^/]+$/,async route=>{const response=await route.fetch(),body=await response.json();body.parameters={...body.parameters,lookback:999};injected++;await route.fulfill({response,json:body});});
+    > 16 |  await page.getByRole("button",{name:"刷新报告与事件流",exact:true}).click();await expect(page.getByRole("alert")).toContainText("报告不可用");await expect(page.getByTestId("raw-backtest-report")).toHaveCount(0);await expect(page.getByRole("button",{name:"创建不可变 Release",exact:true})).toHaveCount(0);expect(networkRows().some(r=>r.method==="POST"&&r.path==="/v1/releases")).toBe(false);await writeFile(info.outputPath("fep3-fault.json"),JSON.stringify({kind:"terminal-parameters",source:"EXPLICIT_TEST_RESPONSE_CORRUPTION_NOT_BFF_OUTPUT",sourceCommit:process.env.GITHUB_SHA,injected,reportHash:before.reportHash,parameters:before.parameters}));
+         |                                                                                                            ^
+      17 | });
+      18 | test("FEP3 first Release detail cross-checks report parameters before displaying a candidate",async({page},info)=>{
+      19 |  await report(page);await page.getByRole("button",{name:"创建不可变 Release",exact:true}).click();const link=page.getByRole("link",{name:"查看 Release 详情",exact:true});await expect(link).toBeVisible();let injected=0;
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep3-function.spec.ts:16:108
+
+    Error Context: docs/audit/evidence/fep3-function-local-20261023/attempt-01/browser/fep3-function-FEP3-termina-0de03-s-report-and-blocks-Release-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/fep3-function-local-20261023/attempt-01/browser/fep3-function-FEP3-termina-0de03-s-report-and-blocks-Release-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/fep3-function.spec.ts:13:5 › FEP3 terminal report parameter drift clears report and blocks Release 
+  21 did not run
+  1 passed (7.3s)
+  1 error was not a part of any test, see above for details

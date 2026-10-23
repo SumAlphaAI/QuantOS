@@ -1,0 +1,156 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-3"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:47.947Z",
+    "finishedAt": "2026-10-23T11:20:48.119Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/development.log",
+    "logSha256": "sha256:cdc19c1233bad27a992c954b575a52eebea4bcafeac417bb43755c92ffe25e89"
+  },
+  {
+    "id": "unit-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/fep3-closure.test.ts",
+      "apps/terminal/tests/ui301.test.ts",
+      "apps/terminal/tests/ui302.test.ts",
+      "apps/terminal/tests/ui303.test.ts",
+      "apps/terminal/tests/strategy-recovery.test.ts",
+      "apps/terminal/tests/strategy-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p06-presentation.test.ts",
+      "apps/terminal/tests/ui-p07-presentation.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/fep3-function-local-20261023/attempt-01/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:48.121Z",
+    "finishedAt": "2026-10-23T11:20:50.881Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/unit-consumer.log",
+    "logSha256": "sha256:797c03756d58d40b18750e72a36fe1af7eb1833e5ed529e0fbc46abefb5cdbb6"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:50.882Z",
+    "finishedAt": "2026-10-23T11:20:51.690Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "gate-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/fep3-function-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/development-plan-order-negative.mjs",
+      "scripts/terminal-static-routes.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:51.690Z",
+    "finishedAt": "2026-10-23T11:20:52.363Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/gate-negative.log",
+    "logSha256": "sha256:6346e206c120d2d7157162431e47c70b91c257b773af0818fe22ec5ad00a03e1"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/strategy/backtest-policy.ts",
+      "apps/terminal/src/strategy/gateway.ts",
+      "apps/terminal/src/strategy/policy.ts",
+      "apps/terminal/src/strategy/release-policy.ts",
+      "apps/terminal/tests/fep3-closure.test.ts",
+      "apps/terminal/tests/ui301.test.ts",
+      "apps/terminal/tests/ui302.test.ts",
+      "apps/terminal/tests/ui303.test.ts",
+      "apps/terminal/tests/strategy-recovery.test.ts",
+      "apps/terminal/tests/strategy-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p06-presentation.test.ts",
+      "apps/terminal/tests/ui-p07-presentation.test.ts",
+      "apps/terminal/tests/fep3-fixture.ts",
+      "tests/e2e/fep3-function.spec.ts",
+      "playwright.fep3-function.config.ts",
+      "playwright.config.ts",
+      "scripts/fep3-function-review.mjs",
+      "scripts/fep3-function-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:52.363Z",
+    "finishedAt": "2026-10-23T11:20:53.151Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:20:53.151Z",
+    "finishedAt": "2026-10-23T11:21:02.699Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/terminal-build.log",
+    "logSha256": "sha256:887452e55bee219097e6d9081c766305e4d32498e094b99458fa730d19fb14d1"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.fep3-function.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/fep3-function-local-20261023/attempt-01/browser"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T11:21:02.700Z",
+    "finishedAt": "2026-10-23T11:21:10.367Z",
+    "log": "docs/audit/evidence/fep3-function-local-20261023/attempt-01/browser.log",
+    "logSha256": "sha256:cbdae186288c2f22eb64945cda6c85520a7fe94e4ac57b3dae2d86998a2f86e5"
+  }
+]

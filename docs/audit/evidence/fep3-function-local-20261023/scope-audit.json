@@ -1,0 +1,594 @@
+{
+  "schema": "quantos-fep3-independent-scope-audit/v1",
+  "sourceCommit": "0e30eb28509ee3adcf490350b65fe75d6e7ab331",
+  "baseline": "a68603e18f86f373c8acc88121a5f166163b045d",
+  "independentOfHistoricalAdmission": true,
+  "directDependencies": [
+    {
+      "nodeId": "FE:BFF-FE-000",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:d1586dba8c17cbf9f7458191d8206063af6be69be630b023ff61532648fe7682",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW",
+      "disposition": "C05/C08 generated client/schema/error/version/idempotency/SSE contract reference; exercised by strategy runtime/actual consumer; no full BFF baseline readmission."
+    },
+    {
+      "nodeId": "FE:BFF-FE-001",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:086d56cebd91d41643d3ea0e9af22c3ea9eced2105ceda93c5a30dcf7ec57f3c",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用",
+      "disposition": "Strategy session/context/capability/CSRF and access-loss guards; real IdP/MFA/cookie boundary remains open."
+    },
+    {
+      "nodeId": "FE:BFF-FE-002",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:0dd7ac60371795150772d75e57934772d1ff242cc131c189d153030a453f370b",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用",
+      "disposition": "Global command-center aggregate is a plan dependency reference; strategy screens do not add aggregate reads; no A6 rerun."
+    },
+    {
+      "nodeId": "FE:BFF-FE-003",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:698fd05ba73b200104a063908e73d7322cafb20d8148fda7f03067efb5f4c91a",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用",
+      "disposition": "Research/Artifact provenance read and original worker-to-registration handoff; original causal evidence only."
+    },
+    {
+      "nodeId": "FE:BFF-FE-004",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:d3b5e85233efe413b38d7f3078df95e49cf1bbf4be3d92729d5d32e4383fbf59",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff",
+      "disposition": "Direct C05 strategy draft/static/backtest/Release API consumer; current tests and owned-local BFF browser regression."
+    },
+    {
+      "nodeId": "FE:BFF-FE-005",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:79e6a6e854e5af9225d71fd2f0e724aabf95f58defa108b785565b61065ef4cb",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability",
+      "disposition": "Market data/snapshot origin is server-owned fixed input; market catalog/candle work remains later FEP-4 scope."
+    },
+    {
+      "nodeId": "FE:BFF-FE-006",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:923d5f7bcb672296b33fcb58df88702192562eeac5bf4fbf560101719eb58ed3",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream",
+      "disposition": "C08 approval read/submission; separate reference approver control for approved/rejected states; no product approval or trading command added."
+    },
+    {
+      "nodeId": "FE:BFF-FE-007",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:b6a65c5b900d033f86fd61d0d59f1310e139ab6bab07d2b04568fe0c2e18b237",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention",
+      "disposition": "Original G3/worker Audit causation chain retained; current Release timeline is read-only projection; no new export campaign."
+    },
+    {
+      "nodeId": "FE:BFF-FE-008",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:373590e9939b4e2e02bcf1b331fa120976c58701950c5a259f4d420816cbba82",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional",
+      "disposition": "Performance account/ledger analytics API is reference-only; current backtest costs are actual report fields, no invented time-series."
+    },
+    {
+      "nodeId": "FE:BFF-FE-009",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:17e225bfdbe5fb4d54f2fffac4cdae77e3dccbb0aef556aea110e18053658b7a",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation",
+      "disposition": "Reconciliation/ledger API reference; no edit-ledger/financial writes or business side-effect revalidation."
+    },
+    {
+      "nodeId": "FE:BFF-FE-010",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:872fa5ac707c7787b414c3acc2d6446a24ef5d9a846a43fe7f38d0fdb1173763",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream",
+      "disposition": "Alerts/notifications API reference; no strategy writes introduced via notification/command channel."
+    },
+    {
+      "nodeId": "FE:BFF-FE-011",
+      "development": "IMPLEMENTED_PENDING_ACCEPTANCE",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:d1df171423d94a98450b11eadfce5664ed967290a0e2cec1c8ecc90e2012b960",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容",
+      "disposition": "Platform/browser capability and security boundary reference; no credentials, downloads or native permission expansion."
+    },
+    {
+      "nodeId": "FE:UI-P04",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:99c357b87dd79861f38b8da70dc54f01236ff77b68580def3f255177939e9442",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`",
+      "disposition": "Original confirmed Research/Artifact high-fidelity scope, all incomplete and synthetic overlay boundaries retained."
+    },
+    {
+      "nodeId": "CORE-GATE:S2-SERVICE",
+      "development": "UNSPECIFIED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:acc6d7d69313eb947ae0e33ca2493dd2ee8ae8a249a9862f84bf00370344e70a",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 S2-SERVICE_LOCAL仅在新冻结候选完整39节点/124组依赖后执行3组自身聚合验证；拒绝历史READY拼接，仅发布本聚合DEVELOPMENT准入。",
+      "disposition": "Original local strategy service aggregate reference; its 39-node campaign not rerun or rebound."
+    },
+    {
+      "nodeId": "SERVICE:S04",
+      "development": "UNSPECIFIED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:d0152dfcf2763afd00c2024e0955630144b6237840f4adef0b6ff5d0e1f96994",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 SERVICE-S04_LOCAL仅在新冻结候选完整36节点及115组依赖后运行3组自身检查；真实TCP授权API、服务端来源绑定、独立审批者和审计，目标及正式验收另行执行。",
+      "disposition": "Original S04 actual TCP authorization/immutability/approval/target reference, backend source/binary unchanged."
+    },
+    {
+      "nodeId": "FE:UI-301",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:4a963ccaad520ef62738aedcbe15ae0279150ff0eaa1d33019f9195987844b49",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "Strategy 目录与 Lab 草稿",
+      "disposition": "Catalog/Lab/optimistic save/conflict/uncertain replay/access loss regression plus new save content binding."
+    },
+    {
+      "nodeId": "FE:UI-P06",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:e7356f0f622de4887b8a3b318b294536949d16f933646288a9f19df863df4c99",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`",
+      "disposition": "Original confirmed P06 UI scope; current 17 presentation tests and direct catalog/Lab browser flow; no new P06 visual admission."
+    },
+    {
+      "nodeId": "FE:UI-302",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:489b5e891b109291a5f368a6e24565307d22057b7375ca52f6dd7a4074bd3f96",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "静态检查、回测队列与报告",
+      "disposition": "Current static check/version/queue/SSE/fixed report regression plus immutable parameter guard."
+    },
+    {
+      "nodeId": "FE:UI-303",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:fb3ac36f0f937adfd54fd9edeb0da4bff9c1d99a9c31729e341c281c7a51136e",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "不可变 Release、审批申请与目标选择",
+      "disposition": "Current Release/create/submission/expiry/allowedTargets/read-only/offline regression plus report parameter cross-binding."
+    },
+    {
+      "nodeId": "FE:UI-P07",
+      "development": "COMPLETED",
+      "review": "NOT_STARTED",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:eb65a73bf669f3dbf621d6f6480eec0b89aafc5aca50bea82a8a93ed848f8f69",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`",
+      "disposition": "Original P07 confirmed scope plus current 15 presentation tests, keyboard/paging and 18 original baseline comparisons; baseline unchanged."
+    },
+    {
+      "nodeId": "FRONTEND-GATE:G3",
+      "development": "UNSPECIFIED",
+      "review": "IN_REVIEW",
+      "stageGate": {
+        "stage": "INTEGRATION",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "requirementsDigest": "sha256:8409579417548c4cc8caa0e831d17031cae159080dd7050fcc116a067f086bbf",
+      "applicability": "ORIGINAL_SCOPE_REFERENCE_ONLY",
+      "currentCandidateAcceptance": "NOT_CLAIMED",
+      "requirement": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "disposition": "G3 and CORE:S04 remain unapproved; original 20-fixture/worker causal reference only, full integration not claimed."
+    }
+  ],
+  "closesCore": {
+    "nodeId": "CORE:S04",
+    "kind": "REVIEW_MAPPING_ONLY",
+    "admission": "NOT_READY"
+  },
+  "originalConfirmations": [
+    {
+      "nodeId": "FE:UI-P04",
+      "sourceCommit": "1fb76f8667bb5e17b50ab8f4573f7eb7ef9d9403",
+      "packetCommit": "7171d0318282d1f62e9d6e8000e8953ac082272c",
+      "record": "docs/audit/evidence/ui-p04-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:9b760d5c8f0e1c37b24995adf9afa08deb6bd2b17e6a0af269556dc5e760cca3",
+      "rawMessageSha256": "sha256:70a4e86a31aba3ba6f1a0a947404d9f85b27b1d89516aaf54cbbdf1e0b05d7ac",
+      "scopeAdmission": "UI_P04_CURRENT_PAGE_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FE:UI-301",
+      "sourceCommit": "0642eaadb7d84a76caec4c58aa153e0caa75a8b4",
+      "packetCommit": "0eac15e4e715049853d69fbf465d38eaee7dd1b2",
+      "record": "docs/audit/evidence/ui301-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:c2bbe808ee3c805f9cc01a06d535a5df11229eb9d2e7ec07d289aad364784cee",
+      "rawMessageSha256": "sha256:c9441e9da7ad52330649e27fae2145ac5f0d98c74a31f97161fcadf878c08e59",
+      "scopeAdmission": "UI301_CURRENT_FUNCTION_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FE:UI-P06",
+      "sourceCommit": "f2854052e55e9df0aca2ce5b0da9993d5839d3b4",
+      "packetCommit": "0d998c4ef1b0ea97697d2c07b55ebecf7298d767",
+      "record": "docs/audit/evidence/ui-p06-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:b853830a58e42da3d90bf687abc78e2fb6fc731ade266e5c4ce5d769c84856ca",
+      "rawMessageSha256": "sha256:5738b1578c97b5c9f69dc50c43d1a4149ed4fa00be7f6aabfa812c653096c523",
+      "scopeAdmission": "P06_CURRENT_PAGE_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FE:UI-302",
+      "sourceCommit": "3f7f37cd1acb20f97962fd9fefcac212eb021eed",
+      "packetCommit": "e42cdd84ff125c14d2dd78205dd10489336ae7ac",
+      "record": "docs/audit/evidence/ui302-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:137c54502f525a5875fc955b5bba5af796d7ae6d1f05441eb740681dd9136b36",
+      "rawMessageSha256": "sha256:6c92d19d3dd9eb93de5e63771fd038608709ca8f97c164c1c1c86672c883d3b1",
+      "scopeAdmission": "UI302_CURRENT_FUNCTION_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FE:UI-303",
+      "sourceCommit": "c1774a744ecc9d4fc90559c9f26f47e44ef91951",
+      "packetCommit": "3a66e30712381d2002a938e5379d0b68525450ea",
+      "record": "docs/audit/evidence/ui303-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:d7d605dc77fbf0b8974781542a1f56bc44288342144e496e0d0ac1673df06587",
+      "rawMessageSha256": "sha256:3bb4eaaef2b64d505895a76a411c6c81da66d5f52885cf6e9bcd7d0d4ed14fd2",
+      "scopeAdmission": "UI303_CURRENT_FUNCTION_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FE:UI-P07",
+      "sourceCommit": "636f46a45ff464010f7776a5f0c87b5e34b087d4",
+      "packetCommit": "5a20e7d567abcbd6902114f1b7b29c929ef48635",
+      "record": "docs/audit/evidence/ui-p07-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:381e09b190c70c1653208d04f65d72b2bddaaf0316e0c00e020b1325fe80eb6f",
+      "rawMessageSha256": "sha256:78017ed3c24f9c202777edb4e474dd2bda35129ce98862eac402c81d6aacb4f0",
+      "scopeAdmission": "UI_P07_CURRENT_PAGE_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "FRONTEND-GATE:G3",
+      "sourceCommit": "9a463495f7324b5f218bd3d0edd79baebb0f651c",
+      "packetCommit": "05c427f2caacc630402905d0bb93a1da9b5d9717",
+      "record": "docs/audit/evidence/frontend-g3-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:ada8c36545afc1e35c50dc5f3380ac31a3c4457b89cef58f95ff04d533bc8f47",
+      "rawMessageSha256": "sha256:42fe2945ce354ccb0d9be0355e41f5c85b6c180b3d5abf035ffc7774e011a54c",
+      "scopeAdmission": "G3_CORE_S04_OWNED_LOCAL_REFERENCE_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "nodeId": "G3-INTEGRATION-01",
+      "sourceCommit": "696bef717390fea9646c8d54094665f1bdc14d44",
+      "packetCommit": "156f21c568a53869e25b774005a236bfd1c5e7c9",
+      "record": "docs/audit/evidence/g3-integration-01-confirmation-20261023/user-confirmation.json",
+      "recordSha256": "sha256:f4918aa5907a6638365723af3944c8da5f98502c9f042805f52ed23600414ce1",
+      "rawMessageSha256": "sha256:6a3359de3e0ffe06cb72a67611ed26f9bffad1fa7ad219a1f29891c6fdcf31c2",
+      "scopeAdmission": "G3_INTEGRATION_01_OWNED_LOCAL_WORKER_CAUSAL_ONLY",
+      "newCandidateAcceptance": "NOT_CLAIMED"
+    }
+  ],
+  "functionalGaps": [
+    {
+      "id": "FEP3-SAVE-CONTENT",
+      "status": "FIXED_CURRENT_FRONTEND_SCOPE",
+      "path": "apps/terminal/src/strategy/gateway.ts",
+      "before": "A 200 with matching next version but wrong saved content advanced version and could overwrite local edits.",
+      "after": "Reject before mutation; retain original intent and explicit same-key/body retry."
+    },
+    {
+      "id": "FEP3-REPORT-PARAMETERS",
+      "status": "FIXED_CURRENT_FRONTEND_SCOPE",
+      "path": "apps/terminal/src/strategy/backtest-policy.ts",
+      "before": "Succeeded report/SSE baseline excluded printed parameters.",
+      "after": "Reject changed parameters before accepting report or SSE sequence."
+    },
+    {
+      "id": "FEP3-RELEASE-REPORT-BINDING",
+      "status": "FIXED_CURRENT_FRONTEND_SCOPE",
+      "path": "apps/terminal/src/strategy/release-policy.ts",
+      "before": "First Release detail compared parameters to its own derived body, not the fetched report.",
+      "after": "Require report parameters equal reviewed Release parameters; failed detail clears candidate and targets."
+    }
+  ],
+  "contractLimitations": {
+    "browserCreateStrategy": "NO_C05_BROWSER_CREATE_OPERATION_UI_DISABLED",
+    "globalQueue": "NOT_PROVIDED_SESSION_QUEUE_MAX_25",
+    "versionHistoryCompare": "NO_CURRENT_OPERATION_UI_DISABLED",
+    "newPrerequisitesAdded": false
+  },
+  "remaining": {
+    "schema": "quantos-g3-worker-current-review/v1",
+    "request": {
+      "nodeId": "G3-INTEGRATION-01",
+      "stage": "INTEGRATION",
+      "sourceCommit": "696bef717390fea9646c8d54094665f1bdc14d44",
+      "inputsDigest": "sha256:1e8653b50787e4f81d31f725a7ac9f60f5f93aeebee3f57040979e03fd43723e",
+      "reviewDimensions": [
+        "Product",
+        "Frontend",
+        "BFF",
+        "QA",
+        "Security",
+        "Risk"
+      ]
+    },
+    "engineeringGate": "PASS_OWNED_LOCAL_R03_WORKER_CAUSAL_CLOSURE",
+    "g3Gate": "NOT_READY_REFERENCE_BOUNDARIES_AND_STAGE_OBLIGATIONS_OPEN",
+    "coreS04Gate": "NOT_READY",
+    "stageGate": "NOT_ASSESSED",
+    "formalAccepted": false,
+    "runtimeAdmission": "DENIED",
+    "currentHeadAcceptance": "NOT_CLAIMED",
+    "confirmation": "PENDING",
+    "sourceInputs": 1928,
+    "finalArtifacts": 211,
+    "commands": 17,
+    "incomplete": {
+      "currentScanRecords": 36,
+      "historical": {
+        "currentScanRecords": 36,
+        "priorG3Attempt03ScanRecords": 36,
+        "originalP07CurrentScanRecords": 22,
+        "ui303ScanRecords": 0,
+        "ui302ScanRecords": 12,
+        "p06ScanRecords": 18,
+        "previousUi301RegressionScanRecords": 12,
+        "originalUi301ScanRecords": 8,
+        "uniqueDefects": "NOT_DEDUPLICATED",
+        "closure": "NOT_CLAIMED"
+      },
+      "uniqueDefects": "NOT_DEDUPLICATED",
+      "closure": "NOT_CLAIMED"
+    },
+    "notRun": {
+      "realIdpMfa": "NOT_RUN",
+      "realCookieCors": "NOT_RUN",
+      "r03WorkerToStrategyRegistration": "NOT_RUN",
+      "targetDatabaseStorage": "NOT_RUN",
+      "persistentRecovery": "NOT_RUN",
+      "productionHostingRewrite": "NOT_RUN",
+      "firefox": "NOT_RUN",
+      "webkit": "NOT_RUN",
+      "manualScreenReader": "NOT_RUN",
+      "nativeZoom200": "NOT_RUN",
+      "crossOSVisual": "NOT_RUN",
+      "remoteCI": "NOT_RUN",
+      "performanceCapacitySoak": "NOT_RUN",
+      "releaseAcceptance": "NOT_RUN",
+      "externalDeploymentAndTrading": "NOT_RUN"
+    },
+    "historicalAdditionalNotRun": {
+      "storybookBuild": "NOT_RUN",
+      "fullIntegrationAcceptance": "NOT_RUN_FULL_ACCEPTANCE",
+      "globalResearchToReleaseCausalGraph": "NOT_RUN"
+    },
+    "currentExecution": {
+      "realIdpMfa": "NOT_RUN",
+      "realCookieCors": "NOT_RUN",
+      "r03WorkerToStrategyRegistration": "PASS_OWNED_LOCAL_ONLY",
+      "targetDatabaseStorage": "NOT_RUN",
+      "persistentRecovery": "NOT_RUN",
+      "productionHostingRewrite": "NOT_RUN",
+      "firefox": "NOT_RUN",
+      "webkit": "NOT_RUN",
+      "manualScreenReader": "NOT_RUN",
+      "nativeZoom200": "NOT_RUN",
+      "crossOSVisual": "NOT_RUN",
+      "remoteCI": "NOT_RUN",
+      "performanceCapacitySoak": "NOT_RUN",
+      "releaseAcceptance": "NOT_RUN",
+      "externalDeploymentAndTrading": "NOT_RUN",
+      "researchHttpToPersistentWorkerQueue": "NOT_RUN",
+      "incrementalCatalogRegistration": "NOT_RUN",
+      "storybookBuild": "NOT_RUN",
+      "fullIntegrationAcceptance": "NOT_RUN_FULL_ACCEPTANCE",
+      "wholeWorkspaceReexecution": "NOT_RUN"
+    },
+    "priorConfirmation": {
+      "source": "9a463495f7324b5f218bd3d0edd79baebb0f651c",
+      "packet": "05c427f2caacc630402905d0bb93a1da9b5d9717",
+      "record": "docs/audit/evidence/frontend-g3-confirmation-20261023/user-confirmation.json"
+    },
+    "implementationCommit": "b22596395a9451ba229bbbd0abecbf9ae2d60ea9",
+    "toolingCommit": "696bef717390fea9646c8d54094665f1bdc14d44",
+    "productionCredentialsUsed": false,
+    "pushed": false,
+    "deployed": false,
+    "nextExecutableTask": "FE:UI-401",
+    "reusedFrom": {
+      "sourceCommit": "696bef717390fea9646c8d54094665f1bdc14d44",
+      "packetCommit": "156f21c568a53869e25b774005a236bfd1c5e7c9"
+    },
+    "reexecuted": false
+  },
+  "currentIncomplete": {
+    "scans": 34,
+    "records": 34,
+    "ruleIds": [
+      "color-contrast"
+    ],
+    "violations": 0,
+    "uniqueDefects": "NOT_DEDUPLICATED",
+    "closure": "NOT_CLAIMED"
+  },
+  "gate": {
+    "sourceCommit": "0e30eb28509ee3adcf490350b65fe75d6e7ab331",
+    "engineeringGate": "PASS_FEP3_FRONTEND_FUNCTION_CLOSURE",
+    "functionExecution": "COMPLETED_FRONTEND_SCOPE",
+    "directDependencies": 21,
+    "originalConfirmedPackets": 8,
+    "originalFiles": 2090,
+    "unitAndConsumerTests": 159,
+    "chromiumCases": 23,
+    "axeScans": 34,
+    "axeIncomplete": 34,
+    "incompleteClosure": "NOT_CLAIMED",
+    "stageGate": "NOT_ASSESSED",
+    "g3Gate": "NOT_READY_REFERENCE_BOUNDARIES_AND_STAGE_OBLIGATIONS_OPEN",
+    "coreS04Gate": "NOT_READY",
+    "formalAccepted": false,
+    "runtimeAdmission": "DENIED",
+    "nextTask": "FE:UI-401"
+  }
+}
