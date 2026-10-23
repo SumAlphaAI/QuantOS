@@ -1216,3 +1216,40 @@ fn ui503_opt_in_rejects_invalid_query_and_foreign_account_without_mutation() {
     assert!(s.orders.is_empty());
     assert!(s.replays.is_empty());
 }
+
+#[test]
+fn ui504_changed_financial_headroom_or_venue_refuses_approval_without_transition() {
+    for changed in ["financial_headroom", "venue_health"] {
+        let mut s = ExecutionService::reference();
+        let now = Utc::now();
+        let (pid, aid) = pending(&mut s, now);
+        let (_, approver) = actors(&s);
+        if changed == "financial_headroom" {
+            s.financials.equity = 1.0;
+        } else {
+            s.venue.healthy = false;
+        }
+        assert_eq!(
+            s.preflight(pid, now).unwrap()["verdict"],
+            "deny",
+            "{changed}"
+        );
+        let error = call(
+            &mut s,
+            &approver,
+            &format!("/v1/approvals/{aid}/decisions"),
+            json!({"decision":"approve"}),
+            &headers(Some("0")),
+            now,
+        )
+        .unwrap_err();
+        assert_eq!(error.0, StatusCode::CONFLICT);
+        assert_eq!(error.1, "RISK_DENIED");
+        assert_eq!(
+            s.approval_page(s.proposal(pid).unwrap(), now).unwrap()["status"],
+            "pending"
+        );
+        assert!(s.proposal(pid).unwrap().command.is_none());
+        assert_eq!(s.downstream_counts().0, Some(0));
+    }
+}

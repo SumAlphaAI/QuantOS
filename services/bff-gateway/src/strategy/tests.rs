@@ -1012,3 +1012,59 @@ fn c05_browser_round_trip_accepts_only_equal_safe_integer_representations() {
         assert!(!super::same_json_parameters(&a, &b));
     }
 }
+
+#[tokio::test]
+async fn ui504_release_nonapprove_requires_reason_and_records_closed_decision() {
+    for decision in ["reject", "request_info"] {
+        let (_, r, d) = setup().await;
+        let release = release(&r, &d).await;
+        let a = submit(&r, &release).await;
+        let path = format!("/v1/approvals/{}/decisions", a["jobId"].as_str().unwrap());
+        let mut body = proof(&r, "session-approver").await;
+        body["decision"] = json!(decision);
+        let invalid = call(
+            &r,
+            "POST",
+            &path,
+            Some(body.clone()),
+            "session-approver",
+            Uuid::new_v4(),
+            Some("0"),
+        )
+        .await;
+        assert_eq!(invalid.0, 422, "{invalid:?}");
+        body["reason"] = json!("Owned UI504 reason");
+        let key = Uuid::new_v4();
+        let result = call(
+            &r,
+            "POST",
+            &path,
+            Some(body.clone()),
+            "session-approver",
+            key,
+            Some("0"),
+        )
+        .await;
+        assert_eq!(result.0, 200, "{result:?}");
+        assert_eq!(result.1["decision"], decision);
+        assert_eq!(result.1["status"], "rejected");
+        assert_eq!(
+            result.1["timeline"].as_array().unwrap().last().unwrap()["reason"],
+            "Owned UI504 reason"
+        );
+        assert!(result.1.get("commandRef").is_none());
+        assert_eq!(
+            call(
+                &r,
+                "POST",
+                &path,
+                Some(body),
+                "session-approver",
+                key,
+                Some("0")
+            )
+            .await,
+            result
+        );
+    }
+}

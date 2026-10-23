@@ -760,10 +760,20 @@ impl StrategyHost {
                 let release = uid(&entry, "objectRef")?;
                 let r = self.release(a, release)?;
                 let decision = text(b, "decision")?;
-                if !matches!(decision, "approve" | "reject") {
+                if !matches!(decision, "approve" | "reject" | "request_info") {
                     return Err(Fault::invalid());
                 }
-                let mut req = json!({"content_hash":r["contentHash"],"decision":decision});
+                let reason = b.get("reason").and_then(Value::as_str).unwrap_or("").trim();
+                if reason.chars().count() > 1000 || (decision != "approve" && reason.is_empty()) {
+                    return Err(Fault::invalid());
+                }
+                // request_info closes this approval without granting authority, like trade approvals.
+                let core_decision = if decision == "request_info" {
+                    "reject"
+                } else {
+                    decision
+                };
+                let mut req = json!({"content_hash":r["contentHash"],"decision":core_decision});
                 if decision == "approve" {
                     req["ttl_seconds"] = json!(300)
                 }
@@ -778,7 +788,8 @@ impl StrategyHost {
                     );
                     self.releases.get_mut(&release).unwrap()["expiresAt"] = json!(expiry);
                 }
-                self.releases.get_mut(&release).unwrap()["approvalTimeline"].as_array_mut().unwrap().push(json!({"action":decision,"actorId":a.actor_id,"occurredAt":now,"correlationId":correlation}));
+                self.releases.get_mut(&release).unwrap()["approvalTimeline"].as_array_mut().unwrap().push(json!({"action":decision,"actorId":a.actor_id,"occurredAt":now,"correlationId":correlation,"reason":reason}));
+                self.approvals.get_mut(&approval).unwrap()["decision"] = json!(decision);
                 self.approvals(a, now)
                     .into_iter()
                     .find(|v| v["approvalId"] == approval.to_string())

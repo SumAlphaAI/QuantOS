@@ -2790,7 +2790,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-503", "UI-102", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- 当前功能执行（2026-10-24）：Approval 列表/详情、MFA/再认证、职责分离与确认前重读、CAS/原键恢复已实现；本机当前功能验证与源码绑定结果见证据包。见[操作规程](./operations/ui504-approvals-mfa.md)与[验收证据](./audit/evidence/ui504-local-20261024/README.md)。当前工程范围不提升正式验收；stage_gate 保持 INTEGRATION/NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；真实身份/目标持久服务/外部来源/同SHA远程CI/完整I5联调与发布仍 NOT_RUN。下一可执行任务 UI-P10。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。

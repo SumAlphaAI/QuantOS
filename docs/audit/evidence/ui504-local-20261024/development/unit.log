@@ -1,0 +1,56 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/execution-recovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/g1-route-access.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/ui504.test.ts [2m([22m[2m26 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 45[2mms[22m[39m
+     [32m✓[39m accepts exact UUID only, rejects injected state[32m 1[2mms[22m[39m
+     [32m✓[39m validates returned identity/version/expiry[32m 1[2mms[22m[39m
+     [32m✓[39m requires refusal reason for reject and request_info[32m 0[2mms[22m[39m
+     [32m✓[39m refuses approved[32m 0[2mms[22m[39m
+     [32m✓[39m refuses rejected[32m 0[2mms[22m[39m
+     [32m✓[39m refuses expired[32m 0[2mms[22m[39m
+     [32m✓[39m refuses conflict[32m 0[2mms[22m[39m
+     [32m✓[39m self approval, boundary expiry, shadow and missing approve capability fail closed[32m 0[2mms[22m[39m
+     [32m✓[39m sends approve only after refreshed facts and MFA/reauth with immutable headers[32m 16[2mms[22m[39m
+     [32m✓[39m sends reject only after refreshed facts and MFA/reauth with immutable headers[32m 2[2mms[22m[39m
+     [32m✓[39m sends request_info only after refreshed facts and MFA/reauth with immutable headers[32m 2[2mms[22m[39m
+     [32m✓[39m unknown response retains no success and retries exact original key/body/version[32m 2[2mms[22m[39m
+     [32m✓[39m known 409 never retries or optimistically updates[32m 2[2mms[22m[39m
+     [32m✓[39m known 422 never retries or optimistically updates[32m 1[2mms[22m[39m
+[31m     [31m×[31m known 429 never retries or optimistically updates[39m[32m 3[2mms[22m[39m
+     [32m✓[39m malformed success stays unknown until explicit recovery[32m 1[2mms[22m[39m
+     [32m✓[39m expired unknown requests cannot be resubmitted[32m 2[2mms[22m[39m
+     [32m✓[39m version drift before requires fresh review and sends no decision[32m 1[2mms[22m[39m
+     [32m✓[39m version drift after-mfa requires fresh review and sends no decision[32m 1[2mms[22m[39m
+     [32m✓[39m self originator and expiry checked again immediately before dispatch[32m 1[2mms[22m[39m
+     [32m✓[39m MFA failure does not dispatch decisions or retain the code[32m 1[2mms[22m[39m
+     [32m✓[39m scope change clears through invalidation and blocks a proof already obtained[32m 1[2mms[22m[39m
+     [32m✓[39m synchronous lock fences double submits[32m 1[2mms[22m[39m
+     [32m✓[39m offline, revoked or closed lifetime cannot write or restore state[32m 2[2mms[22m[39m
+     [32m✓[39m explicit detail refresh only publishes reads, window expiry blocks UI and invalid raw page never grants[32m 1[2mms[22m[39m
+     [32m✓[39m cursor cycles and duplicate pages fail with bounded pagination[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 3307[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m59 passed[39m[22m[90m (60)[39m
+[2m   Start at [22m 00:16:49
+[2m   Duration [22m 3.63s[2m (transform 539ms, setup 0ms, import 979ms, tests 3.40s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mknown 429 never retries or optimistically updates
+[31m[1mAssertionError[22m: expected 1792800060000 to be 1792800002000 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1792800002000[39m
+[31m+ 1792800060000[39m
+
+[36m [2m❯[22m apps/terminal/tests/ui504.test.ts:[2m22:481[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
