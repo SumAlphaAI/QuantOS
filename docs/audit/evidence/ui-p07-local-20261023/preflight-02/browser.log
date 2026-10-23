@@ -1,0 +1,61 @@
+
+Running 14 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p07.spec.ts:7:5 › P07 report keyboard tabs, real fill pagination, exact costs and local catalog search (2.6s)
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-report-dark-390-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-dark-1672-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-dark-1024-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-dark-390-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-release-dark-1672-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-release-dark-390-chromium-darwin.png is re-generated, writing actual.
+  ✓   2 [chromium] › tests/e2e/ui-p07.spec.ts:10:50 › P07 dark actual report, catalog and immutable drawer responsive visual matrix (7.4s)
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-report-light-390-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-light-1672-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-light-1024-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-catalog-light-390-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-release-light-1672-chromium-darwin.png is re-generated, writing actual.
+/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p07.spec.ts-snapshots/p07-release-light-390-chromium-darwin.png is re-generated, writing actual.
+  ✓   3 [chromium] › tests/e2e/ui-p07.spec.ts:10:50 › P07 light actual report, catalog and immutable drawer responsive visual matrix (7.3s)
+  ✓   4 [chromium] › tests/e2e/ui302.spec.ts:6:5 › real C05 static check, pinned backtest, report SSE and deep link (3.1s)
+  ✘   5 [chromium] › tests/e2e/ui302.spec.ts:9:5 › real static failure blocks backtest; repaired saved version can check again (9.9s)
+  ✓   6 [chromium] › tests/e2e/ui302.spec.ts:12:5 › lost committed backtest explicitly replays same key, no duplicate run (2.3s)
+  ✓   7 [chromium] › tests/e2e/ui302.spec.ts:15:5 › approver reads Lab but cannot check or create backtest (2.1s)
+  ✓   8 [chromium] › tests/e2e/ui302.spec.ts:16:5 › missing report and malformed deep links disclose no invented facts or writes (2.0s)
+  ✓   9 [chromium] › tests/e2e/ui303.spec.ts:9:5 › actual immutable Release, submission C08 and approved backend target selection (3.5s)
+  ✓  10 [chromium] › tests/e2e/ui303.spec.ts:12:5 › lost create and lost submission reuse original keys, versions and intent (2.7s)
+  ✓  11 [chromium] › tests/e2e/ui303.spec.ts:15:5 › stale saved head after reviewed report blocks Release before POST (2.3s)
+  ✓  12 [chromium] › tests/e2e/ui303.spec.ts:18:5 › readonly approver can inspect immutable evidence but cannot submit (2.5s)
+  ✓  13 [chromium] › tests/e2e/ui303.spec.ts:19:5 › offline clears Release and explicit recovery only reads server facts (2.6s)
+  ✓  14 [chromium] › tests/e2e/ui303.spec.ts:20:5 › empty catalog, missing object and malformed UUID remain closed read-only states (2.1s)
+
+
+  1) [chromium] › tests/e2e/ui302.spec.ts:9:5 › real static failure blocks backtest; repaired saved version can check again 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/通过 · v/)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/通过 · v/)
+
+
+       8 | });
+       9 | test("real static failure blocks backtest; repaired saved version can check again",async({page})=>{
+    > 10 |  await openLab(page,false);const editor=page.getByLabel('文件内容',{exact:true}),original=await editor.inputValue();await editor.fill(original+'\nBAD_UNTRUSTED');await expect(page.getByText(/已保存 · objectVersion/)).toBeVisible();await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText('未通过，阻断回测')).toBeVisible();await expect(page.getByRole('button',{name:'创建回测',exact:true})).toBeDisabled();expect(networkRows().some(r=>r.status===422&&r.path.endsWith('static-checks'))).toBe(true);await editor.fill(original);await expect(page.getByText(/已保存 · objectVersion/)).toBeVisible();await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();expect(networkRows().filter(r=>r.path==='/v1/backtests')).toHaveLength(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+      11 | });
+      12 | test("lost committed backtest explicitly replays same key, no duplicate run",async({page})=>{
+      13 |  await openLab(page,false);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();fault({drop:true});await page.getByRole('button',{name:'创建回测',exact:true}).click();await expect(page.getByRole('button',{name:'重试原回测请求'})).toBeVisible();await expect(page.getByLabel('文件内容',{exact:true})).toBeDisabled();await page.getByRole('button',{name:'重试原回测请求'}).click();await expect(page.getByRole('link',{name:/回测报告 v/})).toHaveCount(1);const writes=networkRows().filter(r=>r.method==='POST'&&r.path==='/v1/backtests');expect(writes).toHaveLength(2);expect(writes[0].keyHash).toBe(writes[1].keyHash);expect(writes[0].bodyHash).toBe(writes[1].bodyHash);expect(writes[0].responseHash).toBe(writes[1].responseHash);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui302.spec.ts:10:715
+
+    Error Context: docs/audit/evidence/ui-p07-local-20261023/preflight-02/browser/ui302-real-static-failure--386f5-ved-version-can-check-again-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p07-local-20261023/preflight-02/browser/ui302-real-static-failure--386f5-ved-version-can-check-again-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui302.spec.ts:9:5 › real static failure blocks backtest; repaired saved version can check again 
+  13 passed (53.9s)
