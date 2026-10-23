@@ -1,0 +1,73 @@
+Trade Ticket · Preflight
+
+逐步重新核查当前来源，只生成本次访问的非执行 intent 草稿。
+
+切换主题
+这不是订单或 Command
+
+executable=false · 无下单、命令签名、批准或提交能力。预检 allow/approval_required 也不等于准入。
+
+当前预检、健康或限额拒绝，禁止预填。
+
+1 · 选择来源建议
+Proposal
+请选择
+BTCUSDT · buy · 54a4baff-3da2-44fb-95d5-27d29a5b0fb1
+行情参考
+唯一匹配时自动选择
+BTC/USDT · binance · spot
+BTC/USDT · coinbase · spot
+读取并重新核查
+刷新建议列表
+
+最多显示当前授权的前50条建议；可从 Proposal 详情深链进入其他建议，详情独立重新授权。
+
+每次核查均重读会话/mode、对象版本、参考报价、账户财务余额、限额与 venue 健康。
+
+2 · 当前事实
+
+核查已陈旧、过期或拒绝；下一步会重新读取全部来源 · 步骤 0/3
+
+Proposal / 版本 / 状态
+54a4baff-3da2-44fb-95d5-27d29a5b0fb1 / 0 / active
+账户 / 模式
+44444444-4444-4444-8444-444444444444 / paper
+动作 / 数量 / intent限价
+buy / 1500 / 100 USD
+名义值
+150000 USD
+权益余额（非可用现金）
+1000000 USD · 2026-10-23T15:58:05.414662Z
+可用现金
+来源未提供，资金可用性未核验。submissionReady=false
+数量/名义值上限
+10000 / 100 USD
+数量/价格精度
+4 / 2
+执行 venue / 健康 / 观察时间
+OWNED_PAPER / unhealthy / 2026-10-23T15:58:05.414662Z
+预检 / 命中
+deny / VenueHealth
+预检 asOf / 到期
+2026-10-23T15:58:04.414662Z / 2026-10-23T15:58:15.602Z
+策略版本 / 修订
+x03-test-v1 / 0
+Context / Input hash
+sha256:e96079b9efcceb876e3252053b01da1a27bc6552e2a22d03e31d5c49786518ba / sha256:b23ed7521205867b6cc68b19da80301805ae86e0b09f1b5a96e57bba0ced4b18
+
+检查：proposal=true · context=false · venue=false · limits=false · market=true · financial=true · availableCash=false
+
+重新核查并继续核查原建议与风险评估
+C12 行情参考 · 不作为执行 venue 报价
+Instrument / 来源
+binance:spot:BTC/USDT / approved.binance.spot
+Bid / Ask / Mid / Last
+103.90 / 104.10 / 104.00 / 104
+时间 / 质量 / 序号
+2026-10-23T15:58:05.288489Z / passed / 6
+授权引用 / 版本
+fixture:r01-replay-only / v2
+Lot / Min notional
+0.0001 / 10（行情单位；不跨币种套用）
+
+参考行情与执行 OWNED_PAPER 分开；预填限价来自原建议 intent，未用市场价格覆盖。
