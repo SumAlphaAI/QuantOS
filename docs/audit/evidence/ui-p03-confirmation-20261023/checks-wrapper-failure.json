@@ -1,0 +1,53 @@
+[
+  {
+    "id": "gate-write",
+    "command": [
+      "node",
+      "scripts/ui-p03-confirmed-reference.mjs",
+      "--write"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T01:07:10.659Z",
+    "finishedAt": "2026-10-23T01:07:15.901Z",
+    "log": "docs/audit/evidence/ui-p03-confirmation-20261023/gate-write-final.log",
+    "logSha256": "sha256:f43e04eb911ab3885f111b98570578855f593a7de509d12b6bc1ba4efaf9e809"
+  },
+  {
+    "id": "confirmation-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-p03-confirmed-reference.test.mjs",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T01:07:15.901Z",
+    "finishedAt": "2026-10-23T01:07:21.200Z",
+    "log": "docs/audit/evidence/ui-p03-confirmation-20261023/confirmation-tests-final.log",
+    "logSha256": "sha256:34fbc7b2ecd959926ad6c0f83c5c9cb0477f7ac48ffa6ada40717d8f9a1d652e"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/ui-p03-confirmed-reference.mjs",
+      "scripts/ui-p03-confirmed-reference.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T01:07:21.200Z",
+    "finishedAt": "2026-10-23T01:08:31.513Z",
+    "log": "docs/audit/evidence/ui-p03-confirmation-20261023/lint-final.log",
+    "logSha256": "sha256:883917c9d81d314a70f1ec6d9d09d8a241a6fb3f033bfa5667df2e2ba6079b98"
+  }
+]
