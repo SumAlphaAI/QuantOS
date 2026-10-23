@@ -1,0 +1,113 @@
+
+Running 15 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p18.spec.ts:10:5 › P18 actual overview routes to exact instrument/venue, compares reference quotes, loads lineage and navigates back (2.2s)
+  ✓   2 [chromium] › tests/e2e/ui-p18.spec.ts:11:5 › P18 self watchlist writes persist and all filters/empty guidance stay API-backed (2.2s)
+  ✓   3 [chromium] › tests/e2e/ui-p18.spec.ts:12:5 › P18 lost watchlist response locks original key/body/version and explicit retry recovers once (2.2s)
+  ✓   4 [chromium] › tests/e2e/ui-p18.spec.ts:13:5 › P18 self watchlist 409 keeps local edits and requires explicit latest-version review (2.2s)
+  ✓   5 [chromium] › tests/e2e/ui-p18.spec.ts:14:5 › P18 C16 market subscription preserves all other domains and severities after saved reload (2.1s)
+  ✓   6 [chromium] › tests/e2e/ui-p18.spec.ts:15:5 › P18 lost C16 reply reuses the exact committed subscription intent (2.2s)
+  ✓   7 [chromium] › tests/e2e/ui-p18.spec.ts:16:5 › P18 C16 conflict explicitly rebases market choice onto latest unrelated preferences (2.2s)
+  ✓   8 [chromium] › tests/e2e/ui-p18.spec.ts:17:5 › P18 per-venue failure keeps other quotes readable and an unlicensed selection has no price context (2.0s)
+  ✓   9 [chromium] › tests/e2e/ui-p18.spec.ts:18:5 › P18 wrong-dimension source response is isolated without leaking its price into detail (2.0s)
+  ✓  10 [chromium] › tests/e2e/ui-p18.spec.ts:19:5 › P18 readonly viewer cannot change watchlist; C16 remains a scoped personal preference contract (2.0s)
+  ✓  11 [chromium] › tests/e2e/ui-p18.spec.ts:20:5 › P18 offline clears quotes, subscription drafts and stream then explicit recovery only reads (2.1s)
+  ✓  12 [chromium] › tests/e2e/ui-p18.spec.ts:21:5 › P18 saved filters/layout persist only UI preferences, and recent visits stay in memory (2.2s)
+  ✓  13 [chromium] › tests/e2e/ui-p18.spec.ts:22:5 › P18 empty catalog, unknown symbol and malformed paths stay closed without fake prices (2.2s)
+  ✓  14 [chromium] › tests/e2e/ui-p18.spec.ts:23:5 › P18 selected quote feed disconnect freezes last fact; explicit resume binds its cursor (2.0s)
+  ✘  15 [chromium] › tests/e2e/ui-p18.spec.ts:24:5 › P18 overview/detail dark/light 1672/1024/390 visual and accessibility matrix (5.1s)
+
+
+  1) [chromium] › tests/e2e/ui-p18.spec.ts:24:5 › P18 overview/detail dark/light 1672/1024/390 visual and accessibility matrix 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 70
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.79,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#e8eef7",
+    +               "parentColor": "#a7b4c8",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.79:1 with the surrounding text. (Minimum contrast is 3:1, link text: #e8eef7, surrounding text: #a7b4c8)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<nav aria-label=\"Markets 导航\"><a href=\"/markets\">Markets</a><span> / BTC/USDT</span></nav>",
+    +                 "target": Array [
+    +                   "nav[aria-label=\"Markets 导航\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<nav aria-label=\"Markets 导航\"><a href=\"/markets\">Markets</a><span> / BTC/USDT</span></nav>",
+    +                 "target": Array [
+    +                   "nav[aria-label=\"Markets 导航\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.79:1 with the surrounding text. (Minimum contrast is 3:1, link text: #e8eef7, surrounding text: #a7b4c8)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/markets\">Markets</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "nav[aria-label=\"Markets 导航\"] > a[href$=\"markets\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      22 | test('P18 empty catalog, unknown symbol and malformed paths stay closed without fake prices',async({page})=>{fault({empty:true});await page.goto('/markets');await authorized(page);await expect(page.getByText('当前筛选没有可见市场。请清除筛选或添加自选。',{exact:true})).toBeVisible();fault({});await open(page,'/markets/UNKNOWN%2FUSDT?venue=binance&product=spot');await expect(chosen(page)).toContainText('目录未返回对应授权标的');await expect(page.getByRole('link',{name:'查看数据血缘快照',exact:true})).toHaveCount(0);const before=networkRows().length;await page.goto('/markets/BTC%2FUSDT?venue=binance&product=perpetual');await expect(page.getByRole('heading',{name:'Market 引用无效'})).toBeVisible();expect(networkRows()).toHaveLength(before);const r=await page.goto('/markets/BTC/USDT');expect(r?.status()).toBe(404);});
+      23 | test('P18 selected quote feed disconnect freezes last fact; explicit resume binds its cursor',async({page})=>{await open(page,detail);await expect(chosen(page).getByRole('status')).toContainText('报价流：disconnected');await page.getByRole('button',{name:'重连选中报价',exact:true}).click();await expect(chosen(page).getByRole('status')).toContainText('报价流：disconnected');const streams=networkRows().filter(r=>r.path==='/v1/markets/quotes/stream');expect(streams.length).toBeGreaterThanOrEqual(2);await expect(chosen(page)).toContainText('coinbase / spot');expect(watchWrites()).toHaveLength(0);});
+    > 24 | test('P18 overview/detail dark/light 1672/1024/390 visual and accessibility matrix',async({page},info)=>{const scans=[],geometry=[];for(const path of ['/markets',detail]){await open(page,path);for(const theme of ['dark','light'] as const){await page.emulateMedia({colorScheme:theme});for(const width of [1672,1024,390]){await page.setViewportSize({width,height:1000});await page.locator('main').evaluate(el=>{el.scrollTop=0;});await expect(chosen(page)).toBeAttached();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const a=await new AxeBuilder({page}).analyze();scans.push({path,theme,width,violations:a.violations,incomplete:a.incomplete});await writeFile(info.outputPath('p18-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(a.violations).toEqual([]);expect(a.incomplete.some(r=>r.id==='aria-prohibited-attr')).toBe(false);geometry.push({path,theme,width,watch:await page.getByRole('complementary',{name:'自选市场',exact:true}).boundingBox(),market:await page.getByRole('region',{name:'市场目录工作区',exact:true}).boundingBox(),detail:await chosen(page).boundingBox()});if(path!=='/markets'&&width<=1024)await chosen(page).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath(`p18-${path==='/markets'?'overview':'detail'}-${theme}-${width}.png`),fullPage:true});}}}await writeFile(info.outputPath('p18-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));await writeFile(info.outputPath('p18-geometry.json'),JSON.stringify(geometry,null,2));});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      25 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p18.spec.ts:24:879
+
+    Error Context: docs/audit/evidence/ui-p18-local-20261023/preflight-02/browser/ui-p18-P18-overview-detail-194a6-al-and-accessibility-matrix-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p18-local-20261023/preflight-02/browser/ui-p18-P18-overview-detail-194a6-al-and-accessibility-matrix-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p18.spec.ts:24:5 › P18 overview/detail dark/light 1672/1024/390 visual and accessibility matrix 
+  14 passed (36.1s)

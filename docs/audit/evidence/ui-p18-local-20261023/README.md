@@ -11,3 +11,5 @@ preflight-02为独立预检，不是源码冻结候选；所有实际结果见�
 preflight-02：实际consumer1/1通过（含Viewer403和Owner隔离），Chromium14/15通过。视觉矩阵在detail首组发现breadcrumb链接仅靠颜色区分（axe link-in-text-block，serious）；保留7组扫描、6张overview截图和失败上下文，修复为常驻下划线，随后对新冻结候选重新执行完整P18矩阵。其余预检不改记PASS。
 
 attempt-01：源码068068980494a3617eed4b530d4768fd1cdbf424，162单测/consumer、18 C12、1 C16、19路由/Gate、15 Chromium与12组矩阵通过，0 violation / 12 incomplete。截图复核发现中屏详情卡被相邻列拉长，以及小屏选中标的后需要自动聚焦/滚动到真实详情；补齐布局与导航行为，并新增第16项实际手机流程断言。原回执保留为 retained-attempt-01-receipt.json/result.json，最终候选使用独立attempt。12条incomplete包括nonBmp图标和滚动区未完全露出的文字对比度，不能统一说成仅图标；保留人工核查，完整无障碍验收未授予。
+
+最终attempt-02绑定 `6c9749a28e9a15e717f0ff25e9c6fac593ec32e8`，工程Gate `PASS_P18_REFERENCE_FUNCTION`。162前端/consumer、18 C12、1 C16、19路由/Gate、16 Chromium、types/lint/build/plan与输入/产物verify通过。12组自动视觉/axe：0 violation、12条incomplete（nonBmp72节点、滚动文字部分遮挡84节点），人工核查仍未完成。最终6个代表截图由Codex放大复核，见visual-review.json；其余6张仅自动矩阵，不冒充独立人工检查。完整报告 `docs/audit/UI-P18-function-delivery-2026-10-23.md`。INTEGRATION预期拒绝、formalAccepted=false/runtimeAdmission=DENIED保持；下一FE:UI-501开发入口允许。
