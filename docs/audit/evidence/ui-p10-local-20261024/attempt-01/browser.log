@@ -1,0 +1,97 @@
+
+Running 17 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p10.spec.ts:12:5 › P10 real signed decision current rules impact proposal and scoped audit evidence (3.1s)
+  ✓   2 [chromium] › tests/e2e/ui-p10.spec.ts:13:5 › P10 approval requires acknowledgement MFA and authoritative receipt only (2.2s)
+  ✓   3 [chromium] › tests/e2e/ui-p10.spec.ts:14:46 › P10 explicit reject requires reason and actual audit receipt (2.2s)
+  ✓   4 [chromium] › tests/e2e/ui-p10.spec.ts:14:46 › P10 explicit request_info requires reason and actual audit receipt (2.3s)
+  ✓   5 [chromium] › tests/e2e/ui-p10.spec.ts:15:5 › P10 expiry and independent actor self match disable all decisions (2.2s)
+  ✓   6 [chromium] › tests/e2e/ui-p10.spec.ts:16:5 › P10 concurrent conflict clears facts and blocks further actions until explicit review (2.4s)
+  ✓   7 [chromium] › tests/e2e/ui-p10.spec.ts:17:5 › P10 committed lost response preserves exact body key and version with explicit recovery (2.3s)
+  ✓   8 [chromium] › tests/e2e/ui-p10.spec.ts:18:5 › P10 actual changed kill risk is separated from immutable request decision and refuses approval (2.2s)
+  ✓   9 [chromium] › tests/e2e/ui-p10.spec.ts:19:5 › P10 stale review disables write then explicit refresh recovers without auto-submit (10.4s)
+  ✓  10 [chromium] › tests/e2e/ui-p10.spec.ts:20:5 › P10 C10 denial is isolated and raw backend error stays hidden (2.1s)
+  ✓  11 [chromium] › tests/e2e/ui-p10.spec.ts:21:5 › P10 nonapprover viewer and unknown injected routes cannot read inbox facts (2.2s)
+  ✓  12 [chromium] › tests/e2e/ui-p10.spec.ts:22:61 › P10 noReview refuses unbound context without a fake risk card (2.0s)
+  ✓  13 [chromium] › tests/e2e/ui-p10.spec.ts:22:61 › P10 foreignReview refuses unbound context without a fake risk card (2.0s)
+  ✓  14 [chromium] › tests/e2e/ui-p10.spec.ts:23:5 › P10 local filters deep links and empty loading states remain read-only (3.5s)
+  ✓  15 [chromium] › tests/e2e/ui-p10.spec.ts:24:5 › P10 offline clears all sensitive risk context evidence reason and pending intent (2.1s)
+  ✓  16 [chromium] › tests/e2e/ui-p10.spec.ts:25:5 › P10 429 enforces bounded explicit cooldown without retrying writes (2.0s)
+  ✘  17 [chromium] › tests/e2e/ui-p10.spec.ts:26:5 › P10 high fidelity dark light desktop mobile axe keyboard and lower action layout (3.0s)
+
+
+  1) [chromium] › tests/e2e/ui-p10.spec.ts:26:5 › P10 high fidelity dark light desktop mobile axe keyboard and lower action layout 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 52
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+    +     "help": "Scrollable region must have keyboard access",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",
+    +     "id": "scrollable-region-focusable",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"p10-table-scroll\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p10-table-scroll",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "wcag2a",
+    +       "wcag211",
+    +       "wcag213",
+    +       "TTv5",
+    +       "TT4.a",
+    +       "EN-301-549",
+    +       "EN-9.2.1.1",
+    +       "EN-9.2.1.3",
+    +       "RGAAv4",
+    +       "RGAA-7.3.2",
+    +     ],
+    +   },
+    + ]
+
+      24 | test('P10 offline clears all sensitive risk context evidence reason and pending intent',async({page,context})=>{await open(page);await page.getByLabel('审批原因',{exact:true}).fill('private review draft');await context.setOffline(true);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(detail(page)).toHaveCount(0);await expect(page.getByText(/^最后同步时间：/)).toBeVisible();await context.setOffline(false);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();expect(decisions()).toHaveLength(0);});
+      25 | test('P10 429 enforces bounded explicit cooldown without retrying writes',async({page})=>{const id=await seed();fault({rateLimit:true});await page.goto('/approvals/'+id);await authorized(page);await expect(alerts(page)).toContainText('冷却');await expect(page.getByRole('button',{name:'刷新审批列表',exact:true})).toBeDisabled();expect(decisions()).toHaveLength(0);});
+    > 26 | test('P10 high fidelity dark light desktop mobile axe keyboard and lower action layout',async({page},info)=>{await open(page);const scans=[];for(const theme of ['dark','light']as const){await page.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.locator('.q-workspace-main').evaluate(e=>{e.scrollTop=0;});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('p10-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`approvals-${theme}-${width}.png`),fullPage:true});await page.getByRole('region',{name:'ApprovalActionBar',exact:true}).scrollIntoViewIfNeeded();await expect(action(page)).toBeInViewport();await page.screenshot({path:info.outputPath(`actions-${theme}-${width}.png`),fullPage:true});}}await page.getByRole('button',{name:'刷新审批详情',exact:true}).click();await page.getByLabel('我已复核对象、账户、模式、限额影响与证据',{exact:true}).check();await action(page).click();await expect(page.getByRole('dialog').getByRole('button',{name:'取消',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);expect(decisions()).toHaveLength(0);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+      27 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p10.spec.ts:26:797
+
+    Error Context: docs/audit/evidence/ui-p10-local-20261024/attempt-01/browser/ui-p10-P10-high-fidelity-d-4a967-ard-and-lower-action-layout-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p10-local-20261024/attempt-01/browser/ui-p10-P10-high-fidelity-d-4a967-ard-and-lower-action-layout-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p10.spec.ts:26:5 › P10 high fidelity dark light desktop mobile axe keyboard and lower action layout 
+  16 passed (49.6s)

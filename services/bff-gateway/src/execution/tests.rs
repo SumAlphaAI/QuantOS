@@ -1446,3 +1446,32 @@ async fn p10_approver_evidence_chain_is_scoped_without_global_audit_or_export_au
         403
     );
 }
+
+#[test]
+fn p10_scoped_evidence_rejects_foreign_authority_even_with_known_correlation() {
+    let mut s = ExecutionService::reference();
+    let (pid, _) = pending(&mut s, Utc::now());
+    let (_, a) = actors(&s);
+    let corr = s.proposal(pid).unwrap().correlation.to_string();
+    assert!(s.has_approval_correlation(&a, &corr));
+    for mismatch in [
+        "tenant",
+        "workspace",
+        "account",
+        "mode",
+        "role",
+        "capability",
+    ] {
+        let mut b = a.clone();
+        match mismatch {
+            "tenant" => b.tenant_id = quantos_core::TenantId::new(),
+            "workspace" => b.workspace_id = quantos_core::WorkspaceId::new(),
+            "account" => b.account_id = Some(quantos_core::AccountId::new()),
+            "mode" => b.mode = RunMode::Shadow,
+            "role" => b.role = Role::Viewer,
+            "capability" => b.capabilities.clear(),
+            _ => unreachable!(),
+        }
+        assert!(!s.has_approval_correlation(&b, &corr), "{mismatch}");
+    }
+}

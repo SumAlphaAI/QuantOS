@@ -1658,7 +1658,7 @@ async fn get_evidence_chain(
             && (state
                 .execution
                 .as_ref()
-                .is_some_and(|e| e.has_approval_correlation(&correlation_id_value))
+                .is_some_and(|e| e.has_approval_correlation(&auth, &correlation_id_value))
                 || state
                     .strategy
                     .as_ref()

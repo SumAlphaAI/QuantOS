@@ -57,10 +57,20 @@ impl ExecutionService {
         page["reviewContext"] = json!({"accountId":self.auth.account_id,"mode":self.auth.mode.as_str(),"proposal":self.proposal_page(p,now),"riskDecision":decision,"currentRisk":{"contextHash":self.context_hash(p),"asOf":now,"expiresAt":current.expires_at,"verdict":current.verdict.as_str(),"checks":checks(&current),"policyVersion":current.policy.version,"policyRevision":current.kill_revision.to_string()},"impact":{"quoteUnit":self.financials.quote_unit,"equity":number(self.financials.equity)?,"grossBefore":number(gross)?,"grossAfter":number(gross+notional)?,"symbolBefore":number(symbol)?,"symbolAfter":number(symbol+notional)?,"portfolioAsOf":self.input.portfolio.as_of,"financialAsOf":self.financials.as_of,"venue":self.venue.venue,"venueHealthy":self.venue.healthy,"maxOrderNotional":number(limits.max_notional_per_order)?,"maxLeverage":number(limits.max_leverage)?,"maxConcentration":number(limits.max_symbol_concentration)?,"approvalThreshold":number(limits.approval_notional_threshold)?,"maxDailyLoss":number(limits.max_daily_loss)?,"model":"x02_conservative_gross_addition"}});
         Ok(page)
     }
-    pub(crate) fn has_approval_correlation(&self, correlation: &str) -> bool {
-        self.proposals
-            .values()
-            .any(|p| p.approval.is_some() && p.correlation.to_string() == correlation)
+    pub(crate) fn has_approval_correlation(&self, auth: &AuthContext, correlation: &str) -> bool {
+        auth.tenant_id == self.auth.tenant_id
+            && auth.workspace_id == self.auth.workspace_id
+            && auth.account_id == self.auth.account_id
+            && auth.mode == self.auth.mode
+            && matches!(auth.role, Role::Approver | Role::Owner)
+            && auth
+                .capabilities
+                .iter()
+                .any(|c| c.as_str() == Capability::STRATEGY_APPROVE)
+            && self
+                .proposals
+                .values()
+                .any(|p| p.approval.is_some() && p.correlation.to_string() == correlation)
     }
 }
 fn checks(d: &GuardDecision) -> Vec<Value> {
