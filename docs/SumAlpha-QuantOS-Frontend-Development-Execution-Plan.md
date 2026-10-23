@@ -2363,7 +2363,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 所属阶段：FEP-2
 - 页面级完成标准：SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地
 
-- 当前执行：UI-P04 当前页面实现与受影响验证进行中；复用 UI-202/UI-203，交付7/5时间线与证据面板、Artifact正文/版本/血缘布局和显式缺失态。见[规程](./operations/ui-p04-research-artifact-detail.md)与[当前页面门禁](../scripts/ui-p04-review.mjs)。不将G1辅助项作为前置，不重跑全链；reference身份/CORS替代、Firefox/WebKit阻塞、历史6+2+12条incomplete与全部NOT_RUN保留，阶段Gate及联调/发布不提升。下一原任务FRONTEND-GATE:G2可执行范围核对，READY另按证据评估。
+- 当前执行：`PASS_UI_P04_CURRENT_PAGE`，工程 `1fb76f86`、617输入/58产物；119单测、14Chromium、77门禁/路由、12截图/12回归基线比较/12次axe零violations，types/lint/build通过；本轮12条color-contrast incomplete扫描记录保留（76个跨扫描节点出现次数，未去重）。Research 7/5时间线/证据面板、Artifact正文/版本/血缘及六状态交付；复用UI-202/UI-203，无G1辅助项前置，不重跑全链。见[报告](./audit/UI-P04-current-page-review-2026-10-23.md)、[规程](./operations/ui-p04-research-artifact-detail.md)和[门禁](../scripts/ui-p04-review.mjs)。reference身份/CORS替代、Firefox/WebKit阻塞、原6+2+P03十二条incomplete及全部NOT_RUN保留；159阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认PENDING。下一原任务FRONTEND-GATE:G2可执行范围核对，READY另按证据评估。
 
 <a id="acceptance-frontend-gate-g2"></a>
 ##### FRONTEND-GATE:G2：验收检查点
