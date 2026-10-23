@@ -2,7 +2,7 @@ use super::*;
 use axum::{body::Body, http::Request};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
-async fn call(
+pub(crate) async fn call(
     r: &Router,
     m: &str,
     path: &str,
@@ -77,18 +77,18 @@ async fn setup() -> (crate::BffProvider, Router, Value) {
     assert_eq!(s, 200);
     (p, r, d)
 }
-async fn backtest(r: &Router, d: &Value) -> Value {
+pub(crate) async fn backtest(r: &Router, d: &Value) -> Value {
     let(s,v)=call(r,"POST","/v1/backtests",Some(json!({"strategyId":d["strategyId"],"objectVersion":d["objectVersion"],"dataSnapshotId":d["dataSnapshotId"]})),crate::CURRENT_SESSION,Uuid::new_v4(),None).await;
     assert_eq!(s, 202, "{v}");
     v
 }
-async fn release(r: &Router, d: &Value) -> Value {
+pub(crate) async fn release(r: &Router, d: &Value) -> Value {
     let run = backtest(r, d).await;
     let(s,v)=call(r,"POST","/v1/releases",Some(json!({"strategyId":d["strategyId"],"objectVersion":d["objectVersion"],"backtestRunId":run["jobId"],"parameters":d["parameters"]})),crate::CURRENT_SESSION,Uuid::new_v4(),None).await;
     assert_eq!(s, 201, "{v}");
     v
 }
-async fn submit(r: &Router, v: &Value) -> Value {
+pub(crate) async fn submit(r: &Router, v: &Value) -> Value {
     let (s, a) = call(
         r,
         "POST",
@@ -105,7 +105,7 @@ async fn submit(r: &Router, v: &Value) -> Value {
     assert_eq!(s, 202, "{a}");
     a
 }
-async fn proof(r: &Router, session: &str) -> Value {
+pub(crate) async fn proof(r: &Router, session: &str) -> Value {
     let (s, c) = call(
         r,
         "POST",

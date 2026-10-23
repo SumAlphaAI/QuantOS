@@ -11,6 +11,8 @@ import {createHash} from "node:crypto";
 const origin = "https://127.0.0.1:4010", terminal = "http://localhost:3190", csrf = "csrf-token-0000000000000001";
 const hash = (b: Buffer | string) => createHash("sha256").update(b).digest("hex");
 type Row = {method: string;path: string;status: number;source: string;control: boolean;keyHash?: string;bodyHash: string;version?: string;responseHash?: string};
+let registrations: Record<string, unknown>[]=[];
+export function workerRegistrations(){return registrations;}
 let controlOrigin="",hostLogs="",clockControls:{seconds:number;status:number}[]=[];
 let rows: Row[] = [], child: ChildProcess, port: number, scratch: string, drop = false, readonly = false, invalid = false, empty = false, listError = false, slow = false;
 const streams = new Set<ServerResponse>();
@@ -48,10 +50,10 @@ test.beforeAll(async () => {
 });
 test.beforeEach(async ({context,page}) => {
  page.on("dialog",dialog => dialog.type() === "beforeunload" ? dialog.accept() : dialog.dismiss());
- rows = [];hostLogs="";clockControls=[];fault({});await context.addCookies([{name:"quantos_csrf",value:csrf,url:terminal}]);await context.route("**/*",route => ["localhost","127.0.0.1"].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort());
+ rows = [];registrations=[];hostLogs="";clockControls=[];fault({});await context.addCookies([{name:"quantos_csrf",value:csrf,url:terminal}]);await context.route("**/*",route => ["localhost","127.0.0.1"].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort());
  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
- child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
- await new Promise<void>((done,reject)=>{let buffer="";const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.once("exit",code=>{clearTimeout(timer);reject(Error(`reference exited ${code}: ${hostLogs.slice(-2000)}`));});child.stderr!.on("data",b=>{hostLogs+=String(b);});child.stdout!.on("data",b=>{hostLogs+=String(b);buffer+=String(b);let i;while((i=buffer.indexOf("\n"))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);let status;try{status=JSON.parse(line);}catch{continue;}if(status.ready){controlOrigin=status.control;clearTimeout(timer);done();}}});});await page.bringToFront();
+ child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_R03:process.env.QUANTOS_G3_R03,QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+ await new Promise<void>((done,reject)=>{let buffer="";const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.once("exit",code=>{clearTimeout(timer);reject(Error(`reference exited ${code}: ${hostLogs.slice(-2000)}`));});child.stderr!.on("data",b=>{hostLogs+=String(b);});child.stdout!.on("data",b=>{hostLogs+=String(b);buffer+=String(b);let i;while((i=buffer.indexOf("\n"))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);let status;try{status=JSON.parse(line);}catch{continue;}if(status.ready){registrations=status.registrations??[];controlOrigin=status.control;clearTimeout(timer);done();}}});});await page.bringToFront();
 });
 test.afterEach(async ({context,page},info) => {
  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}

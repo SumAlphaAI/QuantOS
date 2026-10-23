@@ -2547,6 +2547,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 - G3/CORE:S04当前复审：实际Python IPC产物→20策略UI→C05真实S01/S02/S03/S04→C08审批/目标与C10审计；另验owner-service TCP/UDS、拒绝/过期/20路CAS、两种本地原生消费者及全仓功能测试。报告/回执归 `docs/audit/evidence/frontend-g3-local-20261023/`；reference身份/CORS与可信宿主导入明确替代，R03 worker到目录的完整生产注册、全部目标/持久性/性能/发布NOT_RUN。本地工程复核不等于CORE:S04/G3阶段READY，确认PENDING。
+- G3-INTEGRATION-01：原限定候选9a463495/证据包05c427f2已获本会话用户确认，记录见 `docs/audit/evidence/frontend-g3-confirmation-20261023/`。新增R03双引擎worker、受信完成产物注册与C04/C05/C08/C10因果交接，状态IMPLEMENTED_PENDING_ACCEPTANCE，范围与执行回执见 `docs/operations/g3-integration-01.md`；本次新候选独立待确认。历史incomplete、原全部NOT_RUN不改写；G3仍IN_REVIEW/NOT_ASSESSED，CORE:S04仍NOT_READY，formalAccepted=false、runtimeAdmission=DENIED。
 
 <a id="103-s2-gate"></a>
 <a id="gate-s2"></a>

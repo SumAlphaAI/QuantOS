@@ -53,7 +53,16 @@ pub struct ResearchEvidenceRecord {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchSupportingArtifact {
+    pub artifact_manifest: ArtifactManifest,
+    pub engine_artifact_id: String,
+    pub output: Value,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResearchArtifactRecord {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub supporting_artifacts: Vec<ResearchSupportingArtifact>,
     pub workflow_run_id: quantos_core::WorkflowRunId,
     pub artifact_manifest: ArtifactManifest,
     pub engine_artifact_id: String,
@@ -163,6 +172,8 @@ pub enum ResearchWorkflowError {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub(super) struct ResearchCheckpointPayload {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) source_research_run: Option<quantos_core::WorkflowRunId>,
     pub(super) capability: String,
     pub(super) data_snapshot_id: String,
     pub(super) execution_id: String,
@@ -235,7 +246,51 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         input: ResearchWorkflowInput,
         queued_at: DateTime<Utc>,
     ) -> Result<WorkflowRun, ResearchWorkflowError> {
-        let (new_run, mut checkpoint) = prepare_research_input(input)?;
+        self.schedule_input(input, None, queued_at)
+    }
+
+    /// Worker-owned continuation. The prompt is derived from the completed research
+    /// bytes, never accepted from the caller. Parent identity participates in the hash.
+    pub fn schedule_strategy_from_research(
+        &mut self,
+        parent: quantos_core::WorkflowRunId,
+        mut input: ResearchWorkflowInput,
+        queued_at: DateTime<Utc>,
+    ) -> Result<WorkflowRun, ResearchWorkflowError> {
+        let source = completed_record(self.runtime, self.artifact_repository, parent)?;
+        let run = self.runtime.run(parent).expect("verified run");
+        if run.runtime_session_id != input.runtime_session_id
+            || run.correlation_id != input.correlation_id
+            || source.data_snapshot_id != input.data_snapshot_id
+            || source.output["policy_context_ref"] != input.policy_context_ref
+            || source.output["artifact_type"] != "ResearchArtifact"
+            || input.capability.as_str() != "strategy.generate.v1"
+            || input
+                .input
+                .as_object()
+                .is_none_or(|v| v.keys().any(|k| k != "fixture"))
+        {
+            return Err(ResearchWorkflowError::InvalidResult(
+                "research continuation binding",
+            ));
+        }
+        input.input["prompt"] = json!(format!(
+            "Draft a bounded strategy from research {}: {} {}",
+            source.artifact_manifest.content_hash,
+            source.output["summary"].as_str().unwrap_or(""),
+            source.output["hypothesis"].as_str().unwrap_or("")
+        ));
+        input.input["tools"] = json!(["query_snapshot", "query_artifact"]);
+        self.schedule_input(input, Some(parent), queued_at)
+    }
+
+    fn schedule_input(
+        &mut self,
+        input: ResearchWorkflowInput,
+        parent: Option<quantos_core::WorkflowRunId>,
+        queued_at: DateTime<Utc>,
+    ) -> Result<WorkflowRun, ResearchWorkflowError> {
+        let (new_run, mut checkpoint) = prepare_research_input_inner(input, parent)?;
         let run = self.runtime.schedule_run(new_run, queued_at)?;
         // An exact idempotent retry must not replace an execution/completion checkpoint.
         if self.runtime.load_checkpoint(run.workflow_run_id).is_some() {
@@ -353,6 +408,18 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
             .ok_or(ResearchWorkflowError::MissingCheckpoint { run_id })?;
         let payload: ResearchCheckpointPayload =
             serde_json::from_value(checkpoint.payload.clone())?;
+        if let Some(parent) = payload.source_research_run {
+            let source = completed_record(self.runtime, self.artifact_repository, parent)?;
+            let source_run = self.runtime.run(parent).expect("verified parent");
+            if source_run.runtime_session_id != lease.run.runtime_session_id
+                || source_run.correlation_id != lease.run.correlation_id
+                || source.data_snapshot_id.to_string() != payload.data_snapshot_id
+            {
+                return Err(ResearchWorkflowError::InvalidResult(
+                    "worker parent binding",
+                ));
+            }
+        }
         let id = SnapshotId::parse_str(&payload.data_snapshot_id)?;
         let (snapshot, rules) = self
             .snapshot_source
@@ -384,6 +451,13 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         let completed_at = Utc::now();
         self.runtime
             .record_artifact(run_id, record.artifact_manifest.clone(), completed_at)?;
+        for artifact in &record.supporting_artifacts {
+            self.runtime.record_artifact(
+                run_id,
+                artifact.artifact_manifest.clone(),
+                completed_at,
+            )?;
+        }
         let artifact = self.artifact_repository.upsert(record).clone();
         self.runtime.save_checkpoint(
             run_id,
@@ -393,6 +467,8 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
                 "artifact_id": artifact.artifact_manifest.artifact_id.to_string(),
                 "engine_artifact_id": artifact.engine_artifact_id,
                 "evidence_refs": artifact.evidence_refs,
+                "source_research_run": payload.source_research_run,
+                "record_hash": ContentHash::sha256_bytes(&canonical_json_bytes(&serde_json::to_value(&artifact)?)?),
             }),
             completed_at,
         )?;
@@ -412,10 +488,18 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
 pub(super) fn prepare_research_input(
     input: ResearchWorkflowInput,
 ) -> Result<(NewWorkflowRun, ResearchCheckpointPayload), ResearchWorkflowError> {
+    prepare_research_input_inner(input, None)
+}
+
+fn prepare_research_input_inner(
+    input: ResearchWorkflowInput,
+    parent: Option<quantos_core::WorkflowRunId>,
+) -> Result<(NewWorkflowRun, ResearchCheckpointPayload), ResearchWorkflowError> {
     if input.workflow_kind != "research"
         || !matches!(
-            input.capability.as_str(),
-            "research.hypothesis.v1" | "research.experiment.v1"
+            (input.capability.as_str(), parent),
+            ("research.hypothesis.v1" | "research.experiment.v1", None)
+                | ("strategy.generate.v1", Some(_))
         )
         || !input.input.is_object()
         || input.policy_context_ref.trim().is_empty()
@@ -429,6 +513,7 @@ pub(super) fn prepare_research_input(
         ));
     }
     let checkpoint = ResearchCheckpointPayload {
+        source_research_run: parent,
         capability: input.capability.as_str().to_owned(),
         data_snapshot_id: input.data_snapshot_id.to_string(),
         execution_id: String::new(),
@@ -517,7 +602,9 @@ pub(super) async fn dispatch_research(
         .artifact_refs
         .first()
         .ok_or(ResearchWorkflowError::MissingArtifactRef)?;
-    if response.artifact_refs.len() != 1
+    let strategy =
+        payload.source_research_run.is_some() && payload.capability == "strategy.generate.v1";
+    if response.artifact_refs.len() != if strategy { 2 } else { 1 }
         || artifact.artifact_id.trim().is_empty()
         || artifact.media_type != "application/json"
         || ContentHash::parse(&artifact.sha256)?
@@ -527,15 +614,24 @@ pub(super) async fn dispatch_research(
             "artifact hash or reference mismatch",
         ));
     }
-    if output["artifact_type"] != "ResearchArtifact"
+    let identity_valid = if strategy {
+        output["artifact_type"] == "StrategyDraftArtifact"
+            && output["tenant_id"] == run.tenant_id.to_string()
+            && output["workspace_id"] == run.workspace_id.to_string()
+            && output["engine"] == "strategy-lab"
+            && output["request_id"] == format!("research-{}", run.workflow_run_id)
+    } else {
+        output["artifact_type"] == "ResearchArtifact"
+            && output["capability"] == payload.capability
+            && output["trade_executable"] == false
+            && output["audit"]["tenant_id"] == run.tenant_id.to_string()
+            && output["audit"]["workspace_id"] == run.workspace_id.to_string()
+            && output["audit"]["actor_id"] == run.actor_id.to_string()
+    };
+    if !identity_valid
         || output["workflow_run_id"] != run.workflow_run_id.to_string()
         || output["data_snapshot_ref"] != payload.data_snapshot_id
         || output["policy_context_ref"] != payload.policy_context_ref
-        || output["capability"] != payload.capability
-        || output["trade_executable"] != false
-        || output["audit"]["tenant_id"] != run.tenant_id.to_string()
-        || output["audit"]["workspace_id"] != run.workspace_id.to_string()
-        || output["audit"]["actor_id"] != run.actor_id.to_string()
     {
         return Err(ResearchWorkflowError::InvalidResult(
             "research output identity mismatch",
@@ -544,7 +640,10 @@ pub(super) async fn dispatch_research(
     if response.evidence_refs.is_empty()
         || response.evidence_refs.iter().any(|e| {
             e.evidence_id.trim().is_empty()
-                || e.artifact_id != artifact.artifact_id
+                || !response
+                    .artifact_refs
+                    .iter()
+                    .any(|a| a.artifact_id == e.artifact_id)
                 || e.summary.trim().is_empty()
         })
     {
@@ -568,7 +667,46 @@ pub(super) async fn dispatch_research(
     if output_bytes.len() > 4 * 1024 * 1024 {
         return Err(ResearchWorkflowError::InvalidResult("artifact oversized"));
     }
-    let manifest = ArtifactManifest::new(
+    if strategy
+        && (response.artifact_refs[1].artifact_id
+            != format!("static-check:{}", run.workflow_run_id)
+            || artifact.artifact_id != format!("strategy-draft:{}", run.workflow_run_id)
+            || response.artifact_refs[1].media_type != "application/json"
+            || ContentHash::parse(&response.artifact_refs[1].sha256).is_err())
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "strategy artifact references",
+        ));
+    }
+    let mut supporting_artifacts = Vec::new();
+    if strategy {
+        // The secondary artifact's canonical body is fully determined by the
+        // returned static result and the dispatched tools. Verify exact SDK bytes
+        // before retaining it; a hash-shaped reference alone is insufficient.
+        let check = json!({"artifact_type":"StaticCheckArtifact","engine":"strategy-lab","workflow_run_id":run.workflow_run_id,"strategy_name":output["strategy"]["name"],"tenant_id":run.tenant_id,"workspace_id":run.workspace_id,"passed":output["static_check"]["passed"],"findings":output["static_check"]["findings"],"blocked_release":output["release_eligible"] != true,"requested_tools":payload.input["tools"]});
+        if response.artifact_refs[1].sha256
+            != ContentHash::sha256_bytes(&engine_json_bytes(&check)?).to_string()
+        {
+            return Err(ResearchWorkflowError::InvalidResult(
+                "static artifact bytes mismatch",
+            ));
+        }
+        let bytes = canonical_json_bytes(&check)?;
+        supporting_artifacts.push(ResearchSupportingArtifact {
+            artifact_manifest: ArtifactManifest::new(
+                run.tenant_id,
+                "application/json",
+                ContentHash::sha256_bytes(&bytes),
+                bucket,
+                bytes.len() as u64,
+                completed_at,
+            )
+            .with_metadata("workflow_run_id", run.workflow_run_id.to_string()),
+            engine_artifact_id: response.artifact_refs[1].artifact_id.clone(),
+            output: check,
+        });
+    }
+    let mut manifest = ArtifactManifest::new(
         run.tenant_id,
         "application/json",
         ContentHash::sha256_bytes(&output_bytes),
@@ -581,7 +719,22 @@ pub(super) async fn dispatch_research(
     .with_metadata("capability", payload.capability.clone())
     .with_metadata("engine_artifact_id", &artifact.artifact_id)
     .with_metadata("engine_artifact_uri", &artifact.uri);
+    if let Some(parent) = payload.source_research_run {
+        manifest = manifest.with_metadata("source_research_run", parent.to_string());
+    }
+    if let Some(check) = supporting_artifacts.first() {
+        manifest = manifest
+            .with_metadata(
+                "static_check_artifact_id",
+                check.artifact_manifest.artifact_id.to_string(),
+            )
+            .with_metadata(
+                "static_check_content_hash",
+                check.artifact_manifest.content_hash.to_string(),
+            );
+    }
     Ok(ResearchArtifactRecord {
+        supporting_artifacts,
         workflow_run_id: run.workflow_run_id,
         artifact_manifest: manifest,
         engine_artifact_id: artifact.artifact_id.clone(),
@@ -600,6 +753,91 @@ pub(super) async fn dispatch_research(
             .collect::<Result<Vec<_>, _>>()?,
         created_at: completed_at,
     })
+}
+
+/// Authoritative completed worker bytes, checked against the kernel's retained
+/// manifest and checkpoint. This does not accept a caller-supplied result document.
+pub fn completed_record<'a>(
+    runtime: &InMemoryRuntimeKernel,
+    repository: &'a InMemoryResearchArtifactRepository,
+    id: quantos_core::WorkflowRunId,
+) -> Result<&'a ResearchArtifactRecord, ResearchWorkflowError> {
+    let invalid = || ResearchWorkflowError::InvalidResult("completed worker provenance");
+    let run = runtime.run(id).ok_or_else(invalid)?;
+    let record = repository
+        .record_for_run(run.tenant_id, id)
+        .ok_or_else(invalid)?;
+    let manifest = &record.artifact_manifest;
+    let retained = runtime
+        .artifacts_by_hash
+        .get(&(run.tenant_id, manifest.content_hash.clone()));
+    if run.status != crate::WorkflowRunStatus::Succeeded
+        || record.workflow_run_id != id
+        || record.input_hash != run.input_hash
+        || record.capability != run.capability.as_str()
+        || manifest.tenant_id != run.tenant_id
+        || manifest.metadata.get("data_snapshot_id") != Some(&record.data_snapshot_id.to_string())
+        || manifest.metadata.get("engine_artifact_id") != Some(&record.engine_artifact_id)
+        || record.output["workflow_run_id"] != id.to_string()
+        || retained != Some(manifest)
+        || !runtime
+            .run_artifacts
+            .get(&id)
+            .is_some_and(|ids| ids.contains(&manifest.artifact_id))
+        || manifest.content_hash
+            != ContentHash::sha256_bytes(&canonical_json_bytes(&record.output)?)
+        || runtime
+            .load_checkpoint(id)
+            .is_none_or(|c| c.payload["artifact_id"] != manifest.artifact_id.to_string())
+        || runtime.load_checkpoint(id).is_none_or(|c| {
+            c.payload["record_hash"]
+                != ContentHash::sha256_bytes(
+                    &canonical_json_bytes(
+                        &serde_json::to_value(record).expect("record serialization"),
+                    )
+                    .expect("record canonicalization"),
+                )
+                .to_string()
+        })
+        || runtime.load_checkpoint(id).is_none_or(|c| {
+            c.payload["source_research_run"].as_str()
+                != manifest
+                    .metadata
+                    .get("source_research_run")
+                    .map(String::as_str)
+        })
+    {
+        return Err(invalid());
+    }
+    if record.supporting_artifacts.len()
+        != if record.capability == "strategy.generate.v1" {
+            1
+        } else {
+            0
+        }
+    {
+        return Err(invalid());
+    }
+    for support in &record.supporting_artifacts {
+        let m = &support.artifact_manifest;
+        if runtime
+            .artifacts_by_hash
+            .get(&(run.tenant_id, m.content_hash.clone()))
+            != Some(m)
+            || !runtime
+                .run_artifacts
+                .get(&id)
+                .is_some_and(|ids| ids.contains(&m.artifact_id))
+            || m.content_hash != ContentHash::sha256_bytes(&canonical_json_bytes(&support.output)?)
+            || manifest.metadata.get("static_check_artifact_id") != Some(&m.artifact_id.to_string())
+            || manifest.metadata.get("static_check_content_hash")
+                != Some(&m.content_hash.to_string())
+            || support.engine_artifact_id != format!("static-check:{id}")
+        {
+            return Err(invalid());
+        }
+    }
+    Ok(record)
 }
 
 pub(super) fn ensure_snapshot_allowed(
@@ -904,6 +1142,7 @@ mod tests {
             created_at,
         );
         let record = ResearchArtifactRecord {
+            supporting_artifacts: vec![],
             workflow_run_id: quantos_core::WorkflowRunId::new(),
             artifact_manifest: manifest.clone(),
             engine_artifact_id: "research-artifact:run-1".to_owned(),

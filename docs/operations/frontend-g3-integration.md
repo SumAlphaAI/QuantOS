@@ -17,3 +17,5 @@ CORE:S04完整复审同时执行真实StrategyService TCP测试：Python UDS产�
 全仓首轮6ff11941：Rust harness730通过/14 ignored、Python1908通过；Web通用schema样例错误使用普通URI替代受限ExportDownloadMetadata URL，工具修复后重跑Web。`--continue`只对原Rust/Python命令保留原SHA/原日志，并逐个核对相关输入未变，显式REFERENCE_NOT_CURRENT_SHA_REEXECUTION；不复制旧日志冒充新执行、不授予新候选全仓READY。Web/浏览器与S04核心组合在新候选执行。
 
 3d8f9775自动44浏览器/18基线通过后，人工查看真实C10长路由事件截图发现固定15px行导致文字重叠，保留原36条incomplete及原receipt在history。改时间线行高为内容自适应，并对真实长事件/对象引用断言上下边界不重叠。仅Web呈现/测试变化；Rust/Python仍只引用输入未变的6ff原结果，新Web/构建/浏览器完整复验。
+
+原9a463495/05c427f2限定文稿已确认，原包保持不可变。G3-INTEGRATION-01后续本地worker与因果交接另见 [独立范围](g3-integration-01.md)；新事实不回填本页所述历史NOT_RUN，不授予完整G3 READY。

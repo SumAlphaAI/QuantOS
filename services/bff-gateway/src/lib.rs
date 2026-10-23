@@ -14,6 +14,8 @@ mod input_contract;
 pub mod live;
 mod market;
 mod research;
+#[cfg(test)]
+mod g3_research_tests;
 
 use axum::{
     Json, Router,

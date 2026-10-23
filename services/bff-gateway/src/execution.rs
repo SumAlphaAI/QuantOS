@@ -1371,10 +1371,28 @@ async fn reference(
                     last["route"] = json!(uri.path());
                 }
             }
+            if strategy_approval && method == Method::POST {
+                crate::strategy::link_research_audit(
+                    &mut state,
+                    &strategy_auth,
+                    uri.path(),
+                    &body,
+                    &v,
+                );
+            }
             output(status, v)
         }
         Err(e) => {
-            let correlation = Uuid::now_v7().to_string();
+            let correlation = if strategy_approval {
+                state
+                    .strategy
+                    .as_ref()
+                    .and_then(|s| s.research_trace(&strategy_auth, uri.path(), &body))
+            } else {
+                None
+            }
+            .unwrap_or_else(Uuid::now_v7)
+            .to_string();
             if method == Method::POST {
                 crate::record_audit_action(
                     &mut state,
@@ -1382,6 +1400,16 @@ async fn reference(
                     &correlation,
                     uri.path(),
                     json!({"operation":uri.path(),"actor":auth.actor_id,"outcome":e.1}),
+                );
+            }
+            if strategy_approval && method == Method::POST {
+                let audit = state.audits.last().unwrap()["auditRef"].clone();
+                crate::strategy::link_research_audit(
+                    &mut state,
+                    &strategy_auth,
+                    uri.path(),
+                    &body,
+                    &json!({"correlationId":correlation,"auditRef":audit,"code":e.1}),
                 );
             }
             let mut body = json!({"code":e.1,"message":"Execution request refused.","correlationId":correlation});

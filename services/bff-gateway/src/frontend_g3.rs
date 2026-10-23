@@ -22,13 +22,26 @@ async fn browser_host() {
             "no database/production environment"
         );
     }
-    let bytes = std::fs::read(std::env::var("QUANTOS_G3_ARTIFACTS").unwrap()).unwrap();
+    let r03 = std::env::var("QUANTOS_G3_R03").as_deref() == Ok("1");
+    let bytes = if r03 {
+        b"[]".to_vec()
+    } else {
+        std::fs::read(std::env::var("QUANTOS_G3_ARTIFACTS").unwrap()).unwrap()
+    };
     let documents: Vec<Value> = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(documents.len(), 20);
+    if !r03 {
+        assert_eq!(documents.len(), 20);
+    }
     let provider = crate::BffProvider::default()
         .with_download_origin("https://127.0.0.1:4010")
         .unwrap();
-    {
+    let registrations = if r03 {
+        let worker = crate::g3_research_tests::pipeline(20).await;
+        worker.install(&provider).await.unwrap()
+    } else {
+        vec![]
+    };
+    if !r03 {
         let mut data = provider.data.lock().await;
         let now = data.now();
         let mut artifacts = InMemoryArtifactCatalog::new();
@@ -106,7 +119,7 @@ async fn browser_host() {
     });
     println!(
         "{}",
-        json!({"ready":true,"control":format!("http://{control_address}"),"fixtures":20,"artifactDocumentSha256":ContentHash::sha256_bytes(&bytes),"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"identity":"EXPLICIT_REFERENCE_COOKIE_BRIDGE"})
+        json!({"ready":true,"control":format!("http://{control_address}"),"fixtures":20,"artifactDocumentSha256":ContentHash::sha256_bytes(&bytes),"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"identity":"EXPLICIT_REFERENCE_COOKIE_BRIDGE","registrations":registrations,"r03WorkerExecuted":r03})
     );
     axum::serve(
         listener,

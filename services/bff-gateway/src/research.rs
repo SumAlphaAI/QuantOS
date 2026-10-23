@@ -503,6 +503,7 @@ pub(crate) struct Fixture {
     pub snapshots: BTreeMap<Uuid, Value>,
     pub runs: BTreeMap<Uuid, Value>,
     pub artifacts: BTreeMap<Uuid, Value>,
+    pub worker_records: BTreeMap<Uuid, quantos_runtime::research::ResearchArtifactRecord>,
     pub events: BTreeMap<Uuid, Vec<Value>>,
     commands: BTreeMap<String, (Value, Value)>,
 }
@@ -525,6 +526,7 @@ impl Default for Fixture {
             snapshots,
             runs: BTreeMap::new(),
             artifacts: BTreeMap::from([(id, artifact)]),
+            worker_records: BTreeMap::new(),
             events: BTreeMap::new(),
             commands: BTreeMap::new(),
         }
@@ -647,6 +649,17 @@ impl Repository for Fixture {
         Ok(response)
     }
     fn artifact(&mut self, id: Uuid, attachment: bool) -> Result<Value> {
+        if let Some(record) = self.worker_records.get(&id) {
+            let manifest = &record.artifact_manifest;
+            if attachment {
+                return Ok(
+                    json!({"artifactId":id,"mediaType":manifest.media_type,"contentHash":manifest.content_hash,"content":record.output,"auditRef":Uuid::now_v7()}),
+                );
+            }
+            return Ok(
+                json!({"artifactId":id,"hypothesis":record.output["hypothesis"].as_str().unwrap_or("Bounded strategy continuation"),"summary":record.output["summary"].as_str().unwrap_or("Completed owned worker output"),"engineVersion":"r03-worker-owned-uds","promptVersion":record.output["prompt_version"].as_str().unwrap_or("unreported"),"codeVersion":record.output["environment"]["code_version"].as_str().unwrap_or("unreported"),"environmentHash":digest(&record.output["environment"]),"dataSnapshotId":record.data_snapshot_id,"contentHash":manifest.content_hash,"createdAt":record.created_at}),
+            );
+        }
         let mut artifact = self.artifacts.get(&id).cloned().ok_or_else(Fault::hidden)?;
         // Metadata and attachment describe the same canonical content. Response
         // audit fields and the hash itself are not part of the content document.

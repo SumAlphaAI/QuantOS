@@ -53,6 +53,7 @@ struct Cursor {
     expires: DateTime<Utc>,
 }
 pub struct StrategyHost {
+    lineages: BTreeMap<Uuid, Uuid>,
     core: StrategyService,
     clock: Arc<HostClock>,
     inputs: BTreeMap<Uuid, StrategyInput>,
@@ -143,6 +144,7 @@ impl StrategyHost {
         let clock = Arc::new(HostClock(AtomicI64::new(Utc::now().timestamp_micros())));
         let core = StrategyService::new(drafts, inputs.clone(), clock.clone())?;
         Ok(Self {
+            lineages: BTreeMap::new(),
             core,
             clock,
             inputs: inputs.into_iter().map(|i| (i.input_id, i)).collect(),
@@ -577,7 +579,7 @@ impl StrategyHost {
         )?;
         let parts = path.trim_matches('/').split('/').collect::<Vec<_>>();
         let id = parts.get(2).map(|v| crate::research::uuid(v)).transpose()?;
-        let correlation = Uuid::now_v7();
+        let correlation = self.research_trace(a, path, b).unwrap_or_else(Uuid::now_v7);
         let mut status = StatusCode::OK;
         let mut out = match (m.as_str(), parts.as_slice()) {
             ("GET", ["v1", "approvals"]) => {
@@ -993,11 +995,20 @@ async fn reference(
                     e["actor"] = json!(a.actor_id);
                 }
             }
+            if m != Method::GET {
+                link_research_audit(&mut state, &a, uri.path(), &b, &v);
+            }
             publish_reports(&mut state);
             crate::execution::output(s, v)
         }
         Err(e) => {
-            let c = Uuid::now_v7().to_string();
+            let c = state
+                .strategy
+                .as_ref()
+                .unwrap()
+                .research_trace(&a, uri.path(), &b)
+                .unwrap_or_else(Uuid::now_v7)
+                .to_string();
             if m != Method::GET {
                 crate::record_audit_action(
                     &mut state,
@@ -1005,6 +1016,16 @@ async fn reference(
                     &c,
                     uri.path(),
                     json!({"actor":a.actor_id,"outcome":e.1}),
+                );
+            }
+            if m != Method::GET {
+                let audit = state.audits.last().unwrap()["auditRef"].clone();
+                link_research_audit(
+                    &mut state,
+                    &a,
+                    uri.path(),
+                    &b,
+                    &json!({"correlationId":c,"auditRef":audit,"code":e.1}),
                 );
             }
             let mut v = json!({"code":e.1,"message":"Strategy request refused.","correlationId":c});
@@ -1029,7 +1050,67 @@ async fn reference(
     }
 }
 #[cfg(test)]
-mod tests;
+pub(crate) mod tests;
+
+mod research;
+
+/// C05 and the shared C08 approval boundary append to the same owner-derived
+/// research trace. An arbitrary caller correlation cannot join another trace.
+pub(crate) fn link_research_audit(
+    data: &mut crate::ProviderData,
+    auth: &AuthContext,
+    path: &str,
+    body: &Value,
+    reply: &Value,
+) {
+    let Some(root) = data
+        .strategy
+        .as_ref()
+        .and_then(|s| s.research_trace(auth, path, body))
+    else {
+        return;
+    };
+    if reply["correlationId"] != root.to_string() {
+        return;
+    }
+    let Some(last) = data.audits.last() else {
+        return;
+    };
+    if last["correlationId"] != root.to_string()
+        || !reply["auditRef"].is_string()
+        || last["auditRef"] != reply["auditRef"]
+    {
+        return;
+    }
+    let cause = data
+        .audits
+        .iter()
+        .rev()
+        .skip(1)
+        .find(|v| v["correlationId"] == root.to_string())
+        .map(|v| v["eventId"].clone());
+    let last = data.audits.last_mut().unwrap();
+    if let Some(cause) = cause {
+        last["causationId"] = cause;
+    }
+    if let Some(object) = [
+        "releaseId",
+        "runId",
+        "strategyId",
+        "approvalId",
+        "jobId",
+        "objectRef",
+    ]
+    .iter()
+    .find_map(|k| reply[*k].as_str())
+    {
+        last["objectRef"] = json!(object);
+    }
+    last["redactedPayload"] = crate::audit_core::redacted(
+        &json!({"outcome":if reply.get("code").is_some(){"denied"}else{"succeeded"},"scopeHash":crate::audit_core::payload_hash(reply)}),
+    );
+    last["payloadHash"] = json!(crate::audit_core::payload_hash(&last["redactedPayload"]));
+}
 
 // An ignored, explicitly opted-in loopback host for the G3 browser tests only.
 #[cfg(test)]
