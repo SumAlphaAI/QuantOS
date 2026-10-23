@@ -1,0 +1,57 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/ui301.test.ts (34 tests | 2 failed) 46ms
+     × 409 preserves local/base, fetches diff, explicit merge makes no write; later conflict still refuses 4ms
+     × pins query/cursor; changed sort starts a fresh page 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/ui301.test.ts > UI301 C01/C05 draft lifecycle > 409 preserves local/base, fetches diff, explicit merge makes no write; later conflict still refuses
+AssertionError: expected { status: 'uncertain', …(7) } to match object { status: 'conflict', …(3) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "head": {
+-     "objectVersion": "2",
+-   },
++   "head": undefined,
+    "local": {
+      "files": {
+        "strategy.rule": "local",
+      },
+    },
+-   "status": "conflict",
++   "status": "uncertain",
+    "version": "1",
+  }
+
+ ❯ apps/terminal/tests/ui301.test.ts:28:635
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/terminal/tests/ui301.test.ts > UI301 C01/C05 draft lifecycle > pins query/cursor; changed sort starts a fresh page
+Error: Strategy request could not be completed
+ ❯ fail apps/terminal/src/strategy/runtime.ts:17:44
+     15|  const cursors = new Set<string>();
+     16|  const emit = () => listeners.forEach(f => f());
+     17|  const fail = (s: number): never => {throw new StrategyError(s);};
+       |                                            ^
+     18|  function guard(write = false) {
+     19|   config.authorize();
+ ❯ apps/terminal/src/strategy/runtime.ts:55:184
+ ❯ exclusive apps/terminal/src/strategy/runtime.ts:41:55
+ ❯ apps/terminal/tests/ui301.test.ts:38:375
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 36 passed (38)
+   Start at  13:21:55
+   Duration  278ms (transform 186ms, setup 0ms, import 335ms, tests 52ms, environment 0ms)
+
