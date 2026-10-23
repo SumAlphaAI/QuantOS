@@ -4,7 +4,7 @@ import {mkdtempSync,writeFileSync,rmSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {boundary,validateBoundary,checks,validateExecutions,validatePlan,validateArtifacts,validateBrowser,baseCommit,focusedTests} from './fep3-function-review.mjs';
+import {boundary,validateBoundary,checks,validateExecutions,validatePlan,validateArtifacts,validateBrowser,baseCommit,focusedTests,dependencyAudit} from './fep3-function-review.mjs';
 import {nodesFromPlans} from './provider-a1-receipts.mjs';
 import {hash} from './g1-download-review.mjs';
 const source='a'.repeat(40),clone=globalThis.structuredClone;
@@ -22,3 +22,5 @@ function browser(){return{errors:[],stats:{expected:23,unexpected:0,skipped:0,fl
 test('browser requires 23 single-execution Chromium passes',()=>validateBrowser(browser()));
 for(const[name,mutate]of [['skip',r=>r.stats.skipped=1],['flaky',r=>r.stats.flaky=1],['retry',r=>r.suites[0].specs[0].tests[0].results.push({status:'passed'})],['wrong browser',r=>r.suites[0].specs[0].tests[0].projectName='webkit'],['omitted result',r=>r.suites[0].specs.pop()],['failure',r=>r.suites[0].specs[0].tests[0].results[0].status='failed']])test('rejects browser '+name,()=>{const r=browser();mutate(r);assert.throws(()=>validateBrowser(r));});
 for(const kind of ['valid','changed','omitted','substituted','unexpected addition'])test('raw artifact binding '+kind,()=>{const dir=mkdtempSync(join(tmpdir(),'quantos-fep3-outputs-'));try{const rows=['inputs.json','unit.json'].map(name=>{const path=dir+'/'+name;writeFileSync(path,'UNIT FIXTURE '+name);return{path,sha256:hash(readFileSync(path))};});if(kind==='changed')writeFileSync(rows[1].path,'false PASS');if(kind==='omitted')rows.pop();if(kind==='substituted')rows[1]=rows[0];if(kind==='unexpected addition')writeFileSync(dir+'/extra.json','extra');if(kind==='valid')validateArtifacts(rows,dir);else assert.throws(()=>validateArtifacts(rows,dir));}finally{rmSync(dir,{recursive:true,force:true});}});
+
+test('dependency audit survives JSON persistence including checkpoint statuses',()=>{const rows=dependencyAudit();assert.deepEqual(JSON.parse(JSON.stringify(rows)),rows);for(const row of rows)assert.equal(typeof row.development,'string');});
