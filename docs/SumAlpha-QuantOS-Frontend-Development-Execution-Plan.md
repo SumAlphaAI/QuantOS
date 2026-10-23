@@ -2455,7 +2455,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-301", "UI-VIS-000", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2466,6 +2466,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 页面级完成标准：目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用
 
 - 当前页面执行（2026-10-23）：卡片/表格目录、Lab三栏、文件/参数编辑、版本与保存状态、409 diff、双主题及响应式已实现，源码`f2854052`最终attempt-01的55项前端、15项门禁/路由、12项Chromium及10张独立视觉比较通过；类型/lint/构建通过，工程Gate=PASS_UI_P06_CURRENT_PAGE；18次P06 axe零violations并保留18条incomplete扫描记录，原UI301的8条及本轮回归12条分别保留。验证见[规程](./operations/ui-p06-strategy-workbench.md)、[报告](./audit/UI-P06-current-page-review-2026-10-23.md)和[证据索引](./audit/evidence/ui-p06-local-20261023/README.md)。C05未提供浏览器创建/历史版本；静态检查与回测属于UI-302，Release/审批属于UI-303，未执行项不显示假通过。原UI-301确认保持原候选；stage_gate仍NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，完整联调/发布及目标验收NOT_RUN。下一原任务UI-302。
+
+- 用户确认执行（2026-10-23）：项目用户明确接受工程`f2854052`、原稿及证据包`0d998c4e`；[原文、摘要与确认门禁](./audit/evidence/ui-p06-confirmation-20261023/README.md)。COMPLETED只指原限定页面确认；18/12/8条incomplete记录、全部失败/NOT_RUN、NOT_ASSESSED与runtimeAdmission=DENIED保留，不改绑新HEAD。
 
 <a id="task-ui-302"></a>
 ##### UI-302：静态检查、回测队列与报告
