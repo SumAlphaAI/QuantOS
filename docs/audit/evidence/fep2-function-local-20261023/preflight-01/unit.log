@@ -1,0 +1,69 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ × apps/terminal/tests/fep2-closure.test.ts > composes Snapshot → create/list → SSE/C03 → Artifact/Evidence → C10 using actual frontend runtimes and one explicit model 76ms
+   → BFF request could not be completed
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks quality after snapshot selection and refuses create before dispatch 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks license after snapshot selection and refuses create before dispatch 1ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks freshness after snapshot selection and refuses create before dispatch 1ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > lost create response keeps one input/key; refresh is read only and only explicit retry repeats 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > lost cancellation response retains original key without auto replay; terminal status remains C03 authoritative 3ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > explicit stream recovery resumes only acknowledged sequence and does not repeat writes 105ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > offline prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > revoked prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > expired prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > csrf prevents writes across the composed create/detail lifecycle 1ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rejects membership drift between completed C03 and C04 without requesting audit 54ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rejects hash drift between completed C03 and C04 without requesting audit 53ms
+ × apps/terminal/tests/fep2-closure.test.ts > research read alone never grants audit read and retention expiry prevents subsequent preview 1ms
+   → BFF request could not be completed
+ ✓ apps/terminal/tests/fep2-closure.test.ts > permission_revoked closes the actual detail runtime and clears cursor/facts with no further dispatch 103ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > route teardown releases modeled streams, clears uncertain intent and prevents late reads/writes 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/fep2-closure.test.ts > composes Snapshot → create/list → SSE/C03 → Artifact/Evidence → C10 using actual frontend runtimes and one explicit model
+BffTransportError: BFF request could not be completed
+ ❯ packages/api-client/src/bff-transport.ts:49:13
+     47|     } catch (error) {
+     48|       if (error instanceof BffTransportError) throw error;
+     49|       throw new BffTransportError(controller.signal.aborted ? code : "…
+       |             ^
+     50|     } finally {
+     51|       clearTimeout(timer);
+ ❯ coreFetch node_modules/.pnpm/openapi-fetch@0.17.0/node_modules/openapi-fetch/src/index.js:171:19
+ ❯ loadEvidenceChain apps/terminal/src/audit/gateway.ts:69:18
+ ❯ apps/terminal/src/artifacts/runtime.ts:37:17
+ ❯ exclusive apps/terminal/src/artifacts/runtime.ts:14:157
+ ❯ apps/terminal/tests/fep2-closure.test.ts:20:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'NETWORK', outcomeUnknown: false }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/terminal/tests/fep2-closure.test.ts > research read alone never grants audit read and retention expiry prevents subsequent preview
+BffTransportError: BFF request could not be completed
+ ❯ packages/api-client/src/bff-transport.ts:49:13
+     47|     } catch (error) {
+     48|       if (error instanceof BffTransportError) throw error;
+     49|       throw new BffTransportError(controller.signal.aborted ? code : "…
+       |             ^
+     50|     } finally {
+     51|       clearTimeout(timer);
+ ❯ coreFetch node_modules/.pnpm/openapi-fetch@0.17.0/node_modules/openapi-fetch/src/index.js:171:19
+ ❯ loadEvidenceChain apps/terminal/src/audit/gateway.ts:69:18
+ ❯ apps/terminal/src/artifacts/runtime.ts:37:17
+ ❯ exclusive apps/terminal/src/artifacts/runtime.ts:14:157
+ ❯ apps/terminal/tests/fep2-closure.test.ts:50:120
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'NETWORK', outcomeUnknown: false }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 14 passed (16)
+   Start at  12:51:38
+   Duration  716ms (transform 145ms, setup 0ms, import 237ms, tests 413ms, environment 0ms)
+
+JSON report written to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/fep2-function-local-20261023/preflight-01/unit.json

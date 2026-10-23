@@ -1,0 +1,144 @@
+[
+  {
+    "id": "development-start",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-2"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:24.337Z",
+    "elapsedMs": 169,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/development-start.log",
+    "logSha256": "sha256:af9879971020294a8fc5a3f41fb6482a13357f3306bb7c68ac2b1c7e0387cdd2"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-301"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:24.507Z",
+    "elapsedMs": 171,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/next-development.log",
+    "logSha256": "sha256:2a9dddccfb2702dc56231fbb3818433b3c88856e2d7d4d31bc36d9a7cdeb863b"
+  },
+  {
+    "id": "frontend-composition",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/fep2-closure.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/fep2-function-local-20261023/attempt-01/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:24.678Z",
+    "elapsedMs": 1123,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/frontend-composition.log",
+    "logSha256": "sha256:4ad82c7821f83977cf6806d94749dc71ca49bc02f9e55a368a63b293ce7abb53"
+  },
+  {
+    "id": "terminal-types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:25.802Z",
+    "elapsedMs": 1006,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/terminal-types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "execution-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/development-execution.test.mjs",
+      "scripts/fep2-function-review.test.mjs",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:26.809Z",
+    "elapsedMs": 575,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/execution-negative.log",
+    "logSha256": "sha256:14ed62ea7302ced848912a8179332baa4207de42b358f1a0e8389df043a7355e"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/tests/fep2-fixture.ts",
+      "apps/terminal/tests/fep2-closure.test.ts",
+      "scripts/fep2-function-review.mjs",
+      "scripts/fep2-function-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:27.384Z",
+    "elapsedMs": 486,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:27.870Z",
+    "elapsedMs": 54,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-2"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:58:27.925Z",
+    "elapsedMs": 170,
+    "log": "docs/audit/evidence/fep2-function-local-20261023/attempt-01/integration-refusal.log",
+    "logSha256": "sha256:99f9b570270413b309600f49381b6290dd1b5e60421c859ee4978d16c7971e29"
+  }
+]

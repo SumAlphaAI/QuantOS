@@ -1,0 +1,68 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ × apps/terminal/tests/fep2-closure.test.ts > composes Snapshot → create/list → SSE/C03 → Artifact/Evidence → C10 using actual frontend runtimes and one explicit model 73ms
+   → 审计服务响应无效，请稍后重试。
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks quality after snapshot selection and refuses create before dispatch 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks license after snapshot selection and refuses create before dispatch 1ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rechecks freshness after snapshot selection and refuses create before dispatch 1ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > lost create response keeps one input/key; refresh is read only and only explicit retry repeats 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > lost cancellation response retains original key without auto replay; terminal status remains C03 authoritative 3ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > explicit stream recovery resumes only acknowledged sequence and does not repeat writes 105ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > offline prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > revoked prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > expired prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > csrf prevents writes across the composed create/detail lifecycle 2ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rejects membership drift between completed C03 and C04 without requesting audit 53ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > rejects hash drift between completed C03 and C04 without requesting audit 59ms
+ × apps/terminal/tests/fep2-closure.test.ts > research read alone never grants audit read and retention expiry prevents subsequent preview 4ms
+   → 审计服务响应无效，请稍后重试。
+ ✓ apps/terminal/tests/fep2-closure.test.ts > permission_revoked closes the actual detail runtime and clears cursor/facts with no further dispatch 107ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > route teardown releases modeled streams, clears uncertain intent and prevents late reads/writes 6ms
+ ✓ apps/terminal/tests/fep2-closure.test.ts > expired creation deadline refuses dispatch even when a newly selected snapshot is fresh 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/fep2-closure.test.ts > composes Snapshot → create/list → SSE/C03 → Artifact/Evidence → C10 using actual frontend runtimes and one explicit model
+AuditGatewayError: 审计服务响应无效，请稍后重试。
+ ❯ required apps/terminal/src/audit/gateway.ts:48:11
+     46|     return value;
+     47|   } catch {
+     48|     throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.r…
+       |           ^
+     49|   }
+     50| }
+ ❯ loadEvidenceChain apps/terminal/src/audit/gateway.ts:72:10
+ ❯ apps/terminal/src/artifacts/runtime.ts:37:17
+ ❯ exclusive apps/terminal/src/artifacts/runtime.ts:14:157
+ ❯ apps/terminal/tests/fep2-closure.test.ts:20:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { operation: 'getEvidenceChain', status: 200, correlationId: undefined, retryAfter: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/terminal/tests/fep2-closure.test.ts > research read alone never grants audit read and retention expiry prevents subsequent preview
+AuditGatewayError: 审计服务响应无效，请稍后重试。
+ ❯ required apps/terminal/src/audit/gateway.ts:48:11
+     46|     return value;
+     47|   } catch {
+     48|     throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.r…
+       |           ^
+     49|   }
+     50| }
+ ❯ loadEvidenceChain apps/terminal/src/audit/gateway.ts:72:10
+ ❯ apps/terminal/src/artifacts/runtime.ts:37:17
+ ❯ exclusive apps/terminal/src/artifacts/runtime.ts:14:157
+ ❯ apps/terminal/tests/fep2-closure.test.ts:50:120
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { operation: 'getEvidenceChain', status: 200, correlationId: undefined, retryAfter: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 15 passed (17)
+   Start at  12:52:05
+   Duration  669ms (transform 114ms, setup 0ms, import 183ms, tests 427ms, environment 0ms)
+
+JSON report written to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/fep2-function-local-20261023/preflight-02/unit.json

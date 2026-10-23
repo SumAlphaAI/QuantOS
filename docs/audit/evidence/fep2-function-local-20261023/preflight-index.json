@@ -1,0 +1,117 @@
+{
+  "schema": "quantos-fep2-preflight-index/v1",
+  "sourceFrozen": false,
+  "sameShaAcceptance": "NOT_CLAIMED",
+  "sourceSnapshot": "NOT_CAPTURED_FOR_PREFLIGHTS",
+  "records": [
+    {
+      "directory": "preflight-01",
+      "command": "pnpm exec vitest run apps/terminal/tests/fep2-closure.test.ts --reporter=verbose --reporter=json --outputFile=docs/audit/evidence/fep2-function-local-20261023/preflight-01/unit.json",
+      "exitCode": 1,
+      "tests": 16,
+      "passed": 14,
+      "failed": 2,
+      "finding": "fixture C10 route missing /audit; fixed fixture only"
+    },
+    {
+      "directory": "preflight-02",
+      "commands": [
+        {
+          "command": "pnpm exec vitest run apps/terminal/tests/fep2-closure.test.ts --reporter=verbose --reporter=json --outputFile=docs/audit/evidence/fep2-function-local-20261023/preflight-02/unit.json",
+          "exitCode": 1,
+          "tests": 17,
+          "passed": 15,
+          "failed": 2
+        },
+        {
+          "command": "pnpm --filter @sumalpha/terminal typecheck",
+          "exitCode": 0
+        }
+      ],
+      "finding": "fixture EvidenceNode required route absent; fixed fixture only"
+    },
+    {
+      "directory": "preflight-03",
+      "command": "pnpm exec vitest run apps/terminal/tests/fep2-closure.test.ts --reporter=verbose --reporter=json --outputFile=docs/audit/evidence/fep2-function-local-20261023/preflight-03/unit.json",
+      "exitCode": 1,
+      "tests": 17,
+      "passed": 16,
+      "failed": 1,
+      "finding": "no-store asserted for POST too; limited assertion to GET"
+    },
+    {
+      "directory": "preflight-04",
+      "commands": [
+        {
+          "command": "pnpm exec vitest run apps/terminal/tests/fep2-closure.test.ts --reporter=verbose --reporter=json --outputFile=docs/audit/evidence/fep2-function-local-20261023/preflight-04/unit.json",
+          "exitCode": 0,
+          "tests": 17,
+          "passed": 17,
+          "failed": 0
+        },
+        {
+          "command": "node --test scripts/fep2-function-review.test.mjs",
+          "exitCode": 0,
+          "tests": 64,
+          "passed": 64
+        },
+        {
+          "command": "pnpm exec eslint apps/terminal/tests/fep2-fixture.ts apps/terminal/tests/fep2-closure.test.ts scripts/fep2-function-review.mjs scripts/fep2-function-review.test.mjs",
+          "exitCode": 1
+        }
+      ],
+      "finding": "test tool structuredClone no-undef; changed to globalThis.structuredClone"
+    },
+    {
+      "directory": "preflight-05",
+      "commands": [
+        {
+          "command": "node --test scripts/development-execution.test.mjs scripts/fep2-function-review.test.mjs scripts/development-plan-order-negative.mjs",
+          "exitCode": 1,
+          "tests": 140,
+          "passed": 112,
+          "failed": 28
+        },
+        {
+          "command": "pnpm exec eslint apps/terminal/tests/fep2-fixture.ts apps/terminal/tests/fep2-closure.test.ts scripts/fep2-function-review.mjs scripts/fep2-function-review.test.mjs",
+          "exitCode": 0
+        },
+        {
+          "command": "node scripts/check-development-plans.mjs",
+          "exitCode": 1
+        }
+      ],
+      "finding": "plan linked future receipt before generation; changed to existing evidence README, no placeholder PASS"
+    },
+    {
+      "directory": "preflight-06",
+      "commands": [
+        {
+          "command": "node --test scripts/development-execution.test.mjs scripts/fep2-function-review.test.mjs scripts/development-plan-order-negative.mjs",
+          "exitCode": 0,
+          "tests": 140,
+          "passed": 140,
+          "failed": 0
+        },
+        {
+          "command": "node scripts/check-development-plans.mjs",
+          "exitCode": 0
+        },
+        {
+          "command": "import fep2 helpers: planCheck; ledgerCheck; reusedEvidence",
+          "exitCode": 0
+        }
+      ],
+      "retainedPacketFiles": 1973,
+      "finding": "all bounded policy/plan/retention checks passed; engineering not yet frozen"
+    }
+  ],
+  "commandNotation": "Reconstructed from this turn tool calls; pnpm resolves to pinned 10.20.0 executable. Raw logs are unchanged; preflight source snapshots were not captured.",
+  "additionalObservedFailure": {
+    "command": "node --input-type=module -e import fep2 helpers; planCheck(); ledgerCheck(); reusedEvidence()",
+    "exitCode": 1,
+    "error": "broken local link ./audit/evidence/fep2-function-local-20261023/receipt.json",
+    "rawLog": "NOT_SAVED_SEPARATELY_TOOL_OUTPUT_ONLY",
+    "resolution": "plan references existing README; no fake receipt created"
+  }
+}
