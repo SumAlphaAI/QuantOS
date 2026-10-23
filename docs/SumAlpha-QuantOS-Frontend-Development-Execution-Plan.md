@@ -2669,7 +2669,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-501", "UI-VIS-000", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2678,6 +2678,9 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 契约绑定：C06
 - 所属阶段：FEP-5
 - 页面级完成标准：仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写
+
+- 功能/视觉交付：`/portfolio`、`/risk`、严格 UUID `/risk/rules/:ruleId`；主工作区+右侧风险栏、六指标/权益/仓位/敞口、当前规则引用详情、真实快照观察、共用 DangerConfirm+MFA、陈旧/未知禁写与原意图恢复。来源未提供的估值/历史/阈值/规则定义/受控报告明确不可用，不补示例数值。详见 [P08说明](./operations/ui-p08-portfolio-risk.md)。
+- 有界证据见 [P08证据](./audit/evidence/ui-p08-local-20261023/README.md)，`node scripts/ui-p08-review.mjs --verify` 复核。参考组合/明暗三宽度/键盘/axe不代表目标、正式ACCEPTED或RELEASE；stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED；下一原任务FE:UI-502。
 
 <a id="task-ui-502"></a>
 ##### UI-502：Proposal 与风险评估

@@ -56,7 +56,7 @@ export function createPortfolioRuntime(config: { origin: string; authorize: () =
     const url = new URL('/v1/portfolio/stream', config.origin); url.searchParams.set('accountId', context!.accountId); url.searchParams.set('afterSequence', String(target.afterSequence));
     try {
       const r = await transport(url, { credentials: 'include', cache: 'no-store', signal, headers: { accept: 'text/event-stream' } }); guard();
-      if (r.status !== 200 || !r.body || !r.headers.get('content-type')?.includes('text/event-stream')) { await r.body?.cancel(); if ([401,403].includes(r.status)) config.invalidate(r.status); fail(r.status === 200 ? 502 : r.status); }
+      if (r.status !== 200 || !r.body || !r.headers.get('content-type')?.includes('text/event-stream')) { let correlationId:string|undefined; try { const error=bffZodSchemas.ErrorEnvelope.safeParse(await r.json()); if(error.success)correlationId=error.data.correlationId; } catch { await r.body?.cancel().catch(() => {}); } if ([401,403].includes(r.status)) config.invalidate(r.status); throw new PortfolioError(r.status === 200 ? 502 : r.status,correlationId); }
       // The reference returns a finite journal. This bounded poll also accepts a live stream.
       let buffer = ''; const decoder = new TextDecoder('utf-8', { fatal: true });
       const bounded = r.body!.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({ transform(chunk, out) {
