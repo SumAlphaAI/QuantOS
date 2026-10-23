@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import process from 'node:process';
+import console from 'node:console';
+import {bytesDigest as hash,confirmationPolicy,reviewDimensions} from './user-acceptance-confirmation.mjs';
+export const directory='docs/audit/evidence/ui301-confirmation-20261023',source='0642eaadb7d84a76caec4c58aa153e0caa75a8b4',packet='0eac15e4e715049853d69fbf465d38eaee7dd1b2';
+const read=p=>readFileSync(p),json=p=>JSON.parse(read(p)),committed=p=>execFileSync('git',['show',packet+':'+p],{maxBuffer:64e6});
+export function validateRecord(r,scope,raw){
+ confirmationPolicy();assert.equal(r.schema,'quantos-user-acceptance-confirmation/v1');assert.equal(r.mode,'AGENT_DRAFT_USER_CONFIRMATION');assert.equal(r.decision,'CONFIRMED');assert.equal(r.approver,'ProjectUser');assert(r.identity.trim());assert(Number.isFinite(Date.parse(r.confirmedAt))&&Date.parse(r.confirmedAt)<=Date.now());assert.equal(r.confirmationSource.kind,'USER_MESSAGE');assert.equal(raw,r.confirmationSource.text+'\n');assert(r.confirmationSource.text.startsWith('确认接受 UI-301 限定候选及待确认文稿，保存确认原文并绑定提交与证据摘要。'));assert.equal(r.confirmationSource.scopeResolution,'EXPLICIT_UI301_CONFIRMATION_OF_PREVIOUS_TURN_PACKET');assert.equal(r.documentFormat,'IMMUTABLE_COMMITTED_PROSE');assert.equal(r.document,'docs/audit/UI-301-function-review-2026-10-23.md');assert.equal(r.documentCommit,packet);assert.deepEqual(r.request,scope.request);assert.equal(r.request.sourceCommit,source);assert.equal(r.request.packetCommit,packet);assert.equal(r.request.stage,'DEVELOPMENT');assert.equal(r.request.nodeId,'FE:UI-301');assert.deepEqual(r.request.reviewDimensions,reviewDimensions);
+ for(const [k,v]of Object.entries({scopeAdmission:'UI301_CURRENT_FUNCTION_REFERENCE_ONLY',stageGate:'NOT_ASSESSED',formalAccepted:false,runtimeAdmission:'DENIED',currentHeadAcceptance:'NOT_CLAIMED',releaseAcceptance:'NOT_RUN',axeIncomplete:8,allOriginalFailuresRetained:true}))assert.deepEqual(r[k],v,k);
+}
+export function verify(){
+ const approval=json(directory+'/approval.json');assert.equal(hash(read(approval.record)),approval.recordSha256);const r=json(approval.record),scope=json(r.approvedScope.path),manifest=json(r.approvedTechnicalManifest.path);assert.equal(hash(read(r.approvedScope.path)),r.approvedScope.sha256);assert.equal(hash(read(r.approvedTechnicalManifest.path)),r.approvedTechnicalManifest.sha256);validateRecord(r,scope,read(r.confirmationSource.rawRecord).toString());assert.equal(hash(read(r.document)),r.documentSha256);assert.deepEqual(read(r.document),committed(r.document));
+ assert.equal(manifest.sourceCommit,source);assert.equal(manifest.packetCommit,packet);const paths=execFileSync('git',['ls-tree','-r','--name-only',packet,'--','docs/audit/evidence/ui301-local-20261023'],{encoding:'utf8'}).trim().split('\n');assert.deepEqual(manifest.files.map(f=>f.path),[...paths,r.document,'docs/operations/ui301-strategy-drafts.md']);for(const f of manifest.files){assert.equal(hash(committed(f.path)),f.sha256);assert.equal(hash(read(f.path)),f.sha256);}
+ const receipt=JSON.parse(committed(scope.technicalReceipt.path));assert.equal(hash(read(scope.technicalReceipt.path)),scope.technicalReceipt.sha256);assert.equal(receipt.sourceCommit,source);assert.equal(hash(JSON.stringify(receipt.inputs)),r.request.inputsDigest);assert.equal(receipt.confirmation,'PENDING');assert.equal(receipt.engineeringGate,'PASS_UI301_CURRENT_FUNCTION');assert.equal(receipt.stageGate,'NOT_ASSESSED');assert.equal(receipt.formalAccepted,false);assert.equal(receipt.runtimeAdmission,'DENIED');for(const f of receipt.inputs){assert.equal(hash(execFileSync('git',['show',source+':'+f.path],{maxBuffer:64e6})),f.sha256);}
+ return{status:'CONFIRMED',sourceCommit:source,packetCommit:packet,scopeAdmission:r.scopeAdmission,originalFiles:manifest.files.length,axeIncomplete:8,currentHeadAcceptance:'NOT_CLAIMED',stageGate:'NOT_ASSESSED',formalAccepted:false,runtimeAdmission:'DENIED'};
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{console.log(JSON.stringify(verify()));}catch(e){console.error(e.stack);process.exitCode=1;}}

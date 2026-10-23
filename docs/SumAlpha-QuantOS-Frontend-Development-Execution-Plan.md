@@ -2433,7 +2433,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-203", "UI-204", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2442,6 +2442,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端
 
 - 当前功能执行（2026-10-23）：Strategy 目录、版本化 Lab 草稿、1000ms 自动保存、409 基础/本地/服务端 diff 与显式合并、丢失响应同键重试、权限失效清除已实现；源码`0642eaad`最终attempt-06的38项前端、5项Rust、14项路由/门禁、6项Chromium、类型/lint/构建通过，工程Gate=PASS_UI301_CURRENT_FUNCTION；12次axe零violations并保留8项color-contrast incomplete；修复reference审批者/owner被会话流错误撤权。限定本机验证见[规程](./operations/ui301-strategy-drafts.md)、[报告](./audit/UI-301-function-review-2026-10-23.md)、[证据索引](./audit/evidence/ui301-local-20261023/README.md)。C05 无浏览器新建策略接口，`/strategies/new` 明示由服务端注册。功能门禁与完整联调/发布分开记账；stage_gate 保持 NOT_ASSESSED，用户确认待定、formalAccepted=false、runtimeAdmission=DENIED；真实 IdP/CORS、Supabase/Storage、托管 rewrite、Firefox/WebKit、读屏/native 200%、远程 CI、性能与发布均 NOT_RUN。下一原任务 UI-P06 可继续功能开发。
+
+- 用户确认执行（2026-10-23）：项目用户本会话原文确认原限定候选`0642eaad`及文稿/证据包`0eac15e4`；见[原始确认、范围与摘要](./audit/evidence/ui301-confirmation-20261023/README.md)。COMPLETED仅指原当前功能范围，旧receipt的PENDING保留为历史；8项incomplete、全部失败/NOT_RUN、stage_gate=NOT_ASSESSED、formalAccepted=false与runtimeAdmission=DENIED不变，不改绑新HEAD。
 
 <a id="task-ui-p06"></a>
 ##### UI-P06：P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png
