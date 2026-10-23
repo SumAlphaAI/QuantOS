@@ -1,0 +1,106 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/ui505.spec.ts:11:5 › UI505 actual submit and cancel use server refs, actual dense facts and terminal reload (2.6s)
+  ✓  2 [chromium] › tests/e2e/ui505.spec.ts:12:53 › UI505 committed lost submit recovers exact original key/body only after explicit action (2.3s)
+  ✓  3 [chromium] › tests/e2e/ui505.spec.ts:12:53 › UI505 committed lost cancel recovers exact original key/body only after explicit action (2.4s)
+  ✓  4 [chromium] › tests/e2e/ui505.spec.ts:13:5 › UI505 expired source and approver identity cannot submit (2.2s)
+  ✓  5 [chromium] › tests/e2e/ui505.spec.ts:14:5 › UI505 explicit confirmation cancel and Escape never write; known conflict never acknowledges (2.2s)
+  ✓  6 [chromium] › tests/e2e/ui505.spec.ts:15:5 › UI505 empty/loading, bounded 429 and invalid references remain read only (3.4s)
+  ✓  7 [chromium] › tests/e2e/ui505.spec.ts:16:5 › UI505 actual logout and offline wipe facts and unknown intents (2.3s)
+  ✘  8 [chromium] › tests/e2e/ui505.spec.ts:17:5 › UI505 actual order facts desktop/mobile light/dark have no overflow and axe violations (2.5s)
+
+
+  1) [chromium] › tests/e2e/ui505.spec.ts:17:5 › UI505 actual order facts desktop/mobile light/dark have no overflow and axe violations 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 70
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+    +     "help": "Links must be distinguishable without relying on color",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
+    +     "id": "link-in-text-block",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "contrastRatio": 1.68,
+    +               "messageKey": "fgContrast",
+    +               "nodeColor": "#31c8f4",
+    +               "parentColor": "#e8eef7",
+    +               "requiredContrastRatio": 3,
+    +             },
+    +             "id": "link-in-text-block",
+    +             "impact": "serious",
+    +             "message": "The link has insufficient color contrast of 1.68:1 with the surrounding text. (Minimum contrast is 3:1, link text: #31c8f4, surrounding text: #e8eef7)",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<li><a href=\"/orders/21fd8397-c31c-4851-af30-4a91151e61c0\">查看订单 21fd8397-c31c-4851-af30-4a91151e61c0</a> · BTCUSDT / buy / accepted · Filled 0 / 1500</li>",
+    +                 "target": Array [
+    +                   "ul > li",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "link-in-text-block-style",
+    +             "impact": "serious",
+    +             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<li><a href=\"/orders/21fd8397-c31c-4851-af30-4a91151e61c0\">查看订单 21fd8397-c31c-4851-af30-4a91151e61c0</a> · BTCUSDT / buy / accepted · Filled 0 / 1500</li>",
+    +                 "target": Array [
+    +                   "ul > li",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The link has insufficient color contrast of 1.68:1 with the surrounding text. (Minimum contrast is 3:1, link text: #31c8f4, surrounding text: #e8eef7)
+    +   The link has no styling (such as underline) to distinguish it from the surrounding text",
+    +         "html": "<a href=\"/orders/21fd8397-c31c-4851-af30-4a91151e61c0\">查看订单 21fd8397-c31c-4851-af30-4a91151e61c0</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "li > a",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2a",
+    +       "wcag141",
+    +       "TTv5",
+    +       "TT13.a",
+    +       "EN-301-549",
+    +       "EN-9.1.4.1",
+    +       "RGAAv4",
+    +       "RGAA-10.6.1",
+    +     ],
+    +   },
+    + ]
+
+      15 | test('UI505 empty/loading, bounded 429 and invalid references remain read only',async({page})=>{fault({empty:true,slow:true});await page.goto('/orders');await authorized(page);await expect(page.getByText('正在读取订单…',{exact:true})).toBeVisible();await expect(page.getByText('当前授权的订单页为空。',{exact:true})).toBeVisible();fault({rateLimit:true});await page.getByRole('button',{name:'刷新订单列表',exact:true}).click();await expect(errors(page)).toContainText('冷却');await expect(page.getByText('private SQL',{exact:false})).toHaveCount(0);await expect(page.getByRole('button',{name:'刷新订单列表',exact:true})).toBeDisabled();const count=networkRows().length;await page.goto('/orders?commandRef=forged');await expect(page.getByRole('heading',{name:'Orders 引用无效',exact:true})).toBeVisible();expect(networkRows()).toHaveLength(count);expect((await page.goto('/orders/nope'))?.status()).toBe(404);expect(writes()).toHaveLength(0);});
+      16 | test('UI505 actual logout and offline wipe facts and unknown intents',async({page,context})=>{await open(page);await confirm(page,'submit');await expect(facts(page)).toContainText('accepted');await context.setOffline(true);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(facts(page)).toHaveCount(0);await context.setOffline(false);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await page.reload();await authorized(page);expect((await control('/v1/auth/logout',undefined,undefined,{method:'POST'})).status).toBe(204);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();});
+    > 17 | test('UI505 actual order facts desktop/mobile light/dark have no overflow and axe violations',async({page},info)=>{await open(page);await confirm(page,'submit');await expect(facts(page)).toContainText('accepted');const scans=[];for(const theme of ['dark','light']as const){await page.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('ui505-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`orders-${theme}-${width}.png`),fullPage:true});}}});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      18 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui505.spec.ts:17:816
+
+    Error Context: docs/audit/evidence/ui505-local-20261024/attempt-02/browser/ui505-UI505-actual-order-f-3aac2-overflow-and-axe-violations-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui505-local-20261024/attempt-02/browser/ui505-UI505-actual-order-f-3aac2-overflow-and-axe-violations-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui505.spec.ts:17:5 › UI505 actual order facts desktop/mobile light/dark have no overflow and axe violations 
+  7 passed (21.1s)

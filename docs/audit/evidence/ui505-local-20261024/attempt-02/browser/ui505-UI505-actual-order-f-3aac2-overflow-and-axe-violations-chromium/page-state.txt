@@ -1,0 +1,61 @@
+Command 提交 · Orders / Fills
+
+只消费服务端签发的引用；不构造交易命令体，不把受理当成交。
+
+切换主题
+服务端 Command 引用
+
+只有发起人持有的已批准、已签发且未过期引用才可新提交；最终权限、风险、额度和有效期由服务端再次校验。
+
+Approval
+选择已授权申请
+01a169c2-27e2-7143-ae68-a22cf9e8a695 · approved · consumed
+重新读取 Command 引用刷新审批引用列表
+
+审批引用列表仅当前授权前50项；其他申请可通过仅含Approval UUID的深链进入。引用本身不能授予权限。
+
+服务端已受理 · 不是成交
+
+submit · accepted · jobId 21fd8397-c31c-4851-af30-4a91151e61c0
+
+关联 ID 01a169c2-27dd-76f2-a7b1-042fb679de04 · Audit beb7be2c-219e-40a0-a28b-90b264241db6
+
+读取已受理订单事实
+
+不把通用jobId当作Order ID；仅从授权查询的真实订单与审批溯源匹配资源。
+
+订单列表
+刷新订单列表
+查看订单 21fd8397-c31c-4851-af30-4a91151e61c0 · BTCUSDT / buy / accepted · Filled 0 / 1500
+
+每页50、本次访问最多1000条；统计仅已加载部分，未知/受理不补造订单。
+
+Order / Fill 当前事实
+
+事实核查有效 · Sequence 1
+
+Order / 状态
+21fd8397-c31c-4851-af30-4a91151e61c0 / accepted
+Command / Proposal / RiskDecision / Release
+01a169c2-27eb-7bc3-9955-108ff02b6338 / ac9a7d92-7555-491b-a6ab-f3513ea83519 / 01a169c2-27e9-7450-a580-ac53db1bd662 / 01a169c2-27da-7bd2-9417-2f12666955ce
+账户 / mode / venue
+44444444-4444-4444-8444-444444444444 / paper / OWNED_PAPER (mock)
+标的 / 动作 / 方向
+BTCUSDT / increase / buy
+数量 / 已成交 / 均价
+1500 / 0 / 0
+提交时间 / 关联 ID
+2026-10-23T17:14:54.501055Z / 01a169c2-27dd-76f2-a7b1-042fb679de04
+续传并核对订单事实重新读取完整订单请求撤单
+Fills
+
+没有已确认成交事实；不推断成交。
+
+Order / Fill 事实时间线
+#1 · accepted
+
+2026-10-23T17:14:54.501055Z · Filled 0/1500 · event 01a169c2-28a8-7481-8e4f-861091ca9a57
+
+累计确认 Fill：无
+
+仅展示实际已回补的状态与成交快照，未观测到的中间状态不补画。断流/序号空洞停止写入，从最后确认序号显式续传。
