@@ -2500,7 +2500,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-302", "UI-507", "BFF-FE-004", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - 当前功能执行（2026-10-23）：源码`c1774a74`限定工程Gate=PASS_UI303_REFERENCE_FUNCTION；125前端/真实consumer、20门禁/路由、21C05/C08、11Chromium通过，4axe扫描零violations/零incomplete；类型/lint/format、构建和计划验证通过。不可变Release创建/目录/详情、C05/C08审批申请/时间线、后端allowedTargets目标选择落地；创建前重验固定版本与完整证据，202仅受理，未知结果原键恢复；未批准/过期/不可用目标阻断，选择不部署/交易。预检失败完整保留。见[规程](./operations/ui303-immutable-releases.md)、[报告](./audit/UI-303-current-function-review-2026-10-23.md)、[证据](./audit/evidence/ui303-local-20261023/README.md)和[待确认稿](./audit/evidence/ui303-local-20261023/confirmation-draft.md)。人工确认PENDING；stage_gate NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；保留原UI302/P06/UI301所有incomplete和NOT_RUN，真实身份/目标持久服务、远程CI、完整联调/发布仍NOT_RUN。下一原任务UI-P07。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
@@ -2508,6 +2508,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 需求描述：不可变 Release、审批申请与目标选择
 - 接口绑定：C05、C08
 - 验收重点：hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets`
+
+- 用户确认（2026-10-23）：项目用户已确认限定候选`c1774a74`与`3a66e307`原稿证据包，见[原文与摘要](./audit/evidence/ui303-confirmation-20261023/README.md)。COMPLETED仅表示原功能范围确认，保留历史incomplete及全部NOT_RUN；原receipt不改，stage_gate NOT_ASSESSED、runtimeAdmission=DENIED，不接受之后HEAD。
 
 <a id="task-ui-p07"></a>
 ##### UI-P07：P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png
