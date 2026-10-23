@@ -1,0 +1,97 @@
+[
+  {
+    "id": "G2-EVIDENCE-01",
+    "kind": "EVIDENCE_ACCOUNTING",
+    "status": "OPEN",
+    "affectedNodes": [
+      "FE:FEP-2",
+      "FRONTEND-GATE:G2"
+    ],
+    "summary": "FEP-2当前范围与依赖适用性尚未冻结映射",
+    "evidence": "docs/audit/evidence/frontend-g2-gap-20261023/actions.json",
+    "owner": "FE:FEP-2",
+    "acceptance": "在FEP-2原任务中映射同候选的受影响输入、直接依赖与已有证据，不递归重跑全部上游",
+    "boundary": "只影响阶段评估；G1辅助项及旧NOT_ASSESSED不作开发前置",
+    "sourceCommit": null,
+    "observedAtCommit": "b9063bb7126302d0cffa45566a11e16338e844e7",
+    "isPlanTask": false,
+    "developmentPrerequisite": false,
+    "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+  },
+  {
+    "id": "G2-JOURNEY-01",
+    "kind": "INTEGRATION_OBLIGATION",
+    "status": "NOT_RUN_COMPOSED_SCOPE",
+    "affectedNodes": [
+      "FE:FEP-2",
+      "FRONTEND-GATE:G2"
+    ],
+    "summary": "固定Snapshot→Research→实际产物/Evidence→Audit组合与重放证据不足",
+    "evidence": "docs/audit/evidence/frontend-g2-gap-20261023/actions.json",
+    "owner": "FE:FEP-2",
+    "acceptance": "FEP-2内围绕固定输入补最小真实模块组合，外部输入可用自有合成/端口适配；保持实际产物成员及hash/correlation/causation一致",
+    "boundary": "已有reference与标记覆盖不能冒充worker完成；本轮不执行组合或数据库",
+    "sourceCommit": null,
+    "observedAtCommit": "b9063bb7126302d0cffa45566a11e16338e844e7",
+    "isPlanTask": false,
+    "developmentPrerequisite": false,
+    "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+  },
+  {
+    "id": "G2-RECOVERY-01",
+    "kind": "INTEGRATION_OBLIGATION",
+    "status": "NOT_RUN_COMPOSED_SCOPE",
+    "affectedNodes": [
+      "FE:FEP-2",
+      "FRONTEND-GATE:G2"
+    ],
+    "summary": "服务组合的取消/deadline/重启恢复与资源释放仍缺直接证据",
+    "evidence": "docs/audit/evidence/frontend-g2-gap-20261023/actions.json",
+    "owner": "FE:FEP-2",
+    "acceptance": "FEP-2内按实际组合验证取消终态、SSE续传、幂等和恢复审计；仅补新增受影响组合，性能采样独立记录",
+    "boundary": "保留原单测/reference成功和失败；目标取消≤2s验收仍归RELEASE，不以旧浏览器耗时当P95",
+    "sourceCommit": null,
+    "observedAtCommit": "b9063bb7126302d0cffa45566a11e16338e844e7",
+    "isPlanTask": false,
+    "developmentPrerequisite": false,
+    "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+  },
+  {
+    "id": "G2-A11Y-01",
+    "kind": "ENVIRONMENT_OBLIGATION",
+    "status": "BLOCKED_ENVIRONMENT",
+    "affectedNodes": [
+      "FE:FEP-2",
+      "FRONTEND-GATE:G2"
+    ],
+    "summary": "Firefox/WebKit及32条跨轮incomplete扫描记录待独立核对",
+    "evidence": "docs/audit/evidence/frontend-g2-gap-20261023/actions.json",
+    "owner": "FE:FEP-2",
+    "acceptance": "保留原6图标+2表头+P03十二条+P04十二条，安排有界人工对比度/读屏/原生缩放及适用浏览器环境核对",
+    "boundary": "仅原记录索引；32不代表32独立缺陷，P04节点76为跨扫描出现次数；完整矩阵归发布",
+    "sourceCommit": null,
+    "observedAtCommit": "b9063bb7126302d0cffa45566a11e16338e844e7",
+    "isPlanTask": false,
+    "developmentPrerequisite": false,
+    "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+  },
+  {
+    "id": "G2-TARGET-01",
+    "kind": "RELEASE_OBLIGATION",
+    "status": "NOT_RUN_AUTHORIZED_ENVIRONMENT_REQUIRED",
+    "affectedNodes": [
+      "FE:FEP-2",
+      "FRONTEND-GATE:G2"
+    ],
+    "summary": "真实身份/数据库/Storage/provider与同SHA CI/目标性能/长稳/发布尚未验收",
+    "evidence": "docs/audit/evidence/frontend-g2-gap-20261023/actions.json",
+    "owner": "ORIGINAL_RELEASE_OWNERS",
+    "acceptance": "按原责任任务及RELEASE矩阵在明确环境与授权下组织，保持全部NOT_RUN和阈值",
+    "boundary": "外部环境及性能不成为DEVELOPMENT/INTEGRATION默认前置；不使用生产凭据或发布授权",
+    "sourceCommit": null,
+    "observedAtCommit": "b9063bb7126302d0cffa45566a11e16338e844e7",
+    "isPlanTask": false,
+    "developmentPrerequisite": false,
+    "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+  }
+]

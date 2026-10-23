@@ -1,0 +1,136 @@
+[
+  {
+    "id": "audit",
+    "command": [
+      "node",
+      "scripts/frontend-g2-gap-review.mjs",
+      "--write"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:49.437Z",
+    "finishedAt": "2026-10-23T04:36:52.643Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/audit.log",
+    "logSha256": "sha256:81cd81c7677db46fdc86c23c2a7aad687c3d4c4f990f1ba9aabe108666e57553"
+  },
+  {
+    "id": "audit-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-g2-gap-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:52.644Z",
+    "finishedAt": "2026-10-23T04:36:54.623Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/audit-tests.log",
+    "logSha256": "sha256:3f07e3696340626cf503ee7347fb099b99de20cfdb383062b68422edeb834b3c"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "eslint",
+      "scripts/frontend-g2-gap-review.mjs",
+      "scripts/frontend-g2-gap-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:54.623Z",
+    "finishedAt": "2026-10-23T04:36:55.480Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:55.481Z",
+    "finishedAt": "2026-10-23T04:36:55.655Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "g2-integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G2"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:55.656Z",
+    "finishedAt": "2026-10-23T04:36:55.955Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/g2-integration-refusal.log",
+    "logSha256": "sha256:8ea54f67c805a33207e50560167f84892890d25e0a0d4857ee740e9cbd4d822b"
+  },
+  {
+    "id": "fep2-integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-2"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:55.955Z",
+    "finishedAt": "2026-10-23T04:36:56.234Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/fep2-integration-refusal.log",
+    "logSha256": "sha256:99f9b570270413b309600f49381b6290dd1b5e60421c859ee4978d16c7971e29"
+  },
+  {
+    "id": "fep2-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-2"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:56.234Z",
+    "finishedAt": "2026-10-23T04:36:56.533Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/fep2-development.log",
+    "logSha256": "sha256:af9879971020294a8fc5a3f41fb6482a13357f3306bb7c68ac2b1c7e0387cdd2"
+  },
+  {
+    "id": "audit-verify",
+    "command": [
+      "node",
+      "scripts/frontend-g2-gap-review.mjs",
+      "--verify"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T04:36:56.533Z",
+    "finishedAt": "2026-10-23T04:36:58.088Z",
+    "log": "docs/audit/evidence/frontend-g2-gap-20261023/attempt-01/audit-verify.log",
+    "logSha256": "sha256:81cd81c7677db46fdc86c23c2a7aad687c3d4c4f990f1ba9aabe108666e57553"
+  }
+]

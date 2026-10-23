@@ -2399,6 +2399,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 }
 ```
 
+- 本轮核对（2026-10-23）：`PASS_GAP_ACCOUNTING_ONLY`，116/116门禁/调度/确认测试及8命令得到预期结果；G2/FEP-2缺口核对完成，观察源码`b9063bb7`；9/22直接依赖、并集23，7份研究页面及2份审计支撑原确认仅按原范围复用，不拼接为当前同候选联调通过。G2/FEP-2仍NOT_READY_GAPS_OPEN，159stage_gate保持NOT_ASSESSED，正式review字段不变。见[报告](./audit/FRONTEND-G2-FEP2-gap-review-2026-10-23.md)、[机器门禁](../scripts/frontend-g2-gap-review.mjs)与[跟踪记录](./execution/development-followups.json)。五项仅发现记录、非新增计划任务且developmentPrerequisite=false；下一原任务FEP-2开发允许，不先执行辅助整改，不重复全链。reference身份/CORS/端口替代、Firefox/WebKit、原6+2项及P03/P04各十二条incomplete、全部NOT_RUN保留；不提升联调/发布，无生产凭据/推送/部署。
+
 <a id="task-fep-2"></a>
 ##### FEP-2：研究闭环
 
