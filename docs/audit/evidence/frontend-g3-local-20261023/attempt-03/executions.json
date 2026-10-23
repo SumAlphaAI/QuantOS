@@ -1,0 +1,370 @@
+[
+  {
+    "id": "producer",
+    "command": [
+      "engines/.venv/bin/python",
+      "scripts/frontend-g3-produce.py"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:28.489Z",
+    "finishedAt": "2026-10-23T08:56:28.651Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/producer.log",
+    "logSha256": "sha256:fa17142cecb2b3c1759f11e1639882ef1d458ca81d5d333a920fe4a32b1aff35"
+  },
+  {
+    "id": "bff-binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:28.652Z",
+    "finishedAt": "2026-10-23T08:56:28.787Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/bff-binary.log",
+    "logSha256": "sha256:c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+  },
+  {
+    "id": "host-binary",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:28.816Z",
+    "finishedAt": "2026-10-23T08:56:28.941Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/host-binary.log",
+    "logSha256": "sha256:3cb8b8bb34c629d34f5b805a46a2658d11dde1bffcfe1807c0c182f6b516c5c9"
+  },
+  {
+    "id": "s04-tcp",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-strategy",
+      "--test",
+      "service_s04",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:28.965Z",
+    "finishedAt": "2026-10-23T08:56:30.998Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/s04-tcp.log",
+    "logSha256": "sha256:4515cff1a3bd2568bd8b5076d35038c9313ad6483a9ebe79a254191f64bf8a97"
+  },
+  {
+    "id": "rust-workspace",
+    "kind": "UNCHANGED_INPUT_REFERENCE_NOT_CURRENT_SHA_REEXECUTION",
+    "originalSourceCommit": "6ff11941adf26e2b7be438bc7f92281dd95d1ca4",
+    "original": {
+      "id": "rust-workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-23T08:47:14.409Z",
+      "finishedAt": "2026-10-23T08:50:27.828Z",
+      "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/rust-workspace.log",
+      "logSha256": "sha256:ca71cdee0a16f34e92a6bdabf28b201a066d63865b71a043bff4b5e62cf640f5"
+    },
+    "toolingOnlyChanges": [
+      "apps/terminal/tests/a2-aggregate-consumer.test.ts",
+      "apps/terminal/tests/a6-aggregate-consumer.test.ts",
+      "docs/operations/frontend-g3-integration.md",
+      "packages/api-client/tests/bff-response.test.ts",
+      "scripts/frontend-g3-review.mjs",
+      "scripts/frontend-g3-review.test.mjs"
+    ],
+    "unchangedInputs": 495,
+    "inputDigest": "sha256:b44f2ac7dbae64f1d651a0606da83455d536c0dc279971f87744993268e16bb6"
+  },
+  {
+    "id": "python-workspace",
+    "kind": "UNCHANGED_INPUT_REFERENCE_NOT_CURRENT_SHA_REEXECUTION",
+    "originalSourceCommit": "6ff11941adf26e2b7be438bc7f92281dd95d1ca4",
+    "original": {
+      "id": "python-workspace",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-23T08:50:27.828Z",
+      "finishedAt": "2026-10-23T08:50:39.809Z",
+      "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/python-workspace.log",
+      "logSha256": "sha256:55e83885b5c4a19d7bcd241e5a474768c8b7fe4c5be11f9bb66102a14251f0a4"
+    },
+    "toolingOnlyChanges": [
+      "apps/terminal/tests/a2-aggregate-consumer.test.ts",
+      "apps/terminal/tests/a6-aggregate-consumer.test.ts",
+      "docs/operations/frontend-g3-integration.md",
+      "packages/api-client/tests/bff-response.test.ts",
+      "scripts/frontend-g3-review.mjs",
+      "scripts/frontend-g3-review.test.mjs"
+    ],
+    "unchangedInputs": 210,
+    "inputDigest": "sha256:3559e7fd5960de22a58afdc04015bd383c3f5e1a62eb9e5b1b4a395a853e3162"
+  },
+  {
+    "id": "web-workspace",
+    "command": [
+      "pnpm",
+      "-r",
+      "test"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:34.079Z",
+    "finishedAt": "2026-10-23T08:56:45.069Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/web-workspace.log",
+    "logSha256": "sha256:403a62542641096fc9758650b71286c840b0263ce60bcece1ba8d958183e0eb8"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:45.070Z",
+    "finishedAt": "2026-10-23T08:56:46.263Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/frontend-g3-review.mjs",
+      "scripts/frontend-g3-review.test.mjs",
+      "scripts/ui-p07-confirmed-reference.mjs",
+      "scripts/ui-p07-confirmed-reference.test.mjs",
+      "packages/api-client/tests/bff-response.test.ts",
+      "apps/terminal/tests/a2-aggregate-consumer.test.ts",
+      "apps/terminal/tests/a6-aggregate-consumer.test.ts",
+      "tests/e2e/frontend-g3.spec.ts",
+      "tests/e2e/fixtures/frontend-g3-reference.ts",
+      "playwright.frontend-g3.config.ts",
+      "playwright.config.ts"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:46.263Z",
+    "finishedAt": "2026-10-23T08:56:46.771Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "python-lint",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "scripts/frontend-g3-produce.py"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:46.772Z",
+    "finishedAt": "2026-10-23T08:56:47.006Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/python-lint.log",
+    "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "rustfmt",
+      "--check",
+      "--edition",
+      "2024",
+      "services/bff-gateway/src/frontend_g3.rs",
+      "services/bff-gateway/src/strategy.rs",
+      "services/bff-gateway/src/strategy/tests.rs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:47.006Z",
+    "finishedAt": "2026-10-23T08:56:47.069Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/rust-format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-g3-review.test.mjs",
+      "scripts/ui-p07-confirmed-reference.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/development-plan-order-negative.mjs",
+      "scripts/terminal-static-routes.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:47.069Z",
+    "finishedAt": "2026-10-23T08:56:50.963Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/gate-tests.log",
+    "logSha256": "sha256:1095fea982defe7c73a689b84f13d982ceaddb06a7b45f6eeda3d734049d7ad7"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:56:50.964Z",
+    "finishedAt": "2026-10-23T08:57:00.324Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/terminal-build.log",
+    "logSha256": "sha256:f5cd03bf0e31e1e5368c403492f6ce09ea4647c22e21548349741763c04187c9"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.frontend-g3.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/frontend-g3-local-20261023/attempt-03/browser"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:57:00.325Z",
+    "finishedAt": "2026-10-23T08:59:22.676Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/browser.log",
+    "logSha256": "sha256:4da0211ae87d14f66349f51f0e8b9baaf87acb3995af3c690c833b9233a936b1"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:59:22.676Z",
+    "finishedAt": "2026-10-23T08:59:22.733Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "g3-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G3"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:59:22.733Z",
+    "finishedAt": "2026-10-23T08:59:22.908Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/g3-refusal.log",
+    "logSha256": "sha256:db175812a49cd3528c6e08fb2f1d1761ce7810c4086340ee06304bd61dcab724"
+  },
+  {
+    "id": "s04-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:S04"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:59:22.908Z",
+    "finishedAt": "2026-10-23T08:59:23.081Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/s04-refusal.log",
+    "logSha256": "sha256:aa7447fa7d75aefea2936c4e39729d2a17aa13dc11948bd9e28d06cf30be20ed"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-401"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:59:23.081Z",
+    "finishedAt": "2026-10-23T08:59:23.252Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-03/next-development.log",
+    "logSha256": "sha256:333485edb7ba221aef4a5b70ad341a7657470ea3002cd527c49553aeea3f375a"
+  }
+]

@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit (7.5s)
+
+
+  1) [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator: getByRole('button', { name: '创建不可变 Release', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeEnabled" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建不可变 Release', exact: true })
+
+
+       6 | async function create(page:Page,index=1){
+       7 |  await page.goto('/strategies');await authorized(page);await expect(page.locator('.p06-strategy-cards article')).toHaveCount(20);const link=page.getByRole('link',{name:`打开 Lab：G3 strategy ${String(index).padStart(2,'0')}`,exact:true}),lab=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByRole('status').filter({hasText:'已保存 · objectVersion：'})).toBeVisible();const draft=(await control(lab.replace('/lab','/draft').replace('/strategies/','/v1/strategies/'))).body,refs=draft.artifactRefs as {artifact_id:string;content_hash:string}[];expect(refs).toHaveLength(1);
+    >  8 |  await page.goto(`/artifacts/${refs[0].artifact_id}`);await authorized(page);await expect(page.getByRole('region',{name:'Artifact 元数据',exact:true})).toContainText('strategy-lab-owned-ipc');await page.goto(lab);await authorized(page);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();const report=JSON.parse((await page.getByTestId('raw-backtest-report').textContent())!);expect(report.status).toBe('succeeded');expect(report.report.leak_check.violations).toBe(0);expect(report.report.candidate.source_commit).toBe(process.env.GITHUB_SHA);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();await page.getByRole('link',{name:'查看 Release 详情',exact:true}).click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();const release=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(release.evidenceRefs).toEqual(refs);expect(release.backtestReportHash).toBe(report.reportHash);expect(release.snapshotId).toBe(draft.dataSnapshotId);expect(release.sourceDigest).toBe(process.env.GITHUB_SHA);expect(release.approvalState).toBe('none');await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return {draft,report,release};
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+       9 | }
+      10 | async function submit(page:Page){await page.getByRole('button',{name:'提交审批申请',exact:true}).click();await expect(page.getByText(/服务端状态：pending/)).toBeVisible();await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return JSON.parse((await page.getByTestId('raw-release').textContent())!);}
+      11 | async function refresh(page:Page,state:string){await page.getByRole('button',{name:'刷新 Release 与审批',exact:true}).click();await expect(page.getByText(new RegExp(`服务端状态：${state}`))).toBeVisible();}
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g3.spec.ts:8:574)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g3.spec.ts:13:31
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-02/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-02/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 

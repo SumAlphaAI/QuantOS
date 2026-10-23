@@ -1,0 +1,31 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit (2.5s)
+
+
+  1) [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+
+    Error: [{"origin":"string","code":"invalid_format","format":"regex","pattern":"/^-?\\d+(\\.\\d+)?$/","path":["metrics","max_drawdown"],"message":"Invalid string: must match pattern /^-?\\d+(\\.\\d+)?$/"}]
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       7 | async function create(page:Page,index=1){
+       8 |  await page.goto('/strategies');await authorized(page);await expect(page.locator('.p06-strategy-cards article')).toHaveCount(20);const link=page.getByRole('link',{name:`打开 Lab：G3 strategy ${String(index).padStart(2,'0')}`,exact:true}),lab=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByRole('status').filter({hasText:'已保存 · objectVersion：'})).toBeVisible();const draft=(await control(lab.replace('/lab','/draft').replace('/strategies/','/v1/strategies/'))).body,refs=draft.artifactRefs as {artifact_id:string;content_hash:string}[];expect(refs).toHaveLength(1);
+    >  9 |  await page.goto(`/artifacts/${refs[0].artifact_id}`);await authorized(page);await expect(page.getByRole('region',{name:'Artifact 元数据',exact:true})).toContainText('strategy-lab-owned-ipc');await page.goto(lab);await authorized(page);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);const actual=(await control('/v1'+new URL(page.url()).pathname)).body;await writeFile(test.info().outputPath('g3-provider-report.json'),JSON.stringify(actual,null,2));const parsed=reportSchema.safeParse(actual);expect(parsed.success,parsed.success?'':JSON.stringify(parsed.error.issues)).toBe(true);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();const report=JSON.parse((await page.getByTestId('raw-backtest-report').textContent())!);expect(report.status).toBe('succeeded');expect(report.report.leak_check.violations).toBe(0);expect(report.report.candidate.source_commit).toBe(process.env.GITHUB_SHA);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();await page.getByRole('link',{name:'查看 Release 详情',exact:true}).click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();const release=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(release.evidenceRefs).toEqual(refs);expect(release.backtestReportHash).toBe(report.reportHash);expect(release.snapshotId).toBe(draft.dataSnapshotId);expect(release.sourceDigest).toBe(process.env.GITHUB_SHA);expect(release.approvalState).toBe('none');await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return {draft,report,release};
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      10 | }
+      11 | async function submit(page:Page){await page.getByRole('button',{name:'提交审批申请',exact:true}).click();await expect(page.getByText(/服务端状态：pending/)).toBeVisible();await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return JSON.parse((await page.getByTestId('raw-release').textContent())!);}
+      12 | async function refresh(page:Page,state:string){await page.getByRole('button',{name:'刷新 Release 与审批',exact:true}).click();await expect(page.getByText(new RegExp(`服务端状态：${state}`))).toBeVisible();}
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g3.spec.ts:9:789)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g3.spec.ts:14:31
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-03/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-03/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 

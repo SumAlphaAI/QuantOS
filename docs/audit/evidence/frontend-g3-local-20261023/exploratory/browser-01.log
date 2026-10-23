@@ -1,0 +1,90 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit (16.1s)
+  ✘  2 [chromium] › tests/e2e/frontend-g3.spec.ts:17:5 › G3 rejected decision and immutable evidence remain explicit and targets denied (16.1s)
+  ✘  3 [chromium] › tests/e2e/frontend-g3.spec.ts:18:5 › G3 trusted host expiry clears selected target after authoritative refresh (16.1s)
+  ✘  4 [chromium] › tests/e2e/frontend-g3.spec.ts:19:5 › G3 twenty concurrent independent approval controls produce one decision only (16.1s)
+
+
+  1) [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+
+    Error: reference startup timeout
+
+       at fixtures/frontend-g3-reference.ts:54
+
+      52 |  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
+      53 |  child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+    > 54 |  await new Promise<void>((done,reject) => {const timer = setTimeout(() => reject(Error("reference startup timeout")),15000);child.once("error",e => {clearTimeout(timer);reject(e);});child.stdout!.on("data",b => {for(const line of String(b).split("\n")){try{const status=JSON.parse(line);if(status.ready){controlOrigin=status.control;expect(status.fixtures).toBe(20);clearTimeout(timer);done();}}catch{/* Rust harness prefix is not JSON. */}}});});await page.bringToFront();
+         |                                                                                  ^
+      55 | });
+      56 | test.afterEach(async ({context,page},info) => {
+      57 |  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
+        at Timeout._onTimeout (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g3-reference.ts:54:82)
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/frontend-g3.spec.ts:17:5 › G3 rejected decision and immutable evidence remain explicit and targets denied 
+
+    Error: reference startup timeout
+
+       at fixtures/frontend-g3-reference.ts:54
+
+      52 |  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
+      53 |  child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+    > 54 |  await new Promise<void>((done,reject) => {const timer = setTimeout(() => reject(Error("reference startup timeout")),15000);child.once("error",e => {clearTimeout(timer);reject(e);});child.stdout!.on("data",b => {for(const line of String(b).split("\n")){try{const status=JSON.parse(line);if(status.ready){controlOrigin=status.control;expect(status.fixtures).toBe(20);clearTimeout(timer);done();}}catch{/* Rust harness prefix is not JSON. */}}});});await page.bringToFront();
+         |                                                                                  ^
+      55 | });
+      56 | test.afterEach(async ({context,page},info) => {
+      57 |  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
+        at Timeout._onTimeout (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g3-reference.ts:54:82)
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-rejected-de-32784-explicit-and-targets-denied-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-rejected-de-32784-explicit-and-targets-denied-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/frontend-g3.spec.ts:18:5 › G3 trusted host expiry clears selected target after authoritative refresh 
+
+    Error: reference startup timeout
+
+       at fixtures/frontend-g3-reference.ts:54
+
+      52 |  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
+      53 |  child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+    > 54 |  await new Promise<void>((done,reject) => {const timer = setTimeout(() => reject(Error("reference startup timeout")),15000);child.once("error",e => {clearTimeout(timer);reject(e);});child.stdout!.on("data",b => {for(const line of String(b).split("\n")){try{const status=JSON.parse(line);if(status.ready){controlOrigin=status.control;expect(status.fixtures).toBe(20);clearTimeout(timer);done();}}catch{/* Rust harness prefix is not JSON. */}}});});await page.bringToFront();
+         |                                                                                  ^
+      55 | });
+      56 | test.afterEach(async ({context,page},info) => {
+      57 |  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
+        at Timeout._onTimeout (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g3-reference.ts:54:82)
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-trusted-hos-a2c52-after-authoritative-refresh-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-trusted-hos-a2c52-after-authoritative-refresh-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/frontend-g3.spec.ts:19:5 › G3 twenty concurrent independent approval controls produce one decision only 
+
+    Error: reference startup timeout
+
+       at fixtures/frontend-g3-reference.ts:54
+
+      52 |  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
+      53 |  child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+    > 54 |  await new Promise<void>((done,reject) => {const timer = setTimeout(() => reject(Error("reference startup timeout")),15000);child.once("error",e => {clearTimeout(timer);reject(e);});child.stdout!.on("data",b => {for(const line of String(b).split("\n")){try{const status=JSON.parse(line);if(status.ready){controlOrigin=status.control;expect(status.fixtures).toBe(20);clearTimeout(timer);done();}}catch{/* Rust harness prefix is not JSON. */}}});});await page.bringToFront();
+         |                                                                                  ^
+      55 | });
+      56 | test.afterEach(async ({context,page},info) => {
+      57 |  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
+        at Timeout._onTimeout (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g3-reference.ts:54:82)
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-twenty-conc-cf7fc-s-produce-one-decision-only-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/frontend-g3-local-20261023/exploratory/browser-01/frontend-g3-G3-twenty-conc-cf7fc-s-produce-one-decision-only-chromium/error-context.md
+
+  4 failed
+    [chromium] › tests/e2e/frontend-g3.spec.ts:12:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+    [chromium] › tests/e2e/frontend-g3.spec.ts:17:5 › G3 rejected decision and immutable evidence remain explicit and targets denied 
+    [chromium] › tests/e2e/frontend-g3.spec.ts:18:5 › G3 trusted host expiry clears selected target after authoritative refresh 
+    [chromium] › tests/e2e/frontend-g3.spec.ts:19:5 › G3 twenty concurrent independent approval controls produce one decision only 

@@ -1,0 +1,148 @@
+[
+  {
+    "id": "producer",
+    "command": [
+      "engines/.venv/bin/python",
+      "scripts/frontend-g3-produce.py"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:53:20.832Z",
+    "finishedAt": "2026-10-23T08:53:20.992Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-02/producer.log",
+    "logSha256": "sha256:fa17142cecb2b3c1759f11e1639882ef1d458ca81d5d333a920fe4a32b1aff35"
+  },
+  {
+    "id": "bff-binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:53:20.992Z",
+    "finishedAt": "2026-10-23T08:53:21.433Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-02/bff-binary.log",
+    "logSha256": "sha256:bcb74884a78099501f6bfc31de29d15aae4eb48dcd18d5c99bdde44d75b90089"
+  },
+  {
+    "id": "host-binary",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:53:21.462Z",
+    "finishedAt": "2026-10-23T08:53:21.594Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-02/host-binary.log",
+    "logSha256": "sha256:3a43598bac654c0bffd866a0b5691532ef589035b9894566f2e0244a7a53a91b"
+  },
+  {
+    "id": "s04-tcp",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-strategy",
+      "--test",
+      "service_s04",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:53:21.622Z",
+    "finishedAt": "2026-10-23T08:53:23.697Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-02/s04-tcp.log",
+    "logSha256": "sha256:506f3cec1f726267643b78dcd7c204cc1260b7e7397fea1e237dbdf96a377643"
+  },
+  {
+    "id": "rust-workspace",
+    "kind": "UNCHANGED_INPUT_REFERENCE_NOT_CURRENT_SHA_REEXECUTION",
+    "originalSourceCommit": "6ff11941adf26e2b7be438bc7f92281dd95d1ca4",
+    "original": {
+      "id": "rust-workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-23T08:47:14.409Z",
+      "finishedAt": "2026-10-23T08:50:27.828Z",
+      "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/rust-workspace.log",
+      "logSha256": "sha256:ca71cdee0a16f34e92a6bdabf28b201a066d63865b71a043bff4b5e62cf640f5"
+    },
+    "unchangedInputs": 495,
+    "inputDigest": "sha256:b44f2ac7dbae64f1d651a0606da83455d536c0dc279971f87744993268e16bb6"
+  },
+  {
+    "id": "python-workspace",
+    "kind": "UNCHANGED_INPUT_REFERENCE_NOT_CURRENT_SHA_REEXECUTION",
+    "originalSourceCommit": "6ff11941adf26e2b7be438bc7f92281dd95d1ca4",
+    "original": {
+      "id": "python-workspace",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "startedAt": "2026-10-23T08:50:27.828Z",
+      "finishedAt": "2026-10-23T08:50:39.809Z",
+      "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/python-workspace.log",
+      "logSha256": "sha256:55e83885b5c4a19d7bcd241e5a474768c8b7fe4c5be11f9bb66102a14251f0a4"
+    },
+    "unchangedInputs": 210,
+    "inputDigest": "sha256:3559e7fd5960de22a58afdc04015bd383c3f5e1a62eb9e5b1b4a395a853e3162"
+  },
+  {
+    "id": "web-workspace",
+    "command": [
+      "pnpm",
+      "-r",
+      "test"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:53:26.534Z",
+    "finishedAt": "2026-10-23T08:53:38.130Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-02/web-workspace.log",
+    "logSha256": "sha256:6c86bf6b3f1c24e009564e6c0bc1a6ad4d7fc00be9e860de43d9d442f4fc0abd"
+  }
+]

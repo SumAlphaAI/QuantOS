@@ -1,0 +1,75 @@
+{
+  "schema": "quantos-g3-s04-coverage/v1",
+  "sourceCommit": "9a463495f7324b5f218bd3d0edd79baebb0f651c",
+  "rows": [
+    {
+      "requirement": "CORE:S04 20个策略UI fixture从研究到Release",
+      "status": "PASS_OWNED_LOCAL_IPC_REFERENCE_ONLY",
+      "evidence": "attempt-04/browser/*/g3-fixture.json",
+      "facts": {
+        "actualIpcArtifacts": 20,
+        "uniqueStrategies": 20,
+        "uniqueReleases": 20
+      },
+      "boundary": "Actual Strategy Lab IPC output imported by trusted test host; not R03 Research worker registration or live model"
+    },
+    {
+      "requirement": "C05 draft/static/backtest/report/immutable Release",
+      "status": "PASS_LOCAL_COMPOSITION",
+      "evidence": "attempt-04/browser plus 23 C05 Rust cases at unchanged production source",
+      "boundary": "S01/S02/S03/S04 actual modules, process-local catalogs; typed parameters and fixed hashes"
+    },
+    {
+      "requirement": "驳回/过期/并发审批明确状态",
+      "status": "PASS_LOCAL_COMPOSITION",
+      "evidence": "attempt-04/browser/*/g3-rejected.json, g3-expired.json, g3-concurrency.json",
+      "facts": {
+        "browserRace200": 1,
+        "browserRace409": 19,
+        "nativeRace200": 1,
+        "nativeRace409": 19
+      },
+      "boundary": "Decision through separate reference actor; trusted Node-only clock; no product approval decision UI"
+    },
+    {
+      "requirement": "未验证/未审批不可部署、仅Paper/Shadow",
+      "status": "PASS_NATIVE_LOCAL_CONFIG_CONSUMPTION",
+      "evidence": "attempt-04/s04-tcp.log",
+      "facts": {
+        "unverifiedUnapprovedDenials": 100,
+        "forgedRequests": 100,
+        "nativeConsumers": 2
+      },
+      "boundary": "Local config ticket/adapter replay only, no external deployment or trading"
+    },
+    {
+      "requirement": "权限/实时/错误/恢复",
+      "status": "PASS_CURRENT_LOCAL_SCOPE",
+      "evidence": "44 Chromium and Web798 Terminal cases",
+      "boundary": "Identity/Cookie/CORS substitutions; persistent cross-process recovery NOT_RUN"
+    },
+    {
+      "requirement": "审计因果与作用域",
+      "status": "PASS_SCOPED_CORRELATION_AND_OWNER_HASH_CHAIN",
+      "evidence": "20 Audit Explorer journeys plus native 16-event chain",
+      "boundary": "C10 current submission correlation only; not a global R03-to-Release causal graph"
+    },
+    {
+      "requirement": "Web视觉与可访问性",
+      "status": "PASS_LIMITED_VISUAL_COMPARE_WITH_INCOMPLETE_OPEN",
+      "evidence": "18 committed P07 baselines; G3 Audit actual desktop/mobile screenshots and non-overlap assertion",
+      "facts": {
+        "axeScans": 36,
+        "violations": 0,
+        "incomplete": 36
+      },
+      "boundary": "Manual screen reader/native200/crossOS/full browser matrix NOT_RUN"
+    },
+    {
+      "requirement": "完整G3/CORE:S04阶段准入",
+      "status": "NOT_READY",
+      "evidence": "attempt-04/g3-refusal.log, s04-refusal.log",
+      "boundary": "R03 worker registration, real identity chain and normative dependency stages open; new user confirmation PENDING"
+    }
+  ]
+}

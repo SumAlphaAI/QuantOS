@@ -1,0 +1,134 @@
+[
+  {
+    "id": "producer",
+    "command": [
+      "engines/.venv/bin/python",
+      "scripts/frontend-g3-produce.py"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:47:04.811Z",
+    "finishedAt": "2026-10-23T08:47:05.054Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/producer.log",
+    "logSha256": "sha256:fa17142cecb2b3c1759f11e1639882ef1d458ca81d5d333a920fe4a32b1aff35"
+  },
+  {
+    "id": "bff-binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:47:05.054Z",
+    "finishedAt": "2026-10-23T08:47:08.509Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/bff-binary.log",
+    "logSha256": "sha256:fbb0eb127972f69a1326c52dcdc3bc07b267e28ab72e632f5c64cda808e8e861"
+  },
+  {
+    "id": "host-binary",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:47:08.538Z",
+    "finishedAt": "2026-10-23T08:47:08.674Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/host-binary.log",
+    "logSha256": "sha256:55edeb769495c62e6984f94278074839c661b16874f002a977f5594a43587064"
+  },
+  {
+    "id": "s04-tcp",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-strategy",
+      "--test",
+      "service_s04",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:47:08.697Z",
+    "finishedAt": "2026-10-23T08:47:14.409Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/s04-tcp.log",
+    "logSha256": "sha256:bdc9ccf7ea452afcb7e058e3f4bfa7c58931afa0350d9ec1bf2fd3c60ac7f579"
+  },
+  {
+    "id": "rust-workspace",
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:47:14.409Z",
+    "finishedAt": "2026-10-23T08:50:27.828Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/rust-workspace.log",
+    "logSha256": "sha256:ca71cdee0a16f34e92a6bdabf28b201a066d63865b71a043bff4b5e62cf640f5"
+  },
+  {
+    "id": "python-workspace",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:50:27.828Z",
+    "finishedAt": "2026-10-23T08:50:39.809Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/python-workspace.log",
+    "logSha256": "sha256:55e83885b5c4a19d7bcd241e5a474768c8b7fe4c5be11f9bb66102a14251f0a4"
+  },
+  {
+    "id": "web-workspace",
+    "command": [
+      "pnpm",
+      "-r",
+      "test"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T08:50:39.809Z",
+    "finishedAt": "2026-10-23T08:50:41.929Z",
+    "log": "docs/audit/evidence/frontend-g3-local-20261023/attempt-01/web-workspace.log",
+    "logSha256": "sha256:664e80819ff8aa38ed623fdb6b930304a8f62622e9d44f6ec086a2426c5bfe38"
+  }
+]

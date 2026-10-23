@@ -1,0 +1,51 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: frontend-g3.spec.ts >> G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit
+- Location: tests/e2e/frontend-g3.spec.ts:13:39
+
+# Error details
+
+```
+Test timeout of 45000ms exceeded.
+```
+
+```
+Error: locator.click: Target page, context or browser has been closed
+Call log:
+  - waiting for getByRole('link', { name: '查看 Release 详情', exact: true })
+
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect,type Page} from "@playwright/test";
+  2  | import {reportSchema} from "../../apps/terminal/src/strategy/backtest-policy";
+  3  | import AxeBuilder from "@axe-core/playwright";
+  4  | import {writeFile} from "node:fs/promises";
+  5  | import {authorized,control,decide,advance,fault,networkRows,installReferenceHooks} from "./fixtures/frontend-g3-reference";
+  6  | installReferenceHooks();
+  7  | async function create(page:Page,index=1){
+  8  |  await page.goto('/strategies');await authorized(page);await expect(page.locator('.p06-strategy-cards article')).toHaveCount(20);const link=page.getByRole('link',{name:`打开 Lab：G3 strategy ${String(index).padStart(2,'0')}`,exact:true}),lab=(await link.getAttribute('href'))!;await link.click();await authorized(page);await expect(page.getByRole('status').filter({hasText:'已保存 · objectVersion：'})).toBeVisible();const draft=(await control(lab.replace('/lab','/draft').replace('/strategies/','/v1/strategies/'))).body,refs=draft.artifactRefs as {artifact_id:string;content_hash:string}[];expect(refs).toHaveLength(1);
+> 9  |  await page.goto(`/artifacts/${refs[0].artifact_id}`);await authorized(page);await expect(page.getByRole('region',{name:'Artifact 元数据',exact:true})).toContainText('strategy-lab-owned-ipc');await page.goto(lab);await authorized(page);await page.getByRole('button',{name:'运行静态检查',exact:true}).click();await expect(page.getByText(/通过 · v/)).toBeVisible();await page.getByRole('button',{name:'创建回测',exact:true}).click();await page.getByRole('link',{name:/回测报告 v/}).first().click();await authorized(page);const actual=(await control('/v1'+new URL(page.url()).pathname)).body;await writeFile(test.info().outputPath('g3-provider-report.json'),JSON.stringify(actual,null,2));const parsed=reportSchema.safeParse(actual);expect(parsed.success,parsed.success?'':JSON.stringify(parsed.error.issues)).toBe(true);await expect(page.getByRole('button',{name:'创建不可变 Release',exact:true})).toBeEnabled();const report=JSON.parse((await page.getByTestId('raw-backtest-report').textContent())!);expect(report.status).toBe('succeeded');expect(report.report.leak_check.violations).toBe(0);expect(report.report.candidate.source_commit).toBe(process.env.GITHUB_SHA);await page.getByRole('button',{name:'创建不可变 Release',exact:true}).click();await page.getByRole('link',{name:'查看 Release 详情',exact:true}).click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();const release=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(release.evidenceRefs).toEqual(refs);expect(release.backtestReportHash).toBe(report.reportHash);expect(release.snapshotId).toBe(draft.dataSnapshotId);expect(release.sourceDigest).toBe(process.env.GITHUB_SHA);expect(release.approvalState).toBe('none');await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return {draft,report,release};
+     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^ Error: locator.click: Target page, context or browser has been closed
+  10 | }
+  11 | async function submit(page:Page){await page.getByRole('button',{name:'提交审批申请',exact:true}).click();await expect(page.getByText(/服务端状态：pending/)).toBeVisible();await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();return JSON.parse((await page.getByTestId('raw-release').textContent())!);}
+  12 | async function refresh(page:Page,state:string){await page.getByRole('button',{name:'刷新 Release 与审批',exact:true}).click();await expect(page.getByText(new RegExp(`服务端状态：${state}`))).toBeVisible();}
+  13 | for(let index=1;index<=20;index++)test(`G3 fixture ${String(index).padStart(2,'0')} actual IPC Artifact to Lab Backtest Release approval target and Audit`,async({page},info)=>{
+  14 |  const {draft,report,release}=await create(page,index),pending=await submit(page);expect((await decide(pending.approvalRef))[0].status).toBe(200);await refresh(page,'approved');const approved=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(approved.contentHash).toBe(release.contentHash);expect(approved.parameters).toEqual(release.parameters);expect(approved.approvalTimeline.map((e:{action:string})=>e.action)).toEqual(['submitted','approve']);await page.getByLabel('目标选择',{exact:true}).selectOption(index%2?'paper':'shadow');await expect(page.getByText(`已选择目标：${index%2?'paper':'shadow'}`,{exact:true})).toBeVisible();await page.getByRole('link',{name:'审计因果链',exact:true}).first().click();await authorized(page);await expect(page.getByRole('heading',{name:'Audit Explorer',exact:true})).toBeVisible();await expect(page.getByText('当前授权范围内链完整',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'因果证据链',exact:true})).toContainText(release.releaseId);
+  15 |  await writeFile(info.outputPath('g3-fixture.json'),JSON.stringify({index,sourceCommit:process.env.GITHUB_SHA,draft,report,pending,approved,auditPath:new URL(page.url()).pathname},null,2));expect(networkRows().some(r=>r.path==='/v1/commands'||r.path.includes('deployment'))).toBe(false);
+  16 |  if(index===1){const scans=[];for(const width of [1672,390]){await page.setViewportSize({width,height:900});const a=await new AxeBuilder({page}).analyze();scans.push({width,violations:a.violations,incomplete:a.incomplete});expect(a.violations).toEqual([]);await page.screenshot({path:info.outputPath(`g3-audit-${width}.png`),fullPage:true});}await writeFile(info.outputPath('g3-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'}));}
+  17 | });
+  18 | test('G3 rejected decision and immutable evidence remain explicit and targets denied',async({page},info)=>{const {release}=await create(page),p=await submit(page);expect((await decide(p.approvalRef,'reject'))[0].status).toBe(200);await refresh(page,'rejected');await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'提交审批申请',exact:true})).toBeDisabled();const r=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(r.contentHash).toBe(release.contentHash);expect(r.approvalTimeline.at(-1).action).toBe('reject');await writeFile(info.outputPath('g3-rejected.json'),JSON.stringify(r));});
+  19 | test('G3 trusted host expiry clears selected target after authoritative refresh',async({page},info)=>{await create(page);const p=await submit(page);expect((await decide(p.approvalRef))[0].status).toBe(200);await refresh(page,'approved');await page.getByLabel('目标选择',{exact:true}).selectOption('paper');await advance(301);await refresh(page,'expired');await expect(page.getByLabel('目标选择',{exact:true})).toBeDisabled();await expect(page.getByText('已选择目标：paper',{exact:true})).toHaveCount(0);await writeFile(info.outputPath('g3-expired.json'),(await page.getByTestId('raw-release').textContent())!);});
+  20 | test('G3 twenty concurrent independent approval controls produce one decision only',async({page},info)=>{await create(page);const p=await submit(page),results=await decide(p.approvalRef,'approve',20);expect(results.filter(r=>r.status===200)).toHaveLength(1);expect(results.filter(r=>r.status===403||r.status===409)).toHaveLength(19);await refresh(page,'approved');const r=JSON.parse((await page.getByTestId('raw-release').textContent())!);expect(r.approvalTimeline.filter((e:{action:string})=>e.action==='approve')).toHaveLength(1);await writeFile(info.outputPath('g3-concurrency.json'),JSON.stringify({statuses:results.map(r=>r.status),release:r}));});
+  21 | test('G3 readonly and offline recovery preserve facts without replaying business commands',async({page})=>{await create(page);const path=new URL(page.url()).pathname,count=networkRows().filter(r=>r.method==='POST').length;fault({readonly:true});await page.reload();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();await expect(page.getByRole('button',{name:'提交审批申请',exact:true})).toBeDisabled();await page.evaluate(()=>dispatchEvent(new Event('offline')));await expect(page.getByTestId('raw-release')).toHaveCount(0);await page.getByRole('button',{name:'重新验证访问条件',exact:true}).click();await authorized(page);await expect(page.getByTestId('raw-release')).toBeAttached();expect(new URL(page.url()).pathname).toBe(path);expect(networkRows().filter(r=>r.method==='POST')).toHaveLength(count);});
+  22 | 
+```
