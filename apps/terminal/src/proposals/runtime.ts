@@ -1,0 +1,60 @@
+import {bffZodSchemas,createBffClient,createBffFetch,parseSse,type BffComponents} from '@sumalpha/api-client';
+import type {RouteContext} from '../auth/route-access';
+import {proposal,preflight,alive,currentPreflight,identity,ProposalFacts,proposalPolicy,queryInput,type Proposal,type Preflight,type ProposalQuery} from './policy';
+export class ProposalError extends Error {
+  constructor(readonly status:number,readonly code='UNAVAILABLE',readonly correlationId?:string,readonly currentVersion?:string){super('Proposal request could not be completed');}
+}
+const authority=(c:RouteContext)=>JSON.stringify([c.actorId,c.tenantId,c.workspaceId,c.accountId,c.mode,c.environment,c.mfaState,[...new Set(c.capabilities)].sort()]);
+type Accepted=BffComponents['schemas']['AsyncAccepted'];
+type Intent={proposalId:string;version:string;contextHash:string;key:string;correlationId?:string};
+export function createProposalRuntime(config:{origin:string;authorize:()=>void;online:()=>boolean;csrf:()=>string;invalidate:(status:number)=>void;fetchImpl?:typeof fetch;now?:()=>number}) {
+  const now=config.now??Date.now,life=new AbortController(),listeners=new Set<()=>void>(),options={signal:life.signal,timeoutMs:5000};
+  const client=createBffClient({baseUrl:config.origin,fetch:config.fetchImpl,...options}),fetcher=createBffFetch(config.fetchImpl??fetch,options);
+  let context:RouteContext|undefined,rows:Proposal[]=[],query:ProposalQuery={},nextCursor:string|undefined,listVerified=false,busy=false,selectedId:string|undefined,facts:ProposalFacts|undefined,preview:Preflight|undefined,preparedUntil=0,streamUntil=0,connected=false,lastReadAt:string|undefined;
+  let status:'empty'|'ready'|'error'|'conflict'|'uncertain'='empty',pending:Intent|undefined,retryAt=0;
+  const receipts=new Map<string,Accepted>(),cursors=new Set<string>();
+  const emit=()=>listeners.forEach(fn=>fn()),fail=(s:number,c?:string):never=>{throw new ProposalError(s,c);};
+  function guard(){config.authorize();if(life.signal.aborted||!config.online()||!context||!context.capabilities.includes('execution.operate')||!['paper','shadow'].includes(context.mode))fail(403,'FORBIDDEN');if(!Number.isFinite(now())||now()>=Date.parse(context!.expiresAt))fail(401,'SESSION_EXPIRED');}
+  function checked<T>(r:{data?:T;error?:unknown;response:Response},expected=200,invalidate=true):T {
+    config.authorize();if(life.signal.aborted)fail(403);if(r.response.status===expected&&r.data!==undefined)return r.data;
+    const e=bffZodSchemas.ErrorEnvelope.safeParse(r.error),code=e.success?e.data.code:'UNAVAILABLE';
+    if(invalidate&&[401,403].includes(r.response.status))config.invalidate(r.response.status);
+    if(r.response.status===429)retryAt=now()+Math.min(Math.max(e.success?e.data.retryAfter??60:60,1),3600)*1000;
+    throw new ProposalError(r.response.status,code,e.success?e.data.correlationId:undefined,e.success&&e.data.currentVersion&&e.data.currentVersion.length<=200?e.data.currentVersion:undefined);
+  }
+  async function load(){config.authorize();if(!config.origin||life.signal.aborted||!config.online())fail(503);const a=bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/session',{cache:'no-store'}))),b=bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/context',{cache:'no-store'})));if(authority(a)!==authority(b)||context&&authority(context)!==authority(b)||b.mfaState==='challenged'){config.invalidate(403);fail(403);}context={...b,expiresAt:new Date(Math.min(Date.parse(a.expiresAt),Date.parse(b.expiresAt),context?Date.parse(context.expiresAt):Infinity)).toISOString()};guard();return structuredClone(context);}
+  async function exclusive(fn:()=>Promise<void>){guard();if(busy)fail(409,'BUSY');busy=true;emit();try{await fn();}finally{busy=false;emit();}}
+  async function read(id:string){const p=proposal(checked(await client.GET('/v1/proposals/{proposalId}',{params:{path:{proposalId:id}},cache:'no-store'}),200,true),context!.accountId,id,now());guard();return p;}
+  async function stream(target:ProposalFacts,publish:boolean){guard();const started=now(),url=new URL(`/v1/proposals/${target.proposalId}/stream`,config.origin);url.searchParams.set('afterSequence',String(target.afterSequence));
+    try{const r=await fetcher(url,{credentials:'include',cache:'no-store',signal:AbortSignal.any([life.signal,AbortSignal.timeout(5000)]),headers:{accept:'text/event-stream'}});guard();
+      if(r.status!==200||!r.body||!r.headers.get('content-type')?.includes('text/event-stream')){let corr:string|undefined;try{const e=bffZodSchemas.ErrorEnvelope.safeParse(await r.json());if(e.success)corr=e.data.correlationId;}catch{await r.body?.cancel().catch(()=>{});}if(r.status===401)config.invalidate(401);throw new ProposalError(r.status===200?502:r.status,'STREAM_UNAVAILABLE',corr);}
+      let buffer='';const decoder=new TextDecoder('utf-8',{fatal:true});const bounded=r.body.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({transform(chunk,out){buffer+=decoder.decode(chunk,{stream:true});let at;while((at=buffer.search(/\r?\n\r?\n/))>=0){if(at>proposalPolicy.frameChars)throw Error('Oversized proposal frame');buffer=buffer.slice(at+(buffer[at]==='\r'?4:2));}if(buffer.length>proposalPolicy.frameChars)throw Error('Oversized proposal frame');out.enqueue(chunk);}}));
+      for await(const event of parseSse(bounded)){guard();const before=target.current;target.apply(event,now());if(publish){if(JSON.stringify(before)!==JSON.stringify(target.current))preview=undefined;connected=true;streamUntil=now()+proposalPolicy.maxUnverifiedMs;emit();}}
+      guard();if(!target.afterSequence)fail(502);connected=true;streamUntil=started+proposalPolicy.maxUnverifiedMs;lastReadAt=new Date(now()).toISOString();
+    }catch(e){connected=false;preview=undefined;if(!life.signal.aborted){status=pending?'uncertain':'error';if((e as {status?:number}).status===404)target.revoke();if((e as {status?:number}).status===403)config.invalidate(403);}throw e;}
+  }
+  async function open(id:string){bffZodSchemas.UUID.parse(id);if(selectedId!==id){facts?.revoke();facts=undefined;}selectedId=id;preview=undefined;connected=false;emit();
+    try{await load();await read(id);const next=new ProposalFacts(context!.accountId,id);await stream(next,false);const current=await read(id);if(!next.current||JSON.stringify(next.current)!==JSON.stringify(current))fail(409,'SOURCE_CHANGED');facts=next;status=pending?'uncertain':'ready';}
+    catch(e){connected=false;preview=undefined;if((e as {status?:number}).status===404){facts?.revoke();facts=undefined;}status=pending?'uncertain':'error';throw e;}
+  }
+  async function prepare(){if(!selectedId)fail(404,'NOT_FOUND');await open(selectedId!);const p=facts!.current!;if(!alive(p,now()))fail(409,'PROPOSAL_EXPIRED');const q=preflight(checked(await client.GET('/v1/trade-preflight',{params:{query:{accountId:context!.accountId,proposalId:p.proposalId}},cache:'no-store'}),200,true),p,context!,now());guard();preview=q;preparedUntil=now()+proposalPolicy.maxUnverifiedMs;emit();return q;}
+  function writeGuard(recovery=false){guard();const p=facts?.current;if(!config.csrf())fail(403,'CSRF_REQUIRED');if(!alive(p,now()))fail(409,'PROPOSAL_EXPIRED');if(!connected||now()>=streamUntil||now()>=preparedUntil||!currentPreflight(preview,p,now()))fail(409,'CONTEXT_STALE');if(!recovery&&(p!.status!=='active'||receipts.has(p!.proposalId+':'+p!.objectVersion)))fail(409,'EVALUATION_ALREADY_REQUESTED');if(now()<retryAt)fail(429,'RATE_LIMITED');}
+  async function send(intent:Intent,recovering:boolean){writeGuard(recovering);let dispatched=false;
+    try{dispatched=true;const r=await client.POST('/v1/proposals/{proposalId}/risk-evaluations',{params:{path:{proposalId:intent.proposalId},header:{'If-Match':intent.version,'Idempotency-Key':intent.key,'X-CSRF-Token':config.csrf(),'X-Request-Id':crypto.randomUUID()}},body:{contextHash:intent.contextHash}});
+      if(r.response.status!==202){const known=bffZodSchemas.ErrorEnvelope.safeParse(r.error).success&&[401,403,404,409,422,429].includes(r.response.status);if(known&&!recovering){pending=undefined;preview=undefined;connected=false;status=r.response.status===409?'conflict':'error';}checked(r,202,r.response.status===401);}
+      const receipt=bffZodSchemas.AsyncAccepted.strict().parse(checked(r,202,false));guard();if(receipt.status!=='accepted'||intent.correlationId&&receipt.correlationId!==intent.correlationId)fail(502,'INVALID_RECEIPT');receipts.set(intent.proposalId+':'+intent.version,receipt);while(receipts.size>100)receipts.delete(receipts.keys().next().value!);pending=undefined;preview=undefined;connected=false;status='ready';emit();await open(intent.proposalId);
+    }catch(e){if(pending&&dispatched&&!life.signal.aborted){connected=false;preview=undefined;status='uncertain';}throw e;}
+  }
+  return {
+    load,assertCurrent:guard,subscribe(fn:()=>void){listeners.add(fn);return()=>{listeners.delete(fn);};},
+    get view(){const p=facts?.current;return structuredClone({context,lastReadAt,rows,query,nextCursor,listVerified,busy,selectedId,selected:p,preview,connected:connected&&now()<streamUntil,prepared:connected&&now()<streamUntil&&now()<preparedUntil&&currentPreflight(preview,p,now()),status,pending:pending?{proposalId:pending.proposalId,version:pending.version}:undefined,retryAt,receipt:p?receipts.get(p.proposalId+':'+p.objectVersion):undefined});},
+    list(raw:ProposalQuery={},more=false){return exclusive(async()=>{const wanted=queryInput(raw);if(more&&(!listVerified||!nextCursor||JSON.stringify(wanted)!==JSON.stringify(query)))fail(409,'PAGE_CHANGED');listVerified=false;try{await load();const cursor=more?nextCursor:undefined,page=bffZodSchemas.Page.parse(checked(await client.GET('/v1/proposals',{params:{query:{...wanted,pageSize:proposalPolicy.pageSize,...cursor?{cursor}:{}}},cache:'no-store'})));guard();if(page.items.length>proposalPolicy.pageSize||page.nextCursor&&(!page.nextCursor.trim()||page.nextCursor.length>512||page.nextCursor===cursor||more&&cursors.has(page.nextCursor)))fail(502,'INVALID_PAGE');const items=page.items.map(v=>proposal(v,context!.accountId,undefined,now())),merged=more?[...rows,...items]:items;if(merged.length>proposalPolicy.maxRows||new Set(merged.map(v=>v.proposalId)).size!==merged.length||items.some(v=>wanted.status&&v.status!==wanted.status||wanted.symbol&&v.symbol!==wanted.symbol))fail(502,'INVALID_PAGE');rows=merged;query=wanted;nextCursor=page.nextCursor;if(!more)cursors.clear();if(cursor)cursors.add(cursor);listVerified=true;lastReadAt=new Date(now()).toISOString();}catch(e){status=pending?'uncertain':'error';throw e;}});},
+    open(id:string){return exclusive(()=>open(id));},
+    prepare(){return exclusive(async()=>{await prepare();});},
+    poll(){return exclusive(async()=>{if(!facts)fail(404);await stream(facts!,true);status=pending?'uncertain':'ready';});},
+    evaluate(){return exclusive(async()=>{if(pending)fail(409,'OUTCOME_UNKNOWN');writeGuard();const old=preview!,p=facts!.current!,fingerprint=identity(p);await load();const latest=await prepare();writeGuard();if(identity(facts!.current!)!==fingerprint||latest.contextHash!==old.contextHash||latest.verdict!==old.verdict||JSON.stringify(latest.hitRules)!==JSON.stringify(old.hitRules)){status='conflict';fail(409,'SOURCE_CHANGED');}pending={proposalId:p.proposalId,version:p.objectVersion,contextHash:latest.contextHash,key:crypto.randomUUID(),correlationId:p.correlationId};await send(pending,false);});},
+    retry(){return exclusive(async()=>{if(!pending||selectedId!==pending.proposalId)fail(409,'RETURN_TO_ORIGINAL');writeGuard(true);await load();await prepare();writeGuard(true);await send(pending!,true);});},
+    close(){life.abort();facts?.revoke();facts=undefined;context=undefined;rows=[];selectedId=undefined;preview=undefined;pending=undefined;receipts.clear();cursors.clear();nextCursor=undefined;connected=false;listVerified=false;lastReadAt=undefined;status='empty';listeners.clear();}
+  };
+}
+export type ProposalRuntime=ReturnType<typeof createProposalRuntime>;

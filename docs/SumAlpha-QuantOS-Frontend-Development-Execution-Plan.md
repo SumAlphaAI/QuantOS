@@ -2692,13 +2692,16 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-203", "UI-501", "UI-507", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Proposal 与风险评估
 - 接口绑定：C07
 - 验收重点：永久显示 `executable=false` 语义；过期 Proposal 不允许评估
+
+- 功能交付：`/proposals`、严格 UUID `/proposals/:proposalId`，C07列表/详情/状态流、C13只读预检提供真实contextHash、If-Match/幂等风险评估、受理回执与当前状态分离、未知结果原意图恢复；executable=false常驻，过期/陈旧/拒绝禁评估，绝不创建订单。见 [UI502说明](./operations/ui502-proposal-risk-evaluation.md)。
+- 有界证据见 [UI502证据](./audit/evidence/ui502-local-20261023/README.md)，`node scripts/ui502-review.mjs --verify`复核。IMPLEMENTED_PENDING_ACCEPTANCE不提升INTEGRATION/RELEASE，formalAccepted=false、runtimeAdmission=DENIED；真实目标/远程CI/性能长稳及P09高保真仍NOT_RUN。下一原任务FE:UI-P09。
 
 <a id="task-ui-p09"></a>
 ##### UI-P09：P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png
