@@ -1,0 +1,214 @@
+
+Running 11 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/ui-p03.spec.ts:8:5 › P03 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages (7.5s)
+  ✓   2 [chromium] › tests/e2e/ui-p03.spec.ts:12:5 › P03 local form errors focus fields, backend rejection stays inline and hides raw private text (2.2s)
+  ✓   3 [chromium] › tests/e2e/ui-p03.spec.ts:15:5 › P03 lost committed response explicitly retries original idempotency key and creates only one run (2.2s)
+  ✓   4 [chromium] › tests/e2e/ui-p03.spec.ts:18:5 › P03 snapshot becomes blocked before submission; no C03 command leaves browser (2.0s)
+  ✓   5 [chromium] › tests/e2e/ui-p03.spec.ts:21:5 › P03 narrowed authority and offline clear form; explicit recovery never replays (2.1s)
+  ✓   6 [chromium] › tests/e2e/ui-p03.spec.ts:24:5 › P03 cursor expiration and rate limit need explicit retry, never auto repeat (4.1s)
+  ✓   7 [chromium] › tests/e2e/ui-p03.spec.ts:27:5 › P03 read-only identity cannot create and checking state reveals no form (3.7s)
+  ✘   8 [chromium] › tests/e2e/ui-p03.spec.ts:31:5 › P03 review scope acknowledgment, step navigation and guarded discard keep draft memory only (7.2s)
+  ✓   9 [chromium] › tests/e2e/ui-p03.spec.ts:34:5 › P03 reference search uses server correlation filter; invalid search dispatches no list; page counts stay local (2.3s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-list-dark-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-list-dark-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-list-dark-390-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-new-dark-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-new-dark-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts-snapshots/p03-new-dark-390-chromium-darwin.png, writing actual.
+  ✓  10 [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 dark actual list/create workbench, three widths, snapshots and axe (5.6s)
+  ✘  11 [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe (2.6s)
+
+
+  1) [chromium] › tests/e2e/ui-p03.spec.ts:8:5 › P03 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('table')
+    Expected substring: "25806213-6ba4-41bf-94e3-fe5acb7e881f"
+    Received string:    "本页 2 条研究任务研究任务状态Engine / Capability数据快照成本 / 预算创建时间 UTCCorrelation ID操作fdf5e0b5…87059b研究任务 · 11111111…000001排队中进度未提供research.hypothesis.v1版本：pending11111111…000001成本未返回预算 10 units2026-10-23 00:29:38.629Zfff039a3…f5c53d审计25806213…7e881f研究任务 · 11111111…000001排队中进度未提供research.hypothesis.v1版本：pending11111111…000001成本未返回预算 10 units2026-10-23 00:29:38.537Z9d2dd711…5894ac审计"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('table')
+        - locator resolved to <table>…</table>
+        - unexpected value "本页 0 条研究任务研究任务状态Engine / Capability数据快照成本 / 预算创建时间 UTCCorrelation ID操作◇正在读取研究任务…调整筛选，或使用当前获授权的快照发起研究。"
+        13 × locator resolved to <table>…</table>
+           - unexpected value "本页 2 条研究任务研究任务状态Engine / Capability数据快照成本 / 预算创建时间 UTCCorrelation ID操作fdf5e0b5…87059b研究任务 · 11111111…000001排队中进度未提供research.hypothesis.v1版本：pending11111111…000001成本未返回预算 10 units2026-10-23 00:29:38.629Zfff039a3…f5c53d审计25806213…7e881f研究任务 · 11111111…000001排队中进度未提供research.hypothesis.v1版本：pending11111111…000001成本未返回预算 10 units2026-10-23 00:29:38.537Z9d2dd711…5894ac审计"
+
+
+       8 | test("P03 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages",async({page})=>{
+       9 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByRole("button",{name:"提交研究",exact:true}).dblclick();await expect(page.getByRole("region",{name:"研究受理回执"})).toBeVisible();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(1);const first=networkRows().find(r=>r.accepted)!.accepted as {jobId:string;correlationId:string;auditRef:string};const audit=await call(`/v1/audit/evidence-chains/${first.correlationId}`);expect(audit.status).toBe(200);expect(audit.body.items.some(e=>e.eventId===first.auditRef)).toBe(true);
+    > 10 |  await page.getByRole("button",{name:"填写另一项研究",exact:true}).click();await fill(page,"P03 second independent intent");await submit(page);await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.getByRole("table")).toContainText(first.jobId);await page.getByLabel("每页条数",{exact:true}).selectOption("1");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.locator("tbody tr")).toHaveCount(1);await page.getByRole("button",{name:"下一页",exact:true}).click();await expect(page.getByRole("button",{name:"下一页",exact:true})).toBeDisabled();const q=networkRows().filter(r=>r.path==="/v1/research-runs"&&r.method==="GET");expect(q.some(r=>r.query?.includes("cursor="))).toBe(true);await page.getByLabel("任务状态",{exact:true}).selectOption("failed");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.getByText("当前查询无研究任务。",{exact:true})).toBeVisible();expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
+         |                                                                                                                                                                                                                                                                           ^
+      11 | });
+      12 | test("P03 local form errors focus fields, backend rejection stays inline and hides raw private text",async({page})=>{
+      13 |  await page.goto("/research/new");await authorized(page);await expect(page.getByLabel("数据快照",{exact:true}).locator(`option[value="${id}"]`)).toHaveCount(1);await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("数据快照",{exact:true})).toBeFocused();await fill(page);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("01");await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);await page.getByLabel("预算（整数成本单位）",{exact:true}).fill("10");fault({fieldReject:true});await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.locator("#error-budget")).toContainText("服务端拒绝此字段");await expect(page.getByLabel("预算（整数成本单位）",{exact:true})).toBeFocused();await expect(page.locator("main")).not.toContainText("private SQL");fault({});await submit(page);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts:10:267
+
+    attachment #1: ui-p03 (application/json) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-creates-one-aud-03cf6--and-immutable-cursor-pages-chromium/attachments/ui-p03-527376139ee0845c4e099fc06173cee3c406a6a0.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-creates-one-aud-03cf6--and-immutable-cursor-pages-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-creates-one-aud-03cf6--and-immutable-cursor-pages-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui-p03.spec.ts:31:5 › P03 review scope acknowledgment, step navigation and guarded discard keep draft memory only 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: '关闭研究表单', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" with timeout 5000ms
+      - waiting for getByRole('button', { name: '关闭研究表单', exact: true })
+        14 × locator resolved to <button aria-label="关闭研究表单">×</button>
+           - unexpected value "inactive"
+
+
+      30 |
+      31 | test("P03 review scope acknowledgment, step navigation and guarded discard keep draft memory only",async({page})=>{
+    > 32 |  await page.goto("/research/new");await authorized(page);await fill(page);await page.getByLabel("我已确认任务不包含交易指令",{exact:true}).uncheck();await page.getByRole("button",{name:"提交研究",exact:true}).click();await expect(page.getByLabel("我已确认任务不包含交易指令",{exact:true})).toBeFocused();expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);await page.getByRole("button",{name:/问题与范围/}).click();await expect(page.getByLabel("研究问题",{exact:true})).toBeFocused();await expect(page.getByRole("region",{name:"已选快照摘要",exact:true})).toContainText("非用途批准");await expect(page.locator(".p03-engine-card")).toContainText("健康与版本未提供");await page.getByRole("button",{name:"关闭研究表单",exact:true}).click();await expect(page.getByRole("dialog")).toBeVisible();await expect(page.getByRole("button",{name:"继续填写",exact:true})).toBeFocused();await page.keyboard.press("Escape");await expect(page.getByRole("dialog")).toHaveCount(0);await expect(page.getByRole("button",{name:"关闭研究表单",exact:true})).toBeFocused();await expect(page.getByLabel("研究问题",{exact:true})).toHaveValue("P03 bounded reference research");await page.getByRole("button",{name:"关闭研究表单",exact:true}).click();await page.getByRole("button",{name:"离开并查看列表",exact:true}).click();await authorized(page);await expect(page.getByRole("form",{name:"研究创建表单",exact:true})).toHaveCount(0);expect(networkRows().filter(r=>r.method==="POST")).toHaveLength(0);expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      33 | });
+      34 | test("P03 reference search uses server correlation filter; invalid search dispatches no list; page counts stay local",async({page})=>{
+      35 |  await page.goto("/research/new");await authorized(page);await fill(page);await submit(page);const receipt=networkRows().find(r=>r.accepted)!.accepted as {correlationId:string};await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.locator(".p03-summary")).toContainText("本页全部1");await page.getByLabel("查询引用类型",{exact:true}).selectOption("correlationId");await page.getByLabel("完整研究引用",{exact:true}).fill(receipt.correlationId);await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.locator("tbody tr")).toHaveCount(1);expect(networkRows().some(r=>r.path==="/v1/research-runs"&&r.query?.includes("correlationId%3Aeq%3A"+receipt.correlationId))).toBe(true);const before=networkRows().filter(r=>r.path==="/v1/research-runs"&&r.method==="GET").length;await page.getByLabel("完整研究引用",{exact:true}).fill("search title is not supported");await page.getByRole("button",{name:"刷新列表",exact:true}).click();await expect(page.locator(".research-message")).toContainText("筛选引用须为完整有效 ID");expect(networkRows().filter(r=>r.path==="/v1/research-runs"&&r.method==="GET")).toHaveLength(before);await page.getByLabel("完整研究引用",{exact:true}).fill("");await page.getByRole("button",{name:"本页失败 0",exact:true}).click();await expect(page.getByText("当前查询无研究任务。",{exact:true})).toBeVisible();await expect(page.locator(".p03-summary")).toContainText("本页全部0");
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts:32:976
+
+    attachment #1: ui-p03 (application/json) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-review-scope-ac-e40f0-card-keep-draft-memory-only-chromium/attachments/ui-p03-359655952844cf0635d3e5be584e7bab99320e30.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-review-scope-ac-e40f0-card-keep-draft-memory-only-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-review-scope-ac-e40f0-card-keep-draft-memory-only-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#075985",
+    +               "contrastRatio": 2.27,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#001e2b",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.27 (foreground color: #001e2b, background color: #075985, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"p03-primary\" href=\"/research/new\" aria-label=\"新建研究\">发起研究</a>",
+    +                 "target": Array [
+    +                   "a[aria-label=\"新建研究\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.27 (foreground color: #001e2b, background color: #075985, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"p03-primary\" href=\"/research/new\" aria-label=\"新建研究\">发起研究</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "a[aria-label=\"新建研究\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#075985",
+    +               "contrastRatio": 2.27,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#001e2b",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 2.27 (foreground color: #001e2b, background color: #075985, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<a class=\"p03-primary\" href=\"/research/new\">打开研究创建面板</a>",
+    +                 "target": Array [
+    +                   ".p03-start-hint > .p03-primary[href$=\"new\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 2.27 (foreground color: #001e2b, background color: #075985, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<a class=\"p03-primary\" href=\"/research/new\">打开研究创建面板</a>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p03-start-hint > .p03-primary[href$=\"new\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      38 |  test.setTimeout(90000);await page.emulateMedia({colorScheme:theme,reducedMotion:"reduce"});await page.setViewportSize({width:1672,height:941});await page.goto("/research/new");await authorized(page);await fill(page);await submit(page);await page.getByRole("button",{name:"填写另一项研究",exact:true}).click();await fill(page,"P03 second actual reference intent");await submit(page);const scans=[];
+      39 |  for(const path of ["/research","/research/new"]){await page.goto(path);await authorized(page);if(path.endsWith("new"))await fill(page,"验证可复现的数据快照与研究假设");await expect(page.locator("tbody tr")).toHaveCount(2);
+    > 40 |  for(const width of [1672,1024,390]){await page.setViewportSize({width,height:width===390?844:941});await page.locator(".p03-main").evaluate(el=>{el.scrollTop=0;});await page.locator(".p03-compose").evaluate(el=>{el.scrollTop=0;});if(width===390&&path.endsWith("new"))await page.locator(".p03-compose").scrollIntoViewIfNeeded();await expect(page.locator(".quantos-theme")).toHaveAttribute("data-quantos-theme",theme);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({path,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,theme,scans,priorIconIncomplete:6,priorHeaderIncomplete:2,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",crossOsVisual:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      41 |  await expect(page).toHaveScreenshot(`p03-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`,{maxDiffPixelRatio:.005,mask:[page.locator(".research-table tbody th"),page.locator(".research-table tbody td:nth-child(4)"),page.locator(".research-table tbody td:nth-child(6)"),page.locator(".research-table tbody td:nth-child(7)"),page.locator(".p03-read-at"),page.locator("#research-deadlineAt"),page.locator(".p03-review-time"),page.locator(".p03-snapshot-card dd:nth-of-type(3)")]});await page.screenshot({path:info.outputPath(`p03-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`)});
+      42 |  if(width===390&&path.endsWith("new")){await page.getByRole("button",{name:"提交研究",exact:true}).scrollIntoViewIfNeeded();await expect(page.getByRole("button",{name:"提交研究",exact:true})).toBeVisible();await page.screenshot({path:info.outputPath(`p03-new-${theme}-mobile-submit.png`)});}
+      43 |  }}await page.getByRole("button",{name:"切换主题",exact:true}).click();await expect(page.locator(".quantos-theme")).toHaveAttribute("data-quantos-theme",theme==="dark"?"light":"dark");
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts:40:905
+
+    attachment #1: ui-p03 (application/json) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/attachments/ui-p03-a00c19546afe6a2db61b5804bc8f0a05c03b9574.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/preflight-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/error-context.md
+
+  3 failed
+    [chromium] › tests/e2e/ui-p03.spec.ts:8:5 › P03 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages 
+    [chromium] › tests/e2e/ui-p03.spec.ts:31:5 › P03 review scope acknowledgment, step navigation and guarded discard keep draft memory only 
+    [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe 
+  8 passed (43.5s)

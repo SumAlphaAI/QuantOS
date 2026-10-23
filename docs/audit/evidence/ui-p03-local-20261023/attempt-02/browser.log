@@ -1,0 +1,67 @@
+
+Running 11 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p03.spec.ts:8:5 › P03 creates one audited 202, lists actual C03 rows, server filters and immutable cursor pages (2.4s)
+  ✓   2 [chromium] › tests/e2e/ui-p03.spec.ts:12:5 › P03 local form errors focus fields, backend rejection stays inline and hides raw private text (2.1s)
+  ✓   3 [chromium] › tests/e2e/ui-p03.spec.ts:15:5 › P03 lost committed response explicitly retries original idempotency key and creates only one run (2.2s)
+  ✓   4 [chromium] › tests/e2e/ui-p03.spec.ts:18:5 › P03 snapshot becomes blocked before submission; no C03 command leaves browser (2.1s)
+  ✓   5 [chromium] › tests/e2e/ui-p03.spec.ts:21:5 › P03 narrowed authority and offline clear form; explicit recovery never replays (2.2s)
+  ✓   6 [chromium] › tests/e2e/ui-p03.spec.ts:24:5 › P03 cursor expiration and rate limit need explicit retry, never auto repeat (4.1s)
+  ✓   7 [chromium] › tests/e2e/ui-p03.spec.ts:27:5 › P03 read-only identity cannot create and checking state reveals no form (3.7s)
+  ✓   8 [chromium] › tests/e2e/ui-p03.spec.ts:31:5 › P03 review scope acknowledgment, step navigation and guarded discard keep draft memory only (2.2s)
+  ✓   9 [chromium] › tests/e2e/ui-p03.spec.ts:34:5 › P03 reference search uses server correlation filter; invalid search dispatches no list; page counts stay local (2.3s)
+  ✓  10 [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 dark actual list/create workbench, three widths, snapshots and axe (4.8s)
+  ✘  11 [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe (5.0s)
+
+
+  1) [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe 
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      30983 pixels (ratio 0.10 of all image pixels) are different.
+
+      Snapshot: p03-new-light-390.png
+
+    Call log:
+      - Expect "toHaveScreenshot(p03-new-light-390.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 30983 pixels (ratio 0.10 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 30983 pixels (ratio 0.10 of all image pixels) are different.
+
+
+      39 |  for(const path of ["/research","/research/new"]){await page.goto(path);await authorized(page);if(path.endsWith("new"))await fill(page,"验证可复现的数据快照与研究假设");await expect(page.locator("tbody tr")).toHaveCount(2);
+      40 |  for(const width of [1672,1024,390]){await page.setViewportSize({width,height:width===390?844:941});await page.mouse.move(0,0);await page.locator(".research-table").evaluate(el=>{el.scrollLeft=0;});await page.locator(".p03-main").evaluate(el=>{el.scrollTop=0;});await page.locator(".p03-compose").evaluate(el=>{el.scrollTop=0;});if(width===390&&path.endsWith("new"))await page.locator(".p03-compose").scrollIntoViewIfNeeded();await expect(page.locator(".quantos-theme")).toHaveAttribute("data-quantos-theme",theme);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({path,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,theme,scans,priorIconIncomplete:6,priorHeaderIncomplete:2,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",crossOsVisual:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);
+    > 41 |  await expect(page).toHaveScreenshot(`p03-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`,{maxDiffPixelRatio:.005,mask:[page.locator(".research-table tbody th"),page.locator(".research-table tbody td:nth-child(4)"),page.locator(".research-table tbody td:nth-child(6)"),page.locator(".research-table tbody td:nth-child(7)"),page.locator(".p03-read-at"),page.locator("#research-deadlineAt"),page.locator(".p03-review-time"),page.locator(".p03-snapshot-card dd:nth-of-type(3)")]});await page.screenshot({path:info.outputPath(`p03-${path.endsWith("new")?"new":"list"}-${theme}-${width}.png`)});
+         |                     ^
+      42 |  if(width===390&&path.endsWith("new")){await page.getByRole("button",{name:"提交研究",exact:true}).scrollIntoViewIfNeeded();await expect(page.getByRole("button",{name:"提交研究",exact:true})).toBeVisible();await page.screenshot({path:info.outputPath(`p03-new-${theme}-mobile-submit.png`)});}
+      43 |  }}await page.getByRole("button",{name:"切换主题",exact:true}).click();await expect(page.locator(".quantos-theme")).toHaveAttribute("data-quantos-theme",theme==="dark"?"light":"dark");
+      44 | });
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p03.spec.ts:41:21
+
+    attachment #1: p03-new-light-390 (image/png) ───────────────────────────────────────────────────
+    Expected: tests/e2e/ui-p03.spec.ts-snapshots/p03-new-light-390-chromium-darwin.png
+    Received: docs/audit/evidence/ui-p03-local-20261023/attempt-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/p03-new-light-390-actual.png
+    Diff:     docs/audit/evidence/ui-p03-local-20261023/attempt-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/p03-new-light-390-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: ui-p03 (application/json) ───────────────────────────────────────────────────────
+    docs/audit/evidence/ui-p03-local-20261023/attempt-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/attachments/ui-p03-7dc613efee98182f4ddde48abe7596f9a364c7fd.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/attempt-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p03-local-20261023/attempt-02/browser/ui-p03-P03-light-actual-li-44d0f-ee-widths-snapshots-and-axe-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p03.spec.ts:37:49 › P03 light actual list/create workbench, three widths, snapshots and axe 
+  10 passed (34.2s)
