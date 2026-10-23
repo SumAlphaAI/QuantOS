@@ -1,0 +1,282 @@
+[
+  {
+    "id": "bff-binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:01.728Z",
+    "finishedAt": "2026-10-23T09:39:08.879Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/bff-binary.log",
+    "logSha256": "sha256:c5801f7823d4607e399e6f1c39c8c64e1a7ced78c9daaa5814dfe3a23b2f53e2"
+  },
+  {
+    "id": "runtime-unit",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--lib",
+      "research::"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:08.879Z",
+    "finishedAt": "2026-10-23T09:39:12.186Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/runtime-unit.log",
+    "logSha256": "sha256:94a6bf17e2c19a078694aba6ab2bb1ed3c528315d3f84b66ca7b468cbbc81938"
+  },
+  {
+    "id": "r03-engines",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "research_orchestration"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:12.186Z",
+    "finishedAt": "2026-10-23T09:39:16.148Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/r03-engines.log",
+    "logSha256": "sha256:787add2b2de54c29bbe8b76d1db26a953e906794a58aeb0dd36a753ac8dfa173"
+  },
+  {
+    "id": "bff-composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--",
+      "--nocapture"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:16.149Z",
+    "finishedAt": "2026-10-23T09:39:26.199Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/bff-composition.log",
+    "logSha256": "sha256:3c59b5ff08f0e1cea0280fed86c10983288f0a717281a29af9e2805ccff6720f"
+  },
+  {
+    "id": "bff-audit-auth",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "audit_export_provider",
+      "--test",
+      "auth_settings_provider"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:26.200Z",
+    "finishedAt": "2026-10-23T09:39:30.868Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/bff-audit-auth.log",
+    "logSha256": "sha256:bf86e5f12bba1df9f3318393e306dcae1b63a75bcf7f328375430e02ca3d7e3a"
+  },
+  {
+    "id": "host-binary",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:30.869Z",
+    "finishedAt": "2026-10-23T09:39:31.018Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/host-binary.log",
+    "logSha256": "sha256:dd5644013644c21799f1b49d1d86d0d442faab19ca69c79cd6d261932fc34288"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:31.045Z",
+    "finishedAt": "2026-10-23T09:39:31.880Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/g3-integration-01-review.mjs",
+      "scripts/g3-integration-01-review.test.mjs",
+      "scripts/frontend-g3-confirmed-reference.mjs",
+      "scripts/frontend-g3-confirmed-reference.test.mjs",
+      "tests/e2e/g3-integration-01.spec.ts",
+      "tests/e2e/fixtures/frontend-g3-reference.ts",
+      "playwright.g3-integration-01.config.ts",
+      "playwright.config.ts"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:31.880Z",
+    "finishedAt": "2026-10-23T09:39:32.369Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "rustfmt",
+      "--check",
+      "--edition",
+      "2024",
+      "crates/quantos-runtime/src/research.rs",
+      "services/bff-gateway/src/strategy.rs",
+      "services/bff-gateway/src/strategy/research.rs",
+      "services/bff-gateway/src/strategy/tests.rs",
+      "services/bff-gateway/src/research.rs",
+      "services/bff-gateway/src/execution.rs",
+      "services/bff-gateway/src/frontend_g3.rs",
+      "services/bff-gateway/src/g3_research_tests.rs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:32.370Z",
+    "finishedAt": "2026-10-23T09:39:32.456Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/rust-format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gates",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g3-integration-01-review.test.mjs",
+      "scripts/frontend-g3-confirmed-reference.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:32.456Z",
+    "finishedAt": "2026-10-23T09:39:35.160Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/gates.log",
+    "logSha256": "sha256:864aa8d81a2c317656fc3c69d4fa244563d4db1f7bf7ccc16201e7a23a83b162"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:35.161Z",
+    "finishedAt": "2026-10-23T09:39:44.090Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/terminal-build.log",
+    "logSha256": "sha256:8fb19ff9b73cf4d7b02cd74db3a14b3e7677f7c74cd4cc40aed85518a84d7a52"
+  },
+  {
+    "id": "browser-worker",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.g3-integration-01.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-worker"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:39:44.090Z",
+    "finishedAt": "2026-10-23T09:41:13.929Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-worker.log",
+    "logSha256": "sha256:5e5cd7f2ab488e40bc31ecfce677f33a1fd87d507878a1eb5776f4283baff262"
+  },
+  {
+    "id": "browser-regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.frontend-g3.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--grep-invert",
+      "^G3 ",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-regression"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-23T09:41:13.929Z",
+    "finishedAt": "2026-10-23T09:41:16.552Z",
+    "log": "docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-regression.log",
+    "logSha256": "sha256:668f0994768630c736867d6954d8af6f1c91db8258e32ab8a39d506c2f9618af"
+  }
+]

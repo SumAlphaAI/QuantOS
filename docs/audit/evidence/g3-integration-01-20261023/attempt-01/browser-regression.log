@@ -1,0 +1,45 @@
+
+Running 44 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit (1.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+
+    Error: reference exited 101: 
+    running 1 test
+
+    thread 'strategy::frontend_g3::browser_host' (1959419) panicked at services/bff-gateway/src/frontend_g3.rs:29:61:
+    called `Result::unwrap()` on an `Err` value: NotPresent
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    test strategy::frontend_g3::browser_host ... FAILED
+
+    failures:
+
+    failures:
+        strategy::frontend_g3::browser_host
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 231 filtered out; finished in 0.00s
+
+
+
+       at fixtures/frontend-g3-reference.ts:56
+
+      54 |  const reserve = reserveServer();await new Promise<void>(r => reserve.listen(0,"127.0.0.1",r));port = (reserve.address() as {port: number}).port;await new Promise<void>(r => reserve.close(() => r()));
+      55 |  child = spawn(JSON.parse(await readFile(process.env.QUANTOS_G3_HOST_RECEIPT!,"utf8")).executable,["strategy::frontend_g3::browser_host","--exact","--ignored","--nocapture"],{env:{PATH:process.env.PATH,HOME:process.env.HOME,GITHUB_SHA:process.env.GITHUB_SHA,QUANTOS_G3_BROWSER_HOST:"1",QUANTOS_G3_R03:process.env.QUANTOS_G3_R03,QUANTOS_G3_ARTIFACTS:process.env.QUANTOS_G3_ARTIFACTS,QUANTOS_SKIP_ENV:"1",QUANTOS_BFF_MODE:"reference",QUANTOS_BFF_BIND:`127.0.0.1:${port}`,QUANTOS_BFF_PUBLIC_ORIGIN:origin},stdio:["ignore","pipe","pipe"]});
+    > 56 |  await new Promise<void>((done,reject)=>{let buffer="";const timer=setTimeout(()=>reject(Error("reference startup timeout")),15000);child.once("error",e=>{clearTimeout(timer);reject(e);});child.once("exit",code=>{clearTimeout(timer);reject(Error(`reference exited ${code}: ${hostLogs.slice(-2000)}`));});child.stderr!.on("data",b=>{hostLogs+=String(b);});child.stdout!.on("data",b=>{hostLogs+=String(b);buffer+=String(b);let i;while((i=buffer.indexOf("\n"))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);let status;try{status=JSON.parse(line);}catch{continue;}if(status.ready){registrations=status.registrations??[];controlOrigin=status.control;clearTimeout(timer);done();}}});});await page.bringToFront();
+         |                                                                                                                                                                                                                                                 ^
+      57 | });
+      58 | test.afterEach(async ({context,page},info) => {
+      59 |  if (info.status !== "passed" && !page.isClosed()) {await writeFile(info.outputPath("page-state.txt"),await page.locator("main").innerText({timeout:1000}).catch(() => "unavailable"));await page.screenshot({path:info.outputPath("failure.png"),fullPage:true,timeout:5000}).catch(() => {});}
+        at ChildProcess.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g3-reference.ts:56:241)
+
+    Error Context: docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-regression/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/g3-integration-01-20261023/attempt-01/browser-regression/frontend-g3-G3-fixture-01--dd7ec-e-approval-target-and-Audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/frontend-g3.spec.ts:13:39 › G3 fixture 01 actual IPC Artifact to Lab Backtest Release approval target and Audit 
+  43 did not run
+  1 error was not a part of any test, see above for details

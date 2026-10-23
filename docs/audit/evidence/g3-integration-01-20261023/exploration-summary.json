@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-retained-exploration/v1",
+  "sourceBinding": "UNCOMMITTED_SOURCE_NOT_FROZEN_NOT_ACCEPTANCE",
+  "observedHead": "95e43e6f",
+  "records": [
+    {
+      "path": "exploration/compile-01.log",
+      "result": "FAIL",
+      "exitCode": null,
+      "note": "编译失败；shell末尾tail返回0，不是cargo成功"
+    },
+    {
+      "path": "exploration/compile-02.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "不透明快照不可直接改写，已改用错绑快照拒绝探针"
+    },
+    {
+      "path": "exploration/worker-01.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "RD-Agent清单漏登记experiment能力，握手拒绝"
+    },
+    {
+      "path": "exploration/worker-02.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "静态检查契约拒绝正文"
+    },
+    {
+      "path": "exploration/worker-03.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "C08审批事件回连根节点，未接续前事件"
+    },
+    {
+      "path": "exploration/worker-04.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "完整诊断确认共享C08处理器的因果缺口"
+    },
+    {
+      "path": "exploration/worker-05.log",
+      "result": "PASS_EXPLORATORY_ONLY",
+      "exitCode": 0,
+      "note": "2项通过；尚未冻结，不是当前候选验收"
+    },
+    {
+      "path": "exploration/worker-06.log",
+      "result": "FAIL",
+      "exitCode": 101,
+      "note": "C04投影借用冲突，编译失败"
+    },
+    {
+      "path": "exploration/worker-07.log",
+      "result": "PASS_EXPLORATORY_ONLY",
+      "exitCode": 0,
+      "note": "2项通过；尚未冻结"
+    },
+    {
+      "path": "exploration/worker-08.log",
+      "result": "PASS_EXPLORATORY_ONLY",
+      "exitCode": 0,
+      "note": "补齐静态产物与记录哈希后2项通过；尚未冻结"
+    }
+  ],
+  "browserSmoke": {
+    "exitCode": 0,
+    "signal": null
+  },
+  "smokeBoundary": "one browser case before final static-support changes, not current candidate acceptance"
+}

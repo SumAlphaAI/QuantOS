@@ -1,0 +1,19 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0502]: cannot borrow `data` as immutable because it is also borrowed as mutable
+   --> services/bff-gateway/src/strategy/research.rs:223:435
+    |
+223 | ...   data.research.runs.insert(run_id,json!({"runId":run_id,"capability":run["capability"],"dataSnapshotId":item["researchArtifact"]["data_snapshot_id"],"budget":run["cost_budget_units"].as_u64().unwrap().to_string(),"deadlineAt":run["deadline_at"],"status":run["status"],"inputHash":run["input_hash"],"engineVersion":"r03-worker-owned-uds","artifactRefs":[research_id],"evidenceRefs":[],"correlationId":correlation,"auditRef":data.au...
+    |       ----               ------ mutable borrow later used by call                                                                                                                                                                                                                                                                                                                                                                           ^^^^ immutable borrow occurs here
+    |       |
+    |       mutable borrow occurs here
+
+error[E0502]: cannot borrow `data` as immutable because it is also borrowed as mutable
+   --> services/bff-gateway/src/strategy/research.rs:223:447
+    |
+223 | ...   data.research.runs.insert(run_id,json!({"runId":run_id,"capability":run["capability"],"dataSnapshotId":item["researchArtifact"]["data_snapshot_id"],"budget":run["cost_budget_units"].as_u64().unwrap().to_string(),"deadlineAt":run["deadline_at"],"status":run["status"],"inputHash":run["input_hash"],"engineVersion":"r03-worker-owned-uds","artifactRefs":[research_id],"evidenceRefs":[],"correlationId":correlation,"auditRef":data.audits[data.au...
+    |       ----               ------ mutable borrow later used by call                                                                                                                                                                                                                                                                                                                                                                                       ^^^^ immutable borrow occurs here
+    |       |
+    |       mutable borrow occurs here
+
+For more information about this error, try `rustc --explain E0502`.
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors

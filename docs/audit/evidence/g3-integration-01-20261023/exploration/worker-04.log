@@ -1,0 +1,27 @@
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.67s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-9b375d26f16d4850)
+
+running 2 tests
+test g3_research_tests::worker_static_rejection_publishes_nothing_and_fresh_valid_worker_recovers ... ok
+
+thread 'g3_research_tests::worker_to_registration_rejects_forgery_and_closes_twenty_causal_chains' (1916362) panicked at services/bff-gateway/src/g3_research_tests.rs:377:13:
+assertion `left == right` failed: {"complete":true,"correlationId":"01a16815-f37f-7e72-b0c9-e098fc6e2f6a","items":[{"eventId":"01a16815-f410-79a1-b7c9-c8df57f7fcde","kind":"research.worker.completed","objectRef":"01a16815-f37f-7e72-b0c9-e0a83203ca22","occurredAt":"2026-10-23T09:27:11.632810+00:00","payloadHash":"sha256:bb62f7d7f9588bf768163fda08e2b58de1eb1d8f765041e272dbf9dfba49dae8","retentionUntil":"2027-10-23T09:27:11.632828+00:00","route":"/research/runs/01a16815-f37f-7e72-b0c9-e0a83203ca22","sequence":9},{"causationId":"01a16815-f410-79a1-b7c9-c8df57f7fcde","eventId":"01a16815-f411-7be2-9416-a95805eb8244","kind":"strategy.worker.completed","objectRef":"01a16815-f383-7a60-994f-fc3c7af8c9a9","occurredAt":"2026-10-23T09:27:11.633026+00:00","payloadHash":"sha256:6848923a8d49fd6830a1753a260a6baef8c9dae05616c5a8d07247521214097b","retentionUntil":"2027-10-23T09:27:11.633042+00:00","route":"/artifacts/01a16815-f387-7960-9f3b-04670bdefefa","sequence":10},{"causationId":"01a16815-f411-7be2-9416-a95805eb8244","eventId":"01a16815-f411-7be2-9416-a964883e067b","kind":"strategy.registered","objectRef":"01a16815-f407-7fd3-aa7e-72f791919623","occurredAt":"2026-10-23T09:27:11.633570+00:00","payloadHash":"sha256:9bf7df3ff3e6cb1d024491fbb017ec4d5c600bfe245fb3df481c7956d833b9c3","retentionUntil":"2027-10-23T09:27:11.633587+00:00","route":"/strategies/01a16815-f407-7fd3-aa7e-72f791919623/lab","sequence":11},{"causationId":"01a16815-f411-7be2-9416-a964883e067b","eventId":"01a16815-f431-76d0-89ab-218f0e4f7e40","kind":"/v1/strategies/01a16815-f407-7fd3-aa7e-72f791919623/static-checks","objectRef":"01a16815-f407-7fd3-aa7e-72f791919623","occurredAt":"2026-10-23T09:27:11.665349+00:00","payloadHash":"sha256:6c6973371139f0a8101c7177da2bb6a0e05642e0fcadee238770756815931373","retentionUntil":"2027-10-23T09:27:11.665365+00:00","route":"/v1/strategies/01a16815-f407-7fd3-aa7e-72f791919623/static-checks","sequence":69},{"causationId":"01a16815-f431-76d0-89ab-218f0e4f7e40","eventId":"01a16815-f433-7250-a27b-6d415d731693","kind":"/v1/backtests","objectRef":"/v1/backtests","occurredAt":"2026-10-23T09:27:11.667885+00:00","payloadHash":"sha256:874161de04a09d2cacfc35fcc101dc1a10bf6ff735c8e5963b4a9be769cb7378","retentionUntil":"2027-10-23T09:27:11.667901+00:00","route":"/v1/backtests","sequence":70},{"causationId":"01a16815-f433-7250-a27b-6d415d731693","eventId":"01a16815-f438-7b83-ae54-6cd41c350454","kind":"/v1/releases","objectRef":"01a16815-f434-7642-8a4f-8d9e02d3ee03","occurredAt":"2026-10-23T09:27:11.672850+00:00","payloadHash":"sha256:35b3c5cb67348e107ccaa10a34606e68e3106187fbdfbf2e1562b83252c5751e","retentionUntil":"2027-10-23T09:27:11.672867+00:00","route":"/v1/releases","sequence":71},{"causationId":"01a16815-f438-7b83-ae54-6cd41c350454","eventId":"01a16815-f43a-7b93-b940-d8c160ae67c3","kind":"/v1/releases/01a16815-f434-7642-8a4f-8d9e02d3ee03/approval-submissions","objectRef":"/v1/releases/01a16815-f434-7642-8a4f-8d9e02d3ee03/approval-submissions","occurredAt":"2026-10-23T09:27:11.675064+00:00","payloadHash":"sha256:51ab6df4ececd4730b29722817720594cb8a97ed27c607868007886e7234a5f1","retentionUntil":"2027-10-23T09:27:11.675080+00:00","route":"/v1/releases/01a16815-f434-7642-8a4f-8d9e02d3ee03/approval-submissions","sequence":72},{"causationId":"01a16815-f410-79a1-b7c9-c8df57f7fcde","eventId":"01a16815-f452-7623-9951-025b7154bc98","kind":"/v1/approvals/17679ffc-a945-49ef-97d8-5918fbf7075b/decisions","objectRef":"/v1/approvals/17679ffc-a945-49ef-97d8-5918fbf7075b/decisions","occurredAt":"2026-10-23T09:27:11.698642+00:00","payloadHash":"sha256:7cb984d8d7cce5db70b2c1780db81f82a65efe3e750703a0409e7d410518b84b","retentionUntil":"2027-10-23T09:27:11.698655+00:00","route":"/v1/approvals/17679ffc-a945-49ef-97d8-5918fbf7075b/decisions","sequence":73}]}
+  left: String("01a16815-f410-79a1-b7c9-c8df57f7fcde")
+ right: String("01a16815-f43a-7b93-b940-d8c160ae67c3")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test g3_research_tests::worker_to_registration_rejects_forgery_and_closes_twenty_causal_chains ... FAILED
+
+failures:
+
+failures:
+    g3_research_tests::worker_to_registration_rejects_forgery_and_closes_twenty_causal_chains
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 230 filtered out; finished in 2.41s
+
+error: test failed, to rerun pass `-p bff-gateway --lib`

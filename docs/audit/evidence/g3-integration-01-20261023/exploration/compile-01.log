@@ -1,0 +1,421 @@
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: cannot find macro `json` in this scope
+   --> services/bff-gateway/src/g3_research_tests.rs:116:42
+    |
+116 |     println!("G3_R03_WORKER_EVIDENCE={}",json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"probes":f.probes,"registrationDenial...
+    |                                          ^^^^
+    |
+help: consider importing one of these macros
+    |
+  2 + use crate::json;
+    |
+  2 + use serde_json::json;
+    |
+
+error: cannot find macro `json` in this scope
+   --> services/bff-gateway/src/g3_research_tests.rs:114:56
+    |
+114 |         assert_eq!(chain["complete"],true);chains.push(json!({"registration":row,"release":v,"chain":chain}));
+    |                                                        ^^^^
+    |
+help: consider importing one of these macros
+    |
+  2 + use crate::json;
+    |
+  2 + use serde_json::json;
+    |
+
+error: cannot find macro `json` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:96:159
+   |
+96 | ...,runs[0].0).unwrap().clone();r.output["strategy"]["rule_source"]=json!("tampered");repo=InMemoryResearchArtifactRepository::new();repo...
+   |                                                                     ^^^^
+   |
+help: consider importing one of these macros
+   |
+ 2 + use crate::json;
+   |
+ 2 + use serde_json::json;
+   |
+
+error: cannot find macro `json` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:78:66
+   |
+78 |     Pipeline{auth,runtime,repository,snapshots,rules,runs,probes:json!({"pendingParentDenied":pending_rejected,"unparentedStrategyDenied"...
+   |                                                                  ^^^^
+   |
+help: consider importing one of these macros
+   |
+ 2 + use crate::json;
+   |
+ 2 + use serde_json::json;
+   |
+
+error: cannot find macro `json` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:69:59
+   |
+69 | ...   let mut wrong=child.clone();wrong.input["prompt"]=json!("caller override");assert!(c.schedule_strategy_from_research(parent.workflo...
+   |                                                         ^^^^
+   |
+help: consider importing one of these macros
+   |
+ 2 + use crate::json;
+   |
+ 2 + use serde_json::json;
+   |
+
+error: cannot find macro `json` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:63:189
+   |
+63 | ...rate.v1").unwrap(),idempotency_key:format!("g3-child-{i}"),input:json!({"fixture":"trend_momentum_btc"}),..source};
+   |                                                                     ^^^^
+   |
+help: consider importing one of these macros
+   |
+ 2 + use crate::json;
+   |
+ 2 + use serde_json::json;
+   |
+
+error: cannot find macro `json` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:61:432
+   |
+61 | ...:"g3-owned-policy".into(),input_schema_version:"v1".into(),input:json!({"fixture":"hypothesis_regime_shift","prompt":"Generate a bound...
+   |                                                                     ^^^^
+   |
+help: consider importing one of these macros
+   |
+ 2 + use crate::json;
+   |
+ 2 + use serde_json::json;
+   |
+
+error[E0412]: cannot find type `AuthContext` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:11:15
+   |
+11 |     pub auth: AuthContext,
+   |               ^^^^^^^^^^^ not found in this scope
+   |
+   = note: struct `crate::execution::tests::AuthContext` exists but is inaccessible
+help: consider importing this struct
+   |
+ 2 + use quantos_auth::AuthContext;
+   |
+
+error[E0412]: cannot find type `Value` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:17:17
+   |
+17 |     pub probes: Value,
+   |                 ^^^^^ not found in this scope
+   |
+help: consider importing one of these enums
+   |
+ 2 + use crate::Value;
+   |
+ 2 + use serde_json::Value;
+   |
+
+error[E0412]: cannot find type `Value` in this scope
+  --> services/bff-gateway/src/g3_research_tests.rs:20:84
+   |
+20 |     pub async fn install(&self, p: &crate::BffProvider) -> std::result::Result<Vec<Value>, &'static str> {
+   |                                                                                    ^^^^^ not found in this scope
+   |
+help: consider importing one of these enums
+   |
+ 2 + use crate::Value;
+   |
+ 2 + use serde_json::Value;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Uuid`
+  --> services/bff-gateway/src/g3_research_tests.rs:30:58
+   |
+30 |     let socket=PathBuf::from(format!("/tmp/q-g3-{}.sock",Uuid::new_v4()));
+   |                                                          ^^^^ use of undeclared type `Uuid`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Uuid;
+   |
+ 2 + use uuid::Uuid;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:44:13
+   |
+44 |     let now=Utc::now();
+   |             ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> services/bff-gateway/src/g3_research_tests.rs:46:92
+   |
+46 |     for cap in ["research.hypothesis.v1","strategy.generate.v1"] {auth.capabilities.insert(Capability::parse(cap).unwrap());}
+   |                                                                                            ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: struct `crate::live::research::tests::Capability` exists but is inaccessible
+help: consider importing this struct
+   |
+ 2 + use quantos_policy::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> services/bff-gateway/src/g3_research_tests.rs:52:138
+   |
+52 | ...egistration{tool_name:cap.into(),capability:Capability::parse(cap).unwrap(),description:"owned G3 worker".into(),max_cost_units:10000,...
+   |                                                ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: struct `crate::live::research::tests::Capability` exists but is inaccessible
+help: consider importing this struct
+   |
+ 2 + use quantos_policy::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Duration`
+  --> services/bff-gateway/src/g3_research_tests.rs:53:52
+   |
+53 |     let session=runtime.open_session(&auth,now,now+Duration::hours(1));
+   |                                                    ^^^^^^^^ use of undeclared type `Duration`
+   |
+   = note: struct `crate::live::market::tests::Duration` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 2 + use crate::Duration;
+   |
+ 2 + use std::time::Duration;
+   |
+ 2 + use chrono::Duration;
+   |
+ 2 + use tokio::time::Duration;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Duration`
+  --> services/bff-gateway/src/g3_research_tests.rs:60:196
+   |
+60 | ...er_name:"g3-r03-worker".into(),lease_duration:Duration::seconds(30),storage_bucket:"owned-local-memory".into()});
+   |                                                  ^^^^^^^^ use of undeclared type `Duration`
+   |
+   = note: struct `crate::live::market::tests::Duration` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 2 + use crate::Duration;
+   |
+ 2 + use std::time::Duration;
+   |
+ 2 + use chrono::Duration;
+   |
+ 2 + use tokio::time::Duration;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> services/bff-gateway/src/g3_research_tests.rs:61:141
+   |
+61 | ...:"research.hypothesis.v1".into(),capability:Capability::parse("research.hypothesis.v1").unwrap(),workflow_kind:"research".into(),idemp...
+   |                                                ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: struct `crate::live::research::tests::Capability` exists but is inaccessible
+help: consider importing this struct
+   |
+ 2 + use quantos_policy::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Duration`
+  --> services/bff-gateway/src/g3_research_tests.rs:61:549
+   |
+61 | ... hypothesis"}),max_attempts:1,deadline_at:now+Duration::minutes(10),cost_budget_units:250,rate_limit_per_minute:600};
+   |                                                  ^^^^^^^^ use of undeclared type `Duration`
+   |
+   = note: struct `crate::live::market::tests::Duration` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 2 + use crate::Duration;
+   |
+ 2 + use std::time::Duration;
+   |
+ 2 + use chrono::Duration;
+   |
+ 2 + use tokio::time::Duration;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> services/bff-gateway/src/g3_research_tests.rs:63:92
+   |
+63 | ...me:"strategy.generate.v1".into(),capability:Capability::parse("strategy.generate.v1").unwrap(),idempotency_key:format!("g3-child-{i}")...
+   |                                                ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: struct `crate::live::research::tests::Capability` exists but is inaccessible
+help: consider importing this struct
+   |
+ 2 + use quantos_policy::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:66:37
+   |
+66 |         let research=c.execute_next(Utc::now()).await.unwrap().unwrap();
+   |                                     ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:70:94
+   |
+70 |         let scheduled=c.schedule_strategy_from_research(parent.workflow_run_id,child.clone(),Utc::now()).unwrap();
+   |                                                                                              ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:71:91
+   |
+71 | ...   assert_eq!(c.schedule_strategy_from_research(parent.workflow_run_id,child.clone(),Utc::now()).unwrap().workflow_run_id,scheduled.wo...
+   |                                                                                         ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:72:35
+   |
+72 |         let result=c.execute_next(Utc::now()).await.unwrap().unwrap();
+   |                                   ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Utc`
+  --> services/bff-gateway/src/g3_research_tests.rs:74:83
+   |
+74 | ...   assert_eq!(c.schedule_strategy_from_research(parent.workflow_run_id,child,Utc::now()).unwrap().workflow_run_id,scheduled.workflow_r...
+   |                                                                                 ^^^ use of undeclared type `Utc`
+   |
+help: consider importing one of these structs
+   |
+ 2 + use crate::Utc;
+   |
+ 2 + use chrono::Utc;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Uuid`
+   --> services/bff-gateway/src/g3_research_tests.rs:107:105
+    |
+107 | ...ategies/{sid}/draft"),None,crate::CURRENT_SESSION,Uuid::new_v4(),None).await;assert_eq!(s,200,"{d}");
+    |                                                      ^^^^ use of undeclared type `Uuid`
+    |
+help: consider importing one of these structs
+    |
+  2 + use crate::Uuid;
+    |
+  2 + use uuid::Uuid;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Uuid`
+   --> services/bff-gateway/src/g3_research_tests.rs:110:149
+    |
+110 | ...str().unwrap()),Some(decision),"session-approver",Uuid::new_v4(),Some("0")).await;assert_eq!(s,200);
+    |                                                      ^^^^ use of undeclared type `Uuid`
+    |
+help: consider importing one of these structs
+    |
+  2 + use crate::Uuid;
+    |
+  2 + use uuid::Uuid;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `Uuid`
+   --> services/bff-gateway/src/g3_research_tests.rs:111:135
+    |
+111 | ...ation}?pageSize=100"),None,crate::CURRENT_SESSION,Uuid::new_v4(),None).await;assert_eq!(s,200,"{chain}");
+    |                                                      ^^^^ use of undeclared type `Uuid`
+    |
+help: consider importing one of these structs
+    |
+  2 + use crate::Uuid;
+    |
+  2 + use uuid::Uuid;
+    |
+
+error[E0603]: module `tests` is private
+    --> services/bff-gateway/src/g3_research_tests.rs:83:26
+     |
+  83 |     use crate::strategy::tests::{call,release,submit,proof};
+     |                          ^^^^^ private module
+     |
+note: the module `tests` is defined here
+    --> services/bff-gateway/src/strategy.rs:1038:1
+     |
+1038 | mod tests;
+     | ^^^^^^^^^^
+
+error[E0624]: method `research_trace` is private
+   --> services/bff-gateway/src/strategy.rs:980:64
+    |
+980 |                 let lineage = state.strategy.as_ref().unwrap().research_trace(&a, uri.path(), &b);
+    |                                                                ^^^^^^^^^^^^^^ private method
+    |
+   ::: services/bff-gateway/src/strategy/research.rs:9:5
+    |
+  9 |     fn research_trace(&self, auth: &AuthContext, path: &str, body: &Value) -> Option<Uuid> {
+    |     -------------------------------------------------------------------------------------- private method defined here
+
+error[E0624]: method `research_trace` is private
+    --> services/bff-gateway/src/strategy.rs:1006:54
+     |
+1006 |             let c = state.strategy.as_ref().unwrap().research_trace(&a, uri.path(), &b).unwrap_or_else(Uuid::now_v7).to_string();
+     |                                                      ^^^^^^^^^^^^^^ private method
+     |
+    ::: services/bff-gateway/src/strategy/research.rs:9:5
+     |
+   9 |     fn research_trace(&self, auth: &AuthContext, path: &str, body: &Value) -> Option<Uuid> {
+     |     -------------------------------------------------------------------------------------- private method defined here
+
+error[E0599]: no variant or associated item named `Backtest` found for enum `SnapshotUsage` in the current scope
+  --> services/bff-gateway/src/strategy/research.rs:63:92
+   |
+63 |             let decision = SnapshotQualityGate::evaluate(&request.snapshot, SnapshotUsage::Backtest, now, &rules);
+   |                                                                                            ^^^^^^^^ variant or associated item not found in `SnapshotUsage`
+
+error[E0624]: method `research_trace` is private
+   --> services/bff-gateway/src/strategy.rs:582:32
+    |
+582 |         let correlation = self.research_trace(a, path, b).unwrap_or_else(Uuid::now_v7);
+    |                                ^^^^^^^^^^^^^^ private method
+    |
+   ::: services/bff-gateway/src/strategy/research.rs:9:5
+    |
+  9 |     fn research_trace(&self, auth: &AuthContext, path: &str, body: &Value) -> Option<Uuid> {
+    |     -------------------------------------------------------------------------------------- private method defined here
+
+Some errors have detailed explanations: E0412, E0433, E0599, E0603, E0624.
+For more information about an error, try `rustc --explain E0412`.
+error: could not compile `bff-gateway` (lib test) due to 32 previous errors
