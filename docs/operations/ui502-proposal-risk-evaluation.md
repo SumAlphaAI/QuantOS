@@ -17,7 +17,7 @@ C07 SSE同资源密集journal校验streamId/sequence/账户/proposal/correlation
 1. C01 session/context绑定actor/tenant/workspace/account/mode/environment/MFA/capabilities与最短会话期限。只开放Paper/Shadow，要求服务端execution.operate；该capability不代表当前Proposal所有权，BFF逐次判定发起人，客户端不按actor推测授权。
 2. “刷新风险上下文”只读C07详情/状态流及C13预检。预检必须匹配当前Proposal/账户/模式/版本与服务端sha256 hash、asOf/有效期；来源asOf达到60秒、预检/Signal/Proposal过期、当前deny、未核验均禁评估。预检核验/状态流各8秒有效，C01由UI101持续重验。
 3. “请求风险评估”只能对active且无该版本既有回执的建议执行。请求前重新读取身份/Proposal/流/预检；版本、不可变内容、hash、verdict或命中变化时返回新内容供显式审阅，本次不POST。仅将path Proposal ID、原objectVersion的If-Match、服务器contextHash、CSRF、独立幂等键/请求ID送出；不发送actor/source/risk/signature/order数据。
-4. 202只能成为受理回执。校验status=accepted、jobId/correlationId及与Proposal的关联，审计引用有则展示；另行读C07状态，不能以202推断风险通过、批准或Order。相同Proposal版本回执阻断重复新评估（内存最多100条），状态不是active也禁用。
+4. 202只能成为受理回执。校验status=accepted、jobId/correlationId及与Proposal的关联，审计引用有则展示；另行读C07状态，不能以202推断风险通过、批准或Order。相同Proposal版本回执阻断重复新评估（内存最多100条；达到容量后保留全部回执并拒绝新评估，不淘汰仍有效的版本锁），状态不是active也禁用。
 5. 网络/5xx/非法回执/不确定状态锁定原proposal/version/hash/key，停止写入并清除预检。显式读取/连接恢复不POST；在原建议、当前新鲜且未拒绝的上下文中，显式重试原body/version/key，不换意图。换到其他建议仍保留全局未知锁，必须返回原建议恢复。恢复429/409等继续保留未知意图，429冷却有界。**过期后连原POST恢复也禁止**，仅查询状态/审计，不用旧建议再评估。
 6. 首次明确401/403/404/409/422/429拒绝清除尚未确认的pending并要求新审阅，不自动套用currentVersion。服务端机器码按安全白名单映射，保留校验过的correlationId，不显示原始SQL/私有错误message。操作403（非发起人）不授予写权限，也不自动收回仍有效的建议读权限；C01/读权限拒绝独立清除。
 

@@ -3,7 +3,7 @@ import type { RouteContext } from '../auth/route-access';
 import { decimal } from '../portfolio/policy';
 export type Proposal = BffComponents['schemas']['TradeProposal'];
 export type Preflight = BffComponents['schemas']['TradePreflight'];
-export const proposalPolicy = { pollMs:2000, maxUnverifiedMs:8000, maxAgeMs:60000, pageSize:50, maxRows:1000, frameChars:262144 } as const;
+export const proposalPolicy = { pollMs:2000, maxUnverifiedMs:8000, maxAgeMs:60000, pageSize:50, maxRows:1000, maxReceipts:100, frameChars:262144 } as const;
 export const proposalStatuses=['active','awaiting_approval','approved','command_ready','request_info','rejected','expired','submitted'] as const;
 export type ProposalQuery={status?:typeof proposalStatuses[number];symbol?:string};
 export const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][0-9a-f]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
