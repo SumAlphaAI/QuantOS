@@ -2479,7 +2479,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["UI-301", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - 当前功能执行（2026-10-23）：应用源码`3f7f37cd`、工具修复`c61e1dc1`限定工程Gate=PASS_UI302_REFERENCE_FUNCTION；89前端、19门禁/路由、20C05、3核心专项（含100个泄漏拒绝fixture）及11Chromium通过，14次axe零violations，保留12条incomplete扫描记录。静态检查与固定snapshot/clock/cost/slippage/environment hash报告已接入，202仅受理、泄漏/绑定缺失阻断Release、未知写入原键恢复；队列仅本会话最多25项。原构建/命令保持原应用SHA，工具修复只重跑lint/门禁/浏览器，采集与lint失败全部保留。见[规程](./operations/ui302-static-backtests.md)、[报告](./audit/UI-302-current-function-review-2026-10-23.md)、[证据](./audit/evidence/ui302-local-20261023/README.md)和[完整待确认稿](./audit/evidence/ui302-local-20261023/confirmation-draft.md)。待用户确认；stage_gate保持NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED；原UI301/P06确认/incomplete及全部NOT_RUN不变，真实身份/目标持久服务、远程CI、完整联调/发布仍NOT_RUN。下一原任务UI-303，UI-P07高保真保留后续。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
@@ -2487,6 +2487,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 需求描述：静态检查、回测队列与报告
 - 接口绑定：C05
 - 验收重点：固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release
+
+- 用户确认（2026-10-23）：项目用户已直接接受限定应用`3f7f37cd`、工具`c61e1dc1`及`e42cdd84`原稿证据包，见[原文与摘要](./audit/evidence/ui302-confirmation-20261023/README.md)。COMPLETED仅表示原稿功能范围确认；保留全部incomplete/NOT_RUN，不修改旧receipt，不接受之后HEAD，stage_gate NOT_ASSESSED，runtimeAdmission=DENIED。
 
 <a id="task-ui-303"></a>
 ##### UI-303：不可变 Release、审批申请与目标选择
