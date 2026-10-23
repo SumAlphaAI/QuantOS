@@ -1,0 +1,25 @@
+import {spawn,type ChildProcess} from 'node:child_process';
+import {createServer} from 'node:net';
+import {beforeAll,afterAll,expect,it} from 'vitest';
+import {createBffClient} from '@sumalpha/api-client';
+import {createOrdersRuntime} from '../src/orders/runtime';
+import {referenceBffExecutable,referenceBffRoot,referenceBffSourceEnv} from './helpers/reference-bff';
+let child:ChildProcess,origin:string;const csrf='csrf-token-0000000000000001';
+const requests:Request[]=[];
+const transport=(session='session-current'):typeof fetch=>async(input,init)=>{const r=new Request(input,init);requests.push(r.clone());r.headers.set('cookie',`quantos_session=${session}; quantos_csrf=${csrf}`);r.headers.set('origin','http://localhost:3190');return fetch(r);};
+beforeAll(async()=>{expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,'127.0.0.1',r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));origin=`http://127.0.0.1:${port}`;child=spawn(referenceBffExecutable(),[],{cwd:referenceBffRoot,env:{...referenceBffSourceEnv(),NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});await new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('reference startup timeout')),15000);child.once('error',e=>{clearTimeout(timer);reject(e);});child.stdout?.on('data',b=>{if(String(b).includes('"ready":true')){clearTimeout(timer);resolve();}});});},20000);
+afterAll(async()=>{if(child?.exitCode===null){child.kill();await new Promise(r=>child.once('close',r));}});
+it('actual C01/C07/C08/C09 runtime submits once after unknown response and cancels once with dense historical replay',async()=>{
+ const c=createBffClient({baseUrl:origin,fetch:transport()}),b=createBffClient({baseUrl:origin,fetch:transport('session-approver')});
+ const p=(await c.GET('/v1/proposals')).data!.items[0]!,q=(await c.GET('/v1/trade-preflight',{params:{query:{accountId:p.accountId,proposalId:p.proposalId}}})).data!;
+ const header=(version?:string)=>({'Idempotency-Key':crypto.randomUUID(),'X-CSRF-Token':csrf,'X-Request-Id':crypto.randomUUID(),...(version?{'If-Match':version}:{})});
+ expect((await c.POST('/v1/proposals/{proposalId}/risk-evaluations',{params:{path:{proposalId:p.proposalId},header:header(p.objectVersion) as ReturnType<typeof header>&{'If-Match':string}},body:{contextHash:q.contextHash}})).response.status).toBe(202);
+ const a=(await c.GET('/v1/approvals')).data!.items.find(a=>a.correlationId===p.correlationId)!;
+ const m=(await b.POST('/v1/auth/mfa/challenges',{params:{header:header()},body:{purpose:'security_change',code:'123456'}})).data!,r=(await b.POST('/v1/auth/reauth',{params:{header:header()},body:{challengeRef:m.challengeRef}})).data!;
+ expect((await b.POST('/v1/approvals/{approvalId}/decisions',{params:{path:{approvalId:a.approvalId},header:header(a.objectVersion) as ReturnType<typeof header>&{'If-Match':string}},body:{decision:'approve',mfaChallengeRef:m.challengeRef,reauthTokenRef:r.reauthTokenRef}})).response.status).toBe(200);
+ let drop='submit';const wire=transport();const runtime=createOrdersRuntime({origin,authorize:()=>{},online:()=>true,invalidate:()=>{},csrf:()=>csrf,fetchImpl:async(i,n)=>{const r=await wire(i,n),path=new URL(i instanceof Request?i.url:String(i)).pathname;if(r.status===202&&(drop==='submit'&&path==='/v1/commands'||drop==='cancel'&&path.endsWith('/cancel-requests'))){drop='';await r.body?.cancel();throw Error('owned committed reply loss');}return r;}});
+ await runtime.load();await runtime.list();await runtime.prepare(a.approvalId);await expect(runtime.submit('SUBMIT COMMAND')).rejects.toThrow();expect(runtime.view.order).toBeUndefined();expect(runtime.view.pending?.action).toBe('submit');await runtime.retry();expect(runtime.view.order?.status).toBe('accepted');expect(runtime.view.order?.fills).toEqual([]);expect(runtime.view.timeline).toHaveLength(1);const orderId=runtime.view.order!.orderId;
+ drop='cancel';await expect(runtime.cancel('CANCEL ORDER')).rejects.toThrow();expect(runtime.view.order?.status).toBe('accepted');await runtime.retry();expect(runtime.view.order?.status).toBe('cancelled');expect(runtime.view.timeline.map(e=>e.order.status)).toEqual(['accepted','cancelled']);await runtime.poll();expect(runtime.view.sequence).toBe(2);await expect(runtime.cancel('CANCEL ORDER')).rejects.toThrow();
+ for(const path of ['/v1/commands','/v1/orders/'+orderId+'/cancel-requests']){const x=requests.filter(r=>new URL(r.url).pathname===path);expect(x).toHaveLength(2);expect(x[0]!.headers.get('idempotency-key')).toBe(x[1]!.headers.get('idempotency-key'));expect(await x[0]!.text()).toBe(await x[1]!.text());}
+ runtime.close();expect(runtime.view.pending).toBeUndefined();expect(runtime.view.timeline).toEqual([]);
+},20000);

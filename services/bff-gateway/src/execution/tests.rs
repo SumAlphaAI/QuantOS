@@ -1475,3 +1475,68 @@ fn p10_scoped_evidence_rejects_foreign_authority_even_with_known_correlation() {
         assert!(!s.has_approval_correlation(&b, &corr), "{mismatch}");
     }
 }
+#[test]
+fn order_mutations_and_get_share_dense_journal_without_read_before_cancel() {
+    let mut s = ExecutionService::reference();
+    let now = Utc::now();
+    let (_, _, approval) = approved(&mut s, now);
+    let a = s.auth.clone();
+    let submit_headers = headers(None);
+    let submit_body = json!({"commandRef":approval["commandRef"]});
+    let ack = call(
+        &mut s,
+        &a,
+        "/v1/commands",
+        submit_body.clone(),
+        &submit_headers,
+        now,
+    )
+    .unwrap();
+    assert_eq!(
+        call(
+            &mut s,
+            &a,
+            "/v1/commands",
+            submit_body,
+            &submit_headers,
+            now
+        )
+        .unwrap(),
+        ack
+    );
+    let id = ack.1["jobId"].as_str().unwrap();
+    let cancel_path = format!("/v1/orders/{id}/cancel-requests");
+    let stream_path = format!("/v1/orders/{id}/stream");
+    let cancel_headers = headers(None);
+    let body = json!({"commandRef":approval["commandRef"]});
+    let cancel = call(&mut s, &a, &cancel_path, body.clone(), &cancel_headers, now).unwrap();
+    assert_eq!(
+        call(&mut s, &a, &cancel_path, body, &cancel_headers, now).unwrap(),
+        cancel
+    );
+    assert_eq!(s.downstream_counts(), (Some(1), Some(1)));
+    let read = |s: &mut ExecutionService, after: &str| {
+        s.handle(
+            &a,
+            "owned-session",
+            &Method::GET,
+            &stream_path,
+            &BTreeMap::from([("afterSequence".into(), after.into())]),
+            &HeaderMap::new(),
+            &Value::Null,
+            None,
+            now,
+        )
+        .unwrap()
+        .1
+    };
+    let events = read(&mut s, "0");
+    let events = events["events"].as_array().unwrap();
+    assert_eq!(events.len(), 2);
+    assert_eq!(events[0]["sequence"], 1);
+    assert_eq!(events[0]["payload"]["status"], "accepted");
+    assert_eq!(events[1]["sequence"], 2);
+    assert_eq!(events[1]["payload"]["status"], "cancelled");
+    assert_eq!(read(&mut s, "1")["events"], json!([events[1]]));
+    assert_eq!(read(&mut s, "2")["events"], json!([]));
+}

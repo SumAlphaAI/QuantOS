@@ -822,10 +822,14 @@ impl ExecutionService {
             }
             if path.ends_with("/stream") {
                 let vals = self.event(
-                    &format!(
-                        "{path}:{}",
-                        q.get("proposalId").map(String::as_str).unwrap_or("")
-                    ),
+                    &if path.starts_with("/v1/orders/") {
+                        path.to_owned()
+                    } else {
+                        format!(
+                            "{path}:{}",
+                            q.get("proposalId").map(String::as_str).unwrap_or("")
+                        )
+                    },
                     val,
                     now,
                 )?;
