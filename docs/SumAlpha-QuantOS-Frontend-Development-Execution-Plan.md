@@ -2578,7 +2578,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P04", "CORE-GATE:S2-SERVICE", "SERVICE:S04", "UI-301", "UI-P06", "UI-302", "UI-303", "UI-P07", "FRONTEND-GATE:G3"]
 - core_prerequisites: ["CORE-GATE:S2-SERVICE", "SERVICE:S04"]
 - closes_core: ["CORE:S04"]
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -2588,6 +2588,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 - 本轮FEP-3/CORE:S04本地组合复核见 `docs/operations/frontend-g3-integration.md`；完整阶段准入与生产注册边界未关闭，不改绑上游或历史READY。
+
+- 本轮独立功能收口：21项直接依赖及8份原范围确认独立登记；修复保存回执内容不匹配、成功回测参数漂移、Release/报告参数交叉绑定三个当前前端缺口。COMPLETED仅表示前端功能收口，实际执行事实见 `docs/operations/fep3-function-closure.md` 及其冻结回执；原范围确认不改绑当前SHA，历史incomplete和全部NOT_RUN保留，完整G3/CORE:S04仍未放行，stage_gate NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。下一原任务FE:UI-401。
 
 #### 迭代 I4：W21–W22
 

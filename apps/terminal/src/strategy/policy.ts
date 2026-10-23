@@ -3,6 +3,9 @@ export type StrategyDraft = BffComponents["schemas"]["StrategyDraft"];
 export type DraftContent = Pick<StrategyDraft, "files" | "parameters">;
 export type StrategySummary = BffComponents["schemas"]["StrategySummary"];
 export const autosaveMs = 1000;
+/** Structural equality only: preserves strings, number types and array order.
+ * This is not the native engine's canonical-byte/hash implementation. */
+export const canonical=(value:unknown):string=>JSON.stringify(value,(_key,v)=>v&&typeof v==="object"&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 /** Same UTF-8 body limit as the C05 provider. JSON editors never evaluate code. */
 export function parseDraftContent(files: string, parameters: string): DraftContent {
  const content = {files: JSON.parse(files), parameters: JSON.parse(parameters)};

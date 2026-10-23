@@ -1,4 +1,5 @@
 import {createBffClient,bffZodSchemas,SseStreamReducer,type BffComponents,type SseEventEnvelope} from "@sumalpha/api-client";
+import {canonical} from "./policy";
 export const strategyClient=(origin:string,transport:typeof fetch=fetch)=>createBffClient({baseUrl:origin,fetch:transport,timeoutMs:10000});
 type Draft=BffComponents["schemas"]["StrategyDraft"];
 type DraftSave=Pick<Draft,"strategyId"|"files"|"parameters">&{expectedVersion:string;editRevision:number};
@@ -16,7 +17,7 @@ export class DraftBuffer {
  conflict(raw:unknown){const error=bffZodSchemas.ErrorEnvelope.parse(raw);if(error.code!=="VERSION_CONFLICT"||!error.currentVersion)throw Error("Version conflict required");return {currentVersion:error.currentVersion,diff:error.conflictDiff};}
  /** Explicit resolution after the user merges local changes against a fetched head. */
  resolve(raw:unknown,files:Draft["files"],parameters:Draft["parameters"]){const head=bffZodSchemas.StrategyDraft.parse(raw);if(head.strategyId!==this.remote.strategyId)throw Error("Strategy mismatch");if(BigInt(head.objectVersion)<BigInt(this.expectedVersion))throw Error("Stale strategy version");this.remote=head;this.edit(files,parameters);}
- saved(raw:unknown,submitted:DraftSave){const head=bffZodSchemas.StrategyDraft.parse(raw);if(head.strategyId!==this.remote.strategyId||submitted.strategyId!==this.remote.strategyId)throw Error("Strategy mismatch");if(BigInt(head.objectVersion)<BigInt(this.expectedVersion))throw Error("Stale strategy version");if(BigInt(head.objectVersion)!==BigInt(submitted.expectedVersion)+1n)throw Error("Save version mismatch");this.remote=head;if(this.editRevision===submitted.editRevision)this.local={files:structuredClone(head.files),parameters:structuredClone(head.parameters)};}
+ saved(raw:unknown,submitted:DraftSave){const head=bffZodSchemas.StrategyDraft.parse(raw);if(head.strategyId!==this.remote.strategyId||submitted.strategyId!==this.remote.strategyId)throw Error("Strategy mismatch");if(BigInt(head.objectVersion)<BigInt(this.expectedVersion))throw Error("Stale strategy version");if(BigInt(head.objectVersion)!==BigInt(submitted.expectedVersion)+1n)throw Error("Save version mismatch");if(canonical([head.files,head.parameters])!==canonical([submitted.files,submitted.parameters]))throw Error("Save content mismatch");this.remote=head;if(this.editRevision===submitted.editRevision)this.local={files:structuredClone(head.files),parameters:structuredClone(head.parameters)};}
 }
 /** A 202 receipt is never a completed or validated backtest report. */
 export class BacktestFacts {
