@@ -1,0 +1,9 @@
+import {it,expect} from 'vitest';
+import {ticketLocation,ticketHref,executionChecks,quoteValue} from '../src/trade/p20-presentation';
+import {createControlledTicket} from '../src/trade/p20-runtime';
+const id='11111111-1111-4111-8111-111111111111';
+it('canonical symbol and proposal references round trip; no command authority in query',()=>{expect(ticketLocation('/trade')).toEqual({});expect(ticketLocation(ticketHref('BTCUSDT',id).split('?')[0],'?proposalId='+id)).toEqual({symbol:'BTCUSDT',proposalId:id});});
+it.each(['/trade/nope','/trade/BTC%2FUSDT','/trade/BTCUSDT/extra','/trade/../orders','/other'])('rejects noncanonical route %s',path=>expect(()=>ticketLocation(path)).toThrow());
+it.each(['?commandRef='+id,'?mode=paper','?accountId='+id,'?proposalId='+id+'&proposalId='+id,'?proposalId=bad'])('rejects injected intent or authority %s',q=>expect(()=>ticketLocation('/trade/BTCUSDT',q)).toThrow());
+it('source gaps remain unknown and null quotes are never fabricated as zero',()=>{expect(quoteValue(null)).toBe('未提供');expect(quoteValue('9007199254740993.01')).toBe('9007199254740993.01');const checks=executionChecks(undefined,false);expect(checks.find(c=>c.name==='账户可用余额')?.value).toContain('未核验');expect(checks.some(c=>c.tone==='good')).toBe(false);});
+it('unbound or closed workflow cannot submit, request risk or recover any intent',async()=>{let writes=0;const r=createControlledTicket({origin:'https://owned.example',authorize:()=>{},online:()=>true,invalidate:()=>{},csrf:()=>'',fetchImpl:async()=>{writes++;throw Error('unexpected network');}});await expect(r.evaluate('EVALUATE RISK')).rejects.toThrow();await expect(r.submit('SUBMIT COMMAND')).rejects.toThrow();r.close();await expect(r.recover()).rejects.toThrow();expect(r.view.approval).toBeUndefined();expect(r.view.commands.receipt).toBeUndefined();expect(writes).toBe(0);});

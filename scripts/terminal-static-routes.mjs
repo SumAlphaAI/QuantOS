@@ -6,6 +6,9 @@ export function terminalStaticDocument(pathname,manifest){
   const route=manifest.routes?.find(r=>r.prefix==='risk');
   return parts.length===4&&parts[2]==='rules'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(parts[3])&&route?.document==='risk.html'&&route.parameter==='ruleId'&&route.suffix==='rules'?'risk.html':undefined;
  }
+ if(parts[0]===''&&parts[1]==='trade'){
+  const route=manifest.routes?.find(r=>r.prefix==='trade');return parts.length===3&&/^[A-Z0-9]{2,40}$/.test(parts[2])&&route?.document==='trade.html'&&route.parameter==='symbol'?'trade.html':undefined;
+ }
  if(parts[0]===''&&parts[1]==='markets'){
   if(parts.length!==3)return undefined;let symbol;try{symbol=decodeURIComponent(parts[2]);}catch{return undefined;}
   if(!/^[A-Z0-9]{1,20}\/[A-Z0-9]{1,20}$/.test(symbol)||encodeURIComponent(symbol)!==parts[2])return undefined;
