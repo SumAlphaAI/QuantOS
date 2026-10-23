@@ -2465,7 +2465,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 所属阶段：FEP-3
 - 页面级完成标准：目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用
 
-- 当前页面执行（2026-10-23）：卡片/表格目录、Lab三栏、文件/参数编辑、版本与保存状态、409 diff、双主题及响应式已实现，验证见[规程](./operations/ui-p06-strategy-workbench.md)、[报告](./audit/UI-P06-current-page-review-2026-10-23.md)和[证据索引](./audit/evidence/ui-p06-local-20261023/README.md)。C05未提供浏览器创建/历史版本；静态检查与回测属于UI-302，Release/审批属于UI-303，未执行项不显示假通过。原UI-301确认保持原候选；stage_gate仍NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，完整联调/发布及目标验收NOT_RUN。下一原任务UI-302。
+- 当前页面执行（2026-10-23）：卡片/表格目录、Lab三栏、文件/参数编辑、版本与保存状态、409 diff、双主题及响应式已实现，源码`f2854052`最终attempt-01的55项前端、15项门禁/路由、12项Chromium及10张独立视觉比较通过；类型/lint/构建通过，工程Gate=PASS_UI_P06_CURRENT_PAGE；18次P06 axe零violations并保留18条incomplete扫描记录，原UI301的8条及本轮回归12条分别保留。验证见[规程](./operations/ui-p06-strategy-workbench.md)、[报告](./audit/UI-P06-current-page-review-2026-10-23.md)和[证据索引](./audit/evidence/ui-p06-local-20261023/README.md)。C05未提供浏览器创建/历史版本；静态检查与回测属于UI-302，Release/审批属于UI-303，未执行项不显示假通过。原UI-301确认保持原候选；stage_gate仍NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，完整联调/发布及目标验收NOT_RUN。下一原任务UI-302。
 
 <a id="task-ui-302"></a>
 ##### UI-302：静态检查、回测队列与报告

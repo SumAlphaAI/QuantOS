@@ -5,3 +5,7 @@
 规程见 ../../../operations/ui-p06-strategy-workbench.md，报告见 ../../UI-P06-current-page-review-2026-10-23.md。执行 node scripts/ui-p06-review.mjs --verify 核对当前页面输入与来源、原始日志、截图、axe、快照和边界。当前页面工程通过不等于G3/FEP-3、目标或发布验收；用户确认待定。
 
 预检01：9/12浏览器通过，三个视觉/axe用例发现重复未命名辅助区域；已修复。预检02：P06六项（含18次axe、10张视觉种子）全部通过，UI301五项通过；跨文件缓存使首项UI301未注册共享hook，已改成各文件显式安装hook。全部原始失败与缺失回执保留，不伪造成功证据。无效参数切页签的输入保留与停止保存已验证。
+
+最终attempt-01仅绑定冻结候选`f2854052e55e9df0aca2ce5b0da9993d5839d3b4`，无跨候选拼接：55前端、15门禁/路由、12Chromium、10独立视觉比较、类型/lint/构建通过。P06 axe18次零violations/18条incomplete扫描记录，当前UI301回归12条与原8条分开保存。UI-301确认9995b6a8只绑定原工程0642eaad/原包0eac15e4。
+
+完整待确认稿见confirmation-draft.md；source/scope/receipt/visual摘要见manifest.json；逐文件清单见changed-files.txt。stage_gate仍NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，下一UI-302。

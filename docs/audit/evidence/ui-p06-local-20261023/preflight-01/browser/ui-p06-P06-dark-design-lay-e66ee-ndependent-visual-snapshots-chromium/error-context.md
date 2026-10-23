@@ -1,0 +1,105 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui-p06.spec.ts >> P06 dark design layout, responsive axe and independent visual snapshots
+- Location: tests/e2e/ui-p06.spec.ts:21:50
+
+# Error details
+
+```
+Error: expect(received).toEqual(expected) // deep equality
+
+- Expected  -  1
++ Received  + 45
+
+- Array []
++ Array [
++   Object {
++     "description": "Ensure landmarks are unique",
++     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
++     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
++     "id": "landmark-unique",
++     "impact": "moderate",
++     "nodes": Array [
++       Object {
++         "all": Array [],
++         "any": Array [
++           Object {
++             "data": Object {
++               "accessibleText": null,
++               "role": "complementary",
++             },
++             "id": "landmark-is-unique",
++             "impact": "moderate",
++             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
++             "relatedNodes": Array [
++               Object {
++                 "html": "<aside class=\"p06-right\">",
++                 "target": Array [
++                   ".p06-right",
++                 ],
++               },
++             ],
++           },
++         ],
++         "failureSummary": "Fix any of the following:
++   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
++         "html": "<aside class=\"p06-left\">",
++         "impact": "moderate",
++         "none": Array [],
++         "target": Array [
++           ".p06-left",
++         ],
++       },
++     ],
++     "tags": Array [
++       "cat.semantics",
++       "best-practice",
++     ],
++   },
++ ]
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect} from "@playwright/test";
+  2  | import AxeBuilder from "@axe-core/playwright";
+  3  | import {writeFile} from "node:fs/promises";
+  4  | import {authorized,openLab,control,fault,networkRows} from "./fixtures/ui301-reference";
+  5  | const writes=()=>networkRows().filter(row=>row.method==="PUT"&&!row.control);
+  6  | test("P06 catalog card/table, local search, server refresh and creation boundary",async({page})=>{
+  7  |  await page.goto("/strategies");await authorized(page);await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);await page.getByLabel("搜索本页策略",{exact:true}).fill("alternative");await expect(page.locator(".p06-strategy-cards article")).toHaveCount(1);await page.getByRole("button",{name:"表格视图",exact:true}).click();await expect(page.locator("tbody tr")).toHaveCount(1);await expect(page.getByRole("button",{name:"表格视图",exact:true})).toHaveAttribute("aria-pressed","true");await page.getByLabel("搜索本页策略",{exact:true}).fill("missing");await expect(page.getByText("本页没有匹配的策略。",{exact:true})).toBeVisible();await page.getByLabel("搜索本页策略",{exact:true}).fill("");await page.getByLabel("排序",{exact:true}).selectOption("name:asc");await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.locator("tbody tr")).toHaveCount(2);expect(writes()).toHaveLength(0);await page.goto("/strategies/new");await authorized(page);await expect(page.getByRole("heading",{name:"策略由服务端注册",exact:true})).toBeVisible();expect(networkRows().some(r=>r.method==="POST")).toBe(false);
+  8  | });
+  9  | test("P06 real file editor, typed parameter form, invalid edit pause and keyboard tabs",async({page})=>{
+  10 |  const path=await openLab(page,false),api=path.replace("/lab","/draft").replace("/strategies/","/v1/strategies/"),before=(await control(api)).body;
+  11 |  const code=page.getByLabel("文件内容",{exact:true});await code.fill("momentum(close, lookback=6)\n# owned edit");await expect(page.getByRole("status").filter({hasText:"已保存"})).toContainText(`objectVersion：${BigInt(before.objectVersion as string)+1n}`);expect((await control(api)).body.files).toHaveProperty(["strategy.rule"],"momentum(close, lookback=6)\n# owned edit");
+  12 |  await page.getByRole("tab",{name:"参数",exact:true}).focus();await page.keyboard.press("ArrowRight");await expect(page.getByRole("tab",{name:"研究引用",exact:true})).toBeFocused();await expect(page.getByRole("tabpanel")).toContainText("数据快照");await page.keyboard.press("Home");await expect(page.getByRole("tab").first()).toBeFocused();await page.getByRole("tab",{name:"参数",exact:true}).click();const field=page.getByLabel("参数 lookback",{exact:true}),count=writes().length;await field.fill("-");await expect(field).toHaveAttribute("aria-invalid","true");await expect(page.getByRole("button",{name:"保存草稿",exact:true})).toBeDisabled();await page.waitForTimeout(1200);expect(writes()).toHaveLength(count);await field.fill("7");await expect(page.getByRole("status").filter({hasText:"已保存"})).toContainText(`objectVersion：${BigInt(before.objectVersion as string)+2n}`);const saved=(await control(api)).body.parameters as {parameters:{lookback:number;max_position_notional:string}};expect(saved.parameters.lookback).toBe(7);expect(saved.parameters.max_position_notional).toBe("1000");await expect(page.getByRole("button",{name:"运行静态检查",exact:true})).toBeDisabled();await expect(page.getByRole("region",{name:"Validation 面板"})).toContainText("未执行 · UI-302");
+  13 | });
+  14 | test("P06 code view preserves edits across a real 409 with explicit merge",async({page})=>{
+  15 |  const path=await openLab(page,false),api=path.replace("/lab","/draft").replace("/strategies/","/v1/strategies/"),before=(await control(api)).body;
+  16 |  expect((await control(api,{files:{...before.files as Record<string,string>,"strategy.rule":"remote source"},parameters:before.parameters},before.objectVersion as string)).status).toBe(200);await page.getByLabel("文件内容",{exact:true}).fill("local source");await expect(page.getByRole("region",{name:"草稿冲突 diff"})).toBeVisible();await expect(page.getByRole("region",{name:"逐字段差异"})).toContainText("remote source");await expect(page.getByLabel("文件内容",{exact:true})).toHaveValue("local source");expect((await control(api)).body.files).toHaveProperty(["strategy.rule"],"remote source");await page.getByLabel("文件内容",{exact:true}).fill("merged source");await page.getByRole("button",{name:"确认使用当前编辑合并",exact:true}).click();expect(writes()).toHaveLength(1);await page.getByRole("button",{name:"保存草稿",exact:true}).click();await expect(page.getByRole("status").filter({hasText:"已保存"})).toBeVisible();expect((await control(api)).body.files).toHaveProperty(["strategy.rule"],"merged source");
+  17 | });
+  18 | test("P06 checking, empty and error states expose no invented facts and explicitly recover",async({page})=>{
+  19 |  fault({slow:true});await page.goto("/strategies");await expect(page.locator('[data-ui-p06-state="loading"]')).toBeVisible();await expect(page.getByRole("tab")).toHaveCount(0);await authorized(page);await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);fault({empty:true});await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.getByText("当前目录为空。",{exact:true})).toBeVisible();fault({listError:true});await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.getByRole("alert").filter({hasText:"请求未完成"})).toBeVisible();await expect(page.locator(".p06-strategy-cards article")).toHaveCount(0);await expect(page.locator("main")).not.toContainText("private SQL");fault({});await page.getByRole("button",{name:"刷新目录",exact:true}).click();await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);expect(writes()).toHaveLength(0);
+  20 | });
+  21 | for(const theme of ["dark","light"] as const)test(`P06 ${theme} design layout, responsive axe and independent visual snapshots`,async({page},info)=>{
+  22 |  await page.emulateMedia({colorScheme:theme,reducedMotion:"reduce"});const path=await openLab(page,false),scans=[];
+  23 |  for(const route of ["/strategies","/strategies/new",path]){
+  24 |   await page.goto(route);await authorized(page);if(route===path)await expect(page.getByLabel("文件内容",{exact:true})).toBeVisible();else if(route==="/strategies")await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);
+  25 |   for(const width of [1672,1024,390]){
+> 26 |    await page.setViewportSize({width,height:width===390?844:941});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,route:route===path?"lab":route,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("p06-axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",crossOsVisual:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);
+     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^ Error: expect(received).toEqual(expected) // deep equality
+  27 |    const name=route===path?"lab":route.endsWith("new")?"new":"catalog";await page.screenshot({path:info.outputPath(`p06-${name}-${theme}-${width}.png`),fullPage:true});
+  28 |    if(route===path||width===1672)await expect(page).toHaveScreenshot(`p06-${name}-${theme}-${width}.png`,{maxDiffPixelRatio:.005,animations:"disabled",mask:[page.locator(".p06-strategy-title small"),page.locator(".p06-ref"),page.locator(".p06-strategy-cards time"),page.locator(".p06-version time"),page.locator(".p06-fixed-inputs dd") ]});
+  29 |   }
+  30 |  }
+  31 |  await page.getByRole("button",{name:"切换主题",exact:true}).click();await expect(page.locator(".quantos-theme")).toHaveAttribute("data-quantos-theme",theme==="dark"?"light":"dark");
+  32 | });
+  33 | 
+```

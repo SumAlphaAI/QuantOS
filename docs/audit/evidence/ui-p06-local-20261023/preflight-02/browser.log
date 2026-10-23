@@ -1,0 +1,55 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p06.spec.ts:6:5 › P06 catalog card/table, local search, server refresh and creation boundary (2.2s)
+  ✓   2 [chromium] › tests/e2e/ui-p06.spec.ts:9:5 › P06 real file editor, typed parameter form, invalid edit pause and keyboard tabs (6.2s)
+  ✓   3 [chromium] › tests/e2e/ui-p06.spec.ts:14:5 › P06 code view preserves edits across a real 409 with explicit merge (3.5s)
+  ✓   4 [chromium] › tests/e2e/ui-p06.spec.ts:18:5 › P06 checking, empty and error states expose no invented facts and explicitly recover (3.9s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-dark-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-dark-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-dark-390-chromium-darwin.png, writing actual.
+  ✓   5 [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 dark design layout, responsive axe and independent visual snapshots (5.3s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-light-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-light-1024-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-lab-light-390-chromium-darwin.png, writing actual.
+  ✓   6 [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 light design layout, responsive axe and independent visual snapshots (5.4s)
+  ✘   7 [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint (5.1s)
+  ✓   8 [chromium] › tests/e2e/ui301.spec.ts:13:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head (3.6s)
+  ✓   9 [chromium] › tests/e2e/ui301.spec.ts:20:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry (3.5s)
+  ✓  10 [chromium] › tests/e2e/ui301.spec.ts:23:5 › UI301 invalid JSON, backend rejection and readonly never auto retry (6.0s)
+  ✓  11 [chromium] › tests/e2e/ui301.spec.ts:27:5 › UI301 access loss clears draft; explicit recovery never replays save (2.2s)
+  ✓  12 [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots (5.5s)
+
+
+  1) [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/ui301-reference.ts:41
+
+      39 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method:body ? "PUT" : "GET",headers:{"x-ui301-control":"1",...(body ? {"content-type":"application/json","if-match":version!,"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+      40 | }
+    > 41 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+         |                                                                                                              ^
+      42 | export async function openLab(page: Page,raw=true) {await page.goto("/strategies");await authorized(page);const link = page.getByRole("link",{name:/^打开 Lab/}).first();await expect(link).toBeVisible();const href = (await link.getAttribute("href"))!;await link.click();await authorized(page);if(raw)await page.getByRole("tab",{name:"全部文件 JSON",exact:true}).click();await expect(page.getByLabel(raw?"文件 JSON":"文件内容",{exact:true})).toBeVisible();return href;}
+      43 | test.beforeAll(async () => {
+      44 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch = await mkdtemp(join(tmpdir(),"quantos-ui301-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r => proxy.listen(4010,"127.0.0.1",r));
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:41:110)
+        at openLab (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui301-reference.ts:42:90)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:7:15
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-02/browser/ui301-UI301-catalog-deep-L-d0ec5--no-browser-create-endpoint-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint 
+  11 passed (54.0s)

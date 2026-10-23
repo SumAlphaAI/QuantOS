@@ -1,0 +1,246 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui-p06.spec.ts:6:5 › P06 catalog card/table, local search, server refresh and creation boundary (2.4s)
+  ✓   2 [chromium] › tests/e2e/ui-p06.spec.ts:9:5 › P06 real file editor, typed parameter form, invalid edit pause and keyboard tabs (6.1s)
+  ✓   3 [chromium] › tests/e2e/ui-p06.spec.ts:14:5 › P06 code view preserves edits across a real 409 with explicit merge (3.6s)
+  ✓   4 [chromium] › tests/e2e/ui-p06.spec.ts:18:5 › P06 checking, empty and error states expose no invented facts and explicitly recover (3.9s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-catalog-dark-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-new-dark-1672-chromium-darwin.png, writing actual.
+  ✘   5 [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 dark design layout, responsive axe and independent visual snapshots (4.5s)
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-catalog-light-1672-chromium-darwin.png, writing actual.
+A snapshot doesn't exist at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts-snapshots/p06-new-light-1672-chromium-darwin.png, writing actual.
+  ✘   6 [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 light design layout, responsive axe and independent visual snapshots (4.5s)
+  ✓   7 [chromium] › tests/e2e/ui301.spec.ts:6:5 › UI301 catalog/deep Lab autosave versions and no browser create endpoint (3.7s)
+  ✓   8 [chromium] › tests/e2e/ui301.spec.ts:13:5 › UI301 true competing save produces 409 diff; explicit merge never overwrites newer server head (3.6s)
+  ✓   9 [chromium] › tests/e2e/ui301.spec.ts:20:5 › UI301 committed response lost: pause and reuse same key/body/version on explicit retry (3.6s)
+  ✓  10 [chromium] › tests/e2e/ui301.spec.ts:23:5 › UI301 invalid JSON, backend rejection and readonly never auto retry (6.0s)
+  ✓  11 [chromium] › tests/e2e/ui301.spec.ts:27:5 › UI301 access loss clears draft; explicit recovery never replays save (3.2s)
+  ✘  12 [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots (3.8s)
+
+
+  1) [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 dark design layout, responsive axe and independent visual snapshots 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": null,
+    +               "role": "complementary",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<aside class=\"p06-right\">",
+    +                 "target": Array [
+    +                   ".p06-right",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<aside class=\"p06-left\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p06-left",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      24 |   await page.goto(route);await authorized(page);if(route===path)await expect(page.getByLabel("文件内容",{exact:true})).toBeVisible();else if(route==="/strategies")await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);
+      25 |   for(const width of [1672,1024,390]){
+    > 26 |    await page.setViewportSize({width,height:width===390?844:941});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,route:route===path?"lab":route,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("p06-axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",crossOsVisual:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      27 |    const name=route===path?"lab":route.endsWith("new")?"new":"catalog";await page.screenshot({path:info.outputPath(`p06-${name}-${theme}-${width}.png`),fullPage:true});
+      28 |    if(route===path||width===1672)await expect(page).toHaveScreenshot(`p06-${name}-${theme}-${width}.png`,{maxDiffPixelRatio:.005,animations:"disabled",mask:[page.locator(".p06-strategy-title small"),page.locator(".p06-ref"),page.locator(".p06-strategy-cards time"),page.locator(".p06-version time"),page.locator(".p06-fixed-inputs dd") ]});
+      29 |   }
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts:26:538
+
+    attachment #1: p06-catalog-dark-1672 (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/ui-p06.spec.ts-snapshots/p06-catalog-dark-1672-chromium-darwin.png
+    Received: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-dark-design-lay-e66ee-ndependent-visual-snapshots-chromium/p06-catalog-dark-1672-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: p06-new-dark-1672 (image/png) ───────────────────────────────────────────────────
+    Expected: tests/e2e/ui-p06.spec.ts-snapshots/p06-new-dark-1672-chromium-darwin.png
+    Received: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-dark-design-lay-e66ee-ndependent-visual-snapshots-chromium/p06-new-dark-1672-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-dark-design-lay-e66ee-ndependent-visual-snapshots-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-dark-design-lay-e66ee-ndependent-visual-snapshots-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 light design layout, responsive axe and independent visual snapshots 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": null,
+    +               "role": "complementary",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<aside class=\"p06-right\">",
+    +                 "target": Array [
+    +                   ".p06-right",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<aside class=\"p06-left\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p06-left",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      24 |   await page.goto(route);await authorized(page);if(route===path)await expect(page.getByLabel("文件内容",{exact:true})).toBeVisible();else if(route==="/strategies")await expect(page.locator(".p06-strategy-cards article")).toHaveCount(2);
+      25 |   for(const width of [1672,1024,390]){
+    > 26 |    await page.setViewportSize({width,height:width===390?844:941});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,route:route===path?"lab":route,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("p06-axe.json"),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN",crossOsVisual:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      27 |    const name=route===path?"lab":route.endsWith("new")?"new":"catalog";await page.screenshot({path:info.outputPath(`p06-${name}-${theme}-${width}.png`),fullPage:true});
+      28 |    if(route===path||width===1672)await expect(page).toHaveScreenshot(`p06-${name}-${theme}-${width}.png`,{maxDiffPixelRatio:.005,animations:"disabled",mask:[page.locator(".p06-strategy-title small"),page.locator(".p06-ref"),page.locator(".p06-strategy-cards time"),page.locator(".p06-version time"),page.locator(".p06-fixed-inputs dd") ]});
+      29 |   }
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p06.spec.ts:26:538
+
+    attachment #1: p06-catalog-light-1672 (image/png) ──────────────────────────────────────────────
+    Expected: tests/e2e/ui-p06.spec.ts-snapshots/p06-catalog-light-1672-chromium-darwin.png
+    Received: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-light-design-la-574ca-ndependent-visual-snapshots-chromium/p06-catalog-light-1672-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: p06-new-light-1672 (image/png) ──────────────────────────────────────────────────
+    Expected: tests/e2e/ui-p06.spec.ts-snapshots/p06-new-light-1672-chromium-darwin.png
+    Received: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-light-design-la-574ca-ndependent-visual-snapshots-chromium/p06-new-light-1672-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-light-design-la-574ca-ndependent-visual-snapshots-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui-p06-P06-light-design-la-574ca-ndependent-visual-snapshots-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 45
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure landmarks are unique",
+    +     "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/landmark-unique?application=playwright",
+    +     "id": "landmark-unique",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "accessibleText": null,
+    +               "role": "complementary",
+    +             },
+    +             "id": "landmark-is-unique",
+    +             "impact": "moderate",
+    +             "message": "The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<aside class=\"p06-right\">",
+    +                 "target": Array [
+    +                   ".p06-right",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+    +         "html": "<aside class=\"p06-left\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".p06-left",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "best-practice",
+    +     ],
+    +   },
+    + ]
+
+      30 | test("UI301 real pages retain desktop/mobile dark/light axe and screenshots",async ({page},info) => {
+      31 |  const path = await openLab(page),scans = [];
+    > 32 |  for (const theme of ["dark","light"] as const) {await page.emulateMedia({colorScheme:theme});for (const route of ["/strategies","/strategies/new",path]) {await page.goto(route);await authorized(page);if (route === path) await expect(page.getByLabel("文件内容",{exact:true})).toBeVisible();for (const width of [1440,390]) {await page.setViewportSize({width,height:900});expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);const scan = await new AxeBuilder({page}).analyze();scans.push({theme,route,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath("axe.json"),JSON.stringify({scans,manualScreenReader:"NOT_RUN",nativeZoom200:"NOT_RUN"},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`ui301-${route === path ? "lab" : route.endsWith("new") ? "new" : "catalog"}-${theme}-${width}.png`),fullPage:true});}}}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      33 | });
+      34 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui301.spec.ts:32:755
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui301-UI301-real-pages-ret-9e7d5-k-light-axe-and-screenshots-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p06-local-20261023/preflight-01/browser/ui301-UI301-real-pages-ret-9e7d5-k-light-axe-and-screenshots-chromium/error-context.md
+
+  3 failed
+    [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 dark design layout, responsive axe and independent visual snapshots 
+    [chromium] › tests/e2e/ui-p06.spec.ts:21:50 › P06 light design layout, responsive axe and independent visual snapshots 
+    [chromium] › tests/e2e/ui301.spec.ts:30:5 › UI301 real pages retain desktop/mobile dark/light axe and screenshots 
+  9 passed (50.9s)
