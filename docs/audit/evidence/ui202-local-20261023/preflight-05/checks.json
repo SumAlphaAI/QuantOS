@@ -1,0 +1,116 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui202.test.ts",
+      "apps/terminal/tests/ui201.test.ts",
+      "apps/terminal/tests/research-gateway.test.ts",
+      "packages/api-client/tests/sse-safety.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/ui202-local-20261023/preflight-05/unit.json"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:22.520Z",
+    "finishedAt": "2026-10-23T01:30:24.137Z"
+  },
+  {
+    "id": "types",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:24.137Z",
+    "finishedAt": "2026-10-23T01:30:25.408Z"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/research/detail-runtime.ts",
+      "apps/terminal/src/research/detail-policy.ts",
+      "apps/terminal/app/research",
+      "apps/terminal/tests/ui202.test.ts",
+      "scripts/ui202-review.mjs",
+      "scripts/ui202-review.test.mjs",
+      "scripts/terminal-static-routes.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "playwright.ui202.config.ts",
+      "playwright.config.ts",
+      "tests/e2e/ui202.spec.ts",
+      "tests/e2e/fixtures/ui202-reference.ts"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:25.408Z",
+    "finishedAt": "2026-10-23T01:30:26.059Z"
+  },
+  {
+    "id": "gate-routes",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui202-review.test.mjs",
+      "scripts/terminal-static-routes.test.mjs"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:26.059Z",
+    "finishedAt": "2026-10-23T01:30:26.690Z"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:26.690Z",
+    "finishedAt": "2026-10-23T01:30:26.848Z"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:UI-202"
+    ],
+    "expected": 1,
+    "exit": 1,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:26.848Z",
+    "finishedAt": "2026-10-23T01:30:27.118Z"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-203"
+    ],
+    "expected": 0,
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:30:27.118Z",
+    "finishedAt": "2026-10-23T01:30:27.391Z"
+  }
+]

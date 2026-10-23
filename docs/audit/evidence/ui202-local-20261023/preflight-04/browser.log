@@ -1,0 +1,88 @@
+
+Running 13 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload (7.5s)
+  ✓   2 [chromium] › tests/e2e/ui202.spec.ts:12:5 › UI202 dropped committed cancellation explicitly retries identical key; no duplicate audit or auto replay (2.3s)
+  ✓   3 [chromium] › tests/e2e/ui202.spec.ts:15:5 › UI202 labeled synthetic duplicate/gap notices resume from last applied cursor and never fake status (2.4s)
+  ✓   4 [chromium] › tests/e2e/ui202.spec.ts:16:5 › UI202 offline clearing and explicit restoration never replay uncertain cancellation (2.2s)
+  ✓   5 [chromium] › tests/e2e/ui202.spec.ts:17:5 › UI202 narrowed authority before cancel refuses write and clears details (2.1s)
+  ✓   6 [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 forbidden stream fails closed with no cancellation (2.2s)
+  ✓   7 [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 wrong-resource stream fails closed with no cancellation (2.1s)
+  ✓   8 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic succeeded terminal stops domain streaming (2.0s)
+  ✓   9 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic failed terminal stops domain streaming (2.1s)
+  ✓  10 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic cancelled terminal stops domain streaming (2.0s)
+  ✘  11 [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt (2.1s)
+  ✓  12 [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 dark responsive detail keyboard and axe (2.6s)
+  ✓  13 [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 light responsive detail keyboard and axe (2.5s)
+
+
+  1) [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('link', { name: '详情', exact: true })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByRole('link', { name: '详情', exact: true })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+       8 |  await page.getByRole("button",{name:"请求取消研究",exact:true}).click();await expect(page.getByRole("dialog")).toBeVisible();await expect(page.getByRole("button",{name:"继续研究",exact:true})).toBeFocused();await page.keyboard.press("Escape");expect(writes()).toHaveLength(0);await expect(page.getByRole("button",{name:"请求取消研究",exact:true})).toBeFocused();await page.getByRole("button",{name:"请求取消研究",exact:true}).click();await page.getByRole("button",{name:"确认请求取消",exact:true}).click();await expect(page.getByRole("region",{name:"取消受理回执"})).toContainText("cancel_requested");await expect(page.getByTestId("research-status")).toContainText("cancelled");expect(writes()).toHaveLength(1);
+       9 |  const created=networkRows().find(r=>r.path==="/v1/research-runs"&&r.method==="POST")!.accepted as {correlationId:string;auditRef:string};const cancel=writes()[0].accepted as {auditRef:string};const chain=await call('/v1/audit/evidence-chains/'+created.correlationId);expect(chain.status).toBe(200);expect(chain.body.items.some(e=>e.eventId===created.auditRef)).toBe(true);expect(chain.body.items.some(e=>e.eventId===cancel.auditRef&&e.causationId===created.auditRef)).toBe(true);
+    > 10 |  await page.getByRole("link",{name:"Research 列表",exact:true}).click();await authorized(page);await expect(page.getByRole("link",{name:"详情",exact:true})).toHaveCount(1);await page.getByRole("link",{name:"详情",exact:true}).click();await authorized(page);await expect(page.getByTestId("research-status")).toContainText("cancelled");
+         |                                                                                                                                                          ^
+      11 | });
+      12 | test("UI202 dropped committed cancellation explicitly retries identical key; no duplicate audit or auto replay",async({page})=>{
+      13 |  const run=await seed();await page.goto('/research/'+run.jobId);await authorized(page);await expect(page.getByTestId("research-status")).toContainText("queued");detailFault({dropCancel:true});await page.getByRole("button",{name:"请求取消研究",exact:true}).click();await page.getByRole("button",{name:"确认请求取消",exact:true}).click();await expect(page.getByRole("button",{name:"以原请求重试取消",exact:true})).toBeVisible();expect(writes()).toHaveLength(1);await page.getByRole("button",{name:"刷新详情并恢复事件流",exact:true}).click();await expect(page.getByTestId("research-status")).toContainText("cancelled");expect(writes()).toHaveLength(1);await page.getByRole("button",{name:"以原请求重试取消",exact:true}).click();await expect(page.getByRole("region",{name:"取消受理回执"})).toBeVisible();expect(writes()).toHaveLength(2);expect(writes()[0].keyHash).toBe(writes()[1].keyHash);expect(writes()[0].accepted).toEqual(writes()[1].accepted);const receipt=writes()[0].accepted as {auditRef:string};const chain=await call('/v1/audit/evidence-chains/'+run.correlationId);expect(chain.body.items.filter(e=>e.eventId===receipt.auditRef)).toHaveLength(1);expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui202.spec.ts:10:154
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/attachments/ui202-ab408991e77afc0c7eb0d925f12ba5b0fac47038.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "任务状态冲突"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <p role="alert">任务状态冲突，请刷新详情核对。</p> aka getByText('任务状态冲突，请刷新详情核对。')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+        - locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+        - unexpected value ""
+
+
+      18 | for(const kind of ['forbidden','wrong-resource']as const)test(`UI202 ${kind} stream fails closed with no cancellation`,async({page})=>{const run=await seed();detailFault({stream:kind});await page.goto('/research/'+run.jobId);if(kind==='forbidden'){await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();await expect(page.getByRole('region',{name:'研究任务详情'})).toHaveCount(0);}else{await authorized(page);await expect(page.getByRole('region',{name:'事件连接状态'})).toContainText('流不可用');await expect(page.getByTestId('research-sequence')).toHaveText('0');}expect(writes()).toHaveLength(0);});
+      19 | for(const status of ['succeeded','failed','cancelled'])test(`UI202 labeled synthetic ${status} terminal stops domain streaming`,async({page})=>{const run=await seed();detailFault({status});await page.goto('/research/'+run.jobId);await authorized(page);await expect(page.getByTestId('research-status')).toContainText(status);await expect(page.getByRole('region',{name:'事件连接状态'})).toContainText('任务已终态');await expect(page.getByRole('button',{name:'请求取消研究',exact:true})).toHaveCount(0);expect(networkRows().filter(r=>r.path.includes('research-runs')&&r.path.endsWith('/stream'))).toHaveLength(0);});
+    > 20 | test("UI202 409 and 429 refusals require explicit recovery and no fake receipt",async({page})=>{const run=await seed();await page.goto('/research/'+run.jobId);await authorized(page);await expect(page.getByTestId('research-status')).toContainText('queued');detailFault({cancelReject:409});await page.getByRole('button',{name:'请求取消研究',exact:true}).click();await page.getByRole('button',{name:'确认请求取消',exact:true}).click();await expect(page.getByRole('alert')).toContainText('任务状态冲突');await expect(page.getByRole('region',{name:'取消受理回执'})).toHaveCount(0);await page.getByRole('button',{name:'刷新详情并恢复事件流',exact:true}).click();detailFault({cancelReject:429});await expect(page.getByRole('button',{name:'请求取消研究',exact:true})).toBeVisible();await page.getByRole('button',{name:'请求取消研究',exact:true}).click();await page.getByRole('button',{name:'确认请求取消',exact:true}).click();await expect(page.getByRole('alert')).toContainText('服务端限流');expect(writes()).toHaveLength(2);expect(await page.locator('main').innerText()).not.toContain('private SQL');});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+      21 | for(const theme of ['dark','light']as const)test(`UI202 ${theme} responsive detail keyboard and axe`,async({page},info)=>{const run=await seed();await page.emulateMedia({colorScheme:theme});await page.goto('/research/'+run.jobId);await authorized(page);await expect(page.getByTestId('research-sequence')).toHaveText('1');const scans=[];for(const width of [1440,390]){await page.setViewportSize({width,height:900});const scan=await new AxeBuilder({page}).analyze();scans.push({width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,theme,scans,priorIncomplete:{icons:6,headers:2,p03:12},manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`ui202-${theme}-${width}.png`),fullPage:true});}await page.getByRole('button',{name:'请求取消研究',exact:true}).click();await expect(page.getByRole('button',{name:'继续研究',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'请求取消研究',exact:true})).toBeFocused();});
+      22 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui202.spec.ts:20:459
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/attachments/ui202-a4ccb411438ffbb66efbeabbf485c10ef00f9219.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-04/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload 
+    [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt 
+  11 passed (36.0s)

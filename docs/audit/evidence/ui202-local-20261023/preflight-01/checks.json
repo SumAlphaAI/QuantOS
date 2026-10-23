@@ -1,0 +1,47 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui202.test.ts",
+      "apps/terminal/tests/ui201.test.ts",
+      "apps/terminal/tests/research-gateway.test.ts",
+      "packages/api-client/tests/sse-safety.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/ui202-local-20261023/preflight-01/unit.json"
+    ],
+    "exit": 1,
+    "error": null
+  },
+  {
+    "id": "types",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exit": 2,
+    "error": null
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/research/detail-runtime.ts",
+      "apps/terminal/src/research/detail-policy.ts",
+      "apps/terminal/app/research",
+      "apps/terminal/tests/ui202.test.ts",
+      "scripts/terminal-static-routes.mjs",
+      "scripts/terminal-static-routes.test.mjs"
+    ],
+    "exit": 1,
+    "error": null
+  }
+]

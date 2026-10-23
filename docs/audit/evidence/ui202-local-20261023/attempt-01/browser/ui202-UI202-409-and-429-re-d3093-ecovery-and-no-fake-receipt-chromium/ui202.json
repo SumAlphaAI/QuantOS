@@ -1,0 +1,279 @@
+{
+  "schema": "quantos-ui202-browser/v1",
+  "scenario": "UI202 409 and 429 refusals require explicit recovery and no fake receipt",
+  "status": "passed",
+  "sourceCommit": "71e74cc4f7abd068564613606a7d6e672f32c92d",
+  "binarySha256": "de290dbcd84cfe2e019ecfff244b6ade3ecb27baa2f6fe25d96c4370cb8e3507",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "LOCAL_REFERENCE_C03_CREATE_CANCEL_ONLY",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "firefox": "BLOCKED_ENVIRONMENT",
+  "webKitAttachment": "BLOCKED_ENVIRONMENT_TEST_INTERCEPTION",
+  "rows": [
+    {
+      "method": "POST",
+      "path": "/v1/research-runs",
+      "status": 202,
+      "source": "REFERENCE_BYTES",
+      "port": "NODE_CONTROL",
+      "query": "",
+      "bodyHash": "8280752a5f9c33a9c055d1fa724e7d2bbc8e610d1555cdd37546bb3d0cba83f0",
+      "keyHash": "305cee32adca6cd932a4d3ed434f5b29bc15fc5d6632428ced6e1e3700ec948a",
+      "createBody": {
+        "capability": "research.hypothesis.v1",
+        "dataSnapshotId": "11111111-1111-4111-8111-000000000001",
+        "question": "UI202 actual reference detail seed",
+        "budget": "10",
+        "deadlineAt": "2026-10-23T02:32:20.673Z"
+      },
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "f23c2d3d9bc9378f8c0b0ba85568a6c3af890dfdcc5a763bb105c3c2c930e219",
+      "accepted": {
+        "auditRef": "49cd0233-b5d6-416b-9ddf-585e2294c37b",
+        "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+        "jobId": "4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+        "status": "accepted",
+        "statusRef": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-378d-7661-9e50-290ea9af93e6",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-3791-75b2-b24d-b3cc924b9174",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "?afterSequence=0",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-3793-75a1-a38d-235f4f61fcf2"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-3796-77a3-8426-28f969456f2c",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-3798-7343-9ab5-a5fb95c034d6",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-379b-7f53-92da-90b0116acca5",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-379d-7201-966d-73563f1ddadc",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "65d2ed122738db632829fa2475527e052c5f4cc8028438646307e8a6ee13c04a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "?afterSequence=0",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "51b58b65-441c-4a74-a039-652c9cf71d5d"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "65d2ed122738db632829fa2475527e052c5f4cc8028438646307e8a6ee13c04a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-37d7-71c3-b48d-6e5185af2efb",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-37dd-79e0-81c0-ad7bd339d9aa",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "65d2ed122738db632829fa2475527e052c5f4cc8028438646307e8a6ee13c04a"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1/cancel",
+      "status": 409,
+      "source": "SYNTHETIC_CANCEL_REFUSAL",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "keyHash": "146df9df50d8d8bb1ba6bee921ee627c7924164901289258337d267b0cc386a6"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-37f6-76d1-937a-c5c9ee5e49fe",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-37fd-78b2-b988-32fdb0f4e5a2",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "65d2ed122738db632829fa2475527e052c5f4cc8028438646307e8a6ee13c04a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "?afterSequence=1",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "79298d77-7d9d-4cd8-9eef-fc023de4ae3b"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-382a-7640-be84-a7f62b9e6543",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "01a16663-3831-7f02-b54a-76f3bc1e86a2",
+      "responseHash": "0ee75fd0e202c9a443a151a32594cf27c2f12e1b92b9e82ee1e5a1b000a0c9a8"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "correlationId": "40afe2dd-f586-4b74-a6a3-5bbb3553a08f",
+      "responseHash": "65d2ed122738db632829fa2475527e052c5f4cc8028438646307e8a6ee13c04a"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/research-runs/4c255497-3438-4060-a5f7-f5d51fe8b9f1/cancel",
+      "status": 429,
+      "source": "SYNTHETIC_CANCEL_REFUSAL",
+      "port": "ACTUAL_BROWSER",
+      "query": "",
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "keyHash": "a3b0592b251ae70a9b3117541ab8b74e4c31cb0df13394525431de5548a40615"
+    }
+  ]
+}

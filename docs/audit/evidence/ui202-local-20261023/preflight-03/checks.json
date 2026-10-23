@@ -1,0 +1,89 @@
+[
+  {
+    "id": "unit",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui202.test.ts",
+      "apps/terminal/tests/ui201.test.ts",
+      "apps/terminal/tests/research-gateway.test.ts",
+      "packages/api-client/tests/sse-safety.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/ui202-local-20261023/preflight-03/unit.json"
+    ],
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:23:52.843Z",
+    "finishedAt": "2026-10-23T01:23:54.246Z"
+  },
+  {
+    "id": "types",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:23:54.246Z",
+    "finishedAt": "2026-10-23T01:23:55.179Z"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/research/detail-runtime.ts",
+      "apps/terminal/src/research/detail-policy.ts",
+      "apps/terminal/app/research",
+      "apps/terminal/tests/ui202.test.ts",
+      "scripts/terminal-static-routes.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "playwright.ui202.config.ts",
+      "playwright.config.ts",
+      "tests/e2e/ui202.spec.ts",
+      "tests/e2e/fixtures/ui202-reference.ts"
+    ],
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:23:55.179Z",
+    "finishedAt": "2026-10-23T01:23:55.699Z"
+  },
+  {
+    "id": "build",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exit": 0,
+    "error": null,
+    "startedAt": "2026-10-23T01:23:55.699Z",
+    "finishedAt": "2026-10-23T01:24:04.188Z"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin/pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui202.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui202-local-20261023/preflight-03/browser"
+    ],
+    "exit": 1,
+    "error": null,
+    "startedAt": "2026-10-23T01:24:04.188Z",
+    "finishedAt": "2026-10-23T01:24:46.785Z"
+  }
+]

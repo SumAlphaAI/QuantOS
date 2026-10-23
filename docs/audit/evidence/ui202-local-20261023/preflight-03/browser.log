@@ -1,0 +1,307 @@
+
+Running 13 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload (2.5s)
+  ✘   2 [chromium] › tests/e2e/ui202.spec.ts:12:5 › UI202 dropped committed cancellation explicitly retries identical key; no duplicate audit or auto replay (2.9s)
+  ✘   3 [chromium] › tests/e2e/ui202.spec.ts:15:5 › UI202 labeled synthetic duplicate/gap notices resume from last applied cursor and never fake status (2.9s)
+  ✘   4 [chromium] › tests/e2e/ui202.spec.ts:16:5 › UI202 offline clearing and explicit restoration never replay uncertain cancellation (2.9s)
+  ✘   5 [chromium] › tests/e2e/ui202.spec.ts:17:5 › UI202 narrowed authority before cancel refuses write and clears details (2.9s)
+  ✘   6 [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 forbidden stream fails closed with no cancellation (2.9s)
+  ✘   7 [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 wrong-resource stream fails closed with no cancellation (2.9s)
+  ✘   8 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic succeeded terminal stops domain streaming (2.9s)
+  ✘   9 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic failed terminal stops domain streaming (2.9s)
+  ✘  10 [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic cancelled terminal stops domain streaming (2.9s)
+  ✘  11 [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt (2.9s)
+  ✘  12 [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 dark responsive detail keyboard and axe (2.9s)
+  ✘  13 [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 light responsive detail keyboard and axe (2.9s)
+
+
+  1) [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload 
+
+    SyntaxError: Unexpected end of JSON input
+
+       at fixtures/ui202-reference.ts:54
+
+      52 |  });upstream.on("error",()=>{if(!res.headersSent)res.writeHead(502);res.end();});res.on("close",()=>upstream.destroy());upstream.end(body);
+      53 | });
+    > 54 | export async function call(path:string){return new Promise<{status:number;body:{items:Array<{eventId:string;kind:string;causationId?:string;payloadHash:string;redactionApplied:boolean}>}}>((resolve,reject)=>{const req=httpsRequest(origin+path,{rejectUnauthorized:false,headers:{"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end();});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      55 | export async function authorized(page:Page){await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+      56 | test.beforeAll(async()=>{
+      57 |  expect(process.env.DATABASE_URL).toBeUndefined();expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();scratch=await mkdtemp(join(tmpdir(),"quantos-ui202-"));execFileSync("openssl",["req","-x509","-newkey","rsa:2048","-nodes","-keyout",join(scratch,"key.pem"),"-out",join(scratch,"cert.pem"),"-days","1","-subj","/CN=127.0.0.1","-addext","subjectAltName=IP:127.0.0.1"],{stdio:"ignore"});proxy.setSecureContext({key:await readFile(join(scratch,"key.pem")),cert:await readFile(join(scratch,"cert.pem"))});await new Promise<void>(r=>proxy.listen(4010,"127.0.0.1",r));
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:54:437)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/attachments/ui202-98aa4130cf99ab83eefa4f43f207a219c624bcfc.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-actual-create--3463c-ted-audit-direct-URL-reload-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui202.spec.ts:12:5 › UI202 dropped committed cancellation explicitly retries identical key; no duplicate audit or auto replay 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dropped-commit-b68e1-licate-audit-or-auto-replay-chromium/attachments/ui202-7dfae4865e952bea4bde1ca42bed790a233de796.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dropped-commit-b68e1-licate-audit-or-auto-replay-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dropped-commit-b68e1-licate-audit-or-auto-replay-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui202.spec.ts:15:5 › UI202 labeled synthetic duplicate/gap notices resume from last applied cursor and never fake status 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-1242c-ursor-and-never-fake-status-chromium/attachments/ui202-9320aff406eadea074d5b6b6c8d563152f7dffc9.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-1242c-ursor-and-never-fake-status-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-1242c-ursor-and-never-fake-status-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui202.spec.ts:16:5 › UI202 offline clearing and explicit restoration never replay uncertain cancellation 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-offline-cleari-b6caa-play-uncertain-cancellation-chromium/attachments/ui202-3ea5db15a5f903bde79073abbecd88fef3302b80.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-offline-cleari-b6caa-play-uncertain-cancellation-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-offline-cleari-b6caa-play-uncertain-cancellation-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui202.spec.ts:17:5 › UI202 narrowed authority before cancel refuses write and clears details 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-narrowed-autho-6666c-es-write-and-clears-details-chromium/attachments/ui202-67fea9b19f71c6b93eaac0f406357685978a068e.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-narrowed-autho-6666c-es-write-and-clears-details-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-narrowed-autho-6666c-es-write-and-clears-details-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 forbidden stream fails closed with no cancellation 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-forbidden-stre-26193-closed-with-no-cancellation-chromium/attachments/ui202-73d2d4c9411a433b908b79d0250b996948b7073e.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-forbidden-stre-26193-closed-with-no-cancellation-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-forbidden-stre-26193-closed-with-no-cancellation-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 wrong-resource stream fails closed with no cancellation 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-wrong-resource-d06a3-closed-with-no-cancellation-chromium/attachments/ui202-6bcc6ee30bb2b7df76e36967df3cc7e3d652e949.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-wrong-resource-d06a3-closed-with-no-cancellation-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-wrong-resource-d06a3-closed-with-no-cancellation-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic succeeded terminal stops domain streaming 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-559e0-inal-stops-domain-streaming-chromium/attachments/ui202-9e3a47b9158647ae2ee13402dca28106a62db595.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-559e0-inal-stops-domain-streaming-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-559e0-inal-stops-domain-streaming-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic failed terminal stops domain streaming 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-7f54d-inal-stops-domain-streaming-chromium/attachments/ui202-9376ebc6e704777b9c1fe2dfbf0a5e403cfa4ba6.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-7f54d-inal-stops-domain-streaming-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-7f54d-inal-stops-domain-streaming-chromium/error-context.md
+
+  10) [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic cancelled terminal stops domain streaming 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-f1395-inal-stops-domain-streaming-chromium/attachments/ui202-0b05d711b6a1a8c9c4aae242c78e46fb4af2e6f7.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-f1395-inal-stops-domain-streaming-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-labeled-synthe-f1395-inal-stops-domain-streaming-chromium/error-context.md
+
+  11) [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt 
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/attachments/ui202-e5f121156c6a66110556fb8f61afa8d7b7e2d047.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-409-and-429-re-d3093-ecovery-and-no-fake-receipt-chromium/error-context.md
+
+  12) [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 dark responsive detail keyboard and axe ───
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dark-responsive-detail-keyboard-and-axe-chromium/attachments/ui202-335befed483ac75e8ed588924d6e33cdc77397aa.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dark-responsive-detail-keyboard-and-axe-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-dark-responsive-detail-keyboard-and-axe-chromium/error-context.md
+
+  13) [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 light responsive detail keyboard and axe ──
+
+    Error: reference seed status 422
+
+       at fixtures/ui202-reference.ts:76
+
+      74 |
+      75 | export function detailFault(options:{dropCancel?:boolean;cancelReject?:number;stream?:typeof domainStream;status?:string}){dropCancel=options.dropCancel??false;cancelReject=options.cancelReject??0;domainStream=options.stream??"normal";detailStatus=options.status;}
+    > 76 | export async function seed(){return new Promise<{jobId:string;correlationId:string; auditRef:string}>((resolve,reject)=>{const body=JSON.stringify({capability:"research.hypothesis.v1",dataSnapshotId:"11111111-1111-4111-8111-000000000001",question:"UI202 actual reference detail seed",budget:"10",deadlineAt:new Date(Date.now()+3600000).toISOString()});const req=httpsRequest(origin+"/v1/research-runs",{method:"POST",rejectUnauthorized:false,headers:{"content-type":"application/json","x-csrf-token":csrf,"idempotency-key":crypto.randomUUID(),"x-ui202-control":"1"}},res=>{const parts:Buffer[]=[];res.on("data",b=>parts.push(Buffer.from(b)));res.on("end",()=>res.statusCode===202?resolve(JSON.parse(Buffer.concat(parts).toString())):reject(Error("reference seed status "+res.statusCode)));});req.on("error",reject);req.end(body);});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      77 |
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/ui202-reference.ts:76:741)
+
+    attachment #1: ui202 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-light-responsive-detail-keyboard-and-axe-chromium/attachments/ui202-08593f66b408369b89fdb07d9bb056e40d5fb8aa.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-light-responsive-detail-keyboard-and-axe-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui202-local-20261023/preflight-03/browser/ui202-UI202-light-responsive-detail-keyboard-and-axe-chromium/error-context.md
+
+  13 failed
+    [chromium] › tests/e2e/ui202.spec.ts:6:5 › UI202 actual create/list/detail/cancel reads final status and correlated audit; direct URL reload 
+    [chromium] › tests/e2e/ui202.spec.ts:12:5 › UI202 dropped committed cancellation explicitly retries identical key; no duplicate audit or auto replay 
+    [chromium] › tests/e2e/ui202.spec.ts:15:5 › UI202 labeled synthetic duplicate/gap notices resume from last applied cursor and never fake status 
+    [chromium] › tests/e2e/ui202.spec.ts:16:5 › UI202 offline clearing and explicit restoration never replay uncertain cancellation 
+    [chromium] › tests/e2e/ui202.spec.ts:17:5 › UI202 narrowed authority before cancel refuses write and clears details 
+    [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 forbidden stream fails closed with no cancellation 
+    [chromium] › tests/e2e/ui202.spec.ts:18:62 › UI202 wrong-resource stream fails closed with no cancellation 
+    [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic succeeded terminal stops domain streaming 
+    [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic failed terminal stops domain streaming 
+    [chromium] › tests/e2e/ui202.spec.ts:19:60 › UI202 labeled synthetic cancelled terminal stops domain streaming 
+    [chromium] › tests/e2e/ui202.spec.ts:20:5 › UI202 409 and 429 refusals require explicit recovery and no fake receipt 
+    [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 dark responsive detail keyboard and axe ─────
+    [chromium] › tests/e2e/ui202.spec.ts:21:49 › UI202 light responsive detail keyboard and axe ────

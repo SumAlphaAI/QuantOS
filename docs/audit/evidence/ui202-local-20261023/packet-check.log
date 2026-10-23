@@ -1,0 +1,75 @@
+UI-202 documentary packet verification after frozen current-function checks.
+Engineering: baf91152e556945ca6e83e6a8363980bd46081c9
+No functional, build, browser, Rust, database or full-chain rerun.
+
+COMMAND: node scripts/ui202-review.mjs --verify
+EXIT: 0
+{"sourceCommit":"baf91152e556945ca6e83e6a8363980bd46081c9","engineeringGate":"PASS_UI202_CURRENT_FUNCTION","sourceInputs":579,"artifacts":48,"functionTests":125,"chromiumCases":13,"screenshots":4,"axeScans":4,"referenceBinarySource":"e3776999ad2aee625ec38faee5547a3b6ff9e68a","stageGate":"NOT_ASSESSED","confirmation":"PENDING","formalAccepted":false,"nextTask":"FE:UI-203"}
+
+
+COMMAND: node scripts/check-development-plans.mjs
+EXIT: 0
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1463,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22,
+  "development_handoffs": {
+    "status": "PASS",
+    "tasks": 22,
+    "checkpoints": 16,
+    "externalDevelopmentGates": 0,
+    "performanceDevelopmentGates": 0,
+    "targetAcceptance": "NOT_RUN"
+  },
+  "frontend_handoffs": {
+    "status": "PASS",
+    "after": "FE:BFF-FE-003",
+    "tasks": 64,
+    "checkpoints": 16,
+    "externalEarlyGates": 0,
+    "performanceEarlyGates": 0,
+    "targetAcceptance": "NOT_RUN",
+    "formalAccepted": false
+  }
+}
+
+
+COMMAND: git diff --check
+EXIT: 0
+
+
+
+PASS: all 262 manifest hashes match.
+PASS: exact 264 task changed paths match manifest/list.
+PASS: original source579 inputs/digest and 48 final artifacts/10 executions bound to baf91152.
+PASS: 125 unit,13 Chromium,66 gate/routes,4 screenshots,4 axe scans; no new incomplete.
+PASS: immutable scope/draft request match; confirmation PENDING.
+PASS: 173 new text evidence files pass whitespace checks with 16 exact raw-artifact exemptions.
+PASS: original 6+2+12 incomplete findings, Firefox/WebKit blocks and all historical NOT_RUN retained.
+PASS: 159 stage gates unchanged, G1/FEP-1 unpromoted; UI-202 integration refused; UI-203 development allowed.

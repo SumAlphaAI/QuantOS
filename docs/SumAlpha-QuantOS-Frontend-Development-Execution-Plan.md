@@ -2319,7 +2319,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C03
 - 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消
 
-- 当前执行：UI-202 当前功能验证中；交付 `/research/:runId` 详情、sequence 去重与 afterSequence 回补、取消受理及未知结果显式重试。复用 UI-201/UI-P03 原范围证据，不以 G1 辅助项作为开发前置，不重跑上游全链。见[规程](./operations/ui202-research-detail-stream-cancel.md)与[功能门禁](../scripts/ui202-review.mjs)。reference 身份/CORS 替代、Firefox/WebKit 阻塞、原6+2项及UI-P03本轮12条incomplete、全部NOT_RUN保留；阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定。下一原任务 UI-203 可继续开发。
+- 当前执行：`PASS_UI202_CURRENT_FUNCTION`，工程 `baf91152`、579输入/48产物；125单测、13Chromium、66门禁/路由、4截图/4次axe零violations与零新增incomplete，types/lint/build通过；交付 `/research/:runId` 详情、sequence 去重与 afterSequence 回补、取消受理及未知结果显式重试。复用 UI-201/UI-P03 原范围证据，不以 G1 辅助项作为开发前置，不重跑上游全链。见[本轮报告](./audit/UI-202-current-function-review-2026-10-23.md)、[规程](./operations/ui202-research-detail-stream-cancel.md)与[功能门禁](../scripts/ui202-review.mjs)。reference 身份/CORS 替代、Firefox/WebKit 阻塞、原6+2项及UI-P03本轮12条incomplete、全部NOT_RUN保留；阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定。下一原任务 UI-203 可继续开发。
 
 <a id="task-ui-203"></a>
 ##### UI-203：Artifact/Evidence 详情与交叉跳转
