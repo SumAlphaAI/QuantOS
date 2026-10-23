@@ -953,3 +953,62 @@ async fn ui303_release_seals_all_evidence_and_submission_resolves_same_c08_ref()
     assert_eq!(a["objectRef"], created["releaseId"]);
     assert_eq!(a["status"], "pending");
 }
+
+#[test]
+fn c05_metric_decimal_strings_expand_exponents_without_rounding_or_integer_loss() {
+    for raw in [
+        "8.60673226776097e-6",
+        "-1.25e-30",
+        "1.5e30",
+        "0.0",
+        "-0.0",
+        "1.7976931348623157e308",
+        "5e-324",
+    ] {
+        let value: Value = serde_json::from_str(raw).unwrap();
+        let rendered = super::metric_decimal(&value).unwrap();
+        assert!(!rendered.contains(['e', 'E']));
+        assert_eq!(rendered.parse::<f64>().unwrap(), value.as_f64().unwrap());
+    }
+    for raw in [
+        "9007199254740993",
+        "18446744073709551615",
+        "-9007199254740993",
+    ] {
+        assert_eq!(
+            super::metric_decimal(&serde_json::from_str(raw).unwrap()).unwrap(),
+            raw
+        );
+    }
+    for value in [json!("1e-8"), json!(null), json!(true)] {
+        assert!(super::metric_decimal(&value).is_err());
+    }
+}
+
+#[test]
+fn c05_browser_round_trip_accepts_only_equal_safe_integer_representations() {
+    let expected =
+        json!({"name":"owned", "parameters":{"lookback":24.0,"cash":"25000","x":[-12.0,25.0]}});
+    assert!(super::same_json_parameters(
+        &expected,
+        &json!({"name":"owned", "parameters":{"lookback":24,"cash":"25000","x":[-12,25]}})
+    ));
+    for changed in [
+        json!({"name":"owned", "parameters":{"lookback":"24","cash":"25000","x":[-12,25]}}),
+        json!({"name":"owned", "parameters":{"lookback":24,"cash":25000,"x":[-12,25]}}),
+        json!({"name":"owned", "parameters":{"lookback":25,"cash":"25000","x":[-12,25]}}),
+    ] {
+        assert!(!super::same_json_parameters(&expected, &changed));
+    }
+    for (a, b) in [
+        (
+            json!(9_007_199_254_740_993u64),
+            json!(9_007_199_254_740_992.0),
+        ),
+        (json!(1.5), json!(1)),
+        (json!([1, 2]), json!([2, 1])),
+        (json!({"a":1}), json!({"a":1,"b":2})),
+    ] {
+        assert!(!super::same_json_parameters(&a, &b));
+    }
+}

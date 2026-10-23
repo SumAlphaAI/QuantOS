@@ -2534,7 +2534,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04", "FE:FEP-3"]
 - core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `I3`
 - 需求描述：策略审批与 Terminal Strategy 页面
@@ -2545,6 +2545,8 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：S01–S03、U01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+
+- G3/CORE:S04当前复审：实际Python IPC产物→20策略UI→C05真实S01/S02/S03/S04→C08审批/目标与C10审计；另验owner-service TCP/UDS、拒绝/过期/20路CAS、两种本地原生消费者及全仓功能测试。报告/回执归 `docs/audit/evidence/frontend-g3-local-20261023/`；reference身份/CORS与可信宿主导入明确替代，R03 worker到目录的完整生产注册、全部目标/持久性/性能/发布NOT_RUN。本地工程复核不等于CORE:S04/G3阶段READY，确认PENDING。
 
 <a id="103-s2-gate"></a>
 <a id="gate-s2"></a>

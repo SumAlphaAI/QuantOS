@@ -72,6 +72,49 @@ impl std::fmt::Debug for StrategyHost {
         f.write_str("StrategyHost(process-local,trusted-inputs)")
     }
 }
+// C05 DecimalString forbids exponent notation. Keep integer precision and use
+// the float's shortest round-tripping Display expansion, without rounding.
+fn metric_decimal(value: &Value) -> Result<String> {
+    let number = value.as_number().ok_or_else(Fault::unavailable)?;
+    if number.is_f64() {
+        let number = number
+            .as_f64()
+            .filter(|n| n.is_finite())
+            .ok_or_else(Fault::unavailable)?;
+        Ok(number.to_string())
+    } else {
+        Ok(number.to_string())
+    }
+}
+// JavaScript serializes 24.0 as 24. Only equal safe integer numbers may differ
+// in JSON representation; strings (including money), keys and array order stay exact.
+fn same_json_parameters(left: &Value, right: &Value) -> bool {
+    if left == right {
+        return true;
+    }
+    match (left, right) {
+        (Value::Number(a), Value::Number(b)) if a.is_f64() != b.is_f64() => {
+            let a = a.as_f64().unwrap();
+            let b = b.as_f64().unwrap();
+            a.is_finite()
+                && b.is_finite()
+                && a.fract() == 0.0
+                && b.fract() == 0.0
+                && a.abs() <= 9_007_199_254_740_991.0
+                && b.abs() <= 9_007_199_254_740_991.0
+                && a == b
+        }
+        (Value::Array(a), Value::Array(b)) => {
+            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_json_parameters(a, b))
+        }
+        (Value::Object(a), Value::Object(b)) => {
+            a.len() == b.len()
+                && a.iter()
+                    .all(|(k, a)| b.get(k).is_some_and(|b| same_json_parameters(a, b)))
+        }
+        _ => false,
+    }
+}
 fn fault(s: u16, c: &'static str) -> Fault {
     Fault(StatusCode::from_u16(s).unwrap(), c)
 }
@@ -562,10 +605,16 @@ impl StrategyHost {
                 {
                     return Err(Fault::invalid());
                 }
-                let v=self.execute(a,"PUT",&format!("/drafts/{id}"),json!({"base_version":text(&d.page,"objectVersion")?.parse::<u64>().map_err(|_|Fault::invalid())?,"parameters":b["parameters"],"input_id":d.input}))?;
+                let trusted = &self.inputs[&d.input].payload["strategy"];
+                let parameters = if same_json_parameters(trusted, &b["parameters"]) {
+                    trusted.clone()
+                } else {
+                    b["parameters"].clone()
+                };
+                let v=self.execute(a,"PUT",&format!("/drafts/{id}"),json!({"base_version":text(&d.page,"objectVersion")?.parse::<u64>().map_err(|_|Fault::invalid())?,"parameters":parameters,"input_id":d.input}))?;
                 let page = &mut self.drafts.get_mut(&id).unwrap().page;
                 page["files"] = b["files"].clone();
-                page["parameters"] = b["parameters"].clone();
+                page["parameters"] = parameters;
                 page["objectVersion"] = json!(v["version"].as_u64().unwrap().to_string());
                 page["updatedAt"] = json!(now);
                 page.clone()
@@ -595,7 +644,7 @@ impl StrategyHost {
                     if v.as_f64().is_none_or(|x| !x.is_finite()) {
                         return Err(Fault::unavailable());
                     }
-                    metrics.insert(k.clone(), json!(v.to_string()));
+                    metrics.insert(k.clone(), json!(metric_decimal(v)?));
                 }
                 let artifact = Uuid::now_v7();
                 let r = json!({"runId":run,"strategyId":sid,"objectVersion":b["objectVersion"],"dataSnapshotId":b["dataSnapshotId"],"status":"succeeded","metrics":metrics,"leakViolations":[],"reportArtifactId":artifact,"reportHash":v["report"]["report_hash"],"report":v["report"],"executionInputs":{"costModel":self.inputs[&d.input].request.cost_model},"parameters":d.page["parameters"],"createdAt":now});
@@ -635,7 +684,7 @@ impl StrategyHost {
                 let r = self.run(a, run)?;
                 if r["strategyId"] != b["strategyId"]
                     || r["objectVersion"] != b["objectVersion"]
-                    || r["parameters"] != b["parameters"]
+                    || !same_json_parameters(&r["parameters"], &b["parameters"])
                 {
                     return Err(fault(409, "BACKTEST_BINDING_CONFLICT"));
                 }
@@ -647,7 +696,7 @@ impl StrategyHost {
                 )?;
                 let release = &raw["release"];
                 let id = crate::research::uuid(text(release, "release_id")?)?;
-                let page = json!({"releaseId":id,"strategyId":sid,"objectVersion":release["content_hash"],"contentHash":release["content_hash"],"backtestReportArtifactId":r["reportArtifactId"],"sourceDigest":release["source_digest"],"imageDigest":release["image_digest"],"parameterHash":release["parameter_hash"],"parameters":b["parameters"],"snapshotId":release["data_snapshot_id"],"name":release["name"],"draftObjectVersion":release["draft_version"].to_string(),"backtestRunId":run,"backtestReportHash":release["backtest_report_hash"],"evidenceRefs":release["evidence_refs"],"allowedTargets":release["allowed_targets"],"approvalState":"none","createdAt":release["created_at"],"expiresAt":self.inputs[&self.drafts[&sid].input].request.snapshot.expires_at,"approvalTimeline":[],"submitted":false});
+                let page = json!({"releaseId":id,"strategyId":sid,"objectVersion":release["content_hash"],"contentHash":release["content_hash"],"backtestReportArtifactId":r["reportArtifactId"],"sourceDigest":release["source_digest"],"imageDigest":release["image_digest"],"parameterHash":release["parameter_hash"],"parameters":r["parameters"],"snapshotId":release["data_snapshot_id"],"name":release["name"],"draftObjectVersion":release["draft_version"].to_string(),"backtestRunId":run,"backtestReportHash":release["backtest_report_hash"],"evidenceRefs":release["evidence_refs"],"allowedTargets":release["allowed_targets"],"approvalState":"none","createdAt":release["created_at"],"expiresAt":self.inputs[&self.drafts[&sid].input].request.snapshot.expires_at,"approvalTimeline":[],"submitted":false});
                 self.releases.entry(id).or_insert(page);
                 status = StatusCode::CREATED;
                 self.release(a, id)?
@@ -981,3 +1030,8 @@ async fn reference(
 }
 #[cfg(test)]
 mod tests;
+
+// An ignored, explicitly opted-in loopback host for the G3 browser tests only.
+#[cfg(test)]
+#[path = "frontend_g3.rs"]
+mod frontend_g3;
