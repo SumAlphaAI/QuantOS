@@ -1,0 +1,62 @@
+$ node scripts/ui203-review.mjs --verify
+{"sourceCommit":"03ecbdfa31d075a821cabe6e278c65131e25cde9","engineeringGate":"PASS_UI203_CURRENT_FUNCTION","sourceInputs":593,"artifacts":46,"functionTests":76,"chromiumCases":12,"screenshots":4,"axeScans":4,"referenceBinarySource":"e3776999ad2aee625ec38faee5547a3b6ff9e68a","stageGate":"NOT_ASSESSED","confirmation":"PENDING","formalAccepted":false,"nextTask":"FE:UI-P04"}
+exitCode=0
+
+$ node scripts/check-development-plans.mjs
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1463,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22,
+  "development_handoffs": {
+    "status": "PASS",
+    "tasks": 22,
+    "checkpoints": 16,
+    "externalDevelopmentGates": 0,
+    "performanceDevelopmentGates": 0,
+    "targetAcceptance": "NOT_RUN"
+  },
+  "frontend_handoffs": {
+    "status": "PASS",
+    "after": "FE:BFF-FE-003",
+    "tasks": 64,
+    "checkpoints": 16,
+    "externalEarlyGates": 0,
+    "performanceEarlyGates": 0,
+    "targetAcceptance": "NOT_RUN",
+    "formalAccepted": false
+  }
+}
+exitCode=0
+
+$ git diff --check
+exitCode=0
+
+PASS manifest hashes, source input digest, complete task file set, draft/scope request binding, technical/visual receipt binding, generated text whitespace (one exact immutable context exception).
+
+No functional, build, browser, database or upstream runtime checks rerun during sealing.

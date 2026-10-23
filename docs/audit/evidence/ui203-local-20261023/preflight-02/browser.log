@@ -1,0 +1,53 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/ui203.spec.ts:7:5 › UI203 actual reference metadata/archive/audit and safe object/snapshot cross-jumps (2.5s)
+  ✓   2 [chromium] › tests/e2e/ui203.spec.ts:11:5 › UI203 labeled domain relationships bind parent input hash and resolve Evidence back to Artifact (2.2s)
+  ✓   3 [chromium] › tests/e2e/ui203.spec.ts:14:5 › UI203 wrong parent relationship refuses artifact disclosure (1.9s)
+  ✓   4 [chromium] › tests/e2e/ui203.spec.ts:15:5 › UI203 unknown and invalid artifact references expose no private facts (1.9s)
+  ✓   5 [chromium] › tests/e2e/ui203.spec.ts:16:5 › UI203 hash mismatch refuses archive preview and clears metadata (2.0s)
+  ✓   6 [chromium] › tests/e2e/ui203.spec.ts:17:5 › UI203 offline clears all previews and restoration only rereads metadata (2.1s)
+  ✓   7 [chromium] › tests/e2e/ui203.spec.ts:18:5 › UI203 capability narrowing clears facts before preview dispatch (2.0s)
+  ✓   8 [chromium] › tests/e2e/ui203.spec.ts:19:5 › UI203 research read does not grant audit read (1.9s)
+  ✘   9 [chromium] › tests/e2e/ui203.spec.ts:20:5 › UI203 labeled audit pagination is scoped; expired retention clears disclosure (7.1s)
+  ✓  10 [chromium] › tests/e2e/ui203.spec.ts:21:5 › UI203 untrusted summary stays text and arbitrary URLs are never activated (2.0s)
+  ✓  11 [chromium] › tests/e2e/ui203.spec.ts:22:49 › UI203 dark responsive metadata/evidence/preview and axe (2.7s)
+  ✓  12 [chromium] › tests/e2e/ui203.spec.ts:22:49 › UI203 light responsive metadata/evidence/preview and axe (2.7s)
+
+
+  1) [chromium] › tests/e2e/ui203.spec.ts:20:5 › UI203 labeled audit pagination is scoped; expired retention clears disclosure 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'C10 审计关联' })
+    Expected substring: "当前授权范围内链完整"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'C10 审计关联' })
+        - locator resolved to <section aria-label="C10 审计关联">…</section>
+        - unexpected value "C10 审计关联按 correlation ID 读取审计证据链，complete 仅代表当前授权范围完整。读取本次产物审计链当前关联链尚不完整correlation ID：31b38369-6011-479c-8f22-3b4cf50f035d#1 research.artifact.readeventId88888888-8888-4888-8888-888888888888causationId8b971d1a-68b8-4f11-accc-de7f8e70f8e9对象引用44444444-4444-4444-8444-444444444444payload hash（服务端）sha256:e675d2f877ac6314582dfa823ff531f21b231b2c78b2454dee3b05187faa8226保留至 UTC2027-10-23 02:31:43.166Z查看关联对象读取更多审计节点"
+
+
+      18 | test('UI203 capability narrowing clears facts before preview dispatch',async({page})=>{await page.goto('/artifacts/'+id);await authorized(page);await expect(detail(page)).toBeVisible();artifactFault('no-research');await page.getByRole('button',{name:'读取归档 JSON 预览',exact:true}).click();await expect(page.locator('[data-route-access="invalidated"]')).toBeVisible();await expect(detail(page)).toHaveCount(0);expect(networkRows().some(r=>r.path.endsWith('/attachment'))).toBe(false);});
+      19 | test('UI203 research read does not grant audit read',async({page})=>{artifactFault('no-audit');await page.goto('/artifacts/'+id);await authorized(page);await expect(detail(page)).toBeVisible();await expect(page.getByRole('region',{name:'C10 审计关联'})).toContainText('缺少 audit:read');await expect(page.getByRole('button',{name:'读取本次产物审计链',exact:true})).toHaveCount(0);expect(networkRows().some(r=>r.path.includes('evidence-chains'))).toBe(false);});
+    > 20 | test('UI203 labeled audit pagination is scoped; expired retention clears disclosure',async({page})=>{await page.goto('/artifacts/'+id);await authorized(page);await expect(detail(page)).toBeVisible();artifactFault('chain-pages');await page.getByRole('button',{name:'读取本次产物审计链',exact:true}).click();await expect(page.getByRole('region',{name:'C10 审计关联'})).toContainText('尚不完整');await page.getByRole('button',{name:'读取更多审计节点',exact:true}).click();await expect(page.getByRole('region',{name:'C10 审计关联'})).toContainText('当前授权范围内链完整');await expect(page.getByRole('region',{name:'C10 审计关联'}).locator('li')).toHaveCount(2);expect(networkRows().some(r=>r.path.includes('evidence-chains')&&r.query?.includes('cursor=synthetic-next'))).toBe(true);expect(await page.locator('main').innerText()).not.toContain('DO_NOT_FOLLOW');artifactFault('chain-expired');await page.getByRole('button',{name:'读取本次产物审计链',exact:true}).click();await expect(page.locator('main').getByRole('alert')).toContainText('保留期或游标已失效');await expect(detail(page)).toHaveCount(0);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      21 | test('UI203 untrusted summary stays text and arbitrary URLs are never activated',async({page})=>{artifactFault('xss');await page.goto('/artifacts/'+id);await authorized(page);await expect(detail(page)).toContainText('<img');await expect(page.locator('main img')).toHaveCount(0);expect(await page.evaluate(()=>Boolean((window as Window&{unsafeExecuted?:boolean}).unsafeExecuted))).toBe(false);expect(networkRows().every(r=>r.path.startsWith('/v1/'))).toBe(true);});
+      22 | for(const theme of ['dark','light']as const)test(`UI203 ${theme} responsive metadata/evidence/preview and axe`,async({page},info)=>{await page.emulateMedia({colorScheme:theme});await page.goto('/artifacts/'+id);await authorized(page);await expect(detail(page)).toBeVisible();await page.getByRole('button',{name:'读取归档 JSON 预览',exact:true}).click();await expect(page.getByLabel('归档 JSON 文本',{exact:true})).toBeVisible();const scans=[];for(const width of [1440,390]){await page.setViewportSize({width,height:900});const scan=await new AxeBuilder({page}).analyze();scans.push({width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,theme,scans,priorIncomplete:{icons:6,headers:2,p03:12},manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`ui203-${theme}-${width}.png`),fullPage:true});}await page.getByRole('link',{name:'输入其他产物引用',exact:true}).click();await authorized(page);await page.getByLabel('Artifact ID',{exact:true}).fill(id.toUpperCase());await page.getByRole('button',{name:'读取产物',exact:true}).click();await authorized(page);await expect(detail(page)).toBeVisible();});
+      23 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui203.spec.ts:20:502
+
+    attachment #1: ui203 (application/json) ────────────────────────────────────────────────────────
+    docs/audit/evidence/ui203-local-20261023/preflight-02/browser/ui203-UI203-labeled-audit--13fb5-retention-clears-disclosure-chromium/attachments/ui203-76fbcbb557b5304128c3e24c7c68d562c386ea6a.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/audit/evidence/ui203-local-20261023/preflight-02/browser/ui203-UI203-labeled-audit--13fb5-retention-clears-disclosure-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui203-local-20261023/preflight-02/browser/ui203-UI203-labeled-audit--13fb5-retention-clears-disclosure-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui203.spec.ts:20:5 › UI203 labeled audit pagination is scoped; expired retention clears disclosure 
+  11 passed (32.6s)

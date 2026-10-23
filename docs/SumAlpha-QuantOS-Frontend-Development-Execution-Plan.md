@@ -2340,7 +2340,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 接口绑定：C04、C10
 - 验收重点：显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID
 
-- 当前执行：UI-203 当前功能验证中；交付 Artifact/Evidence 详情、C03父任务input hash、C04版本/哈希/归档预览与C10关联/交叉跳转。复用UI-202及既有证据，不将G1辅助项作为前置，不重跑全链。见[规程](./operations/ui203-artifact-evidence-detail.md)与[功能门禁](../scripts/ui203-review.mjs)。保留reference身份/CORS替代、Firefox/WebKit阻塞、原6+2项及P03十二条incomplete、全部NOT_RUN；阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定。下一原任务UI-P04可继续开发。
+- 当前执行：`PASS_UI203_CURRENT_FUNCTION`，工程 `03ecbdfa`、593输入/46产物；76单测、12Chromium、67门禁/路由、4截图/4次axe零violations与零新增incomplete，types/lint/build通过；交付 Artifact/Evidence 详情、C03父任务input hash、C04版本/哈希/归档预览与C10关联/交叉跳转。复用UI-202及既有证据，不将G1辅助项作为前置，不重跑全链。见[本轮报告](./audit/UI-203-current-function-review-2026-10-23.md)、[规程](./operations/ui203-artifact-evidence-detail.md)与[功能门禁](../scripts/ui203-review.mjs)。保留reference身份/CORS替代、Firefox/WebKit阻塞、原6+2项及P03十二条incomplete、全部NOT_RUN；阶段Gate/G1/FEP-1/联调发布不提升，项目用户确认待定。下一原任务UI-P04可继续开发。
 
 <a id="task-ui-p04"></a>
 ##### UI-P04：P04-Research-and-Artifact-Detail-High-Fidelity-v1.png
