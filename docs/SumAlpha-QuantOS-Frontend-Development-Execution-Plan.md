@@ -3203,7 +3203,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-603", "UI-VIS-000", "BFF-FE-007", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3212,6 +3212,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 契约绑定：C10、C11、C16
 - 所属阶段：FEP-6
 - 页面级完成标准：授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved
+
+- 当前功能交付（2026-10-24）：P23三栏告警流/详情、已加载范围计数/搜索/排序、显式阅读确认与可取消弹窗、完整订阅CAS、C10证据链/C11健康只读预览、授权Portfolio/Audit导航及安全深链已实现；按1672/1440/1024/390与dark/light验证，保留契约缺失项不可用，不编造批量已读/影响金额/incident。见[页面规程](./operations/ui-p23-alerts-high-fidelity.md)与[证据](./audit/evidence/ui-p23-local-20261024/README.md)，复核 `node scripts/ui-p23-review.mjs --verify`。
+- 工程Gate `PASS_UI_P23_ALERTS_HIGH_FIDELITY`仅在冻结候选完整直接矩阵通过后成立；正式NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED；G4 IN_REVIEW、G4/FEP-4 NOT_READY_GAPS_OPEN与FEP-4 PARTIAL不变，原同源marker/蜡烛导出/估值join及目标、CI、性能、RELEASE缺口保留。下一原开发任务FE:UI-601。
 
 <a id="task-ui-601"></a>
 ##### UI-601：Operations/Incident/Runbook
