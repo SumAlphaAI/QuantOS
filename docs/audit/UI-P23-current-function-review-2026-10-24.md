@@ -23,3 +23,11 @@ preflight首轮unit1个fixture权限集合遗漏，已修正；类型排序表�
 真实IdP/cookie/CORS、目标DB/RLS/事务、外部告警源、远程同SHA CI、Firefox/WebKit、完整I8联调、性能容量/长稳、人工读屏/原生200%缩放、RELEASE NOT_RUN。实际本机Rust reference+受控X06/F09；身份cookie桥接和回环TLS/CORS代理为替代，故障注入单独标记。axe incomplete原样保留，不提升为完整无障碍验收。
 
 下一原开发任务FE:UI-601（Operations/Incident/Runbook）；不以G4未决缺口作为其新开发前置。回退通过本地源码提交有审阅git revert并重建terminal；无DB迁移、外部写入或事实清理，原证据保留。
+
+## 冻结结论
+
+源码7cdb23b46f1af6b790db480209f626a1fde15867，attempt-01：PASS_UI_P23_ALERTS_HIGH_FIDELITY。85项前端/消费者、21项Rust operations、62项Node通过；Chromium新增7项加UI603直接回归6项全部通过，无skip/重试/flaky；类型/lint/构建/计划通过。8组主题/宽度几何与axe零violation，保留8项color-contrast incomplete；原span role问题已修复。
+
+已人工查看本次居中dark确认弹窗、明确合成dark六事件和light390详情下部，复核前期实际dark1672/light390截图的布局；实际module截图与合成样本分别标记，不将文件名、mock数值、有限stream或样本截图等同目标/提供方验收。
+
+217个历史证据文件逐字节未变，原G4/FEP4缺口与159项NOT_ASSESSED不变。INTEGRATION预期拒绝，FE:UI-601开发允许。正式formalAccepted=false、runtimeAdmission=DENIED；仅本地源码和证据提交，未使用生产凭据，未推送或发布。
