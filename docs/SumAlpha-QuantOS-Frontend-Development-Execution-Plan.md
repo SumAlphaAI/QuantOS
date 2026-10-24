@@ -3412,7 +3412,7 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101", "CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01", "FRONTEND-GATE:G7"]
 - core_prerequisites: ["CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `PARTIAL`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3420,6 +3420,9 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
 - 主要后端依赖：CORE-GATE:R1、CORE-GATE:S2、CORE-GATE:X3、CORE:TP01
 - 交付节点与放行条件：G7：Paper + Shadow Beta 功能候选通过，功能阻断级缺陷为 0；发布需另通过 RELEASE-GATE:BETA
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+
+- 当前范围收口评估（2026-10-24）：核对40项直接依赖与22个高保真页面交付，补充Performance未知结果在C01变更/失权/到期/CSRF替换后的拒绝、C15来源绑定及下载deadline硬化测试，Paper/Shadow分别执行真实GET-only范围核查。无产品运行代码变更，G7原有35/52/78/18测试和构建仅ORIGINAL_SCOPE_ONLY，不递归重跑全链。见[规程](./operations/fep7-function-closure.md)、[Beta缺口清单](./execution/fep7-scope-assessment.json)与[当前证据](./audit/evidence/fep7-function-local-20261024/README.md)，复核 `node scripts/fep7-function-review.mjs --verify`。
+- 仅已实现前端范围的硬化和收口评估完成；工程Gate PASS_FEP7_FRONTEND_SCOPE_HARDENING，FEP-7保持PARTIAL，FEP-7/G7 NOT_READY_GAPS_OPEN、Beta NOT_READY、159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED。G4/FEP-4、G6/FEP-6、P14及G7原15项未决全部保留，CORE/Provider完整关闭未声明；历史失败/incomplete/NOT_RUN不重绑。下一原任务FRONTEND-GATE:G8可开展I10条件入口的本机功能组合评估，不授权testnet/实盘连接或发布。
 
 #### 迭代 I10：W33–W34
 
