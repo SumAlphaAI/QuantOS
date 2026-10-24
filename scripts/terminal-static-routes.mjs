@@ -9,6 +9,7 @@ export function terminalStaticDocument(pathname,manifest){
  if(parts[0]===''&&parts[1]==='trade'){
   const route=manifest.routes?.find(r=>r.prefix==='trade');return parts.length===3&&/^[A-Z0-9]{2,40}$/.test(parts[2])&&route?.document==='trade.html'&&route.parameter==='symbol'?'trade.html':undefined;
  }
+ if(parts[0]===''&&parts[1]==='performance'){const route=manifest.routes?.find(r=>r.prefix==='performance');return parts.length===4&&parts[2]==='reports'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(parts[3])&&route?.document==='performance.html'&&route.parameter==='reportId'&&route.suffix==='reports'?'performance.html':undefined;}
  if(parts[0]===''&&parts[1]==='markets'){
   if(parts.length!==3&&!(parts.length===4&&parts[3]==='chart'))return undefined;let symbol;try{symbol=decodeURIComponent(parts[2]);}catch{return undefined;}
   if(!/^[A-Z0-9]{1,20}\/[A-Z0-9]{1,20}$/.test(symbol)||encodeURIComponent(symbol)!==parts[2])return undefined;

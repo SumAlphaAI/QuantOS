@@ -19,7 +19,7 @@ export async function verifiedReport(response: Response, rawGrant: unknown, acco
   const bytes = new Uint8Array(await response.arrayBuffer());
   const hash = "sha256:" + Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), b => b.toString(16).padStart(2, "0")).join("");
   if (hash !== grant.sha256 || bytes.byteLength !== grant.sizeBytes) throw Error("Report integrity mismatch");
-  const document = bffZodSchemas.PerformanceReportDocument.parse(JSON.parse(new TextDecoder().decode(bytes)));
+  const document = bffZodSchemas.PerformanceReportDocument.parse(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)));
   if (document.metadata.reportId !== grant.reportId || document.metadata.ledgerVersion !== grant.ledgerVersion || document.metadata.valuationSnapshotId !== grant.valuationSnapshotId) throw Error("Report version mismatch");
   for (const key of ["status", "createdAt", "expiresAt", "correlationId", "auditRef", "supersededBy"] as const) {
     if (JSON.stringify(document.metadata[key]) !== JSON.stringify(grant[key])) throw Error("Report metadata mismatch");

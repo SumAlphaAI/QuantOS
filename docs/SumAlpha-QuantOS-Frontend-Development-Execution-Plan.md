@@ -3079,13 +3079,16 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-506", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Performance、归因、周期报表
 - 接口绑定：C14、C15
 - 验收重点：金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional
+
+- 当前功能执行：`/performance`及`/performance/reports/:reportId`已交付当前授权Shadow账户的USD/simple收益、归因、实际/请求覆盖、账本/估值版本、C14三投影与C15实际snapshot来源核对及动态provisional；周/月/季/年rolling/calendar和custom冻结query生成异步报告，202仅queued、原键未知恢复、固定文档/过期/superseded拒绝、同源短时授权原字节hash/大小校验下载与权限失效清屏已实现。
+- 有界验收见 [UI403规程](./operations/ui403-performance-reports.md)与[本机证据](./audit/evidence/ui403-local-20261024/README.md)，复核 `node scripts/ui403-review.mjs --verify`。本机实际C01/C14/C15 reference组合与Chromium成功/拒绝/恢复；旧UI506/P22证据仅ORIGINAL_SCOPE_ONLY，FEP5原联调义务不关闭；未做递归全链复验，不提升159项stage_gate，formalAccepted=false、runtimeAdmission=DENIED。P21高保真、真实身份/目标DB/估值源/持久审计、跨进程恢复、远程CI、性能/长稳与完整I7/RELEASE均NOT_RUN；下一原任务FE:UI-P21。
 
 <a id="task-ui-p21"></a>
 ##### UI-P21：P21-Performance-and-Reports-High-Fidelity-v1.png
