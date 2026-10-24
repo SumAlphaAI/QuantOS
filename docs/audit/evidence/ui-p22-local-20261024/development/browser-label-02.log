@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui-p22.spec.ts:20:5 › P22 ledger raw precision side filters disabled unsupported writes and Escape confirmation (7.3s)
+
+
+  1) [chromium] › tests/e2e/ui-p22.spec.ts:20:5 › P22 ledger raw precision side filters disabled unsupported writes and Escape confirmation 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText('核对账户、日期、来源 hash、差异原值及相关 Order / Fill。', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('核对账户、日期、来源 hash、差异原值及相关 Order / Fill。', { exact: true })
+        13 × locator resolved to <li>核对账户、日期、来源 hash、差异原值及相关 Order / Fill。</li>
+           - unexpected value "hidden"
+
+
+      18 | test('P22 dark light responsive ledger keyboard and axe',async({page},info)=>{await open(page);const scans=[];for(const theme of ['dark','light']as const){await page.emulateMedia({colorScheme:theme});await expect(page.locator('[data-quantos-theme]')).toHaveAttribute('data-quantos-theme',theme);await expect(page.locator('.p22-frame')).toBeVisible();for(const width of [1440,768,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('p22-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`reconciliation-${theme}-${width}.png`),fullPage:false});await page.getByRole('region',{name:'只读资金账本',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath(`ledger-${theme}-${width}.png`),fullPage:false});await page.getByRole('heading',{name:'Reconciliation',exact:true}).scrollIntoViewIfNeeded();}}for(const name of ['差异表','账本表']){const table=page.getByRole('region',{name,exact:true});await table.scrollIntoViewIfNeeded();await table.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>table.evaluate(e=>e.scrollLeft)).toBeGreaterThan(0);}expect(writes()).toHaveLength(0);});
+      19 | test('P22 explicit synthetic status rows filter and select without rewriting financial facts',async({page},info)=>{fault({stateRows:true});const run=await open(page);const grid=page.getByRole('region',{name:'账本差异',exact:true}),detail=page.getByRole('region',{name:'差异详情',exact:true});await expect(page.getByRole('region',{name:'对账摘要',exact:true})).toContainText('Matched');await expect(page.getByRole('region',{name:'对账摘要',exact:true})).toContainText('未提供');await grid.getByRole('button',{name:'已解决 1',exact:true}).click();await expect(grid.locator('tbody tr')).toHaveCount(1);await grid.getByRole('button',{name:/查看差异/}).click();await expect(detail).toContainText('FeeMismatch');await expect(detail.getByRole('region',{name:'值对比',exact:true})).toContainText('9.19');await expect(detail).toContainText('严重度未提供');const url=new URL(page.url());expect(url.pathname).toBe('/reconciliation/'+run);expect(url.searchParams.get('breakId')).toMatch(/^sha256:[a-f0-9]{64}$/);await page.screenshot({path:info.outputPath('closed-synthetic.png'),fullPage:true});await grid.getByRole('button',{name:'全部 3',exact:true}).click();await page.getByLabel('搜索差异',{exact:true}).fill('ETH quantity');await expect(grid.locator('tbody tr')).toHaveCount(1);await grid.getByRole('button',{name:/查看差异/}).click();await expect(detail).toContainText('已确认调查');await expect(detail).toContainText('调查人、处置时间和动作历史未提供');await page.getByLabel('搜索差异',{exact:true}).fill('not-found');await expect(grid).toContainText('当前筛选没有差异记录');await expect(page.getByRole('region',{name:'对账摘要',exact:true})).toContainText('当前返回记录');expect(writes()).toHaveLength(0);});
+    > 20 | test('P22 ledger raw precision side filters disabled unsupported writes and Escape confirmation',async({page})=>{fault({largeDecimal:true});await open(page);const ledger=page.getByRole('region',{name:'只读资金账本',exact:true});await expect(ledger).toContainText('9007199254740993.123456789012345678');await page.getByLabel('账本侧',{exact:true}).selectOption('actual');await expect(ledger.locator('tbody tr')).toHaveCount(2);await expect(ledger.locator('tbody')).not.toContainText('expected');await expect(page.getByLabel('调查说明',{exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'保存说明暂不可用',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'导出差异清单',exact:true})).toBeDisabled();await page.getByRole('link',{name:'打开 Runbook',exact:true}).click();await expect(page.getByText('核对账户、日期、来源 hash、差异原值及相关 Order / Fill。',{exact:true})).toBeVisible();await page.getByLabel('重跑理由',{exact:true}).fill('review only');await page.getByRole('button',{name:'请求重跑',exact:true}).click();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);expect(writes()).toHaveLength(0);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      21 | test('P22 exact break deep link selects current exception and foreign break never publishes facts',async({page})=>{const run=await open(page),q=new URL(page.url()).searchParams.get('breakId');expect(q).toMatch(/^sha256:/);await page.reload();await authorized(page);await expect(page.getByRole('region',{name:'差异详情',exact:true})).toContainText(q!);await page.goto('/reconciliation/'+run+'?breakId='+encodeURIComponent('sha256:'+'f'.repeat(64)));await authorized(page);await expect(page.locator('main [role=alert]')).toContainText('不存在');await expect(facts(page)).toHaveCount(0);expect(writes()).toHaveLength(0);});
+      22 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p22.spec.ts:20:867
+
+    Error Context: docs/audit/evidence/ui-p22-local-20261024/development/browser-label-02/ui-p22-P22-ledger-raw-prec-c49e4-tes-and-Escape-confirmation-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p22-local-20261024/development/browser-label-02/ui-p22-P22-ledger-raw-prec-c49e4-tes-and-Escape-confirmation-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p22.spec.ts:20:5 › P22 ledger raw precision side filters disabled unsupported writes and Escape confirmation 
