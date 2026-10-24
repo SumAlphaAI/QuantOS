@@ -223,7 +223,8 @@ export function assistedLiveGate(
   testnetFlagEnabled: boolean,
   options: DeploymentTargetOption[],
 ): AssistedLiveGateModel {
-  if (!testnetFlagEnabled) {
+  const targetEnabled = options.some((option) => option.target === "assisted_live" && option.enabled === true);
+  if (testnetFlagEnabled !== true || !targetEnabled) {
     return {
       reachable: false,
       banner: "Assisted Live 尚未开放。需完成 M5 Gate 并获得单独批准。",

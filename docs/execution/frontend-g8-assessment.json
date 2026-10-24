@@ -1,0 +1,146 @@
+{
+  "schema": "quantos-frontend-g8-assessment/v1",
+  "nodeId": "FRONTEND-GATE:G8",
+  "reviewStatus": "IN_REVIEW",
+  "gate": "NOT_READY_GAPS_OPEN",
+  "stageGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "fep8Milestone": "UNSPECIFIED_NOT_CLOSED",
+  "actualTestnetConnected": false,
+  "productionCredentialsUsed": false,
+  "publicBuildFlag": "off",
+  "inheritedG7Gaps": [
+    {
+      "id": "G7-RESEARCH-HANDOFF-01",
+      "status": "OPEN",
+      "observed": "C03 HTTP run remains queued until cancellation; R03 owned IPC registration tested separately",
+      "positive": "NOT_RUN_HTTP_QUEUE_TO_WORKER_TO_INCREMENTAL_CATALOG"
+    },
+    {
+      "id": "G7-RELEASE-PROPOSAL-01",
+      "status": "OPEN",
+      "observed": "C05 approved immutable Release differs from C07 seeded signal.strategyReleaseId; UI target selection is local only",
+      "positive": "NOT_RUN_RELEASE_ACTIVATION_TO_MATCHING_PROPOSAL"
+    },
+    {
+      "id": "FEP5-INTEGRATION-01",
+      "status": "OPEN",
+      "observed": "Paper accepted/cancelled mock Order has no fills; C15 ledger source is Shadow",
+      "positive": "NOT_RUN_MATCHING_ORDER_FILL_RECONCILIATION"
+    },
+    {
+      "id": "FEP5-INTEGRATION-02",
+      "status": "OPEN",
+      "observed": "No matching C15 discrepancy to C16 source in reference data",
+      "positive": "NOT_RUN_RECONCILIATION_ALERT_POSITIVE_JOIN"
+    },
+    {
+      "id": "UI402-MARKER-SOURCE-01",
+      "status": "OPEN",
+      "positive": "NOT_RUN_MISSING_MATCHED_PRODUCT_SOURCE"
+    },
+    {
+      "id": "P19-C10-EXPORT-01",
+      "status": "OPEN",
+      "positive": "NOT_IMPLEMENTED_UNSUPPORTED_CONTRACT_SCOPE"
+    },
+    {
+      "id": "G4-C12-C14-VALUATION",
+      "status": "OPEN",
+      "positive": "NOT_CLAIMED_NO_SHARED_PRICE_SNAPSHOT"
+    },
+    {
+      "id": "UI601-INSPECT-EVIDENCE-HTTP",
+      "status": "OPEN",
+      "positive": "NOT_RUN_REFERENCE_SOURCE_UNAVAILABLE"
+    },
+    {
+      "id": "UI601-RESOLVE-HTTP",
+      "status": "OPEN",
+      "positive": "NOT_RUN_NO_REPAIR_HTTP"
+    },
+    {
+      "id": "P13-C11-SERVICE-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_SEVEN_INDEPENDENT_SERVICE_HISTORY"
+    },
+    {
+      "id": "P14-C11-METADATA-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-HISTORY-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-EXPORT-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-STREAM-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "G7-SHADOW-C06-01",
+      "status": "OPEN",
+      "observed": "C02 Shadow execution source unavailable; reference /v1/portfolio returns 403 CONTEXT_MODE_REQUIRED",
+      "positive": "NOT_RUN_SHADOW_C06_REFERENCE_POSITIVE"
+    }
+  ],
+  "preserved": {
+    "g4Fep4": "NOT_READY_GAPS_OPEN",
+    "g6Fep6": "NOT_READY_GAPS_OPEN",
+    "p14": "OPEN_ALL_FOUR",
+    "g7Fep7": "NOT_READY_GAPS_OPEN",
+    "fep7Development": "PARTIAL",
+    "betaCandidate": "NOT_READY"
+  },
+  "inheritedAssessment": {
+    "path": "docs/execution/fep7-scope-assessment.json",
+    "sha256": "sha256:d82ab2bab3cd3df9672a7e014bc8823341a7ba80830a3d63a0cf76d981c5102e",
+    "sourceCommit": "a61d22f246dc20011e0e562129e52d1b552df60b",
+    "packetCommit": "047a6a34a11fb6695d4e600dd8b28b70a9cecb2f",
+    "scope": "ORIGINAL_SCOPE_ONLY"
+  },
+  "newGaps": [
+    {
+      "id": "G8-SERVER-FLAG-01",
+      "status": "OPEN",
+      "observed": "C11 flag allowlist has no Assisted Live testnet flag; public build flag is not server authority",
+      "positive": "NOT_PROVIDED_VERSIONED_FLAG_CAPABILITY_CONTRACT"
+    },
+    {
+      "id": "G8-P10-P11-01",
+      "status": "OPEN",
+      "observed": "Shared UI helper is scenario-only; current P10/P11 and reference BFF do not provide Assisted Live approval/execution context",
+      "positive": "NOT_RUN_ASSISTED_LOCAL_UI_BFF_POSITIVE"
+    },
+    {
+      "id": "G8-C09-L01-JOIN-01",
+      "status": "OPEN",
+      "observed": "Native ScenarioDrivenTransport venue mapping and Paper/mock C09 are separately verified; no common Assisted Live Command Order source",
+      "positive": "NOT_RUN_UI_BFF_TO_OWNED_L01_ADAPTER"
+    },
+    {
+      "id": "G8-L03-L04-AUDIT-01",
+      "status": "OPEN",
+      "observed": "Native dual-approval fixtures have two audit entries but no F06 two-approver HTTP/C10 recovery join; native MFA prefix is not F06 authentication",
+      "positive": "NOT_RUN_DUAL_HTTP_APPROVAL_AUDIT_RECOVERY"
+    }
+  ],
+  "localEvidenceBoundary": {
+    "uiHelper": "FLAG_AND_ENABLED_TARGET_INTERSECTION_ONLY",
+    "nativeDual": "OWNED_FIXTURE_50_PAIRS_100_HASHED_AUDIT_ENTRIES_NOT_F06_PROOF",
+    "nativeVenue": "SCENARIO_DRIVEN_200_CASES_NO_NETWORK",
+    "browser": "PAPER_P10_P11_C10_RECOVERY_AND_EXPLICIT_CONSUMER_ASSISTED_REFUSAL",
+    "actualTestnet": "NOT_RUN_USER_FORBIDS_CONNECTION",
+    "realIdpDatabaseExternalVenueDurableRestartSameShaCI": "NOT_RUN",
+    "performanceCapacitySoakRelease": "NOT_RUN"
+  },
+  "nextTask": "FE:FEP-8"
+}
