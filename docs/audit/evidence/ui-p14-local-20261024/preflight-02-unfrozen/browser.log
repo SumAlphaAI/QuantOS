@@ -1,0 +1,40 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/ui-p14.spec.ts:12:5 › P14 high fidelity selected engine, eight responsive themes, geometry and axe (5.8s)
+  ✓  2 [chromium] › tests/e2e/ui-p14.spec.ts:13:5 › P14 actual catalog search, state/type filters, pagination and empty recovery are read only (2.3s)
+  ✓  3 [chromium] › tests/e2e/ui-p14.spec.ts:14:5 › P14 capability metadata, local draft diff, copy identity and session records never invent approvals (2.5s)
+  ✓  4 [chromium] › tests/e2e/ui-p14.spec.ts:15:5 › P14 all five governance pages show source counts, protected role identity and reusable controlled forms (2.7s)
+  ✘  5 [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit (30.1s)
+
+
+  1) [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByRole('button', { name: '恢复原请求' })
+        - locator resolved to <button disabled>恢复原请求</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is not enabled
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+      - element was detached from the DOM, retrying
+
+
+      14 | test('P14 capability metadata, local draft diff, copy identity and session records never invent approvals',async({page,context})=>{await engine(page);await context.grantPermissions(['clipboard-read','clipboard-write']);const facts=page.getByRole('region',{name:'资源身份详情'});await expect(facts).toContainText('research.hypothesis.v1');await expect(page.getByRole('region',{name:'签名证据边界'})).toContainText('完整签名摘要');await expect(page.getByRole('region',{name:'审查与职责分离'})).toContainText('元数据匹配');await page.getByRole('button',{name:'复制 ID',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'已复制资源 ID'})).toBeVisible();const expected=(await facts.locator('dd').first().innerText());expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(expected);await page.getByLabel('Engine 能力启用',{exact:true}).uncheck();await page.getByRole('button',{name:'查看字段差异',exact:true}).click();const diff=page.getByRole('region',{name:'草稿字段差异'});await expect(diff).toContainText('启用状态');await expect(diff.locator('del')).toHaveText('是');await expect(diff.locator('ins')).toHaveText('否');await submit(page,'审阅修改');await expect(page.getByRole('region',{name:'治理审计回执'})).toContainText('非完整版本历史');await expect(page.getByRole('region',{name:'治理审计回执'}).getByRole('listitem')).toHaveCount(2);await expect(page.getByRole('button',{name:'导出成员清单'})).toBeDisabled();await expect(page.getByRole('button',{name:'查看治理审计'})).toBeDisabled();expect(writes()).toHaveLength(2);});
+      15 | test('P14 all five governance pages show source counts, protected role identity and reusable controlled forms',async({page},info)=>{for(const c of ['members','roles','policies','capabilities','flags']){await open(page,c);await expect(page.getByRole('heading',{name:'Administration',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'治理概览'}).locator('article')).toHaveCount(4);await expect(page.getByRole('button',{name:'审阅创建',exact:true})).toBeVisible();if(c==='roles'){await page.getByRole('button',{name:/^owner /}).click();await expect(page.getByLabel('基础身份')).toHaveValue('owner');await expect(page.getByRole('button',{name:'审阅删除'})).toBeDisabled();}await page.screenshot({path:info.outputPath(`p14-${c}-dark-1440.png`)});}expect(writes()).toHaveLength(0);});
+    > 16 | test('P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit',async({page})=>{await open(page,'roles');await page.getByLabel('角色名称',{exact:true}).fill('p14_unknown');fault({drop:true});await submit(page);await expect(page.getByRole('region',{name:'操作结果未知'})).toBeVisible();await page.getByRole('navigation',{name:'治理分类'}).getByRole('link',{name:/^策略/}).click();await expect(page).toHaveURL(/\/admin\/roles$/);await expect(page.getByLabel('搜索治理资源')).toBeDisabled();fault({conflict:true});await page.getByRole('button',{name:'恢复原请求'}).click();await expect(page.getByRole('region',{name:'操作结果未知'})).toBeVisible();fault({});await page.getByRole('button',{name:'恢复原请求'}).click();await expect(page.getByRole('region',{name:'治理审计回执'})).toContainText('roles · 已提交');await page.evaluate(()=>dispatchEvent(new Event('offline')));await expect(page.getByRole('heading',{name:'Admin 访问不可用'})).toBeVisible();await expect(page.getByRole('region',{name:'治理审计回执'})).toHaveCount(0);expect(writes()).toHaveLength(3);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      17 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:16:710
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-02-unfrozen/browser/ui-p14-P14-unknown-mutatio-0a006-ne-clears-details-and-audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-02-unfrozen/browser/ui-p14-P14-unknown-mutatio-0a006-ne-clears-details-and-audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit 
+  4 passed (44.6s)

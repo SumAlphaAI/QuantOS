@@ -1,0 +1,163 @@
+
+Running 5 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui-p14.spec.ts:12:5 › P14 high fidelity selected engine, eight responsive themes, geometry and axe (2.3s)
+  ✘  2 [chromium] › tests/e2e/ui-p14.spec.ts:13:5 › P14 actual catalog search, state/type filters, pagination and empty recovery are read only (2.2s)
+  ✘  3 [chromium] › tests/e2e/ui-p14.spec.ts:14:5 › P14 capability metadata, local draft diff, copy identity and session records never invent approvals (2.1s)
+  ✘  4 [chromium] › tests/e2e/ui-p14.spec.ts:15:5 › P14 all five governance pages show source counts, protected role identity and reusable controlled forms (2.2s)
+  ✘  5 [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit (2.2s)
+
+
+  1) [chromium] › tests/e2e/ui-p14.spec.ts:12:5 › P14 high fidelity selected engine, eight responsive themes, geometry and axe 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: '治理资源' })
+    Expected substring: not "尚无已核对"
+    Error: strict mode violation: getByRole('region', { name: '治理资源' }) resolved to 2 elements:
+        1) <section aria-label="治理资源" class="p14-panel p14-catalog">…</section> aka getByRole('region', { name: '治理资源', exact: true })
+        2) <section class="p14-facts" aria-label="治理资源详情">…</section> aka getByRole('region', { name: '治理资源详情' })
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: '治理资源' })
+
+
+       5 | installReferenceHooks();
+       6 | const writes=()=>networkRows().filter(r=>!r.control&&r.path.startsWith('/v1/admin/')&&r.method!=='GET');
+    >  7 | async function open(page:Page,c='capabilities'){await page.goto('/admin/'+c);await authorized(page);await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+         |                                                                                                                                                              ^
+       8 | async function refresh(page:Page){await page.getByRole('button',{name:'重新读取治理目录'}).click();await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+       9 | async function submit(page:Page,name='审阅创建'){await page.getByRole('button',{name,exact:true}).click();await page.getByLabel('操作原因',{exact:true}).fill('UI-P14 controlled browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认治理字段、影响与版本').check();await page.getByRole('button',{name:'提交治理操作',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
+      10 | async function engine(page:Page){await open(page);await page.getByLabel('能力类别',{exact:true}).selectOption('engine_capability');await page.getByLabel('签名审查目录').selectOption({index:1});await page.getByLabel('Engine 能力启用',{exact:true}).check();await submit(page);await refresh(page);await page.getByRole('button',{name:/^research.hypothesis.v1 /}).click();}
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:7:158)
+        at engine (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:10:34)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:12:106
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-high-fidelity-s-c7285-ive-themes-geometry-and-axe-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-high-fidelity-s-c7285-ive-themes-geometry-and-axe-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui-p14.spec.ts:13:5 › P14 actual catalog search, state/type filters, pagination and empty recovery are read only 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: '治理资源' })
+    Expected substring: not "尚无已核对"
+    Error: strict mode violation: getByRole('region', { name: '治理资源' }) resolved to 2 elements:
+        1) <section aria-label="治理资源" class="p14-panel p14-catalog">…</section> aka getByRole('region', { name: '治理资源', exact: true })
+        2) <section class="p14-facts" aria-label="治理资源详情">…</section> aka getByRole('region', { name: '治理资源详情' })
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: '治理资源' })
+
+
+       5 | installReferenceHooks();
+       6 | const writes=()=>networkRows().filter(r=>!r.control&&r.path.startsWith('/v1/admin/')&&r.method!=='GET');
+    >  7 | async function open(page:Page,c='capabilities'){await page.goto('/admin/'+c);await authorized(page);await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+         |                                                                                                                                                              ^
+       8 | async function refresh(page:Page){await page.getByRole('button',{name:'重新读取治理目录'}).click();await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+       9 | async function submit(page:Page,name='审阅创建'){await page.getByRole('button',{name,exact:true}).click();await page.getByLabel('操作原因',{exact:true}).fill('UI-P14 controlled browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认治理字段、影响与版本').check();await page.getByRole('button',{name:'提交治理操作',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
+      10 | async function engine(page:Page){await open(page);await page.getByLabel('能力类别',{exact:true}).selectOption('engine_capability');await page.getByLabel('签名审查目录').selectOption({index:1});await page.getByLabel('Engine 能力启用',{exact:true}).check();await submit(page);await refresh(page);await page.getByRole('button',{name:/^research.hypothesis.v1 /}).click();}
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:7:158)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:13:417
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-actual-catalog--0eead-mpty-recovery-are-read-only-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-actual-catalog--0eead-mpty-recovery-are-read-only-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/ui-p14.spec.ts:14:5 › P14 capability metadata, local draft diff, copy identity and session records never invent approvals 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: '治理资源' })
+    Expected substring: not "尚无已核对"
+    Error: strict mode violation: getByRole('region', { name: '治理资源' }) resolved to 2 elements:
+        1) <section aria-label="治理资源" class="p14-panel p14-catalog">…</section> aka getByRole('region', { name: '治理资源', exact: true })
+        2) <section class="p14-facts" aria-label="治理资源详情">…</section> aka getByRole('region', { name: '治理资源详情' })
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: '治理资源' })
+
+
+       5 | installReferenceHooks();
+       6 | const writes=()=>networkRows().filter(r=>!r.control&&r.path.startsWith('/v1/admin/')&&r.method!=='GET');
+    >  7 | async function open(page:Page,c='capabilities'){await page.goto('/admin/'+c);await authorized(page);await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+         |                                                                                                                                                              ^
+       8 | async function refresh(page:Page){await page.getByRole('button',{name:'重新读取治理目录'}).click();await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+       9 | async function submit(page:Page,name='审阅创建'){await page.getByRole('button',{name,exact:true}).click();await page.getByLabel('操作原因',{exact:true}).fill('UI-P14 controlled browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认治理字段、影响与版本').check();await page.getByRole('button',{name:'提交治理操作',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
+      10 | async function engine(page:Page){await open(page);await page.getByLabel('能力类别',{exact:true}).selectOption('engine_capability');await page.getByLabel('签名审查目录').selectOption({index:1});await page.getByLabel('Engine 能力启用',{exact:true}).check();await submit(page);await refresh(page);await page.getByRole('button',{name:/^research.hypothesis.v1 /}).click();}
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:7:158)
+        at engine (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:10:34)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:14:132
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-capability-meta-46595-ords-never-invent-approvals-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-capability-meta-46595-ords-never-invent-approvals-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/ui-p14.spec.ts:15:5 › P14 all five governance pages show source counts, protected role identity and reusable controlled forms 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: '治理资源' })
+    Expected substring: not "尚无已核对"
+    Error: strict mode violation: getByRole('region', { name: '治理资源' }) resolved to 2 elements:
+        1) <section aria-label="治理资源" class="p14-panel p14-catalog">…</section> aka getByRole('region', { name: '治理资源', exact: true })
+        2) <section class="p14-facts" aria-label="治理资源详情">…</section> aka getByRole('region', { name: '治理资源详情' })
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: '治理资源' })
+
+
+       5 | installReferenceHooks();
+       6 | const writes=()=>networkRows().filter(r=>!r.control&&r.path.startsWith('/v1/admin/')&&r.method!=='GET');
+    >  7 | async function open(page:Page,c='capabilities'){await page.goto('/admin/'+c);await authorized(page);await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+         |                                                                                                                                                              ^
+       8 | async function refresh(page:Page){await page.getByRole('button',{name:'重新读取治理目录'}).click();await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+       9 | async function submit(page:Page,name='审阅创建'){await page.getByRole('button',{name,exact:true}).click();await page.getByLabel('操作原因',{exact:true}).fill('UI-P14 controlled browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认治理字段、影响与版本').check();await page.getByRole('button',{name:'提交治理操作',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
+      10 | async function engine(page:Page){await open(page);await page.getByLabel('能力类别',{exact:true}).selectOption('engine_capability');await page.getByLabel('签名审查目录').selectOption({index:1});await page.getByLabel('Engine 能力启用',{exact:true}).check();await submit(page);await refresh(page);await page.getByRole('button',{name:/^research.hypothesis.v1 /}).click();}
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:7:158)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:15:203
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-all-five-govern-00e9b-d-reusable-controlled-forms-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-all-five-govern-00e9b-d-reusable-controlled-forms-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: '治理资源' })
+    Expected substring: not "尚无已核对"
+    Error: strict mode violation: getByRole('region', { name: '治理资源' }) resolved to 2 elements:
+        1) <section aria-label="治理资源" class="p14-panel p14-catalog">…</section> aka getByRole('region', { name: '治理资源', exact: true })
+        2) <section class="p14-facts" aria-label="治理资源详情">…</section> aka getByRole('region', { name: '治理资源详情' })
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for getByRole('region', { name: '治理资源' })
+
+
+       5 | installReferenceHooks();
+       6 | const writes=()=>networkRows().filter(r=>!r.control&&r.path.startsWith('/v1/admin/')&&r.method!=='GET');
+    >  7 | async function open(page:Page,c='capabilities'){await page.goto('/admin/'+c);await authorized(page);await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+         |                                                                                                                                                              ^
+       8 | async function refresh(page:Page){await page.getByRole('button',{name:'重新读取治理目录'}).click();await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('尚无已核对');await expect(page.getByRole('region',{name:'治理资源'})).not.toContainText('正在读取');}
+       9 | async function submit(page:Page,name='审阅创建'){await page.getByRole('button',{name,exact:true}).click();await page.getByLabel('操作原因',{exact:true}).fill('UI-P14 controlled browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认治理字段、影响与版本').check();await page.getByRole('button',{name:'提交治理操作',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
+      10 | async function engine(page:Page){await open(page);await page.getByLabel('能力类别',{exact:true}).selectOption('engine_capability');await page.getByLabel('签名审查目录').selectOption({index:1});await page.getByLabel('Engine 能力启用',{exact:true}).check();await submit(page);await refresh(page);await page.getByRole('button',{name:/^research.hypothesis.v1 /}).click();}
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:7:158)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui-p14.spec.ts:16:122
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-unknown-mutatio-0a006-ne-clears-details-and-audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui-p14-local-20261024/preflight-unfrozen/browser/ui-p14-P14-unknown-mutatio-0a006-ne-clears-details-and-audit-chromium/error-context.md
+
+  5 failed
+    [chromium] › tests/e2e/ui-p14.spec.ts:12:5 › P14 high fidelity selected engine, eight responsive themes, geometry and axe 
+    [chromium] › tests/e2e/ui-p14.spec.ts:13:5 › P14 actual catalog search, state/type filters, pagination and empty recovery are read only 
+    [chromium] › tests/e2e/ui-p14.spec.ts:14:5 › P14 capability metadata, local draft diff, copy identity and session records never invent approvals 
+    [chromium] › tests/e2e/ui-p14.spec.ts:15:5 › P14 all five governance pages show source counts, protected role identity and reusable controlled forms 
+    [chromium] › tests/e2e/ui-p14.spec.ts:16:5 › P14 unknown mutation locks navigation, refusal keeps request and offline clears details and audit 
