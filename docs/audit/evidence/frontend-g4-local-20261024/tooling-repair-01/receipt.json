@@ -1,0 +1,45 @@
+{
+  "record": "docs/audit/evidence/frontend-g4-local-20261024/tooling-repair-01/receipt.json",
+  "sourceCommit": "3507c03a9c4b7242e90965729b6a0cce6b56c7b6",
+  "files": [
+    {
+      "path": "scripts/frontend-g4-review.mjs",
+      "sha256": "sha256:d5752307276728c45970cf0a8930ba887c712afef66a1c78c53277fa9641017f"
+    },
+    {
+      "path": "scripts/frontend-g4-review.test.mjs",
+      "sha256": "sha256:b26ba8e84224d26a92c1494ec5c81d7244f65473e8ff03ead1683b03d61da923"
+    }
+  ],
+  "executions": [
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "scripts/frontend-g4-review.mjs",
+        "scripts/frontend-g4-review.test.mjs"
+      ],
+      "startedAt": "2026-10-24T05:30:31.312Z",
+      "finishedAt": "2026-10-24T05:30:31.879Z",
+      "exitCode": 0,
+      "signal": null,
+      "log": "docs/audit/evidence/frontend-g4-local-20261024/tooling-repair-01/lint.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/frontend-g4-review.test.mjs"
+      ],
+      "startedAt": "2026-10-24T05:30:31.880Z",
+      "finishedAt": "2026-10-24T05:30:32.177Z",
+      "exitCode": 0,
+      "signal": null,
+      "log": "docs/audit/evidence/frontend-g4-local-20261024/tooling-repair-01/gate.log",
+      "logSha256": "sha256:c50e714a72b4ce3661e6a7d9e270ab2ab0773545ebcae87fff64ecaf5c5899d2"
+    }
+  ],
+  "scope": "RECORDER_ONLY_NO_PRODUCT_REEXECUTION"
+}

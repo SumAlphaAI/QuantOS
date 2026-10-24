@@ -1,0 +1,103 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/ui402.test.ts (36 tests | 1 failed) 80ms
+   × C09 failure preserves candles but clears markers; 403 erases whole workspace 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/ui402.test.ts > C09 failure preserves candles but clears markers; 403 erases whole workspace
+AssertionError: expected { …(13) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "aggregation": "trade_events",
+  "canonicalSymbol": "BTC/USDT",
+  "eventMarkers": [
+    {
+      "at": "2026-10-22T23:52:00.000Z",
+      "kind": "data_gap",
+    },
+  ],
+  "gaps": [
+    {
+      "end": "2026-10-22T23:54:00.000Z",
+      "start": "2026-10-22T23:52:00.000Z",
+    },
+  ],
+  "instrumentId": "binance:spot:BTC/USDT",
+  "interval": "1m",
+  "ohlcv": [
+    {
+      "c": "101",
+      "h": "102",
+      "l": "99",
+      "o": "100",
+      "t": "2026-10-22T23:50:00.000Z",
+      "v": "0.123456789012345678",
+    },
+    {
+      "c": "102",
+      "h": "103",
+      "l": "100",
+      "o": "101",
+      "t": "2026-10-22T23:51:00.000Z",
+      "v": "0.123456789012345678",
+    },
+    {
+      "c": "105",
+      "h": "106",
+      "l": "103",
+      "o": "104",
+      "t": "2026-10-22T23:54:00.000Z",
+      "v": "0.123456789012345678",
+    },
+    {
+      "c": "106",
+      "h": "107",
+      "l": "104",
+      "o": "105",
+      "t": "2026-10-22T23:55:00.000Z",
+      "v": "0.123456789012345678",
+    },
+    {
+      "c": "107",
+      "h": "108",
+      "l": "105",
+      "o": "106",
+      "t": "2026-10-22T23:56:00.000Z",
+      "v": "0.123456789012345678",
+    },
+  ],
+  "productType": "spot",
+  "provenance": {
+    "approvalRef": "fixture:r01",
+    "approvalVersion": "v2",
+    "asOf": "2026-10-23T00:00:00.000Z",
+    "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+    "latencyMs": 0,
+    "license": "fixture-only",
+    "quality": "passed",
+    "source": "approved.binance.spot",
+    "venue": "binance",
+  },
+  "replaceSeries": true,
+  "sequence": 6,
+  "timezone": "UTC",
+  "venue": "binance",
+}
+
+ ❯ apps/terminal/tests/ui402.test.ts:23:484
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 80 passed (81)
+   Start at  13:19:27
+   Duration  354ms (transform 348ms, setup 0ms, import 600ms, tests 137ms, environment 0ms)
+
