@@ -3291,7 +3291,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-602", "UI-VIS-000", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3300,6 +3300,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 契约绑定：C01、C11
 - 所属阶段：FEP-6
 - 页面级完成标准：成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地
+
+- 当前页面实现（2026-10-24）：按P14交付治理概览/五类标签、目录表格及只读搜索/筛选/分页、身份与权限/审查详情、草稿字段差异、MFA/CAS受控变更与本会话审计记录；支持dark/light及1672/1440/1024/390，保留UI602全部授权/保护/拒绝/未知恢复。见[页面规程](./operations/ui-p14-admin-governance.md)与[证据](./audit/evidence/ui-p14-local-20261024/README.md)，复核 `node scripts/ui-p14-review.mjs --verify`。
+- P14-C11-METADATA-01/HISTORY-01/EXPORT-01/STREAM-01保持OPEN：C11未提供完整签名/制品/Provider/risk/SBOM/CVE/逐项审查报告、完整审批历史与审批流、成员导出、持续治理流；界面不合成Verified/Passed/0 CVE/Live。工程Gate `PASS_UI_P14_ADMIN_HIGH_FIDELITY`仅表示冻结候选直接矩阵通过的契约支持范围适配；正式NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。G4/FEP-4原缺口、UI601两项HTTP正向、P13-C11-SERVICE-01与目标/CI/性能/RELEASE均不提升。下一原任务FRONTEND-GATE:G6（FEP-6有界功能组合与缺口评估，不代表READY）。
 
 <a id="acceptance-frontend-gate-g6"></a>
 ##### FRONTEND-GATE:G6：验收检查点
