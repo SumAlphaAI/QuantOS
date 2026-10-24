@@ -230,6 +230,48 @@
       "confirmation": "docs/audit/evidence/g3-integration-01-confirmation-20261023/approval.json",
       "sourceCommit": "696bef717390fea9646c8d54094665f1bdc14d44",
       "packetCommit": "156f21c568a53869e25b774005a236bfd1c5e7c9"
+    },
+    {
+      "id": "FEP5-INTEGRATION-01",
+      "kind": "INTEGRATION_OBLIGATION",
+      "status": "NOT_RUN_COMPOSED_SCOPE",
+      "affectedNodes": [
+        "FE:FEP-5",
+        "FRONTEND-GATE:G5",
+        "FE:UI-506",
+        "FE:UI-P22"
+      ],
+      "summary": "C09 Paper 执行与 C15 Shadow reference 缺少同模式同来源的订单到对账正向接续",
+      "acceptance": "在有效本机真实模块组合中接续同一账户/模式/订单事实到 C15，保留 Shadow 权限及源标识约束",
+      "owner": "FE:FEP-5",
+      "evidence": "docs/operations/fep5-function-closure.md",
+      "developmentPrerequisite": false,
+      "isPlanTask": false,
+      "observedAtCommit": "681e9c5fc24d838aa4de7e4e90f84deb1cc1a03e",
+      "sourceCommit": null,
+      "boundary": "Paper 与 Shadow 分支分别通过不代表同一来源完整联调；不得改绑历史 PASS",
+      "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
+    },
+    {
+      "id": "FEP5-INTEGRATION-02",
+      "kind": "INTEGRATION_OBLIGATION",
+      "status": "NOT_RUN_COMPOSED_SCOPE",
+      "affectedNodes": [
+        "FE:FEP-5",
+        "FRONTEND-GATE:G5",
+        "FE:UI-506",
+        "FE:UI-P22"
+      ],
+      "summary": "C15 对账异常到 C16 告警缺少匹配的真实事件源正向接续",
+      "acceptance": "由真实 reconciliation exception 事件产生匹配 C16 告警，并验证无异常时不伪造告警",
+      "owner": "FE:FEP-5",
+      "evidence": "docs/operations/fep5-function-closure.md",
+      "developmentPrerequisite": false,
+      "isPlanTask": false,
+      "observedAtCommit": "681e9c5fc24d838aa4de7e4e90f84deb1cc1a03e",
+      "sourceCommit": null,
+      "boundary": "Paper 与 Shadow 分支分别通过不代表同一来源完整联调；不得改绑历史 PASS",
+      "disposition": "TRACK_WITHIN_ORIGINAL_TASK_NOT_NEW_DEVELOPMENT_PREREQUISITE"
     }
   ]
 }

@@ -44,6 +44,7 @@ export class ProposalFacts {
     if(this.stream&&this.stream!==e.streamId||!Number.isSafeInteger(e.sequence)||e.sequence<1)throw Error('Proposal lease mismatch');
     const p=proposal(e.payload,this.accountId,this.proposalId,now);if(p.correlationId&&p.correlationId!==e.correlationId)throw Error('Proposal correlation mismatch');
     if(e.sequence<=this.sequence)return false;if(e.sequence!==this.sequence+1)throw Error('Proposal stream gap');
+    if(this.value?.correlationId&&p.objectVersion===this.value.objectVersion&&p.correlationId!==this.value.correlationId)throw Error('Proposal correlation changed');
     if(this.value&&p.objectVersion===this.value.objectVersion&&(identity(p)!==identity(this.value)||p.status&&this.value.status&&rank[p.status]<rank[this.value.status]))throw Error('Proposal fact regressed');
     this.value=p;this.sequence=e.sequence;this.stream=e.streamId;return true;
   }

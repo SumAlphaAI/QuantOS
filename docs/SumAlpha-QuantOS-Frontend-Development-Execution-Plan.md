@@ -3012,7 +3012,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "UI-507", "UI-P12", "UI-501", "UI-P08", "UI-502", "UI-P09", "UI-503", "UI-504", "UI-P10", "UI-505", "UI-P20", "UI-P11", "UI-506", "UI-P22", "FRONTEND-GATE:G5", "FRONTEND-WINDOW:I5"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE", "SERVICE:X06"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3020,6 +3020,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
 - 交付节点与放行条件：G5 功能准入验证七类高风险用例全绿、完整证据链可还原、无直连 venue；≤5 分钟还原在 RELEASE 指定数据规模验收
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+
+- FEP-5 功能闭包（2026-10-24）：`COMPLETED_FRONTEND_SCOPE`；当前源码执行记录见 `docs/audit/evidence/fep5-function-local-20261024/receipt.json`，规程见 `docs/operations/fep5-function-closure.md`。Paper 风险→独立 MFA 审批→Command→Order/撤单→Audit 与 Shadow 对账→不可改账本→Performance/Audit 分别验证；七类结果、1,000 次同键重放及小屏只读按当前功能矩阵执行。不得把不同模式/来源拼成同一业务闭环。C09/C15 同源接续与 C15/C16 对账告警正向接续为 INTEGRATION `NOT_RUN`，跟踪于 development-followups；G5/I5/FEP-5 阶段仍 `NOT_ASSESSED` / `NOT_READY_GAPS_OPEN`，不产生正式 ACCEPTED、运行准入或发布许可。历史页面证据 `ORIGINAL_SCOPE_ONLY`。
 
 #### 迭代 I7：W27–W28
 
