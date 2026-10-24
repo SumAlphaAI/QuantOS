@@ -1,0 +1,38 @@
+import {createBffClient,createBffFetch,bffZodSchemas,parseBffResponse,parseSse} from '@sumalpha/api-client';
+import type {RouteContext} from '../auth/route-access';
+import {catalog} from './policy';
+import {selection,candleSeries,CandleFacts,chartMarkers,type Selection,type ChartMarker} from './chart-policy';
+import {MarketError} from './runtime';
+const authority=(c:RouteContext)=>JSON.stringify([c.actorId,c.tenantId,c.workspaceId,c.accountId,c.mode,c.environment,c.mfaState,[...c.capabilities].sort()]);
+export function createChartRuntime(config:{origin:string;authorize:()=>void;online:()=>boolean;invalidate:(status:number)=>void;fetchImpl?:typeof fetch;now?:()=>number;idleMs?:number}){
+ const life=new AbortController(),now=config.now??Date.now,client=createBffClient({baseUrl:config.origin,fetch:config.fetchImpl,signal:life.signal,timeoutMs:10000}),listeners=new Set<()=>void>();
+ let context:RouteContext|undefined,items:ReturnType<typeof catalog>=[],selected:Selection|undefined,facts:CandleFacts|undefined,markers:ChartMarker[]=[],excluded=0,markerStatus='empty',markerAsOf:string|undefined,status='empty',error:number|undefined,generation=0,retryAt=0;
+ let request:AbortController|undefined,streaming=false;
+ const emit=()=>listeners.forEach(f=>f());
+ function clear(){facts?.revoke();facts=undefined;markers=[];excluded=0;markerStatus='empty';markerAsOf=undefined;}
+ function revoke(s:number){generation++;request?.abort();streaming=false;clear();context=undefined;items=[];selected=undefined;status='blocked';error=s;emit();config.invalidate(s);}
+ function guard(){try{config.authorize();if(life.signal.aborted||!config.online()||!context||!context.capabilities.includes('market.read'))throw new MarketError(403);if(!Number.isFinite(now())||now()>=Date.parse(context.expiresAt))throw new MarketError(401);}catch(e){revoke((e as {status?:number}).status??403);throw e;}}
+ function checked<T>(r:{data?:T;error?:unknown;response:Response}):T{if(r.response.status===200&&r.data!==undefined)return r.data;const e=bffZodSchemas.ErrorEnvelope.safeParse(r.error);if([401,403].includes(r.response.status))revoke(r.response.status);if(r.response.status===429)retryAt=now()+Math.min(Math.max(e.success?e.data.retryAfter??60:60,1),3600)*1000;throw new MarketError(r.response.status,e.success?e.data.correlationId:undefined);}
+ function current(g:number){if(g!==generation||life.signal.aborted)return false;guard();return true;}
+ async function identity(){config.authorize();const a=bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/session',{cache:'no-store'}))),b=bffZodSchemas.SessionContext.parse(checked(await client.GET('/v1/context',{cache:'no-store'})));if(life.signal.aborted)throw new MarketError(403);if(authority(a)!==authority(b)||context&&authority(context)!==authority(b)||b.mfaState==='challenged'){revoke(403);throw new MarketError(403);}context={...b,expiresAt:new Date(Math.min(Date.parse(a.expiresAt),Date.parse(b.expiresAt),context?Date.parse(context.expiresAt):Infinity)).toISOString()};guard();return structuredClone(context);}
+ return {load:identity,subscribe(f:()=>void){listeners.add(f);return()=>{listeners.delete(f);};},
+ get view(){return structuredClone({items,selected,series:facts?.snapshot,cursor:facts?.cursor,markers,excluded,markerStatus,markerAsOf,status,error,retryAt,streaming});},
+ async select(next:Selection){guard();generation++;const g=generation;request?.abort();request=new AbortController();streaming=false;clear();selected=undefined;status='loading';error=undefined;emit();try{const s=selection(next);selected=s;if(now()<retryAt)throw new MarketError(429);await identity();if(!current(g))return;
+  const raw=await client.GET('/v1/markets/catalog',{cache:'no-store',signal:request.signal});if(!current(g))return;items=catalog(checked(raw));const i=items.find(i=>i.instrumentId===`${s.venue}:${s.product}:${s.symbol}`);if(!i||!i.intervals.includes(s.interval)||!i.timezones.includes(s.timezone))throw new MarketError(422);
+  const res=await client.GET('/v1/markets/candles',{params:{query:s},cache:'no-store',signal:request.signal});if(!current(g))return;facts=new CandleFacts(s,candleSeries(checked(res),s,now()));status='snapshot';emit();
+  if(!context!.capabilities.includes('execution.operate')||!['paper','shadow'].includes(context!.mode)){markerStatus='unavailable';emit();return;}
+  markerStatus='loading';emit();try{const orders:unknown[]=[],cursors=new Set<string>();let cursor:string|undefined;
+   do{const res=await client.GET('/v1/orders',{params:{query:{accountId:context!.accountId,cursor}},cache:'no-store',signal:request.signal});if(!current(g))return;const page=parseBffResponse('listOrders',200,checked(res)) as {items?:unknown[];nextCursor?:string};if(!page.items||orders.length+page.items.length>500)throw new MarketError(502);orders.push(...page.items);cursor=page.nextCursor;if(cursor){if(cursors.has(cursor)||cursors.size>=20)throw new MarketError(502);cursors.add(cursor);}}while(cursor);
+   if(!current(g))return;const result=chartMarkers(orders,context!,s,now());markers=result.markers;excluded=result.excluded;markerStatus='snapshot';markerAsOf=new Date(now()).toISOString();
+  }catch(e){if(!current(g))return;markers=[];markerStatus='error';if([401,403].includes((e as {status?:number}).status??0))throw e;}emit();
+ }catch(e){if(!current(g))return;clear();status='error';error=(e as {status?:number}).status??502;emit();throw e;}},
+ async connect(){guard();if(streaming||!facts||!selected||status==='reset'||now()<retryAt)throw new MarketError(409);const g=generation,f=facts,s=selected,abort=request!,idle=new AbortController();streaming=true;status='connecting';error=undefined;emit();let timer:ReturnType<typeof setTimeout>|undefined;const arm=()=>{clearTimeout(timer);timer=setTimeout(()=>idle.abort(),config.idleMs??30000);};arm();
+ try{const u=new URL('/v1/markets/candles/stream',config.origin);for(const[k,v]of Object.entries({...s,...f.cursor}))u.searchParams.set(k,String(v));const fetcher=createBffFetch(config.fetchImpl??fetch,{signal:life.signal,timeoutMs:10000}),res=await fetcher(u,{credentials:'include',cache:'no-store',signal:AbortSignal.any([abort.signal,idle.signal]),headers:{accept:'text/event-stream'}});if(!current(g)){await res.body?.cancel();return;}
+  if(res.status!==200||!res.body||!res.headers.get('content-type')?.includes('text/event-stream')){await res.body?.cancel();if([401,403].includes(res.status))revoke(res.status);if(res.status===429)retryAt=now()+60000;throw new MarketError(res.status===200?502:res.status);}
+  const decoder=new TextDecoder('utf-8',{fatal:true});let frame='';const bounded=res.body.pipeThrough(new TransformStream<Uint8Array,Uint8Array>({transform(chunk,out){frame+=decoder.decode(chunk,{stream:true});let at;while((at=frame.search(/\r?\n\r?\n/))>=0){if(at>524288)throw new MarketError(502);frame=frame.slice(at+(frame[at]==='\r'?4:2));}if(frame.length>524288)throw new MarketError(502);out.enqueue(chunk);},flush(){frame+=decoder.decode();if(frame.trim())throw new MarketError(502);}}));
+  for await(const e of parseSse(bounded)){if(!current(g))return;f.apply(e,now());arm();status='live';emit();}if(current(g)){status='disconnected';emit();}
+ }catch(e){if(g===generation&&!life.signal.aborted){const code=(e as {status?:number}).status??502;if([401,403].includes(code))revoke(code);else{error=code;status=code===409?'reset':'disconnected';emit();}}}finally{clearTimeout(timer);if(g===generation){streaming=false;emit();}}},
+ close(){generation++;life.abort();request?.abort();streaming=false;clear();items=[];selected=undefined;context=undefined;status='empty';listeners.clear();}
+ };
+}
+export type ChartRuntime=ReturnType<typeof createChartRuntime>;

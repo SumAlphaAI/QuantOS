@@ -10,9 +10,10 @@ export function terminalStaticDocument(pathname,manifest){
   const route=manifest.routes?.find(r=>r.prefix==='trade');return parts.length===3&&/^[A-Z0-9]{2,40}$/.test(parts[2])&&route?.document==='trade.html'&&route.parameter==='symbol'?'trade.html':undefined;
  }
  if(parts[0]===''&&parts[1]==='markets'){
-  if(parts.length!==3)return undefined;let symbol;try{symbol=decodeURIComponent(parts[2]);}catch{return undefined;}
+  if(parts.length!==3&&!(parts.length===4&&parts[3]==='chart'))return undefined;let symbol;try{symbol=decodeURIComponent(parts[2]);}catch{return undefined;}
   if(!/^[A-Z0-9]{1,20}\/[A-Z0-9]{1,20}$/.test(symbol)||encodeURIComponent(symbol)!==parts[2])return undefined;
-  const route=manifest.routes?.find(r=>r.prefix==='markets');return route?.document==='markets.html'&&route.parameter==='symbol'?'markets.html':undefined;
+  if(parts.length===4){const chart=manifest.routes?.find(r=>r.prefix==='markets'&&r.suffix==='chart');return chart?.document==='markets/chart.html'&&chart.parameter==='symbol'?'markets/chart.html':undefined;}
+  const route=manifest.routes?.find(r=>r.prefix==='markets'&&!r.suffix);return route?.document==='markets.html'&&route.parameter==='symbol'?'markets.html':undefined;
  }
  if(parts[1]==='strategies'){
   if(parts.length!==4||parts[3]!=='lab')return undefined;

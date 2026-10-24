@@ -554,6 +554,7 @@ export const OrderSchema = z.object({
   "accountId": z.lazy(() => UUIDSchema),
   "venue": z.string(),
   "venueKind": z.enum(["binance","okx","coinbase","ibkr","alpine","mock"]),
+  "productType": z.literal("spot").describe("订单源明确提供的产品维度；缺失时不得推断为 spot 或叠加 C12 图表。").optional(),
   "symbol": z.string(),
   "intent": z.enum(["open","increase","reduce","close"]),
   "side": z.enum(["buy","sell"]),

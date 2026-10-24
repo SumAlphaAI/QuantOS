@@ -2523,6 +2523,11 @@ export interface components {
             venue: string;
             /** @enum {string} */
             venueKind: "binance" | "okx" | "coinbase" | "ibkr" | "alpine" | "mock";
+            /**
+             * @description 订单源明确提供的产品维度；缺失时不得推断为 spot 或叠加 C12 图表。
+             * @enum {string}
+             */
+            productType?: "spot";
             symbol: string;
             /** @enum {string} */
             intent: "open" | "increase" | "reduce" | "close";

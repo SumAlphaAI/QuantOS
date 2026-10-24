@@ -3035,13 +3035,16 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-401", "UI-505", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：OHLCV/K 线、指标、订单/成交标记
 - 接口绑定：C12、C09
 - 验收重点：series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间
+
+- 功能实现：`/markets/:symbol/chart` 接入 C01/C12/C09；OHLCV/成交量、SMA/EMA、数据缺口、完整 series 元数据、逐维度清空与迟到响应隔离、最后确认时间冻结/显式续传、权限/到期清屏；C09 新增可选 `productType`，标记只接受明确同账户/模式/venue/product/symbol 的订单及成交，缺字段或 Paper/mock 不强行叠加。
+- 有界验收：见 [UI402操作与范围](./operations/ui402-candlestick-analysis.md) 与 [本机功能证据](./audit/evidence/ui402-local-20261024/README.md)，复核入口 `node scripts/ui402-review.mjs --verify`。真实 reference consumer 与 Chromium 功能范围；标记阳性仅显式合成契约输入，实际 C09→C12 同来源 product 阳性接续 `NOT_RUN`（`UI402-MARKER-SOURCE-01`）。保留预检失败、历史兼容性基线 FAIL 和全部 NOT_RUN；不改绑历史证据，不递归复验上游，不提升159项stage_gate，正式 INTEGRATION/NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。UI-P19高保真/目标/远程CI/性能/RELEASE仍NOT_RUN；下一可执行开发任务FE:UI-P19。
 
 <a id="task-ui-p19"></a>
 ##### UI-P19：P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png
