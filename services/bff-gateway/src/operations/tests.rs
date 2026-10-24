@@ -1185,3 +1185,28 @@ fn allowed_filters_return_empty_pages_without_data_dependent_authorization() {
     assert_eq!(host.gov.version, 0);
     assert!(host.replays.is_empty());
 }
+
+#[test]
+fn cold_reference_context_matches_seeded_governed_authority() {
+    let host = reference::seed(false, Utc::now());
+    for session in [
+        crate::CURRENT_SESSION,
+        "session-owner",
+        "session-approver",
+        crate::VIEWER_SESSION,
+    ] {
+        let auth = governance::reference_auth(session, false);
+        let mut expected = host
+            .effective_reference_capabilities(session, false)
+            .into_iter()
+            .filter(|cap| auth.capabilities.iter().any(|c| c.as_str() == cap))
+            .collect::<Vec<_>>();
+        let mut cold = reference_capabilities(session);
+        expected.sort();
+        cold.sort();
+        assert_eq!(
+            cold, expected,
+            "cold C01 cannot change at first C16 read: {session}"
+        );
+    }
+}

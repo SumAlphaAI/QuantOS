@@ -1117,11 +1117,13 @@ pub(crate) fn is_governed_capability(cap: &str) -> bool {
     governance::CAPS.contains(&cap)
 }
 pub(crate) fn reference_capabilities(session: &str) -> Vec<String> {
+    // The reference seed leaves incident-resolution approval disabled. C01 must
+    // not advertise it before the lazy OperationsHost has materialized.
     let a = governance::reference_auth(session, false);
     a.capabilities
         .into_iter()
         .map(|c| c.as_str().to_owned())
-        .filter(|c| governance::CAPS.contains(&c.as_str()))
+        .filter(|c| governance::CAPS.contains(&c.as_str()) && c != "ops.approve")
         .collect()
 }
 

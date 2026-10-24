@@ -99,6 +99,7 @@ export type ShellCapability =
   | "proposal:read"
   | "approval:read"
   | "order:read"
+  | "alerts.read"
   | "audit:read"
   | "operations:read"
   | "admin:read";
@@ -122,6 +123,7 @@ export const UI101_NAVIGATION: readonly ShellNavigationItem[] = [
   { label: "Proposals", route: "/proposals", capability: "proposal:read", icon: "proposals" },
   { label: "Approvals", route: "/approvals", capability: "approval:read", icon: "approvals", badge: 3 },
   { label: "Orders", route: "/orders", capability: "order:read", icon: "orders" },
+  { label: "Alerts", route: "/alerts", capability: "alerts.read", icon: "operations" },
   { label: "Audit", route: "/audit", capability: "audit:read", icon: "audit" },
   { label: "Operations", route: "/operations", capability: "operations:read", icon: "operations" },
   { label: "Admin", route: "/admin/members", capability: "admin:read", icon: "admin" },
