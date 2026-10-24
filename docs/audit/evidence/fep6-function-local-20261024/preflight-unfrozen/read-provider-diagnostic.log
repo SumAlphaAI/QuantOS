@@ -1,0 +1,43 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+stderr | apps/terminal/tests/fep6-provider-consumer.test.ts > FEP6 actual read-only C01/C16/C11/C10 scope census preserves separate Owner/Operator admission and explicit gaps
+
+thread 'tokio-rt-worker' (2706017) panicked at services/bff-gateway/src/execution/reference_release.rs:135:6:
+owned fixture requires a checkout HEAD or frozen archive SHA: Custom { kind: InvalidData, error: "fixture source SHA unavailable or inconsistent" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+stderr | apps/terminal/tests/fep6-provider-consumer.test.ts > FEP6 actual read-only C01/C16/C11/C10 scope census preserves separate Owner/Operator admission and explicit gaps
+FEP6 read transport failed /v1/alerts TypeError: fetch failed
+
+ × apps/terminal/tests/fep6-provider-consumer.test.ts > FEP6 actual read-only C01/C16/C11/C10 scope census preserves separate Owner/Operator admission and explicit gaps 42ms
+   → BFF request could not be completed
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/fep6-provider-consumer.test.ts > FEP6 actual read-only C01/C16/C11/C10 scope census preserves separate Owner/Operator admission and explicit gaps
+BffTransportError: BFF request could not be completed
+ ❯ packages/api-client/src/bff-transport.ts:49:13
+     47|     } catch (error) {
+     48|       if (error instanceof BffTransportError) throw error;
+     49|       throw new BffTransportError(controller.signal.aborted ? code : "…
+       |             ^
+     50|     } finally {
+     51|       clearTimeout(timer);
+ ❯ coreFetch node_modules/.pnpm/openapi-fetch@0.17.0/node_modules/openapi-fetch/src/index.js:171:19
+ ❯ page apps/terminal/src/alerts/runtime.ts:21:42
+ ❯ apps/terminal/src/alerts/runtime.ts:28:271
+ ❯ exclusive apps/terminal/src/alerts/runtime.ts:19:174
+ ❯ apps/terminal/tests/fep6-provider-consumer.test.ts:23:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'NETWORK', outcomeUnknown: false }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  19:10:20
+   Duration  2.12s (transform 122ms, setup 0ms, import 197ms, tests 1.87s, environment 0ms)
+
