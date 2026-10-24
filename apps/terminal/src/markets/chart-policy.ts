@@ -39,7 +39,7 @@ export class CandleFacts{
  revoke(){this.closed=true;this.value=undefined;this.stream=undefined;this.after=0;}
  apply(raw:SseEventEnvelope,now:number){if(this.closed)throw Error('Chart revoked');const e=bffZodSchemas.StreamEvent.parse(raw);if(e.payload.type==='permission_revoked'){this.revoke();throw Object.assign(Error('Chart revoked'),{status:403});}if(e.payload.type==='market_reset')throw Object.assign(Error('Chart reset required'),{status:409});
   const v=candleSeries(e.payload,this.selected,now),old=this.value!;
-  if(e.sequence!==v.sequence||this.stream&&e.streamId!==this.stream||Date.parse(e.occurredAt)>now||[v.provenance.source,v.provenance.approvalRef,v.provenance.approvalVersion,v.provenance.dataSnapshotId].join('|')!==[old.provenance.source,old.provenance.approvalRef,old.provenance.approvalVersion,old.provenance.dataSnapshotId].join('|'))throw Error('Series stream binding mismatch');
+  if(e.sequence!==v.sequence||this.stream&&e.streamId!==this.stream||Date.parse(e.occurredAt)>now||[v.provenance.source,v.provenance.license,v.provenance.approvalRef,v.provenance.approvalVersion,v.provenance.dataSnapshotId].join('|')!==[old.provenance.source,old.provenance.license,old.provenance.approvalRef,old.provenance.approvalVersion,old.provenance.dataSnapshotId].join('|'))throw Error('Series stream binding mismatch');
   if(e.sequence<old.sequence)return false;
   if(Date.parse(v.provenance.asOf)<Date.parse(old.provenance.asOf)||e.sequence===old.sequence&&JSON.stringify({...v,provenance:{...v.provenance,latencyMs:0}})!==JSON.stringify({...old,provenance:{...old.provenance,latencyMs:0}}))throw Error('Conflicting series replay');
   if(e.sequence<=this.after)return false;this.stream=e.streamId;this.after=e.sequence;this.value=v;return true;

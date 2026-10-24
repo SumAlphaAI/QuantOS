@@ -3133,7 +3133,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "PROVIDER:ALL"
   ],
   "required_scope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {
@@ -3144,6 +3144,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
   }
 }
 ```
+
+- 当前有界评估（2026-10-24）：同实例Shadow下C12目录/venue详情→P19、C14/C15→固定报告/下载→C10 Audit与自选/报告原请求恢复已组合验证；补齐QuoteFeed截断UTF8/残帧、时间/许可绑定及可选C09局部403重新核对C01后保留C12的正确边界。见[规程与缺口](./operations/frontend-g4-bounded-composition.md)及[当前证据](./audit/evidence/frontend-g4-local-20261024/README.md)，复核 `node scripts/frontend-g4-review.mjs --verify`。
+- G4正式结论保持NOT_READY_GAPS_OPEN：真实C09→C12同来源阳性与P19受控导出缺契约仍未关闭；C12→C14市场估值join不冒充已验证。159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED；原6页及核心/provider证据仅ORIGINAL_SCOPE_ONLY，完整I7/目标/远程CI/性能与RELEASE仍NOT_RUN。下一原任务FE:FEP-4可开展前端范围收口与里程碑缺口评估。
 
 <a id="task-fep-4"></a>
 ##### FEP-4：市场与分析

@@ -18,7 +18,7 @@ C01 permission/上下文变化、过期、离线、隐藏/焦点失效沿用rout
 
 ## C09 标记及来源边界
 
-`execution.operate` 及paper/shadow身份下按当前账户有界分页读取C09；没有权限时行情仍可读，标记显示不可用。最多500个订单/20个分页游标，重复游标或异常响应拒绝整组标记；普通C09读取失败保留C12，但清空标记，401/403清空整个页面。
+`execution.operate` 及paper/shadow身份下按当前账户有界分页读取C09；没有权限时行情仍可读，标记显示不可用。最多500个订单/20个分页游标，重复游标或异常响应拒绝整组标记；普通C09读取失败保留C12，但清空标记，C09 401清空整个页面；C09单端点403须重新核对完全相同且仍有效的C01身份/权限后才能保留C12并标记unavailable，C01核查失败/撤销仍清屏。C12本身401/403维持全局拒绝（G4组合修复）。
 
 为避免缺失产品的订单被推断为spot，Order新增向后兼容的可选 `productType: spot`。旧生产者可继续省略，消费者显示排除计数，不伪造来源。标记必须匹配account/mode/venue及venueKind/product/symbol；仅在已选spot上下文内允许规范symbol或去斜杠的C09 symbol。订单以submittedAt/quantity/status、成交以Fill.at/price/quantity绘制并链接到原orderId，保留correlationId；无订单价时画时间标记，不使用均价伪装订单委托价。202回执从不视为订单或成交。
 
