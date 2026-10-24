@@ -1,0 +1,98 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m packages/api-client/tests/market-recovery.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui401.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/ui402.test.ts [2m([22m[2m31 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 47[2mms[22m[39m
+   [32m✓[39m canonical chart links carry dimensions only and reject injected scope or unsupported product[32m 1[2mms[22m[39m
+   [32m✓[39m preserves exact OHLCV and all provenance; gaps are explicit[32m 2[2mms[22m[39m
+   [32m✓[39m rejects malformed identity series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed venue series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed interval series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed timezone series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed license series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed future series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed sequence series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed ohlc series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed infinite series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed duplicate series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed unordered series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed missingGap series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed falseGap series[32m 0[2mms[22m[39m
+   [32m✓[39m rejects malformed marker series[32m 0[2mms[22m[39m
+   [32m✓[39m SMA/EMA reset warmup across gaps and do not mutate source[32m 0[2mms[22m[39m
+   [32m✓[39m full replacements allow global sequence jumps, dedupe, reject conflicting replay and retain cursor[32m 2[2mms[22m[39m
+   [32m✓[39m permission revoke at old sequence wipes series and prevents restoration[32m 0[2mms[22m[39m
+[31m   [31m×[31m markers require exact account/mode/venue/product; keep exact fill strings and order links[39m[32m 3[2mms[22m[39m
+   [32m✓[39m runtime loads actual gateways, C12/C09, stream EOF freezes asOf and explicit resume binds stream cursor; zero writes[32m 16[2mms[22m[39m
+   [32m✓[39m switch clears series/indicators/markers before response; late old request cannot repopulate[32m 9[2mms[22m[39m
+   [32m✓[39m unsupported product clears previous series synchronously without a network request[32m 1[2mms[22m[39m
+   [32m✓[39m C09 failure preserves candles but clears markers; 403 erases whole workspace[32m 2[2mms[22m[39m
+   [32m✓[39m bad stream wrongSeries cannot advance confirmed facts[32m 1[2mms[22m[39m
+   [32m✓[39m bad stream truncated cannot advance confirmed facts[32m 1[2mms[22m[39m
+   [32m✓[39m bad stream reset cannot advance confirmed facts[32m 1[2mms[22m[39m
+   [32m✓[39m bad stream oversized cannot advance confirmed facts[32m 2[2mms[22m[39m
+   [32m✓[39m bad stream revoked cannot advance confirmed facts[32m 1[2mms[22m[39m
+   [32m✓[39m expired identity clears existing private facts and 429 cannot immediately retry[32m 1[2mms[22m[39m
+   [32m✓[39m route invalidation during a request cannot restore facts after close[32m 0[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/ui402-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 35009[2mms[22m[39m
+   [2m[90m↓[39m[22m UI402 actual C01/C12/C09 reference consumer: seven periods, two venues/zones, safe C09 empty and exact stream resume
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m92 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (94)[39m
+[2m     Errors [22m [1m[31m1 error[39m[22m
+[2m   Start at [22m 11:45:48
+[2m   Duration [22m 35.30s[2m (transform 507ms, setup 0ms, import 932ms, tests 35.15s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui402-provider-consumer.test.ts[2m [ apps/terminal/tests/ui402-provider-consumer.test.ts ][22m
+[31m[1mError[22m: Hook timed out in 35000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[36m [2m❯[22m apps/terminal/tests/ui402-provider-consumer.test.ts:[2m8:1[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/ui402.test.ts[2m > [22mmarkers require exact account/mode/venue/product; keep exact fill strings and order links
+[31m[1mZodError[22m: [
+  {
+    "code": "invalid_value",
+    "values": [
+      "spot"
+    ],
+    "path": [
+      "productType"
+    ],
+    "message": "Invalid input: expected \"spot\""
+  }
+][39m
+[36m [2m❯[22m order apps/terminal/src/orders/policy.ts:[2m11:111[22m[39m
+
+[90m [2m❯[22m chartMarkers apps/terminal/src/markets/chart-policy.ts:[2m52:33[22m[39m
+[90m [2m❯[22m apps/terminal/tests/ui402.test.ts:[2m18:478[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: listen EPERM: operation not permitted 127.0.0.1[39m
+[90m [2m❯[22m Server.setupListenHandle [as _listen2] node:net:[2m1918:21[22m[39m
+[90m [2m❯[22m listenInCluster node:net:[2m1997:12[22m[39m
+[90m [2m❯[22m node:net:[2m2206:7[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m89:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }[39m
+[31mThis error originated in "[1mapps/terminal/tests/ui402-provider-consumer.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
