@@ -3100,7 +3100,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-403", "UI-VIS-000", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3109,6 +3109,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 契约绑定：C14、C15
 - 所属阶段：FEP-4
 - 页面级完成标准：收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地
+
+- 当前功能执行（2026-10-24）：P21共享Shell、确认状态条/五组指标、权益/累计差值与精确快照选择、源回撤/相邻权益差、标的归因/可切换原始序列、双栏报告生成/任务定位/固定文档与规范报告路由已实现；草稿须先读取才能生成，保存仅显示偏好白名单，未知请求恢复/固定版本/过期与失权拒绝延续UI403。TWR/基准/可比期间/已实现拆分/周期收益率/其他归因/PDF/CSV等缺源项目明确禁用或说明，不补造财务事实。
+- 有界验证与当前源码绑定见 [P21操作规程](./operations/ui-p21-performance-workbench.md)与[证据包](./audit/evidence/ui-p21-local-20261024/README.md)，复核 `node scripts/ui-p21-review.mjs --verify`。实际reference常规场景与显式合成dense/gap消费者输入分列，深浅1672/1440/1024/390布局/axe与UI403直接成功/拒绝/恢复回归；原UI403证据保持ORIGINAL_SCOPE_ONLY。用户确认待定，159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED；真实目标/外部源/远程CI/性能/人工读屏native200%/完整I7与RELEASE仍NOT_RUN。下一原检查点FRONTEND-GATE:G4，允许开始有界功能组合与缺口评估，INTEGRATION未放行。
 
 <a id="acceptance-frontend-gate-g4"></a>
 ##### FRONTEND-GATE:G4：验收检查点
