@@ -1,0 +1,380 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-5"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:20.418Z",
+    "finishedAt": "2026-10-24T03:27:20.601Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/development.log",
+    "logSha256": "sha256:e83fe89ea1b7baad6a695c06a3c80afcad3c0e2a3fe45f389bf617e846852567"
+  },
+  {
+    "id": "binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:20.602Z",
+    "finishedAt": "2026-10-24T03:27:20.748Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/binary.log",
+    "logSha256": "sha256:4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+  },
+  {
+    "id": "unit-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/fep5-closure.test.ts",
+      "apps/terminal/tests/fep5-provider-consumer.test.ts",
+      "apps/terminal/tests/ui502.test.ts",
+      "apps/terminal/tests/ui503.test.ts",
+      "apps/terminal/tests/ui504.test.ts",
+      "apps/terminal/tests/ui505.test.ts",
+      "apps/terminal/tests/ui-p20.test.ts",
+      "apps/terminal/tests/ui-p20-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p10.test.ts",
+      "apps/terminal/tests/ui504-provider-consumer.test.ts",
+      "apps/terminal/tests/g1-route-access.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/fep5-function-local-20261024/attempt-02/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:20.778Z",
+    "finishedAt": "2026-10-24T03:27:33.595Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/unit-consumer.log",
+    "logSha256": "sha256:a4b0f941254a069a73072d9dddf7fea7767c5d40d3f16624f5d278a51a245ef6"
+  },
+  {
+    "id": "execution-native",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "execution::tests::"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:33.595Z",
+    "finishedAt": "2026-10-24T03:27:35.843Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/execution-native.log",
+    "logSha256": "sha256:783592be869f90bbc6459edfa606514ae789ec876811b1800beffe9d83fd2e98"
+  },
+  {
+    "id": "reconciliation-native",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "reconciliation::tests::"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:35.843Z",
+    "finishedAt": "2026-10-24T03:27:39.829Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/reconciliation-native.log",
+    "logSha256": "sha256:4aa21aba4ec89a7cf9592d21487a34ff5bcf52125b0d1139f595c88cafc5cf8d"
+  },
+  {
+    "id": "oms-partials",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--lib",
+      "tp07_partial_fills_accumulate_decimal_quantity_and_weighted_price_once"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:39.829Z",
+    "finishedAt": "2026-10-24T03:27:39.963Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/oms-partials.log",
+    "logSha256": "sha256:5a40b7f383aed5e1d69c833db4e64682202b8a73f3da259ad4e024bb0619d1ad"
+  },
+  {
+    "id": "oms-rejection",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--lib",
+      "tp07_rejection_reason_and_event_expiry_are_checked_projection_facts"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:39.964Z",
+    "finishedAt": "2026-10-24T03:27:40.098Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/oms-rejection.log",
+    "logSha256": "sha256:f70a84d4ad820a39d0859063be1766352cb4ca37481dfb5854cc7a744e6e6543"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "pnpm",
+      "exec",
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:40.098Z",
+    "finishedAt": "2026-10-24T03:27:40.715Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/generated.log",
+    "logSha256": "sha256:7f9a4d63d2f70eef680ed4cefc619d892add3f1fb60ded9503e616bf53631b61"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:40.715Z",
+    "finishedAt": "2026-10-24T03:27:41.536Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/app/approvals/workspace.tsx",
+      "apps/terminal/app/orders/workspace.tsx",
+      "apps/terminal/app/proposals/workspace.tsx",
+      "apps/terminal/app/trade/workspace.tsx",
+      "apps/terminal/src/auth/desktop-operations.ts",
+      "apps/terminal/src/approvals/runtime.ts",
+      "apps/terminal/src/orders/policy.ts",
+      "apps/terminal/src/orders/runtime.ts",
+      "apps/terminal/src/proposals/policy.ts",
+      "apps/terminal/src/proposals/runtime.ts",
+      "apps/terminal/src/trade/p20-runtime.ts",
+      "apps/terminal/tests/fep5-closure.test.ts",
+      "apps/terminal/tests/fep5-provider-consumer.test.ts",
+      "apps/terminal/tests/ui502.test.ts",
+      "apps/terminal/tests/ui503.test.ts",
+      "apps/terminal/tests/ui504.test.ts",
+      "apps/terminal/tests/ui505.test.ts",
+      "apps/terminal/tests/ui-p20.test.ts",
+      "apps/terminal/tests/ui-p20-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p10.test.ts",
+      "apps/terminal/tests/ui504-provider-consumer.test.ts",
+      "apps/terminal/tests/g1-route-access.test.ts",
+      "apps/terminal/tests/helpers/fep5-reference.ts",
+      "tests/e2e/fep5-function.spec.ts",
+      "tests/e2e/fixtures/fep5-reference.ts",
+      "playwright.fep5-function.config.ts",
+      "tests/e2e/ui-p10.spec.ts",
+      "tests/e2e/fixtures/ui-p10-reference.ts",
+      "tests/e2e/ui-p20.spec.ts",
+      "tests/e2e/fixtures/ui-p20-reference.ts",
+      "playwright.config.ts",
+      "scripts/fep5-function-review.mjs",
+      "scripts/fep5-function-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:41.536Z",
+    "finishedAt": "2026-10-24T03:27:42.324Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/fep5-function-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/development-plan-order-negative.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "scripts/serve-static.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:42.324Z",
+    "finishedAt": "2026-10-24T03:27:43.113Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/gate-tests.log",
+    "logSha256": "sha256:f564c59e650b5c83002e4896384aae18f886e9a0ef38897a0cac5aef33024711"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:43.113Z",
+    "finishedAt": "2026-10-24T03:27:53.871Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/terminal-build.log",
+    "logSha256": "sha256:5ba537e80983561460ae6ed4321b98338529f2b340c8765cb4d56e4f9a85b1df"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.fep5-function.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/fep5-function-local-20261024/attempt-02/browser"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:27:53.876Z",
+    "finishedAt": "2026-10-24T03:29:31.030Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/browser.log",
+    "logSha256": "sha256:6ba80e136700ab13f595a316485e06ffd23ba854eeea58adebc3cbf9113fa7f6"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:29:31.030Z",
+    "finishedAt": "2026-10-24T03:29:31.092Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "fep5-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-5"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:29:31.092Z",
+    "finishedAt": "2026-10-24T03:29:31.280Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/fep5-refusal.log",
+    "logSha256": "sha256:2f1e2931643a311c5aede6fd29767f7145477646a99f2d79b9d454ef829c5d4d"
+  },
+  {
+    "id": "g5-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G5"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:29:31.280Z",
+    "finishedAt": "2026-10-24T03:29:31.470Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/g5-refusal.log",
+    "logSha256": "sha256:f8b995d65fe79a837e73651f5b77b56b02def589f0d0adeeac804a7710ab93fb"
+  },
+  {
+    "id": "i5-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-WINDOW:I5"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:29:31.470Z",
+    "finishedAt": "2026-10-24T03:29:31.659Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/i5-refusal.log",
+    "logSha256": "sha256:88f13c3eaee8b27cdb881a9eb7725bb2e59848c371e7a10877d0e6a3157811ec"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-402"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T03:29:31.660Z",
+    "finishedAt": "2026-10-24T03:29:31.849Z",
+    "log": "docs/audit/evidence/fep5-function-local-20261024/attempt-02/next-development.log",
+    "logSha256": "sha256:cc1fa3d03ad7af553917668c0bab7cc3ba4aed2d69885672537a94624adb7012"
+  }
+]
