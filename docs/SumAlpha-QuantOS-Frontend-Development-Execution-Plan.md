@@ -3470,7 +3470,7 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "FEP-7", "CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE", "FRONTEND-GATE:G8"]
 - core_prerequisites: ["CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE"]
 - closes_core: ["CORE:L03", "CORE:L04"]
-- development_status: `UNSPECIFIED`
+- development_status: `PARTIAL`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:LIVE-READINESS；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3478,6 +3478,9 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 - 主要后端依赖：CORE:L01、CORE:L02、SERVICE:L03、SERVICE:L04、CORE-GATE:L4-SERVICE
 - 交付节点与放行条件：G8：本机真实 UI/BFF/服务组合验证 testnet 条件入口、flag 关闭不可达、MFA/职责分离、模式/权限/审批和审计恢复；实际 testnet 连接、运行与全部环境/性能验收归 RELEASE-GATE:LIVE-READINESS，不开启生产实盘
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+
+- 当前范围收口/M5准备（2026-10-24）：核对19项直接依赖及P10/P11入口，修复C08在MFA与未知结果恢复期间未固定原CSRF的问题；补充会话变更/到期/失权拒绝、当前真实GET-only M5核查及直接Paper审批恢复浏览器回归。形成[技术准备稿](./operations/fep8-m5-review-preparation.md)、[范围/缺口](./execution/fep8-scope-assessment.json)、[规程](./operations/fep8-function-closure.md)与[当前证据](./audit/evidence/fep8-function-local-20261024/README.md)，复核 `node scripts/fep8-function-review.mjs --verify`。
+- 仅已实现前端范围的收口与M5技术准备完成，工程Gate PASS_FEP8_FRONTEND_SCOPE_REVIEW_PREPARATION；FEP-8保持PARTIAL、FEP-8/G8 NOT_READY_GAPS_OPEN、M5 PREPARED_NOT_READY。G4/FEP-4、G6/FEP-6、P14、G7/FEP-7及G8共19项原未决保留，159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED，closes_core映射L03/L04完整关闭不声明。原失败/incomplete/NOT_RUN不重绑，无实际testnet、实盘或发布授权；下一原任务CORE:L03可开展本机功能组合与缺口整改，CORE:L04完整复审仍独立。
 
 ## 5. 接口对接清单与契约基线
 

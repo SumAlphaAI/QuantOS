@@ -1,0 +1,20 @@
+// Fresh strict GET-only M5 boundary census; reference binary unchanged since G8, fixture source current.
+import {it,expect} from 'vitest';
+import {createBffClient} from '@sumalpha/api-client';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {reference} from './helpers/fep5-reference';
+import {referenceBffExecutable} from './helpers/reference-bff';
+import {createAdminRuntime} from '../src/admin/runtime';
+import {refusal} from '../src/approvals/policy';
+for(const mode of ['paper','shadow'] as const)it(`FEP8 ${mode} actual read-only M5 flag/mode/identity census does not create approvals or Orders`,async()=>{
+ const s=await reference(mode),wire=(session='session-current'):typeof fetch=>async(i,n)=>{const req=new Request(i,n);if(req.method!=='GET')throw Error('M5 census is GET-only');return s.transport(session)(req);},client=(session='session-current')=>createBffClient({baseUrl:s.origin,fetch:wire(session)}),admin=createAdminRuntime({...s.config(wire('session-owner')),desktop:()=>true});
+ try{const operator=(await client().GET('/v1/context')).data!,approver=(await client('session-approver').GET('/v1/context')).data!,owner=(await client('session-owner').GET('/v1/context')).data!;expect(operator.mode).toBe(mode);expect(approver.mode).toBe(mode);expect(approver.actorId).not.toBe(operator.actorId);expect(approver.capabilities).toContain('strategy.approve');expect(operator.capabilities).not.toContain('strategy.approve');expect(owner.capabilities).not.toContain('audit:read');
+ await admin.load();await admin.refresh();const flags=admin.view.rows.filter(r=>r.spec.kind==='flag').map(r=>r.spec.kind==='flag'?r.spec.name:'');expect(flags.length).toBeGreaterThan(0);expect(flags.some(f=>/testnet|assisted/.test(f))).toBe(false);
+ const caps=await client().GET('/v1/order-capabilities',{params:{query:{accountId:operator.accountId}}});expect(caps.response.status).toBe(mode==='paper'?200:403);if(mode==='paper'){expect(caps.data?.mode).toBe('paper');expect(caps.data?.venueSubmit).toBe(false);expect(caps.data?.canSubmit).toBe(true);}
+ const approvals=await client().GET('/v1/approvals');expect(approvals.response.status).toBe(mode==='paper'?200:403);if(mode==='paper')expect(approvals.data?.items).toEqual([]);
+ const orders=await client().GET('/v1/orders',{params:{query:{accountId:operator.accountId}}});expect(orders.response.status).toBe(mode==='paper'?200:403);if(mode==='paper')expect(orders.data?.items).toEqual([]);
+ expect((await client().GET('/v1/audit/events')).response.status).toBe(200);expect([403,404]).toContain((await client('session-owner').GET('/v1/audit/events')).response.status);expect(refusal({approvalId:operator.actorId,originator:operator.actorId,objectVersion:'0',status:'pending',expiresAt:operator.expiresAt,correlationId:operator.actorId},operator,Date.now())).toBe('SELF_APPROVAL');expect(s.rows.every(r=>r.method==='GET'&&r.source==='REFERENCE_BYTES')).toBe(true);
+ const dir=process.env.QUANTOS_FEP8_READ_DIR;if(dir){mkdirSync(dir,{recursive:true});writeFileSync(`${dir}/${mode}.json`,JSON.stringify({schema:'quantos-fep8-m5-read-census/v1',sourceCommit:process.env.GITHUB_SHA,fixtureSourceCommit:process.env.GITHUB_SHA,binarySourceCommit:'2d0eefc0e2749b9b17732fb07b755c702ae8dc0f',binarySha256:'sha256:'+createHash('sha256').update(readFileSync(referenceBffExecutable())).digest('hex'),scope:'ACTUAL_REFERENCE_GET_ONLY_M5_CENSUS',identity:'EXPLICIT_REFERENCE_COOKIE_INJECTION',cors:'NOT_EXERCISED_NODE_HTTP',mode,accountId:operator.accountId,separateActors:operator.actorId!==approver.actorId,operatorApproves:false,approverApproves:true,ownerAuditRead:false,serverFlags:flags,serverTestnetFlag:'NOT_PROVIDED_C11_CONTRACT',orderCapabilitiesStatus:caps.response.status,venueSubmit:caps.data?.venueSubmit??false,approvalStatus:approvals.response.status,ordersStatus:orders.response.status,businessWrites:0,newMutationAuditChain:'NOT_RUN_READ_ONLY',assistedLivePositive:'NOT_RUN_NOT_WIRED',actualTestnetConnected:false,rows:s.rows},null,2)+'\n');}
+ }finally{admin.close();await s.close();}
+},20000);

@@ -1,0 +1,155 @@
+{
+  "schema": "quantos-fep8-scope-assessment/v1",
+  "nodeId": "FE:FEP-8",
+  "developmentStatus": "PARTIAL",
+  "functionExecution": "COMPLETED_IMPLEMENTED_FRONTEND_SCOPE_ASSESSMENT",
+  "gate": "NOT_READY_GAPS_OPEN",
+  "g8Gate": "NOT_READY_GAPS_OPEN",
+  "m5ReviewStatus": "PREPARED_NOT_READY",
+  "stageGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "closesCoreL03L04": "NOT_CLAIMED",
+  "inheritedG7Gaps": [
+    {
+      "id": "G7-RESEARCH-HANDOFF-01",
+      "status": "OPEN",
+      "observed": "C03 HTTP run remains queued until cancellation; R03 owned IPC registration tested separately",
+      "positive": "NOT_RUN_HTTP_QUEUE_TO_WORKER_TO_INCREMENTAL_CATALOG"
+    },
+    {
+      "id": "G7-RELEASE-PROPOSAL-01",
+      "status": "OPEN",
+      "observed": "C05 approved immutable Release differs from C07 seeded signal.strategyReleaseId; UI target selection is local only",
+      "positive": "NOT_RUN_RELEASE_ACTIVATION_TO_MATCHING_PROPOSAL"
+    },
+    {
+      "id": "FEP5-INTEGRATION-01",
+      "status": "OPEN",
+      "observed": "Paper accepted/cancelled mock Order has no fills; C15 ledger source is Shadow",
+      "positive": "NOT_RUN_MATCHING_ORDER_FILL_RECONCILIATION"
+    },
+    {
+      "id": "FEP5-INTEGRATION-02",
+      "status": "OPEN",
+      "observed": "No matching C15 discrepancy to C16 source in reference data",
+      "positive": "NOT_RUN_RECONCILIATION_ALERT_POSITIVE_JOIN"
+    },
+    {
+      "id": "UI402-MARKER-SOURCE-01",
+      "status": "OPEN",
+      "positive": "NOT_RUN_MISSING_MATCHED_PRODUCT_SOURCE"
+    },
+    {
+      "id": "P19-C10-EXPORT-01",
+      "status": "OPEN",
+      "positive": "NOT_IMPLEMENTED_UNSUPPORTED_CONTRACT_SCOPE"
+    },
+    {
+      "id": "G4-C12-C14-VALUATION",
+      "status": "OPEN",
+      "positive": "NOT_CLAIMED_NO_SHARED_PRICE_SNAPSHOT"
+    },
+    {
+      "id": "UI601-INSPECT-EVIDENCE-HTTP",
+      "status": "OPEN",
+      "positive": "NOT_RUN_REFERENCE_SOURCE_UNAVAILABLE"
+    },
+    {
+      "id": "UI601-RESOLVE-HTTP",
+      "status": "OPEN",
+      "positive": "NOT_RUN_NO_REPAIR_HTTP"
+    },
+    {
+      "id": "P13-C11-SERVICE-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_SEVEN_INDEPENDENT_SERVICE_HISTORY"
+    },
+    {
+      "id": "P14-C11-METADATA-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-HISTORY-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-EXPORT-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "P14-C11-STREAM-01",
+      "status": "OPEN",
+      "positive": "NOT_PROVIDED_C11_CONTRACT"
+    },
+    {
+      "id": "G7-SHADOW-C06-01",
+      "status": "OPEN",
+      "observed": "C02 Shadow execution source unavailable; reference /v1/portfolio returns 403 CONTEXT_MODE_REQUIRED",
+      "positive": "NOT_RUN_SHADOW_C06_REFERENCE_POSITIVE"
+    }
+  ],
+  "inheritedG8Gaps": [
+    {
+      "id": "G8-SERVER-FLAG-01",
+      "status": "OPEN",
+      "observed": "C11 flag allowlist has no Assisted Live testnet flag; public build flag is not server authority",
+      "positive": "NOT_PROVIDED_VERSIONED_FLAG_CAPABILITY_CONTRACT"
+    },
+    {
+      "id": "G8-P10-P11-01",
+      "status": "OPEN",
+      "observed": "Shared UI helper is scenario-only; current P10/P11 and reference BFF do not provide Assisted Live approval/execution context",
+      "positive": "NOT_RUN_ASSISTED_LOCAL_UI_BFF_POSITIVE"
+    },
+    {
+      "id": "G8-C09-L01-JOIN-01",
+      "status": "OPEN",
+      "observed": "Native ScenarioDrivenTransport venue mapping and Paper/mock C09 are separately verified; no common Assisted Live Command Order source",
+      "positive": "NOT_RUN_UI_BFF_TO_OWNED_L01_ADAPTER"
+    },
+    {
+      "id": "G8-L03-L04-AUDIT-01",
+      "status": "OPEN",
+      "observed": "Native dual-approval fixtures have two audit entries but no F06 two-approver HTTP/C10 recovery join; native MFA prefix is not F06 authentication",
+      "positive": "NOT_RUN_DUAL_HTTP_APPROVAL_AUDIT_RECOVERY"
+    }
+  ],
+  "preserved": {
+    "g4Fep4": "NOT_READY_GAPS_OPEN",
+    "g6Fep6": "NOT_READY_GAPS_OPEN",
+    "p14": "OPEN_ALL_FOUR",
+    "g7Fep7": "NOT_READY_GAPS_OPEN",
+    "fep7Development": "PARTIAL",
+    "betaCandidate": "NOT_READY"
+  },
+  "sourceAssessment": {
+    "path": "docs/execution/frontend-g8-assessment.json",
+    "sha256": "sha256:a55bd70a3d4c27f2b714e6f3fce6b0b796f094ad3c3a6f88f9cf65c5953c082a",
+    "sourceCommit": "2d0eefc0e2749b9b17732fb07b755c702ae8dc0f",
+    "packetCommit": "eb90302ebe1e2767d0bfdb641aca333597c905a1",
+    "scope": "ORIGINAL_SCOPE_ONLY"
+  },
+  "necessaryFix": {
+    "id": "FEP8-C08-CSRF-01",
+    "path": "apps/terminal/src/approvals/runtime.ts",
+    "implemented": true,
+    "verification": "CURRENT_FROZEN_MATRIX_RECEIPT_ONLY",
+    "scope": "BIND_FRONTEND_C08_INTENT_TO_ORIGINAL_CSRF_NOT_ASSISTED_LIVE_ADMISSION"
+  },
+  "actualTestnetConnected": false,
+  "productionCredentialsUsed": false,
+  "baselineSummary": {
+    "currentFunctional": "CURRENT_C08_HARDENING_GET_ONLY_M5_CENSUS_AND_DIRECT_PAPER_RECOVERY_REGRESSION",
+    "nativeDualVenue": "ORIGINAL_G8_SCOPE_ONLY_NOT_REEXECUTED_NOT_F06_OR_L01_HTTP_PROOF",
+    "browser": "CURRENT_SEVEN_G8_FEP5_DIRECT_FUNCTIONAL_CASES_NOT_FULL_VISUAL_OR_COMPATIBILITY",
+    "manualScreenReaderNativeZoom": "NOT_RUN",
+    "actualTestnet": "NOT_RUN_USER_FORBIDS_CONNECTION",
+    "realIdpDatabaseStorageExternalVenueDurableRestartSameShaCI": "NOT_RUN",
+    "performanceCapacitySoakRelease": "NOT_RUN"
+  },
+  "nextTask": "CORE:L03"
+}
