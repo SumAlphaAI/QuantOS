@@ -1,0 +1,3 @@
+# 未冻结初检诊断
+
+早期typecheck发现activeQuery/report/body在guard抛错分支后的TypeScript收窄不足，补显式非空断言；Performance页面的settingsCsrf引用了不存在的settings/client，改用已有settings/presentation。lint发现未用reportQuery导入，已移除。均为未冻结工作区预检，不能绑定为PASS。
