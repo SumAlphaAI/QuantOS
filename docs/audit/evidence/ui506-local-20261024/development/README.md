@@ -1,0 +1,11 @@
+# 开发诊断与历史结果
+
+全部为ORIGINAL_SCOPE_ONLY。开发过程中源码未冻结，网络中baseline SHA只标识启动进程的基线而非包含未提交代码的候选；这些结果不绑定最终源码、不算正式验收。最终新source commit后重新构建/完整执行UI506当前功能矩阵。
+
+早期工具返回（未保存独立raw日志，不伪造原始文件）：首次types失败为AuditedAsyncAccepted生成ZodIntersection没有strict方法；修复后测试frame缺payloadVersion类型失败；随后32项单元31PASS/1FAIL（C15 nullable nextCursor被通用Page误拒绝）；实际消费者33PASS/1FAIL（C16 configVersion需按OpsAlertPage解析）。修复专属契约解析后unit-01实际36/36PASS。
+
+unit-02原JSON/日志保留68PASS/1FAIL，显式合成C16探针用了不在契约内的objectRef；改用契约的/operations/health，未扩大schema或构造假页面。Node静态宿主试运行24PASS/1FAIL为沙箱EPERM绑定回环端口，后续在授权的本机回环环境执行，不视为产品PASS。最初该Node与plan在同一shell块依次执行，末个plan成功不改变Node失败事实。
+
+browser-01原始7PASS/3FAIL保留：两个测试误用Next空route-announcer为错误区域（409断言提前、429多元素）；移动端账本table导致grid最小内容宽度溢出。修正main内错误选择器、grid child min-width后browser-02为10PASS/0FAIL/无重试无跳过。build-01/02、types/lint原日志保留。
+
+后续人工截图检查发现browser-02标注light的样式仍暗色（CSS主题选择器与ThemeProvider实际data-quantos-theme不一致）；此结果只支持其原范围功能，不声称明暗主题已通过。修正选择器并新增DOM主题与实际background-color断言，再用冻结候选重新验收。移动端axe对横滚遮挡内容incomplete保留待人工复核，不能记作PASS。

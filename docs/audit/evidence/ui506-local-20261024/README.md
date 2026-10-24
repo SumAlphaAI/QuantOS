@@ -1,9 +1,9 @@
 # UI506 本机功能证据
 
-范围：I6对账运行、只读账本差异、审计重跑/原请求恢复、C15实时事实、C14/C16/C10来源关联；P22高保真另行开发。
+最终冻结源码 **9847d568dd35eab57ab7582e735082fdaf367d88**；基线 c38c2f2b7575d4c8338160a0d4132e50e5dd1f8f。限定工程Gate **PASS_UI506_RECONCILIATION_FUNCTION**，最终attempt-01。源码/输入/精确命令/原日志/binary/build/网络/截图hash见receipt.json，摘要result.json；`node scripts/ui506-review.mjs --verify`复核。
 
-限定工程Gate `PASS_UI506_RECONCILIATION_FUNCTION`，冻结源码/attempt/精确命令/输入/日志/构建/二进制/网络hash见receipt.json，摘要result.json；`node scripts/ui506-review.mjs --verify`复核。开发状态IMPLEMENTED_PENDING_ACCEPTANCE，正式INTEGRATION/NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。最终数量和未执行项见DELIVERY.md，确认文稿PENDING。
+对账运行/详情、不可手工改账的差异与只读Ledger、审计重跑/原请求恢复、C15有限流/GET核对、C14精确账本来源与C16/C10关联落地。69前端/消费者、18 C15、10 C14、20 C16、25 Node、10 Chromium通过；4axe零violations，2mobile incomplete/132节点待人工完整核查。类型/lint/生成契约/构建/计划检查通过。
 
-原始开发失败和诊断保留于development，均为ORIGINAL_SCOPE_ONLY：不能重绑冻结候选，也不计最终验收通过。真实身份/目标DB/RLS/持久恢复/真实venue/同SHA远程CI/性能长稳/完整I6/发布NOT_RUN；实际C09–C15、C15–C16正向匹配尚无reference来源，保持NOT_RUN。未使用生产凭据，未推送或部署。
+计划IMPLEMENTED_PENDING_ACCEPTANCE；正式INTEGRATION/NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。实际C09–C15与C15–C16正向匹配缺源NOT_RUN；真实身份/目标DB/RLS/venue/持久恢复/远程CI/性能长稳/完整I6/发布NOT_RUN。未使用生产凭据、推送或部署。
 
-[交付报告](./DELIVERY.md) · [视觉复核](./VISUAL-REVIEW.md) · [待确认稿](./confirmation-draft.md)。下一任务FE:UI-P22。历史证据不改写，本次变更清单changed-files.txt及目录hash清单delivery-manifest.json于封存时生成。
+开发失败与原范围诊断保留ORIGINAL_SCOPE_ONLY，不重绑冻结候选。[交付报告](./DELIVERY.md) · [视觉复核](./VISUAL-REVIEW.md) · [待确认稿](./confirmation-draft.md)。全量变更changed-files.txt，目录hash清单delivery-manifest.json。下一开发任务 **FE:UI-P22**。
