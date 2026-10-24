@@ -78,7 +78,7 @@ export function verify(r) {
     const unit = json(r.attempt + '/unit.json');
     assert.equal(unit.success, true);
     assert.equal(unit.numTotalTests, unit.numPassedTests);
-    assert(unit.numPassedTests >= 54);
+    assert(unit.numPassedTests >= 58);
     assert.equal(unit.numPendingTests, 0);
     assert.equal(unit.numFailedTests, 0);
     for (const s of unit.testResults)

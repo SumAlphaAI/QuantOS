@@ -8,7 +8,7 @@
 - 概览来自当前一致配置：有效成员、Owner 成员 actor 数、策略与有效策略、Engine 能力与配置启用数、开关与启用数。未核对时显示 `—`。Owner actor 数不代表独立用户数或当前有效管理员数量；Engine 启用配置不等于正式审批/生产准入。
 - 资源表格支持名称/ID/治理字段搜索、启用/停用/保护/墓碑筛选、能力类型筛选及每页 10 条本地分页；仅筛选 runtime 已完整核对的目录，不改变后端请求过滤、权限或全局配置。筛选无匹配可显式恢复。选择资源后详情独立显示其 ID/版本，筛选不暗中改变当前编辑目标。
 - 详情保留已读取对象/config 版本、当前状态、身份与权限边界、C01 读写能力、服务端最后管理员/职责分离要求及逐次 MFA/近期认证要求。保护 Owner/Service 基础身份按真实值显示，禁止误显示可选的 Operator。复制 ID 仅复制当前经过 schema 校验的资源 UUID，失败明确提示。
-- 字段差异比较当前已读取 spec 与本地草稿，不冒充历史版本比较。所有编辑仍通过原类型化表单、字段审阅、原因、MFA、近期认证、CAS 和服务端授权；确认支持 Escape/焦点返回。具体 LAST_ADMIN/SELF_GOVERNANCE/SELF_APPROVAL/审查过期等已知拒绝以白名单说明补充通用拒绝，不回显任意服务端 message。
+- 字段差异比较当前已读取 spec 与本地草稿，不冒充历史版本比较。所有编辑仍通过原类型化表单、字段审阅、原因、MFA、近期认证、CAS 和服务端授权；确认支持 Escape/焦点返回。具体 LAST_ADMIN/SELF_GOVERNANCE/SELF_APPROVAL/审查过期等已知拒绝以自有白名单键说明补充通用拒绝（继承属性名也按未知码处理），不回显任意服务端 message。
 - 未知结果锁定刷新、目录筛选、分类导航及新意图；仅支持原方法/URL/body/If-Match/CSRF/Idempotency-Key/X-Request-Id 显式恢复，恢复遭 409 仍保留未知。C01 撤权/过期/离线/隐藏/焦点变化、非 JSON 401/403 沿用 UI-602 的清理规则。
 - 本会话记录仅呈现当前存活会话最近 25 条实际验证提交的对象/config 版本、墓碑和 auditRef/correlationId。不新增客户端时间、虚构操作者或完整审批历史。C10 链接须当前 C01 独立授予 audit:read；Reference Owner 没有该能力，因此按钮禁用并说明原因。独立授权审计会话的真实回链由 UI602 provider-consumer 直接回归核对。
 
@@ -25,7 +25,7 @@
 
 ## 验证与 Gate
 
-`node scripts/ui-p14-review.mjs --run docs/audit/evidence/ui-p14-local-20261024/attempt-NN` 在本地源码提交冻结后使用新目录；`node scripts/ui-p14-review.mjs --verify` 复核源码/输入、设计图、build/binary 哈希、命令退出码、日志、实际 browser network、截图、geometry 和 axe。runner 只执行页面与直接影响：13 例表现层测试 + UI602 policy/runtime/provider-consumer/既有 Operations consumer/shared navigation，类型/ESLint，单轮 Terminal 构建与 secret scan，P14 五场景、八个 dark/light×1672/1440/1024/390 截图/axe/geometry、五类页面截图、移动详情与确认截图，以及原 UI602 六场景回归。未改原生治理实现，不递归重跑原生依赖链；UI602 历史 22 例原生治理结果仅 ORIGINAL_SCOPE_ONLY。
+`node scripts/ui-p14-review.mjs --run docs/audit/evidence/ui-p14-local-20261024/attempt-NN` 在本地源码提交冻结后使用新目录；`node scripts/ui-p14-review.mjs --verify` 复核源码/输入、设计图、build/binary 哈希、命令退出码、日志、实际 browser network、截图、geometry 和 axe。runner 只执行页面与直接影响：17 例表现层测试 + UI602 policy/runtime/provider-consumer/既有 Operations consumer/shared navigation，类型/ESLint，单轮 Terminal 构建与 secret scan，P14 五场景、八个 dark/light×1672/1440/1024/390 截图/axe/geometry、五类页面截图、移动详情与确认截图，以及原 UI602 六场景回归。未改原生治理实现，不递归重跑原生依赖链；UI602 历史 22 例原生治理结果仅 ORIGINAL_SCOPE_ONLY。
 
 浏览器实际连接本次源码构建的 Rust reference BFF，TLS/CORS 和 Cookie 身份是显式回环替代，数据/审查签名为既有 owned synthetic fixture。成功写入、回执、幂等恢复来自真实 BFF；429/409 是已标注的代理负向探针。截图页面的签名 Engine 能力通过真实 UI 创建，分页测试通过明确 control 请求创建 12 个合成角色，不伪造业务响应。
 
