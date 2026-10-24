@@ -3226,13 +3226,16 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-603", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Operations/Incident/Runbook
 - 接口绑定：C11、C16
 - 验收重点：只能触发服务端批准 actionId；无任意命令/脚本入口
+
+- 当前功能实现（2026-10-24）：`/operations`、`/operations/health`与UUID Incident详情、C01鉴权失效清理、健康/metrics核对、冻结分页、创建/确认/解决与时间线、封闭Runbook目录/precheck/MFA/CAS/原请求恢复已实现；没有任意命令/脚本入口。必要修复reference C01启用后的审批权限声明，保持角色交集。见[功能规程](./operations/ui601-operations-incidents-runbooks.md)与[证据](./audit/evidence/ui601-local-20261024/README.md)，复核 `node scripts/ui601-review.mjs --verify`。
+- 工程Gate `PASS_UI601_OPERATIONS_FUNCTION`仅在冻结候选完整直接矩阵通过后成立；正式NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。HTTP InspectEvidence正向（无注入订单源）与HTTP修复后resolve正向（无修复端点）仍NOT_RUN，原生核心/明确内存证据不冒充HTTP验收；当前仅聚合+四组件，不虚构七服务。G4 IN_REVIEW、G4/FEP-4 NOT_READY_GAPS_OPEN、FEP-4 PARTIAL与marker/蜡烛导出/估值join、目标/CI/性能/RELEASE缺口保留。下一原开发任务FE:UI-P13。
 
 <a id="task-ui-p13"></a>
 ##### UI-P13：P13-Operations-and-Incident-Detail-High-Fidelity-v2.png

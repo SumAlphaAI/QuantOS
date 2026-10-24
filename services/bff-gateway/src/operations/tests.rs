@@ -1210,3 +1210,42 @@ fn cold_reference_context_matches_seeded_governed_authority() {
         );
     }
 }
+
+#[test]
+fn advertised_reference_approval_tracks_governance_without_widening_other_roles() {
+    let (mut host, owner, _, now) = setup();
+    assert!(
+        !host
+            .advertised_reference_capabilities("session-approver", false)
+            .contains(&"ops.approve".into())
+    );
+    call(
+        &mut host,
+        &owner,
+        Method::POST,
+        "/v1/admin/capabilities",
+        "0",
+        json!({"spec":{"kind":"capability","name":"ops.approve","enabled":true}}),
+        now,
+    )
+    .unwrap();
+    assert!(
+        host.advertised_reference_capabilities("session-approver", false)
+            .contains(&"ops.approve".into())
+    );
+    for sid in [
+        crate::CURRENT_SESSION,
+        "session-owner",
+        crate::VIEWER_SESSION,
+    ] {
+        assert!(
+            !host
+                .advertised_reference_capabilities(sid, false)
+                .contains(&"ops.approve".into())
+        );
+    }
+    assert!(
+        host.advertised_reference_capabilities(crate::VIEWER_SESSION, false)
+            .is_empty()
+    );
+}

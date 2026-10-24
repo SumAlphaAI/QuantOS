@@ -247,6 +247,17 @@ impl OperationsHost {
             .map(|c| (*c).to_owned())
             .collect()
     }
+    pub(crate) fn advertised_reference_capabilities(
+        &self,
+        session: &str,
+        shadow: bool,
+    ) -> Vec<String> {
+        let auth = governance::reference_auth(session, shadow);
+        self.effective_reference_capabilities(session, shadow)
+            .into_iter()
+            .filter(|cap| auth.capabilities.iter().any(|c| c.as_str() == cap))
+            .collect()
+    }
     pub(crate) fn context_current(&self, session: &str, shadow: bool) -> bool {
         !self.poisoned
             && self

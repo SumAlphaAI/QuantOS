@@ -717,12 +717,18 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
             .get("quantos_session")
             .copied()
             .unwrap_or("");
-        let allowed = ops.effective_reference_capabilities(sid, state.reference_shadow);
+        let allowed = ops.advertised_reference_capabilities(sid, state.reference_shadow);
         payload["capabilities"].as_array_mut().unwrap().retain(|v| {
             v.as_str().is_none_or(|s| {
                 !operations::is_governed_capability(s) || allowed.iter().any(|c| c == s)
             })
         });
+        for cap in allowed {
+            let caps = payload["capabilities"].as_array_mut().unwrap();
+            if !caps.iter().any(|v| v.as_str() == Some(cap.as_str())) {
+                caps.push(json!(cap));
+            }
+        }
     }
     response(StatusCode::OK, payload, &correlation)
 }

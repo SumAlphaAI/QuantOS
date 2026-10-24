@@ -1,0 +1,10 @@
+import type {RouteContext} from '../../../src/auth/route-access';
+import type {Incident,Health,Catalog} from '../../../src/operations/policy';
+import type {Alert} from '../../../src/alerts/policy';
+export const opsId='11111111-1111-4111-8111-111111111111',opsOther='22222222-2222-4222-8222-222222222222',opsNow=Date.parse('2026-10-24T09:00:00Z'),opsHash='sha256:'+'a'.repeat(64);
+export const opsContext:RouteContext={actorId:opsId,tenantId:opsId,workspaceId:opsId,accountId:opsId,mode:'paper',environment:'dev',mfaState:'verified',capabilities:['ops.read','ops.operate','ops.approve','alerts.read','audit:read'],expiresAt:new Date(opsNow+600000).toISOString()};
+export const opsHealth=():Health=>({service:'service-x06',health:'degraded',ready:false,objectVersion:'1',sourceHash:opsHash,asOf:new Date(opsNow).toISOString(),expiresAt:new Date(opsNow+30000).toISOString(),accountId:opsId,mode:'paper',latencyMs:12,dlqDepth:1,metricsHash:opsHash,components:[{name:'risk',ready:true,asOf:new Date(opsNow).toISOString()}]});
+export const opsIncident=():Incident=>({id:opsOther,incidentId:opsOther,sourceRef:opsHash,alertId:opsId,status:'open',objectVersion:'0',openedSource:'1',asOf:new Date(opsNow).toISOString(),accountId:opsId,mode:'paper'});
+export const opsAlert=():Alert=>({id:opsId,alertId:opsId,sourceRef:opsHash,rule:'outbox_oldest_age',severity:'warning',domain:'system',accountId:opsId,mode:'paper',status:'unacked',active:true,resolved:false,objectVersion:'1',sourceVersion:'1',occurredAt:new Date(opsNow).toISOString(),asOf:new Date(opsNow).toISOString(),ackActor:null,ackAt:null,objectRef:'/operations/health',correlationId:opsId});
+export const opsCatalog:Catalog=[{actionId:'inspect-health',parameters:[]},{actionId:'inspect-evidence',parameters:['commandId']}];
+export const opsRun=()=>({operationId:opsOther,status:'succeeded',sourceOperationRef:opsHash,outcome:{status:'applied',reference:'sha256:'+'b'.repeat(64)},auditRef:opsId,correlationId:opsOther});
