@@ -28,7 +28,12 @@ export function createAdminRuntime(config: {
     fetchImpl?: typeof fetch;
     now?: () => number;
 }) {
-    const now = config.now ?? Date.now, life = new AbortController(), transport = config.fetchImpl ?? fetch, client = createBffClient({ baseUrl: config.origin, fetch: transport, signal: life.signal, timeoutMs: 10000 }), request = createBffFetch(transport, { signal: life.signal, timeoutMs: 10000 }), listeners = new Set<() => void>();
+    const now = config.now ?? Date.now, life = new AbortController(), transport: typeof fetch = async (input, init) => {
+        const response = await (config.fetchImpl ?? fetch)(input, init);
+        // Authority loss does not depend on an intermediary returning valid JSON.
+        if ([401, 403].includes(response.status)) invalidate(response.status);
+        return response;
+    }, client = createBffClient({ baseUrl: config.origin, fetch: transport, signal: life.signal, timeoutMs: 10000 }), request = createBffFetch(transport, { signal: life.signal, timeoutMs: 10000 }), listeners = new Set<() => void>();
     let context: RouteContext | undefined, rows: Resource[] = [], reviews: Review[] = [], revision: string | undefined, receipts: Resource[] = [], pending: Intent | undefined, status = 'empty', busy = false, retryAt = 0;
     const emit = () => listeners.forEach(f => f()), fail = (s: number, c: string): never => { throw new AdminError(s, c); };
     function clear() { rows = []; reviews = []; revision = undefined; receipts = []; pending = undefined; }

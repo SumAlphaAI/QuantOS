@@ -192,3 +192,17 @@ it('UI602 expiry and changed CSRF erase private intent without replay', async ()
     expect(recovery.view.receipts).toEqual([]);
     recovery.close();
 }, 15000);
+it.each([401, 403])('UI602 non-JSON HTTP %s clears unknown governance intent before parsing', async status => {
+    const t = transport(); let refuse = false;
+    const r = make({fetchImpl: async (input, init) => {
+        const q = new Request(input, init);
+        if (refuse && q.url.includes('/v1/admin/') && q.method !== 'GET') return new Response('<html>refused</html>', {status});
+        return t(q);
+    }});
+    await r.load(); await r.refresh(); lose = '/v1/admin/roles';
+    await expect(r.act('roles', 'POST', {kind:'role',name:'ui602_nonjson_'+status,baseRole:'viewer',permissions:['ops.read']},undefined,'UI602 malformed authority refusal','123456',true)).rejects.toThrow();
+    expect(r.view.pending).toBe(true); refuse = true;
+    await expect(r.retry()).rejects.toThrow();
+    expect(r.view.pending).toBe(false); expect(r.view.rows).toEqual([]); expect(r.view.receipts).toEqual([]); expect(r.view.status).toBe('blocked');
+    r.close();
+}, 15000);
