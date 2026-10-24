@@ -3387,7 +3387,7 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
     "FRONTEND-GATE:G6"
   ],
   "required_scope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {
@@ -3398,6 +3398,9 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
   }
 }
 ```
+
+- 当前有界评估（2026-10-24）：Paper/Shadow分别在同一reference BFF进程组合研究/策略或收益、风险审批/订单、告警/Incident、治理与C10；R03 owned IPC因果链单独复验，HTTP研究队列到Worker、C05 Release激活到C07同源Proposal、Paper Fill到Shadow账本及C15到C16匹配告警仍未贯通。见[规程](./operations/frontend-g7-bounded-composition.md)、[缺口清单](./execution/frontend-g7-assessment.json)与[当前证据](./audit/evidence/frontend-g7-local-20261024/README.md)，复核 `node scripts/frontend-g7-review.mjs --verify`。
+- 工程Gate仅PASS_G7_OWNED_LOCAL_SEGMENT_COMPOSITION；G7 NOT_READY_GAPS_OPEN、review_status=IN_REVIEW，Beta功能候选NOT_READY、159项stage_gate保持原状、formalAccepted=false、runtimeAdmission=DENIED。G4/FEP-4、G6/FEP-6及P14原未决全部保留；兼容/视觉原证据仅ORIGINAL_SCOPE_ONLY，目标/CI/性能/RELEASE NOT_RUN。下一原任务FE:FEP-7可开展范围收口与缺口评估，不因辅助评估提升核心、Provider或发布准入。
 
 <a id="task-fep-7"></a>
 ##### FEP-7：硬化与 Beta

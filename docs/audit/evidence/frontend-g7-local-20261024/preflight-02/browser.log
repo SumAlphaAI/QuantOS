@@ -1,0 +1,70 @@
+[WebServer] (node:6254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:6255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 paper browser business segments preserve independent sources and continue into Incident Admin and Audit (9.3s)
+(node:6298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 shadow browser business segments preserve independent sources and continue into Incident Admin and Audit (7.8s)
+
+
+  1) [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 paper browser business segments preserve independent sources and continue into Incident Admin and Audit 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '成员与角色', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: '成员与角色', exact: true })
+
+
+      19 |  }
+      20 |  await page.goto('/alerts');await authorized(page);await expect(page.getByRole('region',{name:'告警详情',exact:true})).toContainText('来源活跃，尚未解决');const alertId=(await page.getByRole('region',{name:'告警详情',exact:true}).locator('.p23-summary-facts dd').first().innerText()).trim();await page.getByRole('link',{name:'打开 Operations',exact:true}).click();await authorized(page);await page.getByRole('button',{name:'读取创建来源 '+alertId.slice(0,8),exact:true}).click();await opsSubmit(page,'准备创建 Incident');await opsSubmit(page,'准备确认 Incident');const incident=businessReceipts().find(r=>r.incidentId)!;expect(incident.alertId).toBe(alertId);expect(incident.mode).toBe(mode);await page.screenshot({path:info.outputPath(`g7-${mode}-incident.png`)});
+    > 21 |  useSession('session-owner');await page.goto('/admin/members');await authorized(page);await expect(page.getByRole('heading',{name:'成员与角色',exact:true})).toBeVisible();useSession('session-current');const chain=await control('/v1/audit/evidence-chains/'+incident.correlationId,undefined,undefined,{session:'session-current'});expect(chain.status).toBe(200);expect((chain.body.items as {eventId:string}[]).some(e=>e.eventId===incident.auditRef)).toBe(true);
+         |                                                                                                                                                         ^
+      22 |  await page.goto('/audit/'+incident.correlationId);await authorized(page);const scan=await new AxeBuilder({page}).analyze();expect(scan.violations).toEqual([]);await writeFile(info.outputPath('g7-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,mode,violations:scan.violations,incomplete:scan.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));
+      23 |  await page.setViewportSize({width:390,height:1000});await page.goto('/alerts');await authorized(page);await expect(page.getByRole('button',{name:'准备标记已读',exact:true})).toHaveCount(0);await expect(page.getByRole('region',{name:'告警详情',exact:true})).toBeVisible();
+      24 |  await writeFile(info.outputPath('g7-journey.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,mode,scope:'SINGLE_PROCESS_SEGMENTS_WITH_EXPLICIT_SOURCE_GAPS',segments,incident,sourceResolved:false,releaseToProposal:'NOT_JOINED',paperOrderToShadowLedger:'NOT_JOINED',smallScreenWrites:false,writes:networkRows().filter(r=>!r.control&&r.method!=='GET').map(r=>({path:r.path,status:r.status}))},null,2));
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/g7-journeys.ts:21:153
+
+    Error Context: artifacts/browser/terminal/test-results/frontend-g7-paper-G7-paper-2dfd4-to-Incident-Admin-and-Audit-chromium/error-context.md
+
+    Error Context: artifacts/browser/terminal/test-results/frontend-g7-paper-G7-paper-2dfd4-to-Incident-Admin-and-Audit-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 shadow browser business segments preserve independent sources and continue into Incident Admin and Audit 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '成员与角色', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: '成员与角色', exact: true })
+
+
+      19 |  }
+      20 |  await page.goto('/alerts');await authorized(page);await expect(page.getByRole('region',{name:'告警详情',exact:true})).toContainText('来源活跃，尚未解决');const alertId=(await page.getByRole('region',{name:'告警详情',exact:true}).locator('.p23-summary-facts dd').first().innerText()).trim();await page.getByRole('link',{name:'打开 Operations',exact:true}).click();await authorized(page);await page.getByRole('button',{name:'读取创建来源 '+alertId.slice(0,8),exact:true}).click();await opsSubmit(page,'准备创建 Incident');await opsSubmit(page,'准备确认 Incident');const incident=businessReceipts().find(r=>r.incidentId)!;expect(incident.alertId).toBe(alertId);expect(incident.mode).toBe(mode);await page.screenshot({path:info.outputPath(`g7-${mode}-incident.png`)});
+    > 21 |  useSession('session-owner');await page.goto('/admin/members');await authorized(page);await expect(page.getByRole('heading',{name:'成员与角色',exact:true})).toBeVisible();useSession('session-current');const chain=await control('/v1/audit/evidence-chains/'+incident.correlationId,undefined,undefined,{session:'session-current'});expect(chain.status).toBe(200);expect((chain.body.items as {eventId:string}[]).some(e=>e.eventId===incident.auditRef)).toBe(true);
+         |                                                                                                                                                         ^
+      22 |  await page.goto('/audit/'+incident.correlationId);await authorized(page);const scan=await new AxeBuilder({page}).analyze();expect(scan.violations).toEqual([]);await writeFile(info.outputPath('g7-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,mode,violations:scan.violations,incomplete:scan.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));
+      23 |  await page.setViewportSize({width:390,height:1000});await page.goto('/alerts');await authorized(page);await expect(page.getByRole('button',{name:'准备标记已读',exact:true})).toHaveCount(0);await expect(page.getByRole('region',{name:'告警详情',exact:true})).toBeVisible();
+      24 |  await writeFile(info.outputPath('g7-journey.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,mode,scope:'SINGLE_PROCESS_SEGMENTS_WITH_EXPLICIT_SOURCE_GAPS',segments,incident,sourceResolved:false,releaseToProposal:'NOT_JOINED',paperOrderToShadowLedger:'NOT_JOINED',smallScreenWrites:false,writes:networkRows().filter(r=>!r.control&&r.method!=='GET').map(r=>({path:r.path,status:r.status}))},null,2));
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/g7-journeys.ts:21:153
+
+    Error Context: artifacts/browser/terminal/test-results/frontend-g7-shadow-G7-shad-6dd11-to-Incident-Admin-and-Audit-chromium/error-context.md
+
+    Error Context: artifacts/browser/terminal/test-results/frontend-g7-shadow-G7-shad-6dd11-to-Incident-Admin-and-Audit-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 paper browser business segments preserve independent sources and continue into Incident Admin and Audit 
+    [chromium] › tests/e2e/fixtures/g7-journeys.ts:9:6 › G7 shadow browser business segments preserve independent sources and continue into Incident Admin and Audit 
