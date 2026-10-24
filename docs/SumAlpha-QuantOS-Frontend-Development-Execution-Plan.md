@@ -3270,13 +3270,16 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-601", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Admin 治理
 - 接口绑定：C11、C01
 - 验收重点：成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离
+
+- 当前功能实现（2026-10-24）：交付 `/admin/members`、`/admin/roles`、`/admin/policies`、`/admin/capabilities`、`/admin/flags`，覆盖类型化CRUD、Engine签名审查目录、版本审阅/MFA/近期认证、冻结请求恢复、墓碑与C10审计回执；C01读写能力独立，移动端只读，最后管理员/职责分离由C11原子拒绝。见[功能规程](./operations/ui602-admin-governance.md)与[证据](./audit/evidence/ui602-local-20261024/README.md)，复核 `node scripts/ui602-review.mjs --verify`。
+- 工程Gate `PASS_UI602_ADMIN_GOVERNANCE`仅在冻结候选完整直接矩阵通过后成立；正式NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。UI-P14高保真未验收；G4 IN_REVIEW、G4/FEP-4 NOT_READY_GAPS_OPEN、FEP-4 PARTIAL、marker/蜡烛导出/valuation join、UI601两项HTTP正向、P13-C11-SERVICE-01、目标/CI/性能/RELEASE缺口全部保留，历史证据ORIGINAL_SCOPE_ONLY。下一原开发任务FE:UI-P14。
 
 <a id="task-ui-p14"></a>
 ##### UI-P14：P14-Admin-Governance-High-Fidelity-v2.png
