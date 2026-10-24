@@ -15,3 +15,11 @@
 G4/FEP-4保持NOT_READY_GAPS_OPEN，G4 IN_REVIEW、FEP-4 PARTIAL；历史证据ORIGINAL_SCOPE_ONLY逐字节保留。UI402-MARKER-SOURCE-01真实C09→C12同源正向NOT_RUN、P19-C10-EXPORT-01蜡烛导出NOT_IMPLEMENTED、C12→C14估值join NOT_CLAIMED；本任务无权关闭这些缺口。
 
 真实IdP/cookie/CORS与目标DB/RLS/事务、外部告警源、远程同SHA CI、Firefox/WebKit、完整I8、性能容量/长稳、读屏/原生200%缩放和RELEASE均NOT_RUN。C01 cookie桥接/TLS CORS代理替代、受控X06/F09输入与故障注入边界必须保留；有限EOF不冒充持续实时连接。C02旧告警objectRef契约未改写，UI-601处置页面及UI-P23后续深化未替代交付。
+
+## 冻结结果
+
+源码050c12a78bbd3e80f365cd98a3eece462855ead7，attempt-01完整直接矩阵通过，工程Gate=PASS_UI603_ALERTS_INBOX_FUNCTION：前端/消费者69、Rust C16 21、Node61、Chromium6，类型/lint/rustfmt/本机构建/计划均通过。4次axe零violation、4项color-contrast incomplete原样保留；人工读屏/200%缩放/完整长页视觉未运行。已查看本次dark1440/light390截图，未见横向溢出；其余截图已生成，不冒充P23高保真验收。
+
+原始G4/FEP-4 153文件未变；正式INTEGRATION预期拒绝，159项stage_gate未提升，下一FE:UI-P23可开发。receipt/result/原日志与产物散列校验通过。仅本地源码与封包提交，生产凭据/网络外部发布/推送均未使用。
+
+回退：源码可在main按该源码提交作有审阅的git revert并重建terminal；无数据库迁移、外部状态写入或用户数据清理。受控reference测试进程退出后销毁内存状态。证据包保留，不删除失败和历史事实。

@@ -1,0 +1,42 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/ui603.spec.ts:10:5 › UI603 actual inbox filters, canonical detail reload, read-only real-time and no writes on reads (2.4s)
+  ✓  2 [chromium] › tests/e2e/ui603.spec.ts:11:5 › UI603 actual ack/unack receipts and subscription save never resolve risk (2.3s)
+  ✓  3 [chromium] › tests/e2e/ui603.spec.ts:12:5 › UI603 committed response loss uses exact original key/body/version and no second step-up (2.2s)
+  ✓  4 [chromium] › tests/e2e/ui603.spec.ts:13:5 › UI603 429 cooldown and 409 stale detail force explicit re-read without raw error or auto writes (4.1s)
+  ✘  5 [chromium] › tests/e2e/ui603.spec.ts:14:5 › UI603 viewer cannot write; offline clears private detail; foreign source is refused (7.0s)
+  ✓  6 [chromium] › tests/e2e/ui603.spec.ts:15:5 › UI603 functional dark/light desktop/mobile screenshots and axe (3.1s)
+
+
+  1) [chromium] › tests/e2e/ui603.spec.ts:14:5 › UI603 viewer cannot write; offline clears private detail; foreign source is refused 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: '告警列表' }).getByRole('link').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: '告警列表' }).getByRole('link').first()
+
+
+       5 | installReferenceHooks();
+       6 | const business=()=>networkRows().filter(r=>r.method!=='GET'&&!r.path.startsWith('/v1/auth/'));
+    >  7 | async function open(page:Page){await page.goto('/alerts');await authorized(page);await expect(page.getByRole('region',{name:'告警列表'}).getByRole('link').first()).toBeVisible();await expect(page.getByRole('region',{name:'告警订阅'})).toContainText('订阅版本');}
+         |                                                                                                                                                                 ^
+       8 | async function detail(page:Page){await page.getByRole('region',{name:'告警列表'}).getByRole('link').first().click();await expect(page.getByRole('region',{name:'告警详情'})).toContainText('sourceRef');}
+       9 | async function ack(page:Page){await page.getByLabel('操作原因').fill('controlled UI603 browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认仅变更阅读状态').check();await page.getByRole('button',{name:'标记已读',exact:true}).click();}
+      10 | test('UI603 actual inbox filters, canonical detail reload, read-only real-time and no writes on reads',async({page})=>{await open(page);await detail(page);await expect(page).toHaveURL(/\/alerts\/[a-f0-9-]{36}$/);await page.reload();await authorized(page);await expect(page.getByRole('region',{name:'告警详情'})).toContainText('sourceVersion');await page.getByRole('button',{name:'读取或续接实时事件'}).click();await expect(page.getByRole('region',{name:'实时状态'})).toContainText('disconnected');await page.getByLabel('status',{exact:true}).selectOption('acked');await page.getByRole('button',{name:'读取告警',exact:true}).click();await expect(page.getByRole('region',{name:'告警列表'})).toContainText('当前已加载 0 条');expect(business()).toHaveLength(0);});
+        at open (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui603.spec.ts:7:161)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui603.spec.ts:14:131
+
+    Error Context: docs/audit/evidence/ui603-local-20261024/preflight-01/browser/ui603-UI603-viewer-cannot--2ce05-l-foreign-source-is-refused-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/ui603-local-20261024/preflight-01/browser/ui603-UI603-viewer-cannot--2ce05-l-foreign-source-is-refused-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/ui603.spec.ts:14:5 › UI603 viewer cannot write; offline clears private detail; foreign source is refused 
+  5 passed (22.8s)

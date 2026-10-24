@@ -1,0 +1,160 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/ui603.test.ts (28 tests | 6 failed) 33ms
+   × dense stream deduplicates exact events and refuses mutation/gap/lease/regression 2ms
+   × read list/detail/subscriptions and stream never write; events flag freshness without splicing pages 12ms
+   × unknown ack freezes exact request proof/body/key/headers; recovery never repeats MFA or resolves risk 2ms
+   × known refusal 409 releases intent and invalidates stale detail 2ms
+   × known refusal 429 releases intent and invalidates stale detail 1ms
+   × rotate clears private facts and unknown write before any recovery dispatch 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > dense stream deduplicates exact events and refuses mutation/gap/lease/regression
+ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "correlationId"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "1",
+      "v1"
+    ],
+    "path": [
+      "payloadVersion"
+    ],
+    "message": "Invalid option: expected one of \"1\"|\"v1\""
+  }
+]
+ ❯ AlertJournal.apply apps/terminal/src/alerts/policy.ts:25:66
+
+ ❯ apps/terminal/tests/ui603.test.ts:14:142
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > read list/detail/subscriptions and stream never write; events flag freshness without splicing pages
+ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "correlationId"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "1",
+      "v1"
+    ],
+    "path": [
+      "payloadVersion"
+    ],
+    "message": "Invalid option: expected one of \"1\"|\"v1\""
+  }
+]
+ ❯ AlertJournal.apply apps/terminal/src/alerts/policy.ts:25:66
+
+ ❯ Object.connect apps/terminal/src/alerts/runtime.ts:33:1825
+ ❯ apps/terminal/tests/ui603.test.ts:16:242
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > unknown ack freezes exact request proof/body/key/headers; recovery never repeats MFA or resolves risk
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/terminal/tests/ui603.test.ts:17:388
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > known refusal 409 releases intent and invalidates stale detail
+AssertionError: expected BffResponseError: BFF response does not m… { …(2) } to match object { status: 409 }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 409,
++ BffResponseError {
++   "status": 200,
+  }
+
+ ❯ apps/terminal/tests/ui603.test.ts:19:386
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > known refusal 429 releases intent and invalidates stale detail
+AssertionError: expected BffResponseError: BFF response does not m… { …(2) } to match object { status: 429 }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "status": 429,
++ BffResponseError {
++   "status": 200,
+  }
+
+ ❯ apps/terminal/tests/ui603.test.ts:19:386
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  apps/terminal/tests/ui603.test.ts > rotate clears private facts and unknown write before any recovery dispatch
+AssertionError: expected { …(19) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "accountId": "11111111-1111-4111-8111-111111111111",
+  "ackActor": null,
+  "ackAt": null,
+  "active": true,
+  "alertId": "11111111-1111-4111-8111-111111111111",
+  "asOf": "2026-10-24T03:00:00.000Z",
+  "correlationId": "11111111-1111-4111-8111-111111111111",
+  "domain": "risk",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "mode": "shadow",
+  "objectRef": "/operations/health",
+  "objectVersion": "0",
+  "occurredAt": "2026-10-24T02:59:59.000Z",
+  "resolved": false,
+  "rule": "loss-limit",
+  "severity": "critical",
+  "sourceRef": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sourceVersion": "1",
+  "status": "unacked",
+}
+
+ ❯ apps/terminal/tests/ui603.test.ts:20:525
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 22 passed (28)
+   Start at  15:35:43
+   Duration  268ms (transform 104ms, setup 0ms, import 173ms, tests 33ms, environment 0ms)
+

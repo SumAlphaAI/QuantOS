@@ -1,0 +1,58 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui603.spec.ts >> UI603 viewer cannot write; offline clears private detail; foreign source is refused
+- Location: tests/e2e/ui603.spec.ts:14:5
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('region', { name: '告警列表' }).getByRole('link').first()
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for getByRole('region', { name: '告警列表' }).getByRole('link').first()
+
+```
+
+```yaml
+- main:
+  - heading "Alerts 访问不可用" [level=1]
+  - paragraph: 访问条件变化，告警与恢复意图已清除：revoked
+  - button "重新核对访问权限"
+  - link "返回收件箱":
+    - /url: /alerts
+- alert
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect,type Page} from '@playwright/test';
+  2  | import AxeBuilder from '@axe-core/playwright';
+  3  | import {writeFile} from 'node:fs/promises';
+  4  | import {installReferenceHooks,authorized,networkRows,fault} from './fixtures/ui603-reference';
+  5  | installReferenceHooks();
+  6  | const business=()=>networkRows().filter(r=>r.method!=='GET'&&!r.path.startsWith('/v1/auth/'));
+> 7  | async function open(page:Page){await page.goto('/alerts');await authorized(page);await expect(page.getByRole('region',{name:'告警列表'}).getByRole('link').first()).toBeVisible();await expect(page.getByRole('region',{name:'告警订阅'})).toContainText('订阅版本');}
+     |                                                                                                                                                                 ^ Error: expect(locator).toBeVisible() failed
+  8  | async function detail(page:Page){await page.getByRole('region',{name:'告警列表'}).getByRole('link').first().click();await expect(page.getByRole('region',{name:'告警详情'})).toContainText('sourceRef');}
+  9  | async function ack(page:Page){await page.getByLabel('操作原因').fill('controlled UI603 browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认仅变更阅读状态').check();await page.getByRole('button',{name:'标记已读',exact:true}).click();}
+  10 | test('UI603 actual inbox filters, canonical detail reload, read-only real-time and no writes on reads',async({page})=>{await open(page);await detail(page);await expect(page).toHaveURL(/\/alerts\/[a-f0-9-]{36}$/);await page.reload();await authorized(page);await expect(page.getByRole('region',{name:'告警详情'})).toContainText('sourceVersion');await page.getByRole('button',{name:'读取或续接实时事件'}).click();await expect(page.getByRole('region',{name:'实时状态'})).toContainText('disconnected');await page.getByLabel('status',{exact:true}).selectOption('acked');await page.getByRole('button',{name:'读取告警',exact:true}).click();await expect(page.getByRole('region',{name:'告警列表'})).toContainText('当前已加载 0 条');expect(business()).toHaveLength(0);});
+  11 | test('UI603 actual ack/unack receipts and subscription save never resolve risk',async({page})=>{await open(page);await detail(page);await ack(page);const region=page.getByRole('region',{name:'告警详情'});await expect(region).toContainText('auditRef');await expect(region.locator('dd').filter({hasText:/^false$/})).toHaveCount(1);await expect(page.getByRole('button',{name:'标记未读',exact:true})).toBeVisible();await page.getByLabel('操作原因').fill('controlled unread');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认仅变更阅读状态').check();await page.getByRole('button',{name:'标记未读',exact:true}).click();await expect(page.getByRole('button',{name:'标记已读',exact:true})).toBeVisible();await page.getByRole('group',{name:'订阅领域'}).getByLabel('system',{exact:true}).uncheck();await page.getByRole('button',{name:'保存订阅',exact:true}).click();await expect(page.getByRole('region',{name:'告警订阅'})).toContainText('订阅版本 1');await expect(page.getByRole('region',{name:'实时状态'})).toContainText('reset-required');expect(business().map(r=>r.method)).toEqual(['POST','POST','PUT']);});
+  12 | test('UI603 committed response loss uses exact original key/body/version and no second step-up',async({page})=>{await open(page);await detail(page);fault({drop:true});await ack(page);await expect(page.getByRole('region',{name:'操作结果未知'})).toBeVisible();await expect(page.getByRole('button',{name:'读取告警',exact:true})).toBeDisabled();await page.getByRole('button',{name:'恢复原请求'}).click();await expect(page.getByRole('button',{name:'标记未读',exact:true})).toBeVisible();expect(business()).toHaveLength(2);for(const k of ['bodyHash','keyHash','version','responseHash'] as const)expect(business()[0][k]).toBe(business()[1][k]);expect(networkRows().filter(r=>r.path.endsWith('/challenges'))).toHaveLength(1);});
+  13 | test('UI603 429 cooldown and 409 stale detail force explicit re-read without raw error or auto writes',async({page})=>{await open(page);await detail(page);await page.route('**/v1/alerts/*/ack',route=>route.fulfill({status:429,json:{code:'RATE_LIMITED',message:'private SQL',correlationId:'11111111-1111-4111-8111-111111111111',retryAfter:1}}));await ack(page);await expect(page.locator('main').getByRole('alert')).toContainText('冷却');await expect(page.locator('main')).not.toContainText('private SQL');await expect(page.getByRole('region',{name:'操作结果未知'})).toHaveCount(0);await expect(page.getByRole('button',{name:'读取告警',exact:true})).toBeEnabled();await page.unroute('**/v1/alerts/*/ack');await page.getByRole('region',{name:'告警列表'}).getByRole('link').first().click();await page.route('**/v1/alerts/*/ack',route=>route.fulfill({status:409,json:{code:'VERSION_CONFLICT',message:'private',correlationId:'11111111-1111-4111-8111-111111111111'}}));await ack(page);await expect(page.locator('main').getByRole('alert')).toContainText('版本或来源');await expect(page.getByRole('region',{name:'告警详情'})).not.toContainText('sourceRef');});
+  14 | test('UI603 viewer cannot write; offline clears private detail; foreign source is refused',async({page})=>{fault({readonly:true});await open(page);await detail(page);await expect(page.getByRole('button',{name:'标记已读',exact:true})).toBeDisabled();expect(business()).toHaveLength(0);fault({});await page.reload();await authorized(page);await page.evaluate(()=>dispatchEvent(new Event('offline')));await expect(page.getByRole('heading',{name:'Alerts 访问不可用'})).toBeVisible();await expect(page.getByRole('region',{name:'告警详情'})).toHaveCount(0);fault({foreign:true});await page.getByRole('button',{name:'重新核对访问权限'}).click();await authorized(page);await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(page.getByRole('region',{name:'告警列表'}).getByRole('link')).toHaveCount(0);expect(business()).toHaveLength(0);});
+  15 | test('UI603 functional dark/light desktop/mobile screenshots and axe',async({page},info)=>{await open(page);const scans=[];for(const theme of ['dark','light'] as const){await page.emulateMedia({colorScheme:theme});for(const width of [1440,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('ui603-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`alerts-${theme}-${width}.png`),fullPage:true});}}expect(business()).toHaveLength(0);});
+  16 | 
+```
