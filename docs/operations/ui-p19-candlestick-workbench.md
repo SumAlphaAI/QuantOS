@@ -4,7 +4,7 @@
 
 ## 页面与视觉
 
-实际路由 `/markets/:symbol/chart`，规范例 `/markets/BTC%2FUSDT/chart?venue=binance&product=spot&interval=1m&timezone=UTC`。复用ThemeProvider/TerminalFrame/TerminalHeader/TerminalNavigation、PRE02/UI-VIS tokens，不另建Shell或装饰性风险状态。桌面按原稿分为图表+OHLCV/缺口主列、分析设置、数据状态三栏；1024移数据状态到下方，390纵向堆叠，图表保留至少720px横向滚动区域，避免缩成不可阅读的小字。1440是共用视觉基线，另记录1672/1024/390及双主题。
+实际路由 `/markets/:symbol/chart`，规范例 `/markets/BTC%2FUSDT/chart?venue=binance&product=spot&interval=1m&timezone=UTC`。复用ThemeProvider/TerminalFrame/TerminalHeader/TerminalNavigation、PRE02/UI-VIS tokens，不另建Shell或装饰性风险状态。桌面按原稿分为图表+OHLCV/缺口主列、分析设置、数据状态三栏；1024移数据状态到下方，390纵向堆叠，图表保留至少960px横向滚动区域，避免缩成不可阅读的小字。1440是共用视觉基线，另记录1672/1024/390及双主题。
 
 顶部为规范标题“K 线”及说明“历史 K 线用于分析，不构成交易建议。”；上下文条提供Symbol/Venue/Product/Timezone/Quality与7个周期按钮和“自定义”。当前C12只允许spot，venue/timezone/周期根据授权catalog禁用不支持选项，不提供假的perpetual能力。自定义是成对ISO范围及七种聚合中的一个，最多31日/500根；无效输入不派发查询、不生成带undefined字符串的深链。
 
