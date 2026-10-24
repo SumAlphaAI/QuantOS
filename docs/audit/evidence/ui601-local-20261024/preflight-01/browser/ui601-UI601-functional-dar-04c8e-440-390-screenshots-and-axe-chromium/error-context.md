@@ -1,0 +1,117 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: ui601.spec.ts >> UI601 functional dark/light 1440/390 screenshots and axe
+- Location: tests/e2e/ui601.spec.ts:19:5
+
+# Error details
+
+```
+Error: expect(received).toEqual(expected) // deep equality
+
+- Expected  -  1
++ Received  + 70
+
+- Array []
++ Array [
++   Object {
++     "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
++     "help": "Links must be distinguishable without relying on color",
++     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/link-in-text-block?application=playwright",
++     "id": "link-in-text-block",
++     "impact": "serious",
++     "nodes": Array [
++       Object {
++         "all": Array [],
++         "any": Array [
++           Object {
++             "data": Object {
++               "contrastRatio": 2.17,
++               "messageKey": "fgContrast",
++               "nodeColor": "#60a5fa",
++               "parentColor": "#e8eef7",
++               "requiredContrastRatio": 3,
++             },
++             "id": "link-in-text-block",
++             "impact": "serious",
++             "message": "The link has insufficient color contrast of 2.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #60a5fa, surrounding text: #e8eef7)",
++             "relatedNodes": Array [
++               Object {
++                 "html": "<li><span>outbox_oldest_age · warning · unacked · 来源活跃</span><button>读取创建来源 e532d8b8</button><a href=\"/alerts/e532d8b8-2033-49e9-aa2d-2c5ffc1244cb\">打开此告警</a></li>",
++                 "target": Array [
++                   "li",
++                 ],
++               },
++             ],
++           },
++           Object {
++             "data": null,
++             "id": "link-in-text-block-style",
++             "impact": "serious",
++             "message": "The link has no styling (such as underline) to distinguish it from the surrounding text",
++             "relatedNodes": Array [
++               Object {
++                 "html": "<li><span>outbox_oldest_age · warning · unacked · 来源活跃</span><button>读取创建来源 e532d8b8</button><a href=\"/alerts/e532d8b8-2033-49e9-aa2d-2c5ffc1244cb\">打开此告警</a></li>",
++                 "target": Array [
++                   "li",
++                 ],
++               },
++             ],
++           },
++         ],
++         "failureSummary": "Fix any of the following:
++   The link has insufficient color contrast of 2.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #60a5fa, surrounding text: #e8eef7)
++   The link has no styling (such as underline) to distinguish it from the surrounding text",
++         "html": "<a href=\"/alerts/e532d8b8-2033-49e9-aa2d-2c5ffc1244cb\">打开此告警</a>",
++         "impact": "serious",
++         "none": Array [],
++         "target": Array [
++           "li > a",
++         ],
++       },
++     ],
++     "tags": Array [
++       "cat.color",
++       "wcag2a",
++       "wcag141",
++       "TTv5",
++       "TT13.a",
++       "EN-301-549",
++       "EN-9.1.4.1",
++       "RGAAv4",
++       "RGAA-10.6.1",
++     ],
++   },
++ ]
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect,type Page} from '@playwright/test';
+  2  | import AxeBuilder from '@axe-core/playwright';
+  3  | import {writeFile} from 'node:fs/promises';
+  4  | import {installReferenceHooks,authorized,networkRows,fault,control} from './fixtures/ui601-reference';
+  5  | installReferenceHooks();
+  6  | const business=()=>networkRows().filter(r=>r.method==='POST'&&!r.path.startsWith('/v1/auth/')&&!r.control);
+  7  | async function open(page:Page){await page.goto('/operations');await authorized(page);await expect(page.getByRole('region',{name:'服务健康',exact:true})).toContainText('当前服务尚未就绪');await expect(page.getByRole('button',{name:'执行预检查',exact:true})).toBeEnabled();}
+  8  | async function submit(page:Page,prepare:string){await page.getByRole('button',{name:prepare,exact:true}).click();await expect(page.getByRole('dialog',{name:'确认运维操作'})).toBeVisible();await page.getByLabel('操作原因',{exact:true}).fill('controlled UI601 browser review');await page.getByLabel('MFA 验证码').fill('123456');await page.getByLabel('确认当前动作、来源与版本').check();await page.getByRole('button',{name:'提交运维操作',exact:true}).click();}
+  9  | async function source(page:Page){await page.getByRole('button',{name:/^读取创建来源 /}).first().click();await expect(page.getByRole('button',{name:'准备创建 Incident',exact:true})).toBeEnabled();}
+  10 | async function create(page:Page){await source(page);await submit(page,'准备创建 Incident');await expect(page.getByRole('button',{name:'准备确认 Incident',exact:true})).toBeVisible();}
+  11 | async function enableApproval(){const options={method:'POST' as const,session:'session-owner' as const},mfa=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,options),grant=await control('/v1/auth/reauth',{challengeRef:mfa.body.challengeRef},undefined,options),r=await control('/v1/admin/capabilities',{reason:'controlled UI601 reference approval fixture',mfaChallengeRef:mfa.body.challengeRef,reauthTokenRef:grant.body.reauthTokenRef,spec:{kind:'capability',name:'ops.approve',enabled:true}},'0',options);expect(r.status).toBe(201);}
+  12 | test('UI601 actual health/metrics/components, bounded incident list, approved catalog and health alias are read only',async({page})=>{await open(page);const health=page.getByRole('region',{name:'服务健康',exact:true});for(const name of ['execution','portfolio','risk','reconciliation'])await expect(health.getByRole('heading',{name,exact:true})).toBeVisible();await expect(health).toContainText('DLQ 1');await expect(page.getByLabel('批准的 actionId').locator('option')).toHaveText(['inspect-health','inspect-evidence']);await expect(page.getByRole('region',{name:'Incident 列表',exact:true})).toContainText('已加载 0');await page.goto('/operations/health');await authorized(page);await expect(health).toContainText('service-x06');expect(business()).toHaveLength(0);});
+  13 | test('UI601 runbook denial/cancel and committed response loss preserve exact approved action intent',async({page},info)=>{await open(page);await page.getByLabel('批准的 actionId').selectOption('inspect-evidence');await page.getByLabel('commandId',{exact:true}).fill('aaaaaaaa-1111-4111-8111-111111111111');await page.getByRole('button',{name:'执行预检查',exact:true}).click();await expect(page.getByRole('region',{name:'受控 Runbook',exact:true})).toContainText('source_evidence_unavailable');await expect(page.getByRole('button',{name:'准备运行 Runbook',exact:true})).toBeDisabled();await page.getByLabel('批准的 actionId').selectOption('inspect-health');await page.getByRole('button',{name:'执行预检查',exact:true}).click();await page.getByRole('button',{name:'准备运行 Runbook',exact:true}).click();await page.screenshot({path:info.outputPath('operations-confirm-dark-1440.png')});await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'准备运行 Runbook',exact:true})).toBeFocused();expect(networkRows().some(r=>r.method==='POST')).toBe(false);fault({drop:true});await submit(page,'准备运行 Runbook');await expect(page.getByRole('region',{name:'操作结果未知',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'执行预检查',exact:true})).toBeDisabled();await page.getByRole('button',{name:'恢复原请求'}).click();await expect(page.getByRole('region',{name:'Runbook 回执',exact:true})).toContainText('succeeded');expect(business()).toHaveLength(2);for(const k of ['keyHash','bodyHash','version','responseHash'] as const)expect(business()[0][k]).toBe(business()[1][k]);expect(networkRows().filter(r=>r.path.endsWith('/challenges'))).toHaveLength(1);});
+  14 | test('UI601 incident open/ack, canonical reload and append-only timeline preserve unresolved alert',async({page},info)=>{await open(page);await create(page);await expect(page).toHaveURL(/\/operations\/incidents\/[a-f0-9-]{36}$/);await page.getByRole('button',{name:'重新读取 Incident',exact:true}).click();await expect(page.getByRole('region',{name:'Incident 时间线',exact:true}).getByRole('listitem')).toHaveCount(1);await submit(page,'准备确认 Incident');await page.getByRole('button',{name:'重新读取 Incident',exact:true}).click();await expect(page.getByRole('region',{name:'Incident 时间线',exact:true}).getByRole('listitem')).toHaveCount(2);await expect(page.getByRole('region',{name:'告警与 Incident 创建',exact:true})).toContainText('来源活跃');await expect(page.getByRole('button',{name:'准备解决 Incident',exact:true})).toBeDisabled();await page.reload();await authorized(page);await expect(page.getByRole('region',{name:'Incident 时间线',exact:true})).toContainText('acknowledged');await page.screenshot({path:info.outputPath('operations-incident-dark-1440.png')});expect(business()).toHaveLength(2);});
+  15 | test('UI601 known 429 cooldown and 409 source refusal never show raw errors or invent receipts',async({page})=>{await open(page);await page.getByRole('button',{name:'执行预检查',exact:true}).click();await page.route('**/v1/operations/runbook-actions/*/runs',r=>r.fulfill({status:429,json:{code:'RATE_LIMITED',message:'private SQL secret',correlationId:'aaaaaaaa-1111-4111-8111-111111111111',retryAfter:1}}));await submit(page,'准备运行 Runbook');await expect(page.locator('main').getByRole('alert')).toContainText('冷却');await expect(page.locator('main')).not.toContainText('private SQL');await expect(page.getByRole('region',{name:'操作结果未知'})).toHaveCount(0);await expect(page.getByRole('button',{name:'执行预检查',exact:true})).toBeEnabled();await page.unroute('**/v1/operations/runbook-actions/*/runs');await page.getByRole('button',{name:'执行预检查',exact:true}).click();await page.route('**/v1/operations/runbook-actions/*/runs',r=>r.fulfill({status:409,json:{code:'VERSION_CONFLICT',message:'private',correlationId:'aaaaaaaa-1111-4111-8111-111111111111'}}));await submit(page,'准备运行 Runbook');await expect(page.locator('main').getByRole('alert')).toContainText('来源、版本或前置条件');await expect(page.getByRole('region',{name:'Runbook 回执',exact:true})).toHaveCount(0);});
+  16 | test('UI601 reference approval is independently advertised, active source resolution is refused and approver cannot operate',async({page})=>{await open(page);await create(page);await submit(page,'准备确认 Incident');const id=page.url().split('/').at(-1)!;await enableApproval();fault({readonly:true});await page.reload();await authorized(page);await expect(page.getByRole('button',{name:'准备解决 Incident',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'准备确认 Incident',exact:true})).toBeDisabled();await page.getByRole('button',{name:'执行预检查',exact:true}).click();await expect(page.getByRole('button',{name:'准备运行 Runbook',exact:true})).toBeDisabled();await submit(page,'准备解决 Incident');await expect(page.getByRole('heading',{name:'Operations 访问不可用'})).toBeVisible();const current=await control('/v1/operations/incidents/'+id);expect(current.body.status).toBe('acknowledged');expect(business().map(r=>r.status)).toEqual([201,200,403]);});
+  17 | test('UI601 mobile/offline and invalid scope close write authority; forged catalog cannot grant a shell',async({page})=>{await open(page);await page.setViewportSize({width:390,height:941});await page.getByRole('button',{name:'执行预检查',exact:true}).click();await expect(page.getByRole('button',{name:'准备运行 Runbook',exact:true})).toBeDisabled();await page.evaluate(()=>dispatchEvent(new Event('offline')));await expect(page.getByRole('heading',{name:'Operations 访问不可用'})).toBeVisible();await expect(page.getByRole('region',{name:'服务健康',exact:true})).toHaveCount(0);const n=networkRows().length;await page.goto('/operations?accountId=forged');await expect(page.getByRole('heading',{name:'Operations 访问不可用'})).toBeVisible();expect(networkRows().length).toBe(n);await page.route('**/v1/operations/runbook-actions',r=>r.fulfill({json:{items:[{actionId:'shell',parameters:[]}]}}));await page.goto('/operations');await authorized(page);await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(page.getByRole('button',{name:'执行预检查',exact:true})).toBeDisabled();expect(business()).toHaveLength(0);});
+  18 | test('UI601 mismatched health/metrics and timeline head cannot publish mixed facts',async({page})=>{await page.route('**/v1/operations/metrics',async r=>{const response=await r.fetch(),body=await response.json();body.objectVersion=String(Number(body.objectVersion)+1);await r.fulfill({response,json:body});});await page.goto('/operations');await authorized(page);await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(page.getByRole('region',{name:'服务健康',exact:true})).toContainText('尚无已核对');await page.unroute('**/v1/operations/metrics');await open(page);await create(page);await page.route('**/v1/operations/incidents/*/timeline',async r=>{const response=await r.fetch(),body=await response.json();body.items[0].payload.accountId='aaaaaaaa-1111-4111-8111-111111111111';await r.fulfill({response,json:body});});await page.getByRole('button',{name:'重新读取 Incident',exact:true}).click();await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(page.getByRole('region',{name:'Incident 时间线',exact:true})).toHaveCount(0);});
+> 19 | test('UI601 functional dark/light 1440/390 screenshots and axe',async({page},info)=>{await open(page);const scans=[];for(const theme of ['dark','light'] as const){await page.emulateMedia({colorScheme:theme});await expect(page.locator('[data-quantos-theme]')).toHaveAttribute('data-quantos-theme',theme);for(const width of [1440,390]){await page.setViewportSize({width,height:941});await page.locator('main').evaluate(e=>e.scrollTop=0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).analyze();scans.push({theme,width,violations:scan.violations,incomplete:scan.incomplete});await writeFile(info.outputPath('ui601-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scans,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));expect(scan.violations).toEqual([]);await page.screenshot({path:info.outputPath(`operations-${theme}-${width}.png`)});if(width===390){await page.getByRole('region',{name:'受控 Runbook',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath(`operations-runbook-${theme}-390.png`)});}}}expect(business()).toHaveLength(0);});
+     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^ Error: expect(received).toEqual(expected) // deep equality
+  20 | 
+```
