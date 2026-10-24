@@ -25,3 +25,9 @@ preflight为未冻结工作树：UTF8拼接工具首次SyntaxError未改workspac
 保留UI601两项HTTP正向NOT_RUN（InspectEvidence无reference订单源、修复后resolve无HTTP修复端点），native/内存不替代HTTP。G4 IN_REVIEW、G4/FEP-4 NOT_READY_GAPS_OPEN、FEP-4 PARTIAL与原marker/蜡烛导出/估值join缺口不变，UI601/UI603/P23/G4/FEP4历史证据逐字节保留ORIGINAL_SCOPE_ONLY。真实IdP/cookie/CORS、目标DB/RLS/事务、外部源、远程同SHA CI、Firefox/WebKit、人工读屏/原生200%缩放、完整I8、性能/长稳及RELEASE仍NOT_RUN；axe incomplete原样保留。
 
 INTEGRATION预期拒绝；下一原开发任务FE:UI-602 Admin治理，不将P13来源缺口作为其开发前置。回退为源码提交经审阅git revert、重建terminal，无DB迁移、生产写入或业务事实清理，原证据保留。
+
+## 冻结结论
+
+源码05b1ccb453f97b9205d47e27912bc3ce888a479b，attempt-01通过PASS_UI_P13_OPERATIONS_HIGH_FIDELITY（契约支持范围页面适配）：47项前端/消费者、69项Node，新Chromium6项及UI601直接回归8项全通过，无skip/重试/flaky；类型/lint/fresh BFF与terminal构建/计划通过。8组几何及axe零violation，保留8项color-contrast incomplete。人工查看冻结dark1672和light390、预览light390 Runbook下部；宽屏Runbook已位于Incident旁侧初始可见区，无页面横向溢出，不冒充完整无障碍/长页验收。
+
+七服务全部独立来源NOT_PROVIDED，P13-C11-SERVICE-01_OPEN；两项UI601 HTTP正向、G4/FEP4和目标/CI/性能/RELEASE未跑/未决项保持。416个历史证据文件逐字节不变，159项stage_gate均NOT_ASSESSED。INTEGRATION预期拒绝，FE:UI-602 DEVELOPMENT允许；formalAccepted=false、runtimeAdmission=DENIED。仅本地源码/封包提交，无生产凭据、推送或发布。
