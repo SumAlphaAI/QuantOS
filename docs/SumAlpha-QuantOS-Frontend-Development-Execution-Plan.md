@@ -3158,7 +3158,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "UI-401", "UI-P18", "UI-402", "UI-P19", "UI-403", "UI-P21", "FRONTEND-GATE:G4"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `PARTIAL`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3166,6 +3166,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 主要后端依赖：CORE-GATE:X3-SERVICE
 - 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+
+- 当前前端范围收口（2026-10-24）：已实现UI401/P18/UI402/P19/UI403/P21范围及21项直接依赖完成有界核对；新增明确内存模型与同实例只读reference消费者，复用G4原应用54684067/工具3507c03a/封包5455613f原范围，产品运行代码未变。见[收口规程](./operations/fep4-function-closure.md)与[当前证据](./audit/evidence/fep4-function-local-20261024/README.md)，复核 `node scripts/fep4-function-review.mjs --verify`。
+- 本里程碑保持PARTIAL，仅已实现前端范围的收口评估完成；G4/FEP-4正式NOT_READY_GAPS_OPEN，UI402-MARKER-SOURCE-01与P19-C10-EXPORT-01保留原状态；C12→C14估值join不冒充已验证。159项stage_gate不提升、formalAccepted=false、runtimeAdmission=DENIED；旧失败/incomplete/NOT_RUN不重绑，完整I7/目标/远程CI/性能/RELEASE仍NOT_RUN。下一原开发任务FE:UI-603，不将本次辅助收口或G4缺口作为其开发前置。
 
 #### 迭代 I8：W29–W30
 
