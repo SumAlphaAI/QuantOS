@@ -1,0 +1,541 @@
+{
+  "schema": "quantos-ui602-browser/v1",
+  "scenario": "UI602 last-admin refusal is atomic, protected roles are read only and no permission is invented",
+  "status": "passed",
+  "sourceCommit": "1cee533781312f684c4c5ac121a13a5922c689a0",
+  "binarySha256": "4154f9fdcceb29a529171523ac9870dc395cd3568df4b4c57dc9b0c547e52dd9",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "C11_TYPED_ADMIN_GOVERNANCE_WITH_F06_STEPUP",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "probes": [],
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "845783a6df879709db711665ac90df1c62c709555c794704a42f42eddd738e04"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/roles",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5cff79302f37cb1417308dafad5169ffb496576ad68b1013ad3a5178a0e825c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/policies",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/capabilities",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "98e0fa590aade94ba08b6d3662e734de20dc35fb94f53fc6d10d0cca28a2b81c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/feature-flags",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "75a3d6a38b770d39a7d534f387390c3bf7e13c36f46432e060b1ffdd001a4f2b"
+    },
+    {
+      "query": {
+        "pageSize": "1",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "3c0085bdc0976ada6e60f6dd48f1fcccdea6eca1e3e44cfb4d72ca84647e8d8d"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "9ff0379a9ce1fd9ce255726df932dc87554ec2b93c09ad901ccbbb6e707f8704",
+      "responseHash": "029be57df386af1a3491bdf9a299ab81f1acd5507c0b09e505d86a959be9a6eb"
+    },
+    {
+      "query": {},
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "b94e360285b40acd12296460abc948d4edb594ea53fd316a0b791cfb16d60f30",
+      "responseHash": "6e1818adabc38eafaf0a4741bb59cff854f09068da0ab15c480cdcb17459f4c4"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "845783a6df879709db711665ac90df1c62c709555c794704a42f42eddd738e04"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/roles",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5cff79302f37cb1417308dafad5169ffb496576ad68b1013ad3a5178a0e825c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/policies",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/capabilities",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "98e0fa590aade94ba08b6d3662e734de20dc35fb94f53fc6d10d0cca28a2b81c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/feature-flags",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "75a3d6a38b770d39a7d534f387390c3bf7e13c36f46432e060b1ffdd001a4f2b"
+    },
+    {
+      "query": {
+        "pageSize": "1",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "895e9eb5bd3c050e3f577a433886def864eb54889be2a912f8ac85ed65124675"
+    },
+    {
+      "query": {},
+      "method": "PUT",
+      "path": "/v1/admin/capabilities/06004f49-b154-475b-8242-e6fb7217c30e",
+      "status": 409,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "ec2f5c6f2a257ec10f9dd7e2962124acef10657057fad3e5703b30178784041e",
+      "version": "0",
+      "keyHash": "7346fdcf68bd0b807b2f3998b54d2aef8d9e39c0a8390f967011bdbe362f3469",
+      "responseHash": "016598ef8196ea598edeb5a553b03fcd9be3d747b11d1cfa07a0dff44352514a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "845783a6df879709db711665ac90df1c62c709555c794704a42f42eddd738e04"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/roles",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5cff79302f37cb1417308dafad5169ffb496576ad68b1013ad3a5178a0e825c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/policies",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/capabilities",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "98e0fa590aade94ba08b6d3662e734de20dc35fb94f53fc6d10d0cca28a2b81c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/feature-flags",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "75a3d6a38b770d39a7d534f387390c3bf7e13c36f46432e060b1ffdd001a4f2b"
+    },
+    {
+      "query": {
+        "pageSize": "1",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "a3bbe2db8a1d39f504a2a043d16484225813f6ccf5e4e937b4b25f3aab813a05"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2f4e0178192b5a59e8974d86bdc8dc3c11dff01ff461348978d7741f2bfc5244"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "845783a6df879709db711665ac90df1c62c709555c794704a42f42eddd738e04"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/roles",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5cff79302f37cb1417308dafad5169ffb496576ad68b1013ad3a5178a0e825c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/policies",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "72b84a06971c0aa597c8cf5314b09cfdf88981e9d74ec2cec3301e9bce6aa3a7"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/capabilities",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "98e0fa590aade94ba08b6d3662e734de20dc35fb94f53fc6d10d0cca28a2b81c"
+    },
+    {
+      "query": {
+        "pageSize": "100",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/feature-flags",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "75a3d6a38b770d39a7d534f387390c3bf7e13c36f46432e060b1ffdd001a4f2b"
+    },
+    {
+      "query": {
+        "pageSize": "1",
+        "sort": "id:asc"
+      },
+      "method": "GET",
+      "path": "/v1/admin/members",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "7c85f9a402122b0c007ef40244a9e5695f91ef361534c81191cd4f498e99e12d"
+    }
+  ]
+}
