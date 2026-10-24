@@ -23,7 +23,7 @@ export const checks=[
  check('unit-consumer',['pnpm','exec','vitest','run','apps/terminal/tests/ui-p19.test.tsx','apps/terminal/tests/ui402.test.ts','apps/terminal/tests/ui402-provider-consumer.test.ts','packages/api-client/tests/market-recovery.test.ts','tests/contract/ui402-contract.test.ts','--reporter=json','--outputFile={attempt}/unit.json']),
  check('types',['pnpm','--filter','@sumalpha/terminal','typecheck']),
  check('lint',['pnpm','exec','eslint','apps/terminal/app/markets/chart','apps/terminal/src/markets','apps/terminal/tests/ui-p19.test.tsx','apps/terminal/tests/fixtures/scenarios/p19.ts','tests/e2e/ui-p19.spec.ts','playwright.config.ts','playwright.ui-p19.config.ts','scripts/ui-p19-review.mjs','scripts/ui-p19-review.test.mjs']),
- check('gate-routing',['node','--test','scripts/ui-p19-review.test.mjs','scripts/terminal-static-routes.test.mjs']),
+ check('gate-routing',['node','--test','scripts/ui-p19-review.test.mjs','scripts/terminal-static-routes.test.mjs','scripts/development-execution.test.mjs']),
  check('terminal-build',['pnpm','--filter','@sumalpha/terminal','build']),
  check('browser',['pnpm','exec','playwright','test','--config=playwright.ui-p19.config.ts','--project=chromium','--workers=1','--retries=0','--reporter=list,json','--output={attempt}/browser']),
  check('ui402-impact',['pnpm','exec','playwright','test','--config=playwright.ui402.config.ts','--project=chromium','--workers=1','--retries=0','--reporter=list,json','--output={attempt}/ui402-impact']),
