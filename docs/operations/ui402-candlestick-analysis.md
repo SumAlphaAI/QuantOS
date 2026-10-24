@@ -6,7 +6,7 @@
 
 从 `/markets` 标的详情的“查看 K 线”进入 `/markets/BTC%2FUSDT/chart?venue=binance&product=spot`。托管使用 `terminal-route-map.json` 中精确 chart 路径映射到 `markets/chart.html`；未声明主机需另行实现相同规则，目标托管验收 NOT_RUN。
 
-C01 会话和上下文决定账户、模式和权限，URL 只选择市场维度。支持目录允许的 Symbol/Venue/Product（目前仅 spot）、1m/5m/15m/1h/4h/1D/1W 和 UTC/Asia-Shanghai；开始/结束为成对 ISO 时间，自定义表示时间范围，最多500根，由服务端限制31日。没有额外自创聚合周期。
+C01 会话和上下文决定账户、模式和权限，URL 只选择市场维度。支持目录允许的 Symbol/Venue/Product（目前仅 spot）、1m/5m/15m/1h/4h/1D/1W 和 UTC/Asia/Shanghai；开始/结束为成对 ISO 时间，自定义表示时间范围，最多500根，由服务端限制31日。没有额外自创聚合周期。
 
 OHLCV、成交量、缺口事件和全部 series/provenance 字段来自 C12。原始表保留十进制字符串；SVG 坐标和 SMA/EMA 使用浮点数，不能作为资金、执行价格或风控事实。指标以 close 计算，period 为2–200整数，EMA用首个完整窗口的SMA初始化；缺口后重新预热，不补K线、不跨缺口连线。图形时间轴按UTC标注，聚合时区及原始时间另行展示。
 
@@ -30,6 +30,6 @@ C01 permission/上下文变化、过期、离线、隐藏/焦点失效沿用rout
 
 直接影响回归覆盖市场目录入口/精确静态路径、UI401、UI505、P18呈现、C12 generated契约和18项C12 Rust测试；不递归重验上游或全仓。当前任务与父源码比较的OpenAPI兼容性检查验证可选字段不收紧既有要求；旧75a563c基线88项FAIL保留在preflight-01，不作为本任务PASS。
 
-原预检schema断言失败、沙箱EPERM、浏览器控件标签失败及中断保留，后续通过仅适用于新源码/输入。UI-P19高保真、真实IdP/Cookie/CORS、Supabase/RLS、真实market/venue/license、Firefox/WebKit、人工读屏/native200%、同SHA远程CI、目标托管、性能容量长稳、完整I7联调和发布全部NOT_RUN。原UI401/UI505/G5等历史证据仅 `ORIGINAL_SCOPE_ONLY`，不改写或改绑为本候选通过。
+原预检schema断言失败、沙箱EPERM、浏览器控件标签失败及attempt-01封包校验hash前缀失败保留，后续通过仅适用于新源码/输入。UI-P19高保真、真实IdP/Cookie/CORS、Supabase/RLS、真实market/venue/license、Firefox/WebKit、人工读屏/native200%、同SHA远程CI、目标托管、性能容量长稳、完整I7联调和发布全部NOT_RUN。原UI401/UI505/G5等历史证据仅 `ORIGINAL_SCOPE_ONLY`，不改写或改绑为本候选通过。
 
 下一可执行原计划任务：`FE:UI-P19`，实现P19高保真页面与交互验收。

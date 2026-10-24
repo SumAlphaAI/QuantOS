@@ -7,7 +7,8 @@ export type Selection={symbol:string;venue:Series['venue'];product:'spot';interv
 export const intervals={'1m':60,'5m':300,'15m':900,'1h':3600,'4h':14400,'1D':86400,'1W':604800} as const;
 export function selection(s:Selection):Selection{
  if(!symbolPattern.test(s.symbol)||!['binance','coinbase'].includes(s.venue)||s.product!=='spot'||!Object.hasOwn(intervals,s.interval)||!['UTC','Asia/Shanghai'].includes(s.timezone)||Boolean(s.start)!==Boolean(s.end))throw Error('Invalid chart selection');
- if(s.start&&s.end&&(!Number.isFinite(Date.parse(s.start))||!Number.isFinite(Date.parse(s.end))||Date.parse(s.start)>=Date.parse(s.end)||Date.parse(s.end)-Date.parse(s.start)>intervals[s.interval]*500000))throw Error('Invalid chart range');
+ if(s.start&&s.end){bffZodSchemas.DateTime.parse(s.start);bffZodSchemas.DateTime.parse(s.end);}
+ if(s.start&&s.end&&(!Number.isFinite(Date.parse(s.start))||!Number.isFinite(Date.parse(s.end))||Date.parse(s.start)>=Date.parse(s.end)||Date.parse(s.end)-Date.parse(s.start)>31*86400000))throw Error('Invalid chart range');
  return structuredClone(s);
 }
 export function chartLocation(path:string,search:string):Selection{
