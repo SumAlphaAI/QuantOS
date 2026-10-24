@@ -3325,7 +3325,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "PROVIDER:ALL"
   ],
   "required_scope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {
@@ -3336,6 +3336,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
   }
 }
 ```
+
+- 当前有界组合评估（2026-10-24）：同实例Paper账户内完成C01/F06→C16告警/订阅/有限SSE→C11 Incident/批准Runbook/Admin→C10审计回链组合；高风险原请求恢复、Owner治理撤权优先于重放、真实409 FEATURE_DISABLED与显式恢复、最后管理员/独立Approver/活跃来源解决拒绝纳入当前矩阵。新增测试与评估工具，实际产品运行代码未改；10项拒绝探针原实现已通过，未虚构修复。见[规程与缺口](./operations/frontend-g6-bounded-composition.md)及[当前证据](./audit/evidence/frontend-g6-local-20261024/README.md)，复核 `node scripts/frontend-g6-review.mjs --verify`。
+- 工程Gate仅PASS_G6_OWNED_LOCAL_COMPOSITION；G6正式结论NOT_READY_GAPS_OPEN、review_status=IN_REVIEW、stage_gate=NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。UI601两项HTTP正向、P13-C11-SERVICE-01、P14四项契约缺口、G4/FEP-4原未决与目标/CI/性能/RELEASE不提升；应用内有界通知不冒充系统后台推送。FEP-6里程碑与CORE:X06完整关闭未在本检查点完成。下一原任务FE:FEP-6可开展范围收口与里程碑缺口评估。
 
 <a id="task-fep-6"></a>
 ##### FEP-6：Web 运维治理
