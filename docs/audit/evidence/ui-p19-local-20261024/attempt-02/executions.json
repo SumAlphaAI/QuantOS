@@ -1,0 +1,236 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-P19"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:07.842Z",
+    "finishedAt": "2026-10-24T04:22:08.024Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/development.log",
+    "logSha256": "sha256:3b103e04872ea85d909a22bf989f9bfa3e5db9b3e8727bbe953a8977c22e459e"
+  },
+  {
+    "id": "binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:08.024Z",
+    "finishedAt": "2026-10-24T04:22:08.222Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/binary.log",
+    "logSha256": "sha256:2b34696728dc82b03cbf6311d7e3a6a41658bbde097834c3010a78bc82842c1a"
+  },
+  {
+    "id": "unit-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui-p19.test.tsx",
+      "apps/terminal/tests/ui402.test.ts",
+      "apps/terminal/tests/ui402-provider-consumer.test.ts",
+      "packages/api-client/tests/market-recovery.test.ts",
+      "tests/contract/ui402-contract.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/ui-p19-local-20261024/attempt-02/unit.json"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:08.251Z",
+    "finishedAt": "2026-10-24T04:22:12.304Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/unit-consumer.log",
+    "logSha256": "sha256:a6635d33b58b61e471febc53df873cbbd8fd12f475450d6a017d38dae0688f0e"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:12.304Z",
+    "finishedAt": "2026-10-24T04:22:13.063Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/app/markets/chart",
+      "apps/terminal/src/markets",
+      "apps/terminal/tests/ui-p19.test.tsx",
+      "apps/terminal/tests/fixtures/scenarios/p19.ts",
+      "tests/e2e/ui-p19.spec.ts",
+      "playwright.config.ts",
+      "playwright.ui-p19.config.ts",
+      "scripts/ui-p19-review.mjs",
+      "scripts/ui-p19-review.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:13.063Z",
+    "finishedAt": "2026-10-24T04:22:13.643Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-routing",
+    "command": [
+      "node",
+      "--test",
+      "scripts/ui-p19-review.test.mjs",
+      "scripts/terminal-static-routes.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:13.643Z",
+    "finishedAt": "2026-10-24T04:22:14.206Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/gate-routing.log",
+    "logSha256": "sha256:9d6ff963447221c60b18c1fa3c47de1f3051be410ba80f3cc4e1740ca1d11905"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:14.206Z",
+    "finishedAt": "2026-10-24T04:22:24.887Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/terminal-build.log",
+    "logSha256": "sha256:8ba63a4e7eef0f8256c2f7d21baf3b005b8379d6f226694f61b3a094e75a28cb"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui-p19.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p19-local-20261024/attempt-02/browser"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:24.892Z",
+    "finishedAt": "2026-10-24T04:22:53.757Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/browser.log",
+    "logSha256": "sha256:0554e43befc478b55ed21eb4aaab6a35178c2dcc38352ce9077f4e03cd2bf5da"
+  },
+  {
+    "id": "ui402-impact",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.ui402.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/ui-p19-local-20261024/attempt-02/ui402-impact"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:22:53.757Z",
+    "finishedAt": "2026-10-24T04:23:13.075Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/ui402-impact.log",
+    "logSha256": "sha256:dcbb5563c078b5bf7878976ad3c6115e0e459b9abe4186bc8f4173b165d42736"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:23:13.075Z",
+    "finishedAt": "2026-10-24T04:23:13.135Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:UI-P19"
+    ],
+    "expectedExitCode": 1,
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:23:13.135Z",
+    "finishedAt": "2026-10-24T04:23:13.319Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/integration-refusal.log",
+    "logSha256": "sha256:524cde603c10a860ff67c14878772f3a82a64822dbea188adb634bbbb0c12f64"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:UI-403"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-24T04:23:13.320Z",
+    "finishedAt": "2026-10-24T04:23:13.501Z",
+    "log": "docs/audit/evidence/ui-p19-local-20261024/attempt-02/next-development.log",
+    "logSha256": "sha256:a57d18f6debdc270a4de5bab9dc68334cc141884d1cda1b66f3beac0acf9795d"
+  }
+]

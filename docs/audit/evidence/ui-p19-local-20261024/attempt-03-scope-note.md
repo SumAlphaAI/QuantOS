@@ -1,0 +1,3 @@
+# attempt-03原范围
+
+04b91a2e的成功回执保留为ORIGINAL_SCOPE_ONLY。最终验收追加现有自定义范围浏览器用例的真实reference空区间检查：返回0 Candle仍显示完整缺口，不允许复制空Candle引用。仅扩充测试，无产品源码变更；后续新候选独立attempt-04，不把旧回执改绑新源码。
