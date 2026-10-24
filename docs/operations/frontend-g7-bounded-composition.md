@@ -6,7 +6,9 @@
 
 Paper、Shadow 各启动一个独立 Rust reference BFF，同一模式的业务段和页面导航共享该进程。身份为明确注入的参考 Cookie；浏览器使用 loopback TLS/CORS 代理。不是实际 IdP、生产数据或目标数据库。
 
-- 两个模式：C01→C02 快照→C03 研究申请/取消及 C10；C16 告警→同源 C11 Incident 创建/确认→Owner 治理→独立 Operator C10 回链。Viewer 拒绝访问，ack 不代表解决。
+- 两个模式先核对 C02 Command 聚合、C06 Portfolio/Risk 结果及 C17 Settings/Browser 完整只读投影的账户、身份与模式；Paper 核验实际组合快照；Shadow reference C06 返回403，缺少该模式的正向来源。设置读取不代表 OS 通知或真实登录验收。
+- 两个模式先由 Owner 按既有签名审查目录启用研究 Engine capability，C02初始化治理后不能绕过该检查，再开展 C03 工作流。
+- 两个模式：C01→C04 快照→C03 研究申请/取消及 C10；C16 告警→同源 C11 Incident 创建/确认→Owner 治理→独立 Operator C10 回链。Viewer 拒绝访问，ack 不代表解决。
 - Paper：独立种子策略 C05 Draft→Backtest→Artifact→不可变 Release→独立 Approver MFA/reauth→批准→前端目标选择；另一个种子 Proposal→风险→独立审批→C09 accepted Order→cancelled→审计。无实际成交，不制造 Fill；Paper Performance 正确拒绝。
 - Shadow：C05 正确拒绝；C15 实际账本快照→C14 三投影和精确来源核查→固定版本报告→校验原始下载字节→C10；保持 PROVISIONAL。
 - R03 Worker→UDS→注册→20 条策略/回测/Release/审批因果链和静态拒绝恢复，使用既有 owned 原生夹具重新执行，单独记录来源；并非 C03 HTTP 队列出队证据。

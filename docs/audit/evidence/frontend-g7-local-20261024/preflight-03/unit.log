@@ -1,0 +1,44 @@
+
+ RUN  v4.1.12 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ apps/terminal/tests/frontend-g7-provider-consumer.test.ts (2 tests | 2 failed) 3600ms
+   × G7 paper same process research strategy approval execution/report operations governance and separate audit roots 1849ms
+   × G7 shadow same process research strategy approval execution/report operations governance and separate audit roots 1751ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/terminal/tests/frontend-g7-provider-consumer.test.ts > G7 paper same process research strategy approval execution/report operations governance and separate audit roots
+Error: 资源不存在或无权访问。
+ ❯ required apps/terminal/src/research/gateway.ts:15:11
+     13|     const allowed=["capability","dataSnapshotId","question","budget","…
+     14|     const fields=Object.fromEntries(Object.keys(e?.fieldErrors??{}).fi…
+     15|     throw new ResearchGatewayError(operation,result.response.status,re…
+       |           ^
+     16|   }
+     17|   try {
+ ❯ createResearchRun apps/terminal/src/research/gateway.ts:30:10
+ ❯ apps/terminal/tests/frontend-g7-provider-consumer.test.ts:30:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  apps/terminal/tests/frontend-g7-provider-consumer.test.ts > G7 shadow same process research strategy approval execution/report operations governance and separate audit roots
+Error: 组合/风险请求未完成
+ ❯ checked apps/terminal/src/portfolio/runtime.ts:31:11
+     29|     if (invalidate && [401,403].includes(r.response.status)) config.in…
+     30|     if (r.response.status === 429) retryAt = now() + Math.min(Math.max…
+     31|     throw new PortfolioError(r.response.status, e.success ? e.data.cor…
+       |           ^
+     32|   }
+     33|   async function load() {
+ ❯ refresh apps/terminal/src/portfolio/runtime.ts:76:17
+ ❯ exclusive apps/terminal/src/portfolio/runtime.ts:43:11
+ ❯ apps/terminal/tests/frontend-g7-provider-consumer.test.ts:26:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  20:23:07
+   Duration  3.92s (transform 184ms, setup 0ms, import 269ms, tests 3.60s, environment 0ms)
+
