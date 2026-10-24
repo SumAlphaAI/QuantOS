@@ -1,0 +1,755 @@
+{
+  "schema": "quantos-ui403-browser/v1",
+  "scenario": "P21 saves allowlisted view only, reopens and excludes sensitive account/query/report data",
+  "status": "passed",
+  "sourceCommit": "c050373516b39035bb50ff4b538c5ec7291c05e5",
+  "binarySha256": "f582748869f4374c33931c6f44b8d3fbeec141e7572a3959e46313223721579b",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "businessWrites": "C14_REPORT_CREATE_ONLY",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.301Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5479c6ef7b6edde19d5be12a4f31e80ed901772495e086e3a249c2373777e19"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.301Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/series",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5479c6ef7b6edde19d5be12a4f31e80ed901772495e086e3a249c2373777e19"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.301Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/attribution",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5479c6ef7b6edde19d5be12a4f31e80ed901772495e086e3a249c2373777e19"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "5d2ce07c7df2369495379fea710b36e49fec4704b129b8eed9965996915ffe1e"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "86b48b1a-ce8e-49e7-ada2-84f485450b51",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "e7a7411539b89f5ae2fee93f412a8b0f85f0d2a8a6a5836d6cc5a4be2a32584f"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95e3ed5440664d7b4ecd4a864e1b14db24c079e8606c3d185eb0f7f0d1e6e8a6"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.301Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c5479c6ef7b6edde19d5be12a4f31e80ed901772495e086e3a249c2373777e19"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.501Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9c00d6178b365137a2539b8e8d8462da81e36ade6709e9f011406a6715110e98"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.501Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/series",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9c00d6178b365137a2539b8e8d8462da81e36ade6709e9f011406a6715110e98"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.501Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/attribution",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9c00d6178b365137a2539b8e8d8462da81e36ade6709e9f011406a6715110e98"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "5d2ce07c7df2369495379fea710b36e49fec4704b129b8eed9965996915ffe1e"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "86b48b1a-ce8e-49e7-ada2-84f485450b51",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "e7a7411539b89f5ae2fee93f412a8b0f85f0d2a8a6a5836d6cc5a4be2a32584f"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95e3ed5440664d7b4ecd4a864e1b14db24c079e8606c3d185eb0f7f0d1e6e8a6"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.501Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9c00d6178b365137a2539b8e8d8462da81e36ade6709e9f011406a6715110e98"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "cc4449b0eb02119574d2802428aefbcfca0d062480350cb39b50e1e4dd76081a"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.658Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "ae6b015f2460eb6ee19e4d12fcd77e4b0b3f73f6847fdd53df947614e6abd2a8"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.658Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/series",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "ae6b015f2460eb6ee19e4d12fcd77e4b0b3f73f6847fdd53df947614e6abd2a8"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.658Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/attribution",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "ae6b015f2460eb6ee19e4d12fcd77e4b0b3f73f6847fdd53df947614e6abd2a8"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "5d2ce07c7df2369495379fea710b36e49fec4704b129b8eed9965996915ffe1e"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/12541335-fb8c-4e8c-a7bc-7db480ed17f6",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "c759dcbbef918d6bff19c11289f037afbdc612a36468f3ebaf1ec0dcab44fdee"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "86b48b1a-ce8e-49e7-ada2-84f485450b51",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "e7a7411539b89f5ae2fee93f412a8b0f85f0d2a8a6a5836d6cc5a4be2a32584f"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/86b48b1a-ce8e-49e7-ada2-84f485450b51",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "6e8489d6a3ade51b13de091eeefc97bf2674ea929250d42b9917338fc4b663c0"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "runId": "4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+        "side": "actual",
+        "kind": "snapshot",
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95e3ed5440664d7b4ecd4a864e1b14db24c079e8606c3d185eb0f7f0d1e6e8a6"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/4c0e8bc9-2026-438f-9ecc-53e98deffcc1",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "95c0bfcb1a92c3aad38b2a8d09e0120e8da90ccecadeadb97701798a574062d3"
+    },
+    {
+      "query": {
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "currency": "USD",
+        "method": "simple",
+        "period": "week",
+        "periodMode": "rolling",
+        "end": "2026-10-24T05:01:39.658Z"
+      },
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "ae6b015f2460eb6ee19e4d12fcd77e4b0b3f73f6847fdd53df947614e6abd2a8"
+    }
+  ]
+}
