@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boundary,validateBoundary,validateBrowser,validateGeometry,checks,reference} from './ui-p19-review.mjs';
+const sha='a'.repeat(40);
+test('P19 keeps reference identity, unrun join/export and formal Gates separate',()=>{validateBoundary(boundary(sha));assert(reference.endsWith('v4.png'));});
+for(const [key,value]of Object.entries({formalAccepted:true,runtimeAdmission:'ALLOWED',stageGate:'PASS',productionCredentialsUsed:true,pushed:true,realC09C12PositiveJoin:'PASS',controlledC12Export:'PASS',recursiveDependencyRevalidation:true,markerPositive:'ACTUAL_VENUE_EXECUTION',nextTask:'FE:FEP-4',historicalEvidence:'REBOUND_TO_CURRENT'}))test('reject false promotion '+key,()=>assert.throws(()=>validateBoundary({...boundary(sha),[key]:value})));
+test('direct impact profile includes UI402, new page and expected integration refusal only',()=>{assert.equal(checks.find(c=>c.id==='integration-refusal').exit,1);assert(checks.some(c=>c.id==='ui402-impact'));assert(!checks.some(c=>c.command.includes('--workspace')||c.command.includes('push')||c.command.includes('deploy')));});
+const browser=()=>({errors:[],stats:{expected:1,unexpected:0,skipped:0,flaky:0},suites:[{specs:[{tests:[{projectName:'chromium',results:[{status:'passed'}]}]}]}]});
+test('browser receipt rejects skips, retries, unobserved or non-Chromium success',()=>{validateBrowser(browser(),1);for(const key of ['unexpected','skipped','flaky']){const b=browser();b.stats[key]=1;assert.throws(()=>validateBrowser(b,1));}const b=browser();b.suites[0].specs[0].tests[0].results.push({status:'passed'});assert.throws(()=>validateBrowser(b,1));});
+
+test('visual geometry refuses page overflow or missing desktop/mobile areas',()=>{const rows=['dark','light'].flatMap(theme=>[1672,1440,1024,390].map(width=>({theme,width,pageOverflow:false,plot:{x:0,y:0,width:800,height:500},analysis:{x:810,y:width===390?800:0,width:200,height:400},data:{x:1020,y:0,width:250,height:600},svg:{x:0,y:0,width:800,height:400}})));validateGeometry(rows);rows[0].pageOverflow=true;assert.throws(()=>validateGeometry(rows));rows[0].pageOverflow=false;rows[3].svg.width=300;assert.throws(()=>validateGeometry(rows));});

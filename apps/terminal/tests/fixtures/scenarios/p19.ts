@@ -1,0 +1,5 @@
+import type {Series} from '../../../src/markets/chart-policy';
+export function p19Series(now=Date.parse('2026-10-24T02:00:00Z')):Series{
+ const last=Math.floor(now/60000)*60000,start=last-80*60000,ohlcv=Array.from({length:80},(_,n)=>n).filter(n=>n!==30).map(n=>{const open=100+n*.1+Math.sin(n/3),close=open+(n%3===0?-.3:.2);return {t:new Date(start+n*60000).toISOString(),o:open.toFixed(8),h:(Math.max(open,close)+.3).toFixed(8),l:(Math.min(open,close)-.3).toFixed(8),c:close.toFixed(8),v:(1+n%7*.2).toFixed(8)};}),gap={start:new Date(start+30*60000).toISOString(),end:new Date(start+31*60000).toISOString()};
+ return {instrumentId:'binance:spot:BTC/USDT',canonicalSymbol:'BTC/USDT',venue:'binance',productType:'spot',interval:'1m',timezone:'UTC',ohlcv,gaps:[gap],eventMarkers:[{kind:'data_gap',at:gap.start}],provenance:{source:'approved.binance.spot',venue:'binance',asOf:new Date(now).toISOString(),quality:'passed',license:'fixture-only',approvalRef:'fixture:r01-replay-only',approvalVersion:'v2',dataSnapshotId:'11111111-1111-4111-8111-111111111111',latencyMs:0},sequence:81,replaceSeries:true,aggregation:'trade_events'};
+}

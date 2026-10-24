@@ -3056,7 +3056,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - depends_on: ["UI-402", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
@@ -3065,6 +3065,9 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - 契约绑定：C09、C12
 - 所属阶段：FEP-4
 - 页面级完成标准：Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地
+
+- 当前功能执行：共享Shell三栏高保真布局、C12维度/Quality/自定义范围、K线与成交量/十字光标/缩放、SMA/EMA/VWAP/RSI、独立事件开关、OHLCV表格分页联动、缺口/完整元数据、选中Candle与只预填标的的Trade Ticket入口、白名单视图保存和安全引用复制已实现。相同维度503/504保留确认图、换维度/无效来源清空，断流/失权边界延续UI402。
+- 有界验收见 [P19操作与范围](./operations/ui-p19-candlestick-workbench.md)、[本机证据](./audit/evidence/ui-p19-local-20261024/README.md)，复核 `node scripts/ui-p19-review.mjs --verify`。真实reference消费及Chromium功能/明暗1672/1440/1024/390布局；显式rich/spot标记输入仅为合成消费者验证。C09→C12实际同源阳性NOT_RUN、C10缺少可绑定C12的导出scope（P19-C10-EXPORT-01，P1未实现）保留，不阻塞无关开发。UI402历史证据原字节仅ORIGINAL_SCOPE_ONLY，不改绑、不提升159项stage_gate；formalAccepted=false、runtimeAdmission=DENIED。真实目标/外部源/远程CI/性能/人工读屏native200%/完整I7及RELEASE仍NOT_RUN。下一原任务FE:UI-403。
 
 <a id="task-ui-403"></a>
 ##### UI-403：Performance、归因、周期报表

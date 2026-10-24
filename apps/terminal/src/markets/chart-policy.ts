@@ -16,7 +16,7 @@ export function chartLocation(path:string,search:string):Selection{
  if(!m||encodeURIComponent(decodeURIComponent(m[1]))!==m[1]||[...q.keys()].some(k=>!['venue','product','interval','timezone','start','end'].includes(k)||q.getAll(k).length!==1))throw Error('Invalid chart route');
  return selection({symbol:decodeURIComponent(m[1]),venue:q.get('venue') as Selection['venue'],product:q.get('product') as 'spot',interval:(q.get('interval')??'1m') as Selection['interval'],timezone:(q.get('timezone')??'UTC') as Selection['timezone'],...(q.has('start')?{start:q.get('start')!}:{}),...(q.has('end')?{end:q.get('end')!}:{})});
 }
-export function chartHref(s:Selection){selection(s);const {symbol,...query}=s;return `/markets/${encodeURIComponent(symbol)}/chart?${new URLSearchParams(query)}`;}
+export function chartHref(s:Selection){selection(s);const {symbol,...query}=s;return `/markets/${encodeURIComponent(symbol)}/chart?${new URLSearchParams(Object.entries(query).filter(([,value])=>value!==undefined) as [string,string][])}`;}
 export function candleSeries(raw:unknown,s:Selection,now:number):Series{
  const v=bffZodSchemas.CandleSeries.parse(raw),p=v.provenance,step=intervals[s.interval]*1000;
  if(v.instrumentId!==`${s.venue}:${s.product}:${s.symbol}`||v.canonicalSymbol!==s.symbol||v.venue!==s.venue||v.productType!==s.product||v.interval!==s.interval||v.timezone!==s.timezone||p.venue!==s.venue||![p.source,p.license,p.approvalRef,p.approvalVersion].every(x=>x.trim()&&x.length<=500)||!Number.isSafeInteger(v.sequence)||!Number.isSafeInteger(p.latencyMs)||!Number.isFinite(now)||Date.parse(p.asOf)>now||v.gaps.length>501||v.eventMarkers.length>501)throw Error('Series binding mismatch');
