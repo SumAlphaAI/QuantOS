@@ -1,5 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
+import {runBuf} from './run-buf.mjs';
 const root = process.env.QUANTOS_GATE_ROOT ?? process.cwd();
 const git = args => execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
 // CI supplies the PR base, push before, or explicit manual baseline.
@@ -14,5 +15,7 @@ if (baseline === git(['rev-parse','HEAD'])) throw new Error('Proto baseline must
 if (process.env.GITHUB_EVENT_NAME === 'workflow_dispatch') {
   git(['merge-base', '--is-ancestor', baseline, 'HEAD']);
 }
-execFileSync(process.env.BUF_BIN ?? path.resolve(new URL('../node_modules/.bin/buf',import.meta.url).pathname), ['breaking','--against',`.git#ref=${baseline}`],{cwd:root,stdio:'inherit'});
+process.chdir(root);
+const status = await runBuf(process.env.BUF_BIN ?? path.resolve(new URL('../node_modules/.bin/buf',import.meta.url).pathname), ['breaking','--against',`.git#ref=${baseline}`]);
+if (status !== 0) process.exit(status);
 console.log(`Proto compatibility checked against ${baseline}`);

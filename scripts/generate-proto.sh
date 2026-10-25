@@ -15,11 +15,11 @@ else
 fi
 
 "${buf_cmd[@]}" format -w
-"${buf_cmd[@]}" lint
-"${buf_cmd[@]}" generate
+node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" lint
+node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" generate
 descriptor_file="$(mktemp)"
 trap 'rm -f "$descriptor_file"' EXIT
-"${buf_cmd[@]}" build -o "$descriptor_file"
+node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" build -o "$descriptor_file"
 cargo run --locked --quiet -p quantos-proto-json-codegen -- "$descriptor_file"
 python3 - <<'PY'
 from pathlib import Path

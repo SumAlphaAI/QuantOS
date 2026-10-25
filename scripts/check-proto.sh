@@ -29,12 +29,12 @@ fi
 (
   cd "${repo_root}"
   "${buf_cmd[@]}" format --diff --exit-code
-  "${buf_cmd[@]}" lint
-  "${buf_cmd[@]}" build
-  "${buf_cmd[@]}" generate
+  node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" lint
+  node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" build
+  node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" generate
   descriptor_file="$(mktemp)"
   trap 'rm -f "$descriptor_file"' EXIT
-  "${buf_cmd[@]}" build -o "$descriptor_file"
+  node "${repo_root}/scripts/run-buf.mjs" "${buf_cmd[@]}" build -o "$descriptor_file"
   cargo run --locked --quiet -p quantos-proto-json-codegen -- "$descriptor_file"
   node ./scripts/extract-json-schemas.mjs
   node ./scripts/check-json-schemas.mjs

@@ -21,6 +21,12 @@ Generation entrypoints:
 
 All remote plugins in `buf.gen.yaml` are version-pinned. The generated JSON Schema files are self-contained and include their transitive OpenAPI definitions.
 
+Network-capable Buf steps use `scripts/run-buf.mjs`, which logs the phase and
+allows at most three attempts for explicit `deadline_exceeded` or `unavailable`
+transport statuses, with one- and two-second delays. Exhausted retries, process
+signals, lint/generation errors and compatibility failures remain nonzero. This
+does not update `buf.lock` or bypass generated-artifact drift checks.
+
 ### ProtoJSON compatibility
 
 Rust ProtoJSON implementations are generated locally from `buf build` descriptors with

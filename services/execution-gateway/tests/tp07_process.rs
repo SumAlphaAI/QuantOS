@@ -60,37 +60,15 @@ impl Drop for FixtureProcess {
 fn process(mode: &str) -> FixtureProcess {
     let directory = std::env::temp_dir().join(format!("quantos-tp07-{}", uuid::Uuid::new_v4()));
     std::fs::create_dir(&directory).unwrap();
-    let executable = directory.join("kernel.py");
-    let body = format!(
-        r#"#!/usr/bin/python3
-import os, sys, json, time
-assert not any(k in os.environ for k in ('DATABASE_URL','SUPABASE_URL','TOKEN','SECRET','SIGNING_KEY'))
-mode={mode:?}
-if mode=='handshake':
- print(json.dumps({{'schema':'wrong','backend':'QUANTOS_PAPER','pid':os.getpid()}}),flush=True);sys.exit(0)
-print(json.dumps({{'schema':'quantos-kernel/v1','backend':'QUANTOS_PAPER','pid':os.getpid()}}),flush=True)
-for line in sys.stdin:
- request=json.loads(line)
- assert set(request)=={{'schema','request_id','order','submitted_at'}}
- forbidden=('tenant_id','actor_id','requester','session','token','approval','signature','decision')
- assert not any(key in request['order'] for key in forbidden)
- if mode=='timeout': time.sleep(3)
- if mode=='crash': sys.exit(1)
- if mode=='oversize': print('x'*70000,flush=True);continue
- reply={{'schema':'quantos-kernel/v1','request_id':request['request_id'],'events':[]}}
- if mode=='wrong_id': reply['request_id']='foreign'
- if mode=='unknown_field': reply['secret']='unexpected'
- if mode=='unknown_event': reply['events']=[{{'kind':'order_accepted','command_id':'foreign','venue_order_id':'v','at':request['submitted_at']}}]
- if mode=='no_newline': sys.stdout.write(json.dumps(reply));sys.stdout.flush();sys.exit(0)
- print(json.dumps(reply),flush=True)
-"#
-    );
-    std::fs::write(&executable, body).unwrap();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o700)).unwrap();
-    }
+    // Execute an immutable fixture through a mode-named symlink. Creating and
+    // immediately executing a rewritten script can race executable-file locks
+    // on Linux; the shared script itself is never opened for writing by tests.
+    let executable = directory.join(format!("{mode}.py"));
+    std::os::unix::fs::symlink(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/support/tp07_kernel.py"),
+        &executable,
+    )
+    .unwrap();
     FixtureProcess {
         directory,
         executable,
@@ -114,8 +92,8 @@ fn tp07_process_protocol_timeout_crash_malformed_and_unbound_reply_fail_closed()
         let d = f.eval(&g, Phase::Pre);
         let c = i.issue(&f.auth, &p, &d, None, f.sources(), f.now).unwrap();
         let fixture = process(mode);
-        let kernel =
-            PaperProcessKernel::spawn(&fixture.executable, Duration::from_millis(50)).unwrap();
+        let kernel = PaperProcessKernel::spawn(&fixture.executable, Duration::from_millis(50))
+            .unwrap_or_else(|error| panic!("{mode}: {error}"));
         let s = X03CommandService::new(i, limits(), kernel).unwrap();
         for _ in 0..2 {
             assert!(s.submit(&f.auth, &c, f.sources(), f.now).is_err(), "{mode}");
@@ -130,6 +108,20 @@ fn tp07_process_configuration_and_handshake_are_validated() {
     assert!(PaperProcessKernel::spawn(&fixture.executable, Duration::from_secs(1)).is_err());
     assert!(PaperProcessKernel::spawn(&fixture.executable, Duration::ZERO).is_err());
     assert!(PaperProcessKernel::spawn(&fixture.executable, Duration::from_secs(2)).is_err());
+}
+
+#[test]
+fn tp07_spawn_error_preserves_system_diagnostic() {
+    use std::os::unix::fs::PermissionsExt;
+    let fixture = process("crash");
+    let denied = fixture.directory.join("not-executable");
+    std::fs::write(&denied, b"not executable").unwrap();
+    std::fs::set_permissions(&denied, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let error = PaperProcessKernel::spawn(&denied, Duration::from_secs(1))
+        .err()
+        .expect("non-executable file must fail");
+    assert!(error.starts_with("kernel spawn failed: "), "{error}");
+    assert!(error.contains("os error"), "{error}");
 }
 
 #[test]

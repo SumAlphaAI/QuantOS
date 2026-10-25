@@ -141,7 +141,7 @@ impl PaperProcessKernel {
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
             .spawn()
-            .map_err(|_| "kernel spawn failed")?;
+            .map_err(|error| format!("kernel spawn failed: {error}"))?;
         let mut input = child.stdin.take().ok_or("kernel stdin missing")?;
         let output = child.stdout.take().ok_or("kernel stdout missing")?;
         let (sender, requests) = mpsc::sync_channel::<Vec<u8>>(1);
