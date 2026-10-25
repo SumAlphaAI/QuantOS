@@ -3,6 +3,7 @@ import{loadBffFe000Inputs,validateBffFe000}from'./check-bff-fe-000.mjs';
 import{validateCompatibility}from'./bff-compatibility.mjs';import{readFileSync}from'node:fs';
 import{validateA1Receipt,validateA1Stage}from'./check-bff-a1-acceptance.mjs';
 import{createHash}from'node:crypto';
+import{gunzipSync}from'node:zlib';
 import {bytesDigest,confirmationMode,reviewDimensions} from './user-acceptance-confirmation.mjs';
 const current=loadBffFe000Inputs();
 const reviewPolicy=JSON.parse(readFileSync(new URL('../bff/a1-review-policy.json',import.meta.url)));
@@ -26,15 +27,54 @@ const mutants={cookie:i=>{i.openapi.security=[];},idempotency:i=>{i.openapi.comp
 for(const[name,mutate]of Object.entries(mutants))test('rejects '+name+' semantic regression',()=>{const input=structuredClone(current);mutate(input);assert.equal(validateBffFe000(input).status,'FAIL');});
 const before=JSON.parse(readFileSync(new URL('../bff/compatibility/1.3.0.json',import.meta.url)));
 const decision=JSON.parse(readFileSync(new URL('../bff/compatibility/a1-security-correction.json',import.meta.url)));
+// The registered exception belongs to an immutable historical contract, not to
+// the latest OpenAPI. Keep all 85 real corrections under test without extending
+// the exception to later API versions or weakening their independent CI gate.
+const correctionProvenance=JSON.parse(readFileSync(new URL('./fixtures/bff-security-correction-1.14.0.provenance.json',import.meta.url)));
+const correctionCompressed=readFileSync(new URL('./fixtures/bff-security-correction-1.14.0.json.gz',import.meta.url));
+const correctionBytes=gunzipSync(correctionCompressed),correctionCandidate=JSON.parse(correctionBytes);
+const fixtureDigest=bytes=>createHash('sha256').update(bytes).digest('hex');
+test('historical correction fixture retains its exact source and payload binding',()=>{
+ assert.equal(correctionProvenance.sourceCommit,'87fbc37eb0c92de539d864989eff4b4636a04ba3');
+ assert.equal(correctionProvenance.sourcePath,'bff/openapi/quantos-bff.v1.yaml');
+ assert.equal(fixtureDigest(correctionCompressed),correctionProvenance.compressedSha256);
+ assert.equal(fixtureDigest(correctionBytes),correctionProvenance.jsonSha256);
+ assert.equal(correctionCandidate.info.version,'1.14.0');
+ assert.equal(correctionProvenance.contractVersion,correctionCandidate.info.version);
+ assert.equal(correctionProvenance.baselineVersion,before.info.version);
+ assert.equal(correctionProvenance.baselineDigest,decision.baselineDigest);
+});
 test('exact registered security correction is accepted only within its window',()=>{
- assert.equal(validateCompatibility(before,current.openapi,decision,'2026-10-03').status,'PASS');
- assert.equal(validateCompatibility(before,current.openapi,decision,'2026-11-04').status,'FAIL');
+ for(const date of ['2026-10-03',decision.expiresOn]) {
+  const result=validateCompatibility(before,correctionCandidate,decision,date);
+  assert.deepEqual(result,{status:'PASS',changes:85,registeredCorrections:85,failures:[]});
+ }
+ const nextDay=new Date(Date.parse(decision.expiresOn+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+ const expired=validateCompatibility(before,correctionCandidate,decision,nextDay);
+ assert.equal(expired.status,'FAIL');assert.equal(expired.registeredCorrections,0);assert.equal(expired.failures.length,85);
 });
 test('unregistered breaking type, enum or missing baseline fails closed',()=>{
- for(const mutate of [doc=>{doc.components.schemas.DecimalValue.type='number';},doc=>{doc.components.schemas.RuntimeMode.enum.pop();},doc=>{delete doc.paths['/v1/session'];}]) {
-  const doc=structuredClone(current.openapi);mutate(doc);assert.equal(validateCompatibility(before,doc,decision,'2026-10-03').status,'FAIL');
+ for(const [path,mutate] of [
+  ['/components/schemas/DecimalValue/type',doc=>{doc.components.schemas.DecimalValue.type='number';}],
+  ['/components/schemas/RuntimeMode/enum',doc=>{doc.components.schemas.RuntimeMode.enum.pop();}],
+  ['/paths/~1v1~1session',doc=>{delete doc.paths['/v1/session'];}],
+ ]) {
+  const doc=structuredClone(correctionCandidate);mutate(doc);
+  const result=validateCompatibility(before,doc,decision,'2026-10-03');
+  assert.equal(result.status,'FAIL');assert.equal(result.registeredCorrections,85);
+  assert.deepEqual(result.failures.map(f=>f.path),[path]);
  }
- assert.equal(validateCompatibility(before,current.openapi,null,'2026-10-03').status,'FAIL');
+ assert.equal(validateCompatibility(before,correctionCandidate,null,'2026-10-03').status,'FAIL');
+});
+test('historical decision rejects an unregistered version, baseline, admission or changed correction digest',()=>{
+ const unregistered=structuredClone(correctionCandidate);unregistered.info.version='0.0.0';
+ const unknown=validateCompatibility(before,unregistered,decision,'2026-10-03');
+ assert.equal(unknown.status,'FAIL');assert.equal(unknown.registeredCorrections,0);assert.equal(unknown.failures.length,85);
+ for(const change of [d=>{d.baselineDigest='0'.repeat(64);},d=>{d.admission='READY';},d=>{d.changes[0].beforeDigest='0'.repeat(64);},d=>{d.changes[0].afterDigest='0'.repeat(64);}]) {
+  const altered=structuredClone(decision);change(altered);
+  const result=validateCompatibility(before,correctionCandidate,altered,'2026-10-03');
+  assert.equal(result.status,'FAIL');assert(result.failures.some(f=>f.path===decision.changes[0].path));
+ }
 });
 test('new required parameters and constraints cannot silently bypass compatibility',()=>{
  const base={info:{version:'1.0.0'},paths:{'/x':{get:{responses:{200:{}}}}}};
