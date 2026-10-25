@@ -8,6 +8,7 @@ on:
     paths:
       - .github/workflows/visual-baseline-candidates.yml
       - scripts/visual-baseline-candidates.mjs
+      - scripts/check-visual-baselines.mjs
       - tests/e2e/*.spec.ts
 
 permissions:
@@ -39,7 +40,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @sumalpha/terminal build
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
-      - name: Capture all twelve Linux visual candidates
+      - name: Capture shared-shell and P01 Linux visual candidates
         run: pnpm exec playwright test --grep '视觉基线|visual baselines' --update-snapshots
       - name: Bind candidate hashes to capture SHA
         run: node scripts/visual-baseline-candidates.mjs capture

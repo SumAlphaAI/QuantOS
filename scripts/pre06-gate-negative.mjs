@@ -1,10 +1,32 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parse, stringify } from "yaml";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { candidateVisualPaths, requiredVisualPaths } from "./check-visual-baselines.mjs";
 
 import { loadPre06Inputs, validatePre06 } from "./check-pre06.mjs";
 
 const current = loadPre06Inputs();
+
+test("Linux candidate artifacts include all P01 themes and browsers and refuse an old twelve-image receipt", () => {
+  const paths = candidateVisualPaths("linux");
+  assert.equal(paths.length, 42);assert.equal(new Set(paths).size, 42);
+  for (const browser of ["chromium", "firefox", "webkit"]) for (const theme of ["dark", "light"]) {
+    for (const page of ["login", "mfa", "access-request", "unauthorized", "offline"]) {
+      assert(paths.includes(`tests/e2e/ui-p01.spec.ts-snapshots/p01-${page}-${theme}-${browser}-linux.png`));
+    }
+  }
+  const directory = mkdtempSync(join(tmpdir(), "quantos-incomplete-visuals-"));
+  try {
+    const commit = "a".repeat(40);
+    writeFileSync(join(directory, "receipt.json"), JSON.stringify({schema:"quantos-visual-candidates/v1",status:"CANDIDATE_REQUIRES_REVIEW",commit,runner:"ubuntu-24.04",run:"https://github.com/SumAlphaAI/QuantOS/actions/runs/1",files:requiredVisualPaths("linux").map(path => ({path}))}));
+    const result = spawnSync(process.execPath, ["scripts/visual-baseline-candidates.mjs", "import-reviewed", directory, commit], {encoding:"utf8"});
+    assert.notEqual(result.status, 0);assert.match(result.stderr, /Expected exactly 42 Linux snapshots/);
+  } finally {rmSync(directory, {recursive:true, force:true});}
+});
 
 test("Chromium installation cannot be missing, disabled or moved after Market consumers", () => {
   for (const mutate of [

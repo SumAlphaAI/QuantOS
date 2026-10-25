@@ -6,6 +6,28 @@ import {verify,buildReceipt,publish,directory,manifest,validateWiring,flags,bloc
 import {commands,environment} from './provider-all-functional-scope.mjs';
 import {digest} from './provider-a1-receipts.mjs';
 import {operations,domains,contract} from './provider-all-contract.mjs';
+import YAML from 'yaml';
+
+function contractInputs(){
+ const files=new Map(['bff/openapi/quantos-bff.v1.yaml','bff/page-operation-catalog.yaml','tests/contract/generated/quantos-bff.operations.json','tests/contract/generated/quantos-bff.components.schema.json'].map(p=>[p,readFileSync(p)]));
+ return {files,read:p=>files.get(p)};
+}
+test('current contract permits a synchronized version and additive schema upgrade',()=>{
+ const {files,read}=contractInputs(),api=YAML.parse(read('bff/openapi/quantos-bff.v1.yaml').toString()),generated=JSON.parse(read('tests/contract/generated/quantos-bff.operations.json')),schemas=JSON.parse(read('tests/contract/generated/quantos-bff.components.schema.json'));
+ api.info.version='99.0.0';generated.version='99.0.0';schemas.$id='https://quantos.sumalpha.ai/schemas/bff/99.0.0/components.json';
+ api.components.schemas.CiUpgradeProbe={type:'string'};schemas.$defs.CiUpgradeProbe={type:'string'};
+ files.set('bff/openapi/quantos-bff.v1.yaml',Buffer.from(YAML.stringify(api)));files.set('tests/contract/generated/quantos-bff.operations.json',Buffer.from(JSON.stringify(generated)));files.set('tests/contract/generated/quantos-bff.components.schema.json',Buffer.from(JSON.stringify(schemas)));
+ assert.deepEqual(contract(read),contract());
+});
+for(const [name,change] of [
+ ['stale version',g=>g.version='0.0.0'],['omitted operation',g=>g.operations.pop()],['same-count route substitution',g=>g.operations[0].path='/v1/ci-substitution'],['same-count method substitution',g=>g.operations[0].method='TRACE'],['duplicate operation',g=>g.operations[1]=g.operations[0]],
+])test('current contract refuses '+name,()=>{
+ const {files,read}=contractInputs(),p='tests/contract/generated/quantos-bff.operations.json',generated=JSON.parse(read(p));change(generated);files.set(p,Buffer.from(JSON.stringify(generated)));assert.throws(()=>contract(read));
+});
+test('current contract refuses a same-count schema substitution and an extra catalog operation',()=>{
+ const {files,read}=contractInputs(),p='tests/contract/generated/quantos-bff.components.schema.json',schemas=JSON.parse(read(p));delete schemas.$defs[Object.keys(schemas.$defs)[0]];schemas.$defs.CiSubstitution={};files.set(p,Buffer.from(JSON.stringify(schemas)));assert.throws(()=>contract(read),/schema names/);
+ const next=contractInputs(),catalog=YAML.parse(next.read('bff/page-operation-catalog.yaml').toString());catalog.contracts.C01.publishedOperations.push('ciUnknown');next.files.set('bff/page-operation-catalog.yaml',Buffer.from(YAML.stringify(catalog)));assert.throws(()=>contract(next.read),/catalog operations/);
+});
 function fixture(){
  const source='a'.repeat(40),attempt=directory+'/function-attempt-99',files=new Map(),put=(p,v)=>files.set(p,Buffer.from(typeof v==='string'?v:JSON.stringify(v))),now=new Date(Date.now()-5000).toISOString();
  const slugs=['','bff-fe-003-local-20261018','bff-fe-005-local-20261018','bff-fe-006-local-20261019','bff-fe-004-local-20261019','bff-fe-009-local-20261020','bff-fe-008-local-20261020','bff-fe-010-local-20261020','bff-fe-002-local-20261020','bff-fe-011-local-20261020'];

@@ -104,6 +104,7 @@ test.describe("UI-102 identity, access and recovery", () => {
 
   test("P01 1440 深色视觉基线", async ({ page }) => {
     const snapshot = "ui102-login-1440-dark";
+    await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/login");
     await expect(page.getByRole("button", { name: "使用组织账户继续" })).toBeVisible();
     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });

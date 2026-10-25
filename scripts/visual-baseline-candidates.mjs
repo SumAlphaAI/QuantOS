@@ -4,14 +4,14 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { PNG } from 'pngjs';
-import { requiredVisualPaths } from './check-visual-baselines.mjs';
+import { candidateVisualPaths } from './check-visual-baselines.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const mode = process.argv[2];
 const directory = path.resolve(process.argv[3] ?? 'artifacts/visual-candidates');
-const expected = requiredVisualPaths('linux');
+const expected = candidateVisualPaths('linux');
 
 if (mode === 'capture') {
   if (process.platform !== 'linux' || process.env.GITHUB_ACTIONS !== 'true' || process.env.GITHUB_REF !== 'refs/heads/main') {
@@ -41,7 +41,7 @@ if (mode === 'capture') {
   if (!/^[a-f0-9]{40}$/.test(sha ?? '')) throw Error('Provide the reviewed capture commit SHA');
   const receipt = JSON.parse(fs.readFileSync(path.join(directory, 'receipt.json')));
   if (receipt.schema !== 'quantos-visual-candidates/v1' || receipt.status !== 'CANDIDATE_REQUIRES_REVIEW' || receipt.commit !== sha || receipt.runner !== 'ubuntu-24.04' || !/^https:\/\/github\.com\/SumAlphaAI\/QuantOS\/actions\/runs\/\d+$/.test(receipt.run)) throw Error('Candidate provenance mismatch');
-  if (JSON.stringify(receipt.files.map((entry) => entry.path).sort()) !== JSON.stringify([...expected].sort())) throw Error('Expected exactly 12 Linux snapshots');
+  if (JSON.stringify(receipt.files.map((entry) => entry.path).sort()) !== JSON.stringify([...expected].sort())) throw Error(`Expected exactly ${expected.length} Linux snapshots`);
   // Reject stale captures if rendering inputs changed after the capture commit.
   git('diff', '--exit-code', sha, '--', 'apps/terminal', 'packages', 'tests/e2e', 'playwright.config.ts', 'pnpm-lock.yaml', 'package.json');
   const files = receipt.files.map((entry) => {

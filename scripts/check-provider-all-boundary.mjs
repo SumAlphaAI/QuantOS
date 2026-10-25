@@ -8,4 +8,5 @@ const rows=contract();assert.deepEqual(nodesFromPlans().get('PROVIDER:ALL').depe
 assert.equal(rows.filter(r=>r.owner==='BFF-FE-000').length,0,'BFF000 owns infrastructure, never fabricate runtime routes');
 for(const script of ['scripts/test-provider-all-http.mjs',...domains.map(d=>d[1])])execFileSync(process.execPath,['--check',script],{stdio:'inherit'});
 const policy=JSON.parse(readFileSync('scripts/development-testing-policy.json'));assert.equal(policy.development.recursiveDependencyRevalidation,false);
-console.log('ALL boundary PASS:134 unique operations;12 API tasks including infrastructure;17 contracts/113 schemas; no upstream Gates');
+const schemaCount=Object.keys(JSON.parse(readFileSync('tests/contract/generated/quantos-bff.components.schema.json')).$defs).length;
+console.log(`ALL boundary PASS:${rows.length} unique operations;12 API tasks including infrastructure;17 contracts/${schemaCount} schemas; no upstream Gates`);

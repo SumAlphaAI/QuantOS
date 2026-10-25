@@ -2,6 +2,7 @@
 
 > 日期：2026-10-03；版本：3.2；范围：一期官网与Web Terminal。
 > 最新再复核见[当前复审报告](../audit/PRE-06-comprehensive-review-2026-10-02.md)及[再复核证据](../audit/evidence/pre06-recheck-20261002/manifest.json)，包含测试跳过与非执行截图断言防护。上一轮工程修复与验证见[整改验收记录](../audit/PRE-06-remediation-2026-10-02.md)及[证据清单](../audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
+> 2026-10-25 CI 维护补充见第 4 节；第 1–3 节的数量及验收结果保留原日期与原适用范围。
 
 ## 1. 交付与门禁
 
@@ -32,3 +33,9 @@
 [2026-09-16回执](../audit/PRE-06-acceptance-evidence-2026-09-16.md)保留其历史SHA及跳过结论。当前三浏览器不继承旧“有跳过PASS”；Linux只可先证明12张基线完整，当前Linux执行/远端CI仍需独立回执。
 
 正式G0、组织复审、风险/QA/设计owner签署、staging/provider/BFF/IdP/Sentry/账号、数据库、全业务与Desktop/native保持独立 **NOT RUN / NO RECEIPT**。本轮未连接数据库，也不提前宣称后续页面任务全部通过。
+
+## 4. 2026-10-25 CI 维护补充
+
+`39ce9714` 的 CI 暴露了旧 Linux 截图及 P01 缺图。现有共享壳 12 张 Linux 基线更新，新补 P01 五页 × 两主题 × 三浏览器共 30 张 Linux 基线；完整 manifest 共 142 张，0.005 差异阈值不变。候选打包入口同步覆盖 42 张，拒绝缺少 P01 的旧 12 张回执。旧登录“深色”用例显式设置深色媒体条件；本地 Chromium 的对应引用也同步。
+
+基线使用确切源码的真实 Linux CI 截图，经完整性核对和 Codex 图像审阅后登记；捕获/更新模式本身不记为比较通过。本地 Chromium 49 项独立比较通过，本机 Firefox 捕获中断，修复提交的 Linux 三浏览器比较仍为 `NOT_RUN`，须推送后另取结果。来源、失败历史及验证边界见[本轮 CI 修复记录](../audit/ci-remediation-39ce9714-2026-10-25.md)。F05/F07 继续仅保留显式确认的手工数据库/覆盖率入口，本轮未执行。

@@ -29,6 +29,15 @@ export const requiredVisualPaths = (platform) => ["chromium", "firefox", "webkit
   (browser) => visualCases.map(([spec, name]) => `tests/e2e/${spec}.spec.ts-snapshots/${name}-${browser}-${platform}.png`),
 );
 
+// Include the newer P01 feature cases in candidate artifacts as well as the
+// original shared-shell smoke matrix. They already run in the default CI suite.
+export const candidateVisualPaths = (platform) => [
+  ...requiredVisualPaths(platform),
+  ...["chromium", "firefox", "webkit"].flatMap(browser => ["dark", "light"].flatMap(theme =>
+    ["login", "mfa", "access-request", "unauthorized", "offline"].map(page =>
+      `tests/e2e/ui-p01.spec.ts-snapshots/p01-${page}-${theme}-${browser}-${platform}.png`))),
+];
+
 export function validateVisualBaselines(root = repoRoot, { readFile = readFileSync, platform } = {}) {
   const issues = [];
   const manifestPath = join(root, manifestRelativePath);
