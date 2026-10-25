@@ -9,7 +9,7 @@ import { parse } from 'yaml';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { validateSigningPolicy } from './check-f02-signing-policy.mjs';
 import { expectedCiSourceSha } from './f02-source-sha.mjs';
-import { requiredVisualPaths, validateVisualBaselines } from './check-visual-baselines.mjs';
+import { candidateVisualPaths, requiredVisualPaths, validateVisualBaselines } from './check-visual-baselines.mjs';
 
 test('complete Linux matrix passes; deletion and pixel tampering fail', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'f02-visual-'));
@@ -97,24 +97,48 @@ test('candidate import rejects tampering and stale source before writing, then i
     git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-qm', 'fixture');
     const sha = git('rev-parse', 'HEAD');
     const bytes = PNG.sync.write(new PNG({ width: 1440, height: 900 }));
-    const files = requiredVisualPaths('linux').map((relative) => {
+    const files = candidateVisualPaths('linux').map((relative) => {
       fs.mkdirSync(path.dirname(path.join(candidates, relative)), { recursive: true });
       fs.writeFileSync(path.join(candidates, relative), bytes);
       return { path: relative, sha256: createHash('sha256').update(bytes).digest('hex'), width: 1440, height: 900, scope: 'test fixture' };
     });
-    fs.writeFileSync(path.join(candidates, 'receipt.json'), JSON.stringify({ schema: 'quantos-visual-candidates/v1', status: 'CANDIDATE_REQUIRES_REVIEW', commit: sha, runner: 'ubuntu-24.04', run: 'https://github.com/SumAlphaAI/QuantOS/actions/runs/1', files }));
+    assert.equal(files.length, 42);
+    const receipt = { schema: 'quantos-visual-candidates/v1', status: 'CANDIDATE_REQUIRES_REVIEW', commit: sha, runner: 'ubuntu-24.04', run: 'https://github.com/SumAlphaAI/QuantOS/actions/runs/1', files };
+    const writeReceipt = (entries = files) => fs.writeFileSync(path.join(candidates, 'receipt.json'), JSON.stringify({ ...receipt, files: entries }));
+    writeReceipt();
     const run = () => spawnSync(process.execPath, [path.join(root, 'scripts/visual-baseline-candidates.mjs'), 'import-reviewed', candidates, sha], { encoding: 'utf8' });
-    fs.writeFileSync(path.join(candidates, files[0].path), 'corrupt');
-    assert.notEqual(run().status, 0);
-    assert(!fs.existsSync(path.join(root, files[0].path)));
-    fs.writeFileSync(path.join(candidates, files[0].path), bytes);
+    const manifestPath = path.join(root, 'tests/e2e/visual-baselines.json');
+    const originalManifest = fs.readFileSync(manifestPath);
+    const rejectedBeforeWriting = (pattern) => {
+      const result = run();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stderr, pattern);
+      assert.deepEqual(fs.readFileSync(manifestPath), originalManifest);
+      assert(files.every((entry) => !fs.existsSync(path.join(root, entry.path))));
+    };
+    // Missing or duplicated newer P01 cases must not pass with the old shell matrix.
+    const p01 = files.findIndex((entry) => entry.path.includes('/ui-p01.'));
+    assert(p01 >= 0);
+    writeReceipt(files.filter((_, index) => index !== p01));
+    rejectedBeforeWriting(/Expected exactly 42 Linux snapshots/);
+    const duplicate = [...files]; duplicate[p01] = files[0];
+    writeReceipt(duplicate);
+    rejectedBeforeWriting(/Expected exactly 42 Linux snapshots/);
+    writeReceipt();
+    // Keep the PNG valid so this reaches the importer's byte-digest guard.
+    const changed = PNG.sync.read(bytes); changed.data[0] = 255;
+    fs.writeFileSync(path.join(candidates, files[p01].path), PNG.sync.write(changed));
+    rejectedBeforeWriting(/Candidate integrity failure/);
+    fs.writeFileSync(path.join(candidates, files[p01].path), bytes);
     fs.writeFileSync(path.join(root, 'apps/terminal/input.txt'), 'changed');
-    assert.notEqual(run().status, 0);
-    assert(!fs.existsSync(path.join(root, files[0].path)));
+    rejectedBeforeWriting(/Command failed: git diff --exit-code/);
     fs.writeFileSync(path.join(root, 'apps/terminal/input.txt'), 'original');
     const result = run();
     assert.equal(result.status, 0, result.stderr);
     assert.equal(validateVisualBaselines(root, { platform: 'linux' }).status, 'PASS');
+    const imported = JSON.parse(fs.readFileSync(manifestPath));
+    assert.deepEqual(imported.entries.map((entry) => entry.path).sort(), files.map((entry) => entry.path).sort());
+    for (const entry of files) assert.deepEqual(fs.readFileSync(path.join(root, entry.path)), bytes);
   } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
 });
 
