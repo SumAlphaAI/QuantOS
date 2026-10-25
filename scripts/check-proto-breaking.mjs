@@ -17,5 +17,7 @@ if (process.env.GITHUB_EVENT_NAME === 'workflow_dispatch') {
 }
 process.chdir(root);
 const status = await runBuf(process.env.BUF_BIN ?? path.resolve(new URL('../node_modules/.bin/buf',import.meta.url).pathname), ['breaking','--against',`.git#ref=${baseline}`]);
-if (status !== 0) process.exit(status);
+// Keep the gate's existing 0/1 interface. The transport helper preserves Buf's
+// native status (including 100 for breaking changes) for direct CLI callers.
+if (status !== 0) process.exit(1);
 console.log(`Proto compatibility checked against ${baseline}`);

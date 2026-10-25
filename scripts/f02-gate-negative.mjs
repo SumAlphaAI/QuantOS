@@ -143,7 +143,15 @@ test('Buf compares against distinct historical source and detects removed fields
  const f=path.join(d,'fixture.proto'), good='syntax = "proto3"; package fixture; message Example { string value = 1; }\n';fs.writeFileSync(f,good);
  const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture','--allow-empty'],d));};commit();const base=run('git',['rev-parse','HEAD'],d).stdout.trim();commit();
  const scan=(extra={})=>run('node',[path.join(repo,'scripts/check-proto-breaking.mjs')],repo,{QUANTOS_GATE_ROOT:d,QUANTOS_PROTO_BASE:base,BUF_BIN:path.join(repo,'node_modules/.bin/buf'),...extra});
- pass(scan());fs.writeFileSync(f,good.replace('string value = 1;',''));reject(scan(),/FIELD|field|Previously/);fs.writeFileSync(f,good);pass(scan());
+ pass(scan());fs.writeFileSync(f,good.replace('string value = 1;',''));
+ // Buf reports a breaking change as 100; the gate must retain its 0/1 API
+ // while preserving the diagnostic and refusing to retry source failures.
+ const native=run(path.join(repo,'node_modules/.bin/buf'),['breaking','--against',`.git#ref=${base}`],d);
+ assert.equal(native.status,100,native.stdout+native.stderr);
+ const broken=scan();reject(broken,/FIELD|field|Previously/);
+ assert.match(broken.stderr,/Buf breaking: attempt 1\/3/);
+ assert.doesNotMatch(broken.stderr,/retrying|attempt [23]\/3/);
+ fs.writeFileSync(f,good);pass(scan());
  reject(scan({QUANTOS_PROTO_BASE:run('git',['rev-parse','HEAD'],d).stdout.trim()}),/must differ/);
 });
 test('SCA scanner adapter consumes exact waivers and never waives scanner failures',t=>{
