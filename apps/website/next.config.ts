@@ -1,6 +1,15 @@
 import { execSync } from "node:child_process";
 import { assertEnv } from "@sumalpha/config/env";
 import type { NextConfig } from "next";
+import { createRequire } from "node:module";
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
+
+// Next 15 transpiles this config into a synthetic CommonJS module; anchor the
+// shared build helper to the physical app directory, including symlinked probes.
+const { StableInitialChunksPlugin } = createRequire(
+  resolve(realpathSync(__dirname), "next.config.ts"),
+)("../../scripts/lib/stable-initial-chunks.cjs");
 
 /** 官网独立应用：与 Terminal 分应用构建（执行计划 第 2 节）。
  * F01 可复现构建：buildId 固定为 website-<git commit>（同 apps/terminal/next.config.ts 说明）。 */
@@ -21,7 +30,7 @@ function deterministicBuildId(app: string): string {
 
 const nextConfig: NextConfig = {
   output: "export",
-  webpack(config, { webpack }) {
+  webpack(config, { webpack, dev, isServer }) {
     // Workspace ESM retains .js specifiers; resolve them when consuming TS sources.
     config.resolve.extensionAlias = { ...config.resolve.extensionAlias, ".js": [".ts", ".tsx", ".js"] };
     // F02-A11: short-ID collision retries depend on async traversal order.
@@ -30,6 +39,7 @@ const nextConfig: NextConfig = {
     config.plugins.push(new webpack.ids.DeterministicModuleIdsPlugin({
       maxLength: 8, fixedLength: true, failOnConflict: true,
     }));
+    if (!dev && !isServer) config.plugins.push(new StableInitialChunksPlugin());
     return config;
   },
   generateBuildId: () => deterministicBuildId("website"),

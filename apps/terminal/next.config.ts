@@ -1,6 +1,15 @@
 import { execSync } from "node:child_process";
 import { assertEnv } from "@sumalpha/config/env";
 import type { NextConfig } from "next";
+import { createRequire } from "node:module";
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
+
+// Next 15 transpiles this config into a synthetic CommonJS module; anchor the
+// shared build helper to the physical app directory, including symlinked probes.
+const { StableInitialChunksPlugin } = createRequire(
+  resolve(realpathSync(__dirname), "next.config.ts"),
+)("../../scripts/lib/stable-initial-chunks.cjs");
 
 /**
  * 第一期 Terminal Web 应用。PRE-05 要求 Next.js 在读取配置时 fail-fast；
@@ -26,7 +35,7 @@ function deterministicBuildId(app: string): string {
 
 const nextConfig: NextConfig = {
   output: "export",
-  webpack(config, { webpack }) {
+  webpack(config, { webpack, dev, isServer }) {
     // Workspace ESM sources retain .js specifiers for their compiled output.
     // Resolve those specifiers to TypeScript when Next builds directly from source.
     config.resolve.extensionAlias = { ...config.resolve.extensionAlias, ".js": [".ts", ".tsx", ".js"] };
@@ -36,6 +45,7 @@ const nextConfig: NextConfig = {
     config.plugins.push(new webpack.ids.DeterministicModuleIdsPlugin({
       maxLength: 8, fixedLength: true, failOnConflict: true,
     }));
+    if (!dev && !isServer) config.plugins.push(new StableInitialChunksPlugin());
     return config;
   },
   generateBuildId: () => deterministicBuildId("terminal"),

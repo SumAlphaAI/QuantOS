@@ -96,7 +96,7 @@ f01-check:
 	node scripts/check-f01.mjs
 	node --test scripts/f01-gate-negative.mjs
 	node --test scripts/capture-build-outputs.test.mjs
-	node --test scripts/webpack-module-ids.test.mjs
+	node --test scripts/webpack-module-ids.test.mjs scripts/stable-initial-chunks.test.cjs
 
 .PHONY: build-python-production tp05-license-gate-check
 build-python-production:

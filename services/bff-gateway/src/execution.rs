@@ -1349,10 +1349,10 @@ async fn reference(
         }
         _ => auth.role = Role::Viewer,
     };
-    if uri.path().starts_with("/v1/approvals") {
-        if let Err(e) = ExecutionService::review_access(&auth, &q) {
-            return e.response();
-        }
+    if uri.path().starts_with("/v1/approvals")
+        && let Err(e) = ExecutionService::review_access(&auth, &q)
+    {
+        return e.response();
     }
     let now = Utc::now() + elapsed;
     service.linked_approvals = linked;
