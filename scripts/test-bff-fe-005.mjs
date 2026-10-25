@@ -18,6 +18,7 @@ const reserve=createServer();await new Promise(r=>reserve.listen(0,'127.0.0.1',r
 env.QUANTOS_BFF_BIND=`127.0.0.1:${port}`;const base=`http://127.0.0.1:${port}`;const child=spawn(resolve('target/debug/bff-gateway'),[],{env,stdio:['ignore','pipe','pipe']});
 let browser;const records=[];const q='symbol=BTC%2FUSDT&venue=binance&product=spot';
 const headers={cookie:'quantos_session=session-current; quantos_csrf=csrf-token-0000000000000001',origin:'http://localhost:3190','x-csrf-token':'csrf-token-0000000000000001','x-request-id':randomUUID(),'idempotency-key':randomUUID(),'if-match':'watchlist-0','content-type':'application/json'};
+const viewerCookie='quantos_session=session-viewer; quantos_csrf=csrf-token-0000000000000001';
 async function call(id,{query='',body,expected=200,override={},unsafe=false,name=id,pathParams={}}={}){
  const op=operations.get(id),h={...headers,...override};for(const k of Object.keys(h))if(h[k]===null)delete h[k];
  const request=new Request(base+op.path.replace(/\{([^}]+)\}/g,(_,k)=>pathParams[k])+(query?'?'+query:''),{method:op.method,headers:h,body:body===undefined?undefined:JSON.stringify(body)});
@@ -47,11 +48,24 @@ try{
  for(const [name,query]of [['invalid timezone',q+'&timezone=Etc%2FInvalid'],['unsupported interval',q+'&interval=custom'],['unsupported product',q.replace('spot','perp')],['duplicate dimension',q+'&venue=coinbase'],['forged context',q+'&tenantId='+randomUUID()],['reversed range',q+'&start=2026-10-13T00:00:00Z&end=2026-10-12T00:00:00Z'],['oversized range',q+'&start=2025-01-01T00:00:00Z&end=2026-01-01T00:00:00Z']])await call('getCandleSeries',{query,unsafe:true,expected:422,name});
  await call('getCandleSeries',{query:'symbol=SOL%2FUSDT&venue=binance&product=spot',expected:404,name:'unknown instrument'});
  await call('getCandleSeries',{query:'symbol=BTC%2FUSDT',expected:422,name:'ambiguous venue'});
- for(const [name,override,expected]of [['anonymous',{cookie:null},401],['bearer-only',{cookie:null,authorization:'Bearer synthetic'},401],['viewer read',{cookie:'quantos_session=session-viewer'},403],['bad csrf',{'x-csrf-token':'bad'},403],['missing origin',{origin:null},403],['missing key',{'idempotency-key':null},422],['missing version',{'if-match':null},422]])await call(name.includes('csrf')||name.includes('origin')||name.includes('key')||name.includes('version')?'saveWatchlist':'getWatchlist',{body:name.includes('csrf')||name.includes('origin')||name.includes('key')||name.includes('version')?body:undefined,override,unsafe:true,expected,name});
+ // UI-401 permits viewer market reads, but the watchlist is actor-scoped and
+ // viewer writes remain forbidden even with valid CSRF/origin/request headers.
+ const viewer=await call('getWatchlist',{override:{cookie:viewerCookie},name:'viewer isolated read'});
+ assert.deepEqual(viewer.body.instrumentIds,[]);assert.equal(viewer.body.objectVersion,'watchlist-0');
+ for(const [name,override,expected]of [['anonymous',{cookie:null},401],['bearer-only',{cookie:null,authorization:'Bearer synthetic'},401],['bad csrf',{'x-csrf-token':'bad'},403],['missing origin',{origin:null},403],['missing key',{'idempotency-key':null},422],['missing version',{'if-match':null},422]])await call(name.includes('csrf')||name.includes('origin')||name.includes('key')||name.includes('version')?'saveWatchlist':'getWatchlist',{body:name.includes('csrf')||name.includes('origin')||name.includes('key')||name.includes('version')?body:undefined,override,unsafe:true,expected,name});
  await call('saveWatchlist',{body:{instrumentIds:[],actorId:randomUUID()},unsafe:true,expected:422,name:'forged actor body'});
  await call('saveWatchlist',{body:{instrumentIds:['binance:perp:BTC/USDT']},override:{'if-match':saved.body.objectVersion,'idempotency-key':randomUUID()},expected:422,name:'unlicensed watchlist instrument'});
  await call('subscribeCandles',{query:q,override:{'last-event-id':'999'},expected:422,name:'Last-Event-ID mismatch'});
- for(const operationId of marketOperations){const options={query:['getVenueQuotes','getCandleSeries','subscribeQuotes','subscribeCandles'].includes(operationId)?q:'',body:operationId==='saveWatchlist'?body:undefined,unsafe:true};await call(operationId,{...options,override:{cookie:null},expected:401,name:operationId+' anonymous'});await call(operationId,{...options,override:{cookie:'quantos_session=session-viewer'},expected:403,name:operationId+' viewer'});}
+ for(const operationId of marketOperations){
+  const options={query:['getVenueQuotes','getCandleSeries','subscribeQuotes','subscribeCandles'].includes(operationId)?q:'',body:operationId==='saveWatchlist'?body:undefined};
+  await call(operationId,{...options,unsafe:true,override:{cookie:null},expected:401,name:operationId+' anonymous'});
+  await call(operationId,{...options,override:{cookie:'quantos_session=session-approver; quantos_csrf=csrf-token-0000000000000001'},expected:403,name:operationId+' unentitled role'});
+  await call(operationId,{...options,override:{cookie:viewerCookie},expected:operationId==='saveWatchlist'?403:200,name:operationId+' viewer'});
+ }
+ const retained=await call('getWatchlist',{name:'writer state retained after viewer refusal'});
+ assert.deepEqual(retained.body.instrumentIds,body.instrumentIds);assert.equal(retained.body.objectVersion,saved.body.objectVersion);
+ const viewerRetained=await call('getWatchlist',{override:{cookie:viewerCookie},name:'viewer state retained after write refusal'});
+ assert.deepEqual(viewerRetained.body.instrumentIds,[]);assert.equal(viewerRetained.body.objectVersion,'watchlist-0');
  browser=await chromium.launch({headless:true});const context=await browser.newContext();await context.addCookies([{name:'quantos_session',value:'session-current',url:base,httpOnly:true}]);const page=await context.newPage();await page.goto(base+'/v1/markets/catalog');
  const pageData=await page.evaluate(async q=>{const a=await(await fetch('/v1/markets/quotes?'+q,{credentials:'include',cache:'no-store'})).json();const b=await(await fetch('/v1/markets/quotes?'+q.replace('binance','coinbase'),{credentials:'include',cache:'no-store'})).json();return {a,b};},q);
  assert.equal(pageData.a.items[0].lastPrice,'104');assert.equal(pageData.b.items[0].lastPrice,'124');assert.equal(pageData.a.items[0].executable,false);await context.close();await browser.close();browser=null;
