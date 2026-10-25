@@ -1,7 +1,7 @@
 # ADR: 前端运行时技术栈落地（PRE-03）
 
 - 状态：Accepted（工程选型，不代表正式 G0）
-- 更新：2026-10-22
+- 更新：2026-10-25
 - 范围：第一期官网与 Web Terminal；Desktop 属[独立第二期计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
 - 关联：[前端执行计划](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)、[PRE-02 token ADR](./20260814-pre02-design-tokens.md)
 
@@ -11,12 +11,12 @@
 
 Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-lockfile`。根 Rust 工具链归 CORE:F01；第一期 PRE-03 不读取 Desktop 工程文件。
 
-以下版本为当前冻结锁的解析值，作为 PRE-03 Gate 的一致性输入。Next 与 Next ESLint 插件已从历史 15.5.24 升级到安全修复版本 15.5.27，同步 smoke 版本检查；React Testing Library/jsdom 继续落实既定开发和组件测试规范。
+以下版本为当前冻结锁的解析值，作为 PRE-03 Gate 的一致性输入。Next 与 Next ESLint 插件已从历史 15.5.24 升级到安全修复版本 15.5.28，同步 smoke 版本检查；React Testing Library/jsdom 继续落实既定开发和组件测试规范。
 
 | 依赖 | 锁定版本 |
 |---|---|
-| @next/eslint-plugin-next | 15.5.27 |
-| next | 15.5.27 |
+| @next/eslint-plugin-next | 15.5.28 |
+| next | 15.5.28 |
 | react | 19.2.8 |
 | react-dom | 19.2.8 |
 | @tanstack/react-query | 5.101.4 |
@@ -26,7 +26,7 @@ Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-
 | lightweight-charts | 5.2.1 |
 | next-intl | 4.13.6 |
 | react-hook-form | 7.85.0 |
-| zod | 4.4.3 |
+| zod | 4.6.7 |
 | zustand | 5.0.15 |
 | msw | 2.15.0 |
 | tailwindcss | 4.3.3 |

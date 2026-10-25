@@ -1,6 +1,6 @@
 # PRE-04 字段字典
 
-> 版本：1.9；日期：2026-10-21；范围：一期官网与 Web Terminal。
+> 版本：1.10；日期：2026-10-25；范围：一期官网与 Web Terminal。
 > 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。
 
 ## 1. 字段与来源口径
@@ -32,6 +32,12 @@
 | AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"},"auditRef":{"$ref":"#/components/schemas/UUID"}}} |
 | AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"},"mfaEnrollment":{"$ref":"#/components/schemas/MfaEnrollment"}}}]} |
 | StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string","enum":["v1","1"]},"payload":{"type":"object"}}} |
+| ApprovalRuleCheck | {"type":"object","required":["rule","breached","limitId"],"properties":{"rule":{"type":"string"},"breached":{"type":"boolean"},"limitId":{"type":"string"}},"additionalProperties":false} |
+| ApprovalRiskDecision | {"type":"object","required":["decisionId","proposalId","accountId","mode","verdict","checks","policyVersion","policyRevision","signer","signatureVerifiedByOwner","snapshotHash","factsHash","intentHash","contextHash","decidedAt","expiresAt","issuable"],"properties":{"decisionId":{"$ref":"#/components/schemas/UUID"},"proposalId":{"$ref":"#/components/schemas/UUID"},"accountId":{"$ref":"#/components/schemas/UUID"},"mode":{"type":"string","enum":["paper","shadow"]},"verdict":{"type":"string","enum":["allow","deny","approval_required"]},"checks":{"type":"array","items":{"$ref":"#/components/schemas/ApprovalRuleCheck"}},"policyVersion":{"type":"string"},"policyRevision":{"type":"string"},"signer":{"type":"string"},"signatureVerifiedByOwner":{"type":"boolean"},"snapshotHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"factsHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"intentHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"contextHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"decidedAt":{"$ref":"#/components/schemas/DateTime"},"expiresAt":{"$ref":"#/components/schemas/DateTime"},"issuable":{"type":"boolean","enum":[false]}},"additionalProperties":false} |
+| ApprovalCurrentRisk | {"type":"object","required":["contextHash","asOf","expiresAt","verdict","checks","policyVersion","policyRevision"],"properties":{"contextHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"asOf":{"$ref":"#/components/schemas/DateTime"},"expiresAt":{"$ref":"#/components/schemas/DateTime"},"verdict":{"type":"string","enum":["allow","deny","approval_required"]},"checks":{"type":"array","items":{"$ref":"#/components/schemas/ApprovalRuleCheck"}},"policyVersion":{"type":"string"},"policyRevision":{"type":"string"}},"additionalProperties":false} |
+| ApprovalImpact | {"type":"object","required":["quoteUnit","equity","grossBefore","grossAfter","symbolBefore","symbolAfter","portfolioAsOf","financialAsOf","venue","venueHealthy","maxOrderNotional","maxLeverage","maxConcentration","approvalThreshold","maxDailyLoss","model"],"properties":{"quoteUnit":{"type":"string"},"equity":{"$ref":"#/components/schemas/DecimalValue"},"grossBefore":{"$ref":"#/components/schemas/DecimalValue"},"grossAfter":{"$ref":"#/components/schemas/DecimalValue"},"symbolBefore":{"$ref":"#/components/schemas/DecimalValue"},"symbolAfter":{"$ref":"#/components/schemas/DecimalValue"},"portfolioAsOf":{"$ref":"#/components/schemas/DateTime"},"financialAsOf":{"$ref":"#/components/schemas/DateTime"},"venue":{"type":"string"},"venueHealthy":{"type":"boolean"},"maxOrderNotional":{"$ref":"#/components/schemas/DecimalValue"},"maxLeverage":{"$ref":"#/components/schemas/DecimalValue"},"maxConcentration":{"$ref":"#/components/schemas/DecimalValue"},"approvalThreshold":{"$ref":"#/components/schemas/DecimalValue"},"maxDailyLoss":{"$ref":"#/components/schemas/DecimalValue"},"model":{"type":"string","enum":["x02_conservative_gross_addition"]}},"additionalProperties":false} |
+| ApprovalReviewContext | {"type":"object","required":["accountId","mode","proposal","riskDecision","currentRisk","impact"],"properties":{"accountId":{"$ref":"#/components/schemas/UUID"},"mode":{"type":"string","enum":["paper","shadow"]},"proposal":{"$ref":"#/components/schemas/TradeProposal"},"riskDecision":{"$ref":"#/components/schemas/ApprovalRiskDecision"},"currentRisk":{"$ref":"#/components/schemas/ApprovalCurrentRisk"},"impact":{"$ref":"#/components/schemas/ApprovalImpact"}},"additionalProperties":false} |
+| TradeTicketContext | {"type":"object","additionalProperties":false,"required":["symbol","quantity","limitPrice","quoteUnit","equity","availableCash","financialAsOf","venue","venueHealthy","venueObservedAt","policyVersion","policyRevision","inputHash","maxAgeSeconds"],"properties":{"symbol":{"type":"string"},"quantity":{"$ref":"#/components/schemas/DecimalValue"},"limitPrice":{"$ref":"#/components/schemas/DecimalValue"},"quoteUnit":{"type":"string"},"equity":{"$ref":"#/components/schemas/DecimalValue"},"availableCash":{"type":"null"},"financialAsOf":{"$ref":"#/components/schemas/DateTime"},"venue":{"type":"string"},"venueHealthy":{"type":"boolean"},"venueObservedAt":{"$ref":"#/components/schemas/DateTime"},"policyVersion":{"type":"string"},"policyRevision":{"type":"string"},"inputHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"maxAgeSeconds":{"type":"integer","minimum":1,"maximum":60}}} |
 | ReconciliationEvidenceRef | {"type":"object","additionalProperties":false,"required":["kind","ref","sourceRef","resolution"],"properties":{"kind":{"type":"string","enum":["order","fill","audit","alert"]},"ref":{"type":"string"},"sourceRef":{"type":"string"},"resolution":{"type":"string","enum":["source_record","bff_audit","x05_exception"]}}} |
 | LedgerEntry | {"type":"object","additionalProperties":false,"required":["entryId","runId","accountId","mode","currency","kind","side","ledgerVersion","sourceRef","sourceHash","asOf","amounts","evidenceRefs","day"],"properties":{"entryId":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"runId":{"$ref":"#/components/schemas/UUID"},"accountId":{"$ref":"#/components/schemas/UUID"},"mode":{"type":"string","enum":["shadow"]},"currency":{"type":"string"},"kind":{"type":"string","enum":["snapshot","fill"]},"side":{"type":"string","enum":["expected","actual"]},"ledgerVersion":{"type":"string","pattern":"^(0&#124;[1-9][0-9]*)$"},"sourceRef":{"type":"string"},"sourceHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"asOf":{"type":"string","format":"date-time"},"amounts":{"type":"object","additionalProperties":{"$ref":"#/components/schemas/DecimalValue"}},"evidenceRefs":{"type":"array","items":{"$ref":"#/components/schemas/ReconciliationEvidenceRef"}},"day":{"type":"string","format":"date","pattern":"^\\d{4}-\\d{2}-\\d{2}$"}}} |
 | PerformanceCoverage | {"type":"object","additionalProperties":false,"required":["requestedStart","requestedEnd","start","end","complete","points","maxIntervalSeconds"],"properties":{"requestedStart":{"type":"string","format":"date-time"},"requestedEnd":{"type":"string","format":"date-time"},"start":{"type":"string","format":"date-time"},"end":{"type":"string","format":"date-time"},"complete":{"type":"boolean"},"points":{"type":"integer","minimum":2},"maxIntervalSeconds":{"type":"integer","enum":[60]}}} |
@@ -277,6 +283,7 @@
 
 | wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
 |---|---|---|---|---|---|
+| Approval.reviewContext | {"$ref":"#/components/schemas/ApprovalReviewContext"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.reviewContext |
 | Approval.approvalId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.approvalId |
 | Approval.originator | {"type":"string"} | 是 | proto:common.v1.ActorRef.actor_id | 提取发起人 actor_id；HTTP string，不传 ActorRef 对象 | bff:Approval.originator |
 | Approval.objectVersion | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.objectVersion |
@@ -308,6 +315,7 @@
 | Order.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:trading.v1.Order.account_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Order.accountId |
 | Order.venue | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.venue |
 | Order.venueKind | {"type":"string","enum":["binance","okx","coinbase","ibkr","alpine","mock"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.venueKind |
+| Order.productType | {"type":"string","enum":["spot"]} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Order.productType |
 | Order.symbol | {"type":"string"} | 是 | proto:trading.v1.Order.symbol | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Order.symbol |
 | Order.intent | {"type":"string","enum":["open","increase","reduce","close"]} | 是 | proto:trading.v1.Order.intent | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Order.intent |
 | Order.side | {"type":"string","enum":["buy","sell"]} | 是 | proto:trading.v1.Order.side | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Order.side |
@@ -380,7 +388,7 @@
 | ExportJob.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportJob.correlationId |
 | ExportJob.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportJob.auditRef |
 | ExportDownloadMetadata.exportId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.exportId |
-| ExportDownloadMetadata.downloadUrl | {"type":"string","format":"uri"} | 是 | none | 独立下载元数据的一次性短时 URL；不属于 ExportJob | bff:ExportDownloadMetadata.downloadUrl |
+| ExportDownloadMetadata.downloadUrl | {"type":"string","format":"uri","maxLength":2048,"pattern":"^https://[^/?#@\\s\\\\]+/_bff/export-content/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/[0-9a-f]{64}$"} | 是 | none | 独立下载元数据的一次性短时 URL；不属于 ExportJob | bff:ExportDownloadMetadata.downloadUrl |
 | ExportDownloadMetadata.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.expiresAt |
 | ExportDownloadMetadata.sha256 | {"type":"string","pattern":"^[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.sha256 |
 | ExportDownloadMetadata.sizeBytes | {"type":"integer","format":"int64","minimum":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.sizeBytes |
@@ -560,6 +568,7 @@
 | TradePreflight.hitRules | {"type":"array","items":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.hitRules |
 | TradePreflight.executable | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.executable |
 | TradePreflight.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.correlationId |
+| TradePreflight.ticketContext | {"$ref":"#/components/schemas/TradeTicketContext"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.ticketContext |
 
 ## 15. C14 Performance/Report
 
@@ -847,7 +856,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 710 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 713 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

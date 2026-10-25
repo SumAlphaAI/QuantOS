@@ -50,6 +50,35 @@ struct Engine {
     child: tokio::process::Child,
     socket: PathBuf,
 }
+const ENGINE_STARTUP_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+
+async fn wait_for_engine(
+    engine: &mut Engine,
+    name: &str,
+    budget: std::time::Duration,
+) -> Result<(), String> {
+    let deadline = tokio::time::Instant::now() + budget;
+    loop {
+        if let Some(status) = engine.child.try_wait().map_err(|error| error.to_string())? {
+            return Err(format!("engine {name} exited during startup: {status}"));
+        }
+        if engine.socket.exists()
+            && let Ok(Ok(_connection)) =
+                tokio::time::timeout_at(deadline, tokio::net::UnixStream::connect(&engine.socket))
+                    .await
+        {
+            return Ok(());
+        }
+        let now = tokio::time::Instant::now();
+        if now >= deadline {
+            return Err(format!(
+                "engine {name} startup timed out after {budget:?}; socket {}",
+                engine.socket.display()
+            ));
+        }
+        tokio::time::sleep_until((now + std::time::Duration::from_millis(50)).min(deadline)).await;
+    }
+}
 impl Drop for Engine {
     fn drop(&mut self) {
         let _ = self.child.start_kill();
@@ -71,13 +100,14 @@ async fn engine(manager: &mut EngineManager, name: &str, capability: &str) -> En
         .kill_on_drop(true)
         .spawn()
         .unwrap();
-    for _ in 0..100 {
-        if socket.exists() {
-            break;
-        }
-        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
-    }
-    assert!(socket.exists(), "engine startup");
+    // Cold Python imports compete with the rest of the parallel BFF suite on
+    // small CI runners. Bound listener readiness independently of work deadlines,
+    // fail immediately on child exit, and keep RAII cleanup active on failures.
+    let mut engine = Engine { child, socket };
+    wait_for_engine(&mut engine, name, ENGINE_STARTUP_TIMEOUT)
+        .await
+        .unwrap_or_else(|error| panic!("{error}"));
+    let socket = engine.socket.clone();
     let mut manifest = EngineManifest {
         engine_name: name.into(),
         engine_version: "0.1.0".into(),
@@ -112,7 +142,53 @@ async fn engine(manager: &mut EngineManager, name: &str, capability: &str) -> En
     manager
         .register_approved_engine(manifest, &approval)
         .unwrap();
+    engine
+}
+
+fn startup_fixture(script: &str) -> Engine {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let socket = PathBuf::from(format!("/tmp/q-g3-startup-{}.sock", Uuid::new_v4()));
+    let child = tokio::process::Command::new(root.join("engines/.venv/bin/python"))
+        .args(["-c", script, socket.to_str().unwrap()])
+        .env_clear()
+        .stdout(Stdio::null())
+        .stderr(Stdio::inherit())
+        .kill_on_drop(true)
+        .spawn()
+        .unwrap();
     Engine { child, socket }
+}
+
+#[tokio::test]
+async fn engine_startup_accepts_a_listener_that_needs_more_than_five_seconds() {
+    let mut engine = startup_fixture(
+        "import socket,sys,time; time.sleep(5.2); s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.listen(1); time.sleep(30)",
+    );
+    wait_for_engine(&mut engine, "slow-fixture", ENGINE_STARTUP_TIMEOUT)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn engine_startup_rejects_child_exit_and_retains_the_status() {
+    let mut engine = startup_fixture("raise SystemExit(7)");
+    let error = wait_for_engine(&mut engine, "exit-fixture", ENGINE_STARTUP_TIMEOUT)
+        .await
+        .unwrap_err();
+    assert!(error.contains("exit-fixture") && error.contains("exited") && error.contains('7'));
+}
+
+#[tokio::test]
+async fn engine_startup_refuses_an_alive_child_without_a_listener_at_the_deadline() {
+    let mut engine = startup_fixture("import time; time.sleep(30)");
+    let error = wait_for_engine(
+        &mut engine,
+        "unready-fixture",
+        std::time::Duration::from_millis(100),
+    )
+    .await
+    .unwrap_err();
+    assert!(error.contains("unready-fixture") && error.contains("timed out"));
 }
 
 pub(crate) async fn pipeline(count: usize) -> Pipeline {
