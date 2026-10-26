@@ -15,6 +15,8 @@ mod g3_research_tests;
 mod input_contract;
 pub mod live;
 mod market;
+#[cfg(test)]
+mod r1;
 mod research;
 #[cfg(test)]
 mod u01;

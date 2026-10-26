@@ -139,3 +139,23 @@ fn malformed_evidence_and_numeric_proposal_are_rejected() {
         assert!(Validator::validate_proposal(&p).is_err());
     }
 }
+
+#[test]
+fn signal_window_rejects_future_and_expired_at_boundary() {
+    let value = signal();
+    let generated = chrono::DateTime::parse_from_rfc3339(value["generated_at"].as_str().unwrap())
+        .unwrap()
+        .with_timezone(&chrono::Utc);
+    let until = chrono::DateTime::parse_from_rfc3339(value["valid_until"].as_str().unwrap())
+        .unwrap()
+        .with_timezone(&chrono::Utc);
+    assert!(Validator::validate_signal_at(&value, generated).is_ok());
+    assert!(
+        Validator::validate_signal_at(&value, until - chrono::Duration::nanoseconds(1)).is_ok()
+    );
+    assert!(
+        Validator::validate_signal_at(&value, generated - chrono::Duration::nanoseconds(1))
+            .is_err()
+    );
+    assert!(Validator::validate_signal_at(&value, until).is_err());
+}

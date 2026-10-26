@@ -1,3 +1,5 @@
+> 2026-10-26 R1当前评估使用[当前研究闭环规程](core-r1-current-assessment.md)，`pnpm check:r1-local` / `make r1-local-check`只验证当前冻结证据。下述27/40节点闭包保留历史原范围，不作为当前开发默认入口。完整R1仍NOT_READY_GAPS_OPEN。
+
 > PROVIDER:A3当前功能使用[A3_SCOPE_LOCAL规程](provider-a3-functional-admission.md)，下述全闭包仅保留历史原范围，不作为开发默认入口。
 
 > BFF-FE-005 当前功能使用 [BFF005_SCOPE_LOCAL 规程](bff-fe-005-functional-admission.md)与当前严格入口；下述历史全闭包不作为开发默认要求。

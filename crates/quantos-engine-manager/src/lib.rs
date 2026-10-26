@@ -858,17 +858,20 @@ impl EngineManager {
             metadata.tenant_id, capability, request.idempotency_key
         );
         let fingerprint = format!(
-            "{}\0{}\0{}\0{}\0{}\0{}\0{}",
+            "{}\0{}\0{}\0{}\0{}\0{}\0{}\0{}",
             request.workflow_run_id,
             request.capability,
             request.input_schema_version,
             request.data_snapshot_ref,
             request.policy_context_ref,
+            metadata.workspace_id,
             metadata
                 .actor
                 .as_ref()
                 .map_or("", |actor| actor.actor_id.as_str()),
-            serde_json::to_string(&request.input).unwrap_or_default(),
+            serde_json::to_value(&request.input)
+                .map_err(|_| EngineManagerError::InvalidRequest("input_json"))?
+                .to_string(),
         );
         let pending_execution_id =
             format!("{}:{}", request.workflow_run_id, request.idempotency_key);

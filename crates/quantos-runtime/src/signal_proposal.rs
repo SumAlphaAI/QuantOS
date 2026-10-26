@@ -1,7 +1,7 @@
 use crate::snapshot_source::SnapshotConsumerSource;
 use std::collections::BTreeMap;
 
-use chrono::{DateTime, Duration as ChronoDuration, TimeZone, Utc};
+use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use pbjson_types::{ListValue, Struct, Timestamp, Value as ProtoValue, value::Kind};
 use quantos_core::{ContentHash, CoreError, CorrelationId, SnapshotId, canonical_json_bytes};
 use quantos_engine_manager::{EngineManager, EngineManagerError};
@@ -218,6 +218,13 @@ impl SignalProposalSchemaValidator {
         Ok(())
     }
 
+    pub fn validate_signal_at(
+        value: &Value,
+        observed_at: DateTime<Utc>,
+    ) -> Result<(), SignalProposalWorkflowError> {
+        ensure_signal_current(&ParsedSignal::try_from(value)?, observed_at)
+    }
+
     pub fn validate_proposal(value: &Value) -> Result<(), SignalProposalWorkflowError> {
         let _ = ParsedTradeProposal::try_from(value)?;
         Ok(())
@@ -302,6 +309,18 @@ struct SignalProposalCheckpointPayload {
     research_context: Option<Value>,
     proposal_input_schema_version: String,
     proposal_input: Value,
+}
+
+fn checkpoint_state(
+    request: &SignalProposalCheckpointPayload,
+    progress: Value,
+) -> Result<Value, SignalProposalWorkflowError> {
+    let mut state = serde_json::to_value(request)?;
+    state
+        .as_object_mut()
+        .expect("serialized request")
+        .extend(progress.as_object().expect("owned progress fields").clone());
+    Ok(state)
 }
 
 pub struct SignalProposalWorkflowCoordinator<'a> {
@@ -422,8 +441,12 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             || source.tenant_id != session.tenant_id
             || source.workspace_id != session.workspace_id
             || source.actor_id != session.actor_id
-            || !["research.hypothesis.v1", "research.experiment.v1"]
-                .contains(&record.capability.as_str())
+            || ![
+                "research.hypothesis.v1",
+                "research.experiment.v1",
+                "research.vibe_adapter.execute",
+            ]
+            .contains(&record.capability.as_str())
             || record.input_hash != source.input_hash
             || !self
                 .runtime
@@ -479,7 +502,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             return Err(SignalProposalWorkflowError::InvalidResearchInput);
         }
         if let Some(signal) = &input.provided_signal {
-            SignalProposalSchemaValidator::validate_signal(signal)?;
+            SignalProposalSchemaValidator::validate_signal_at(signal, queued_at)?;
             let owner = self
                 .runtime
                 .sessions
@@ -530,6 +553,10 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             rate_limit_per_minute: input.rate_limit_per_minute,
         };
         let run = self.runtime.schedule_run(new_run, queued_at)?;
+        // An identical retry must preserve the latest dispatch/completion state.
+        if self.runtime.load_checkpoint(run.workflow_run_id).is_some() {
+            return Ok(run);
+        }
         let checkpoint = SignalProposalCheckpointPayload {
             feature_snapshot_id: input.feature_snapshot_id.to_string(),
             policy_context_ref: input.policy_context_ref,
@@ -654,11 +681,11 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                     run_id,
                     "signal_proposal.data_query_ready",
                     2,
-                    json!({
+                    checkpoint_state(&payload, json!({
                         "data_query_artifact_id": data_query_record.artifact_manifest.artifact_id.to_string(),
                         "dataset": data_query_record.dataset,
                         "provider": data_query_record.provider,
-                    }),
+                    }))?,
                     data_query_record.created_at,
                 )?;
                 (Some(data_query_record), Some(data_query_output))
@@ -732,12 +759,12 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                         run_id,
                         "signal_proposal.data_query_ready",
                         2,
-                        json!({
+                        checkpoint_state(&payload, json!({
                             "data_query_artifact_id": data_query_record.artifact_manifest.artifact_id.to_string(),
                             "dataset": data_query_record.dataset,
                             "provider": data_query_record.provider,
                             "engine_artifact_ids": data_query_record.engine_artifact_ids,
-                        }),
+                        }))?,
                         data_query_record.created_at,
                     )?;
                     (Some(data_query_record), Some(data_query_output))
@@ -783,6 +810,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                     &lease.run,
                     snapshot.snapshot_id,
                     signal_value,
+                    observed_at,
                 )?;
                 let signal_output = signal_record.output.clone();
                 let signal_record = self.repository.upsert_signal(signal_record).clone();
@@ -859,11 +887,11 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                     run_id,
                     "signal_proposal.signal_ready",
                     3,
-                    json!({
+                    checkpoint_state(&payload, json!({
                         "signal_artifact_id": signal_record.artifact_manifest.artifact_id.to_string(),
                         "signal_id": signal_record.signal_id,
                         "valid_until": signal_record.valid_until.to_rfc3339(),
-                    }),
+                    }))?,
                     signal_record.created_at,
                 )?;
                 (signal_record, signal_output)
@@ -957,14 +985,14 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             run_id,
             "signal_proposal.completed",
             4,
-            json!({
+            checkpoint_state(&payload, json!({
                 "data_query_artifact_id": data_query_record.as_ref().map(|record| record.artifact_manifest.artifact_id.to_string()),
                 "signal_artifact_id": signal_record.artifact_manifest.artifact_id.to_string(),
                 "proposal_artifact_id": proposal_record.artifact_manifest.artifact_id.to_string(),
                 "proposal_id": proposal_record.proposal_id,
                 "counter_views": proposal_record.counter_views,
                 "engine_artifact_ids": proposal_record.engine_artifact_ids,
-            }),
+            }))?,
             proposal_record.created_at,
         )?;
         self.runtime
@@ -1114,8 +1142,9 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         run: &WorkflowRun,
         snapshot_id: SnapshotId,
         signal_output: Value,
+        observed_at: DateTime<Utc>,
     ) -> Result<SignalRecord, SignalProposalWorkflowError> {
-        SignalProposalSchemaValidator::validate_signal(&signal_output)?;
+        SignalProposalSchemaValidator::validate_signal_at(&signal_output, observed_at)?;
         if signal_output["metadata"]["tenant_id"] != run.tenant_id.to_string()
             || signal_output["metadata"]["workspace_id"] != run.workspace_id.to_string()
             || signal_output["metadata"]["actor"]["actor_id"] != run.actor_id.to_string()
@@ -1172,7 +1201,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         stream: &[quantos_proto::quantos::engine::v1::StreamExecuteResponse],
         observed_at: DateTime<Utc>,
     ) -> Result<SignalRecord, SignalProposalWorkflowError> {
-        SignalProposalSchemaValidator::validate_signal(&signal_output)?;
+        SignalProposalSchemaValidator::validate_signal_at(&signal_output, observed_at)?;
         if signal_output["metadata"]["tenant_id"] != run.tenant_id.to_string()
             || signal_output["metadata"]["workspace_id"] != run.workspace_id.to_string()
             || signal_output["metadata"]["actor"]["actor_id"] != run.actor_id.to_string()
@@ -1494,22 +1523,24 @@ fn deterministic_request_token(
 
 fn deterministic_issued_at(
     run: &WorkflowRun,
-    capability: &str,
-    request_prefix: &str,
+    _capability: &str,
+    _request_prefix: &str,
 ) -> DateTime<Utc> {
-    let seed = format!(
-        "{}|{}|{}",
-        run.input_hash.as_str(),
-        capability,
-        request_prefix,
-    );
-    let digest = ContentHash::sha256_bytes(seed.as_bytes());
-    let offset_seed = &digest.as_str()["sha256:".len()..][..8];
-    let offset_minutes = u32::from_str_radix(offset_seed, 16).unwrap_or(0) % (366 * 24 * 60);
-    Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0)
-        .single()
-        .expect("fixed deterministic timestamp is valid")
-        + ChronoDuration::minutes(i64::from(offset_minutes))
+    // The admitted workflow clock is immutable across retry/recovery. A hash
+    // chooses identity, never an unrelated calendar date or signal validity.
+    run.created_at
+}
+
+fn ensure_signal_current(
+    signal: &ParsedSignal,
+    observed_at: DateTime<Utc>,
+) -> Result<(), SignalProposalWorkflowError> {
+    if signal.generated_at > observed_at || signal.valid_until <= observed_at {
+        return Err(SignalProposalWorkflowError::InvalidSignal {
+            detail: "signal outside admitted time window".into(),
+        });
+    }
+    Ok(())
 }
 
 fn inject_signal(

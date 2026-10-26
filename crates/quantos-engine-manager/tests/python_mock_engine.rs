@@ -1471,7 +1471,8 @@ async fn duplicate_key_returns_same_result_and_changed_input_is_rejected() -> an
         let mut manager =
             EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
         register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
-        let request = execute_request("idempotency");
+        let mut request = execute_request("idempotency");
+        request.input = Some(serde_json::from_value(serde_json::json!({"value":{"prompt":"same request","nested":{"a":"first","b":"second"}}}))?);
         let first = manager.execute("research.execute", request.clone()).await?;
         let second = manager.execute("research.execute", request.clone()).await?;
         assert_eq!(first, second);
@@ -1479,8 +1480,19 @@ async fn duplicate_key_returns_same_result_and_changed_input_is_rejected() -> an
             manager
                 .completed_execution("tenant-primary", "research.execute", "idem-idempotency")
                 .await,
-            Some(first)
+            Some(first.clone())
         );
+        // Independently reconstructed protobuf maps must have the same semantic
+        // fingerprint even when their HashMap iteration order differs.
+        for _ in 0..16 {
+            let mut rebuilt = request.clone();
+            rebuilt.input = Some(serde_json::from_value(serde_json::json!({"value":{"nested":{"b":"second","a":"first"},"prompt":"same request"}}))?);
+            assert_eq!(manager.execute("research.execute", rebuilt).await?,first);
+        }
+        let mut foreign_workspace=request.clone();
+        foreign_workspace.metadata.as_mut().unwrap().workspace_id="other-workspace".into();
+        let error=manager.execute("research.execute",foreign_workspace).await.expect_err("same tenant/actor cannot reuse a key across workspace");
+        assert_eq!(error.machine_code(),"ENGINE_IDEMPOTENCY_CONFLICT");
         let mut changed = request;
         changed.data_snapshot_ref = "other-snapshot".to_owned();
         let error = manager

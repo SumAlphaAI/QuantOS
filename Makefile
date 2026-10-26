@@ -623,7 +623,7 @@ research-local-check:
 	node scripts/research-local-gate.mjs BFF005_LOCAL
 	node scripts/research-local-gate.mjs A3_LOCAL
 r1-local-check:
-	node scripts/research-local-gate.mjs R1_LOCAL
+	node scripts/core-r1-review.mjs --verify
 a2-local-check:
 	node scripts/research-local-gate.mjs A2_LOCAL
 bff003-local-check:

@@ -2494,6 +2494,8 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 <a id="gate-r1"></a>
 ### R1 功能联调 Gate：研究业务闭环
 
+- 2026-10-26 当前评估：补齐R04对Vibe来源的确切准入、checkpoint原始请求/同键重放、Manager有序map指纹/workspace绑定及Signal冻结时钟有效期校验；实际R03（RD/Vibe）→R04（LLMQuant/TradingAgents）→Web/Audit本机组合按当前影响范围验证。工程Gate `PASS_OWNED_LOCAL_R1_RESEARCH_LOOP`；完整R1 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate仍`NOT_ASSESSED`，不自签ACCEPTED。身份/持久化/生产路由及附属Artifact内容、跨进程恢复、完整业务联调待补；目标与发布`NOT_RUN`。四项清单保留完整要求未勾选。见[当前评估规程](./operations/core-r1-current-assessment.md)、[原始证据](./audit/evidence/core-r1-local-20261026/)。下一原项：`CORE:S04`（DEVELOPMENT）。
+
 - [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
 - [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
 - [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。

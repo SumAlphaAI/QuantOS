@@ -34,6 +34,9 @@ struct Worker {
     manager: EngineManager,
     session: quantos_core::RuntimeSessionId,
     vibe_fixture: Option<String>,
+    r1_chain: bool,
+    auth: quantos_auth::AuthContext,
+    recover: bool,
     mapped: BTreeMap<Uuid, WorkflowRunId>,
 }
 async fn execute(
@@ -57,6 +60,9 @@ async fn execute(
         manager,
         session,
         vibe_fixture,
+        r1_chain,
+        auth,
+        recover,
         mapped,
     } = &mut *worker;
     let inputs = provider.data.lock().await.research.owned_inputs();
@@ -138,11 +144,37 @@ async fn execute(
                 .map(|e| research::worker_evidence_id(artifact_id, &e.evidence_id))
                 .collect::<Vec<_>>()
         );
-        let output = json!({"bffRunId":id,"workerRunId":record.workflow_run_id,"input":input,"record":record});
+        let source_for_chain = record.clone();
+        let mut output = json!({"bffRunId":id,"workerRunId":record.workflow_run_id,"input":input,"record":record});
         data.research.worker_records.insert(artifact_id, record);
         data.research.emit(id, "research.completed");
         let mut audit = json!({"jobId":id,"status":"succeeded","correlationId":current["correlationId"],"auditRef":Uuid::new_v4()});
         research::record_reference_audit(&mut data, &mut audit, "research.worker.completed");
+        drop(data);
+        if *r1_chain {
+            let mut chain = crate::r1::run(
+                runtime,
+                artifacts,
+                snapshots,
+                rules,
+                manager,
+                *session,
+                &source_for_chain,
+                auth,
+                *recover,
+            )
+            .await;
+            let mut data = provider.data.lock().await;
+            let snapshot = data.research.snapshots[&input.data_snapshot_id].clone();
+            chain["auditCommitments"] = crate::r1::audit(
+                &mut data,
+                current["correlationId"].as_str().unwrap(),
+                &chain,
+                snapshot,
+                &source_for_chain,
+            );
+            output["chain"] = chain;
+        }
         results.push(output);
     }
     (StatusCode::OK, Json(json!({"results":results})))
@@ -160,6 +192,8 @@ async fn browser_host() {
         assert!(std::env::var(name).is_err());
     }
     let vibe_fixture = std::env::var("QUANTOS_TP01_FIXTURE").ok();
+    let r1_chain = std::env::var("QUANTOS_R1_CHAIN").as_deref() == Ok("1");
+    let recover = std::env::var("QUANTOS_R1_RECOVERY").as_deref() == Ok("1");
     let provider = BffProvider::default()
         .with_download_origin("https://127.0.0.1:4010")
         .unwrap();
@@ -200,6 +234,26 @@ async fn browser_host() {
             })
             .unwrap();
     }
+    if r1_chain {
+        for capability in [
+            "signal.proposal.workflow.v1",
+            "quant.signal.v1",
+            "decision.proposal.v1",
+        ] {
+            auth.capabilities
+                .insert(Capability::parse(capability).unwrap());
+            runtime
+                .register_tool(ToolRegistration {
+                    tool_name: capability.into(),
+                    capability: Capability::parse(capability).unwrap(),
+                    description: "Owned R1 research chain".into(),
+                    max_cost_units: 10000,
+                    rate_limit_per_minute: 600,
+                    enabled: true,
+                })
+                .unwrap();
+        }
+    }
     let session = runtime.open_session(&auth, now, now + Duration::hours(1));
     let mut manager =
         EngineManager::with_approval_key(BackoffPolicy::default(), b"g3-local-only".to_vec());
@@ -209,6 +263,16 @@ async fn browser_host() {
         ("rd-agent", "research.hypothesis.v1")
     };
     let _engine = engine(&mut manager, engine_name, engine_capability).await;
+    let _signal_engine = if r1_chain {
+        Some(engine(&mut manager, "llmquant", "quant.signal.v1").await)
+    } else {
+        None
+    };
+    let _proposal_engine = if r1_chain && !recover {
+        Some(engine(&mut manager, "trading-agents", "decision.proposal.v1").await)
+    } else {
+        None
+    };
     let worker = Arc::new(Mutex::new(Worker {
         provider: provider.clone(),
         runtime,
@@ -219,6 +283,9 @@ async fn browser_host() {
         manager,
         session: session.runtime_session_id,
         vibe_fixture,
+        r1_chain,
+        auth,
+        recover,
         mapped: BTreeMap::new(),
     }));
     let address: std::net::SocketAddr = std::env::var("QUANTOS_BFF_BIND").unwrap().parse().unwrap();
