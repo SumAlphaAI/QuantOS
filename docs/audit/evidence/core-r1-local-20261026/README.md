@@ -15,7 +15,7 @@
 | Node Gate/阶段负向 | 61/61通过，含37项R1边界/浏览器结果拒绝测试 |
 | Chromium R1 | 23/23通过：20个Vibe、RD正常、RD及Vibe各1次缺失Proposal路由后恢复；累计506次来源拒绝 |
 | Chromium U01定向回归 | 5/5通过，共享宿主/fixture的认证、读取/取消/拒绝路径 |
-| 编译/静态 | 当前BFF测试宿主编译、Rust格式、定向TS/Node lint、计划结构、diff whitespace通过 |
+| 编译/静态 | 当前BFF测试宿主编译、Rust格式、定向TS/Node lint、计划结构、源码候选diff whitespace通过；原始Playwright失败诊断保留生成空白 |
 | 阶段与下一项 | 完整R1 INTEGRATION入口预期退出1/STAGE_NOT_READY；CORE:S04 DEVELOPMENT allowed=true |
 
 [完整实际命令](commands.md)、[19组执行记录](attempt-01/executions.json)、[补充2组记录](supplement-01/executions.json)、[严格回执](receipt.json)、[源码/导出输入](attempt-01/inputs.json)、[全证据hash清单](manifest.json)。运行`node scripts/core-r1-review.mjs --verify`复核主矩阵；运行`node docs/audit/evidence/core-r1-local-20261026/verify.mjs`复核主矩阵、补充结果及全部文件。Python/Node/Chromium均无失败、跳过或flaky；Rust有明确筛选的未选测试，不将其记作运行通过。
@@ -43,5 +43,7 @@ Research、Signal和Proposal完整主记录的canonical字节摘要，源snapsho
 - `preflight-02`保留未固定pnpm launcher尝试registry失败；冻结执行使用离线固定缓存，lint通过。
 
 上述均为未提交工作区诊断，不能因日志中的baseline SHA将其改绑为源码候选通过；候选通过只来自`attempt-01`和补充记录，失败未覆盖或拼接。
+
+归档后[完整diff检查](postflight/whitespace.log)退出2：仅三个原始Playwright error-context.md的代码摘录空行含尾随空格；源码候选diff检查退出0。保留原始诊断字节，不清洗失败证据，也不将完整diff检查记为通过。
 
 下一可执行原任务：**CORE:S04 策略审批与Terminal Strategy页面（DEVELOPMENT）**。完整R1四项清单仍未勾选，正式checkpoint review_status=NOT_STARTED、source_commit=null，stage_gate保持NOT_ASSESSED；此报告不构成正式ACCEPTED、运行放行或发布授权。
