@@ -1,0 +1,9 @@
+// Direct-impact local EngineManager durable ledger regression. No database.
+import {spawnSync,execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import assert from 'node:assert/strict';
+import {webEnvironment} from '../../../../scripts/p0-functional-scope.mjs';
+import {verifyInputs} from '../../../../scripts/g1-download-review.mjs';
+const root='docs/audit/evidence/core-r1-local-20261026',dir=root+'/supplement-01',receipt=JSON.parse(readFileSync(root+'/receipt.json'));assert(!existsSync(dir));verifyInputs(receipt.sourceCommit,receipt.inputs);assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),receipt.sourceCommit);mkdirSync(dir);
+const results=[];for(const test of ['durable_result_and_circuit_survive_manager_reconstruction','os_killed_manager_replays_pending_key_into_one_durable_result']){const command=['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_mock_engine',test,'--','--exact'];const startedAt=new Date().toISOString();const r=spawnSync(command[0],command.slice(1),{env:{...webEnvironment(),GITHUB_SHA:receipt.sourceCommit,CARGO_NET_OFFLINE:'true',CARGO_TERM_COLOR:'never'},encoding:'utf8',timeout:120000,maxBuffer:16e6});const log=dir+'/'+test+'.log';writeFileSync(log,(r.stdout??'')+(r.stderr??''));results.push({sourceCommit:receipt.sourceCommit,command,startedAt,finishedAt:new Date().toISOString(),exitCode:r.status,signal:r.signal,errorCode:r.error?.code??null,log,sha256:'sha256:'+createHash('sha256').update(readFileSync(log)).digest('hex')});writeFileSync(dir+'/executions.json',JSON.stringify(results,null,2)+'\n');console.log(test,r.status);assert.equal(r.status,0);assert.match(r.stdout,/test result: ok\. 1 passed; 0 failed; 0 ignored/);}

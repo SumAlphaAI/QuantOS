@@ -1,0 +1,27 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route (4.7s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route 
+
+    TypeError: Cannot read properties of undefined (reading 'scopeHash')
+
+      14 |  await page.goto(path);await authorized(page);await page.getByRole('link',{name:'查看研究审计',exact:true}).click();await authorized(page);await expect(page.getByRole('heading',{name:'Audit Explorer',exact:true})).toBeVisible();await expect(page.getByText('当前授权范围内链完整',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'因果证据链',exact:true})).toContainText('signal.generated');await expect(page.getByRole('region',{name:'因果证据链',exact:true})).toContainText('proposal.generated');
+      15 |  const audit=(await control(`/v1/audit/evidence-chains/${row.record.output.audit.correlation_id}?pageSize=100`)).body;expect(audit.complete).toBe(true);for(let i=1;i<audit.items.length;i++)expect(audit.items[i].causationId).toBe(audit.items[i-1].eventId);
+    > 16 |  for(const [record,kind]of [[row.record,'research.artifact.registered'],[chain.signal,'signal.generated'],[chain.proposal,'proposal.generated']]as const){const event=audit.items.find((e:{objectRef:string;kind:string})=>e.objectRef===record.artifact_manifest.artifact_id&&e.kind===kind);expect(event).toBeTruthy();expect(event.redactedPayload.scopeHash).toBe(hash(record));}
+         |                                                                                                                                                                                                                                                                                                                                                       ^
+      17 |  const ids=[row.record.artifact_manifest.artifact_id,chain.signal.artifact_manifest.artifact_id,chain.proposal.artifact_manifest.artifact_id,snapshotId(),...chain.signal.auxiliary_artifact_manifests.map((m:{artifact_id:string})=>m.artifact_id),...chain.proposal.auxiliary_artifact_manifests.map((m:{artifact_id:string})=>m.artifact_id)];expect(ids.every(id=>audit.items.some((e:{objectRef:string})=>e.objectRef===id))).toBe(true);
+      18 |  expect(networkRows().some(r=>/commands|deployment|orders/.test(r.path))).toBe(false);expect(networkRows().filter(r=>r.method==='POST'&&r.path==='/v1/research-runs')).toHaveLength(1);writeFileSync(info.outputPath('r1-chain.json'),JSON.stringify({path,result,audit},null,2));
+      19 | }
+        at run (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/r1-integration.spec.ts:16:343)
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-02/browser/r1-integration-R1-RD-recov-f537a--and-missing-Proposal-route-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-02/browser/r1-integration-R1-RD-recov-f537a--and-missing-Proposal-route-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route 
+  1 error was not a part of any test, see above for details

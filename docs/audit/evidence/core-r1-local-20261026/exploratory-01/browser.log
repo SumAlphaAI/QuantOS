@@ -1,0 +1,29 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route (4.0s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route 
+
+    TypeError: fetch failed
+
+       at fixtures/u01-reference.ts:63
+
+      61 | }
+      62 |
+    > 63 | export async function executeWorker(){const r=await fetch(controlOrigin+"/execute",{method:"POST",headers:{"x-u01-owned-control":"1"}});expect(r.status).toBe(200);return await r.json();}
+         |                                               ^
+      64 |
+        at executeWorker (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/u01-reference.ts:63:47)
+        at run (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/r1-integration.spec.ts:10:15)
+    [cause]: SocketError: other side closed
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-01/browser/r1-integration-R1-RD-recov-f537a--and-missing-Proposal-route-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-01/browser/r1-integration-R1-RD-recov-f537a--and-missing-Proposal-route-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/r1-integration.spec.ts:22:5 › R1 RD recover after Signal checkpoint and missing Proposal route 
+  1 error was not a part of any test, see above for details

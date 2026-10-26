@@ -1,0 +1,31 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/r1-integration.spec.ts:21:37 › R1 vibe workflow_briefing_equities_01 actual research Signal Proposal Audit (3.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/r1-integration.spec.ts:21:37 › R1 vibe workflow_briefing_equities_01 actual research Signal Proposal Audit 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "sha256:e236917758063febef23e04be2268866d70f1e9c5d1ada6f5c5352b6f78a4ac9"
+    Received: "sha256:7e578fda4dd9b048689a12509f176b8edb1b063a179467a513d90960b554539f"
+
+      15 |  const events=(await control(`/v1/audit/events?correlationId=${row.record.output.audit.correlation_id}&pageSize=100`)).body;
+      16 |  const audit=(await control(`/v1/audit/evidence-chains/${row.record.output.audit.correlation_id}?pageSize=100`)).body;expect(audit.complete).toBe(true);for(let i=1;i<audit.items.length;i++)expect(audit.items[i].causationId).toBe(audit.items[i-1].eventId);
+    > 17 |  for(const [record,kind]of [[row.record,'research.artifact.registered'],[chain.signal,'signal.generated'],[chain.proposal,'proposal.generated']]as const){const event=events.items.find((e:{objectRef:string;kind:string})=>e.objectRef===record.artifact_manifest.artifact_id&&e.kind===kind);expect(event).toBeTruthy();expect(event.redactedPayload.scopeHash).toBe(hash(record));}
+         |                                                                                                                                                                                                                                                                                                                                                                   ^
+      18 |  const ids=[row.record.artifact_manifest.artifact_id,chain.signal.artifact_manifest.artifact_id,chain.proposal.artifact_manifest.artifact_id,snapshotId(),...chain.signal.auxiliary_artifact_manifests.map((m:{artifact_id:string})=>m.artifact_id),...chain.proposal.auxiliary_artifact_manifests.map((m:{artifact_id:string})=>m.artifact_id)];expect(ids.every(id=>audit.items.some((e:{objectRef:string})=>e.objectRef===id))).toBe(true);
+      19 |  expect(networkRows().some(r=>/commands|deployment|orders/.test(r.path))).toBe(false);expect(networkRows().filter(r=>r.method==='POST'&&r.path==='/v1/research-runs')).toHaveLength(1);writeFileSync(info.outputPath('r1-chain.json'),JSON.stringify({path,result,audit,events},null,2));
+      20 | }
+        at run (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/r1-integration.spec.ts:17:355)
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-03/browser/r1-integration-R1-vibe-wor-8fe25-earch-Signal-Proposal-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-r1-local-20261026/exploratory-03/browser/r1-integration-R1-vibe-wor-8fe25-earch-Signal-Proposal-Audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/r1-integration.spec.ts:21:37 › R1 vibe workflow_briefing_equities_01 actual research Signal Proposal Audit 
+  2 did not run
+  1 error was not a part of any test, see above for details
