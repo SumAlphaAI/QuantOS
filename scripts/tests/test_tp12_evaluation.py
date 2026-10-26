@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -159,7 +160,7 @@ class EvaluationTests(unittest.TestCase):
 
     def test_cli_denies_runtime(self):
         r = subprocess.run(
-            ["python3", str(E.ROOT / "scripts/tp12-evaluation.py"), "--runtime"],
+            [sys.executable, str(E.ROOT / "scripts/tp12-evaluation.py"), "--runtime"],
             capture_output=True,
         )
         self.assertNotEqual(r.returncode, 0)

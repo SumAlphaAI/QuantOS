@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -118,7 +119,7 @@ class EvaluationTests(unittest.TestCase):
 
     def test_runtime_cli_never_authorizes_execution(self):
         r = subprocess.run(
-            ["python3", str(E.ROOT / "scripts/tp07-evaluation.py"), "--runtime"],
+            [sys.executable, str(E.ROOT / "scripts/tp07-evaluation.py"), "--runtime"],
             capture_output=True,
         )
         self.assertNotEqual(r.returncode, 0)
