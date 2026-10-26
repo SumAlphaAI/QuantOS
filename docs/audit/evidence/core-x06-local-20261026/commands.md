@@ -33,3 +33,5 @@ Consumer 包含 `x06-scenarios.test.ts` 的 8 个历史模型场景；其中 SLA
 没有运行：全仓及递归上游 Gate、F05/F07 campaign、真实数据库/IdP/venue/testnet、持久化恢复、完整跨浏览器/人工无障碍、性能/长稳、远程 CI 或发布。
 
 只读复核：`node scripts/core-x06-review.mjs --verify`；完整证据复核：`node docs/audit/evidence/core-x06-local-20261026/verify.mjs`。
+
+补充归档检查：12 个源码/测试/规程文件的 `git diff 9a02807f..HEAD --check -- <文件清单>` exit 0。对含原始证据的 `git diff 9a02807f..274379225be0c2a0387a55853e18c92abe5f6412 --check` exit 2：仅 attempt-02 两个 Playwright 自动生成的 error-context.md 第 49 行（源码上下文中的空白行）带尾空格。按保留原始失败证据要求不改写、不删除，不能把该命令记 PASS；源码检查和 21 组功能结果不受此原始输出格式影响。
