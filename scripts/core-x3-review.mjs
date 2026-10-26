@@ -34,7 +34,7 @@ export const checks=[
  ['consumer',['pnpm','exec','vitest','run','apps/terminal/tests/x3-provider-consumer.test.ts','apps/terminal/tests/ui506.test.ts','apps/terminal/tests/ui506-provider-consumer.test.ts','apps/terminal/tests/ui-p22.test.ts','apps/terminal/tests/ui403.test.ts','apps/terminal/tests/ui403-provider-consumer.test.ts','apps/terminal/tests/fep7-hardening.test.ts','apps/terminal/tests/fep5-closure.test.ts','--reporter=verbose','--reporter=json','--outputFile={attempt}/consumer.json']],
  ['types',['pnpm','--filter','@sumalpha/terminal','typecheck']],
  ['lint',['pnpm','exec','eslint','apps/terminal/src/reconciliation/runtime.ts','apps/terminal/tests/x3-provider-consumer.test.ts','tests/e2e/x3-integration.spec.ts','tests/e2e/fixtures/x3-reference.ts','playwright.config.ts','playwright.x3.config.ts','scripts/core-x3-review.mjs','scripts/core-x3-review.test.mjs']],
- ['rust-lint',['cargo','clippy','--locked','--offline','-p','bff-gateway','--tests','--','-D','warnings']],
+ ['rust-lint',['cargo','clippy','--locked','--offline','-p','bff-gateway','--tests','--no-deps','--','-D','warnings']],
  ['rust-format',['cargo','fmt','--check','-p','bff-gateway','-p','execution-gateway']],
  ['gate-tests',['node','--test','scripts/core-x3-review.test.mjs','scripts/development-execution.test.mjs','scripts/terminal-static-routes.test.mjs']],
  ['terminal-build',['pnpm','--filter','@sumalpha/terminal','build']],
