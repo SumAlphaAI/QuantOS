@@ -1,0 +1,324 @@
+[
+  {
+    "id": "readonly-intake",
+    "command": [
+      "node",
+      "scripts/check-vibe-repositories.mjs",
+      "--baseline",
+      "third_party/vibe-trading/baseline.lock.json",
+      "--remote-lock",
+      "forks/vibe-trading/repository.lock.json",
+      "--readonly",
+      "third_party/vibe-trading/upstream-src",
+      "--allow-missing-fork",
+      "1"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:47.017Z",
+    "finishedAt": "2026-10-26T02:35:47.109Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/readonly-intake.log",
+    "logSha256": "sha256:be9ef421c7f51e9a451272cbb020b49b7e8eb6b16ac99e871030782e86ad9119"
+  },
+  {
+    "id": "patch-queue",
+    "command": [
+      "node",
+      "scripts/tp01-d-patch-queue.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:47.110Z",
+    "finishedAt": "2026-10-26T02:35:47.144Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/patch-queue.log",
+    "logSha256": "sha256:4ac2eeb689b89acf59a3f40ca1139f7a34aee45ed8eb6eb4ef0b11c495163f4d"
+  },
+  {
+    "id": "sync-blocking",
+    "command": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import {record} from './scripts/tp01-e-functional.mjs';record({outputDirectory:process.argv[1]});",
+      "docs/audit/evidence/core-tp01-local-20261026/attempt-02/sync"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:47.145Z",
+    "finishedAt": "2026-10-26T02:35:48.939Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/sync-blocking.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "python-adapter",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "test_vibe_adapter_skeleton",
+      "engines/tests/test_vibe_adapter_contract.py",
+      "engines/tests/test_vibe_adapter_skeleton.py",
+      "engines/tests/test_vibe_adapter_absorption.py",
+      "engines/tests/test_vibe_adapter_rollout.py",
+      "engines/tests/test_vibe_adapter_replacement.py",
+      "engines/tests/test_vibe_adapter_research_artifact.py",
+      "-vv",
+      "--junitxml=docs/audit/evidence/core-tp01-local-20261026/attempt-02/python.xml"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:48.939Z",
+    "finishedAt": "2026-10-26T02:35:51.913Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/python-adapter.log",
+    "logSha256": "sha256:aba8779c2b25efd4a7017bd4cd598611486c941b996a19e007629025c63eea98"
+  },
+  {
+    "id": "python-lint",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "engines/vibe-adapter/src",
+      "engines/tests/test_vibe_adapter_research_artifact.py"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:51.913Z",
+    "finishedAt": "2026-10-26T02:35:51.958Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/python-lint.log",
+    "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "id": "python-format",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "format",
+      "--check",
+      "engines/vibe-adapter/src/vibe_adapter/research_artifact.py",
+      "engines/vibe-adapter/src/vibe_adapter/service.py",
+      "engines/tests/test_vibe_adapter_research_artifact.py"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:51.958Z",
+    "finishedAt": "2026-10-26T02:35:51.970Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/python-format.log",
+    "logSha256": "sha256:eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+  },
+  {
+    "id": "runtime-current",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--lib",
+      "research::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:51.970Z",
+    "finishedAt": "2026-10-26T02:35:55.811Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/runtime-current.log",
+    "logSha256": "sha256:7b278607a6df06905817cbb5c086cb28bd8e6cd7c80447abea9587bbdb5a353d"
+  },
+  {
+    "id": "runtime-detached",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "research_orchestration"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:35:55.812Z",
+    "finishedAt": "2026-10-26T02:36:00.285Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/runtime-detached.log",
+    "logSha256": "sha256:1c284625d955f44cc010af9e7862cdb65a5d008c4f8669b27b104bf5217ceb8b"
+  },
+  {
+    "id": "manager-adapter",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-engine-manager",
+      "--test",
+      "python_vibe_adapter"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:00.285Z",
+    "finishedAt": "2026-10-26T02:36:10.758Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/manager-adapter.log",
+    "logSha256": "sha256:90595ae4dd11bc67bb6a2fcda1b1b7fc0f1ea58f93c419c625e8598a939d20ff"
+  },
+  {
+    "id": "host-build",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:10.758Z",
+    "finishedAt": "2026-10-26T02:36:14.463Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/host-build.log",
+    "logSha256": "sha256:d6324c13a7695ed75326324db0e03495aa78c2a03c07a3414d0f0f7e5ca02367"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-tp01-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/tp01-d-patch-queue.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:14.490Z",
+    "finishedAt": "2026-10-26T02:36:15.040Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/gate-tests.log",
+    "logSha256": "sha256:94bc71cbb8a0c5bf1c5109fc85debe6775411cc246f1b651391a73824dcce1cf"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-tp01-review.mjs",
+      "scripts/core-tp01-review.test.mjs",
+      "tests/e2e/fixtures/u01-reference.ts",
+      "tests/e2e/tp01-integration.spec.ts",
+      "playwright.tp01.config.ts"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:15.040Z",
+    "finishedAt": "2026-10-26T02:36:15.729Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:15.730Z",
+    "finishedAt": "2026-10-26T02:36:15.786Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "tp01-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.tp01.config.ts",
+      "--project",
+      "chromium",
+      "--output",
+      "docs/audit/evidence/core-tp01-local-20261026/attempt-02/tp01-browser",
+      "--reporter=list,json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:36:15.786Z",
+    "finishedAt": "2026-10-26T02:37:18.248Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/tp01-browser.log",
+    "logSha256": "sha256:bdc139d4d488017694b6c51a8096324f5c63d369db3bed537c2ce9f86286f668"
+  },
+  {
+    "id": "u01-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.u01.config.ts",
+      "--project",
+      "chromium",
+      "--output",
+      "docs/audit/evidence/core-tp01-local-20261026/attempt-02/u01-browser",
+      "--reporter=list,json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:37:18.248Z",
+    "finishedAt": "2026-10-26T02:37:32.903Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/u01-browser.log",
+    "logSha256": "sha256:c97648837081aae1927178f8fee3d6bc1e95476bfbd34e97d0bad608a12de2f8"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:TP01"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:37:32.903Z",
+    "finishedAt": "2026-10-26T02:37:33.081Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/integration-refusal.log",
+    "logSha256": "sha256:915a54fdb184fc0241b419c7149ac30c90ecd9f2e9dd1ddea229da9fa2377e76"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:R1"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:37:33.081Z",
+    "finishedAt": "2026-10-26T02:37:33.257Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-02/next-development.log",
+    "logSha256": "sha256:b4682471196ff3ab660a5d4e5d8b2e9308bd22cee3c475588000a152031fceef"
+  }
+]

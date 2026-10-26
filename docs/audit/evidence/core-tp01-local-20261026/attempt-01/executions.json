@@ -1,0 +1,78 @@
+[
+  {
+    "id": "readonly-intake",
+    "command": [
+      "node",
+      "scripts/check-vibe-repositories.mjs",
+      "--baseline",
+      "third_party/vibe-trading/baseline.lock.json",
+      "--remote-lock",
+      "forks/vibe-trading/repository.lock.json",
+      "--readonly",
+      "third_party/vibe-trading/upstream-src",
+      "--allow-missing-fork",
+      "1"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:32:28.309Z",
+    "finishedAt": "2026-10-26T02:32:28.357Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-01/readonly-intake.log",
+    "logSha256": "sha256:be9ef421c7f51e9a451272cbb020b49b7e8eb6b16ac99e871030782e86ad9119"
+  },
+  {
+    "id": "patch-queue",
+    "command": [
+      "node",
+      "scripts/tp01-d-patch-queue.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:32:28.357Z",
+    "finishedAt": "2026-10-26T02:32:28.387Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-01/patch-queue.log",
+    "logSha256": "sha256:4ac2eeb689b89acf59a3f40ca1139f7a34aee45ed8eb6eb4ef0b11c495163f4d"
+  },
+  {
+    "id": "sync-blocking",
+    "command": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import {record} from './scripts/tp01-e-functional.mjs';record({outputDirectory:process.argv[1]});",
+      "docs/audit/evidence/core-tp01-local-20261026/attempt-01/sync"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:32:28.387Z",
+    "finishedAt": "2026-10-26T02:32:30.280Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-01/sync-blocking.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "python-adapter",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_vibe_adapter_contract.py",
+      "engines/tests/test_vibe_adapter_skeleton.py",
+      "engines/tests/test_vibe_adapter_absorption.py",
+      "engines/tests/test_vibe_adapter_rollout.py",
+      "engines/tests/test_vibe_adapter_replacement.py",
+      "engines/tests/test_vibe_adapter_research_artifact.py",
+      "-vv",
+      "--junitxml=docs/audit/evidence/core-tp01-local-20261026/attempt-01/python.xml"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T02:32:30.281Z",
+    "finishedAt": "2026-10-26T02:32:33.271Z",
+    "log": "docs/audit/evidence/core-tp01-local-20261026/attempt-01/python-adapter.log",
+    "logSha256": "sha256:6b10e882874c47343d2b9527f5d75cbf6be0da63b99f19aa7eeead6a076ec3af"
+  }
+]
