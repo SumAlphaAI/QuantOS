@@ -2531,7 +2531,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 <a id="task-s04"></a>
 ### S04：策略审批与 Terminal Strategy 页面
 
-- 2026-10-26 当前功能：修复C08合法request_info在Release消费校验被拒绝的问题，保留补充材料原因/不可变证据/报告且关闭目标；补齐后端非批准决策原因及响应丢失同键重试验证。当前20条实际R03研究→StrategyLab→Lab/回测/Release/审批/Audit及直接页面回归以新候选执行，工程Gate `PASS_OWNED_LOCAL_S04_STRATEGY_LIFECYCLE`。完整联调仍`PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate保持`NOT_ASSESSED`，不改绑历史确认或自签ACCEPTED。生产队列/增量目录、真实身份、持久化恢复、目标与发布仍待补。见[当前功能规程](./operations/core-s04-current-function.md)、[原始证据](./audit/evidence/core-s04-local-20261026/)。下一原项：`CORE-GATE:S2`当前策略闭环评估（DEVELOPMENT）。
+- 2026-10-26 当前功能：修复C08合法request_info在Release消费校验被拒绝的问题，保留补充材料原因/不可变证据/报告且关闭目标；补齐后端非批准决策原因及响应丢失同键重试验证；保留旧图/失败后同步P07既有导航、比率及真实成本曲线的2张漂移报告基线（18张矩阵），不放宽容差。当前20条实际R03研究→StrategyLab→Lab/回测/Release/审批/Audit及直接页面回归以新候选执行，工程Gate `PASS_OWNED_LOCAL_S04_STRATEGY_LIFECYCLE`。完整联调仍`PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate保持`NOT_ASSESSED`，不改绑历史确认或自签ACCEPTED。生产队列/增量目录、真实身份、持久化恢复、目标与发布仍待补。见[当前功能规程](./operations/core-s04-current-function.md)、[原始证据](./audit/evidence/core-s04-local-20261026/)。下一原项：`CORE-GATE:S2`当前策略闭环评估（DEVELOPMENT）。
 
 - task_id: `S04`
 - task_type: `CORE`

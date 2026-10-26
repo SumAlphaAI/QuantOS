@@ -20,7 +20,7 @@ C08已经允许strategy_release的`request_info`，以rejected关闭审批并保
 
 - 20个独立Research与Strategy worker来源、独立策略/Release，通过真实R03/RD-Agent和StrategyLab Python UDS输出，生产owner类型安装入口核验后，由Web读取Research Artifact→Lab→静态检查→S02回测→不可变Release→独立参考审批actor/MFA→Paper/Shadow页面选择→Audit因果链。固定自有momentum模板和合成行情，不声称20种模型/算法覆盖。
 - 拒绝、过期（受控时钟301秒）、20路并发审批（仅1次成功）、只读/离线恢复、request_info及提交响应丢失；所有场景无部署/订单请求。request_info原因含类似HTML的普通文本，按文本呈现。
-- 直接回归UI301/UI302/UI303/P07共20个浏览器场景及原18张明暗/1672/1024/390基线，不更新基线。新页面截图/axe自动检查只证明本机Chromium；incomplete逐项保留，不代表人工可访问性通过。
+- 直接回归UI301/UI302/UI303/P07共20个浏览器场景及18张明暗/1672/1024/390基线。首轮发现旧图未同步当前已有导航、比例格式和按实际成交bar绘制的成本曲线；复核后同步18张矩阵中2张1672宽报告基线，其余16张不变；完整旧图与原SHA/hash保存在visual-baseline-review-01/original。不提高容差；生成基线本身不记为比较通过，冻结候选以正常比较模式重新验证。新页面截图/axe自动检查只证明本机Chromium；incomplete逐项保留，不代表人工可访问性通过。
 - 当前C05/C08必要拒绝、scope、幂等、不可变证据与审计单元；实际R03 worker来源与原子安装拒绝；SERVICE:S04的6个TCP/UDS测试覆盖真实生成、未验证/未审批/伪造、CAS和两类本地原生消费者。测试内配置票据是本地合成事实，不执行外部部署。
 - 定向Web消费者、策略场景、身份/只读恢复、类型/静态检查、Node门禁和计划结构。仅Web产品变更，执行一轮新Terminal构建与客户端secret扫描，记录当前source/buildId/所有导出字节；无三轮构建或全仓复验。
 
