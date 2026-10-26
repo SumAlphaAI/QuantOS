@@ -86,7 +86,7 @@ fn paper_book(
     )
     .unwrap()
 }
-fn clean_chain() -> (
+pub(crate) fn clean_chain() -> (
     Harness,
     OperationsService<PaperKernel>,
     SignedCommand,

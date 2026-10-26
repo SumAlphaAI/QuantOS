@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boundary,validateBoundary,validateNative,validateShadow} from './core-x3-review.mjs';
+test('X3 current engineering assessment cannot admit a full business or runtime Gate',()=>validateBoundary(boundary()));
+for(const key of Object.keys(boundary()))test('X3 refuses promotion or scope drift '+key,()=>{const v=boundary();v[key]=typeof v[key]==='boolean'?!v[key]:'READY';assert.throws(()=>validateBoundary(v));});
+const native=()=>({scope:'TRUSTED_CONSTRUCTOR_HANDLER_NOT_HTTP_OR_COMMON_PERSISTENT_LEDGER',paperCash:'999000',expectedSource:'expected',actualSource:'actual',actualBookHash:'sha256:'+'a'.repeat(64),c15SourceHash:'sha256:'+'a'.repeat(64),newSubmits:0,replays:32,provisional:true,httpIdentity:'NOT_RUN',productionCredentialsUsed:false,command:'c',order:'o',fill:'f',nativeAuditHead:'h'});
+test('X3 native C15 proof preserves source, money and lack of HTTP identity',()=>validateNative(native()));
+for(const key of ['paperCash','actualSource','c15SourceHash','newSubmits','provisional','httpIdentity'])test('X3 rejects false native closure '+key,()=>{const v=native();v[key]=key==='newSubmits'?1:key==='provisional'?false:key==='actualSource'?'expected':'unbound';assert.throws(()=>validateNative(v));});
+const shadow=()=>({mode:'shadow',scope:'ACTUAL_REFERENCE_C15_C14_C10_C11_SEGMENTS',provisional:true,paperOrderToShadowLedger:'NOT_JOINED',nativeBookToBrowser:'NOT_JOINED',c15ToC16Positive:'NOT_RUN',externalRequests:[],productionCredentialsUsed:false,externalPublished:false,entries:[{side:'actual',sourceHash:'bound'}],point:{ledgerVersion:'bound'},reportSha256:'a'.repeat(64),reportBytes:1,pairs:[{source:'REFERENCE_COMMITTED_RESPONSE_DROPPED',bodyHash:'b',keyHash:'k',version:'0',responseHash:'r'},{bodyHash:'b',keyHash:'k',version:'0',responseHash:'r'}]});
+test('X3 Shadow browser source chain remains provisional and independently bounded',()=>validateShadow(shadow()));
+for(const key of ['nativeBookToBrowser','provisional','reportSha256','externalRequests','pairs','point'])test('X3 rejects false Shadow closure '+key,()=>{const v=shadow();v[key]=key==='provisional'?false:key==='externalRequests'?['https://venue.invalid']:key==='pairs'?[]:key==='point'?{ledgerVersion:'foreign'}:'READY';assert.throws(()=>validateShadow(v));});

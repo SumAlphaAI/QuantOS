@@ -1,5 +1,7 @@
 # CORE-GATE:X3-SERVICE 本地服务功能准入
 
+2026-10-26：CORE-GATE:X3 当前业务闭环评估使用[独立当前规程](./core-x3-current-assessment.md)和 `assess:x3-current`，只执行当前原生聚合、C15 投影及受影响消费回归；不要求先重跑本 SERVICE 的旧 17 组 campaign/LLVM 或上游闭包，不改绑历史 READY。
+
 本检查点为 DEVELOPMENT 下的受控真实服务组合。固定数量/价格/开仓基准和手算期望见 `services/execution-gateway/tests/fixtures/x3-service-golden.json`：Paper实际X03命令→SERVICE:X06→X04事实/Fill→X01仓位；独立ShadowRunner从相同开仓基准计算Decimal虚拟订单/Fill/仓位/现金。测试只对单一账户/品种/方向/数量案例作显式一一身份映射，禁止复制Paper财务结果当作Shadow期望。Paper和Shadow使用不同command_key命名空间，保留RiskGuard同key冲突拒绝。随机合法作用域/实体ID不作跨运行一致性声明。
 
 `make x3-service-check` 执行当前5项聚合行为；`make x3-service-assess-local` 只在已提交候选上执行 `scripts/x3-service-test-scope.mjs` 明列的17组检查，不调用历史依赖Gate。所有结果绑定同一源码和当前输入，在新function-attempt-NN目录保存原始日志、时间/退出码/信号/超时和LLVM数据。最小子进程环境剔除数据库/secret/token及目标开关，全部Cargo离线。

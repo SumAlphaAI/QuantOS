@@ -2625,6 +2625,8 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - [ ] 命令、订单、成交、仓位和审计链可重建；命令重复执行=0。
 - [ ] kill switch、数据陈旧、venue 故障、审批拒绝、事件重放演练全绿。
 
+- 2026-10-26 当前闭环评估：补齐实际 X03/Operations/X04/X01 Paper 与独立 Shadow 的账本进入真实 C15 constructor/handler 的来源 hash、黄金金额及 32 次同键回放验证；修复对账消费者非 JSON 401/403、工作区/本地授权失效后的事实/未知意图残留，以及 CSRF 轮换后仍可使用旧意图的问题。当前原生、Web Paper 审批/订单/审计导出及 Shadow 对账/收益报表/运维链按影响范围验证，工程 Gate `PASS_OWNED_LOCAL_X3_EXECUTION_GOVERNANCE_LOOP`。完整 X3 仍 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate 保持 `NOT_ASSESSED`，上面三项完整清单不勾选，正式 checkpoint 字段不冒充全量通过。原生账本与浏览器 C09/C15 公共持久来源、C15/C16 阳性、P13/P14 完整能力、真实身份/持久恢复及 TP07 全业务联调后的完整 TP12 复审仍待补；当前七规则/六接口/八设计威胁仅 reference-only 边界复核。10 交易日 Shadow、目标/性能/长稳/CI/发布保持 NOT_RUN。见[当前规程](./operations/core-x3-current-assessment.md)、[范围清单](./execution/core-x3-current-assessment.json)、[原始证据](./audit/evidence/core-x3-local-20261026/)。下一原项：`FRONTEND-GATE:G7` I9 当前 Beta Web 业务闭环评估（DEVELOPMENT），不授予 Beta 发布准入。
+
 <a id="acceptance-core-gate-x3"></a>
 ### CORE-GATE:X3：验收检查点
 
