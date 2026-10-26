@@ -18,7 +18,9 @@ jobs:
   capture:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # Cold Ubuntu browser dependencies alone took over 18 minutes on 2026-10-26.
+    # Leave a bounded budget for installation and the subsequent capture suite.
+    timeout-minutes: 45
     env:
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
       NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai

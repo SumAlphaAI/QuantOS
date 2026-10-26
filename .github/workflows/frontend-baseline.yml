@@ -124,7 +124,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-a2-semantics-${{ github.event.pull_request.head.sha || github.sha }}
-          path: artifacts/bff-fe-001/semantics*
+          path: |
+            artifacts/bff-fe-001/semantics*
+            artifacts/bff-fe-001/mutations.json
+            artifacts/bff-fe-001/mutation-*.log
+            artifacts/bff-fe-001/lock-pruning.log
           if-no-files-found: warn
 
       - name: A2 development disposition and dependency receipt rejection probes

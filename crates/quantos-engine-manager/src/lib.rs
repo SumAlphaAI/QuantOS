@@ -870,8 +870,7 @@ impl EngineManager {
                 .as_ref()
                 .map_or("", |actor| actor.actor_id.as_str()),
             serde_json::to_value(&request.input)
-                .map_err(|_| EngineManagerError::InvalidRequest("input_json"))?
-                .to_string(),
+                .map_err(|_| EngineManagerError::InvalidRequest("input_json"))?,
         );
         let pending_execution_id =
             format!("{}:{}", request.workflow_run_id, request.idempotency_key);
