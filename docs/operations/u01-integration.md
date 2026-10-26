@@ -6,7 +6,7 @@
 
 - P03 使用既有 `useDesktopOperations`，小于 768px 时隐藏创建入口和创建表单；首次媒体查询生效后才加载创建快照。P04 隐藏取消及未知结果重试入口，缩屏时关闭已经打开的取消确认框。
 - Research runtime 与 detail runtime 在写入的每次权限检查中重核屏幕条件，包括读取 C01/C04 后、POST 前的异步窗口。已发出写入后若缩屏，仍保留已知受理回执，避免把它丢失后引导重复提交。读列表、详情和证据继续可用；放大屏幕或恢复连接不会自动发送业务写入。
-- reference C04 的实际 worker Artifact 现在返回可定位的 evidence 成员；与 live adapter 共享原有确定性 ID 转换，算法不变。产物成员和 hash 来自实际 R03 record，未使用页面代理替换完成状态或伪造产物。
+- reference C04 的实际 worker Artifact 现在返回可定位的 evidence 成员；与 live adapter 共享原有确定性 ID 转换，算法不变。已有 Strategy 注册路径也同步填充父 Research 的 evidenceRefs，避免新增成员被消费者误判为跨父任务；实际二十条 worker 链检查该对应关系。产物成员和 hash 来自实际 R03 record，未使用页面代理替换完成状态或伪造产物。
 - `services/bff-gateway/src/u01.rs` 仅在 `cfg(test)` 编译。它读取 reference C03 已受理意图，经受控独立 loopback 端口调度真正的 `ResearchWorkflowCoordinator`、运行时、快照质量门禁、EngineManager 与仓库内 RD-Agent Python UDS 进程。完成后将真实 record 交给 reference C04/C03 查询及通知，增加完成审计。浏览器只通过 typed API 消费事实。测试控制不能提交终态或产物载荷。
 - 为避免虚报持久队列，本宿主明确记录 `bffRunId → workerRunId`。C03 意图存储、C04 仓库、身份 cookie 桥、自签 TLS/CORS 都是自有端口替代。该测试适配器不是生产路由，也不证明 live PostgreSQL/Storage 已执行。
 
@@ -19,6 +19,7 @@
 | 检查 | 当前范围与原因 |
 | --- | --- |
 | bff lib 编译、research tests | 验证共享 evidence ID、C03/C04 schema、幂等、质量、权限和审计路径 |
+| G3 worker projection 回归 | C04 成员扩展直接影响已有 Strategy 注册父 Research 的 evidenceRefs，执行实际二十条 worker 链校验成员可定位；不提升 G3 原验收 |
 | auth_settings_provider | 实际 BFF 身份、CSRF/MFA、撤权与安全恢复直接回归 |
 | quantos-runtime research 单元 | 当前消费的调度、取消、deadline、产物完整性边界；不等于 Web 全组合恢复 |
 | UI201/UI202/research-gateway/auth-bff/auth-poc/UI203 | 当前消费者创建、取消、异步缩屏拒绝、OIDC/PKCE 状态、产物关系与 hash |

@@ -398,6 +398,42 @@ async fn worker_to_registration_rejects_forgery_and_closes_twenty_causal_chains(
     let router = p.router();
     let mut chains = Vec::new();
     for row in &registrations {
+        // C04 members exposed to Web consumers must remain locatable through
+        // their C03 parent after the incremental evidence projection is added.
+        let run_id = row["researchRun"]["workflow_run_id"].as_str().unwrap();
+        let artifact_id = row["researchArtifact"]["artifact_manifest"]["artifact_id"]
+            .as_str()
+            .unwrap();
+        let (status, parent) = call(
+            &router,
+            "GET",
+            &format!("/v1/research-runs/{run_id}"),
+            None,
+            crate::CURRENT_SESSION,
+            Uuid::new_v4(),
+            None,
+        )
+        .await;
+        assert_eq!(status, 200);
+        let (status, artifact) = call(
+            &router,
+            "GET",
+            &format!("/v1/artifacts/{artifact_id}"),
+            None,
+            crate::CURRENT_SESSION,
+            Uuid::new_v4(),
+            None,
+        )
+        .await;
+        assert_eq!(status, 200);
+        let members: Vec<_> = artifact["evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|e| e["evidenceId"].clone())
+            .collect();
+        assert!(!members.is_empty());
+        assert_eq!(parent["evidenceRefs"], json!(members));
         let sid = row["strategyId"].as_str().unwrap();
         let correlation = row["correlationId"].as_str().unwrap();
         let (s, d) = call(

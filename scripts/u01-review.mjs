@@ -14,6 +14,7 @@ export const boundary=()=>({nodeId:'CORE:U01',engineeringGate:'PASS_OWNED_LOCAL_
 export function validateBoundary(value){assert.deepEqual(value,boundary());}
 const checks=[
  ['host-build',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','--no-run','--message-format=json']],
+ ['worker-projection-regression',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','g3_research_tests::worker_to_registration_rejects_forgery_and_closes_twenty_causal_chains']],
  ['research-backend',['cargo','test','--locked','--offline','-p','bff-gateway','--lib','research::tests::']],
  ['auth-backend',['cargo','test','--locked','--offline','-p','bff-gateway','--test','auth_settings_provider']],
  ['research-runtime',['cargo','test','--locked','--offline','-p','quantos-runtime','--lib','research::']],
