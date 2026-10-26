@@ -16,9 +16,10 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
   const localPolicyFailures=new WeakSet<object>();
   const policyFail=(status:number,message?:string):never=>{const error=new AuditGatewayError(message??"当前操作条件未满足。","auditRuntime",status);localPolicyFailures.add(error);throw error;};
   function clear(){context=undefined;page=undefined;chain=undefined;job=undefined;query=undefined;keys.clear();uncertain=undefined;searchCursors.clear();chainCursors.clear();}
+  const authorize=()=>{try{config.authorize();}catch(error){clear();throw error;}};
   function guard(write = false, highRisk = false) {
     try {
-      config.authorize();
+      authorize();
       if (lifetime.signal.aborted || !config.online() || !context) fail(403);
       if (!Number.isFinite(now()) || now() >= Date.parse(context!.expiresAt)) fail(401);
       if (!context!.capabilities.includes("audit:read")) fail(403);
@@ -69,8 +70,8 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
         if (!r.data) fail(r.response.status);
         return bffZodSchemas.SessionContext.parse(r.data);
       };
-      const session=await read("/v1/session");config.authorize();
-      const current=await read("/v1/context");config.authorize();
+      const session=await read("/v1/session");authorize();
+      const current=await read("/v1/context");authorize();
       if (lifetime.signal.aborted || authority(session)!==authority(current) || boundAuthority!==undefined&&boundAuthority!==authority(current) || current.mfaState==="challenged" || !["research","paper","shadow"].includes(current.mode)) fail(403);
       boundAuthority??=authority(current);boundDeadline=Math.min(boundDeadline,Date.parse(session.expiresAt),Date.parse(current.expiresAt));
       context={...current,expiresAt:new Date(boundDeadline).toISOString()};guard();
