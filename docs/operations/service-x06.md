@@ -1,5 +1,7 @@
 # SERVICE:X06 功能运行与验收规程
 
+2026-10-26 CORE:X06 Web 当前功能使用独立的[当前影响范围规程](./core-x06-current-function.md)和 `assess:x06-current`；不要求先重跑本 SERVICE 的旧 20 组 campaign 或上游闭包。本页保留 SERVICE 原始边界及手工入口，历史 READY 不改绑到 Web 新候选。
+
 `make service-x06-check` 执行23项当前业务测试及3项编译拒绝契约。`make service-x06-assess-local` 仅在源码/工具/规范输入提交后运行20组影响范围检查，在全新 function-attempt-NN 目录保存命令、原始日志、时间/退出码/信号/超时、LLVM原始数据和输入摘要。记录器只继承最小工具环境，离线运行，不读取生产凭据或 DATABASE_URL。失败/中断原样保存，禁止拼接旧READY。
 
 `make service-x06-local-check` 校验不可变源码、当前相关输入、精确检查集合/行为名/日志摘要、覆盖率及分阶段状态，并校验计划登记的manifest摘要。当前功能仅 DEVELOPMENT READY；八个直接依赖记录 NOT_REVALIDATED/referenceOnly。不会执行上游任务门禁。业务联调和发布分别NOT_RUN。`make service-x06-release-check`、`node scripts/service-x06-target-check.mjs` 必须exit2，不能凭本地回执准入真实目标。

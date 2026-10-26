@@ -17,7 +17,7 @@ function setup(handler?:(r:Request)=>Response|Promise<Response>|undefined){
  if(p==="/v1/audit/events")return json({items:[]});
  return json(job,r.method==="POST"?202:200);};
  const runtime=createAuditRuntime({origin:"https://bff.example",fetchImpl:transport,authorize:()=>{if(!valid)throw Error("invalidated");},csrf:()=>csrf,online:()=>online,width:()=>width,now:()=>time,timeoutMs:30});
- return{runtime,requests,json,invalidate:()=>{valid=false;},noCsrf:()=>{csrf="";},offline:()=>{online=false;},mobile:()=>{width=390;},advance:(ms:number)=>{time+=ms;}};
+ return{runtime,requests,json,invalidate:()=>{valid=false;},noCsrf:()=>{csrf="";},offline:()=>{online=false;},mobile:()=>{width=390;},desktop:()=>{width=1440;},advance:(ms:number)=>{time+=ms;}};
 }
 describe("UI-507 guarded Audit Explorer",()=>{
  it("guards session/context authority before data, and refuses read-only mutation",async()=>{
@@ -48,7 +48,7 @@ describe("UI-507 guarded Audit Explorer",()=>{
  });
  it("rechecks authority between MFA and reauth so revocation cannot dispatch mutation",async()=>{
   const s=setup(r=>{if(r.url.endsWith("/challenges")){s.invalidate();return s.json({status:"verified",challengeRef:eventId,expiresAt:"2099-01-01T00:00:00Z"});}});
-  await s.runtime.load();await expect(s.runtime.create(body,"123456")).rejects.toThrow("invalidated");expect(s.requests.map(r=>new URL(r.url).pathname)).toEqual(["/v1/session","/v1/context","/v1/auth/mfa/challenges"]);s.runtime.close();
+  await s.runtime.load();await expect(s.runtime.create(body,"123456")).rejects.toThrow("invalidated");expect(s.requests.map(r=>new URL(r.url).pathname)).toEqual(["/v1/session","/v1/context","/v1/session","/v1/context","/v1/auth/mfa/challenges"]);s.runtime.close();
  });
  it("lost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key",async()=>{
   let lost=true;const s=setup(r=>{if(r.url.endsWith("/v1/exports")&&lost){lost=false;throw TypeError("lost response");}return undefined;});
@@ -88,3 +88,12 @@ describe("UI-507 guarded Audit Explorer",()=>{
  });
 
 });
+
+it('X06 pins Audit authority across reload and discards uncertain exports on a changed workspace',async()=>{let changed=false;const s=setup(r=>{if(/\/v1\/(session|context)$/.test(r.url))return s.json({...context,...changed?{workspaceId:eventId}:{}});if(new URL(r.url).pathname==='/v1/exports')throw Error('owned response lost');});await s.runtime.load();await expect(s.runtime.create(body,'123456')).rejects.toThrow();expect(s.runtime.uncertain).toBe(true);changed=true;await expect(s.runtime.load()).rejects.toMatchObject({status:403});expect(s.runtime.uncertain).toBe(false);const count=s.requests.length;await expect(s.runtime.create(body,'123456')).rejects.toMatchObject({status:403});expect(s.requests).toHaveLength(count);s.runtime.close();});
+it('X06 same-authority reload cannot extend the original Audit session deadline',async()=>{const start=Date.now();let expiry=start+10000;const s=setup(r=>/\/v1\/(session|context)$/.test(r.url)?s.json({...context,expiresAt:new Date(expiry).toISOString()}):undefined);await s.runtime.load();expiry=start+60000;await s.runtime.load();s.advance(11000);await expect(s.runtime.search()).rejects.toMatchObject({status:401});s.runtime.close();});
+it.each([401,403])('X06 non-JSON Audit %s clears unknown intents before any further MFA or mutation',async status=>{let refused=false;const s=setup(r=>{if(new URL(r.url).pathname==='/v1/exports')throw Error('owned response lost');if(refused&&r.url.includes('/audit/events'))return new Response('denied',{status,headers:{'content-type':'text/plain'}});});await s.runtime.load();await expect(s.runtime.create(body,'123456')).rejects.toThrow();expect(s.runtime.uncertain).toBe(true);refused=true;await expect(s.runtime.search()).rejects.toMatchObject({status});expect(s.runtime.uncertain).toBe(false);const count=s.requests.length;await expect(s.runtime.create(body,'123456')).rejects.toMatchObject({status:403});expect(s.requests).toHaveLength(count);s.runtime.close();});
+
+it('X06 export revalidates authority before MFA even without an explicit reload',async()=>{let changed=false;const s=setup(r=>/\/v1\/(session|context)$/.test(r.url)?s.json({...context,...changed?{accountId:eventId}:{}}):undefined);await s.runtime.load();changed=true;await expect(s.runtime.create(body,'123456')).rejects.toMatchObject({status:403});expect(s.requests.some(r=>r.url.includes('/auth/')||r.url.endsWith('/exports'))).toBe(false);s.runtime.close();});
+it('X06 transient identity failure preserves the original unknown export key for explicit recovery',async()=>{let lost=true,unavailable=false;const s=setup(r=>{if(unavailable&&r.url.endsWith('/v1/session'))return s.json({},503);if(lost&&r.url.endsWith('/v1/exports')){lost=false;throw Error('owned response lost');}});await s.runtime.load();await expect(s.runtime.create(body,'123456')).rejects.toThrow();unavailable=true;await expect(s.runtime.create(body,'123456')).rejects.toMatchObject({status:503});expect(s.runtime.uncertain).toBe(true);unavailable=false;await s.runtime.create(body,'123456');const writes=s.requests.filter(r=>r.url.endsWith('/v1/exports'));expect(writes).toHaveLength(2);expect(writes[0].headers.get('idempotency-key')).toBe(writes[1].headers.get('idempotency-key'));s.runtime.close();});
+
+it('X06 small-screen refusal preserves an unknown export until desktop explicit same-key recovery',async()=>{let lost=true;const s=setup(r=>{if(lost&&r.url.endsWith('/v1/exports')){lost=false;throw Error('owned response lost');}});await s.runtime.load();await expect(s.runtime.create(body,'123456')).rejects.toThrow();s.mobile();await expect(s.runtime.create(body,'123456')).rejects.toMatchObject({status:403});expect(s.runtime.uncertain).toBe(true);s.desktop();await s.runtime.create(body,'123456');const writes=s.requests.filter(r=>r.url.endsWith('/v1/exports'));expect(writes).toHaveLength(2);expect(writes[0].headers.get('idempotency-key')).toBe(writes[1].headers.get('idempotency-key'));s.runtime.close();});

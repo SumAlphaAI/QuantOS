@@ -10,16 +10,22 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
   const transport = config.fetchImpl ?? fetch, now = config.now ?? Date.now, lifetime = new AbortController();
   const options: BffRequestOptions = {signal: lifetime.signal, timeoutMs: config.timeoutMs ?? 15000};
   let context: RouteContext | undefined, busy = false, retryAt = 0, query: AuditSearch | undefined, page: AuditEventPage | undefined, chain: EvidenceChainPage | undefined, job: ExportJob | undefined;
-  let uncertain: string | undefined;
+  let uncertain: string | undefined, boundAuthority:string|undefined, boundDeadline=Infinity;
   const keys = new Map<string,string>(), searchCursors = new Set<string>(), chainCursors = new Set<string>();
   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw new AuditGatewayError(message,"auditRuntime",status);};
+  const localPolicyFailures=new WeakSet<object>();
+  const policyFail=(status:number,message?:string):never=>{const error=new AuditGatewayError(message??"当前操作条件未满足。","auditRuntime",status);localPolicyFailures.add(error);throw error;};
+  function clear(){context=undefined;page=undefined;chain=undefined;job=undefined;query=undefined;keys.clear();uncertain=undefined;searchCursors.clear();chainCursors.clear();}
   function guard(write = false, highRisk = false) {
-    config.authorize();
-    if (lifetime.signal.aborted || !config.online() || !context) fail(403);
-    if (now() >= Date.parse(context!.expiresAt)) fail(401);
-    if (!context!.capabilities.includes(write ? "audit:export" : "audit:read")) fail(403);
-    if (write && !config.csrf()) fail(403);
-    if (highRisk && config.width() < 768) fail(403,"小屏仅支持审计查询和已授权下载。");
+    try {
+      config.authorize();
+      if (lifetime.signal.aborted || !config.online() || !context) fail(403);
+      if (!Number.isFinite(now()) || now() >= Date.parse(context!.expiresAt)) fail(401);
+      if (!context!.capabilities.includes("audit:read")) fail(403);
+    }catch(error){clear();throw error;}
+    if(write&&!context!.capabilities.includes("audit:export"))policyFail(403);
+    if (write && !config.csrf()) policyFail(403);
+    if (highRisk && config.width() < 768) policyFail(403,"小屏仅支持审计查询和已授权下载。");
     if (write && now() < retryAt) fail(429,"请求过于频繁，请等待后显式重试。");
     return context!;
   }
@@ -27,6 +33,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
     if (busy) throw Error("已有请求处理中。");busy = true;
     try {return await run();} catch (error) {
       const e = error as {status?:number;retryAfter?:number};
+      if(e.status===401||(e.status===403&&!localPolicyFailures.has(error as object)))clear();
       if (e.status === 429 && retryAt <= now()) retryAt = now() + (Number.isFinite(e.retryAfter) && e.retryAfter! > 0 ? Math.min(e.retryAfter!,3600) : 30)*1000;
       throw error;
     } finally {busy = false;}
@@ -38,7 +45,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
     if (next && (next === current || seen.has(next))) fail(502,"服务端分页游标无效，请重新搜索。");
   }
   async function mutation(intent: string, code: string, run: (key:string,grant:string)=>Promise<ExportJob>) {
-    guard(true,true);
+    guard(true,true);await identity();guard(true,true);
     if (uncertain && uncertain !== intent) fail(409,"上次请求结果未知，请先用原内容显式重试确认。");
     if (!/^\d{6}$/.test(code)) fail(422,"请输入六位 MFA 验证码。");
     if (!keys.has(intent)) keys.set(intent,crypto.randomUUID());
@@ -49,16 +56,12 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
     try {const result = await run(keys.get(intent)!,grant.reauthTokenRef);guard(true,true);job = result;keys.delete(intent);uncertain = undefined;return structuredClone(result);}
     catch (error) {
       const e=error as {outcomeUnknown?:boolean;status?:number};
-      if (e.outcomeUnknown || e.status===undefined || e.status>=500 || e.status>=200&&e.status<300) {uncertain=intent;e.outcomeUnknown=true;}
+      if (context && !lifetime.signal.aborted && (e.outcomeUnknown || e.status===undefined || e.status>=500 || e.status>=200&&e.status<300)) {uncertain=intent;e.outcomeUnknown=true;}
       throw error;
     }
   }
-  return {
-    assertCurrent() {guard();},
-    get deadline() {return Math.min(context ? Date.parse(context.expiresAt) : Infinity,...(page?.items??[]).map(i=>Date.parse(i.retentionUntil)),...(chain?.items??[]).map(i=>Date.parse(i.retentionUntil)));},
-    get retryAt() {return retryAt;},
-    get uncertain() {return Boolean(uncertain);},
-    async load() {
+  async function identity() {
+    try {
       if (!config.origin) fail(503,"审计服务未配置。");
       const client = createBffClient({baseUrl:config.origin,fetch:transport,...options});
       const read = async (path:"/v1/session"|"/v1/context") => {
@@ -68,10 +71,18 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
       };
       const session=await read("/v1/session");config.authorize();
       const current=await read("/v1/context");config.authorize();
-      if (lifetime.signal.aborted || authority(session)!==authority(current) || current.mfaState==="challenged" || !["research","paper","shadow"].includes(current.mode)) fail(403);
-      context={...current,expiresAt:new Date(Math.min(Date.parse(session.expiresAt),Date.parse(current.expiresAt))).toISOString()};guard();
+      if (lifetime.signal.aborted || authority(session)!==authority(current) || boundAuthority!==undefined&&boundAuthority!==authority(current) || current.mfaState==="challenged" || !["research","paper","shadow"].includes(current.mode)) fail(403);
+      boundAuthority??=authority(current);boundDeadline=Math.min(boundDeadline,Date.parse(session.expiresAt),Date.parse(current.expiresAt));
+      context={...current,expiresAt:new Date(boundDeadline).toISOString()};guard();
       return structuredClone(context);
-    },
+    }catch(error){const status=(error as {status?:number}).status;if(status===401||status===403)clear();throw error;}
+  }
+  return {
+    assertCurrent() {guard();},
+    get deadline() {return Math.min(context ? Date.parse(context.expiresAt) : Infinity,...(page?.items??[]).map(i=>Date.parse(i.retentionUntil)),...(chain?.items??[]).map(i=>Date.parse(i.retentionUntil)));},
+    get retryAt() {return retryAt;},
+    get uncertain() {return Boolean(uncertain);},
+    load:identity,
     search(input: AuditSearch = {}, more = false) {return exclusive(async()=>{
       guard();
       if (more && (!query || !page?.nextCursor || searchCursors.size>=49)) fail(422);
@@ -117,7 +128,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
       deliver(metadata);
       return {sha256:metadata.sha256,sizeBytes:metadata.sizeBytes,auditRef:metadata.auditRef};
     });},
-    close() {lifetime.abort();context=undefined;page=undefined;chain=undefined;job=undefined;query=undefined;keys.clear();uncertain=undefined;searchCursors.clear();chainCursors.clear();},
+    close() {lifetime.abort();clear();boundAuthority=undefined;boundDeadline=Infinity;},
   };
 }
 export type AuditRuntime = ReturnType<typeof createAuditRuntime>;

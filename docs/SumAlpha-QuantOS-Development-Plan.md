@@ -2603,7 +2603,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06", "FRONTEND-GATE:G5", "FRONTEND-GATE:G4", "FRONTEND-GATE:G6"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `I8`
 - 需求描述：执行/审计/运维 Terminal 页面
@@ -2614,6 +2614,8 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X05、U01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+
+- 2026-10-26 当前功能：补齐 P08–P14 同一自有 Paper BFF 进程的审批/MFA、Command/撤单响应丢失恢复、订单证据链、原始水印导出字节、Runbook 与治理页面组合；修复 Audit 会话重载可迁移权限/延长租约、传输 401/403 后未知导出意图残留的问题，保留暂时故障/限流/小屏下原键显式恢复。工程 Gate `PASS_OWNED_LOCAL_X06_EXECUTION_AUDIT_OPERATIONS`；完整 X06 仍 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate 保持 `NOT_ASSESSED`，不自签 ACCEPTED。真实 IdP/MFA、持久化/跨进程恢复、C09/C11 公共来源、InspectEvidence/关闭 incident 的 HTTP 正向、P13 七服务/P14 全部元数据、完整浏览器/人工无障碍及原 ≤5 分钟目标未验收；目标与发布 `NOT_RUN`。见[当前规程](./operations/core-x06-current-function.md)、[原始证据](./audit/evidence/core-x06-local-20261026/)。下一原项：`CORE-GATE:X3` 当前执行与治理闭环评估（DEVELOPMENT）。
 
 <a id="104-x3-gate"></a>
 <a id="gate-x3"></a>
