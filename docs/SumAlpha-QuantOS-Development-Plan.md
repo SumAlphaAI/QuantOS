@@ -2453,7 +2453,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04", "FE:FEP-2"]
 - core_prerequisites: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `I2`
 - 需求描述：Web Terminal 壳、认证与 Research 页面
@@ -2463,6 +2463,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 阶段执行：本地开发验证Research创建/流式/取消/证据交互、noindex、小屏高风险动作隐藏；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F06–F09、R02–R04
+- 2026-10-26 执行状态：完成当前 Web 功能与小屏风险动作修复；新增 reference C03 意图 → 实际 R03/RD-Agent UDS → C04 Artifact/Evidence/通知/Audit 的自有本机组合测试。工程结论 `PASS_OWNED_LOCAL_U01_COMPOSITION`，完整联调 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`；stage_gate 仍为 `NOT_ASSESSED`，不宣称正式 ACCEPTED。身份/TLS/CORS/内存存储及 BFF→worker run 映射为显式测试端口替代；持久队列/Storage、运行中取消/deadline/重启组合、真实 OIDC 和完整浏览器/全仓联调待补，目标与发布 `NOT_RUN`。见[执行规程](./operations/u01-integration.md)及[原始证据](./audit/evidence/u01-local-20261026/)。下一可执行原任务：`CORE:TP01` 的 DEVELOPMENT。
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-u01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01"></a>

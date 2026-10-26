@@ -463,7 +463,11 @@ async fn reference(
         Err(e) => e.response(),
     }
 }
-fn record_reference_audit(state: &mut crate::ProviderData, payload: &mut Value, action: &str) {
+pub(crate) fn record_reference_audit(
+    state: &mut crate::ProviderData,
+    payload: &mut Value,
+    action: &str,
+) {
     if payload.get("auditRef").is_none() {
         payload["auditRef"] = json!(Uuid::new_v4());
     }
@@ -493,6 +497,16 @@ fn record_reference_audit(state: &mut crate::ProviderData, payload: &mut Value, 
         "actor":"reference-current","objectRef":object,"occurredAt":state.now(),"redactionApplied":true,
         "redactedPayload":redacted,"payloadHash":crate::audit_core::payload_hash(&redacted),
         "route":format!("/research/{}",object.as_str().unwrap_or_default()),"retentionUntil":state.now()+Duration::days(365)}));
+}
+
+pub(crate) fn worker_evidence_id(artifact: Uuid, raw: &str) -> Uuid {
+    use sha2::{Digest, Sha256};
+    let hash = Sha256::digest(format!("{artifact}:{raw}").as_bytes());
+    let mut bytes = [0u8; 16];
+    bytes.copy_from_slice(&hash[..16]);
+    bytes[6] = (bytes[6] & 15) | 64;
+    bytes[8] = (bytes[8] & 63) | 128;
+    Uuid::from_bytes(bytes)
 }
 
 #[derive(Debug)]
@@ -533,6 +547,19 @@ impl Default for Fixture {
     }
 }
 impl Fixture {
+    #[cfg(test)]
+    pub(crate) fn owned_inputs(&self) -> Vec<(Uuid, Create)> {
+        self.commands
+            .iter()
+            .filter(|(key, _)| key.starts_with("create:"))
+            .map(|(_, (input, accepted))| {
+                (
+                    uuid(accepted["jobId"].as_str().unwrap()).unwrap(),
+                    serde_json::from_value(input.clone()).unwrap(),
+                )
+            })
+            .collect()
+    }
     fn replay(&self, key: &str, intent: &Value) -> Result<Option<Value>> {
         self.commands
             .get(key)
@@ -657,7 +684,7 @@ impl Repository for Fixture {
                 );
             }
             return Ok(
-                json!({"artifactId":id,"hypothesis":record.output["hypothesis"].as_str().unwrap_or("Bounded strategy continuation"),"summary":record.output["summary"].as_str().unwrap_or("Completed owned worker output"),"engineVersion":"r03-worker-owned-uds","promptVersion":record.output["prompt_version"].as_str().unwrap_or("unreported"),"codeVersion":record.output["environment"]["code_version"].as_str().unwrap_or("unreported"),"environmentHash":digest(&record.output["environment"]),"dataSnapshotId":record.data_snapshot_id,"contentHash":manifest.content_hash,"createdAt":record.created_at}),
+                json!({"artifactId":id,"hypothesis":record.output["hypothesis"].as_str().unwrap_or("Bounded strategy continuation"),"summary":record.output["summary"].as_str().unwrap_or("Completed owned worker output"),"engineVersion":"r03-worker-owned-uds","promptVersion":record.output["prompt_version"].as_str().unwrap_or("unreported"),"codeVersion":record.output["environment"]["code_version"].as_str().unwrap_or("unreported"),"environmentHash":digest(&record.output["environment"]),"dataSnapshotId":record.data_snapshot_id,"contentHash":manifest.content_hash,"evidence":record.evidence_refs.iter().map(|e|json!({"evidenceId":worker_evidence_id(id,&e.evidence_id),"artifactId":id,"summary":e.summary})).collect::<Vec<_>>(),"createdAt":record.created_at}),
             );
         }
         let mut artifact = self.artifacts.get(&id).cloned().ok_or_else(Fault::hidden)?;

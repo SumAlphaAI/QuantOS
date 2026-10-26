@@ -9,11 +9,11 @@ const receipt={jobId:id,status:"cancel_requested",statusRef:`/v1/research-runs/$
 const runtimes:ResearchDetailRuntime[]=[];
 afterEach(()=>{for(const r of runtimes.splice(0))r.close();});
 function setup(handler?:(r:Request)=>Response|Promise<Response>|undefined,options:{idleMs?:number;maxReconnects?:number}={}){
- let valid=true,online=true,csrf="csrf",clock=now;const requests:Request[]=[],invalid:number[]=[];
- const runtime=createResearchDetailRuntime({origin:"https://bff.example",runId:id,authorize:()=>{if(!valid)throw Error("revoked");},online:()=>online,csrf:()=>csrf,now:()=>clock,timeoutMs:100,idleMs:1000,maxReconnects:1,retryDelayMs:0,...options,invalidate:status=>{invalid.push(status);runtime.close();},fetchImpl:async(input,init)=>{const r=new Request(input,init);requests.push(r);const override=await handler?.(r);if(override)return override;const path=new URL(r.url).pathname;
+ let valid=true,online=true,wide=true,csrf="csrf",clock=now;const requests:Request[]=[],invalid:number[]=[];
+ const runtime=createResearchDetailRuntime({origin:"https://bff.example",runId:id,authorize:()=>{if(!valid)throw Error("revoked");},online:()=>online,operationsAllowed:()=>wide,csrf:()=>csrf,now:()=>clock,timeoutMs:100,idleMs:1000,maxReconnects:1,retryDelayMs:0,...options,invalidate:status=>{invalid.push(status);runtime.close();},fetchImpl:async(input,init)=>{const r=new Request(input,init);requests.push(r);const override=await handler?.(r);if(override)return override;const path=new URL(r.url).pathname;
  if(path.endsWith("/stream"))return new Response(new ReadableStream({start(c){r.signal.addEventListener("abort",()=>{try{c.close();}catch{/* Already closed by transport cancellation. */}});}}),{headers:{"content-type":"text/event-stream"}});
  return Response.json(/\/(session|context)$/.test(path)?context:r.method==="POST"?receipt:run,{status:r.method==="POST"?202:200});}});
- runtimes.push(runtime);return{runtime,requests,invalid,invalidate:()=>{valid=false;},offline:()=>{online=false;},noCsrf:()=>{csrf="";},advance:(n:number)=>{clock+=n;}};
+ runtimes.push(runtime);return{runtime,requests,invalid,small:()=>{wide=false;},invalidate:()=>{valid=false;},offline:()=>{online=false;},noCsrf:()=>{csrf="";},advance:(n:number)=>{clock+=n;}};
 }
 const event=(sequence:number,extra:Record<string,unknown>={})=>({streamId:id,sequence,eventId:`22222222-2222-4222-8222-${String(sequence).padStart(12,"0")}`,occurredAt:new Date(now).toISOString(),correlationId:other,payloadVersion:"v1",payload:{type:"research.progress",runId:id},...extra});
 const sse=(events:unknown[])=>new Response(events.map(e=>`data: ${JSON.stringify(e)}\n\n`).join(""),{headers:{"content-type":"text/event-stream"}});
@@ -41,3 +41,8 @@ it.each(["wrong-id","malformed",404])("detail %s is refused and no stream starts
 it("event history and acknowledgement are bounded without silently dropping a new cursor",async()=>{const s=setup(r=>r.url.includes("/stream")?sse(Array.from({length:2001},(_,i)=>event(i+1))):undefined);await s.runtime.load();await s.runtime.refresh();await expect.poll(()=>s.runtime.view.stream,{timeout:4000}).toBe("unavailable");expect(s.runtime.view.sequence).toBe(2000);expect(s.runtime.view.events).toHaveLength(200);expect(s.runtime.view.events[0].sequence).toBe(1801);});
 
 it("canonicalizes mixed-case UUID routes before exact response resource binding",()=>{const upper="AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE";expect(researchLocation("/research/"+upper)).toBe(upper.toLowerCase());expect(researchPath(upper)).toBe("/research/"+upper.toLowerCase());});
+
+it("U01 small viewport refuses cancellation before dispatch",async()=>{const s=setup();await s.runtime.load();s.small();await expect(s.runtime.cancel()).rejects.toMatchObject({status:403});expect(s.requests.filter(r=>r.method==="POST")).toHaveLength(0);});
+it("U01 resizing during cancel preflight prevents POST",async()=>{const s=setup(r=>{if(r.url.endsWith(id))s.small();});await s.runtime.load();await expect(s.runtime.cancel()).rejects.toMatchObject({status:403});expect(s.requests.filter(r=>r.method==="POST")).toHaveLength(0);});
+
+it("U01 resizing after dispatched cancellation retains the known receipt",async()=>{const s=setup(r=>{if(r.method==="POST")s.small();});await s.runtime.load();await s.runtime.cancel();expect(s.runtime.view.receipt).toEqual(receipt);expect(s.runtime.view.uncertain).toBe(false);expect(s.requests.filter(r=>r.method==="POST")).toHaveLength(1);});

@@ -47,15 +47,6 @@ pub(super) fn source_policy() -> Result<SnapshotSourcePolicy> {
     .map_err(|_| Fault::unavailable())?;
     SnapshotSourcePolicy::new(approvals).map_err(|_| Fault::unavailable())
 }
-fn evidence_id(artifact: Uuid, raw: &str) -> Uuid {
-    use sha2::{Digest, Sha256};
-    let hash = Sha256::digest(format!("{artifact}:{raw}").as_bytes());
-    let mut bytes = [0u8; 16];
-    bytes.copy_from_slice(&hash[..16]);
-    bytes[6] = (bytes[6] & 15) | 64;
-    bytes[8] = (bytes[8] & 63) | 128;
-    Uuid::from_bytes(bytes)
-}
 fn pages() -> &'static Mutex<Pages> {
     static P: OnceLock<Mutex<Pages>> = OnceLock::new();
     P.get_or_init(|| Mutex::new(Pages::default()))
@@ -516,7 +507,7 @@ impl Repository for PgPages {
             .and_then(|a| a.output["environment"]["engine_version"].as_str())
             .unwrap_or("pending");
         Ok(
-            json!({"runId":id,"capability":run.capability,"dataSnapshotId":intent["dataSnapshotId"],"budget":run.cost_budget_units.to_string(),"costUnits":row.get::<_,String>("cost"),"deadlineAt":run.deadline_at,"status":if run.status.as_str()=="timed_out"{"failed"}else{run.status.as_str()},"inputHash":run.input_hash,"engineVersion":engine,"artifactRefs":artifact.as_ref().map(|a|vec![a.artifact_manifest.artifact_id]).unwrap_or_default(),"evidenceRefs":artifact.as_ref().map(|a|a.evidence_refs.iter().map(|e|evidence_id(*a.artifact_manifest.artifact_id.as_uuid(),&e.evidence_id)).collect::<Vec<_>>()).unwrap_or_default(),"correlationId":run.correlation_id,"auditRef":accepted["auditRef"],"createdAt":run.created_at}),
+            json!({"runId":id,"capability":run.capability,"dataSnapshotId":intent["dataSnapshotId"],"budget":run.cost_budget_units.to_string(),"costUnits":row.get::<_,String>("cost"),"deadlineAt":run.deadline_at,"status":if run.status.as_str()=="timed_out"{"failed"}else{run.status.as_str()},"inputHash":run.input_hash,"engineVersion":engine,"artifactRefs":artifact.as_ref().map(|a|vec![a.artifact_manifest.artifact_id]).unwrap_or_default(),"evidenceRefs":artifact.as_ref().map(|a|a.evidence_refs.iter().map(|e|research::worker_evidence_id(*a.artifact_manifest.artifact_id.as_uuid(),&e.evidence_id)).collect::<Vec<_>>()).unwrap_or_default(),"correlationId":run.correlation_id,"auditRef":accepted["auditRef"],"createdAt":run.created_at}),
         )
     }
     fn create(&mut self, key: Uuid, input: Create) -> Result<Value> {
@@ -655,7 +646,7 @@ impl Repository for PgPages {
                 .ok_or_else(Fault::unavailable)
         };
         Ok(
-            json!({"artifactId":id,"hypothesis":required(&content["hypothesis"])? ,"summary":required(&content["summary"])? ,"engineVersion":required(&content["environment"]["engine_version"])? ,"promptVersion":content["prompt_version"].as_str().unwrap_or("unreported") ,"codeVersion":content["environment"]["code_version"].as_str().unwrap_or("unreported") ,"environmentHash":research::digest(&content["environment"]),"dataSnapshotId":record.data_snapshot_id,"contentHash":manifest.content_hash,"createdAt":record.created_at,"auditRef":audit,"correlationId":correlation,"evidence":record.evidence_refs.iter().map(|e|json!({"evidenceId":evidence_id(id,&e.evidence_id),"artifactId":id,"summary":e.summary})).collect::<Vec<_>>()}),
+            json!({"artifactId":id,"hypothesis":required(&content["hypothesis"])? ,"summary":required(&content["summary"])? ,"engineVersion":required(&content["environment"]["engine_version"])? ,"promptVersion":content["prompt_version"].as_str().unwrap_or("unreported") ,"codeVersion":content["environment"]["code_version"].as_str().unwrap_or("unreported") ,"environmentHash":research::digest(&content["environment"]),"dataSnapshotId":record.data_snapshot_id,"contentHash":manifest.content_hash,"createdAt":record.created_at,"auditRef":audit,"correlationId":correlation,"evidence":record.evidence_refs.iter().map(|e|json!({"evidenceId":research::worker_evidence_id(id,&e.evidence_id),"artifactId":id,"summary":e.summary})).collect::<Vec<_>>()}),
         )
     }
     fn events(&mut self, id: Uuid, after: u64) -> Result<Vec<Value>> {
@@ -775,10 +766,13 @@ mod tests {
     #[test]
     fn evidence_ids_are_stable_locatable_and_bound_to_the_artifact() {
         let id = Uuid::new_v4();
-        let a = evidence_id(id, "engine-evidence-1");
-        assert_eq!(a, evidence_id(id, "engine-evidence-1"));
-        assert_ne!(a, evidence_id(id, "engine-evidence-2"));
-        assert_ne!(a, evidence_id(Uuid::new_v4(), "engine-evidence-1"));
+        let a = research::worker_evidence_id(id, "engine-evidence-1");
+        assert_eq!(a, research::worker_evidence_id(id, "engine-evidence-1"));
+        assert_ne!(a, research::worker_evidence_id(id, "engine-evidence-2"));
+        assert_ne!(
+            a,
+            research::worker_evidence_id(Uuid::new_v4(), "engine-evidence-1")
+        );
         assert_eq!(a.get_version_num(), 4);
     }
 }

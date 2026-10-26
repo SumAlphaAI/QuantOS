@@ -11,12 +11,12 @@ class DetailReducer extends ResearchStreamReducer {
  override accept(event:SseEventEnvelope){if(event.payload?.type==="permission_revoked"){new ResearchStreamReducer(this.runId).accept(event);return this.close();}if(this.resumeAfter>=2000&&event.sequence>this.resumeAfter)throw new SseContractError("Research session event limit");return super.accept(event);}
 }
 const empty=():ResearchDetailView=>({events:[],sequence:0,stream:"idle",busy:false,uncertain:false,retryAt:0});
-export function createResearchDetailRuntime(config:{origin:string;runId:string;authorize:()=>void;online:()=>boolean;csrf:()=>string;invalidate:(status:number)=>void;fetchImpl?:typeof fetch;now?:()=>number;timeoutMs?:number;idleMs?:number;maxReconnects?:number;retryDelayMs?:number}){
+export function createResearchDetailRuntime(config:{origin:string;runId:string;authorize:()=>void;online:()=>boolean;operationsAllowed?:()=>boolean;csrf:()=>string;invalidate:(status:number)=>void;fetchImpl?:typeof fetch;now?:()=>number;timeoutMs?:number;idleMs?:number;maxReconnects?:number;retryDelayMs?:number}){
  const runId=config.runId.toLowerCase();researchPath(runId);
  const identity=createResearchRuntime(config),transport:typeof fetch=(input,init)=>(config.fetchImpl??fetch)(input,{...init,cache:"no-store"}),now=config.now??Date.now,life=new AbortController(),reducer=new DetailReducer(runId),listeners=new Set<(v:ResearchDetailView)=>void>();
  let context:RouteContext|undefined,state=empty(),streamAbort:AbortController|undefined,closed=false,key:string|undefined,readVersion=0,baseline:ResearchRun|undefined;
  const fail=(status:number)=>{throw new ResearchGatewayError("researchDetail",status);};
- function guard(write=false){config.authorize();identity.assertCurrent();if(closed||!context||!config.online())fail(403);if(write&&(!context!.capabilities.includes("research.write")||!config.csrf()))fail(403);}
+ function guard(write=false){config.authorize();identity.assertCurrent();if(closed||!context||!config.online())fail(403);if(write&&config.operationsAllowed&&!config.operationsAllowed())fail(403);if(write&&(!context!.capabilities.includes("research.write")||!config.csrf()))fail(403);}
  const notify=()=>{for(const listener of listeners)listener(structuredClone(state));};
  function stop(){streamAbort?.abort();streamAbort=undefined;}
  function error(e:unknown){const r=e as {status?:number;retryAfter?:number};if(r.status===401||r.status===403){config.invalidate(r.status);return;}if(r.status===429)state.retryAt=now()+Math.min(Math.max(r.retryAfter??60,1),3600)*1000;state.error=r.status??503;}
@@ -52,7 +52,7 @@ export function createResearchDetailRuntime(config:{origin:string;runId:string;a
     guard(true);await identity.load();guard(true);const run=await readRun();guard(true);
     if(!state.uncertain&&(terminalResearch(run)||run.status==="cancel_requested"||state.receipt))fail(409);
     key??=crypto.randomUUID();let dispatched=false;
-    try{dispatched=true;const receipt=await cancelResearchRun(config.origin,runId,key,config.csrf(),transport,{signal:life.signal,timeoutMs:config.timeoutMs??15000});guard(true);if(receipt.status!=="cancel_requested")throw new ResearchGatewayError("cancelResearchRun",202);state.receipt=receipt;state.uncertain=false;key=undefined;state.stream="paused";}
+    try{dispatched=true;const receipt=await cancelResearchRun(config.origin,runId,key,config.csrf(),transport,{signal:life.signal,timeoutMs:config.timeoutMs??15000});guard();if(receipt.status!=="cancel_requested")throw new ResearchGatewayError("cancelResearchRun",202);state.receipt=receipt;state.uncertain=false;key=undefined;state.stream="paused";}
     catch(e){const status=(e as {status?:number}).status;if(dispatched&&(state.uncertain||status===undefined||status>=500||status<400))state.uncertain=true;else key=undefined;throw e;}
    });
    void watch();

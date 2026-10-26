@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import {ThemeProvider} from "@sumalpha/ui";
 import {browserAccessEnvironment,createRouteAccess,type RouteContext,type AccessLoss} from "../../src/auth/route-access";
+import {desktopOperationsAllowed,useDesktopOperations} from "../../src/auth/desktop-operations";
 import {sessionStore} from "../../src/auth/flow";
 import {settingsCsrf} from "../../src/settings/presentation";
 import {createResearchDetailRuntime,type ResearchDetailRuntime} from "../../src/research/detail-runtime";
@@ -18,7 +19,7 @@ export function ResearchDetailRoute({runId}:{runId:string}){
  const runtime=useRef<ResearchDetailRuntime>(undefined),access=useRef<ReturnType<typeof createRouteAccess>>(undefined);
  useEffect(()=>{const media=matchMedia("(prefers-color-scheme: light)");const sync=()=>setTheme(media.matches?"light":"dark");sync();media.addEventListener("change",sync);return()=>media.removeEventListener("change",sync);},[]);
  useEffect(()=>{let active=true;const monitor=createRouteAccess({mock:false,origin:process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN,environment:browserAccessEnvironment(),onInvalidate(next){controller.close();if(active){setContext(undefined);setLoss(next);if(next.status===401||next.reason==="revoked")sessionStore.clear();}}});
- const controller=createResearchDetailRuntime({runId,origin:process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN??"",authorize:monitor.assertCurrent,online:()=>navigator.onLine,csrf:()=>settingsCsrf(document.cookie),invalidate:status=>monitor.invalidate({reason:"revoked",status})});runtime.current=controller;access.current=monitor;setContext(undefined);setLoss(undefined);
+ const controller=createResearchDetailRuntime({runId,origin:process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN??"",authorize:monitor.assertCurrent,online:()=>navigator.onLine,csrf:()=>settingsCsrf(document.cookie),operationsAllowed:desktopOperationsAllowed,invalidate:status=>monitor.invalidate({reason:"revoked",status})});runtime.current=controller;access.current=monitor;setContext(undefined);setLoss(undefined);
  void controller.load().then(async c=>{await monitor.bind(c);monitor.assertCurrent();if(active)setContext(c);}).catch(e=>{if(active&&!monitor.closed)monitor.invalidate({reason:"unavailable",status:(e as {status?:number}).status});});return()=>{active=false;controller.close();monitor.close();};},[cycle,runId]);
  return <ThemeProvider theme={theme} onThemeChange={setTheme}>{context?<Detail key={cycle} context={context} runtime={runtime.current!} authorize={()=>access.current!.assertCurrent()} toggle={()=>setTheme(t=>t==="dark"?"light":"dark")}/>:<main className="research-workspace u202" data-route-access={loss?"invalidated":"checking"}><h1>{loss?"访问条件已变化":"正在验证研究详情访问条件"}</h1><p>{loss?"已清除详情、事件、游标与取消意图；恢复不会重放取消请求。结果未知时，请先读取原任务。":"核对当前身份、工作区和研究读取权限。"}</p>{loss?<button onClick={()=>setCycle(x=>x+1)}>重新验证访问条件</button>:null}<a href="/research">返回 Research 列表</a></main>}</ThemeProvider>;
 }
@@ -28,9 +29,11 @@ function Detail({context,runtime,toggle,authorize}:{context:RouteContext;runtime
  const dialog=useRef<HTMLDialogElement>(null),trigger=useRef<HTMLButtonElement>(null);
  useEffect(()=>{const unsubscribe=runtime.subscribe(setView);void runtime.refresh().catch(()=>{});const timer=setInterval(()=>setTick(Date.now()),500);return()=>{unsubscribe();clearInterval(timer);};},[runtime]);
  useEffect(()=>{if(confirm)dialog.current?.showModal();},[confirm]);
- const run=view.run,metrics=run?researchDetailMetrics(run):undefined,blocked=view.busy||tick<view.retryAt,canWrite=context.capabilities.includes("research.write"),cancelable=run&&!terminalResearch(run)&&run.status!=="cancel_requested"&&!view.receipt;
+ const desktop=useDesktopOperations();
+ useEffect(()=>{if(!desktop){dialog.current?.close();setConfirm(false);}},[desktop]);
+ const run=view.run,metrics=run?researchDetailMetrics(run):undefined,blocked=view.busy||tick<view.retryAt,canWrite=desktop&&context.capabilities.includes("research.write"),cancelable=run&&!terminalResearch(run)&&run.status!=="cancel_requested"&&!view.receipt;
  const closeDialog=()=>{dialog.current?.close();setConfirm(false);trigger.current?.focus();};
- const cancel=()=>{closeDialog();void runtime.cancel().catch(()=>{});};
+ const cancel=()=>{closeDialog();if(!desktopOperationsAllowed())return;void runtime.cancel().catch(()=>{});};
  return <P04Frame context={context} status={`研究流：${streamLabels[view.stream]} · seq ${view.sequence}`}><div className="p04-content"><header className="p04-heading"><div><nav aria-label="Research 导航"><a href="/research">Research 列表</a><a href="/command">Command</a></nav><h1>Research 详情 {run?<span className={`p04-badge ${researchTone(run.status)}`}>{statusLabels[run.status]}</span>:null}</h1><p className="p04-subtitle">{run?`${shortResearchRef(run.runId)} · ${run.capability}`:"正在读取任务"}</p></div><button onClick={toggle}>切换主题</button></header>
  <div className={`p04-notice ${run?researchTone(run.status):"muted"}`} role="status">{run?researchDetailNotice[run.status]:"正在核对研究任务事实。"}</div>{metrics?<div className="p04-metrics" role="group" aria-label="当前任务指标"><span>进度 <b>{metrics.progress}</b></span><span>成本 / 预算 <b>{metrics.cost} / {metrics.budget} units</b></span><span>Deadline <b>{researchUtc(metrics.deadlineAt)}</b></span></div>:null}
  <div className="u202-actions"><button disabled={blocked} onClick={()=>{void runtime.refresh().catch(()=>{});}}>刷新详情并恢复事件流</button>{canWrite&&cancelable&&!view.uncertain?<button ref={trigger} disabled={blocked} onClick={()=>setConfirm(true)}>请求取消研究</button>:null}{canWrite&&view.uncertain?<button disabled={blocked} onClick={()=>{void runtime.cancel().catch(()=>{});}}>以原请求重试取消</button>:null}</div>

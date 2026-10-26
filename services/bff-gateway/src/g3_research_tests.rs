@@ -46,7 +46,7 @@ impl Pipeline {
         .await
     }
 }
-struct Engine {
+pub(crate) struct Engine {
     child: tokio::process::Child,
     socket: PathBuf,
 }
@@ -85,7 +85,7 @@ impl Drop for Engine {
         let _ = std::fs::remove_file(&self.socket);
     }
 }
-async fn engine(manager: &mut EngineManager, name: &str, capability: &str) -> Engine {
+pub(crate) async fn engine(manager: &mut EngineManager, name: &str, capability: &str) -> Engine {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let socket = PathBuf::from(format!("/tmp/q-g3-{}.sock", Uuid::new_v4()));
     let module = name.replace('-', "_") + ".server";
