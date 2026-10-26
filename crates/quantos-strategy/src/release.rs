@@ -176,6 +176,7 @@ impl StrategyRelease {
     pub fn is_approved(&self) -> bool {
         self.is_verified()
             && self.approved_by.is_some()
+            && self.approved_by != Some(self.created_by)
             && self.approved_at.is_some_and(|at| at >= self.created_at)
             && self.approval.as_ref().is_some_and(|a| {
                 a.content_hash == self.content_hash
@@ -215,6 +216,11 @@ impl StrategyRelease {
     ) -> Result<(), StrategyReleaseError> {
         ensure_capability(auth, Capability::STRATEGY_APPROVE)?;
         self.ensure_scope(auth)?;
+        if auth.actor_id == self.created_by {
+            return Err(StrategyReleaseError::SelfApprovalForbidden {
+                release_id: self.release_id,
+            });
+        }
         if self.approval.is_some() {
             return Err(StrategyReleaseError::AlreadyApproved {
                 release_id: self.release_id,
@@ -330,6 +336,10 @@ pub enum StrategyReleaseError {
         draft_id: StrategyDraftId,
         draft_version: u64,
     },
+    #[error(
+        "STRATEGY_RELEASE_SELF_APPROVAL_FORBIDDEN: creator cannot approve release `{release_id}`"
+    )]
+    SelfApprovalForbidden { release_id: ProposalId },
     #[error("STRATEGY_RELEASE_ALREADY_APPROVED: release `{release_id}` is already approved")]
     AlreadyApproved { release_id: ProposalId },
     #[error("STRATEGY_DEPLOYMENT_REJECTED: {violations}")]
@@ -534,6 +544,9 @@ impl InMemoryStrategyReleaseStore {
             .iter()
             .find(|t| t.release_id == release_id && t.target == target)
         {
+            if requested_at < ticket.requested_at {
+                return Err(StrategyReleaseError::InvalidEvidence);
+            }
             return Ok(ticket.clone());
         }
         let ticket = DeploymentTicket {
@@ -648,7 +661,7 @@ impl ReleaseService {
             .0
             .lock()
             .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
-        if !store.tickets.contains(ticket) {
+        if at < ticket.requested_at || !store.tickets.contains(ticket) {
             return Err(StrategyReleaseError::InvalidEvidence);
         }
         let release = store.get_release(auth.tenant_id, ticket.release_id).ok_or(
@@ -754,6 +767,111 @@ mod tests {
     }
     fn targets() -> Vec<DeploymentTarget> {
         vec![DeploymentTarget::Paper, DeploymentTarget::Shadow]
+    }
+
+    fn approver(auth: &AuthContext) -> AuthContext {
+        let mut reviewer = auth.clone();
+        reviewer.actor_id = ActorId::new();
+        reviewer.user_id = uuid::Uuid::new_v4();
+        reviewer.role = Role::Approver;
+        reviewer
+    }
+
+    #[test]
+    fn s2_domain_self_approval_is_rejected_without_mutating_the_candidate() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
+        let service = ReleaseService::default();
+        let r = service.publish(&auth, proof, targets(), at).unwrap();
+        assert!(
+            matches!(
+                service.approve(
+                    &auth,
+                    r.release_id,
+                    &r.content_hash,
+                    at,
+                    at + Duration::minutes(5)
+                ),
+                Err(StrategyReleaseError::SelfApprovalForbidden { .. })
+            ),
+            "domain API must reject the creator even with approve capability"
+        );
+        assert!(
+            !service
+                .0
+                .lock()
+                .unwrap()
+                .get_release(auth.tenant_id, r.release_id)
+                .unwrap()
+                .is_approved()
+        );
+        let approved = service
+            .approve(
+                &approver(&auth),
+                r.release_id,
+                &r.content_hash,
+                at,
+                at + Duration::minutes(5),
+            )
+            .unwrap();
+        assert_ne!(approved.approved_by, Some(approved.created_by));
+        let mut forged = approved.clone();
+        forged.created_by = approved.approved_by.unwrap();
+        assert!(
+            !forged.is_approved(),
+            "legacy or altered self-approved values must fail closed"
+        );
+    }
+
+    #[test]
+    fn s2_future_ticket_cannot_be_returned_or_consumed_before_issuance() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
+        let service = ReleaseService::default();
+        let r = service.publish(&auth, proof, targets(), at).unwrap();
+        service
+            .approve(
+                &approver(&auth),
+                r.release_id,
+                &r.content_hash,
+                at,
+                at + Duration::minutes(5),
+            )
+            .unwrap();
+        let issued = at + Duration::seconds(10);
+        let ticket = service
+            .deploy(&auth, r.release_id, DeploymentTarget::Paper, issued)
+            .unwrap();
+        assert!(
+            service
+                .consume(&auth, &ticket, issued - Duration::nanoseconds(1))
+                .is_err(),
+            "no future ticket consumption after clock rollback"
+        );
+        assert!(
+            service
+                .deploy(
+                    &auth,
+                    r.release_id,
+                    DeploymentTarget::Paper,
+                    issued - Duration::nanoseconds(1)
+                )
+                .is_err(),
+            "dedupe must not return a ticket from the future"
+        );
+        assert!(service.consume(&auth, &ticket, issued).is_ok());
+        assert_eq!(
+            service
+                .deploy(
+                    &auth,
+                    r.release_id,
+                    DeploymentTarget::Paper,
+                    issued + Duration::seconds(1)
+                )
+                .unwrap(),
+            ticket
+        );
+        assert_eq!(service.0.lock().unwrap().tickets().len(), 1);
     }
 
     #[test]
@@ -883,7 +1001,7 @@ mod tests {
         assert!(
             service
                 .approve(
-                    &auth,
+                    &approver(&auth),
                     r.release_id,
                     &ContentHash::sha256_bytes(b"wrong"),
                     at,
@@ -898,12 +1016,12 @@ mod tests {
         ] {
             assert!(
                 service
-                    .approve(&auth, r.release_id, &r.content_hash, time, end)
+                    .approve(&approver(&auth), r.release_id, &r.content_hash, time, end)
                     .is_err()
             );
         }
         let approved = service
-            .approve(&auth, r.release_id, &r.content_hash, at, expires)
+            .approve(&approver(&auth), r.release_id, &r.content_hash, at, expires)
             .unwrap();
         assert_eq!(approved.content_hash, r.content_hash);
         for field in 0..10 {
@@ -935,7 +1053,7 @@ mod tests {
         assert!(
             service
                 .deploy(
-                    &auth,
+                    &approver(&auth),
                     r.release_id,
                     DeploymentTarget::Paper,
                     at - Duration::seconds(1)
@@ -975,7 +1093,7 @@ mod tests {
                 .map(|_| {
                     scope.spawn(|| {
                         service.approve(
-                            &auth,
+                            &approver(&auth),
                             r.release_id,
                             &r.content_hash,
                             at,
@@ -1036,7 +1154,7 @@ mod tests {
         );
         let approved = service
             .approve(
-                &auth,
+                &approver(&auth),
                 r.release_id,
                 &r.content_hash,
                 at,

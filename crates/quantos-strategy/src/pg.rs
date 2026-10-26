@@ -380,12 +380,13 @@ impl PgReleaseStore {
             .get_release(auth.tenant_id, release_id)?
             .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
         release.authorize_deployment(auth, target, at)?;
-        let row=self.client.query_one("insert into quantos.strategy_release_deployments (
+        let row=self.client.query_opt("insert into quantos.strategy_release_deployments (
             deployment_id,tenant_id,release_id,target,requested_by_actor,requested_by_user,requested_at)
             values ($1,$2,$3,$4,$5,$6,$7)
             on conflict (tenant_id,release_id,target) do update set release_id=excluded.release_id
+            where strategy_release_deployments.requested_at <= excluded.requested_at
             returning requested_by_actor,requested_at",
-            &[&Uuid::now_v7(),&auth.tenant_id.as_uuid(),&release_id.as_uuid(),&target.as_str(),&auth.actor_id.as_uuid(),&Some(auth.user_id),&at])?;
+            &[&Uuid::now_v7(),&auth.tenant_id.as_uuid(),&release_id.as_uuid(),&target.as_str(),&auth.actor_id.as_uuid(),&Some(auth.user_id),&at])?.ok_or(StrategyReleaseError::InvalidEvidence)?;
         Ok(DeploymentTicket {
             release_id,
             target,

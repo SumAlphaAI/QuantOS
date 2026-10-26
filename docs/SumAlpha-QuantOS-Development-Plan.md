@@ -2559,6 +2559,8 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 <a id="gate-s2"></a>
 ### S2 功能联调 Gate：策略业务闭环
 
+- 2026-10-26 当前评估：修复底层Release自批与未来配置票据消费/去重缺陷；实际研究→策略→Web审批→同一Release原生Paper/Shadow配置消费、look-ahead/泄漏/来源/权限拒绝和TP06–TP12离线决策边界按当前影响范围验证。工程Gate `PASS_OWNED_LOCAL_S2_STRATEGY_LOOP`；完整S2 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate仍`NOT_ASSESSED`，三个完整清单保留未勾选，不自签ACCEPTED。生产队列/身份/持久化/恢复、审计贯通、目标与发布仍待补；PG仅编译未执行。见[当前规程](./operations/core-s2-current-assessment.md)、[原始证据](./audit/evidence/core-s2-local-20261026/)。下一原项：`CORE:X06`（DEVELOPMENT）。
+
 - [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
 - [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
 - [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。

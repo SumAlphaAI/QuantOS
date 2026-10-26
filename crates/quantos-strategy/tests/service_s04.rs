@@ -809,3 +809,54 @@ async fn service_s04_hundred_provenance_forgery_requests_and_limits_are_rejected
         100
     );
 }
+
+#[tokio::test]
+async fn s2_clock_rollback_cannot_consume_or_reissue_a_future_configuration_ticket() {
+    let h = Harness::new(fixture::payload()).await;
+    let (id, r, _) = h.release().await;
+    h.approve(&id, &r["release"]["content_hash"], 60).await;
+    let at = h.clock.now();
+    h.clock
+        .0
+        .store((at + Duration::seconds(10)).timestamp(), Ordering::SeqCst);
+    let ticket = h
+        .ok(
+            "owned-owner",
+            "POST",
+            &format!("/releases/{id}/deployments"),
+            Some(json!({"target":"paper"})),
+        )
+        .await;
+    let path = format!(
+        "/deployments/{}/consume",
+        ticket["deployment_id"].as_str().unwrap()
+    );
+    h.clock
+        .0
+        .store((at + Duration::seconds(9)).timestamp(), Ordering::SeqCst);
+    let denied = h.call("owned-owner", "POST", &path, None).await;
+    assert_eq!(denied.0, 409);
+    assert_eq!(denied.1["code"], "TICKET_NOT_YET_VALID");
+    let replay = h
+        .call(
+            "owned-owner",
+            "POST",
+            &format!("/releases/{id}/deployments"),
+            Some(json!({"target":"paper"})),
+        )
+        .await;
+    assert_eq!(replay.0, 409);
+    h.clock
+        .0
+        .store((at + Duration::seconds(10)).timestamp(), Ordering::SeqCst);
+    let config = h.ok("owned-owner", "POST", &path, None).await;
+    assert_eq!(config["release_hash"], r["release"]["content_hash"]);
+    let audit = h.audit().await;
+    assert!(
+        audit["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["code"] == "TICKET_NOT_YET_VALID")
+    );
+}

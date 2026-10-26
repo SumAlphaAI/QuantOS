@@ -195,9 +195,23 @@ fn postgres_release_store_enforces_dedupe_conflict_and_deployment_gate() {
             .request_deployment(&auth, r.release_id, DeploymentTarget::Paper, at)
             .is_err()
     );
+    let mut approver = auth.clone();
+    approver.actor_id = quantos_core::ActorId::new();
+    approver.role = quantos_policy::Role::Approver;
+    assert!(
+        store
+            .approve(
+                &auth,
+                r.release_id,
+                &r.content_hash,
+                at,
+                at + Duration::minutes(10)
+            )
+            .is_err()
+    );
     let approved = store
         .approve(
-            &auth,
+            &approver,
             r.release_id,
             &r.content_hash,
             at,
@@ -208,12 +222,25 @@ fn postgres_release_store_enforces_dedupe_conflict_and_deployment_gate() {
     assert!(
         store
             .approve(
-                &auth,
+                &approver,
                 r.release_id,
                 &r.content_hash,
                 at,
                 at + Duration::minutes(10)
             )
+            .is_err()
+    );
+    store
+        .request_deployment(
+            &auth,
+            r.release_id,
+            DeploymentTarget::Shadow,
+            at + Duration::seconds(1),
+        )
+        .unwrap();
+    assert!(
+        store
+            .request_deployment(&auth, r.release_id, DeploymentTarget::Shadow, at)
             .is_err()
     );
     let t = store

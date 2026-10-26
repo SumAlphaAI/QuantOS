@@ -111,9 +111,100 @@ async fn browser_host() {
         p.renew_reference_session().await;
         StatusCode::NO_CONTENT
     }
-    let controls = Router::new()
+    async fn consume_configuration(
+        State(p): State<crate::BffProvider>,
+        h: HeaderMap,
+        Json(body): Json<Value>,
+    ) -> (StatusCode, Json<Value>) {
+        if h.get("x-s2-owned-control").and_then(|v| v.to_str().ok()) != Some("1") {
+            return (StatusCode::FORBIDDEN, Json(json!({"code":"FORBIDDEN"})));
+        }
+        let Some(id) = body["releaseId"]
+            .as_str()
+            .and_then(|s| Uuid::parse_str(s).ok())
+        else {
+            return (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                Json(json!({"code":"INVALID_RELEASE"})),
+            );
+        };
+        let Some(target) = body["target"]
+            .as_str()
+            .filter(|t| matches!(*t, "paper" | "shadow"))
+        else {
+            return (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                Json(json!({"code":"TARGET_NOT_ALLOWED"})),
+            );
+        };
+        if body.as_object().is_none_or(|v| v.len() != 2) {
+            return (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                Json(json!({"code":"INVALID_INPUT"})),
+            );
+        }
+        let mut data = p.data.lock().await;
+        let now = data.now();
+        let auth = reference_auth(crate::CURRENT_SESSION);
+        let Some(host) = data.strategy.as_mut().filter(|h| !h.poisoned) else {
+            return (
+                StatusCode::SERVICE_UNAVAILABLE,
+                Json(json!({"code":"UNAVAILABLE"})),
+            );
+        };
+        host.clock.0.store(now.timestamp_micros(), Ordering::SeqCst);
+        let result = (|| -> Result<Value> {
+            let ticket = host.execute(
+                &auth,
+                "POST",
+                &format!("/releases/{id}/deployments"),
+                json!({"target":target}),
+            )?;
+            let deployment = ticket["deployment_id"]
+                .as_str()
+                .ok_or_else(Fault::unavailable)?;
+            let configuration = host.execute(
+                &auth,
+                "POST",
+                &format!("/deployments/{deployment}/consume"),
+                Value::Null,
+            )?;
+            Ok(
+                json!({"releaseId":id,"target":target,"ticket":ticket,"configuration":configuration,"scope":"LOCAL_CONFIGURATION_ONLY_NO_EXTERNAL_DEPLOYMENT"}),
+            )
+        })();
+        let audit = host
+            .core
+            .execute(
+                &auth,
+                "GET",
+                "/audit",
+                b"",
+                Page {
+                    limit: Some(200),
+                    after: None,
+                    after_sequence: None,
+                },
+                Uuid::now_v7(),
+            )
+            .body;
+        match result {
+            Ok(mut value) => {
+                value["nativeAudit"] = audit;
+                (StatusCode::OK, Json(value))
+            }
+            Err(Fault(status, code)) => (status, Json(json!({"code":code,"nativeAudit":audit}))),
+        }
+    }
+    let mut controls = Router::new()
         .route("/advance", post(advance))
         .with_state(provider.clone());
+    if std::env::var("QUANTOS_S2_CHAIN").as_deref() == Ok("1") {
+        controls = controls.route(
+            "/consume",
+            post(consume_configuration).with_state(provider.clone()),
+        );
+    }
     tokio::spawn(async move {
         axum::serve(control, controls).await.unwrap();
     });

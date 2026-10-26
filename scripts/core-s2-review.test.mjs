@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boundary,validateBoundary,validateInformationRequest,validateRecovery,validateNativeRows} from './core-s2-review.mjs';
+import {browserReport} from './core-r1-review.mjs';
+test('S2 current boundary retains explicit substitutions and no stage admission',()=>validateBoundary(boundary()));
+for(const key of Object.keys(boundary()))test('reject S2 scope promotion or drift '+key,()=>{const r=boundary();r[key]=typeof r[key]==='boolean'?!r[key]:'READY';assert.throws(()=>validateBoundary(r));});
+const info=()=>({approvalState:'rejected',approvalRef:'owned-ref',approvalTimeline:[{action:'request_info',reason:'Evidence required'}],evidenceRefs:[{}]});
+test('readable closed information request is required',()=>validateInformationRequest(info()));
+for(const field of ['approvalState','approvalRef','approvalTimeline','evidenceRefs'])test('reject missing or promoted information request '+field,()=>{const r=info();r[field]=field==='approvalState'?'approved':undefined;assert.throws(()=>validateInformationRequest(r));});
+const recovery=()=>({calls:[{status:202,source:'REFERENCE_COMMITTED_RESPONSE_DROPPED',keyHash:'key',bodyHash:'body',version:'version'},{status:202,source:'REFERENCE_BYTES',keyHash:'key',bodyHash:'body',version:'version'}],release:{approvalState:'pending',approvalTimeline:[{action:'submitted'}]}});
+test('lost response must retry one identical approval intent',()=>validateRecovery(recovery()));
+for(const field of ['keyHash','bodyHash','version','status'])test('reject changed retry '+field,()=>{const r=recovery();r.calls[1][field]='changed';assert.throws(()=>validateRecovery(r));});
+test('reject duplicated submission timeline',()=>{const r=recovery();r.release.approvalTimeline.push({action:'submitted'});assert.throws(()=>validateRecovery(r));});
+const report=()=>({errors:[],stats:{expected:1,unexpected:0,skipped:0,flaky:0},suites:[{specs:[{tests:[{projectName:'chromium',results:[{status:'passed'}]}]}]}]});
+test('browser count and actual result are required',()=>browserReport(report(),1));
+for(const field of ['unexpected','skipped','flaky'])test('reject masked browser '+field,()=>{const r=report();r.stats[field]++;assert.throws(()=>browserReport(r,1));});
+
+const native=()=>Array.from({length:20},(_,i)=>({index:i+1,releaseId:'release-'+i,refused:{status:409},consumed:['paper','shadow'].map(target=>({target,scope:'LOCAL_CONFIGURATION_ONLY_NO_EXTERNAL_DEPLOYMENT',ticket:{release_hash:'hash'},configuration:{release_hash:'hash',report_hash:'report',target},nativeAudit:{items:[{operation:'deployment.consume',status:200}]}}))}));
+test('S2 requires twenty unique releases consumed by both native targets',()=>validateNativeRows(native()));
+for(const mutation of ['unapproved','duplicate','live','hash','audit'])test('reject false native closure '+mutation,()=>{const r=native();if(mutation==='unapproved')r[0].refused.status=200;if(mutation==='duplicate')r[1].releaseId=r[0].releaseId;if(mutation==='live')r[0].consumed[0].target='live';if(mutation==='hash')r[0].consumed[0].configuration.release_hash='other';if(mutation==='audit')r[0].consumed[0].nativeAudit.items=[];assert.throws(()=>validateNativeRows(r));});

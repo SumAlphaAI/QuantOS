@@ -1,3 +1,5 @@
+> 2026-10-26 CORE-GATE:S2当前策略业务评估使用[当前规程](core-s2-current-assessment.md)和core-s2-review.mjs。下述S2-SERVICE完整闭包保留历史原范围，不作为当前评估的开发默认入口；不改绑其历史READY。
+
 # S2-SERVICE local functional admission
 
 Only QuantOS changes and owned synthetic fixtures/local TCP/UDS. No production credentials, local PostgreSQL/Supabase service, target connection, external publication or upstream runtime adoption. CORE:TP12 full review remains X3, after CORE:TP07 and S2. Formal ProjectUser acceptance remains independent and PENDING until a direct reply is recorded under the acceptance-confirmation workflow.

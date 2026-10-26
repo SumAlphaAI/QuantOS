@@ -164,6 +164,7 @@ fn scope(auth: &AuthContext, tenant: TenantId, workspace: WorkspaceId) -> Result
 }
 fn release_error(error: StrategyReleaseError) -> Fault {
     match error {
+        StrategyReleaseError::SelfApprovalForbidden { .. } => Fault(403, "SELF_APPROVAL_FORBIDDEN"),
         StrategyReleaseError::Unauthorized { .. } => Fault(403, "FORBIDDEN"),
         StrategyReleaseError::ReleaseNotFound { .. } => Fault(404, "NOT_FOUND"),
         StrategyReleaseError::ContentConflict { .. } => Fault(409, "CONTENT_CONFLICT"),
@@ -562,6 +563,9 @@ impl StrategyService {
                         .deployments
                         .get(&id(key)?)
                         .ok_or(Fault(404, "NOT_FOUND"))?;
+                    if now < ticket.requested_at {
+                        return Err(Fault(409, "TICKET_NOT_YET_VALID"));
+                    }
                     let release = state.release(auth, ticket.release_id)?;
                     state.deployable(release, now)?;
                     release
