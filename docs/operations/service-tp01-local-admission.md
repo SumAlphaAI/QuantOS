@@ -1,5 +1,7 @@
 # SERVICE:TP01 本地服务功能汇总准入
 
+> 以下31节点/三轮构建为2026-10-15历史消费者候选规程，保留原范围。当前按AGENTS.md验证功能与直接影响范围；2026-10-26 CORE:TP01总项使用[本机组合规程](core-tp01-local-composition.md)，不以本历史闭包作为开发默认前置。
+
 `SERVICE-TP01_LOCAL` 只发布 `SERVICE:TP01` 的 DEVELOPMENT READY；A–G 与 R1-SERVICE 的完整31节点必要闭包在同一清洁冻结候选实际执行，内部 LOCAL_READY 只属于本消费者。历史单项 READY 或旧回执不能代替本轮执行。其他全图Gate保持原状态，TP01正式ACCEPTED与页面联调不在此次范围。
 
 专用132条真实本机UDS/隔离启动测试逐一绑定案例ID：100个安全边界负向fixture、20个workflow、Artifact幂等/跨租户去重、取消完成小于2秒且零晚写、五个RPC、其他engine在屏蔽adapter导入后启动、6个unary/stream禁用/回滚/告警在途撤销、重复回滚与提交边界禁用。既有A–G原始检查同时重跑：包括三次独立跨语言构建、S0–S3分类阻断、19项本机drill、198项模块替换、固定基线上游patch原件预期2失败/修复后4通过。上游仅DRAFT_NOT_SUBMITTED，不调用远端。

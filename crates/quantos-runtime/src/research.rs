@@ -498,8 +498,12 @@ fn prepare_research_input_inner(
     if input.workflow_kind != "research"
         || !matches!(
             (input.capability.as_str(), parent),
-            ("research.hypothesis.v1" | "research.experiment.v1", None)
-                | ("strategy.generate.v1", Some(_))
+            (
+                "research.hypothesis.v1"
+                    | "research.experiment.v1"
+                    | "research.vibe_adapter.execute",
+                None
+            ) | ("strategy.generate.v1", Some(_))
         )
         || !input.input.is_object()
         || input.policy_context_ref.trim().is_empty()
@@ -1301,17 +1305,71 @@ mod tests {
             .unwrap()
             .0
             .input_hash;
-        for variant in 0..4 {
+        for variant in 0..5 {
             let mut changed = input.clone();
             match variant {
                 0 => changed.data_snapshot_id = SnapshotId::new(),
                 1 => changed.policy_context_ref = "different-policy".into(),
                 2 => changed.capability = Capability::parse("research.experiment.v1").unwrap(),
+                3 => {
+                    changed.capability = Capability::parse("research.vibe_adapter.execute").unwrap()
+                }
                 _ => changed.input["prompt"] = json!("different prompt"),
             }
             assert_ne!(
                 super::prepare_research_input(changed).unwrap().0.input_hash,
                 digest
+            );
+        }
+    }
+
+    #[test]
+    fn vibe_research_requires_its_own_runtime_capability() {
+        let now = Utc::now();
+        for authorized in [false, true] {
+            let mut auth = auth_context();
+            let capability = Capability::parse("research.vibe_adapter.execute").unwrap();
+            if authorized {
+                auth.capabilities.insert(capability.clone());
+            }
+            let mut runtime = InMemoryRuntimeKernel::new();
+            runtime
+                .register_tool(ToolRegistration {
+                    tool_name: "vibe.research".into(),
+                    capability: capability.clone(),
+                    ..tool_registration()
+                })
+                .unwrap();
+            let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
+            let snapshots = InMemoryDataSnapshotCatalog::new();
+            let rules =
+                SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+                    .unwrap();
+            let mut repository = InMemoryResearchArtifactRepository::new();
+            let mut manager = EngineManager::new(quantos_engine_manager::BackoffPolicy::default());
+            let mut coordinator = ResearchWorkflowCoordinator::new(
+                &mut runtime,
+                &snapshots,
+                &rules,
+                &mut repository,
+                &mut manager,
+                ResearchWorkflowCoordinatorConfig {
+                    worker_name: "tp01-worker".into(),
+                    lease_duration: ChronoDuration::seconds(30),
+                    storage_bucket: "owned-memory".into(),
+                },
+            );
+            let input = ResearchWorkflowInput {
+                tool_name: "vibe.research".into(),
+                capability,
+                input: json!({"fixture":"workflow_briefing_equities_01","tools":[]}),
+                ..research_input(session.runtime_session_id)
+            };
+            let result = coordinator.schedule_research_run(input, now);
+            assert_eq!(
+                result.is_ok(),
+                authorized,
+                "hypothesis permission cannot grant the Vibe capability"
             );
         }
     }

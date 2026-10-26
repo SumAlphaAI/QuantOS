@@ -33,6 +33,7 @@ struct Worker {
     rules: SnapshotQualityRuleset,
     manager: EngineManager,
     session: quantos_core::RuntimeSessionId,
+    vibe_fixture: Option<String>,
     mapped: BTreeMap<Uuid, WorkflowRunId>,
 }
 async fn execute(
@@ -55,6 +56,7 @@ async fn execute(
         rules,
         manager,
         session,
+        vibe_fixture,
         mapped,
     } = &mut *worker;
     let inputs = provider.data.lock().await.research.owned_inputs();
@@ -77,10 +79,20 @@ async fn execute(
                 storage_bucket: "owned-memory".into(),
             },
         );
+        let capability = if vibe_fixture.is_some() {
+            "research.vibe_adapter.execute"
+        } else {
+            &input.capability
+        };
+        let mut engine_input = research::engine_input(&input.question, &[]).unwrap();
+        if let Some(fixture) = vibe_fixture.as_ref() {
+            engine_input["fixture"] = json!(fixture);
+            engine_input["tools"] = json!([]);
+        }
         let source = ResearchWorkflowInput {
             runtime_session_id: *session,
-            tool_name: input.capability.clone(),
-            capability: Capability::parse(&input.capability).unwrap(),
+            tool_name: capability.into(),
+            capability: Capability::parse(capability).unwrap(),
             workflow_kind: "research".into(),
             idempotency_key: format!("u01-{id}"),
             correlation_id: CorrelationId::from_uuid(
@@ -89,7 +101,7 @@ async fn execute(
             data_snapshot_id: quantos_core::SnapshotId::from_uuid(input.data_snapshot_id),
             policy_context_ref: "u01-owned-policy".into(),
             input_schema_version: "v1".into(),
-            input: research::engine_input(&input.question, &[]).unwrap(),
+            input: engine_input,
             max_attempts: 1,
             deadline_at: input.deadline_at,
             cost_budget_units: input.budget.parse().unwrap(),
@@ -147,11 +159,16 @@ async fn browser_host() {
     ] {
         assert!(std::env::var(name).is_err());
     }
+    let vibe_fixture = std::env::var("QUANTOS_TP01_FIXTURE").ok();
     let provider = BffProvider::default()
         .with_download_origin("https://127.0.0.1:4010")
         .unwrap();
     let mut auth = crate::strategy::reference_auth(crate::CURRENT_SESSION);
-    for capability in ["research.hypothesis.v1", "research.experiment.v1"] {
+    for capability in [
+        "research.hypothesis.v1",
+        "research.experiment.v1",
+        "research.vibe_adapter.execute",
+    ] {
         auth.capabilities
             .insert(Capability::parse(capability).unwrap());
     }
@@ -167,7 +184,11 @@ async fn browser_host() {
         data.research.snapshots.insert(*snapshot.snapshot_id.as_uuid(), json!({"snapshotId":snapshot.snapshot_id,"schemaVersion":"v1","window":{"start":snapshot.window.start_at,"end":snapshot.window.end_at},"sources":["u01-owned-synthetic"],"quality":"verified","qualityBlocked":false,"contentHash":snapshot.content_hash,"licenseLabel":"fixture-only","capturedAt":snapshot.captured_at,"maxAgeSeconds":86400}));
     }
     let mut runtime = InMemoryRuntimeKernel::new();
-    for capability in ["research.hypothesis.v1", "research.experiment.v1"] {
+    for capability in [
+        "research.hypothesis.v1",
+        "research.experiment.v1",
+        "research.vibe_adapter.execute",
+    ] {
         runtime
             .register_tool(ToolRegistration {
                 tool_name: capability.into(),
@@ -182,7 +203,12 @@ async fn browser_host() {
     let session = runtime.open_session(&auth, now, now + Duration::hours(1));
     let mut manager =
         EngineManager::with_approval_key(BackoffPolicy::default(), b"g3-local-only".to_vec());
-    let _engine = engine(&mut manager, "rd-agent", "research.hypothesis.v1").await;
+    let (engine_name, engine_capability) = if vibe_fixture.is_some() {
+        ("vibe-adapter", "research.vibe_adapter.execute")
+    } else {
+        ("rd-agent", "research.hypothesis.v1")
+    };
+    let _engine = engine(&mut manager, engine_name, engine_capability).await;
     let worker = Arc::new(Mutex::new(Worker {
         provider: provider.clone(),
         runtime,
@@ -192,6 +218,7 @@ async fn browser_host() {
             .unwrap(),
         manager,
         session: session.runtime_session_id,
+        vibe_fixture,
         mapped: BTreeMap::new(),
     }));
     let address: std::net::SocketAddr = std::env::var("QUANTOS_BFF_BIND").unwrap().parse().unwrap();
@@ -211,7 +238,7 @@ async fn browser_host() {
     });
     println!(
         "{}",
-        json!({"ready":true,"control":format!("http://{control_address}"),"snapshotId":snapshot.snapshot_id,"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"storage":"OWNED_IN_MEMORY_PORT_SUBSTITUTION","worker":"ACTUAL_R03_RD_AGENT_UDS"})
+        json!({"ready":true,"control":format!("http://{control_address}"),"snapshotId":snapshot.snapshot_id,"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"storage":"OWNED_IN_MEMORY_PORT_SUBSTITUTION","worker":format!("ACTUAL_R03_{engine_name}_UDS")})
     );
     axum::serve(
         listener,

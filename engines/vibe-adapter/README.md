@@ -132,3 +132,20 @@ facade. No request can select a release, authority, rollout action or shadow mod
 raw artifacts and audit events. The public test authority grants no production
 or target canary acceptance. See [TP01-F local admission](../../docs/operations/tp01-f-local-admission.md)
 and [rollback runbook](../../docs/runbooks/tp01_vibe_adapter_rollback.md).
+
+## CORE:TP01 current R03/Web consumer (2026-10-26)
+
+Validated workflow output now includes a data-only `ResearchArtifact` envelope,
+with native audit/snapshot/policy bindings and explicit `trade_executable=false`,
+`tools_executed=false`. R03 admits the precise internal
+`research.vibe_adapter.execute` capability through the normal session/tool,
+approved-engine, snapshot-quality and artifact-verification path. The original
+workflow/stream reference fields and TEST/RESEARCH restrictions remain.
+
+The current total-task check is `node scripts/core-tp01-review.mjs --run <new
+attempt directory>`; it exercises 20 owned workflow fixtures through actual R03,
+Python UDS and Web Artifact/Evidence consumers. The public Web form is mapped by
+a test host; no production BFF capability selector was added. Its identity,
+CORS/TLS and storage substitutions are explicit. Old full-closure recorders above
+remain historical/manual consumers and are not the default development workflow.
+See [current scope and pending integration](../../docs/operations/core-tp01-local-composition.md).

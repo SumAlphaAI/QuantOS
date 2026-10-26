@@ -2476,7 +2476,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["SERVICE:TP01", "CORE:U01", "FE:FEP-2"]
 - core_prerequisites: ["SERVICE:TP01", "CORE:U01"]
 - closes_core: []
-- development_status: `PARTIAL`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `I2`
 - 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
@@ -2487,6 +2487,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完成业务功能联调评估，canary/发布回执仍由发布 Gate 收口；不能用服务 Gate 把本项提前标为 ACCEPTED。
 - 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 功能准入后执行；最小适配须在 R1 服务功能 Gate 前完成
+- 2026-10-26 当前执行：补齐QuantOS ResearchArtifact envelope、R03确切Vibe能力准入及实际worker→C04→Web消费；20个固定workflow本机回放、网络/secret拒绝、同步S0–S3阻断、取消/回滚和adapter脱钩启动按当前影响范围验证。工程Gate `PASS_OWNED_LOCAL_TP01_RESEARCH_COMPOSITION`；完整联调 `PARTIAL_WITH_EXPLICIT_PORT_SUBSTITUTIONS / NOT_READY_GAPS_OPEN`，stage_gate仍`NOT_ASSESSED`，不自签ACCEPTED。Web公开hypothesis意图到Vibe能力由测试宿主映射；生产BFF路由、持久队列/Storage、目标恢复、真实身份/fork治理及完整联调/发布仍待补。见[当前规程](./operations/core-tp01-local-composition.md)、[原始证据](./audit/evidence/core-tp01-local-20261026/)。下一原项：`CORE-GATE:R1`当前研究闭环评估（DEVELOPMENT）。
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="102-r1-gate"></a>

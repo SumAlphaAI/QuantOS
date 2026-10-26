@@ -89,12 +89,17 @@ pub(crate) async fn engine(manager: &mut EngineManager, name: &str, capability: 
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let socket = PathBuf::from(format!("/tmp/q-g3-{}.sock", Uuid::new_v4()));
     let module = name.replace('-', "_") + ".server";
-    let child = tokio::process::Command::new(root.join("engines/.venv/bin/python"))
+    let mut command = tokio::process::Command::new(root.join("engines/.venv/bin/python"));
+    command
         .current_dir(root.join("engines"))
         .env_clear()
         .env("PATH", std::env::var("PATH").unwrap())
         .env("HOME", std::env::var("HOME").unwrap())
-        .args(["-m", &module, "--socket", socket.to_str().unwrap()])
+        .args(["-m", &module, "--socket", socket.to_str().unwrap()]);
+    if name == "vibe-adapter" {
+        command.arg("--fixture-routing");
+    }
+    let child = command
         .stdout(Stdio::null())
         .stderr(Stdio::inherit())
         .kill_on_drop(true)

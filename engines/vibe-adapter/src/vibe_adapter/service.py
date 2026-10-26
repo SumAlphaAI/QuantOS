@@ -20,6 +20,7 @@ from quantos_engine_sdk import (
     timestamp_now,
 )
 
+from vibe_adapter.research_artifact import research_artifact_output
 from vibe_adapter.audit import build_audit_envelope
 from vibe_adapter.artifact_api import VibeArtifactApi
 from vibe_adapter.context import ContextTranslationError, VibeContextTranslator
@@ -223,6 +224,9 @@ class VibeAdapterService:
                 policy_decision="allowed",
             )
             validate_audit(output["audit"], translated.context, contract)
+            output = research_artifact_output(
+                output, translated.context, contract, engine_version=self.manifest.engine_version
+            )
             if lease is not None:
                 output["rollout"] = {
                     "release_id": lease.release.release_id,
