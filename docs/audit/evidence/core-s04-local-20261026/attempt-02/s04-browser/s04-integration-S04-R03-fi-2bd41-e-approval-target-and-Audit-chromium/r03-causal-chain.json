@@ -1,0 +1,428 @@
+{
+  "registration": {
+    "canonicalArtifacts": [
+      {
+        "artifactId": "01a1765f-b1c1-7d20-9d71-d8b66fd5b811",
+        "canonicalUtf8": "{\"artifact_hash\":\"sha256:bd32c1f9da100a302d3593e07d0d0653a2c9b19d415097d08acd2b03c0eeaf12\",\"artifact_kind\":\"hypothesis\",\"artifact_type\":\"ResearchArtifact\",\"audit\":{\"actor_id\":\"11111111-1111-4111-8111-111111111111\",\"causation_id\":\"workflow-run:01a1765f-b1bc-7411-a1f6-626d0cc7c9d0\",\"correlation_id\":\"01a1765f-b1bc-7411-a1f6-625f2165e2d8\",\"data_snapshot_ref\":\"01a1765f-b004-7841-83e0-b37191811134\",\"decision\":\"allowed-fixture-only\",\"policy_context_ref\":\"g3-owned-policy\",\"request_id\":\"research-01a1765f-b1bc-7411-a1f6-626d0cc7c9d0\",\"tenant_id\":\"22222222-2222-4222-8222-222222222222\",\"workflow_run_id\":\"01a1765f-b1bc-7411-a1f6-626d0cc7c9d0\",\"workspace_id\":\"33333333-3333-4333-8333-333333333333\"},\"capability\":\"research.hypothesis.v1\",\"data_snapshot_ref\":\"01a1765f-b004-7841-83e0-b37191811134\",\"engine\":\"rd-agent\",\"environment\":{\"deterministic_fixture\":true,\"engine_version\":\"0.1.0\",\"fixture_catalog_sha256\":\"sha256:923a1c3aea04b1dec3f9d4b7c95d766423ceaed2975f5ad51b0fa6a95efde0b0\",\"runtime\":\"python-sidecar\",\"snapshot_bytes_resolved\":false,\"tools_executed\":false},\"evidence\":[\"snapshot:breadth-series\",\"snapshot:dispersion-series\",\"artifact:benchmark-regime-bucket\"],\"experiment_plan\":[\"Measure breadth and dispersion over the supplied snapshot window.\",\"Compare the observed regime to the previous fixed benchmark bucket.\",\"Record evidence and next-step experiment criteria.\"],\"findings\":[\"The fixture signals a widening dispersion regime.\",\"Breadth weakness aligns with lower confidence in continuation setups.\"],\"fixture\":\"hypothesis_regime_shift\",\"hypothesis\":\"If liquidity dispersion widens while breadth weakens, short-horizon trend continuation quality degrades.\",\"input_hash\":\"sha256:2c0f58852d9c0f88aa470da3105b31dec9ccd21934b9a95c868aa4d423d3dda1\",\"policy_context_ref\":\"g3-owned-policy\",\"prompt_sha256\":\"sha256:25970c7ac554ff5c576434b069a7941d85dc72a952d7617d18d5382b1f86ee54\",\"requested_tools\":[],\"summary\":\"Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot.\",\"title\":\"Liquidity regime shift hypothesis\",\"trade_executable\":false,\"workflow_run_id\":\"01a1765f-b1bc-7411-a1f6-626d0cc7c9d0\"}",
+        "sha256": "sha256:5c3e5bf0bdd8dea6ba26428920baa8ffdc103f2b9e376d7155101382393393e9"
+      },
+      {
+        "artifactId": "01a1765f-b1c7-72c3-b6a0-5fce0bebb977",
+        "canonicalUtf8": "{\"artifact_type\":\"StrategyDraftArtifact\",\"data_snapshot_ref\":\"01a1765f-b004-7841-83e0-b37191811134\",\"engine\":\"strategy-lab\",\"policy_context_ref\":\"g3-owned-policy\",\"prompt_hash\":\"sha256:5302813a3533cad5a2fbaa5b3b8b834f173f17490ba2722c11f84a1e5e0493a0\",\"release_eligible\":true,\"request_id\":\"research-01a1765f-b1c2-7b63-9833-857e738f66ff\",\"static_check\":{\"findings\":[],\"passed\":true},\"strategy\":{\"name\":\"trend.momentum.btc\",\"parameters\":{\"entry_threshold_bps\":25.0,\"exit_threshold_bps\":-12.0,\"lookback\":24.0,\"max_position_notional\":\"25000\",\"universe\":[\"BTCUSDT\"]},\"rule\":\"momentum\",\"rule_source\":\"momentum(close, lookback=24)\"},\"summary\":\"Momentum continuation on BTCUSDT with fixed lookback.\",\"tenant_id\":\"22222222-2222-4222-8222-222222222222\",\"workflow_run_id\":\"01a1765f-b1c2-7b63-9833-857e738f66ff\",\"workspace_id\":\"33333333-3333-4333-8333-333333333333\"}",
+        "sha256": "sha256:da9d6d5c5df35b0e502b8aa5192173480edc377ee822019cea48d2dab3998f3a"
+      },
+      {
+        "artifactId": "01a1765f-b1c7-72c3-b6a0-5fb95740ea28",
+        "canonicalUtf8": "{\"artifact_type\":\"StaticCheckArtifact\",\"blocked_release\":false,\"engine\":\"strategy-lab\",\"findings\":[],\"passed\":true,\"requested_tools\":[\"query_snapshot\",\"query_artifact\"],\"strategy_name\":\"trend.momentum.btc\",\"tenant_id\":\"22222222-2222-4222-8222-222222222222\",\"workflow_run_id\":\"01a1765f-b1c2-7b63-9833-857e738f66ff\",\"workspace_id\":\"33333333-3333-4333-8333-333333333333\"}",
+        "sha256": "sha256:51addd3a03311e80bf85c16390a3829e0a7d35743437f87aa1ef0d387f89f2ef"
+      }
+    ],
+    "correlationId": "01a1765f-b1bc-7411-a1f6-625f2165e2d8",
+    "researchArtifact": {
+      "artifact_manifest": {
+        "artifact_id": "01a1765f-b1c1-7d20-9d71-d8b66fd5b811",
+        "content_hash": "sha256:5c3e5bf0bdd8dea6ba26428920baa8ffdc103f2b9e376d7155101382393393e9",
+        "created_at": "2026-10-26T04:02:25.344846Z",
+        "media_type": "application/json",
+        "metadata": {
+          "capability": "research.hypothesis.v1",
+          "data_snapshot_id": "01a1765f-b004-7841-83e0-b37191811134",
+          "engine_artifact_id": "research-artifact:853d56c6866b4ae72065950b38202ad2e6884b87b7d6111e74a5421d86538358",
+          "engine_artifact_uri": "mock-artifact://rd-agent/853d56c6866b4ae72065950b38202ad2e6884b87b7d6111e74a5421d86538358.json",
+          "workflow_run_id": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0"
+        },
+        "object_key": "tenant/22222222-2222-4222-8222-222222222222/artifacts/5c/5c3e5bf0bdd8dea6ba26428920baa8ffdc103f2b9e376d7155101382393393e9",
+        "size_bytes": 2127,
+        "storage_bucket": "owned-local-memory",
+        "tenant_id": "22222222-2222-4222-8222-222222222222"
+      },
+      "capability": "research.hypothesis.v1",
+      "created_at": "2026-10-26T04:02:25.344846Z",
+      "data_snapshot_id": "01a1765f-b004-7841-83e0-b37191811134",
+      "engine_artifact_id": "research-artifact:853d56c6866b4ae72065950b38202ad2e6884b87b7d6111e74a5421d86538358",
+      "evidence_refs": [
+        {
+          "artifact_id": "research-artifact:853d56c6866b4ae72065950b38202ad2e6884b87b7d6111e74a5421d86538358",
+          "evidence_id": "evidence:research-artifact:853d56c6866b4ae72065950b38202ad2e6884b87b7d6111e74a5421d86538358",
+          "summary": "Deterministic QuantOS fixture research evidence"
+        }
+      ],
+      "input_hash": "sha256:49667982055c687cc3bd1565db9ad36e0dfbb1d90d0023d40b1a175a4c3e38c5",
+      "output": {
+        "artifact_hash": "sha256:bd32c1f9da100a302d3593e07d0d0653a2c9b19d415097d08acd2b03c0eeaf12",
+        "artifact_kind": "hypothesis",
+        "artifact_type": "ResearchArtifact",
+        "audit": {
+          "actor_id": "11111111-1111-4111-8111-111111111111",
+          "causation_id": "workflow-run:01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+          "correlation_id": "01a1765f-b1bc-7411-a1f6-625f2165e2d8",
+          "data_snapshot_ref": "01a1765f-b004-7841-83e0-b37191811134",
+          "decision": "allowed-fixture-only",
+          "policy_context_ref": "g3-owned-policy",
+          "request_id": "research-01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+          "tenant_id": "22222222-2222-4222-8222-222222222222",
+          "workflow_run_id": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+          "workspace_id": "33333333-3333-4333-8333-333333333333"
+        },
+        "capability": "research.hypothesis.v1",
+        "data_snapshot_ref": "01a1765f-b004-7841-83e0-b37191811134",
+        "engine": "rd-agent",
+        "environment": {
+          "deterministic_fixture": true,
+          "engine_version": "0.1.0",
+          "fixture_catalog_sha256": "sha256:923a1c3aea04b1dec3f9d4b7c95d766423ceaed2975f5ad51b0fa6a95efde0b0",
+          "runtime": "python-sidecar",
+          "snapshot_bytes_resolved": false,
+          "tools_executed": false
+        },
+        "evidence": [
+          "snapshot:breadth-series",
+          "snapshot:dispersion-series",
+          "artifact:benchmark-regime-bucket"
+        ],
+        "experiment_plan": [
+          "Measure breadth and dispersion over the supplied snapshot window.",
+          "Compare the observed regime to the previous fixed benchmark bucket.",
+          "Record evidence and next-step experiment criteria."
+        ],
+        "findings": [
+          "The fixture signals a widening dispersion regime.",
+          "Breadth weakness aligns with lower confidence in continuation setups."
+        ],
+        "fixture": "hypothesis_regime_shift",
+        "hypothesis": "If liquidity dispersion widens while breadth weakens, short-horizon trend continuation quality degrades.",
+        "input_hash": "sha256:2c0f58852d9c0f88aa470da3105b31dec9ccd21934b9a95c868aa4d423d3dda1",
+        "policy_context_ref": "g3-owned-policy",
+        "prompt_sha256": "sha256:25970c7ac554ff5c576434b069a7941d85dc72a952d7617d18d5382b1f86ee54",
+        "requested_tools": [],
+        "summary": "Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot.",
+        "title": "Liquidity regime shift hypothesis",
+        "trade_executable": false,
+        "workflow_run_id": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0"
+      },
+      "stream_events": [
+        {
+          "delta": {
+            "artifact_type": "ResearchArtifact",
+            "phase": "validated",
+            "requested_tools": []
+          },
+          "done": false,
+          "emitted_at": "2026-10-26T04:02:25.343193Z",
+          "sequence_id": "seq-1"
+        },
+        {
+          "delta": {
+            "artifact_hash": "sha256:bd32c1f9da100a302d3593e07d0d0653a2c9b19d415097d08acd2b03c0eeaf12",
+            "artifact_kind": "hypothesis",
+            "phase": "research_artifact_ready"
+          },
+          "done": false,
+          "emitted_at": "2026-10-26T04:02:25.343259Z",
+          "sequence_id": "seq-2"
+        },
+        {
+          "delta": {
+            "phase": "completed",
+            "summary": "Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot."
+          },
+          "done": true,
+          "emitted_at": "2026-10-26T04:02:25.343445Z",
+          "sequence_id": "seq-3"
+        }
+      ],
+      "workflow_run_id": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0"
+    },
+    "researchRun": {
+      "account_id": "44444444-4444-4444-8444-444444444444",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "attempts": 1,
+      "cancel_requested_at": null,
+      "capability": "research.hypothesis.v1",
+      "completed_at": "2026-10-26T04:02:25.345242Z",
+      "correlation_id": "01a1765f-b1bc-7411-a1f6-625f2165e2d8",
+      "cost_budget_units": 250,
+      "created_at": "2026-10-26T04:02:24.898811Z",
+      "deadline_at": "2026-10-26T04:12:24.898811Z",
+      "idempotency_key": "g3-parent-0",
+      "input_hash": "sha256:49667982055c687cc3bd1565db9ad36e0dfbb1d90d0023d40b1a175a4c3e38c5",
+      "last_error": null,
+      "lease_expires_at": null,
+      "lease_owner": null,
+      "max_attempts": 1,
+      "next_attempt_at": "2026-10-26T04:02:24.898811Z",
+      "rate_limit_per_minute": 600,
+      "runtime_session_id": "01a1765f-b0eb-78e0-a996-ebe930b64721",
+      "status": "succeeded",
+      "tenant_id": "22222222-2222-4222-8222-222222222222",
+      "tool_name": "research.hypothesis.v1",
+      "updated_at": "2026-10-26T04:02:25.345242Z",
+      "workflow_kind": "research",
+      "workflow_run_id": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+      "workspace_id": "33333333-3333-4333-8333-333333333333"
+    },
+    "strategyArtifact": {
+      "artifact_manifest": {
+        "artifact_id": "01a1765f-b1c7-72c3-b6a0-5fce0bebb977",
+        "content_hash": "sha256:da9d6d5c5df35b0e502b8aa5192173480edc377ee822019cea48d2dab3998f3a",
+        "created_at": "2026-10-26T04:02:25.351249Z",
+        "media_type": "application/json",
+        "metadata": {
+          "capability": "strategy.generate.v1",
+          "data_snapshot_id": "01a1765f-b004-7841-83e0-b37191811134",
+          "engine_artifact_id": "strategy-draft:01a1765f-b1c2-7b63-9833-857e738f66ff",
+          "engine_artifact_uri": "artifact://strategy-lab/22222222-2222-4222-8222-222222222222/33333333-3333-4333-8333-333333333333/01a1765f-b1c2-7b63-9833-857e738f66ff/strategy-draft.json",
+          "source_research_run": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+          "static_check_artifact_id": "01a1765f-b1c7-72c3-b6a0-5fb95740ea28",
+          "static_check_content_hash": "sha256:51addd3a03311e80bf85c16390a3829e0a7d35743437f87aa1ef0d387f89f2ef",
+          "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff"
+        },
+        "object_key": "tenant/22222222-2222-4222-8222-222222222222/artifacts/da/da9d6d5c5df35b0e502b8aa5192173480edc377ee822019cea48d2dab3998f3a",
+        "size_bytes": 853,
+        "storage_bucket": "owned-local-memory",
+        "tenant_id": "22222222-2222-4222-8222-222222222222"
+      },
+      "capability": "strategy.generate.v1",
+      "created_at": "2026-10-26T04:02:25.351249Z",
+      "data_snapshot_id": "01a1765f-b004-7841-83e0-b37191811134",
+      "engine_artifact_id": "strategy-draft:01a1765f-b1c2-7b63-9833-857e738f66ff",
+      "evidence_refs": [
+        {
+          "artifact_id": "strategy-draft:01a1765f-b1c2-7b63-9833-857e738f66ff",
+          "evidence_id": "strategy-evidence:01a1765f-b1c2-7b63-9833-857e738f66ff:1",
+          "summary": "research: hypothesis_momentum_continuation"
+        },
+        {
+          "artifact_id": "strategy-draft:01a1765f-b1c2-7b63-9833-857e738f66ff",
+          "evidence_id": "strategy-evidence:01a1765f-b1c2-7b63-9833-857e738f66ff:2",
+          "summary": "artifact: factor-library/momentum.v1"
+        },
+        {
+          "artifact_id": "static-check:01a1765f-b1c2-7b63-9833-857e738f66ff",
+          "evidence_id": "strategy-evidence:01a1765f-b1c2-7b63-9833-857e738f66ff:3",
+          "summary": "static check passed=True"
+        }
+      ],
+      "input_hash": "sha256:fc7c116ddb77059d5e249557e97b1090d9e00daeff1847c15a785b479a846975",
+      "output": {
+        "artifact_type": "StrategyDraftArtifact",
+        "data_snapshot_ref": "01a1765f-b004-7841-83e0-b37191811134",
+        "engine": "strategy-lab",
+        "policy_context_ref": "g3-owned-policy",
+        "prompt_hash": "sha256:5302813a3533cad5a2fbaa5b3b8b834f173f17490ba2722c11f84a1e5e0493a0",
+        "release_eligible": true,
+        "request_id": "research-01a1765f-b1c2-7b63-9833-857e738f66ff",
+        "static_check": {
+          "findings": [],
+          "passed": true
+        },
+        "strategy": {
+          "name": "trend.momentum.btc",
+          "parameters": {
+            "entry_threshold_bps": 25,
+            "exit_threshold_bps": -12,
+            "lookback": 24,
+            "max_position_notional": "25000",
+            "universe": [
+              "BTCUSDT"
+            ]
+          },
+          "rule": "momentum",
+          "rule_source": "momentum(close, lookback=24)"
+        },
+        "summary": "Momentum continuation on BTCUSDT with fixed lookback.",
+        "tenant_id": "22222222-2222-4222-8222-222222222222",
+        "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff",
+        "workspace_id": "33333333-3333-4333-8333-333333333333"
+      },
+      "stream_events": [
+        {
+          "delta": {
+            "phase": "validated",
+            "prompt_hash": "sha256:5302813a3533cad5a2fbaa5b3b8b834f173f17490ba2722c11f84a1e5e0493a0",
+            "strategy_name": "trend.momentum.btc"
+          },
+          "done": false,
+          "emitted_at": "2026-10-26T04:02:25.349961Z",
+          "sequence_id": "seq-1"
+        },
+        {
+          "delta": {
+            "lookback": 24,
+            "phase": "draft_ready",
+            "rule": "momentum"
+          },
+          "done": false,
+          "emitted_at": "2026-10-26T04:02:25.350022Z",
+          "sequence_id": "seq-2"
+        },
+        {
+          "delta": {
+            "finding_count": 0,
+            "phase": "completed",
+            "release_eligible": true
+          },
+          "done": true,
+          "emitted_at": "2026-10-26T04:02:25.350098Z",
+          "sequence_id": "seq-3"
+        }
+      ],
+      "supporting_artifacts": [
+        {
+          "artifact_manifest": {
+            "artifact_id": "01a1765f-b1c7-72c3-b6a0-5fb95740ea28",
+            "content_hash": "sha256:51addd3a03311e80bf85c16390a3829e0a7d35743437f87aa1ef0d387f89f2ef",
+            "created_at": "2026-10-26T04:02:25.351249Z",
+            "media_type": "application/json",
+            "metadata": {
+              "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff"
+            },
+            "object_key": "tenant/22222222-2222-4222-8222-222222222222/artifacts/51/51addd3a03311e80bf85c16390a3829e0a7d35743437f87aa1ef0d387f89f2ef",
+            "size_bytes": 368,
+            "storage_bucket": "owned-local-memory",
+            "tenant_id": "22222222-2222-4222-8222-222222222222"
+          },
+          "engine_artifact_id": "static-check:01a1765f-b1c2-7b63-9833-857e738f66ff",
+          "output": {
+            "artifact_type": "StaticCheckArtifact",
+            "blocked_release": false,
+            "engine": "strategy-lab",
+            "findings": [],
+            "passed": true,
+            "requested_tools": [
+              "query_snapshot",
+              "query_artifact"
+            ],
+            "strategy_name": "trend.momentum.btc",
+            "tenant_id": "22222222-2222-4222-8222-222222222222",
+            "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff",
+            "workspace_id": "33333333-3333-4333-8333-333333333333"
+          }
+        }
+      ],
+      "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff"
+    },
+    "strategyId": "01a1765f-b27f-70e3-9aed-514d302813ee",
+    "strategyRun": {
+      "account_id": "44444444-4444-4444-8444-444444444444",
+      "actor_id": "11111111-1111-4111-8111-111111111111",
+      "attempts": 1,
+      "cancel_requested_at": null,
+      "capability": "strategy.generate.v1",
+      "completed_at": "2026-10-26T04:02:25.351510Z",
+      "correlation_id": "01a1765f-b1bc-7411-a1f6-625f2165e2d8",
+      "cost_budget_units": 250,
+      "created_at": "2026-10-26T04:02:25.346418Z",
+      "deadline_at": "2026-10-26T04:12:24.898811Z",
+      "idempotency_key": "g3-child-0",
+      "input_hash": "sha256:fc7c116ddb77059d5e249557e97b1090d9e00daeff1847c15a785b479a846975",
+      "last_error": null,
+      "lease_expires_at": null,
+      "lease_owner": null,
+      "max_attempts": 1,
+      "next_attempt_at": "2026-10-26T04:02:25.346418Z",
+      "rate_limit_per_minute": 600,
+      "runtime_session_id": "01a1765f-b0eb-78e0-a996-ebe930b64721",
+      "status": "succeeded",
+      "tenant_id": "22222222-2222-4222-8222-222222222222",
+      "tool_name": "strategy.generate.v1",
+      "updated_at": "2026-10-26T04:02:25.351510Z",
+      "workflow_kind": "research",
+      "workflow_run_id": "01a1765f-b1c2-7b63-9833-857e738f66ff",
+      "workspace_id": "33333333-3333-4333-8333-333333333333"
+    }
+  },
+  "chain": {
+    "complete": true,
+    "correlationId": "01a1765f-b1bc-7411-a1f6-625f2165e2d8",
+    "items": [
+      {
+        "eventId": "01a1765f-b28b-70c3-a3fd-e543805b369d",
+        "kind": "research.worker.completed",
+        "objectRef": "01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+        "occurredAt": "2026-10-26T04:02:25.547575+00:00",
+        "payloadHash": "sha256:6da3deaee7351cf7a7f762481d31f1e7fbe44b91bbb3dbd7cc2710381c2a36a6",
+        "retentionUntil": "2027-10-26T04:02:25.547593+00:00",
+        "route": "/research/01a1765f-b1bc-7411-a1f6-626d0cc7c9d0",
+        "sequence": 9
+      },
+      {
+        "causationId": "01a1765f-b28b-70c3-a3fd-e543805b369d",
+        "eventId": "01a1765f-b28b-70c3-a3fd-e55ed07622f6",
+        "kind": "strategy.worker.completed",
+        "objectRef": "01a1765f-b1c2-7b63-9833-857e738f66ff",
+        "occurredAt": "2026-10-26T04:02:25.547873+00:00",
+        "payloadHash": "sha256:a3d3e573cdc5c34626fa8a268eac8eb7ad5ea61049d61d36be6fd2e8ef4c50b6",
+        "retentionUntil": "2027-10-26T04:02:25.547891+00:00",
+        "route": "/artifacts/01a1765f-b1c7-72c3-b6a0-5fce0bebb977",
+        "sequence": 10
+      },
+      {
+        "causationId": "01a1765f-b28b-70c3-a3fd-e55ed07622f6",
+        "eventId": "01a1765f-b28c-7ba0-bc05-ed3b0e879891",
+        "kind": "strategy.registered",
+        "objectRef": "01a1765f-b27f-70e3-9aed-514d302813ee",
+        "occurredAt": "2026-10-26T04:02:25.548751+00:00",
+        "payloadHash": "sha256:a16182123ce442b8ff3c41296b79abb508335da4bc70d22b7435e73e47547be7",
+        "retentionUntil": "2027-10-26T04:02:25.548768+00:00",
+        "route": "/strategies/01a1765f-b27f-70e3-9aed-514d302813ee/lab",
+        "sequence": 11
+      },
+      {
+        "causationId": "01a1765f-b28c-7ba0-bc05-ed3b0e879891",
+        "eventId": "01a1765f-b4d7-7bc3-bbbf-35a3d238f37a",
+        "kind": "/v1/strategies/01a1765f-b27f-70e3-9aed-514d302813ee/static-checks",
+        "objectRef": "01a1765f-b27f-70e3-9aed-514d302813ee",
+        "occurredAt": "2026-10-26T04:02:26.135883+00:00",
+        "payloadHash": "sha256:4397cf1700122a2108a571198c6e939979a44bfdb0b621df3e3cef5ad20236a6",
+        "retentionUntil": "2027-10-26T04:02:26.135901+00:00",
+        "route": "/v1/strategies/01a1765f-b27f-70e3-9aed-514d302813ee/static-checks",
+        "sequence": 70
+      },
+      {
+        "causationId": "01a1765f-b4d7-7bc3-bbbf-35a3d238f37a",
+        "eventId": "01a1765f-b504-7ac0-946e-d717e519fc97",
+        "kind": "/v1/backtests",
+        "objectRef": "01a1765f-b504-7ac0-946e-d6e802e633d7",
+        "occurredAt": "2026-10-26T04:02:26.180310+00:00",
+        "payloadHash": "sha256:626186b15b7f941a4626a5faa3c0b1b7e2d8f1b2ad3e7c386894319f4fa00a58",
+        "retentionUntil": "2027-10-26T04:02:26.180327+00:00",
+        "route": "/v1/backtests",
+        "sequence": 71
+      },
+      {
+        "causationId": "01a1765f-b504-7ac0-946e-d717e519fc97",
+        "eventId": "01a1765f-b5a4-7250-9747-d45933ef9c5a",
+        "kind": "/v1/releases",
+        "objectRef": "01a1765f-b59f-7ae1-8a56-240904fd32ad",
+        "occurredAt": "2026-10-26T04:02:26.340506+00:00",
+        "payloadHash": "sha256:e0dd6123d883f1665d0a0282d97a1e1a8f1ac28710f85c37f99b0f94a6b3bd02",
+        "retentionUntil": "2027-10-26T04:02:26.340522+00:00",
+        "route": "/v1/releases",
+        "sequence": 74
+      },
+      {
+        "causationId": "01a1765f-b5a4-7250-9747-d45933ef9c5a",
+        "eventId": "01a1765f-b61e-7380-88b0-23c139e22cbb",
+        "kind": "/v1/releases/01a1765f-b59f-7ae1-8a56-240904fd32ad/approval-submissions",
+        "objectRef": "5a0bb067-5f48-4564-866d-8c2a83d99498",
+        "occurredAt": "2026-10-26T04:02:26.463013+00:00",
+        "payloadHash": "sha256:dece8ae6c1dfaaa0e35f762274596e21932549d1b9ea1eb24b4896241b5e926a",
+        "retentionUntil": "2027-10-26T04:02:26.463033+00:00",
+        "route": "/v1/releases/01a1765f-b59f-7ae1-8a56-240904fd32ad/approval-submissions",
+        "sequence": 75
+      },
+      {
+        "causationId": "01a1765f-b61e-7380-88b0-23c139e22cbb",
+        "eventId": "01a1765f-b66d-7773-8fbf-bb806942ba46",
+        "kind": "/v1/approvals/5a0bb067-5f48-4564-866d-8c2a83d99498/decisions",
+        "objectRef": "5a0bb067-5f48-4564-866d-8c2a83d99498",
+        "occurredAt": "2026-10-26T04:02:26.541305+00:00",
+        "payloadHash": "sha256:475eed6feda0906486196ba094ee21000deda0843ec9eadfeb61ae869d9c3e6e",
+        "retentionUntil": "2027-10-26T04:02:26.541324+00:00",
+        "route": "/v1/approvals/5a0bb067-5f48-4564-866d-8c2a83d99498/decisions",
+        "sequence": 76
+      }
+    ]
+  }
+}

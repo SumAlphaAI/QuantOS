@@ -1,0 +1,274 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:S04"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:08.719Z",
+    "finishedAt": "2026-10-26T03:56:08.899Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/development.log",
+    "logSha256": "sha256:61580601855df7c2e7c4559be8d343b5aeea4501313beac5f12fdab093b9ce34"
+  },
+  {
+    "id": "bff-binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:08.900Z",
+    "finishedAt": "2026-10-26T03:56:19.986Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/bff-binary.log",
+    "logSha256": "sha256:187fd01debe46a3c70594397501b94cbd2ab7451f485136adcaa3a769104e501"
+  },
+  {
+    "id": "c05-c08",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "strategy::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:20.016Z",
+    "finishedAt": "2026-10-26T03:56:22.669Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/c05-c08.log",
+    "logSha256": "sha256:5a3e8aac72aa38ea3f96378a131c8eb796bfdbd3ac55b9a02bf654cdb7976aea"
+  },
+  {
+    "id": "worker-handoff",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "g3_research_tests::worker",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:22.669Z",
+    "finishedAt": "2026-10-26T03:56:26.760Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/worker-handoff.log",
+    "logSha256": "sha256:dc926e2a134084ec93729d8b329d54246a5ddd1485fb0e30f9d2f8e24ffa2b59"
+  },
+  {
+    "id": "s04-tcp",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-strategy",
+      "--test",
+      "service_s04",
+      "--",
+      "--nocapture"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:26.761Z",
+    "finishedAt": "2026-10-26T03:56:37.384Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/s04-tcp.log",
+    "logSha256": "sha256:c5c5224aba0eae397c0ffa5dc1358f67f3efce07984048ce6f3f3f6aac8212e1"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui301.test.ts",
+      "apps/terminal/tests/ui302.test.ts",
+      "apps/terminal/tests/ui303.test.ts",
+      "apps/terminal/tests/strategy-recovery.test.ts",
+      "apps/terminal/tests/strategy-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p06-presentation.test.ts",
+      "apps/terminal/tests/ui-p07-presentation.test.ts",
+      "apps/terminal/tests/fep3-closure.test.ts",
+      "apps/terminal/tests/ui504-provider-consumer.test.ts",
+      "apps/terminal/tests/s04-scenarios.test.ts",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/core-s04-local-20261026/attempt-01/consumer.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:37.384Z",
+    "finishedAt": "2026-10-26T03:56:41.298Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/consumer.log",
+    "logSha256": "sha256:b287648fe9507b70b91c91e5480fa5acabdda895ad23a1e93ffbb33c02b4dec8"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:41.299Z",
+    "finishedAt": "2026-10-26T03:56:43.066Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/strategy/release-policy.ts",
+      "apps/terminal/app/releases/workspace.tsx",
+      "apps/terminal/tests/ui303.test.ts",
+      "apps/terminal/tests/ui504-provider-consumer.test.ts",
+      "tests/e2e/fixtures/frontend-g3-reference.ts",
+      "tests/e2e/s04-integration.spec.ts",
+      "playwright.s04.config.ts",
+      "playwright.config.ts",
+      "scripts/core-s04-review.mjs",
+      "scripts/core-s04-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:43.066Z",
+    "finishedAt": "2026-10-26T03:56:43.629Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-s04-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/terminal-static-routes.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:43.630Z",
+    "finishedAt": "2026-10-26T03:56:44.234Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/gate-tests.log",
+    "logSha256": "sha256:024eda6eee58812e37728304535cd2e70c5f0b044a6f50aa19e653c5efb3bc64"
+  },
+  {
+    "id": "host-build",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:44.234Z",
+    "finishedAt": "2026-10-26T03:56:44.389Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/host-build.log",
+    "logSha256": "sha256:f5bc94509b807fa859a340fda6e1d579c94b5994b874ec974af6973742e9cead"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:44.418Z",
+    "finishedAt": "2026-10-26T03:56:57.415Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/terminal-build.log",
+    "logSha256": "sha256:ea3fa83c457ef1569161fcd2a70bfcb82df508b8b1dadaa763256f442557e54d"
+  },
+  {
+    "id": "s04-browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.s04.config.ts",
+      "--project",
+      "chromium",
+      "--output",
+      "docs/audit/evidence/core-s04-local-20261026/attempt-01/s04-browser",
+      "--reporter=list,json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:56:57.416Z",
+    "finishedAt": "2026-10-26T03:58:36.663Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/s04-browser.log",
+    "logSha256": "sha256:44f0d487be386e30fdf9f90065b2efff958003d4a8716f8b56cab166dd46a143"
+  },
+  {
+    "id": "browser-regression",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.frontend-g3.config.ts",
+      "--project",
+      "chromium",
+      "--grep-invert",
+      "G3 ",
+      "--output",
+      "docs/audit/evidence/core-s04-local-20261026/attempt-01/browser-regression",
+      "--reporter=list,json"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-26T03:58:36.663Z",
+    "finishedAt": "2026-10-26T03:58:44.533Z",
+    "log": "docs/audit/evidence/core-s04-local-20261026/attempt-01/browser-regression.log",
+    "logSha256": "sha256:4a3564de7dca5738310ad129646988132afd6ba93c193f1f5c5485a42dce80c8"
+  }
+]
