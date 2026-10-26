@@ -1,0 +1,19 @@
+
+running 6 tests
+X3_SERVICE_EVIDENCE={"data":{"nonzeroForeignFee":"REFUSED","sourceFacts":3,"tamperedPortfolio":"REFUSED","venueSubmitPath":"ABSENT","wrongAnchor":"REFUSED","zeroForeignFee":"ACCEPTED_WITHOUT_FX"},"id":"source-binding","schema":"quantos-x3-service-behavior/v1"}
+test x3_current_tests::service_chain::x3_service_adapter_refuses_foreign_nonzero_fee_and_forged_source ... ok
+X3_C15_EVIDENCE={"accepted":{"auditRef":"01a177ff-f49d-7090-b160-33fdbe774fdd","correlationId":"5103b059-ef59-4ca5-b481-76a3af2433dd","jobId":"d27cda15-4af0-42b7-9cbd-3543ab6e8820","status":"accepted"},"actualBookHash":"sha256:c44a09abdbd591a5c13c27854c965d02fb685820bb78375623200bf39b5ce520","actualSource":"sha256:f347ed101c542aee8c0c85b7d4f9d8b8958fd80c3d987c0263b1b469c5e6f044","c15Run":"390ba2c9-b71f-4a99-90a1-e4ae9442ef28","c15SourceHash":"sha256:c44a09abdbd591a5c13c27854c965d02fb685820bb78375623200bf39b5ce520","command":"01a177ff-f48a-71c1-a9f8-2edf4c35a3cc","expectedSource":"sha256:c3d3ed453ab987942f7a399ab8bcb9a61c74f445ef337917a75962f2e2217416","fill":"fill:f6f23e76a84a3569ca0728e0c33b8469160e8b49c7332610a2b33ecedc12ce92","httpIdentity":"NOT_RUN","nativeAuditHead":"sha256:f651e1659fcd0193f869060cd9465b58902ccec610ef6bcbd6dd7e9bcd99f1d2","newSubmits":0,"order":"order:f2771ea214e6890eab64a2f2fc25cdb1ac1b4267dbbe767258a76b0353abe75f","paperCash":"999000","productionCredentialsUsed":false,"provisional":true,"replays":32,"schema":"quantos-x3-native-c15/v1","scope":"TRUSTED_CONSTRUCTOR_HANDLER_NOT_HTTP_OR_COMMON_PERSISTENT_LEDGER"}
+test x3_current_tests::x3_actual_paper_shadow_books_project_into_c15_without_new_submit ... ok
+X3_SERVICE_EVIDENCE={"data":{"freshHealthRequired":true,"killRefusedBoth":true,"paperSubmitsAfterResume":1,"resumeConsumptions":1,"sameUserApproval":"REFUSED","shadowFillsAfterResume":1,"venueSubmitPath":"ABSENT"},"id":"kill-recovery","schema":"quantos-x3-service-behavior/v1"}
+test x3_current_tests::service_chain::x3_service_kill_resume_requires_separate_user_fresh_health_then_both_paths_recover ... ok
+X3_SERVICE_EVIDENCE={"data":{"actualSource":"sha256:609306cd98f520feaa67d11492cf01c4e531b5587b78280c289f09c61cc92c98","auditHead":"sha256:ae124c5021a052720138f4fc37d603d1a51a1ce42bfd22a940741e676315c929","btcQuantity":"1010","cash":"999000","command":"01a177ff-f4a3-7bf0-b5ca-3fe25693fb78","duplicates":0,"expectedSource":"sha256:f22cdf0a897594fd2b82cb7f7657a363a527befa6b6ecf3dee59d1eb52c41358","fills":1,"goldenSha256":"sha256:6efd8e3cd31ff5a23f9ecb3b47352dd50d05db45342dfadc009da286e72ff621","paperSubmits":1,"recoveryIo":0,"report":"sha256:d2c5e3dcd37aca5edf117c6551662ed27c8f203e3e68d8ea1a616443796bb638","shadowSubmitCalls":0,"venueSubmitPath":"ABSENT"},"id":"chain","schema":"quantos-x3-service-behavior/v1"}
+test x3_current_tests::service_chain::x3_service_paper_shadow_reconcile_concurrent_recovery_clean ... ok
+X3_SERVICE_EVIDENCE={"data":{"casesClosed":62,"classes":20,"latencyScope":"CONTROLLED_CLOCK_NOT_TARGET_SLA","located":20,"recurrence":"REOPENED","unprovenClose":"REFUSED","venueSubmitPath":"ABSENT"},"id":"twenty-breaks","schema":"quantos-x3-service-behavior/v1"}
+test x3_current_tests::service_chain::x3_service_twenty_breaks_require_proof_ack_repair_and_reopen ... ok
+X3_SERVICE_EVIDENCE={"data":{"paperSubmits":0,"shadowFills":0,"sideEffects":0,"sourceOrAuthorityClasses":5},"id":"refusals","schema":"quantos-x3-service-behavior/v1"}
+test x3_current_tests::service_chain::x3_service_stale_sources_and_revocation_refuse_paper_and_shadow ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 248 filtered out; finished in 10.71s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-f8cb4f3d255dfc92)

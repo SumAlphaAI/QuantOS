@@ -1,0 +1,16 @@
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error: `to_string` applied to a type that implements `Display` in `format!` args
+   --> crates/quantos-engine-manager/src/lib.rs:873:80
+    |
+873 |                   .map_err(|_| EngineManagerError::InvalidRequest("input_json"))?
+    |  ________________________________________________________________________________^
+874 | |                 .to_string(),
+    | |____________________________^ help: remove this
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#to_string_in_format_args
+    = note: `-D clippy::to-string-in-format-args` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::to_string_in_format_args)]`
+
+error: could not compile `quantos-engine-manager` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
