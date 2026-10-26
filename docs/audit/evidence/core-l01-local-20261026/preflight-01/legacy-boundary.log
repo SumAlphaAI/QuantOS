@@ -1,0 +1,36 @@
+
+running 3 tests
+test l01_configuration_rejects_unbounded_precision_and_zero_limits ... FAILED
+test l01_invalid_configuration_debug_and_errors_do_not_echo_material ... FAILED
+test l01_endpoint_is_an_exact_origin_not_a_testnet_substring ... FAILED
+
+failures:
+
+---- l01_configuration_rejects_unbounded_precision_and_zero_limits stdout ----
+
+thread 'l01_configuration_rejects_unbounded_precision_and_zero_limits' (2100648) panicked at crates/quantos-execution/tests/l01_legacy.rs:10:226:
+assertion failed: c.validate().is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- l01_invalid_configuration_debug_and_errors_do_not_echo_material stdout ----
+
+thread 'l01_invalid_configuration_debug_and_errors_do_not_echo_material' (2100650) panicked at crates/quantos-execution/tests/l01_legacy.rs:14:172:
+assertion failed: !format!("{c:?}").contains("owned-canary-material")
+
+---- l01_endpoint_is_an_exact_origin_not_a_testnet_substring stdout ----
+
+thread 'l01_endpoint_is_an_exact_origin_not_a_testnet_substring' (2100649) panicked at crates/quantos-execution/tests/l01_legacy.rs:5:87:
+assertion failed: c.validate().is_err()
+
+
+failures:
+    l01_configuration_rejects_unbounded_precision_and_zero_limits
+    l01_endpoint_is_an_exact_origin_not_a_testnet_substring
+    l01_invalid_configuration_debug_and_errors_do_not_echo_material
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.98s
+     Running tests/l01_legacy.rs (target/debug/deps/l01_legacy-a7bd4c3316cb1088)
+error: test failed, to rerun pass `-p quantos-execution --test l01_legacy`

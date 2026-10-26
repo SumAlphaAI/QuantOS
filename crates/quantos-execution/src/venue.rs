@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 
 use chrono::{DateTime, Utc};
 use quantos_core::CoreError;
+use rust_decimal::{Decimal, RoundingStrategy};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use thiserror::Error;
 
 use crate::{
@@ -18,7 +20,7 @@ pub const COMPAT_REPORT_VERSION: &str = "venue-compat.v1";
 // Configuration: approved venue only, no production endpoints or keys
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct VenueConfig {
     pub venue_id: String,
     pub endpoint: String,
@@ -46,26 +48,37 @@ impl VenueConfig {
     pub fn validate(&self) -> Result<(), VenueConfigError> {
         if self.venue_id != APPROVED_TESTNET_VENUE {
             return Err(VenueConfigError::VenueNotApproved {
-                venue_id: self.venue_id.clone(),
+                venue_id: "[unapproved venue]".into(),
             });
         }
-        let endpoint = self.endpoint.to_ascii_lowercase();
-        if endpoint.contains("api.binance.com")
-            || endpoint.contains("fstream.binance.com")
-            || (!endpoint.contains("testnet") && !endpoint.contains("localhost"))
-        {
+        if self.endpoint != APPROVED_TESTNET_ENDPOINT {
             return Err(VenueConfigError::ProductionEndpointForbidden {
-                endpoint: self.endpoint.clone(),
+                endpoint: "[unapproved origin]".into(),
             });
         }
-        let key_ref = self.api_key_ref.to_ascii_lowercase();
-        if !self.api_key_ref.starts_with("secret://") || key_ref.contains("prod") {
+        if self.api_key_ref != "secret://quantos/venues/binance-testnet-key" {
             return Err(VenueConfigError::ProductionKeyForbidden);
+        }
+        if self.price_precision > 18
+            || self.quantity_precision > 18
+            || !(1..=1000).contains(&self.rate_limit_per_second)
+        {
+            return Err(VenueConfigError::InvalidLimits);
         }
         Ok(())
     }
 }
 
+impl fmt::Debug for VenueConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("VenueConfig")
+            .field("approved", &self.validate().is_ok())
+            .field("price_precision", &self.price_precision)
+            .field("quantity_precision", &self.quantity_precision)
+            .field("key_ref", &"[redacted]")
+            .finish()
+    }
+}
 #[derive(Debug, Error)]
 pub enum VenueConfigError {
     #[error("VENUE_NOT_APPROVED: venue `{venue_id}` is not the approved L01 venue")]
@@ -74,6 +87,8 @@ pub enum VenueConfigError {
     ProductionEndpointForbidden { endpoint: String },
     #[error("VENUE_PRODUCTION_KEY_FORBIDDEN: production key references are never allowed")]
     ProductionKeyForbidden,
+    #[error("VENUE_INVALID_LIMITS")]
+    InvalidLimits,
 }
 
 // ---------------------------------------------------------------------------
@@ -88,14 +103,27 @@ pub struct VenueOrderIntent {
     pub order_type: String,
     pub quantity: String,
     pub limit_price: Option<String>,
+    pub stop_price: Option<String>,
 }
 
 pub fn map_order_intent(
     command: &TradeCommand,
     config: &VenueConfig,
 ) -> Result<VenueOrderIntent, VenueError> {
+    config.validate()?;
+    if command.venue != config.venue_id
+        || command.venue_kind != crate::VenueKind::Cex
+        || command.symbol.is_empty()
+        || command.symbol.len() > 20
+        || !command
+            .symbol
+            .bytes()
+            .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
+    {
+        return Err(invalid_decimal());
+    }
     let quantity = round_decimal(&command.quantity, config.quantity_precision)?;
-    if quantity == "0" {
+    if Decimal::from_str_exact(&quantity).map_err(|_| invalid_decimal())? == Decimal::ZERO {
         return Err(VenueError::Rejected {
             class: VenueErrorClass::Rejected,
             detail: "quantity rounds to zero at venue precision".to_owned(),
@@ -106,6 +134,20 @@ pub fn map_order_intent(
         .as_deref()
         .map(|price| round_decimal(price, config.price_precision))
         .transpose()?;
+    let stop_price = command
+        .stop_price
+        .as_deref()
+        .map(|price| round_decimal(price, config.price_precision))
+        .transpose()?;
+    let kind = match command.intent {
+        crate::OrderIntent::Market if limit_price.is_none() && stop_price.is_none() => "MARKET",
+        crate::OrderIntent::Limit if limit_price.is_some() && stop_price.is_none() => "LIMIT",
+        crate::OrderIntent::Stop if limit_price.is_none() && stop_price.is_some() => "STOP_LOSS",
+        crate::OrderIntent::StopLimit if limit_price.is_some() && stop_price.is_some() => {
+            "STOP_LOSS_LIMIT"
+        }
+        _ => return Err(invalid_decimal()),
+    };
     Ok(VenueOrderIntent {
         client_order_id: command.command_id.to_string(),
         symbol: command.symbol.clone(),
@@ -113,21 +155,34 @@ pub fn map_order_intent(
             OrderSide::Buy => "BUY".to_owned(),
             OrderSide::Sell => "SELL".to_owned(),
         },
-        order_type: command.intent.as_str().to_owned(),
+        order_type: kind.to_owned(),
         quantity,
         limit_price,
+        stop_price,
     })
 }
 
-fn round_decimal(value: &str, precision: u32) -> Result<String, VenueError> {
-    let parsed: f64 = value.trim().parse().map_err(|_| VenueError::Rejected {
+fn invalid_decimal() -> VenueError {
+    VenueError::Rejected {
         class: VenueErrorClass::Rejected,
-        detail: format!("`{value}` is not a valid decimal"),
-    })?;
-    let factor = 10_f64.powi(precision as i32);
-    let rounded = (parsed * factor).floor() / factor;
-    let decimals = precision as usize;
-    Ok(format!("{rounded:.decimals$}"))
+        detail: "invalid owned order or precision".into(),
+    }
+}
+fn round_decimal(value: &str, precision: u32) -> Result<String, VenueError> {
+    if precision > 18
+        || value.is_empty()
+        || value.len() > 96
+        || !value.bytes().all(|b| b.is_ascii_digit() || b == b'.')
+        || value.bytes().filter(|b| *b == b'.').count() > 1
+    {
+        return Err(invalid_decimal());
+    }
+    let parsed = Decimal::from_str_exact(value).map_err(|_| invalid_decimal())?;
+    let rounded = parsed.round_dp_with_strategy(precision, RoundingStrategy::ToZero);
+    if parsed <= Decimal::ZERO || rounded <= Decimal::ZERO {
+        return Err(invalid_decimal());
+    }
+    Ok(format!("{rounded:.width$}", width = precision as usize))
 }
 
 // ---------------------------------------------------------------------------
@@ -196,18 +251,24 @@ pub enum VenueCancelResponse {
     Rejected { reason: String },
 }
 
-#[derive(Debug, Error)]
+#[derive(Error)]
 pub enum VenueTransportError {
-    #[error("network failure: {detail}")]
+    #[error("network failure")]
     Network { detail: String },
-    #[error("authentication failure: {detail}")]
+    #[error("authentication failure")]
     Authentication { detail: String },
     #[error("rate limited: retry after {retry_after_ms}ms")]
     RateLimited { retry_after_ms: u64 },
 }
 
-/// Transport boundary for the approved testnet venue. The real testnet HTTP
-/// transport implements this trait; scenario tests drive a deterministic mock.
+impl fmt::Debug for VenueTransportError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
+
+/// Legacy fixture-only transport. No HTTP or credential implementation is provided.
+/// Use venue_protocol::ProtocolKernel for the sanitized X04 protocol boundary.
 pub trait TestnetTransport {
     fn place_order(
         &mut self,
@@ -230,6 +291,7 @@ pub struct TestnetVenueAdapter<T: TestnetTransport> {
     submit_window_ms: u64,
     submits_in_window: u32,
     last_venue_order_id: Option<String>,
+    last_clock_ms: Option<u64>,
     order_status: BTreeMap<String, bool>, // venue_order_id -> filled
 }
 
@@ -243,6 +305,7 @@ impl<T: TestnetTransport> TestnetVenueAdapter<T> {
             submit_window_ms: 0,
             submits_in_window: 0,
             last_venue_order_id: None,
+            last_clock_ms: None,
             order_status: BTreeMap::new(),
         })
     }
@@ -253,6 +316,10 @@ impl<T: TestnetTransport> TestnetVenueAdapter<T> {
     }
 
     fn check_rate_limit(&mut self, now_ms: u64) -> Result<(), VenueError> {
+        if self.last_clock_ms.is_some_and(|last| now_ms < last) {
+            return Err(invalid_decimal());
+        }
+        self.last_clock_ms = Some(now_ms);
         let window = now_ms / 1_000;
         if window != self.submit_window_ms {
             self.submit_window_ms = window;
@@ -288,13 +355,13 @@ impl<T: TestnetTransport> TestnetVenueAdapter<T> {
 
     fn classify_transport_error(error: VenueTransportError) -> VenueError {
         match error {
-            VenueTransportError::Network { detail } => VenueError::Rejected {
+            VenueTransportError::Network { .. } => VenueError::Rejected {
                 class: VenueErrorClass::Network,
-                detail,
+                detail: "transport outcome unavailable; fixture-only classification".into(),
             },
-            VenueTransportError::Authentication { detail } => VenueError::Rejected {
+            VenueTransportError::Authentication { .. } => VenueError::Rejected {
                 class: VenueErrorClass::Authentication,
-                detail,
+                detail: "authentication refused".into(),
             },
             VenueTransportError::RateLimited { retry_after_ms } => VenueError::Rejected {
                 class: VenueErrorClass::RateLimited,
@@ -306,7 +373,15 @@ impl<T: TestnetTransport> TestnetVenueAdapter<T> {
 
 impl<T: TestnetTransport> VenueAdapter for TestnetVenueAdapter<T> {
     fn submit(&mut self, command: &TradeCommand, submitted_at: DateTime<Utc>) -> Vec<OrderEvent> {
-        let now_ms = submitted_at.timestamp_millis() as u64;
+        let Ok(now_ms) = u64::try_from(submitted_at.timestamp_millis()) else {
+            return vec![self.next_event(
+                "invalid-clock",
+                submitted_at,
+                OrderEventKind::Rejected {
+                    reason: "invalid clock".into(),
+                },
+            )];
+        };
         if let Err(error) = self.check_rate_limit(now_ms) {
             let venue_order_id = format!("rejected:{}", command.command_id);
             return vec![self.next_event(
@@ -331,7 +406,60 @@ impl<T: TestnetTransport> VenueAdapter for TestnetVenueAdapter<T> {
             }
         };
         let venue_order_id_fallback = format!("testnet-order:{}", command.command_id);
-        match self.transport.place_order(&intent) {
+        let response = self.transport.place_order(&intent);
+        if let Ok(ref reply) = response {
+            let valid_id = |id: &str| {
+                !id.is_empty()
+                    && id.len() <= 128
+                    && id
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b":_-".contains(&b))
+            };
+            let amount = intent.quantity.parse::<f64>().unwrap_or_default();
+            let valid = match reply {
+                VenueOrderResponse::Accepted { venue_order_id } => valid_id(venue_order_id),
+                VenueOrderResponse::AcceptedThenFilled {
+                    venue_order_id,
+                    quantity,
+                    price,
+                    fee,
+                } => {
+                    valid_id(venue_order_id)
+                        && quantity.is_finite()
+                        && *quantity == amount
+                        && price.is_finite()
+                        && *price > 0.0
+                        && fee.is_finite()
+                        && *fee >= 0.0
+                }
+                VenueOrderResponse::AcceptedPartialFill {
+                    venue_order_id,
+                    quantity,
+                    price,
+                    fee,
+                } => {
+                    valid_id(venue_order_id)
+                        && quantity.is_finite()
+                        && *quantity > 0.0
+                        && *quantity < amount
+                        && price.is_finite()
+                        && *price > 0.0
+                        && fee.is_finite()
+                        && *fee >= 0.0
+                }
+                VenueOrderResponse::Rejected { .. } => true,
+            };
+            if !valid {
+                return vec![self.next_event(
+                    &venue_order_id_fallback,
+                    submitted_at,
+                    OrderEventKind::Rejected {
+                        reason: "invalid fixture response".into(),
+                    },
+                )];
+            }
+        }
+        match response {
             Ok(VenueOrderResponse::Accepted { venue_order_id }) => {
                 self.order_status.insert(venue_order_id.clone(), false);
                 self.last_venue_order_id = Some(venue_order_id.clone());
@@ -379,11 +507,13 @@ impl<T: TestnetTransport> VenueAdapter for TestnetVenueAdapter<T> {
                     ),
                 ]
             }
-            Ok(VenueOrderResponse::Rejected { reason }) => {
+            Ok(VenueOrderResponse::Rejected { .. }) => {
                 vec![self.next_event(
                     &venue_order_id_fallback,
                     submitted_at,
-                    OrderEventKind::Rejected { reason },
+                    OrderEventKind::Rejected {
+                        reason: "venue rejected order".into(),
+                    },
                 )]
             }
             Err(error) => {
@@ -400,15 +530,39 @@ impl<T: TestnetTransport> VenueAdapter for TestnetVenueAdapter<T> {
     }
 
     fn cancel(&mut self, venue_order_id: &str, requested_at: DateTime<Utc>) -> Vec<OrderEvent> {
+        if self.order_status.get(venue_order_id) != Some(&false) {
+            return vec![self.next_event(
+                venue_order_id,
+                requested_at,
+                OrderEventKind::CancelRejected {
+                    reason: "unknown or terminal fixture order".into(),
+                },
+            )];
+        }
+        if let Err(error) = u64::try_from(requested_at.timestamp_millis())
+            .map_err(|_| invalid_decimal())
+            .and_then(|n| self.check_rate_limit(n))
+        {
+            return vec![self.next_event(
+                venue_order_id,
+                requested_at,
+                OrderEventKind::CancelRejected {
+                    reason: error.to_string(),
+                },
+            )];
+        }
         match self.transport.cancel_order(venue_order_id) {
             Ok(VenueCancelResponse::Cancelled) => {
+                self.order_status.insert(venue_order_id.to_owned(), true);
                 vec![self.next_event(venue_order_id, requested_at, OrderEventKind::Cancelled)]
             }
-            Ok(VenueCancelResponse::Rejected { reason }) => {
+            Ok(VenueCancelResponse::Rejected { .. }) => {
                 vec![self.next_event(
                     venue_order_id,
                     requested_at,
-                    OrderEventKind::CancelRejected { reason },
+                    OrderEventKind::CancelRejected {
+                        reason: "venue rejected cancel".into(),
+                    },
                 )]
             }
             Err(error) => {
@@ -491,7 +645,7 @@ impl TestnetTransport for ScenarioDrivenTransport {
             },
             Some(TestnetScenarioKind::PartialFill) => VenueOrderResponse::AcceptedPartialFill {
                 venue_order_id,
-                quantity: 1.0,
+                quantity: intent.quantity.parse::<f64>().unwrap_or_default() / 2.0,
                 price: 100.25,
                 fee: 0.25,
             },
@@ -500,7 +654,7 @@ impl TestnetTransport for ScenarioDrivenTransport {
             }
             _ => VenueOrderResponse::AcceptedThenFilled {
                 venue_order_id,
-                quantity: 2.0,
+                quantity: intent.quantity.parse::<f64>().unwrap_or_default(),
                 price: 100.25,
                 fee: 0.5,
             },
@@ -558,7 +712,15 @@ pub struct CompatReport {
 impl CompatReport {
     #[must_use]
     pub fn fully_mapped(&self) -> bool {
-        self.scenarios.iter().all(|scenario| scenario.mapped)
+        self.scenarios.len() == 200
+            && self.scenarios.iter().all(|scenario| scenario.mapped)
+            && self
+                .scenarios
+                .iter()
+                .map(|s| &s.scenario_id)
+                .collect::<std::collections::BTreeSet<_>>()
+                .len()
+                == 200
     }
 
     /// The report must never embed production endpoints or secret material.

@@ -2672,7 +2672,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3", "FE:FEP-7"]
 - core_prerequisites: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `L4-SERVICE`
 - 需求描述：优先 venue testnet 适配
@@ -2682,7 +2682,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 阶段执行：本地开发验证200个自有协议fixture、精度/限流/网络认证错误分类及生产端点秘密拒绝；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X04、TP07
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-26 完成单一 Binance Spot Testnet 的无凭据协议内核、LIMIT/GTC 精确十进制过滤、共享限流、错误/未知状态分类、只读订单与成交恢复；200 个自有协议 fixture 经内存端口和真实 stdio 子进程映射至 X04，另有真实 X03 签发入口验证。[当前功能规程](./operations/core-l01-current-function.md)、[证据与兼容报告](./audit/evidence/core-l01-local-20261026/README.md)。工程 Gate `PASS_OWNED_LOCAL_L01_PROTOCOL_ADAPTER`；完整 Gate `NOT_READY_GAPS_OPEN`，stage_gate 保持 `NOT_ASSESSED`，正式确认待定、runtime `DENIED`。HTTP/凭据签名、实时 exchangeInfo、全局权重限流、持久重启恢复、真实 testnet 200 笔、完整联调及发布均 `NOT_RUN`；其他意图在当前执行入口明确拒绝，旧适配器仅 fixture 兼容。下一可执行任务 `CORE:L02`；未递归复验上游、未改绑历史证据。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-l02"></a>
 ### L02：Supabase Vault、mTLS 与受限执行区

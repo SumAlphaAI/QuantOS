@@ -9,6 +9,7 @@ pub mod oms;
 pub mod paper;
 pub mod process_kernel;
 pub mod venue;
+pub mod venue_protocol;
 pub mod zone;
 
 use std::collections::{BTreeMap, BTreeSet};
