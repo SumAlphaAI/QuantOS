@@ -1,0 +1,30 @@
+
+Running 5 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit (2.7s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit 
+
+    SyntaxError: Unexpected end of JSON input
+
+       at fixtures/u01-reference.ts:43
+
+      41 | export async function control(path: string,body?: unknown,version?: string,options:{method?:"GET"|"PUT"|"POST";session?:"session-current"|"session-approver"}={}): Promise<{status: number;body: Record<string,unknown>}> {
+      42 |  const method=options.method??(body?"PUT":"GET"),write=method!=="GET";
+    > 43 |  return new Promise((resolve,reject) => {const req = secureRequest(origin+path,{rejectUnauthorized:false,method,headers:{"x-u01-control":"1","x-u01-session":options.session??"session-current",...(write? {"content-type":"application/json",...(version?{"if-match":version}:{}),"idempotency-key":crypto.randomUUID(),"x-request-id":crypto.randomUUID(),"x-csrf-token":csrf} : {})}},res => {const parts: Buffer[] = [];res.on("data",b => parts.push(Buffer.from(b)));res.on("end",() => resolve({status:res.statusCode!,body:JSON.parse(Buffer.concat(parts).toString())}));});req.on("error",reject);req.end(body ? JSON.stringify(body) : undefined);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      44 | }
+      45 | export async function authorized(page: Page) {await expect(page.locator('[data-route-access="authorized"]')).toBeVisible();}
+      46 | export function installReferenceHooks(){
+        at IncomingMessage.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/u01-reference.ts:43:521)
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-03/browser/u01-integration-U01-Web-cr-0fb8f-act-Evidence-Snapshot-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-03/browser/u01-integration-U01-Web-cr-0fb8f-act-Evidence-Snapshot-Audit-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit 
+  4 did not run
+  1 error was not a part of any test, see above for details

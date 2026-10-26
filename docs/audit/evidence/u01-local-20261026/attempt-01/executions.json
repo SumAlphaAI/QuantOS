@@ -1,0 +1,183 @@
+[
+  {
+    "id": "host-build",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:18.170Z",
+    "finishedAt": "2026-10-26T02:13:18.430Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/host-build.log",
+    "logSha256": "sha256:8610ede33d6cf92f02dc04e8be4ceaedad8e9215c8e58a659da9aa159e5150ac"
+  },
+  {
+    "id": "research-backend",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "research::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:18.457Z",
+    "finishedAt": "2026-10-26T02:13:20.433Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/research-backend.log",
+    "logSha256": "sha256:746ca97f255693b2e89ed79262e9bb1bad83309d8b61dadc8bc621fe7b1e9d81"
+  },
+  {
+    "id": "auth-backend",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:20.433Z",
+    "finishedAt": "2026-10-26T02:13:28.516Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/auth-backend.log",
+    "logSha256": "sha256:55cb7907f5e9acae45b2a625f9cc600b15390c02b133fbf807f7992e99f93264"
+  },
+  {
+    "id": "research-runtime",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--lib",
+      "research::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:28.517Z",
+    "finishedAt": "2026-10-26T02:13:36.076Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/research-runtime.log",
+    "logSha256": "sha256:0f64169925c987a00453714e0e88fd8067cae656efe135cc2170049ae53832aa"
+  },
+  {
+    "id": "frontend",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/ui201.test.ts",
+      "apps/terminal/tests/ui202.test.ts",
+      "apps/terminal/tests/research-gateway.test.ts",
+      "apps/terminal/tests/auth-bff.test.ts",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "apps/terminal/tests/ui203.test.ts"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:36.076Z",
+    "finishedAt": "2026-10-26T02:13:37.783Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/frontend.log",
+    "logSha256": "sha256:19f3a47f2a9c43a6595a487a88476c9e21dc3b02994e2f3308c4f26780345850"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/u01-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:37.783Z",
+    "finishedAt": "2026-10-26T02:13:38.324Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/gate-tests.log",
+    "logSha256": "sha256:edbc15d4c9aaaca3e7f927e2b256144bb7761600624d07c7a030c821d338906d"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:38.324Z",
+    "finishedAt": "2026-10-26T02:13:38.381Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/app/research/workspace.tsx",
+      "apps/terminal/app/research/detail.tsx",
+      "apps/terminal/src/research/runtime.ts",
+      "apps/terminal/src/research/detail-runtime.ts",
+      "apps/terminal/tests/ui201.test.ts",
+      "apps/terminal/tests/ui202.test.ts",
+      "tests/e2e/fixtures/u01-reference.ts",
+      "tests/e2e/u01-integration.spec.ts",
+      "playwright.u01.config.ts",
+      "scripts/u01-review.mjs",
+      "scripts/u01-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:38.381Z",
+    "finishedAt": "2026-10-26T02:13:38.953Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:38.953Z",
+    "finishedAt": "2026-10-26T02:13:51.520Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/terminal-build.log",
+    "logSha256": "sha256:cc0d0f19ea158c289ba620ebdce6478391beae1077b3d60539f2f5ef26756559"
+  },
+  {
+    "id": "terminal-types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 2,
+    "signal": null,
+    "startedAt": "2026-10-26T02:13:51.520Z",
+    "finishedAt": "2026-10-26T02:13:58.417Z",
+    "log": "docs/audit/evidence/u01-local-20261026/attempt-01/terminal-types.log",
+    "logSha256": "sha256:b441f034de22e391b9c791d6b09dd53eba98e7caf3f0df26fd3b337894e9d7a8"
+  }
+]

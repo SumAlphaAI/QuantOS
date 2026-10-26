@@ -1,0 +1,162 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit (45.1s)
+  ✘  2 [chromium] › tests/e2e/u01-integration.spec.ts:33:5 › U01 queued cancellation reaches runtime cancellation without publishing output and recovery never repeats writes (45.1s)
+  ✘  3 [chromium] › tests/e2e/u01-integration.spec.ts:41:5 › U01 small screen hides create cancel retry and closes an open confirmation on resize (45.1s)
+  ✘  4 [chromium] › tests/e2e/u01-integration.spec.ts:48:5 › U01 server rejects insufficient identity and invalid snapshot; explicit recovery keeps original run (45.1s)
+
+
+  1) [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('数据快照', { exact: true })
+        - locator resolved to <select aria-label="数据快照" aria-invalid="false" name="dataSnapshotId" id="research-snapshot">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        83 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+       6 |  await page.goto('/research/new');await authorized(page);
+       7 |  await page.getByLabel('研究问题',{exact:true}).fill('Validate bounded BTC momentum with owned U01 input');
+    >  8 |  await page.getByLabel('数据快照',{exact:true}).selectOption(snapshotId());
+         |                                             ^
+       9 |  await page.getByLabel('预算（整数成本单位）',{exact:true}).fill('250');
+      10 |  await page.getByRole('checkbox',{name:'我已确认任务不包含交易指令',exact:true}).check();
+      11 |  await page.getByRole('button',{name:'提交研究',exact:true}).click();
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:8:45)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:18:13
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-Web-cr-0fb8f-act-Evidence-Snapshot-Audit-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-Web-cr-0fb8f-act-Evidence-Snapshot-Audit-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/u01-integration.spec.ts:33:5 › U01 queued cancellation reaches runtime cancellation without publishing output and recovery never repeats writes 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('数据快照', { exact: true })
+        - locator resolved to <select aria-label="数据快照" aria-invalid="false" name="dataSnapshotId" id="research-snapshot">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        83 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+       6 |  await page.goto('/research/new');await authorized(page);
+       7 |  await page.getByLabel('研究问题',{exact:true}).fill('Validate bounded BTC momentum with owned U01 input');
+    >  8 |  await page.getByLabel('数据快照',{exact:true}).selectOption(snapshotId());
+         |                                             ^
+       9 |  await page.getByLabel('预算（整数成本单位）',{exact:true}).fill('250');
+      10 |  await page.getByRole('checkbox',{name:'我已确认任务不包含交易指令',exact:true}).check();
+      11 |  await page.getByRole('button',{name:'提交研究',exact:true}).click();
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:8:45)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:34:13
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-queued-b56a4-covery-never-repeats-writes-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-queued-b56a4-covery-never-repeats-writes-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/u01-integration.spec.ts:41:5 › U01 small screen hides create cancel retry and closes an open confirmation on resize 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('数据快照', { exact: true })
+        - locator resolved to <select aria-label="数据快照" aria-invalid="false" name="dataSnapshotId" id="research-snapshot">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        85 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+       6 |  await page.goto('/research/new');await authorized(page);
+       7 |  await page.getByLabel('研究问题',{exact:true}).fill('Validate bounded BTC momentum with owned U01 input');
+    >  8 |  await page.getByLabel('数据快照',{exact:true}).selectOption(snapshotId());
+         |                                             ^
+       9 |  await page.getByLabel('预算（整数成本单位）',{exact:true}).fill('250');
+      10 |  await page.getByRole('checkbox',{name:'我已确认任务不包含交易指令',exact:true}).check();
+      11 |  await page.getByRole('button',{name:'提交研究',exact:true}).click();
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:8:45)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:42:13
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-small--854be-open-confirmation-on-resize-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-small--854be-open-confirmation-on-resize-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/u01-integration.spec.ts:48:5 › U01 server rejects insufficient identity and invalid snapshot; explicit recovery keeps original run 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('数据快照', { exact: true })
+        - locator resolved to <select aria-label="数据快照" aria-invalid="false" name="dataSnapshotId" id="research-snapshot">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        85 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+       6 |  await page.goto('/research/new');await authorized(page);
+       7 |  await page.getByLabel('研究问题',{exact:true}).fill('Validate bounded BTC momentum with owned U01 input');
+    >  8 |  await page.getByLabel('数据快照',{exact:true}).selectOption(snapshotId());
+         |                                             ^
+       9 |  await page.getByLabel('预算（整数成本单位）',{exact:true}).fill('250');
+      10 |  await page.getByRole('checkbox',{name:'我已确认任务不包含交易指令',exact:true}).check();
+      11 |  await page.getByRole('button',{name:'提交研究',exact:true}).click();
+        at create (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:8:45)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/u01-integration.spec.ts:49:13
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-server-57f45-recovery-keeps-original-run-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/u01-local-20261026/exploratory-02/browser/u01-integration-U01-server-57f45-recovery-keeps-original-run-chromium/error-context.md
+
+  4 failed
+    [chromium] › tests/e2e/u01-integration.spec.ts:17:5 › U01 Web create streams actual R03 RD-Agent output and resolves Artifact Evidence Snapshot Audit 
+    [chromium] › tests/e2e/u01-integration.spec.ts:33:5 › U01 queued cancellation reaches runtime cancellation without publishing output and recovery never repeats writes 
+    [chromium] › tests/e2e/u01-integration.spec.ts:41:5 › U01 small screen hides create cancel retry and closes an open confirmation on resize 
+    [chromium] › tests/e2e/u01-integration.spec.ts:48:5 › U01 server rejects insufficient identity and invalid snapshot; explicit recovery keeps original run 

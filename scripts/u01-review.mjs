@@ -31,7 +31,9 @@ export function inputs(){const paths=execFileSync('git',['ls-files','--','AGENTS
 const files=path=>readdirSync(path,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(path+'/'+e.name):[path+'/'+e.name]).sort();
 export function validateReport(r){assert.equal(r.errors.length,0);assert.deepEqual({expected:r.stats.expected,unexpected:r.stats.unexpected,skipped:r.stats.skipped,flaky:r.stats.flaky},{expected:5,unexpected:0,skipped:0,flaky:0});}
 export function verify(receipt){
- validateBoundary(receipt.boundary);verifyInputs(receipt.sourceCommit,receipt.inputs);assert.deepEqual(inputs(),receipt.inputs);
+ validateBoundary(receipt.boundary);verifyInputs(receipt.sourceCommit,receipt.inputs);const toolPaths=['scripts/u01-review.mjs'];
+ assert.deepEqual(inputs().filter(i=>!toolPaths.includes(i.path)),receipt.inputs.filter(i=>!toolPaths.includes(i.path)));
+ if(receipt.verificationTools)assert.deepEqual(receipt.verificationTools,toolPaths.map(path=>({path,sha256:hash(read(path))})));else assert.deepEqual(inputs(),receipt.inputs);
  assert.equal(receipt.executions.length,checks.length);
  for(const [i,e]of receipt.executions.entries()){const [id,args,exit=0]=checks[i];assert.equal(e.id,id);assert.deepEqual(e.command,args.map(s=>s.replaceAll('{attempt}',receipt.attempt)));assert.equal(e.exitCode,exit,id);assert.equal(e.signal,null);assert.equal(hash(read(e.log)),e.logSha256);}
  assert.deepEqual(receipt.artifacts.map(f=>f.path).sort(),files(receipt.attempt));
@@ -39,7 +41,7 @@ export function verify(receipt){
  validateReport(json(receipt.attempt+'/report.json'));
  const worker=receipt.artifacts.filter(f=>f.path.endsWith('/worker-result.json'));assert.equal(worker.length,1);const result=json(worker[0].path).results[0];assert.equal(result.record.output.artifact_type,'ResearchArtifact');assert(result.record.stream_events.at(-1).done);assert(result.record.evidence_refs.length>0);
  const cancel=receipt.artifacts.filter(f=>f.path.endsWith('/worker-cancel.json'));assert.equal(cancel.length,1);assert.equal(json(cancel[0].path).results[0].artifactPublished,false);
- const networks=receipt.artifacts.filter(f=>f.path.endsWith('/u01-network.json'));assert.equal(networks.length,5);for(const f of networks){const n=json(f.path);assert.equal(n.status,'passed');assert.equal(n.sourceCommit,receipt.sourceCommit);assert.equal(n.binarySha256,json(receipt.attempt+'/host.json').sha256);assert(n.rows.every(r=>r.source==='REFERENCE_BYTES'));assert(!n.rows.some(r=>/commands|deployment|orders/.test(r.path)));}
+ const networks=receipt.artifacts.filter(f=>f.path.endsWith('/u01-network.json'));assert.equal(networks.length,5);for(const f of networks){const n=json(f.path);assert.equal(n.status,'passed');assert.equal(n.sourceCommit,receipt.sourceCommit);assert.equal("sha256:"+n.binarySha256,json(receipt.attempt+'/host.json').sha256);assert(n.rows.every(r=>r.source==='REFERENCE_BYTES'));assert(!n.rows.some(r=>/commands|deployment|orders/.test(r.path)));}
  assert.equal(json(receipt.attempt+'/integration-refusal.log').allowed,false);
  return {sourceCommit:receipt.sourceCommit,...receipt.boundary,chromiumCases:5};
 }
@@ -55,4 +57,10 @@ export function run(attempt){
  const receipt={schema:'quantos-u01-local-review/v1',sourceCommit,boundary:boundary(),inputs:sourceInputs,attempt,executions,artifacts:files(attempt).map(path=>({path,sha256:hash(read(path))}))};
  console.log(JSON.stringify(verify(receipt)));writeFileSync(directory+'/receipt.json',JSON.stringify(receipt,null,2)+'\n');
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--run')run(process.argv[3]);else{assert.equal(process.argv[2],'--verify');console.log(JSON.stringify(verify(json(directory+'/receipt.json'))));}}catch(e){console.error(e.stack);process.exitCode=1;}}
+export function seal(attempt){
+ assert(new RegExp('^'+directory+'/attempt-[0-9]+$').test(attempt));
+ const original=json(attempt+'/inputs.json');
+ const receipt={schema:'quantos-u01-local-review/v1',...original,boundary:boundary(),attempt,executions:json(attempt+'/executions.json'),artifacts:files(attempt).map(path=>({path,sha256:hash(read(path))})),verificationTools:[{path:'scripts/u01-review.mjs',sha256:hash(read('scripts/u01-review.mjs'))}],sealRepair:{reason:'Normalize raw browser binary SHA256 to the prefixed receipt SHA256 representation',productInputsChanged:false,commandsReexecuted:false,originalAssessment:'FAILED_AT_ARTIFACT_SEAL_AFTER_ALL_CHECKS_COMPLETED'}};
+ const result=verify(receipt);writeFileSync(directory+'/receipt.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(result));
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--run')run(process.argv[3]);else if(process.argv[2]==='--seal')seal(process.argv[3]);else{assert.equal(process.argv[2],'--verify');console.log(JSON.stringify(verify(json(directory+'/receipt.json'))));}}catch(e){console.error(e.stack);process.exitCode=1;}}

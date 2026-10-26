@@ -1,0 +1,131 @@
+{
+  "results": [
+    {
+      "bffRunId": "9a56855e-8aa2-420e-a408-103c3400ca9c",
+      "input": {
+        "attachments": [],
+        "budget": "250",
+        "capability": "research.hypothesis.v1",
+        "dataSnapshotId": "01a175fe-2682-7170-8592-df10d5823a08",
+        "deadlineAt": "2026-10-26T03:15:52.964Z",
+        "question": "Validate bounded BTC momentum with owned U01 input"
+      },
+      "record": {
+        "artifact_manifest": {
+          "artifact_id": "01a175fe-28ad-7600-a5d9-7f2d9d1efac0",
+          "content_hash": "sha256:1563b2a5c0b5d58ec5d082a7154efe1ceb4c3fee3c54b9d132a09c602dc06320",
+          "created_at": "2026-10-26T02:15:53.260643Z",
+          "media_type": "application/json",
+          "metadata": {
+            "capability": "research.hypothesis.v1",
+            "data_snapshot_id": "01a175fe-2682-7170-8592-df10d5823a08",
+            "engine_artifact_id": "research-artifact:e84cee3af169138e22efc5c123ae988081ac5302e5078cc09eb05fa856bf67a0",
+            "engine_artifact_uri": "mock-artifact://rd-agent/e84cee3af169138e22efc5c123ae988081ac5302e5078cc09eb05fa856bf67a0.json",
+            "workflow_run_id": "01a175fe-28a8-76a1-ab79-ae51adfb3d97"
+          },
+          "object_key": "tenant/22222222-2222-4222-8222-222222222222/artifacts/15/1563b2a5c0b5d58ec5d082a7154efe1ceb4c3fee3c54b9d132a09c602dc06320",
+          "size_bytes": 2129,
+          "storage_bucket": "owned-memory",
+          "tenant_id": "22222222-2222-4222-8222-222222222222"
+        },
+        "capability": "research.hypothesis.v1",
+        "created_at": "2026-10-26T02:15:53.260643Z",
+        "data_snapshot_id": "01a175fe-2682-7170-8592-df10d5823a08",
+        "engine_artifact_id": "research-artifact:e84cee3af169138e22efc5c123ae988081ac5302e5078cc09eb05fa856bf67a0",
+        "evidence_refs": [
+          {
+            "artifact_id": "research-artifact:e84cee3af169138e22efc5c123ae988081ac5302e5078cc09eb05fa856bf67a0",
+            "evidence_id": "evidence:research-artifact:e84cee3af169138e22efc5c123ae988081ac5302e5078cc09eb05fa856bf67a0",
+            "summary": "Deterministic QuantOS fixture research evidence"
+          }
+        ],
+        "input_hash": "sha256:391a117d765b15b80ae317102dba2e6ca5c80f6c29a44d8411e0b29b8c99a1e2",
+        "output": {
+          "artifact_hash": "sha256:972b82f537ad03b86b7ecbe67828d18279c59dd1a97d01f9196c6e7e7b19a3b8",
+          "artifact_kind": "hypothesis",
+          "artifact_type": "ResearchArtifact",
+          "audit": {
+            "actor_id": "11111111-1111-4111-8111-111111111111",
+            "causation_id": "workflow-run:01a175fe-28a8-76a1-ab79-ae51adfb3d97",
+            "correlation_id": "2848a7fa-6ce6-41ee-9b2f-c1713402ea2f",
+            "data_snapshot_ref": "01a175fe-2682-7170-8592-df10d5823a08",
+            "decision": "allowed-fixture-only",
+            "policy_context_ref": "u01-owned-policy",
+            "request_id": "research-01a175fe-28a8-76a1-ab79-ae51adfb3d97",
+            "tenant_id": "22222222-2222-4222-8222-222222222222",
+            "workflow_run_id": "01a175fe-28a8-76a1-ab79-ae51adfb3d97",
+            "workspace_id": "33333333-3333-4333-8333-333333333333"
+          },
+          "capability": "research.hypothesis.v1",
+          "data_snapshot_ref": "01a175fe-2682-7170-8592-df10d5823a08",
+          "engine": "rd-agent",
+          "environment": {
+            "deterministic_fixture": true,
+            "engine_version": "0.1.0",
+            "fixture_catalog_sha256": "sha256:923a1c3aea04b1dec3f9d4b7c95d766423ceaed2975f5ad51b0fa6a95efde0b0",
+            "runtime": "python-sidecar",
+            "snapshot_bytes_resolved": false,
+            "tools_executed": false
+          },
+          "evidence": [
+            "snapshot:breadth-series",
+            "snapshot:dispersion-series",
+            "artifact:benchmark-regime-bucket"
+          ],
+          "experiment_plan": [
+            "Measure breadth and dispersion over the supplied snapshot window.",
+            "Compare the observed regime to the previous fixed benchmark bucket.",
+            "Record evidence and next-step experiment criteria."
+          ],
+          "findings": [
+            "The fixture signals a widening dispersion regime.",
+            "Breadth weakness aligns with lower confidence in continuation setups."
+          ],
+          "fixture": "hypothesis_regime_shift",
+          "hypothesis": "If liquidity dispersion widens while breadth weakens, short-horizon trend continuation quality degrades.",
+          "input_hash": "sha256:5a64237afa3810ad6dd9784a2f24c0fd9695c3cdd872ef85db26223f706fb9de",
+          "policy_context_ref": "u01-owned-policy",
+          "prompt_sha256": "sha256:d858d31778cc824bbe92e51e3e204ceef0f4f9743a58e07f3463aac3b342e101",
+          "requested_tools": [],
+          "summary": "Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot.",
+          "title": "Liquidity regime shift hypothesis",
+          "trade_executable": false,
+          "workflow_run_id": "01a175fe-28a8-76a1-ab79-ae51adfb3d97"
+        },
+        "stream_events": [
+          {
+            "delta": {
+              "artifact_type": "ResearchArtifact",
+              "phase": "validated",
+              "requested_tools": []
+            },
+            "done": false,
+            "emitted_at": "2026-10-26T02:15:53.258967Z",
+            "sequence_id": "seq-1"
+          },
+          {
+            "delta": {
+              "artifact_hash": "sha256:972b82f537ad03b86b7ecbe67828d18279c59dd1a97d01f9196c6e7e7b19a3b8",
+              "artifact_kind": "hypothesis",
+              "phase": "research_artifact_ready"
+            },
+            "done": false,
+            "emitted_at": "2026-10-26T02:15:53.259054Z",
+            "sequence_id": "seq-2"
+          },
+          {
+            "delta": {
+              "phase": "completed",
+              "summary": "Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot."
+            },
+            "done": true,
+            "emitted_at": "2026-10-26T02:15:53.259148Z",
+            "sequence_id": "seq-3"
+          }
+        ],
+        "workflow_run_id": "01a175fe-28a8-76a1-ab79-ae51adfb3d97"
+      },
+      "workerRunId": "01a175fe-28a8-76a1-ab79-ae51adfb3d97"
+    }
+  ]
+}
