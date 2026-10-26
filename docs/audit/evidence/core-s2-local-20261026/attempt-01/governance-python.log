@@ -1,0 +1,70 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0 -- /Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS
+plugins: cov-6.2.1
+collecting ... collected 26 items
+
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_capability_permission_replacement_and_forbidden_required PASSED [  3%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_complete_pinned_inventory_and_denied_runtime PASSED [  7%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_cve_record_cannot_claim_clean_or_admit_runtime PASSED [ 11%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_missing_cve_response_or_wrong_lock_hash_rejected PASSED [ 15%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_missing_or_duplicate_sbom_package_rejected PASSED [ 19%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_old_license_and_pin_rejected 
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_old_license_and_pin_rejected PASSED [ 23%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_query_inventory_cannot_drop_versions PASSED [ 26%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_rewritten_blob_metadata_cannot_forge_pinned_tree PASSED [ 30%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_runtime_cli_never_authorizes_execution FAILED [ 34%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_runtime_lock_and_source_imports_rejected PASSED [ 38%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_source_bytes_and_license_are_bound PASSED [ 42%]
+scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_unknown_advisory_results_remain_unknown PASSED [ 46%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_advisory_cannot_be_promoted_to_runtime_adoption PASSED [ 50%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_cli_denies_runtime FAILED [ 53%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_complete_reference_assessment_denies_runtime PASSED [ 57%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_escaping_evidence_rejected PASSED [ 61%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_license_and_cve_unknown_cannot_be_promoted PASSED [ 65%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_missing_behavioral_anchor_rejected PASSED [ 69%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_missing_interface_rejected PASSED [ 73%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_missing_or_duplicate_rules_rejected PASSED [ 76%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_missing_threat_or_unknown_rule_rejected PASSED [ 80%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_rewritten_blob_metadata_cannot_forge_commit_tree PASSED [ 84%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_runtime_source_and_lock_injection_rejected 
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_runtime_source_and_lock_injection_rejected PASSED [ 88%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_source_tamper_rejected PASSED [ 92%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_target_and_residual_risk_cannot_be_self_approved PASSED [ 96%]
+scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_wrong_tp07_reference_rejected PASSED [100%]
+
+=================================== FAILURES ===================================
+_________ EvaluationTests.test_runtime_cli_never_authorizes_execution __________
+
+self = <test_tp07_evaluation.EvaluationTests testMethod=test_runtime_cli_never_authorizes_execution>
+
+    def test_runtime_cli_never_authorizes_execution(self):
+        r = subprocess.run(
+            ["python3", str(E.ROOT / "scripts/tp07-evaluation.py"), "--runtime"],
+            capture_output=True,
+        )
+        self.assertNotEqual(r.returncode, 0)
+>       self.assertIn(b"cannot grant runtime", r.stderr)
+E       AssertionError: b'cannot grant runtime' not found in b'Traceback (most recent call last):\n  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp07-evaluation.py", line 11, in <module>\n    import tomllib\nModuleNotFoundError: No module named \'tomllib\'\n'
+
+scripts/tests/test_tp07_evaluation.py:125: AssertionError
+___________________ EvaluationTests.test_cli_denies_runtime ____________________
+
+self = <test_tp12_evaluation.EvaluationTests testMethod=test_cli_denies_runtime>
+
+    def test_cli_denies_runtime(self):
+        r = subprocess.run(
+            ["python3", str(E.ROOT / "scripts/tp12-evaluation.py"), "--runtime"],
+            capture_output=True,
+        )
+        self.assertNotEqual(r.returncode, 0)
+>       self.assertIn(b"cannot grant runtime", r.stderr)
+E       AssertionError: b'cannot grant runtime' not found in b'Traceback (most recent call last):\n  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp12-evaluation.py", line 12, in <module>\n    import tomllib\nModuleNotFoundError: No module named \'tomllib\'\n'
+
+scripts/tests/test_tp12_evaluation.py:166: AssertionError
+- generated xml file: /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/core-s2-local-20261026/attempt-01/governance-python.xml -
+=========================== short test summary info ============================
+FAILED scripts/tests/test_tp07_evaluation.py::EvaluationTests::test_runtime_cli_never_authorizes_execution - AssertionError: b'cannot grant runtime' not found in b'Traceback (most recent call last):\n  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp07-evaluation.py", line 11, in <module>\n    import tomllib\nModuleNotFoundError: No module named \'tomllib\'\n'
+FAILED scripts/tests/test_tp12_evaluation.py::EvaluationTests::test_cli_denies_runtime - AssertionError: b'cannot grant runtime' not found in b'Traceback (most recent call last):\n  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp12-evaluation.py", line 12, in <module>\n    import tomllib\nModuleNotFoundError: No module named \'tomllib\'\n'
+=============== 2 failed, 24 passed, 4 subtests passed in 1.75s ================

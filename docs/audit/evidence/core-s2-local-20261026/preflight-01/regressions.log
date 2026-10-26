@@ -1,0 +1,24 @@
+
+running 2 tests
+test release::tests::s2_domain_self_approval_is_rejected_without_mutating_the_candidate ... FAILED
+test release::tests::s2_future_ticket_cannot_be_returned_or_consumed_before_issuance ... FAILED
+
+failures:
+
+failures:
+    release::tests::s2_domain_self_approval_is_rejected_without_mutating_the_candidate
+    release::tests::s2_future_ticket_cannot_be_returned_or_consumed_before_issuance
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 32 filtered out; finished in 0.45s
+
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.61s
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-cbc802baa87a8f4a)
+
+thread 'release::tests::s2_domain_self_approval_is_rejected_without_mutating_the_candidate' (1255966) panicked at crates/quantos-strategy/src/release.rs:774:9:
+domain API must reject the creator even with approve capability
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'release::tests::s2_future_ticket_cannot_be_returned_or_consumed_before_issuance' (1255967) panicked at crates/quantos-strategy/src/release.rs:792:9:
+no future ticket consumption after clock rollback
+error: test failed, to rerun pass `-p quantos-strategy --lib`
