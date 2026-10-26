@@ -3,6 +3,7 @@ import {createServer} from 'node:net';
 import {beforeAll,afterAll,expect,it} from 'vitest';
 import {createBffClient} from '@sumalpha/api-client';
 import {createApprovalRuntime} from '../src/approvals/runtime';
+import {createReleaseRuntime} from '../src/strategy/release-runtime';
 import {referenceBffExecutable,referenceBffRoot,referenceBffSourceEnv} from './helpers/reference-bff';
 let child:ChildProcess,origin:string;const csrf='csrf-token-0000000000000001';
 const requests:Request[]=[];
@@ -25,4 +26,5 @@ it('actual aggregated strategy_release approval uses C08 decision, preserves obj
  const release=await c.POST('/v1/releases',{params:{header:header()},body:{strategyId,objectVersion:d.objectVersion,backtestRunId:run.data!.jobId,parameters:d.parameters}});expect(release.response.status).toBe(201);
  expect((await c.POST('/v1/releases/{releaseId}/approval-submissions',{params:{path:{releaseId:release.data!.releaseId},header:{...header(),'If-Match':release.data!.objectVersion!}}})).response.status).toBe(202);
  const runtime=createApprovalRuntime({origin,fetchImpl:transport('session-approver'),authorize:()=>{},online:()=>true,invalidate:()=>{},csrf:()=>csrf});await runtime.load();await runtime.list();const a=runtime.view.rows.find(a=>a.kind==='strategy_release'&&a.objectRef===release.data!.releaseId)!;expect(a).toBeDefined();await runtime.select(a.approvalId);await runtime.act('request_info','Owned additional evidence required','CONFIRM REQUEST_INFO','123456');expect(runtime.view.receipt).toMatchObject({kind:'strategy_release',objectRef:release.data!.releaseId,decision:'request_info',status:'rejected'});expect(runtime.view.receipt?.commandRef).toBeUndefined();runtime.close();
+ const releases=createReleaseRuntime({origin,fetchImpl:transport(),authorize:()=>{},online:()=>true,invalidate:()=>{},csrf:()=>csrf});await releases.load();await releases.refresh(release.data!.releaseId);expect(releases.view.release?.approvalState).toBe('rejected');expect(releases.view.release?.approvalTimeline.at(-1)).toMatchObject({action:'request_info',reason:'Owned additional evidence required'});expect(releases.view.release?.contentHash).toBe(release.data!.contentHash);expect(releases.view.report?.runId).toBe(run.data!.jobId);expect(releases.view.targets).toEqual([]);expect(()=>releases.select('paper')).toThrow();releases.close();
 },20000);

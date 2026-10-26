@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boundary,validateBoundary,validateInformationRequest,validateRecovery} from './core-s04-review.mjs';
+import {browserReport} from './core-r1-review.mjs';
+test('S04 current boundary retains explicit substitutions and no stage admission',()=>validateBoundary(boundary()));
+for(const key of Object.keys(boundary()))test('reject S04 scope promotion or drift '+key,()=>{const r=boundary();r[key]=typeof r[key]==='boolean'?!r[key]:'READY';assert.throws(()=>validateBoundary(r));});
+const info=()=>({approvalState:'rejected',approvalRef:'owned-ref',approvalTimeline:[{action:'request_info',reason:'Evidence required'}],evidenceRefs:[{}]});
+test('readable closed information request is required',()=>validateInformationRequest(info()));
+for(const field of ['approvalState','approvalRef','approvalTimeline','evidenceRefs'])test('reject missing or promoted information request '+field,()=>{const r=info();r[field]=field==='approvalState'?'approved':undefined;assert.throws(()=>validateInformationRequest(r));});
+const recovery=()=>({calls:[{status:202,source:'REFERENCE_COMMITTED_RESPONSE_DROPPED',keyHash:'key',bodyHash:'body',version:'version'},{status:202,source:'REFERENCE_BYTES',keyHash:'key',bodyHash:'body',version:'version'}],release:{approvalState:'pending',approvalTimeline:[{action:'submitted'}]}});
+test('lost response must retry one identical approval intent',()=>validateRecovery(recovery()));
+for(const field of ['keyHash','bodyHash','version','status'])test('reject changed retry '+field,()=>{const r=recovery();r.calls[1][field]='changed';assert.throws(()=>validateRecovery(r));});
+test('reject duplicated submission timeline',()=>{const r=recovery();r.release.approvalTimeline.push({action:'submitted'});assert.throws(()=>validateRecovery(r));});
+const report=()=>({errors:[],stats:{expected:1,unexpected:0,skipped:0,flaky:0},suites:[{specs:[{tests:[{projectName:'chromium',results:[{status:'passed'}]}]}]}]});
+test('browser count and actual result are required',()=>browserReport(report(),1));
+for(const field of ['unexpected','skipped','flaky'])test('reject masked browser '+field,()=>{const r=report();r.stats[field]++;assert.throws(()=>browserReport(r,1));});

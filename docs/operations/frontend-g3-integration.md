@@ -1,3 +1,5 @@
+> 2026-10-26 CORE:S04当前功能采用[当前规程](core-s04-current-function.md)及`core-s04-review.mjs`定向矩阵；下述完整联调/全仓记录保留原SHA，不作为每次功能开发的默认入口，也不改绑历史确认。
+
 # FRONTEND-GATE:G3 与 CORE:S04 当前联调
 
 本任务按前端计划G3、FEP-3和核心计划S04执行I3完整本地业务链；不递归重新授予上游READY，也不连接Supabase/真实身份/生产服务。阶段准入、工程执行和用户确认分别记账。
