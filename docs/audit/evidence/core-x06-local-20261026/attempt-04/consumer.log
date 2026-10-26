@@ -1,0 +1,290 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mBFF-FE-007 generated audit gateway[2m > [22mretrieves evidence and export status through authenticated BFF routes[32m 13[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mBFF-FE-007 generated audit gateway[2m > [22muses server-side cursor filters for audit search[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mBFF-FE-007 generated audit gateway[2m > [22mforwards idempotency, CSRF and recent-auth for create and cancel[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mBFF-FE-007 generated audit gateway[2m > [22mmaps expired downloads without exposing transport details[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mevery controlled audit operation conceals denied resources and rejects transport failures[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mvalidates every success schema and rejects unsafe download leases[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mbinds chain, status, cancel and download responses to the requested resource[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-gateway.test.ts[2m > [22mbounds uncertain export writes, supports cancellation and never retries automatically[32m 11[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mguards session/context authority before data, and refuses read-only mutation[32m 16[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22msends filters and opaque cursor to server; new query discards the old cursor[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects duplicate event page[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects loop event page[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects expired event page[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrejects oversize event page[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22maccumulates evidence pages preserving causation and scope-complete semantics[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mblocks invalid request, CSRF, offline, expiry and closed route before MFA[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrechecks authority between MFA and reauth so revocation cannot dispatch mutation[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mlost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mhonors validated 429 cooldown before MFA then permits explicit retry[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mnever downloads queued/cancelled/expired jobs and only hands off a valid ready lease[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22msmall screen cannot create or cancel even when DOM is bypassed[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mfresh cancel state is read before MFA; a cancelled job cannot be mutated[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mlost cancel response resolves from authoritative read without replaying POST[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mmalformed accepted response remains unknown and fences changed intents[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mclose aborts an in-flight search and prevents any late publication[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mcontradictory complete-with-cursor chain is refused[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 pins Audit authority across reload and discards uncertain exports on a changed workspace[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 same-authority reload cannot extend the original Audit session deadline[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 non-JSON Audit 401 clears unknown intents before any further MFA or mutation[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 non-JSON Audit 403 clears unknown intents before any further MFA or mutation[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 export revalidates authority before MFA even without an explicit reload[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 transient identity failure preserves the original unknown export key for explicit recovery[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 small-screen refusal preserves an unknown export until desktop explicit same-key recovery[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 local authority loss during C01 reload immediately discards unknown export intent[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mcanonical alert detail refuses query/scope injection and arbitrary suffix[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"accountId":"22222222-2222-4222-8222-222222222222"}[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"mode":"paper"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"id":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"resolved":true}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"sourceVersion":"01"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"objectVersion":"18446744073709551615"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"asOf":"2026-10-24T03:00:00.001Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"ackActor":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"status":"acked"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrejects malformed or cross-scope source {"rule":" "}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mack receipt preserves source risk while verifying version, actor and audit[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22msubscription refuses empty sets, duplicate values, bad versions[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mdense stream deduplicates exact events and refuses mutation/gap/lease/regression[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mread list/detail/subscriptions and stream never write; events flag freshness without splicing pages[32m 19[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22munknown ack freezes exact request proof/body/key/headers; recovery never repeats MFA or resolves risk[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22msubscription recovery preserves exact full content and invalidates stream binding[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mknown refusal 409 releases intent and invalidates stale detail[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mknown refusal 429 releases intent and invalidates stale detail[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22moffline clears private facts and unknown write before any recovery dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrotate clears private facts and unknown write before any recovery dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mexpire clears private facts and unknown write before any recovery dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mread-only capability allows inbox but prevents step-up and ack[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mrepeated cursor and invalid source clear pagination, no duplicate content accepted[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mstream gap refuses without changing displayed facts[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mstream truncated refuses without changing displayed facts[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mstream foreign refuses without changing displayed facts[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mstream utf8 refuses without changing displayed facts[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mAlerts shell destination requires actual alerts.read and grants no adjacent authority[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22minvalid committed receipt stays unknown and recovery conflict cannot unlock a new action[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22msource drift during step-up forces re-review and sends no ack[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mMFA pending cannot obtain a grant or dispatch an action[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mMFA failed cannot obtain a grant or dispatch an action[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22mstream rejects reused event identity at a newer sequence[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui603.test.ts[2m > [22munack receipt clears reader evidence and preserves active source[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mformats signed money and all nine fractional digits without float loss[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal 1e5[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal NaN[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal Infinity[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal 01.2[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal 1.[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal -1[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects unsafe/noncanonical nonnegative decimal 0x10[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects invalid MoneyValue {"units":"1","nanos":-1}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects invalid MoneyValue {"units":"-1","nanos":1}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects invalid MoneyValue {"units":"0","nanos":1000000000}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects invalid MoneyValue {"units":"0","nanos":0.1}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrejects invalid MoneyValue {"units":"NaN","nanos":0}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mvalidates account, coherent asOf, unique positions/rules, known decimals and kill agreement[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mexpires strictly at sixty seconds and honors explicit stale[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22matomically applies dense broadcasts, clones, ignores duplicates and rejects gaps, leases, rollback and late revoke[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 exact C06 facts[2m > [22mrefuses foreign/mixed C16 data and never maps C06 hits into alerts[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mloads scoped GET/stream/alerts, exact amounts, persists only checked receipt and re-reads kill fact[32m 23[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mblocks offline before MFA or risk writes[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mblocks revoked before MFA or risk writes[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mblocks csrf before MFA or risk writes[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mblocks expired before MFA or risk writes[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mblocks stale, silent stream expiry, future/inconsistent snapshots and role loss before dispatch[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mexplicit server stale flag blocks every write including MFA[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mvalidates reason, confirmation, six-digit MFA and state before dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mlost reply locks intent; no read reconnect replay; explicit recovery retains original proof, body and key[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mfirst definite 403 refusal clears pending, never fabricates receipt or kill state[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mfirst definite 409 refusal clears pending, never fabricates receipt or kill state[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mfirst definite 422 refusal clears pending, never fabricates receipt or kill state[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mfirst definite 429 refusal clears pending, never fabricates receipt or kill state[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22munknown recovery refusal retains intent, and cooldown blocks new or retried dispatch[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mbad success receipt is outcome unknown and cannot update current risk[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mfailed MFA/expired reauth cannot reach C06[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mstream failure freezes last snapshot, blocks all writes, manual refresh restores scoped cursor[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22munavailable/unauthorized C16 does not mean zero alerts and cannot add authority[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mUI501 bounded runtime[2m > [22mconcurrent actions use one MFA/intent and no late response can resurrect a closed runtime[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22maccount engage/release under GlobalKill never claims global release and still accepts scoped receipt[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mMFA rate limit enforces cooldown before another step-up or risk dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mvalid C16 alerts remain bound to mode/account/risk and cannot duplicate or forge acknowledgement[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mMoneyValue signed zero uses numeric nanos sign and rejects units outside int64[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501.test.ts[2m > [22mtime-derived risk checks and request correlation may change at the same policy revision without faking economic freshness[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mcanonical operations routes refuse arbitrary command/mutation/query paths[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"id":"11111111-1111-4111-8111-111111111111"}[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"accountId":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"mode":"shadow"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"asOf":"2026-10-24T09:00:00.001Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"objectVersion":"01"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident scope/version integrity {"openedSource":"18446744073709551615"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mtimeline binds last head and preserves immutable source identity[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mcatalog rejects invented or duplicate actions/parameters and never treats arbitrary shell as approved[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck rejects mismatched action/version/permission/deadline {"actionId":"inspect-evidence"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck rejects mismatched action/version/permission/deadline {"sourceVersion":"2"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck rejects mismatched action/version/permission/deadline {"allowed":false}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck rejects mismatched action/version/permission/deadline {"expiresAt":"2026-10-24T09:00:00.000Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck rejects mismatched action/version/permission/deadline {"expiresAt":"2026-10-24T09:00:30.001Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mincident create/ack/resolve receipts preserve source and append version; run outcome hash is not operation hash[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mruntime reads actual health/metrics, incidents/timeline and catalog without business writes[32m 17[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mapproved health and evidence actions bind precheck parameters and produce exact typed requests only[32m 10[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22munknown open outcome locks current work and replays original proof/key/version/body[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22munknown ack outcome locks current work and replays original proof/key/version/body[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22munknown resolve outcome locks current work and replays original proof/key/version/body[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22munknown run outcome locks current work and replays original proof/key/version/body[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mknown 409 refusal clears stale review; no automatic new intent[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mknown 429 refusal clears stale review; no automatic new intent[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mmalformed committed receipt remains unknown and failed recovery cannot release the lock[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22moffline change prevents pending replay and clears private facts[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mrotate change prevents pending replay and clears private facts[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mmobile change prevents pending replay and clears private facts[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck expiry before confirmation dispatches no MFA or runbook[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mprecheck or catalog drift during MFA forces explicit review and no run dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mhealth/metrics mismatch and repeated cursors never publish partial dashboard[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22malert-only, wrong mode, expired session and changed authority refuse before mutations[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mread-only operation capability never starts MFA or emits a write[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mclosing during a late read cannot restore data[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22minvented mutation kind cannot fall through into a privileged endpoint[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601.test.ts[2m > [22mresolve requires an acknowledged incident before starting MFA[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22maccepts only proposal references in canonical query and refuses authority/intent injection[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22muses exact decimal arithmetic for amount, scale and large financial values[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mdoes not infer cash from equity or use market quotes as intent price[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"symbol":"ETHUSDT"}[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"quantity":"2"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"limitPrice":"99"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"financialAsOf":"2026-10-23T11:59:00.000Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"venueObservedAt":"2026-10-23T12:00:00.001Z"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"policyRevision":"-1"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"availableCash":"100"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects foreign, stale or fabricated source context {"commandRef":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects unsafe capabilities {"accountId":"22222222-2222-4222-8222-222222222222"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects unsafe capabilities {"mode":"shadow"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects unsafe capabilities {"venueSubmit":true}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects unsafe capabilities {"maxQuantity":"1e6"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects unsafe capabilities {"priceScale":19}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrequires explicit venue when market symbol has multiple exact candidates[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects stale, foreign or executable C12 quote {"provenance":{"source":"approved.binance.spot","venue":"binance","asOf":"2026-10-23T12:00:00.000Z","quality":"degraded","license":"owned-test","approvalRef":"owned-ref","approvalVersion":"1","dataSnapshotId":"11111111-1111-4111-8111-111111111111","latencyMs":0}}[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects stale, foreign or executable C12 quote {"provenance":{"source":"approved.binance.spot","venue":"binance","asOf":"2026-10-23T11:59:58.000Z","quality":"passed","license":"owned-test","approvalRef":"owned-ref","approvalVersion":"1","dataSnapshotId":"11111111-1111-4111-8111-111111111111","latencyMs":0}}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects stale, foreign or executable C12 quote {"instrumentId":"foreign"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mrejects stale, foreign or executable C12 quote {"executable":true}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 exact non-executable preflight policy[2m > [22mdense preflight stream refuses gaps, changed lease, foreign scope and permission even old sequence[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mreacquires all source families on selection and each step, only outputs exact intent with zero writes[32m 29[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22msame-version price or limits change returns to explicit review without drafting[32m 14[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mnew proposal version is freshly read and requires review before intent prefill[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mblocks offline without inheriting prior step or draft[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mblocks mode without inheriting prior step or draft[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mblocks scope without inheriting prior step or draft[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mblocks capability without inheriting prior step or draft[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mblocks expired without inheriting prior step or draft[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mvenue/financial refusal prevents prefill {"venueHealthy":false}[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mvenue/financial refusal prevents prefill {"financialAsOf":"2026-10-23T11:59:00.000Z"}[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mcurrent limits and quote deterioration fail closed; source mismatch between reads is rejected[32m 8[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22m429 cooldown is bounded and a local retry neither extends it nor sends a request[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mstream failure blocks and user recovery reads facts without replaying writes[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mdraft validity expires with source quote and account/selection changes clear memory[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mUI503 every step re-reads current authority and facts[2m > [22mglobal synchronous busy lock and close during actual request prevent late resurrection[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503.test.ts[2m > [22mpreflight EOF corruption and explicit stream revocation cannot renew current ticket[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22maccepts exact UUID only, rejects injected state[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mvalidates returned identity/version/expiry[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mrequires refusal reason for reject and request_info[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mrefuses approved[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mrefuses rejected[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mrefuses expired[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mrefuses conflict[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 reference-only routing and decision policy[2m > [22mself approval, boundary expiry, shadow and missing approve capability fail closed[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22msends approve only after refreshed facts and MFA/reauth with immutable headers[32m 19[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22msends reject only after refreshed facts and MFA/reauth with immutable headers[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22msends request_info only after refreshed facts and MFA/reauth with immutable headers[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22munknown response retains no success and retries exact original key/body/version[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mknown 409 never retries or optimistically updates[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mknown 422 never retries or optimistically updates[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mknown 429 never retries or optimistically updates[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mmalformed success stays unknown until explicit recovery[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mexpired unknown requests cannot be resubmitted[32m 13[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mversion drift before requires fresh review and sends no decision[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mversion drift after-mfa requires fresh review and sends no decision[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mself originator and expiry checked again immediately before dispatch[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mMFA failure does not dispatch decisions or retain the code[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mscope change clears through invalidation and blocks a proof already obtained[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22msynchronous lock fences double submits[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22moffline, revoked or closed lifetime cannot write or restore state[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mexplicit detail refresh only publishes reads, window expiry blocks UI and invalid raw page never grants[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504.test.ts[2m > [22mUI504 authoritative decisions and explicit recovery[2m > [22mcursor cycles and duplicate pages fail with bounded pagination[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcanonical admin route members cannot accept query scope or extra segments[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcanonical admin route roles cannot accept query scope or extra segments[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcanonical admin route policies cannot accept query scope or extra segments[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcanonical admin route capabilities cannot accept query scope or extra segments[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcanonical admin route flags cannot accept query scope or extra segments[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22madmin.read is a navigation destination only, independent of write/ops grants[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mversions reject noncanonical or overflowing -1[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mversions reject noncanonical or overflowing 01[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mversions reject noncanonical or overflowing 1e2[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mversions reject noncanonical or overflowing 18446744073709551615[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mrole drafts cannot escalate original base role or repeat permissions[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mmember and policy bind live role catalog and unique denial list[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mengine capability binds exact signed catalog metadata while enabled is the only local toggle[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mresource family and response fields are strict[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mreceipts require exact object/global versions, audit, spec and tombstone state[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mflag whitelist and integer rollout cannot accept arbitrary commands[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602.test.ts[2m > [22mcomparison is independent of JSON property order[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mcanonical routes accept references only and reject authority injection[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mexact decimal facts retain precision above JS integer limits[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"accountId":"22222222-2222-4222-8222-222222222222"}[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"mode":"shadow"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"filledQuantity":"1"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"quantity":"0"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"status":"filled"}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrejects foreign or incoherent order {"fills":[{"fillId":"22222222-2222-4222-8222-222222222222","quantity":"1","price":"100","at":"2026-10-24T00:00:00.000Z"}]}[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22maccepts real partial fill then cancellation preserving append-only fills[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mdense stream rejects gaps, lease changes, conflicting replay and immutable changes[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mrevocation even at old sequence wipes all facts[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mownership and expiration are checked on server approval before any new submit[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mreads actual authorized order and resumes from confirmed sequence with zero writes[32m 18[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mstream gap retains last sequence but disables new cancellation[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mknown server refusal does not become acknowledgement and 429 never auto retries[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22munknown cancel preserves original key/body, locks new write and recovers only explicit original intent[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mHTTP revocation invalidates route and refuses unsafe confirmation phrase without writes[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505.test.ts[2m > [22mtruncated UTF-8 at SSE EOF cannot renew verified cancellation authority[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 same-version Proposal stream cannot move the audit correlation to a different chain[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 strategy_release approval is never a TradeCommand submission authority[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 admin_change approval is never a TradeCommand submission authority[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 unrecognized approval is never a TradeCommand submission authority[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 legacy untagged and explicit trade approvals retain current supported behavior[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 refreshed approval resource/type changes invalidate the reviewed command identity[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 decision response with foreign correlation remains unknown and recovers original decision only[32m 19[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 controlled ticket refuses mixed authority from initial component C01 reads and wipes all components[32m 2[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 controlled ticket binds one authority and the shortest component session lifetime[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 viewport changes during MFA cannot dispatch an approval decision[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 small-screen policy blocks risk issuance before any POST while preserving reads[32m 6[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 small-screen policy blocks Command submission without destroying owned references[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/fep5-closure.test.ts[2m > [22mFEP5 viewport shrinking during refreshed Order facts blocks cancellation before pending intent[32m 4[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mreconstructs the full evidence chain from an order within the SLA on web[32m 13[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mruns order/approval/kill-switch flows with MFA and self-approval bans on web[32m 5[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mserves operations, incident runbooks, exports, and admin guardrails on web[32m 3[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mkeeps all execution/ops pages noindex with viewport-gated risk actions on web[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mreconstructs the full evidence chain from an order within the SLA on desktop[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mruns order/approval/kill-switch flows with MFA and self-approval bans on desktop[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mserves operations, incident runbooks, exports, and admin guardrails on desktop[32m 1[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/x06-scenarios.test.ts[2m > [22mX06 execution/audit/ops scenarios (web + desktop)[2m > [22mkeeps all execution/ops pages noindex with viewport-gated risk actions on desktop[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/audit-provider-consumer.test.ts[2m > [22mrecovers a lost create response with the same key and traverses actual redacted export evidence[32m 62[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504-provider-consumer.test.ts[2m > [22mactual C01/C07/C08 independent approval, lost response and same-key recovery; no command submit[32m 99[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui505-provider-consumer.test.ts[2m > [22mactual C01/C07/C08/C09 runtime submits once after unknown response and cancels once with dense historical replay[32m 135[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui503-provider-consumer.test.ts[2m > [22mactual C01/C07/C12/C13 opt-in projection, every-step rereads and no command or mutation[32m 139[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui501-provider-consumer.test.ts[2m > [22mactual C01/C06/C16: operator engage, committed response loss and exact replay, role denied release, owner release and scoped read refusals[32m 142[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui601-provider-consumer.test.ts[2m > [22mUI601 actual C01/C11/C16/F06 runbook + incident success, dense timeline, original replay, C10 audit and approval refusal[32m 154[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui504-provider-consumer.test.ts[2m > [22mactual aggregated strategy_release approval uses C08 decision, preserves object type and emits no Command[32m 85[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 real C01/C11/C10 all five resource families CRUD, frozen recovery, tombstones and audit[33m 347[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 last-admin and self-governance refusals preserve actual admission and config[32m 47[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 desktop/read authority, invalid review, confirmation and protected resources cannot dispatch business writes[32m 15[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 a changed config after review refuses before the write; mixed pages never publish[32m 25[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 committed malformed receipt remains uncertain, refuses new intent and clears private recovery on revocation[32m 24[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 expiry and changed CSRF erase private intent without replay[32m 16[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 non-JSON HTTP 401 clears unknown governance intent before parsing[32m 11[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui602-provider-consumer.test.ts[2m > [22mUI602 non-JSON HTTP 403 clears unknown governance intent before parsing[32m 12[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m      Tests [22m [1m[32m280 passed[39m[22m[90m (280)[39m
+[2m   Start at [22m 15:13:57
+[2m   Duration [22m 4.86s[2m (transform 2.19s, setup 0ms, import 4.65s, tests 29.48s, environment 1ms)[22m
+
+JSON report written to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/core-x06-local-20261026/attempt-04/consumer.json

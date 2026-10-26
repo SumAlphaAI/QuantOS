@@ -1,0 +1,56 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/ui501.spec.ts:12:5 › UI501 operator engages with typed MFA and exact phrase, receipt verified, owner-only release refused (30.1s)
+  ✘  2 [chromium] › tests/e2e/ui501.spec.ts:14:5 › UI501 committed response lost locks original request; refresh does not replay; explicit recovery reuses key/body/proof (30.1s)
+
+
+  1) [chromium] › tests/e2e/ui501.spec.ts:12:5 › UI501 operator engages with typed MFA and exact phrase, receipt verified, owner-only release refused 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('确认短语', { exact: true })
+
+
+       6 | const writes=()=>networkRows().filter(r=>r.method==='POST'&&r.path.includes('/kill-switch/')&&!r.control);
+       7 | async function open(page:Page,path='/portfolio') {await page.goto(path);await authorized(page);await expect(page.getByRole('status').filter({hasText:'数据有效，可审阅风险操作'})).toBeVisible();}
+    >  8 | async function form(page:Page,action:'engage'|'release'='engage') {await page.getByLabel('风险动作',{exact:true}).selectOption(action);await page.getByLabel('操作原因',{exact:true}).fill('Owned local reference safety check');await page.getByLabel('确认短语',{exact:true}).fill(action==='engage'?'ENGAGE KILL SWITCH':'RELEASE KILL SWITCH');await page.getByLabel('MFA 验证码',{exact:true}).fill('123456');}
+         |                                                                                                                                                                                                                                                                     ^
+       9 | const submit=(page:Page)=>page.getByRole('button',{name:'重新认证并提交风险操作',exact:true});
+      10 | const kill=(page:Page)=>page.getByRole('region',{name:'Kill Switch',exact:true});
+      11 | test('UI501 actual Portfolio and Risk routes show scoped facts, source timestamps and separate risk alerts',async({page})=>{await open(page);await expect(page.getByRole('table',{name:'账户仓位'})).toContainText('BTCUSDT');await expect(page.getByRole('region',{name:'组合事实'})).toContainText('USD');await expect(kill(page)).toContainText('未启用');await expect(page.getByRole('region',{name:'风险告警'})).toContainText('查询状态：ready');await page.getByRole('navigation',{name:'组合与风险导航'}).getByRole('link',{name:'Risk',exact:true}).click();await authorized(page);await expect(page.getByRole('heading',{name:'Risk',exact:true})).toBeVisible();await expect(kill(page)).toContainText('未启用');expect(writes()).toHaveLength(0);const reads=networkRows().filter(r=>r.path==='/v1/portfolio'||r.path==='/v1/risk'||r.path==='/v1/portfolio/stream');expect(reads.every(r=>r.query.accountId==='44444444-4444-4444-8444-444444444444')).toBe(true);expect(networkRows().some(r=>r.path==='/v1/alerts'&&r.query.domain==='risk')).toBe(true);});
+        at form (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui501.spec.ts:8:261)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui501.spec.ts:12:142
+
+    Error Context: docs/audit/evidence/core-x06-local-20261026/attempt-02/risk-browser/ui501-UI501-operator-engag-bd0cd--owner-only-release-refused-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-x06-local-20261026/attempt-02/risk-browser/ui501-UI501-operator-engag-bd0cd--owner-only-release-refused-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/ui501.spec.ts:14:5 › UI501 committed response lost locks original request; refresh does not replay; explicit recovery reuses key/body/proof 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('确认短语', { exact: true })
+
+
+       6 | const writes=()=>networkRows().filter(r=>r.method==='POST'&&r.path.includes('/kill-switch/')&&!r.control);
+       7 | async function open(page:Page,path='/portfolio') {await page.goto(path);await authorized(page);await expect(page.getByRole('status').filter({hasText:'数据有效，可审阅风险操作'})).toBeVisible();}
+    >  8 | async function form(page:Page,action:'engage'|'release'='engage') {await page.getByLabel('风险动作',{exact:true}).selectOption(action);await page.getByLabel('操作原因',{exact:true}).fill('Owned local reference safety check');await page.getByLabel('确认短语',{exact:true}).fill(action==='engage'?'ENGAGE KILL SWITCH':'RELEASE KILL SWITCH');await page.getByLabel('MFA 验证码',{exact:true}).fill('123456');}
+         |                                                                                                                                                                                                                                                                     ^
+       9 | const submit=(page:Page)=>page.getByRole('button',{name:'重新认证并提交风险操作',exact:true});
+      10 | const kill=(page:Page)=>page.getByRole('region',{name:'Kill Switch',exact:true});
+      11 | test('UI501 actual Portfolio and Risk routes show scoped facts, source timestamps and separate risk alerts',async({page})=>{await open(page);await expect(page.getByRole('table',{name:'账户仓位'})).toContainText('BTCUSDT');await expect(page.getByRole('region',{name:'组合事实'})).toContainText('USD');await expect(kill(page)).toContainText('未启用');await expect(page.getByRole('region',{name:'风险告警'})).toContainText('查询状态：ready');await page.getByRole('navigation',{name:'组合与风险导航'}).getByRole('link',{name:'Risk',exact:true}).click();await authorized(page);await expect(page.getByRole('heading',{name:'Risk',exact:true})).toBeVisible();await expect(kill(page)).toContainText('未启用');expect(writes()).toHaveLength(0);const reads=networkRows().filter(r=>r.path==='/v1/portfolio'||r.path==='/v1/risk'||r.path==='/v1/portfolio/stream');expect(reads.every(r=>r.query.accountId==='44444444-4444-4444-8444-444444444444')).toBe(true);expect(networkRows().some(r=>r.path==='/v1/alerts'&&r.query.domain==='risk')).toBe(true);});
+        at form (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui501.spec.ts:8:261)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui501.spec.ts:14:160
+
+    Error Context: docs/audit/evidence/core-x06-local-20261026/attempt-02/risk-browser/ui501-UI501-committed-resp-a6f0c-overy-reuses-key-body-proof-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-x06-local-20261026/attempt-02/risk-browser/ui501-UI501-committed-resp-a6f0c-overy-reuses-key-body-proof-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/ui501.spec.ts:12:5 › UI501 operator engages with typed MFA and exact phrase, receipt verified, owner-only release refused 
+    [chromium] › tests/e2e/ui501.spec.ts:14:5 › UI501 committed response lost locks original request; refresh does not replay; explicit recovery reuses key/body/proof 

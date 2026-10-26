@@ -1,0 +1,53 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/audit-runtime.test.ts [2m([22m[2m26 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m25 skipped[39m[2m)[22m[32m 19[2mms[22m[39m
+     [2m[90m↓[39m[22m guards session/context authority before data, and refuses read-only mutation
+     [2m[90m↓[39m[22m sends filters and opaque cursor to server; new query discards the old cursor
+     [2m[90m↓[39m[22m rejects duplicate event page
+     [2m[90m↓[39m[22m rejects loop event page
+     [2m[90m↓[39m[22m rejects expired event page
+     [2m[90m↓[39m[22m rejects oversize event page
+     [2m[90m↓[39m[22m accumulates evidence pages preserving causation and scope-complete semantics
+     [2m[90m↓[39m[22m blocks invalid request, CSRF, offline, expiry and closed route before MFA
+     [2m[90m↓[39m[22m rechecks authority between MFA and reauth so revocation cannot dispatch mutation
+     [2m[90m↓[39m[22m lost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key
+     [2m[90m↓[39m[22m honors validated 429 cooldown before MFA then permits explicit retry
+     [2m[90m↓[39m[22m never downloads queued/cancelled/expired jobs and only hands off a valid ready lease
+     [2m[90m↓[39m[22m small screen cannot create or cancel even when DOM is bypassed
+     [2m[90m↓[39m[22m fresh cancel state is read before MFA; a cancelled job cannot be mutated
+     [2m[90m↓[39m[22m lost cancel response resolves from authoritative read without replaying POST
+     [2m[90m↓[39m[22m malformed accepted response remains unknown and fences changed intents
+     [2m[90m↓[39m[22m close aborts an in-flight search and prevents any late publication
+     [2m[90m↓[39m[22m contradictory complete-with-cursor chain is refused
+   [2m[90m↓[39m[22m X06 pins Audit authority across reload and discards uncertain exports on a changed workspace
+   [2m[90m↓[39m[22m X06 same-authority reload cannot extend the original Audit session deadline
+   [2m[90m↓[39m[22m X06 non-JSON Audit 401 clears unknown intents before any further MFA or mutation
+   [2m[90m↓[39m[22m X06 non-JSON Audit 403 clears unknown intents before any further MFA or mutation
+   [2m[90m↓[39m[22m X06 export revalidates authority before MFA even without an explicit reload
+   [2m[90m↓[39m[22m X06 transient identity failure preserves the original unknown export key for explicit recovery
+   [2m[90m↓[39m[22m X06 small-screen refusal preserves an unknown export until desktop explicit same-key recovery
+[31m   [31m×[31m X06 local authority loss during C01 reload immediately discards unknown export intent[39m[32m 19[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m25 skipped[39m[90m (26)[39m
+[2m   Start at [22m 15:13:11
+[2m   Duration [22m 272ms[2m (transform 120ms, setup 0ms, import 189ms, tests 19ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mX06 local authority loss during C01 reload immediately discards unknown export intent
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m100:533[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

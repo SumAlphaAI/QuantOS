@@ -1,0 +1,126 @@
+{
+  "schema": "quantos-core-x06-browser/v1",
+  "scenario": "X06 Audit transport 403 removes private facts and cannot replay a draft export",
+  "status": "passed",
+  "sourceCommit": "27319928daecb206e53a0d604abfa43a67734b1c",
+  "binarySha256": "feb18af0c3817b2065f68f2146916367f9cbddbc34ae8e8167178bde8125e34b",
+  "identity": "EXPLICIT_REFERENCE_COOKIE_BRIDGE",
+  "cors": "LOOPBACK_PROXY_SUBSTITUTION",
+  "mode": "paper",
+  "businessWrites": "PAPER_C01_C07_C08_C09_C10_RECOVERY_ONLY_NOT_ASSISTED_TESTNET",
+  "referenceInstance": "owned-process-64380",
+  "realIdp": "NOT_RUN",
+  "realCookieCors": "NOT_RUN",
+  "probes": [],
+  "externalRequests": [],
+  "rows": [
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {
+        "afterSequence": "0"
+      },
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {
+        "sort": "occurredAt:desc",
+        "pageSize": "25"
+      },
+      "method": "GET",
+      "path": "/v1/audit/events",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "d4b7611b4046d6b795cb4fb399d0ee8eed4453857509b8eb2652f539c8fd2ae7"
+    },
+    {
+      "query": {
+        "pageSize": "100"
+      },
+      "method": "GET",
+      "path": "/v1/audit/evidence-chains/aaaaaaaa-1111-4111-8111-111111111111",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "2fb0335986aef042a58b85959b814f714cf0634defee3539861fc318f5568eff"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/session",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {},
+      "method": "GET",
+      "path": "/v1/context",
+      "status": 200,
+      "source": "REFERENCE_BYTES",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "responseHash": "9438ed96f2a37975b6aae3fb312c1ece8a1b51e544fe9c7e15c6827c48a5326d"
+    },
+    {
+      "query": {
+        "pageSize": "25",
+        "sort": "occurredAt:desc"
+      },
+      "method": "GET",
+      "path": "/v1/audit/events",
+      "status": 403,
+      "source": "SYNTHETIC_NON_JSON_AUTHORITY_REFUSAL",
+      "control": false,
+      "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

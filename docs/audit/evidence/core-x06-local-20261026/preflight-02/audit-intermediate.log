@@ -1,0 +1,72 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/audit-runtime.test.ts [2m([22m[2m22 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 37[2mms[22m[39m
+     [32m✓[39m guards session/context authority before data, and refuses read-only mutation[32m 14[2mms[22m[39m
+     [32m✓[39m sends filters and opaque cursor to server; new query discards the old cursor[32m 2[2mms[22m[39m
+     [32m✓[39m rejects duplicate event page[32m 1[2mms[22m[39m
+     [32m✓[39m rejects loop event page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects expired event page[32m 0[2mms[22m[39m
+     [32m✓[39m rejects oversize event page[32m 0[2mms[22m[39m
+     [32m✓[39m accumulates evidence pages preserving causation and scope-complete semantics[32m 1[2mms[22m[39m
+     [32m✓[39m blocks invalid request, CSRF, offline, expiry and closed route before MFA[32m 2[2mms[22m[39m
+[31m     [31m×[31m rechecks authority between MFA and reauth so revocation cannot dispatch mutation[39m[32m 3[2mms[22m[39m
+     [32m✓[39m lost create response stays uncertain without auto-replay; explicit identical intent retains idempotency key[32m 4[2mms[22m[39m
+[31m     [31m×[31m honors validated 429 cooldown before MFA then permits explicit retry[39m[32m 1[2mms[22m[39m
+     [32m✓[39m never downloads queued/cancelled/expired jobs and only hands off a valid ready lease[32m 1[2mms[22m[39m
+     [32m✓[39m small screen cannot create or cancel even when DOM is bypassed[32m 0[2mms[22m[39m
+     [32m✓[39m fresh cancel state is read before MFA; a cancelled job cannot be mutated[32m 0[2mms[22m[39m
+     [32m✓[39m lost cancel response resolves from authoritative read without replaying POST[32m 1[2mms[22m[39m
+     [32m✓[39m malformed accepted response remains unknown and fences changed intents[32m 1[2mms[22m[39m
+     [32m✓[39m close aborts an in-flight search and prevents any late publication[32m 0[2mms[22m[39m
+     [32m✓[39m contradictory complete-with-cursor chain is refused[32m 0[2mms[22m[39m
+   [32m✓[39m X06 pins Audit authority across reload and discards uncertain exports on a changed workspace[32m 1[2mms[22m[39m
+   [32m✓[39m X06 same-authority reload cannot extend the original Audit session deadline[32m 0[2mms[22m[39m
+   [32m✓[39m X06 non-JSON Audit 401 clears unknown intents before any further MFA or mutation[32m 1[2mms[22m[39m
+   [32m✓[39m X06 non-JSON Audit 403 clears unknown intents before any further MFA or mutation[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 14:48:55
+[2m   Duration [22m 262ms[2m (transform 103ms, setup 0ms, import 167ms, tests 37ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mrechecks authority between MFA and reauth so revocation cannot dispatch mutation
+[31m[1mAssertionError[22m: expected [ '/v1/session', '/v1/context', …(3) ] to deeply equal [ '/v1/session', '/v1/context', …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    "/v1/session",[22m
+[2m    "/v1/context",[22m
+[31m+   "/v1/session",[39m
+[31m+   "/v1/context",[39m
+[2m    "/v1/auth/mfa/challenges",[22m
+[2m  ][22m
+
+[36m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m51:154[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/audit-runtime.test.ts[2m > [22mUI-507 guarded Audit Explorer[2m > [22mhonors validated 429 cooldown before MFA then permits explicit retry
+[31m[1mAuditGatewayError[22m: 访问条件已变化，请重新验证。[39m
+[36m [2m❯[22m fail apps/terminal/src/audit/runtime.ts:[2m15:71[22m[39m
+    [90m 13|[39m   let uncertain: string | undefined, boundAuthority:string|undefined, …
+    [90m 14|[39m   const keys = new Map<string,string>(), searchCursors = new Set<strin…
+    [90m 15|[39m   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw …
+    [90m   |[39m                                                                       [31m^[39m
+    [90m 16|[39m   function clear(){context=undefined;page=undefined;chain=undefined;jo…
+    [90m 17|[39m   [35mfunction[39m [34mguard[39m(write [33m=[39m [35mfalse[39m[33m,[39m highRisk [33m=[39m [35mfalse[39m) {
+[90m [2m❯[22m guard apps/terminal/src/audit/runtime.ts:[2m20:66[22m[39m
+[90m [2m❯[22m mutation apps/terminal/src/audit/runtime.ts:[2m45:5[22m[39m
+[90m [2m❯[22m apps/terminal/src/audit/runtime.ts:[2m108:14[22m[39m
+[90m [2m❯[22m exclusive apps/terminal/src/audit/runtime.ts:[2m31:23[22m[39m
+[90m [2m❯[22m Object.create apps/terminal/src/audit/runtime.ts:[2m104:56[22m[39m
+[90m [2m❯[22m apps/terminal/tests/audit-runtime.test.ts:[2m60:299[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
