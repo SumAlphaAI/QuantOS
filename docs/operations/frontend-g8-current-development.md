@@ -36,6 +36,8 @@ P10/P11 在 transport 获得授权拒绝状态时就执行自己的 lifetime abo
 
 第二轮 `c11761ac` 的构建、9项 Chromium、功能/契约/静态和预期拒绝检查通过；末尾秘密扫描将自有浏览器 fixture 已做 SHA256 的 idempotency `keyHash` 识别为 generic-api-key（36项），原报告保留。扫描整改不增大全局 allowlist：原始命中保留，仅复核当前候选 network packet 的确切路径、单行 keyHash/64位摘要和 sourceCommit，其余命中仍拒绝；8项反向测试及真实 canary 拒绝继续保留。最终新候选使用新 attempt。
 
+第三轮 `f2e89b57` 全部限定命令符合预期，但末尾 packet 核验发现 HTTP 记录缺少 opt-in query，不能签收。该轮结果保留为 verification FAIL；只整改采集用例，将实际 Request URL 的 query 与 method/path/行序核对后入包，并为末尾核验失败增加持久化诊断。产品源码不变，使用新候选/新 attempt 保持证据来源明确。
+
 19 项原始业务 gap 的 ID 和 OPEN 均保留，进展单列：[当前机器评估](../execution/frontend-g8-current-assessment.json)。共同事实/审计、真实 Research/Release→Proposal、C15/C16 等 15 项继承缺口，C11 activation、P10/P11 双审批正向、C09→L01 同源、F06/双审批→C10/持久恢复四项未闭合。新的安全缺陷修复不等于完整 gap 自动关闭。
 
 目标 NOT_RUN：真实 IdP/MFA/Cookie/CORS、Vault/数据库迁移/RLS/角色/事务/Storage、业务持久审计与跨进程多副本恢复、实际 venue HTTP/signing/testnet、OS/目标网络/秘密轮换、部署/通知/容量/全面安全/长稳/同 SHA CI、全浏览器/人工读屏/原生200%缩放以及 RELEASE。没有生产凭据、真实外部下单、push、部署或发布。`FRONTEND-GATE:G8` 与 `FE:FEP-8` INTEGRATION 均保持 STAGE_NOT_READY；正式确认另行 PENDING，不自签。
