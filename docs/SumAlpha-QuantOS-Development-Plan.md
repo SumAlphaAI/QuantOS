@@ -2811,6 +2811,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 
 ### I10 后的 L03/L04 功能联调与发布移交
 
+2026-10-27 G8 DEVELOPMENT 跟进：C09 opt-in 默认关闭声明已接入实际 P10/P11，原 CSRF/有效期/失权恢复边界整改见[当前规程](./operations/frontend-g8-current-development.md)与[证据](./audit/evidence/frontend-g8-current-20261027/README.md)。完整 G8/M5/CORE:L03/L04 及 I10 阶段未关闭，19 项业务缺口与目标 NOT_RUN 保留；下一原项 FE:FEP-8 DEVELOPMENT，不授予运行或发布权限。
+
 <a id="task-l03"></a>
 ### L03：双人审批、MFA 与 Assisted Live UI Gate
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.16.0",
+  "version": "1.17.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -3040,6 +3040,92 @@
         },
         "maxNotional": {
           "$ref": "#/components/schemas/DecimalValue"
+        },
+        "assistedTestnetAdmission": {
+          "$ref": "#/components/schemas/AssistedTestnetAdmission"
+        }
+      }
+    },
+    "AssistedTestnetAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Read-only scoped declaration. v1 is default-off and conveys no execution or approval authority; absence means unavailable. C11 flags and public build flags cannot enable this policy.",
+      "required": [
+        "schemaVersion",
+        "policyVersion",
+        "actorId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "serverFlagEnabled",
+        "targetEnabled",
+        "executionAuthority",
+        "reasonCode",
+        "checkedAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-assisted-testnet-admission.v1"
+          ]
+        },
+        "policyVersion": {
+          "type": "string",
+          "enum": [
+            "disabled-until-native-bridge.v1"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "serverFlagEnabled": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "targetEnabled": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "reasonCode": {
+          "type": "string",
+          "enum": [
+            "EXECUTION_BRIDGE_UNAVAILABLE"
+          ]
+        },
+        "checkedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
         }
       }
     },
@@ -10586,6 +10672,18 @@
           "required": true,
           "schema": {
             "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "includeAssistedTestnetAdmission",
+          "in": "query",
+          "required": false,
+          "description": "Opt in to the scoped default-off v1 declaration; omission preserves the legacy strict response shape.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "true"
+            ]
           }
         }
       ],

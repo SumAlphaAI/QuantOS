@@ -2684,6 +2684,30 @@ export interface components {
             priceScale: number;
             maxQuantity: components["schemas"]["DecimalValue"];
             maxNotional: components["schemas"]["DecimalValue"];
+            assistedTestnetAdmission?: components["schemas"]["AssistedTestnetAdmission"];
+        };
+        /** @description Read-only scoped declaration. v1 is default-off and conveys no execution or approval authority; absence means unavailable. C11 flags and public build flags cannot enable this policy. */
+        AssistedTestnetAdmission: {
+            /** @enum {string} */
+            schemaVersion: "quantos-assisted-testnet-admission.v1";
+            /** @enum {string} */
+            policyVersion: "disabled-until-native-bridge.v1";
+            actorId: components["schemas"]["UUID"];
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow";
+            /** @enum {boolean} */
+            serverFlagEnabled: false;
+            /** @enum {boolean} */
+            targetEnabled: false;
+            /** @enum {boolean} */
+            executionAuthority: false;
+            /** @enum {string} */
+            reasonCode: "EXECUTION_BRIDGE_UNAVAILABLE";
+            checkedAt: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
         };
         TradePreflight: {
             proposalId: components["schemas"]["UUID"];
@@ -6867,6 +6891,8 @@ export interface operations {
         parameters: {
             query: {
                 accountId: components["schemas"]["UUID"];
+                /** @description Opt in to the scoped default-off v1 declaration; omission preserves the legacy strict response shape. */
+                includeAssistedTestnetAdmission?: "true";
             };
             header?: never;
             path?: never;

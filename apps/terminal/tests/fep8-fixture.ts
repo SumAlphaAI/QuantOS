@@ -1,11 +1,11 @@
 // Explicit in-process C08 response model. No BFF/F06/crypto/dual-approval or database proof.
 import {createApprovalRuntime,type ApprovalRuntime} from '../src/approvals/runtime';
 import {opsContext,opsId,opsOther,opsNow} from './fixtures/scenarios/operations';
-export function fep8Model(){
+export function fep8Model(options:{passiveInvalidation?:boolean}={}){
  let now=opsNow,csrf='explicit-model-csrf',drop=false,commits=0,refusal=0,rotateAtMfa=false;
  const context={...structuredClone(opsContext),capabilities:['execution.operate','strategy.approve']},requests:Request[]=[],invalidations:number[]=[],replays=new Map<string,Response>();
  let current={approvalId:opsId,originator:opsOther,objectVersion:'0',status:'pending',expiresAt:new Date(now+60000).toISOString(),correlationId:opsId,issuanceState:'not_issued'};
- const runtime:ApprovalRuntime=createApprovalRuntime({origin:'https://fixture.invalid',authorize:()=>{},online:()=>true,csrf:()=>csrf,now:()=>now,invalidate:s=>{invalidations.push(s);runtime.close();},fetchImpl:async(i,n)=>{
+ const runtime:ApprovalRuntime=createApprovalRuntime({origin:'https://fixture.invalid',authorize:()=>{},online:()=>true,csrf:()=>csrf,now:()=>now,invalidate:s=>{invalidations.push(s);if(!options.passiveInvalidation)runtime.close();},fetchImpl:async(i,n)=>{
   const req=new Request(i,n),u=new URL(req.url);if(u.origin!=='https://fixture.invalid')throw Error('No network in explicit model');requests.push(req.clone());
   if(u.pathname==='/v1/session'||u.pathname==='/v1/context')return refusal?new Response('<html>private refusal</html>',{status:refusal,headers:{'content-type':'text/html'}}):Response.json(context);
   if(u.pathname==='/v1/auth/mfa/challenges'){if(rotateAtMfa)csrf='replacement-model-csrf';return Response.json({challengeRef:opsOther,status:'verified'});}

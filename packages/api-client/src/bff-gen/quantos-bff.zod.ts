@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.16.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.17.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -699,7 +699,24 @@ export const OrderCapabilitiesSchema = z.object({
   "priceScale": z.number().int().min(0).max(18),
   "maxQuantity": z.lazy(() => DecimalValueSchema),
   "maxNotional": z.lazy(() => DecimalValueSchema),
+  "assistedTestnetAdmission": z.lazy(() => AssistedTestnetAdmissionSchema).optional(),
 }).strict();
+
+export const AssistedTestnetAdmissionSchema = z.object({
+  "schemaVersion": z.literal("quantos-assisted-testnet-admission.v1"),
+  "policyVersion": z.literal("disabled-until-native-bridge.v1"),
+  "actorId": z.lazy(() => UUIDSchema),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow"]),
+  "serverFlagEnabled": z.literal(false),
+  "targetEnabled": z.literal(false),
+  "executionAuthority": z.literal(false),
+  "reasonCode": z.literal("EXECUTION_BRIDGE_UNAVAILABLE"),
+  "checkedAt": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+}).strict().describe("Read-only scoped declaration. v1 is default-off and conveys no execution or approval authority; absence means unavailable. C11 flags and public build flags cannot enable this policy.");
 
 export const TradePreflightSchema = z.object({
   "proposalId": z.lazy(() => UUIDSchema),
@@ -1331,6 +1348,7 @@ export const bffZodSchemas = {
   SaveMarketWatchlist: SaveMarketWatchlistSchema,
   CandleSeries: CandleSeriesSchema,
   OrderCapabilities: OrderCapabilitiesSchema,
+  AssistedTestnetAdmission: AssistedTestnetAdmissionSchema,
   TradePreflight: TradePreflightSchema,
   TradeTicketContext: TradeTicketContextSchema,
   ReconciliationEvidenceRef: ReconciliationEvidenceRefSchema,

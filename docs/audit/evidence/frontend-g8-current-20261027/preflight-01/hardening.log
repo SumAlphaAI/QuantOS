@@ -1,0 +1,94 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 same-key recovery preserves original CSRF and one committed outcome[32m 22[2mms[22m[39m
+ [31m×[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 CSRF rotation after unknown submit clears private intent without replay even with a passive invalidation callback[32m 5[2mms[22m[39m
+[31m   → promise resolved "undefined" instead of rejecting[39m
+ [31m×[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 CSRF rotation during final source refresh refuses before first POST[32m 3[2mms[22m[39m
+[31m   → expected BffTransportError: BFF request could not … { …(2) } to match object { Object (status, code) }
+(2 matching properties omitted from actual)[39m
+ [31m×[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 non-JSON 401 clears owned runtime state with passive callback[32m 2[2mms[22m[39m
+[31m   → expected { action: 'submit', …(2) } to be undefined[39m
+ [31m×[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 non-JSON 403 clears owned runtime state with passive callback[32m 2[2mms[22m[39m
+[31m   → expected { action: 'submit', …(2) } to be undefined[39m
+ [31m×[39m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 expired original command cannot be resubmitted and unknown outcome stays unresolved[32m 3[2mms[22m[39m
+[31m   → promise resolved "undefined" instead of rejecting[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 15:37:40
+[2m   Duration [22m 377ms[2m (transform 159ms, setup 0ms, import 260ms, tests 37ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 CSRF rotation after unknown submit clears private intent without replay even with a passive invalidation callback
+[31m[1mAssertionError[22m: promise resolved "undefined" instead of rejecting[39m
+
+[32m- Expected:[39m
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m apps/terminal/tests/g8-current-hardening.test.ts:[2m20:240[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 CSRF rotation during final source refresh refuses before first POST
+[31m[1mAssertionError[22m: expected BffTransportError: BFF request could not … { …(2) } to match object { Object (status, code) }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "code": "SESSION_CHANGED",[39m
+[32m-   "status": 403,[39m
+[31m+ BffTransportError {[39m
+[31m+   "code": "NETWORK",[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/g8-current-hardening.test.ts:[2m21:186[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 non-JSON 401 clears owned runtime state with passive callback
+[41m[1m FAIL [22m[49m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 non-JSON 403 clears owned runtime state with passive callback
+[31m[1mAssertionError[22m: expected { action: 'submit', …(2) } to be undefined[39m
+
+[32m- Expected:[39m
+undefined
+
+[31m+ Received:[39m
+{
+  "action": "submit",
+  "approvalId": "11111111-1111-4111-8111-111111111111",
+  "orderId": undefined,
+}
+
+[36m [2m❯[22m apps/terminal/tests/g8-current-hardening.test.ts:[2m22:285[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/g8-current-hardening.test.ts[2m > [22mG8 P11 expired original command cannot be resubmitted and unknown outcome stays unresolved
+[31m[1mAssertionError[22m: promise resolved "undefined" instead of rejecting[39m
+
+[32m- Expected:[39m
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m apps/terminal/tests/g8-current-hardening.test.ts:[2m23:188[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+

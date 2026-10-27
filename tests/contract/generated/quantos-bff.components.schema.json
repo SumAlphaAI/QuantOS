@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.16.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.17.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -3042,6 +3042,92 @@
         },
         "maxNotional": {
           "$ref": "#/$defs/DecimalValue"
+        },
+        "assistedTestnetAdmission": {
+          "$ref": "#/$defs/AssistedTestnetAdmission"
+        }
+      }
+    },
+    "AssistedTestnetAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Read-only scoped declaration. v1 is default-off and conveys no execution or approval authority; absence means unavailable. C11 flags and public build flags cannot enable this policy.",
+      "required": [
+        "schemaVersion",
+        "policyVersion",
+        "actorId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "serverFlagEnabled",
+        "targetEnabled",
+        "executionAuthority",
+        "reasonCode",
+        "checkedAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-assisted-testnet-admission.v1"
+          ]
+        },
+        "policyVersion": {
+          "type": "string",
+          "enum": [
+            "disabled-until-native-bridge.v1"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow"
+          ]
+        },
+        "serverFlagEnabled": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "targetEnabled": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "reasonCode": {
+          "type": "string",
+          "enum": [
+            "EXECUTION_BRIDGE_UNAVAILABLE"
+          ]
+        },
+        "checkedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
         }
       }
     },

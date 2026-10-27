@@ -3447,7 +3447,10 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
   "required_scope": "G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testnet 条件入口、UI/API flag 关闭不可达、模式/权限/MFA/职责分离、审批与审计恢复，评估 INTEGRATION 阶段 READY；实际 testnet 连接和运行、外部环境、性能/长稳/部署与正式签署全部归 RELEASE-GATE:LIVE-READINESS，实际运行仍须有效范围授权，不启用生产实盘。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "IN_REVIEW",
   "source_commit": null,
-  "evidence": [],
+  "evidence": [
+    "operations/frontend-g8-current-development.md",
+    "audit/evidence/frontend-g8-current-20261027/README.md"
+  ],
   "stage_gate": {
     "stage": "INTEGRATION",
     "status": "NOT_ASSESSED",
@@ -3459,6 +3462,8 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 
 - 当前有界组合评估（2026-10-24）：修复共享Assisted Live gate在缺少已启用服务端目标时仍可达的问题；验证flag与目标交集、原生L03双审批/合成venue、本机Paper P10/P11的MFA/职责分离/审批Command撤单原请求恢复及C10。共享helper尚未接入实际P10/P11，C11无testnet flag契约，原生L01/L03与UI/BFF正向连接及双审批审计恢复仍未贯通；未连接实际testnet。见[规程](./operations/frontend-g8-bounded-composition.md)、[未决清单](./execution/frontend-g8-assessment.json)与[当前证据](./audit/evidence/frontend-g8-local-20261024/README.md)，复核 `node scripts/frontend-g8-review.mjs --verify`。
 - 工程Gate仅PASS_G8_OWNED_LOCAL_CONDITIONAL_COMPOSITION；G8 NOT_READY_GAPS_OPEN、review_status=IN_REVIEW、159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED。G4/FEP-4、G6/FEP-6、P14、G7/FEP-7原15项及G8新增4项缺口保留；原失败/incomplete/NOT_RUN不重绑，目标/CI/性能/RELEASE仍未执行。FEP-8与核心L03/L04完整关闭未声明。下一原任务FE:FEP-8可开展范围收口和M5缺口评估，不授权实际testnet、实盘或发布。
+
+- 当前 DEVELOPMENT 跟进（2026-10-27）：基于最新 L4-SERVICE 完成 C09 1.17.0 opt-in、精确作用域/8秒有效期的默认关闭声明，实际 P10/P11 条件提示接入；修复 P11 原 CSRF/key/body 与 command deadline 恢复，以及 P10/P11 自有失权清理。旧严格 capability 响应不增加易变字段，公共 flag/C11 自建 flag 均不能启用原生执行。工程 Gate `PASS_G8_CURRENT_DEFAULT_OFF_AND_RECOVERY_HARDENING` 以[固定回执](./audit/evidence/frontend-g8-current-20261027/README.md)为准；完整 G8 NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、review IN_REVIEW、formalAccepted=false、runtimeAdmission=DENIED，M5 PREPARED_NOT_READY。19项原始业务缺口 ID/OPEN 保留，整改进展单列[当前评估](./execution/frontend-g8-current-assessment.json)，旧 G8/FEP-8/L4 回执保持原 SHA/范围。无实际 testnet/生产凭据/外部发布；下一可执行原项 FE:FEP-8 的 DEVELOPMENT 范围收口/评审准备，INTEGRATION 未放行。[当前规程](./operations/frontend-g8-current-development.md)。
 
 <a id="task-fep-8"></a>
 ##### FEP-8：M5 评审准备

@@ -739,7 +739,14 @@ impl ExecutionService {
                         )
                         .ok_or_else(Fault::unavailable)?,
                     );
-                    json!({"accountId":self.auth.account_id,"mode":self.auth.mode.as_str(),"canSubmit":self.auth.mode==RunMode::Paper&&matches!(a.role,Role::Owner|Role::Operator),"canCancel":self.auth.mode==RunMode::Paper&&matches!(a.role,Role::Owner|Role::Operator),"venueSubmit":false,"quantityScale":policy.limits.max_quantity_scale,"priceScale":policy.limits.max_price_scale,"maxQuantity":limits.max_quantity.normalize().to_string(),"maxNotional":max_notional.normalize().to_string()})
+                    let mut out = json!({"accountId":self.auth.account_id,"mode":self.auth.mode.as_str(),"canSubmit":self.auth.mode==RunMode::Paper&&matches!(a.role,Role::Owner|Role::Operator),"canCancel":self.auth.mode==RunMode::Paper&&matches!(a.role,Role::Owner|Role::Operator),"venueSubmit":false,"quantityScale":policy.limits.max_quantity_scale,"priceScale":policy.limits.max_price_scale,"maxQuantity":limits.max_quantity.normalize().to_string(),"maxNotional":max_notional.normalize().to_string(),"assistedTestnetAdmission":{"schemaVersion":"quantos-assisted-testnet-admission.v1","policyVersion":"disabled-until-native-bridge.v1","actorId":a.actor_id,"tenantId":a.tenant_id,"workspaceId":a.workspace_id,"accountId":a.account_id,"mode":a.mode.as_str(),"serverFlagEnabled":false,"targetEnabled":false,"executionAuthority":false,"reasonCode":"EXECUTION_BRIDGE_UNAVAILABLE","checkedAt":now,"expiresAt":now+Duration::seconds(8)}});
+                    if q.get("includeAssistedTestnetAdmission").map(String::as_str) != Some("true")
+                    {
+                        out.as_object_mut()
+                            .unwrap()
+                            .remove("assistedTestnetAdmission");
+                    }
+                    out
                 }
                 "/v1/trade-preflight" | "/v1/trade-preflight/stream" => self.preflight(
                     crate::research::uuid(q.get("proposalId").ok_or_else(Fault::invalid)?)?,

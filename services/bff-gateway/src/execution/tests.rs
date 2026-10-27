@@ -1540,3 +1540,62 @@ fn order_mutations_and_get_share_dense_journal_without_read_before_cancel() {
     assert_eq!(read(&mut s, "1")["events"], json!([events[1]]));
     assert_eq!(read(&mut s, "2")["events"], json!([]));
 }
+
+#[test]
+fn g8_current_admission_is_server_owned_scoped_default_off_and_has_no_execution_effect() {
+    let mut service = ExecutionService::reference();
+    let now = Utc::now();
+    let (a, b) = actors(&service);
+    let before = service.downstream_counts();
+    for mut actor in [a, b] {
+        actor
+            .capabilities
+            .insert(quantos_policy::Capability::parse("execution.assisted_testnet").unwrap());
+        let mut headers = HeaderMap::new();
+        headers.insert("x-testnet-enabled", "true".parse().unwrap());
+        let (_, caps) = service
+            .handle(
+                &actor,
+                "owned",
+                &Method::GET,
+                "/v1/order-capabilities",
+                &BTreeMap::from([("includeAssistedTestnetAdmission".into(), "true".into())]),
+                &headers,
+                &json!({}),
+                None,
+                now,
+            )
+            .unwrap();
+        let d = &caps["assistedTestnetAdmission"];
+        assert_eq!(d["schemaVersion"], "quantos-assisted-testnet-admission.v1");
+        assert_eq!(d["policyVersion"], "disabled-until-native-bridge.v1");
+        assert_eq!(d["actorId"], actor.actor_id.to_string());
+        assert_eq!(d["tenantId"], actor.tenant_id.to_string());
+        assert_eq!(d["workspaceId"], actor.workspace_id.to_string());
+        assert_eq!(d["accountId"], actor.account_id.unwrap().to_string());
+        assert_eq!(d["mode"], "paper");
+        for k in ["serverFlagEnabled", "targetEnabled", "executionAuthority"] {
+            assert_eq!(d[k], false);
+        }
+        assert_eq!(d["reasonCode"], "EXECUTION_BRIDGE_UNAVAILABLE");
+        assert_eq!(d["checkedAt"], json!(now));
+        assert_eq!(d["expiresAt"], json!(now + Duration::seconds(8)));
+    }
+    let a = service.auth.clone();
+    let legacy = service
+        .handle(
+            &a,
+            "owned",
+            &Method::GET,
+            "/v1/order-capabilities",
+            &BTreeMap::new(),
+            &HeaderMap::new(),
+            &json!({}),
+            None,
+            now,
+        )
+        .unwrap()
+        .1;
+    assert!(legacy.get("assistedTestnetAdmission").is_none());
+    assert_eq!(service.downstream_counts(), before);
+}
