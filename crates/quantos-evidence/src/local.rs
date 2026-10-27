@@ -169,7 +169,7 @@ pub struct LocalPacket {
     pub records: Vec<RecordedEvent>,
     pub portfolio: PortfolioSnapshot,
     pub orders: Vec<OrderObservation>,
-    pub submission_attempts: u64,
+    pub recovery_attempts: u64,
     pub downstream_submissions: u64,
     pub operations_audit: Vec<AuditRow>,
     pub operations_audit_head: ContentHash,
@@ -190,7 +190,7 @@ impl LocalPacket {
             || self.checked_at < self.started_at
             || self.orders.is_empty()
             || self.orders.len() > 256
-            || self.submission_attempts < self.downstream_submissions
+            || self.recovery_attempts < self.downstream_submissions
             || self.downstream_submissions != self.orders.len() as u64
             || self.operations_audit.len() < self.orders.len() * 2
             || self.operations_audit.len() > 4096

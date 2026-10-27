@@ -1,0 +1,272 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "SERVICE:L04"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:00.756Z",
+    "finishedAt": "2026-10-27T06:14:00.931Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/development.log",
+    "logSha256": "sha256:99543c123c8c7b0d03e748e194ae946f6f0d94d12cc763a17ac8c4d9c8e5ecdc"
+  },
+  {
+    "id": "current-recovery",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-evidence",
+      "--test",
+      "service_l04",
+      "--test",
+      "service_l04_report"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:00.931Z",
+    "finishedAt": "2026-10-27T06:14:05.129Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/current-recovery.log",
+    "logSha256": "sha256:c3f551061f8282d9c37fbf77411ac183f69cfef1ac10849645946ec35b7c2abc"
+  },
+  {
+    "id": "packet-verifier",
+    "command": [
+      "target/debug/l04-evidence",
+      "--verify-owned-local-archive",
+      "docs/audit/evidence/service-l04-local-20261027/attempt-01/packet.json",
+      "sha256:8796cb1e30f7906cdf5e75ca9390bde7bf38703e710c1991e4e4177c5f323390"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:05.132Z",
+    "finishedAt": "2026-10-27T06:14:05.141Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/packet-verifier.log",
+    "logSha256": "sha256:f0bf4c0753c50bd62c20d6d8b068df311a9d46d66f3b3249683c0f54275af289"
+  },
+  {
+    "id": "legacy-evidence",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-evidence",
+      "--lib"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:05.141Z",
+    "finishedAt": "2026-10-27T06:14:07.791Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/legacy-evidence.log",
+    "logSha256": "sha256:fc9dacb9a887fb4f81a16e9a12e476ed0d5b3c6b9af216881667ead64c617ab6"
+  },
+  {
+    "id": "operations-regression",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-operations",
+      "--test",
+      "service_x06"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:07.791Z",
+    "finishedAt": "2026-10-27T06:14:11.198Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/operations-regression.log",
+    "logSha256": "sha256:798bab42ca631095dceef43dda303b1bf69ba212f9ed868a0a60926429ac80d9"
+  },
+  {
+    "id": "reconcile-source-regression",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "x05_sources"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:11.198Z",
+    "finishedAt": "2026-10-27T06:14:13.647Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/reconcile-source-regression.log",
+    "logSha256": "sha256:f229f69ab1d890e2e8a4a2ae632a32b59ddeb07bbe821a7ae67636eb0bd16da7"
+  },
+  {
+    "id": "reconcile-twenty",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "x05_flow",
+      "x05_twenty_differences_are_located"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:13.647Z",
+    "finishedAt": "2026-10-27T06:14:15.434Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/reconcile-twenty.log",
+    "logSha256": "sha256:0e90f5008b977ba5561149507909ff93de510a54c88c18274a6a77fcfe2b2da9"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/service-l04-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:15.435Z",
+    "finishedAt": "2026-10-27T06:14:15.993Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/gate-tests.log",
+    "logSha256": "sha256:884ef8df0bbbe34da743a9dd8bf89510818499ca9e1266b0bfaf739361634c3c"
+  },
+  {
+    "id": "script-lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/service-l04-review.mjs",
+      "scripts/service-l04-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:15.993Z",
+    "finishedAt": "2026-10-27T06:14:16.455Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/script-lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "rust-lint",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-evidence",
+      "--tests",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:16.455Z",
+    "finishedAt": "2026-10-27T06:14:19.738Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/rust-lint.log",
+    "logSha256": "sha256:869b05f861f565f089e0a9dad62423397a73c86a0da226ad80647ada6ef2d893"
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check",
+      "-p",
+      "quantos-evidence"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:19.738Z",
+    "finishedAt": "2026-10-27T06:14:19.815Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/rust-format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:19.815Z",
+    "finishedAt": "2026-10-27T06:14:19.874Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "SERVICE:L04"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:19.874Z",
+    "finishedAt": "2026-10-27T06:14:20.056Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/integration-refusal.log",
+    "logSha256": "sha256:0ef856d8a4ff975b47ea9bb2bff740f8de430b6bca31c5af1749a0a69333c5ea"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4-SERVICE"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:20.057Z",
+    "finishedAt": "2026-10-27T06:14:20.239Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/next-development.log",
+    "logSha256": "sha256:833f54ec06872669ae4531372c7b143902ace56fca420bc4af3c6c4281a9b06d"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/service-l04-review.mjs",
+      "--scan",
+      "docs/audit/evidence/service-l04-local-20261027/attempt-01"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T06:14:20.239Z",
+    "finishedAt": "2026-10-27T06:14:21.233Z",
+    "log": "docs/audit/evidence/service-l04-local-20261027/attempt-01/secret-scan.log",
+    "logSha256": "sha256:adcd9ce0e66453f51c4a991a78e692e05edb6282aa9031d025957bc0d3a90c70"
+  }
+]
