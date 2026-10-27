@@ -2792,9 +2792,12 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
     "SERVICE:L04"
   ],
   "required_scope": "L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
-  "evidence": [],
+  "evidence": [
+    "operations/l4-service-current-assessment.md",
+    "audit/evidence/l4-service-local-20261027/README.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "NOT_ASSESSED",
@@ -2803,6 +2806,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
   }
 }
 ```
+
+当前工程执行（2026-10-27）：完成六项原始依赖记录的来源/内容完整性核对，以及当前协议、实际 owned mTLS、审批/默认关闭、恢复/观测与安全证据聚合检查。新增同 tenant/workspace/account、同 proposal hash 与当前 RiskDecision 的服务双审批→原生签发拒绝：workflow approved、2 条审计，但无原生审批 token，命令数为零，不把 receipt 当执行权限。工程 Gate `PASS_OWNED_LOCAL_L4_SERVICE_AGGREGATE`；完整 Gate `NOT_READY_GAPS_OPEN`，stage `NOT_ASSESSED`、review `IN_REVIEW`、formalAccepted=false、runtime `DENIED`。六项历史证据仅 ORIGINAL_SCOPE_ONLY；X3/FEP-7 和统一审批/执行/持久恢复、公共 BFF/UI/M5 组合缺口保留。真实 IdP/Vault/数据库、testnet、目标部署/网络/轮换/通知/容量/安全/持续窗口/同 SHA CI及 RELEASE NOT_RUN。当前不放行 I10 INTEGRATION；下一可执行原项 `FRONTEND-GATE:G8` 的 DEVELOPMENT 条件入口评估/整改。正式 source_commit 不提前填写，[工程回执](./audit/evidence/l4-service-local-20261027/README.md)独立绑定；[范围规程](./operations/l4-service-current-assessment.md)。
 
 ### I10 后的 L03/L04 功能联调与发布移交
 
