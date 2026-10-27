@@ -1,13 +1,16 @@
+pub mod local;
 use chrono::{DateTime, Utc};
 use quantos_core::{ContentHash, CoreError, canonical_json_bytes};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
 
-pub const EVIDENCE_PACKAGE_VERSION: &str = "quantos-evidence.v1";
+pub const EVIDENCE_PACKAGE_VERSION: &str = "quantos-evidence.v2";
 
 #[derive(Debug, Error)]
 pub enum EvidenceError {
+    #[error("invalid or incomplete evidence input")]
+    Invalid,
     #[error(transparent)]
     Core(#[from] CoreError),
 }
@@ -17,8 +20,7 @@ fn hash_payload(payload: &serde_json::Value) -> Result<ContentHash, EvidenceErro
 }
 
 // ---------------------------------------------------------------------------
-// SLO report: load test with zero duplicate commands/orders and fully
-// persisted audit trails.
+// Legacy caller-supplied local counters, not database persistence or target SLO proof.
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -27,7 +29,7 @@ pub struct SloReport {
     pub total_attempts: u32,
     pub duplicate_commands: u32,
     pub duplicate_orders: u32,
-    pub audit_persisted_pct: f64,
+    pub audit_signature_coverage_pct: f64,
     pub p95_issuance_ms: f64,
     pub passed: bool,
     pub report_hash: ContentHash,
@@ -47,6 +49,20 @@ impl SloReport {
         signed_commands: usize,
         mut issuance_durations_ms: Vec<f64>,
     ) -> Result<Self, EvidenceError> {
+        if target_unique_commands == 0
+            || unique_issued == 0
+            || total_attempts < unique_issued as u32
+            || unique_issued > u32::MAX as usize
+            || distinct_commands > unique_issued
+            || distinct_orders > distinct_commands
+            || signed_commands > unique_issued
+            || issuance_durations_ms.len() != unique_issued
+            || issuance_durations_ms
+                .iter()
+                .any(|v| !v.is_finite() || *v < 0.0)
+        {
+            return Err(EvidenceError::Invalid);
+        }
         issuance_durations_ms.sort_by(|left, right| left.total_cmp(right));
         let p95_index =
             ((issuance_durations_ms.len() * 95) / 100).min(issuance_durations_ms.len() - 1);
@@ -58,7 +74,8 @@ impl SloReport {
         } else {
             signed_commands as f64 / unique_issued as f64 * 100.0
         };
-        let passed = duplicate_commands == 0
+        let passed = unique_issued == target_unique_commands as usize
+            && duplicate_commands == 0
             && duplicate_orders == 0
             && (audit_pct - 100.0).abs() < f64::EPSILON;
         // Measured latency stays in the report but out of the evidence hash:
@@ -68,7 +85,7 @@ impl SloReport {
             "total_attempts": total_attempts,
             "duplicate_commands": duplicate_commands,
             "duplicate_orders": duplicate_orders,
-            "audit_persisted_pct": audit_pct,
+            "audit_signature_coverage_pct": audit_pct,
             "passed": passed,
         }))?;
         Ok(Self {
@@ -76,7 +93,7 @@ impl SloReport {
             total_attempts,
             duplicate_commands: duplicate_commands as u32,
             duplicate_orders: duplicate_orders as u32,
-            audit_persisted_pct: audit_pct,
+            audit_signature_coverage_pct: audit_pct,
             p95_issuance_ms: p95,
             passed,
             report_hash,
@@ -126,7 +143,17 @@ pub struct DrillReport {
 
 impl DrillReport {
     pub fn build(results: Vec<DrillResult>) -> Result<Self, EvidenceError> {
-        let all_passed = results.iter().all(|result| result.passed) && results.len() == 4;
+        let kinds: std::collections::BTreeSet<_> =
+            results.iter().map(|r| r.kind.as_str()).collect();
+        let all_passed = results.len() == 4
+            && kinds.len() == 4
+            && results.iter().all(|r| {
+                r.passed
+                    && !r.detail.trim().is_empty()
+                    && r.detail.len() <= 2048
+                    && r.duration_ms.is_finite()
+                    && r.duration_ms >= 0.0
+            });
         let report_hash = hash_payload(&json!({
             "results": results.iter().map(|result| json!({
                 "kind": result.kind.as_str(),
@@ -164,7 +191,12 @@ pub struct ReleaseChecklist {
 impl ReleaseChecklist {
     #[must_use]
     pub fn build(items: Vec<ReleaseChecklistItem>) -> Self {
-        let all_passed = items.iter().all(|item| item.passed);
+        let ids: std::collections::BTreeSet<_> = items.iter().map(|i| &i.item_id).collect();
+        let all_passed = !items.is_empty()
+            && ids.len() == items.len()
+            && items
+                .iter()
+                .all(|i| i.passed && !i.item_id.trim().is_empty() && !i.title.trim().is_empty());
         Self { items, all_passed }
     }
 }
@@ -212,11 +244,17 @@ impl EvidencePackage {
     }
 
     #[must_use]
-    pub fn go_no_go_ready(&self) -> bool {
+    pub fn local_checks_passed(&self) -> bool {
         self.slo.passed
             && self.drills.all_passed
             && self.checklist.all_passed
             && self.critical_security_findings == 0
+    }
+
+    /// Legacy reports carry no target-environment or release authorization.
+    #[must_use]
+    pub fn go_no_go_ready(&self) -> bool {
+        false
     }
 }
 
@@ -590,13 +628,13 @@ mod tests {
     }
 
     #[test]
-    fn evidence_package_is_go_ready_and_tamper_evident() {
+    fn legacy_evidence_package_is_local_only_and_tamper_evident() {
         let slo = run_slo_load();
         assert!(slo.passed, "slo report must pass: {slo:?}");
         assert_eq!(slo.duplicate_commands, 0);
         assert_eq!(slo.duplicate_orders, 0);
-        assert_eq!(slo.audit_persisted_pct, 100.0);
-        assert!(slo.p95_issuance_ms < 200.0);
+        assert_eq!(slo.audit_signature_coverage_pct, 100.0);
+        assert!(slo.p95_issuance_ms.is_finite()); // No target performance admission.
 
         let drills = run_drills();
         assert!(drills.all_passed, "all drills must pass: {drills:?}");
@@ -646,7 +684,7 @@ mod tests {
         let checklist = ReleaseChecklist::build(vec![
             ReleaseChecklistItem {
                 item_id: "L04-SLO".to_owned(),
-                title: "目标负载下无重复 Command/订单，审计持久化 100%".to_owned(),
+                title: "旧内存样本无重复 Command/订单，签名计数完整；持久化未验".to_owned(),
                 evidence_hash: slo.report_hash.clone(),
                 passed: slo.passed,
             },
@@ -658,7 +696,7 @@ mod tests {
             },
             ReleaseChecklistItem {
                 item_id: "L04-SECURITY".to_owned(),
-                title: "高危安全缺陷 = 0".to_owned(),
+                title: "有限字符串模式检查无匹配；不代表安全验收".to_owned(),
                 evidence_hash: ContentHash::sha256_bytes(b"critical-findings:0"),
                 passed: security_findings == 0,
             },
@@ -673,7 +711,8 @@ mod tests {
 
         let package = EvidencePackage::build(slo, drills, checklist, security_findings, now())
             .expect("package builds");
-        assert!(package.go_no_go_ready());
+        assert!(package.local_checks_passed());
+        assert!(!package.go_no_go_ready());
         assert!(package.package_hash.as_str().starts_with("sha256:"));
 
         // Tamper evidence: identical inputs reproduce the identical package hash.

@@ -1,0 +1,36 @@
+
+running 3 tests
+test l04_missing_work_and_overreported_audit_cannot_pass ... FAILED
+test l04_empty_and_contradictory_counts_are_errors_not_panics ... FAILED
+test l04_four_repeated_drills_and_empty_checklists_cannot_pass ... FAILED
+
+failures:
+
+---- l04_missing_work_and_overreported_audit_cannot_pass stdout ----
+
+thread 'l04_missing_work_and_overreported_audit_cannot_pass' (1148815) panicked at crates/quantos-evidence/tests/service_l04_report.rs:10:9:
+assertion failed: r.is_err() || !r.unwrap().passed
+
+---- l04_empty_and_contradictory_counts_are_errors_not_panics stdout ----
+
+thread 'l04_empty_and_contradictory_counts_are_errors_not_panics' (1148812) panicked at crates/quantos-evidence/src/lib.rs:52:60:
+attempt to subtract with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- l04_four_repeated_drills_and_empty_checklists_cannot_pass stdout ----
+
+thread 'l04_four_repeated_drills_and_empty_checklists_cannot_pass' (1148814) panicked at crates/quantos-evidence/tests/service_l04_report.rs:18:5:
+assertion failed: !r.all_passed
+
+
+failures:
+    l04_empty_and_contradictory_counts_are_errors_not_panics
+    l04_four_repeated_drills_and_empty_checklists_cannot_pass
+    l04_missing_work_and_overreported_audit_cannot_pass
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-evidence v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-evidence)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.36s
+     Running tests/service_l04_report.rs (target/debug/deps/service_l04_report-a25ef6bf2be064f8)
+error: test failed, to rerun pass `-p quantos-evidence --test service_l04_report`

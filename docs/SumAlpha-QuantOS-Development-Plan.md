@@ -2757,9 +2757,12 @@ L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、�
     "FE:FEP-7"
   ],
   "required_scope": "L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
-  "evidence": [],
+  "evidence": [
+    "operations/service-l04-current-assessment.md",
+    "audit/evidence/service-l04-local-20261027/README.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "NOT_ASSESSED",
@@ -2768,6 +2771,8 @@ L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、�
   }
 }
 ```
+
+当前工程执行（2026-10-27）：本地服务恢复检查已实现并进入评审。修复旧证据模型缺项/重复演练误判，新增只读 PgEventStore 端口、owned F05 事件重放、X06 提交后恢复/未知隔离/受控 kill 恢复、X05/F09 直接检查和 fsync 安全证据归档/新进程只读复核。工程 Gate `PASS_OWNED_LOCAL_SERVICE_L04_RECOVERY_CHECKPOINT`；完整 Gate `NOT_READY_GAPS_OPEN`，stage `NOT_ASSESSED`、formalAccepted=false、runtime `DENIED`。本地文件审计完整落盘不等于业务数据库持久化；同 gateway 租约恢复不等于跨进程交易恢复。真实 Supabase/来源账本、公共 BFF/UI/testnet、部署/通知、目标负载/安全/持续窗口与正式发布 NOT_RUN。正式 source_commit 暂不填写，工程候选由[固定证据](./audit/evidence/service-l04-local-20261027/README.md)绑定；[当前规程](./operations/service-l04-current-assessment.md)。下一原项 `CORE-GATE:L4-SERVICE`，历史证据不改绑，不递归复验上游。
 
 <a id="acceptance-core-gate-l4-service"></a>
 ### CORE-GATE:L4-SERVICE：验收检查点
