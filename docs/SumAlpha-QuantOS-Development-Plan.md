@@ -2811,6 +2811,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 
 ### I10 后的 L03/L04 功能联调与发布移交
 
+2026-10-27 FE:FEP-8 当前范围收口：已形成[当前M5技术评审](./operations/fep8-current-m5-review.md)、[19项依赖/缺口机器材料](./execution/fep8-current-m5-review.json)与[限定证据](./audit/evidence/fep8-current-local-20261027/README.md)；整改 census 的旧 binary SHA 硬编码，按当前 C09 opt-in默认关闭与 C11 activation缺失分别记账。工程 Gate `PASS_FEP8_CURRENT_SCOPE_AND_M5_REVIEW_PREPARATION`，FEP-8 PARTIAL、M5 PREPARED_NOT_READY、FEP-8/G8 NOT_READY_GAPS_OPEN，159阶段与原核心关闭映射不提升。19项gap保持OPEN，页面/原生/历史回执按原SHA参考；下一原项 CORE:L03 DEVELOPMENT，开展统一公共审批→原生权限与P10/P11本机接续；目标/testnet/发布仍NOT_RUN，无生产凭据或外部发布。
+
 2026-10-27 G8 DEVELOPMENT 跟进：C09 opt-in 默认关闭声明已接入实际 P10/P11，原 CSRF/有效期/失权恢复边界整改见[当前规程](./operations/frontend-g8-current-development.md)与[证据](./audit/evidence/frontend-g8-current-20261027/README.md)。完整 G8/M5/CORE:L03/L04 及 I10 阶段未关闭，19 项业务缺口与目标 NOT_RUN 保留；下一原项 FE:FEP-8 DEVELOPMENT，不授予运行或发布权限。
 
 <a id="task-l03"></a>

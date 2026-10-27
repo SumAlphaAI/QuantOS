@@ -3487,6 +3487,8 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 - 当前范围收口/M5准备（2026-10-24）：核对19项直接依赖及P10/P11入口，修复C08在MFA与未知结果恢复期间未固定原CSRF的问题；补充会话变更/到期/失权拒绝、当前真实GET-only M5核查及直接Paper审批恢复浏览器回归。形成[技术准备稿](./operations/fep8-m5-review-preparation.md)、[范围/缺口](./execution/fep8-scope-assessment.json)、[规程](./operations/fep8-function-closure.md)与[当前证据](./audit/evidence/fep8-function-local-20261024/README.md)，复核 `node scripts/fep8-function-review.mjs --verify`。
 - 仅已实现前端范围的收口与M5技术准备完成，工程Gate PASS_FEP8_FRONTEND_SCOPE_REVIEW_PREPARATION；FEP-8保持PARTIAL、FEP-8/G8 NOT_READY_GAPS_OPEN、M5 PREPARED_NOT_READY。G4/FEP-4、G6/FEP-6、P14、G7/FEP-7及G8共19项原未决保留，159项stage_gate不提升，formalAccepted=false、runtimeAdmission=DENIED，closes_core映射L03/L04完整关闭不声明。原失败/incomplete/NOT_RUN不重绑，无实际testnet、实盘或发布授权；下一原任务CORE:L03可开展本机功能组合与缺口整改，CORE:L04完整复审仍独立。
 
+- 当前收口/M5准备跟进（2026-10-27）：基于 G8 `18408e7b` 与最新 L4 原范围记录，更新六维事实与19项直接依赖、19项缺口 owners/关闭判据；修复只读 census 硬编码旧 binary 来源，并核查当前 C09 1.17.0 opt-in 默认关闭声明和 Paper/Shadow 权限拒绝。详见[当前评审](./operations/fep8-current-m5-review.md)、[机器材料](./execution/fep8-current-m5-review.json)、[冻结证据](./audit/evidence/fep8-current-local-20261027/README.md)，执行 `node scripts/fep8-current-review.mjs --verify`。工程 Gate `PASS_FEP8_CURRENT_SCOPE_AND_M5_REVIEW_PREPARATION` 仅适用于当前已实现前端范围；FEP-8仍PARTIAL，FEP-8/G8 NOT_READY_GAPS_OPEN、M5 PREPARED_NOT_READY、159阶段NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。原材料/失败/axe incomplete保留原SHA；本轮未改页面，不重跑UI/原生/上游矩阵，不据此关闭核心L03/L04或19项缺口。下一原任务 CORE:L03 DEVELOPMENT，承接C09已存在关闭声明并开展公共双审批权限/原生签发/P10/P11同源本机接续，INTEGRATION与RELEASE未放行。
+
 ## 5. 接口对接清单与契约基线
 
 ### 5.1 契约状态说明
