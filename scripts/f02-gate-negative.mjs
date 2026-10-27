@@ -27,7 +27,7 @@ test('real Gitleaks positive control and GitHub/Slack leaks',t=>{
  }
 });
 test('historical digest exceptions do not waive fresh credentials in audit JSON',t=>{
- for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json','docs/audit/evidence/bff-fe-010-local-20261020/preflight/history-sha256.json']) {
+ for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json','docs/audit/evidence/bff-fe-010-local-20261020/preflight/history-sha256.json','docs/audit/evidence/core-r1-local-20261026/attempt-01/r1-browser/r1-integration-R1-RD-actual-research-Signal-Proposal-Audit-chromium/r1-chain.json']) {
  const d=fixture(t);pass(run('git',['init','-q'],d));
  const file=path.join(d,relativePath);fs.mkdirSync(path.dirname(file),{recursive:true});
  const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],d));};
@@ -38,6 +38,9 @@ test('historical digest exceptions do not waive fresh credentials in audit JSON'
  fs.writeFileSync(file,JSON.stringify({api_key:sha(Buffer.from('synthetic generic credential control'))},null,2)+'\n');commit();
  reject(scan(),/leaks found/i);
  fs.writeFileSync(file,JSON.stringify({openapiDigest:sha(Buffer.from('unreviewed digest control'))},null,2)+'\n');commit();
+ reject(scan(),/leaks found/i);
+ // A digest-shaped field name is not an authorization to skip future values.
+ fs.writeFileSync(file,JSON.stringify({keyHash:sha(Buffer.from('unreviewed synthetic keyHash control'))},null,2)+'\n');commit();
  reject(scan(),/leaks found/i);
  }
 });
