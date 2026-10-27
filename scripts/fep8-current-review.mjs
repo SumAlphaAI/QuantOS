@@ -66,7 +66,7 @@ export const checks=[
  ['unit-consumer',['pnpm','exec','vitest','run',...unitFiles,'--reporter=json','--outputFile={attempt}/unit.json']],
  ['types',['pnpm','--filter','@sumalpha/terminal','typecheck']],
  ['lint',['pnpm','exec','eslint',...lintFiles]],
- ['gate-tests',['node','--test','scripts/fep8-current-review.test.mjs','scripts/development-execution.test.mjs']],
+ ['gate-tests',['node','--test','--test-reporter=tap','scripts/fep8-current-review.test.mjs','scripts/development-execution.test.mjs']],
  ['plans',['node','scripts/check-development-plans.mjs']],
  ['fep8-refusal',['node','scripts/development-execution.mjs','--integration','FE:FEP-8'],1],
  ['g8-refusal',['node','scripts/development-execution.mjs','--integration','FRONTEND-GATE:G8'],1],

@@ -33,6 +33,8 @@ Paper 当前只读核查需证实：operator/approver/owner 的 C01 作用域与
 
 本轮未改页面、BFF/核心运行时或契约，故不重跑全浏览器、Web构建/axe、Rust原生测试、完整上游和数据库campaign；原结果只按原SHA参考，未执行不计PASS。当前UI、真实F06或双审批原生成功不属于这次只读census。当前限定源码/attempt进行gitleaks扫描并检查两个真实canary拒绝，不是全仓安全审计。
 
+首轮冻结候选 `dd86610c` 的13项命令符合预期，但末尾验证按 TAP 格式解析 Node 默认文本输出失败；原 `attempt-01/verification-failure.json` 与112项测试输出完整保留，不计本轮PASS。采集器整改固定 `--test-reporter=tap`，增加回归检查后重新冻结并使用新attempt。
+
 ## Gate 与下一任务
 
 工程 Gate `PASS_FEP8_CURRENT_SCOPE_AND_M5_REVIEW_PREPARATION` 仅以[冻结证据](../audit/evidence/fep8-current-local-20261027/README.md)为准；完整 FEP-8/G8 NOT_READY_GAPS_OPEN、M5 PREPARED_NOT_READY，正式确认 PENDING，不自行批准。本准备稿供六维审阅，不请求尚未就绪M5的批准。

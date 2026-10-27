@@ -26,3 +26,5 @@ for(const change of ['source','fixture-source','old-binary-source','binary','mod
  assert.throws(()=>validateRead(r,source,binary));
 });
 test('bounded matrix does not rerun untouched UI/native/upstream or grant integration',()=>{assert(!checks.some(([,a])=>a.some(x=>/playwright|--workspace|clippy|llvm-cov|docker|DATABASE_URL/.test(x))));assert(checks.some(([id])=>id==='binary'));assert(checks.some(([id,a])=>id==='next-development'&&a.includes('CORE:L03')));assert.equal(checks.filter(([,a,e])=>a.includes('--integration')&&e===1).length,3);});
+
+test('collector fixes TAP output for machine checked Node counts',()=>assert(checks.find(([id])=>id==='gate-tests')[1].includes('--test-reporter=tap')));
