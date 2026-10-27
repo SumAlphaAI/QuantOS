@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {directory,files,verify,validateBoundary} from '../../../../scripts/l4-service-review.mjs';
+import {hash} from '../../../../scripts/g1-download-review.mjs';
+const read=p=>readFileSync(p),json=p=>JSON.parse(read(p));
+const manifestPath=directory+'/manifest.json',manifest=json(manifestPath);
+assert.equal(manifest.schema,'quantos-l4-service-evidence-manifest/v1');validateBoundary(manifest.boundary);
+assert.deepEqual(manifest.files.map(f=>f.path),files(directory).filter(p=>p!==manifestPath));
+for(const f of manifest.files)assert.equal(hash(read(f.path)),f.sha256,f.path);
+const receipt=json(directory+'/receipt.json');assert.equal(manifest.sourceCommit,receipt.sourceCommit);
+const result=verify(receipt);assert.equal(result.rustCases,49);assert.equal(result.nodeCases,98);assert.equal(result.checks,23);assert.equal(result.sameSubjectIssuedCommands,0);
+const status=json(directory+'/confirmation-status.json');assert.equal(status.status,'PENDING');assert.equal(status.approval,null);assert.equal(status.actualUserReply,null);assert.equal(status.formalAccepted,false);
+assert.equal(status.request.nodeId,'CORE-GATE:L4-SERVICE');assert.equal(status.request.stage,'DEVELOPMENT');assert.equal(status.request.sourceCommit,receipt.sourceCommit);assert.equal(status.request.inputsDigest,hash(JSON.stringify(receipt.inputs)));assert.equal(status.documentSha256,hash(read(status.document)));
+const draft=JSON.parse(read(status.document).toString().match(/```json\s*([\s\S]*?)\s*```/)[1]);assert.equal(draft.status,'PENDING');assert.equal(draft.draftedBy,'Codex');assert.equal(draft.mode,'AGENT_DRAFT_USER_CONFIRMATION');assert.deepEqual(draft.request,status.request);assert.deepEqual(draft.reviewDimensions,['Product','Frontend','BFF','QA','Security','Risk']);assert.deepEqual(draft.request.reviewDimensions,draft.reviewDimensions);
+const handoff=json(directory+'/handoff.json');assert.equal(handoff.sourceCommit,receipt.sourceCommit);validateBoundary(handoff.boundary);assert.equal(handoff.nextTask,'FRONTEND-GATE:G8');assert.equal(handoff.nextPhase,'DEVELOPMENT');assert.equal(handoff.i10IntegrationAdmission,'DENIED_STAGE_NOT_READY');assert.equal(handoff.functionalGaps.length,4);assert(handoff.functionalGaps.every(g=>g.status==='OPEN'));assert.equal(handoff.targets.length,8);assert(handoff.targets.every(t=>t.status==='NOT_RUN'&&t.gate==='RELEASE-GATE:LIVE-READINESS'));
+console.log(JSON.stringify({...result,evidenceFiles:manifest.files.length,confirmation:status.status}));
