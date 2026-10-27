@@ -1,0 +1,101 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FRONTEND-GATE:G8"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:15:53.355Z",
+    "finishedAt": "2026-10-27T08:15:53.527Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/development.log",
+    "logSha256": "sha256:824795ed1106a2032d9ae130346b9ede0070c2704d56994fd60a10ecca283785"
+  },
+  {
+    "id": "scope-audit",
+    "command": [
+      "node",
+      "scripts/frontend-g8-current-review.mjs",
+      "--audit"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:15:53.528Z",
+    "finishedAt": "2026-10-27T08:15:54.022Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/scope-audit.log",
+    "logSha256": "sha256:bd523a17bbc965cc6d37b4e370cfe59bf2474692bce699a29127c09e2083fbaa"
+  },
+  {
+    "id": "binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:15:54.022Z",
+    "finishedAt": "2026-10-27T08:15:54.241Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/binary.log",
+    "logSha256": "sha256:d7dae192715495fa89ccbe279af3efb9792c1dae1768228e369035e68a1df673"
+  },
+  {
+    "id": "native",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "execution::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:15:54.271Z",
+    "finishedAt": "2026-10-27T08:16:01.214Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/native.log",
+    "logSha256": "sha256:f3d1444efe9cf2312e1ce729472c14910d7caf3ad20c967d6737ecec20e06a9d"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:16:01.214Z",
+    "finishedAt": "2026-10-27T08:16:01.699Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/generated.log",
+    "logSha256": "sha256:fca527d3d81bf730c12874169d2d2e1667da92c43ddf6d4f9925ed8ea09dea91"
+  },
+  {
+    "id": "compatibility",
+    "command": [
+      "node",
+      "scripts/check-bff-compatibility.mjs"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:16:01.699Z",
+    "finishedAt": "2026-10-27T08:16:01.922Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-01/compatibility.log",
+    "logSha256": "sha256:f5697cd7cd69aa3bb9e33daca5dc664a0b6d1d5264905ca6509ad5bd82ccbee8"
+  }
+]

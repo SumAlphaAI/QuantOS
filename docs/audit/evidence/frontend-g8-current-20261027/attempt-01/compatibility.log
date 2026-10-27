@@ -1,0 +1,44 @@
+{
+  "status": "FAIL",
+  "changes": 1,
+  "registeredCorrections": 0,
+  "failures": [
+    {
+      "path": "/paths/~1v1~1order-capabilities/get/parameters",
+      "before": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "after": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "includeAssistedTestnetAdmission",
+          "in": "query",
+          "required": false,
+          "description": "Opt in to the scoped default-off v1 declaration; omission preserves the legacy strict response shape.",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "true"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "baseline": "6677a7d429e2dc54a3f2948c86d7af4301176aa4",
+  "scope": "engineering compatibility; no owner/staging signature implied"
+}

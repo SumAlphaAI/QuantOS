@@ -1,0 +1,389 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FRONTEND-GATE:G8"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:05.300Z",
+    "finishedAt": "2026-10-27T08:29:05.469Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/development.log",
+    "logSha256": "sha256:824795ed1106a2032d9ae130346b9ede0070c2704d56994fd60a10ecca283785"
+  },
+  {
+    "id": "scope-audit",
+    "command": [
+      "node",
+      "scripts/frontend-g8-current-review.mjs",
+      "--audit"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:05.469Z",
+    "finishedAt": "2026-10-27T08:29:05.955Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/scope-audit.log",
+    "logSha256": "sha256:bd523a17bbc965cc6d37b4e370cfe59bf2474692bce699a29127c09e2083fbaa"
+  },
+  {
+    "id": "binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:05.956Z",
+    "finishedAt": "2026-10-27T08:29:06.112Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/binary.log",
+    "logSha256": "sha256:22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
+  },
+  {
+    "id": "native",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "execution::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:06.141Z",
+    "finishedAt": "2026-10-27T08:29:08.315Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/native.log",
+    "logSha256": "sha256:402173c734a9306a60aa571450734606b6388fc7d203e7a07c919372a3823187"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:08.315Z",
+    "finishedAt": "2026-10-27T08:29:08.775Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/generated.log",
+    "logSha256": "sha256:3d87ce255887a615ef5470aba977acef2f5ea7e6f3bf18f28280e68195735d78"
+  },
+  {
+    "id": "compatibility",
+    "command": [
+      "node",
+      "scripts/check-bff-compatibility.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:08.775Z",
+    "finishedAt": "2026-10-27T08:29:08.995Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/compatibility.log",
+    "logSha256": "sha256:0c6e8663ca9a4624a12f9299fa087a9e28ee636383691e273f274de2016c2514"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "node",
+      "scripts/check-bff-openapi.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:08.995Z",
+    "finishedAt": "2026-10-27T08:29:09.122Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/openapi.log",
+    "logSha256": "sha256:d55fc7000cd245e9d666ccd255ba25249281dbc355ec7204d95b7a6b73c5febf"
+  },
+  {
+    "id": "unit-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/g8-current-hardening.test.ts",
+      "apps/terminal/tests/g8-current-admission.test.ts",
+      "apps/terminal/tests/g8-current-provider-consumer.test.ts",
+      "apps/terminal/tests/frontend-g8.test.ts",
+      "apps/terminal/tests/frontend-g8-provider-consumer.test.ts",
+      "apps/terminal/tests/fep8-hardening.test.ts",
+      "apps/terminal/tests/ui-p10.test.ts",
+      "apps/terminal/tests/ui-p10-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p11.test.ts",
+      "apps/terminal/tests/ui-p11-provider-consumer.test.ts",
+      "apps/terminal/tests/ui-p20.test.ts",
+      "apps/terminal/tests/ui504.test.ts",
+      "apps/terminal/tests/ui505.test.ts",
+      "apps/terminal/tests/fep5-closure.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/frontend-g8-current-20261027/attempt-04/unit.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:09.123Z",
+    "finishedAt": "2026-10-27T08:29:17.537Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/unit-consumer.log",
+    "logSha256": "sha256:5f84861d3f3c4d1c32d3fc37278ffc05280c1fd50a1154b00c556275699eaf4a"
+  },
+  {
+    "id": "api-contract",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/contract",
+      "packages/api-client/tests",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/frontend-g8-current-20261027/attempt-04/contract.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:17.537Z",
+    "finishedAt": "2026-10-27T08:29:18.842Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/api-contract.log",
+    "logSha256": "sha256:ec61fc8f5d5c3efba12553d69874da7a3f236820d183adf2ddc580ed5633668c"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:18.842Z",
+    "finishedAt": "2026-10-27T08:29:19.855Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/execution/assisted-admission.ts",
+      "apps/terminal/src/approvals/runtime.ts",
+      "apps/terminal/src/orders/runtime.ts",
+      "apps/terminal/app/approvals/workspace.tsx",
+      "apps/terminal/app/orders/workspace.tsx",
+      "apps/terminal/tests/g8-current-hardening.test.ts",
+      "apps/terminal/tests/g8-current-admission.test.ts",
+      "apps/terminal/tests/g8-current-provider-consumer.test.ts",
+      "apps/terminal/tests/fep8-fixture.ts",
+      "tests/e2e/g8-current.spec.ts",
+      "playwright.config.ts",
+      "playwright.g8-current.config.ts",
+      "scripts/frontend-g8-current-review.mjs",
+      "scripts/frontend-g8-current-review.test.mjs",
+      "scripts/bff-compatibility.mjs",
+      "scripts/bff-compatibility.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:19.855Z",
+    "finishedAt": "2026-10-27T08:29:20.406Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "rust-lint",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--tests",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:20.406Z",
+    "finishedAt": "2026-10-27T08:29:24.376Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/rust-lint.log",
+    "logSha256": "sha256:5243b8751734e2e0fd71c78312c686693134944d6b97855078b6a3dc6ecd253f"
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check",
+      "-p",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:24.376Z",
+    "finishedAt": "2026-10-27T08:29:24.652Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/rust-format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/frontend-g8-current-review.test.mjs",
+      "scripts/development-execution.test.mjs",
+      "scripts/bff-compatibility.test.mjs",
+      "scripts/bff-remediation-negative.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:24.652Z",
+    "finishedAt": "2026-10-27T08:29:25.204Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/gate-tests.log",
+    "logSha256": "sha256:176ab18a729571fc12f2af4e5921f2e95b4e02c32f5d221b19b1f7cad6ae4c9f"
+  },
+  {
+    "id": "terminal-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:25.204Z",
+    "finishedAt": "2026-10-27T08:29:36.655Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/terminal-build.log",
+    "logSha256": "sha256:1e4ba16e08c6a7c96f488f2480ac766c51632df00393cd7a5c4b59b6b8df38fb"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.g8-current.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/frontend-g8-current-20261027/attempt-04/browser/cases"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:29:36.660Z",
+    "finishedAt": "2026-10-27T08:30:01.770Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/browser.log",
+    "logSha256": "sha256:69df50262dd7b04d536a042df551c5ec7ad1dcee4c069fcf52fe97f99c9ee1b3"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:30:01.770Z",
+    "finishedAt": "2026-10-27T08:30:01.827Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "g8-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G8"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:30:01.828Z",
+    "finishedAt": "2026-10-27T08:30:02.000Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/g8-refusal.log",
+    "logSha256": "sha256:1dcf8a832002e96804383ef2adc809bde8423e663e0927f15bdde422bfd1997c"
+  },
+  {
+    "id": "fep8-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-8"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:30:02.000Z",
+    "finishedAt": "2026-10-27T08:30:02.170Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/fep8-refusal.log",
+    "logSha256": "sha256:f6baff956672a6246dcab68890cb7ad0fb7b9d28fc68f3be169e22bd08a3b565"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-8"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:30:02.171Z",
+    "finishedAt": "2026-10-27T08:30:02.350Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/next-development.log",
+    "logSha256": "sha256:eb374b885a732f3ff91aa51ead0e347ce9b4ad683580b8abccb4dbb1d13560a8"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/frontend-g8-current-review.mjs",
+      "--scan",
+      "docs/audit/evidence/frontend-g8-current-20261027/attempt-04"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:30:02.351Z",
+    "finishedAt": "2026-10-27T08:30:03.384Z",
+    "log": "docs/audit/evidence/frontend-g8-current-20261027/attempt-04/secret-scan.log",
+    "logSha256": "sha256:d9ed32348ab300d1ae36f6e3c28050fc2f79b7bd63e82aab975649dce651a8cf"
+  }
+]
