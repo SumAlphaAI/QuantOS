@@ -1,0 +1,219 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "FE:FEP-8"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:26.325Z",
+    "finishedAt": "2026-10-27T08:48:26.513Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/development.log",
+    "logSha256": "sha256:eb374b885a732f3ff91aa51ead0e347ce9b4ad683580b8abccb4dbb1d13560a8"
+  },
+  {
+    "id": "audit",
+    "command": [
+      "node",
+      "scripts/fep8-current-review.mjs",
+      "--audit"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:26.513Z",
+    "finishedAt": "2026-10-27T08:48:28.088Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/audit.log",
+    "logSha256": "sha256:55c0389eabaacb4b8f3728160c9272fae99b22b17aaef076f36781fd40e36475"
+  },
+  {
+    "id": "binary",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--bin",
+      "bff-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:28.089Z",
+    "finishedAt": "2026-10-27T08:48:28.472Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/binary.log",
+    "logSha256": "sha256:b2c020f27a01faabb96e5d55c11fd219cf7c484c9cf34b3342bfc8444d934c89"
+  },
+  {
+    "id": "unit-consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/fep8-provider-consumer.test.ts",
+      "apps/terminal/tests/fep8-hardening.test.ts",
+      "apps/terminal/tests/g8-current-admission.test.ts",
+      "apps/terminal/tests/g8-current-hardening.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/fep8-current-local-20261027/attempt-01/unit.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:28.502Z",
+    "finishedAt": "2026-10-27T08:48:34.052Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/unit-consumer.log",
+    "logSha256": "sha256:6766198d2bf6782093b86d823e157ccbd0fcfd9f9879d203eca48218bfa8d4eb"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:34.052Z",
+    "finishedAt": "2026-10-27T08:48:34.933Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/types.log",
+    "logSha256": "sha256:865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/tests/fep8-provider-consumer.test.ts",
+      "scripts/fep8-current-review.mjs",
+      "scripts/fep8-current-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:34.933Z",
+    "finishedAt": "2026-10-27T08:48:35.443Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/lint.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/fep8-current-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:35.443Z",
+    "finishedAt": "2026-10-27T08:48:36.623Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/gate-tests.log",
+    "logSha256": "sha256:9f75d1b3b23f948a509be7863d39c51fa620e5aa85b2df9e2c4ee8ca0ee15de0"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:36.623Z",
+    "finishedAt": "2026-10-27T08:48:36.685Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/plans.log",
+    "logSha256": "sha256:6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "fep8-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FE:FEP-8"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:36.685Z",
+    "finishedAt": "2026-10-27T08:48:36.871Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/fep8-refusal.log",
+    "logSha256": "sha256:f6baff956672a6246dcab68890cb7ad0fb7b9d28fc68f3be169e22bd08a3b565"
+  },
+  {
+    "id": "g8-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "FRONTEND-GATE:G8"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:36.871Z",
+    "finishedAt": "2026-10-27T08:48:37.059Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/g8-refusal.log",
+    "logSha256": "sha256:1dcf8a832002e96804383ef2adc809bde8423e663e0927f15bdde422bfd1997c"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:L03"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:37.059Z",
+    "finishedAt": "2026-10-27T08:48:37.249Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/next-development.log",
+    "logSha256": "sha256:9923b0a1e6800a9bf5e478af3d1666894ea7f5d6003604296c79b43346192ddb"
+  },
+  {
+    "id": "next-integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:L03"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:37.249Z",
+    "finishedAt": "2026-10-27T08:48:37.436Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/next-integration-refusal.log",
+    "logSha256": "sha256:51cf044ce4a678a0a7e9345a6d9cd616f3c79ff7d557d71f6b851a995ad47eb2"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/fep8-current-review.mjs",
+      "--scan",
+      "docs/audit/evidence/fep8-current-local-20261027/attempt-01"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-27T08:48:37.437Z",
+    "finishedAt": "2026-10-27T08:48:38.342Z",
+    "log": "docs/audit/evidence/fep8-current-local-20261027/attempt-01/secret-scan.log",
+    "logSha256": "sha256:5547eda3625904eb3c57fdf32d822831b88f28d253b5c647e24546afe47f9375"
+  }
+]
