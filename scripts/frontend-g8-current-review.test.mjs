@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{boundary,validateBoundary,validateGaps,validateRead,validateClosedBrowser,checks}from'./frontend-g8-current-review.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{boundary,validateBoundary,validateGaps,validateRead,validateClosedBrowser,reviewDigestFinding,checks}from'./frontend-g8-current-review.mjs';
 const source='a'.repeat(40),ids=['00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000002'];
 function read(){return{schema:'quantos-g8-current-http/v1',sourceCommit:source,scope:'ACTUAL_REFERENCE_C01_C09_P10_P11_READ_ONLY_NOT_ASSISTED_EXECUTION',contexts:ids.map(actorId=>{const c={actorId,tenantId:ids[0],workspaceId:ids[0],accountId:ids[0],mode:'paper'};return{...c,admission:{...c,schemaVersion:'quantos-assisted-testnet-admission.v1',policyVersion:'disabled-until-native-bridge.v1',serverFlagEnabled:false,targetEnabled:false,executionAuthority:false,reasonCode:'EXECUTION_BRIDGE_UNAVAILABLE',checkedAt:'2026-10-27T00:00:00Z',expiresAt:'2026-10-27T00:00:08Z'}};}),p10:{state:'closed',reachable:false},p11:{state:'closed',reachable:false},businessWrites:0,actualTestnetConnected:false,productionCredentialsUsed:false,rows:[{method:'GET',source:'REFERENCE_BYTES',path:'/v1/order-capabilities',query:{includeAssistedTestnetAdmission:'true'}}]};}
 function gaps(){const a=JSON.parse(readFileSync('docs/execution/frontend-g8-assessment.json'));return [...a.inheritedG7Gaps,...a.newGaps];}
@@ -12,3 +12,20 @@ function browser(){return{schema:'quantos-g8-current-browser/v1',sourceCommit:so
 test('closed browser packet records only actual read scope',()=>validateClosedBrowser(browser(),source));
 for(const key of ['source','p10','p11','businessWrites','actualTestnetConnected'])test('browser packet rejects '+key,()=>{const b=browser();b[key]=key==='businessWrites'?1:key==='actualTestnetConnected'?true:'READY';assert.throws(()=>validateClosedBrowser(b,source));});
 test('bounded matrix rebuilds actual Web and BFF, preserves release refusal and avoids recursive upstream campaigns',()=>{assert(checks.some(([id])=>id==='terminal-build'));assert(checks.some(([id])=>id==='browser'));assert(checks.some(([id])=>id==='compatibility'));assert(!checks.some(([,a])=>a.some(x=>/--workspace|llvm-cov|DATABASE_URL|docker|f05-|f07-/.test(x))));assert(checks.some(([id,,exit])=>id==='g8-refusal'&&exit===1));assert(checks.some(([id,a])=>id==='next-development'&&a.includes('FE:FEP-8')));});
+
+const attempt='docs/audit/evidence/frontend-g8-current-20261027/attempt-03';
+const packet=JSON.stringify({sourceCommit:source,keyHash:'a'.repeat(64)},null,2);
+const finding={File:'/tmp/positive/'+attempt+'/browser/cases/owned-chromium/frontend-g8.json',RuleID:'generic-api-key',StartLine:3,EndLine:3};
+test('digest review retains only exact source-bound synthetic hash field',()=>assert.equal(reviewDigestFinding(finding,attempt,source,()=>packet)?.classification,'OWNED_SYNTHETIC_IDEMPOTENCY_SHA256_NOT_CREDENTIAL'));
+for(const change of ['path','suffix','rule','line','span','field','digest','source'])test('digest review rejects '+change,()=>{
+ const f={...finding};let raw=packet;
+ if(change==='path')f.File='/tmp/positive/other/frontend-g8.json';
+ if(change==='suffix')f.File=f.File.replace('frontend-g8.json','other.json');
+ if(change==='rule')f.RuleID='other';
+ if(change==='line')f.StartLine=f.EndLine=2;
+ if(change==='span')f.EndLine=4;
+ if(change==='field')raw=raw.replace('keyHash','apiKey');
+ if(change==='digest')raw=raw.replace('a'.repeat(64),'synthetic-but-not-a-digest');
+ if(change==='source')raw=raw.replace(source,'b'.repeat(40));
+ assert.equal(reviewDigestFinding(f,attempt,source,()=>raw),null);
+});
