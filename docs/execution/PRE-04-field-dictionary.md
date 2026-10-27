@@ -1,6 +1,6 @@
 # PRE-04 字段字典
 
-> 版本：1.11；日期：2026-10-27；范围：一期官网与 Web Terminal。
+> 版本：1.12；日期：2026-10-27；范围：一期官网与 Web Terminal。
 > 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。
 
 ## 1. 字段与来源口径
@@ -298,6 +298,71 @@
 | Approval.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.auditRef |
 | Approval.kind | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.kind |
 | Approval.objectRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Approval.objectRef |
+| AssistedNativeCapabilities.schemaVersion | {"type":"string","enum":["quantos-assisted-testnet-capabilities.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.schemaVersion |
+| AssistedNativeCapabilities.actorId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.actorId |
+| AssistedNativeCapabilities.tenantId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.tenantId |
+| AssistedNativeCapabilities.workspaceId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.workspaceId |
+| AssistedNativeCapabilities.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.accountId |
+| AssistedNativeCapabilities.mode | {"type":"string","enum":["paper","shadow","assisted_live"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.mode |
+| AssistedNativeCapabilities.serverFlagEnabled | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.serverFlagEnabled |
+| AssistedNativeCapabilities.targetEnabled | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.targetEnabled |
+| AssistedNativeCapabilities.canRequest | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.canRequest |
+| AssistedNativeCapabilities.canApprove | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.canApprove |
+| AssistedNativeCapabilities.executionAuthority | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.executionAuthority |
+| AssistedNativeCapabilities.policyRevision | {"type":"integer","minimum":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.policyRevision |
+| AssistedNativeCapabilities.policyVersion | {"type":"string","enum":["core-l03-local.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.policyVersion |
+| AssistedNativeCapabilities.checkedAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.checkedAt |
+| AssistedNativeCapabilities.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCapabilities.expiresAt |
+| AssistedSubject.subjectId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.subjectId |
+| AssistedSubject.subjectHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.subjectHash |
+| AssistedSubject.proposalHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.proposalHash |
+| AssistedSubject.decisionId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.decisionId |
+| AssistedSubject.originator | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.originator |
+| AssistedSubject.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.accountId |
+| AssistedSubject.symbol | {"type":"string","minLength":1,"maxLength":20} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.symbol |
+| AssistedSubject.side | {"type":"string","enum":["buy","sell"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.side |
+| AssistedSubject.quantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.quantity |
+| AssistedSubject.limitPrice | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.limitPrice |
+| AssistedSubject.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubject.expiresAt |
+| AssistedApprovalRequest.requesterId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.requesterId |
+| AssistedApprovalRequest.requestId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.requestId |
+| AssistedApprovalRequest.subjectId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.subjectId |
+| AssistedApprovalRequest.subjectHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.subjectHash |
+| AssistedApprovalRequest.policyVersion | {"type":"string","minLength":1,"maxLength":20} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.policyVersion |
+| AssistedApprovalRequest.revision | {"type":"integer","minimum":0,"maximum":2} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.revision |
+| AssistedApprovalRequest.status | {"type":"string","enum":["pending","awaiting_second","approved"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.status |
+| AssistedApprovalRequest.approvers | {"type":"array","items":{"$ref":"#/components/schemas/UUID"},"maxItems":2} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.approvers |
+| AssistedApprovalRequest.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.expiresAt |
+| AssistedApprovalRequest.notional | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.notional |
+| AssistedApprovalRequest.executionAuthority | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalRequest.executionAuthority |
+| AssistedNativeOrder.orderId | {"type":"string","minLength":1,"maxLength":128} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.orderId |
+| AssistedNativeOrder.commandId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.commandId |
+| AssistedNativeOrder.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.accountId |
+| AssistedNativeOrder.symbol | {"type":"string","minLength":1,"maxLength":20} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.symbol |
+| AssistedNativeOrder.side | {"type":"string","enum":["buy","sell"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.side |
+| AssistedNativeOrder.quantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.quantity |
+| AssistedNativeOrder.filledQuantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.filledQuantity |
+| AssistedNativeOrder.status | {"type":"string","minLength":1,"maxLength":32} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeOrder.status |
+| AssistedNativeCommand.requestId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.requestId |
+| AssistedNativeCommand.subjectHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.subjectHash |
+| AssistedNativeCommand.commandId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.commandId |
+| AssistedNativeCommand.expiresAt | {"type":"string","format":"date-time"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.expiresAt |
+| AssistedNativeCommand.state | {"type":"string","enum":["accepted","unknown"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.state |
+| AssistedNativeCommand.signature | {"type":"string","pattern":"^[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.signature |
+| AssistedNativeCommand.order | {"$ref":"#/components/schemas/AssistedNativeOrder"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedNativeCommand.order |
+| AssistedRequestView.request | {"$ref":"#/components/schemas/AssistedApprovalRequest"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedRequestView.request |
+| AssistedRequestView.subject | {"$ref":"#/components/schemas/AssistedSubject"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedRequestView.subject |
+| AssistedRequestView.command | {"$ref":"#/components/schemas/AssistedNativeCommand"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedRequestView.command |
+| AssistedSubjectList.items | {"type":"array","items":{"$ref":"#/components/schemas/AssistedSubject"},"maxItems":50} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedSubjectList.items |
+| AssistedRequestList.items | {"type":"array","items":{"$ref":"#/components/schemas/AssistedRequestView"},"maxItems":200} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedRequestList.items |
+| AssistedApprovalAudit.items | {"type":"array","items":{"type":"object","additionalProperties":false,"required":["sequence","requestId","subjectHash","actorId","userId","slot","signature"],"properties":{"sequence":{"type":"integer","minimum":1},"requestId":{"$ref":"#/components/schemas/UUID"},"subjectHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"actorId":{"$ref":"#/components/schemas/UUID"},"userId":{"$ref":"#/components/schemas/UUID"},"slot":{"type":"integer","enum":[1,2]},"signature":{"type":"string","pattern":"^[a-f0-9]{64}$"}}},"maxItems":2} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalAudit.items |
+| AssistedApprovalAudit.verified | {"type":"boolean","enum":[true]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalAudit.verified |
+| AssistedApprovalAudit.nativeSubmissions | {"type":"integer","minimum":0} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedApprovalAudit.nativeSubmissions |
+| OpenAssistedRequest.subjectId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OpenAssistedRequest.subjectId |
+| ApproveAssistedRequest.expectedRevision | {"type":"integer","minimum":0,"maximum":1} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ApproveAssistedRequest.expectedRevision |
+| ApproveAssistedRequest.mfaChallengeRef | {"type":"string","minLength":1,"maxLength":128} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ApproveAssistedRequest.mfaChallengeRef |
+| ApproveAssistedRequest.reauthTokenRef | {"type":"string","minLength":1,"maxLength":128} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ApproveAssistedRequest.reauthTokenRef |
+| SubmitAssistedRequest.expectedRevision | {"type":"integer","enum":[2]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SubmitAssistedRequest.expectedRevision |
 | decideApproval.request.decision | {"type":"string","enum":["approve","reject","request_info"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.decision |
 | decideApproval.request.reason | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.reason |
 | decideApproval.request.mfaChallengeRef | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.mfaChallengeRef |
@@ -557,6 +622,7 @@
 | OrderCapabilities.priceScale | {"type":"integer","minimum":0,"maximum":18} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.priceScale |
 | OrderCapabilities.maxQuantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.maxQuantity |
 | OrderCapabilities.maxNotional | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.maxNotional |
+| OrderCapabilities.assistedTestnetAdmission | {"$ref":"#/components/schemas/AssistedTestnetAdmission"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:OrderCapabilities.assistedTestnetAdmission |
 | TradePreflight.proposalId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.proposalId |
 | TradePreflight.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.accountId |
 | TradePreflight.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.mode |
@@ -569,6 +635,19 @@
 | TradePreflight.executable | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.executable |
 | TradePreflight.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.correlationId |
 | TradePreflight.ticketContext | {"$ref":"#/components/schemas/TradeTicketContext"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:TradePreflight.ticketContext |
+| AssistedTestnetAdmission.schemaVersion | {"type":"string","enum":["quantos-assisted-testnet-admission.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.schemaVersion |
+| AssistedTestnetAdmission.policyVersion | {"type":"string","enum":["disabled-until-native-bridge.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.policyVersion |
+| AssistedTestnetAdmission.actorId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.actorId |
+| AssistedTestnetAdmission.tenantId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.tenantId |
+| AssistedTestnetAdmission.workspaceId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.workspaceId |
+| AssistedTestnetAdmission.accountId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.accountId |
+| AssistedTestnetAdmission.mode | {"type":"string","enum":["paper","shadow"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.mode |
+| AssistedTestnetAdmission.serverFlagEnabled | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.serverFlagEnabled |
+| AssistedTestnetAdmission.targetEnabled | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.targetEnabled |
+| AssistedTestnetAdmission.executionAuthority | {"type":"boolean","enum":[false]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.executionAuthority |
+| AssistedTestnetAdmission.reasonCode | {"type":"string","enum":["EXECUTION_BRIDGE_UNAVAILABLE"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.reasonCode |
+| AssistedTestnetAdmission.checkedAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.checkedAt |
+| AssistedTestnetAdmission.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:AssistedTestnetAdmission.expiresAt |
 
 ## 15. C14 Performance/Report
 
@@ -856,7 +935,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 713 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 792 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

@@ -46,3 +46,9 @@ API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注�
 ## 2026-10-27 CI 参考 provider 源身份维护
 
 受控基线 v1.11 仅同步 C01/C17/C10 共用参考 provider 的三处当前源码摘要，并重新生成字段字典版本头。API 1.16.0、134 operations、119 schemas 和 713 字段行均不变。当前 auth/settings 与 audit/export provider 回归分别 17、14 项通过；历史验收文档及摘要、historicalReviewedSourceSha 保留，reviewedSourceSha 仍为 null，目标验收保持 NOT_RUN / NO_RECEIPT。原始失败、当前源码复核和验证范围见[本轮 CI 修复记录](../audit/ci-remediation-c084b2cf-2026-10-27.md)。
+
+## 2026-10-27 CI 受控审批接口盘点维护
+
+受控基线 v1.12 同步当前 API 1.18.0、142 operations、132 schemas、792 字段行。新增八个 Assisted 审批生命周期操作由 C08/BFF-FE-006 登记，P11 对同一请求及 Command 引用的消费补入 C08 追踪；原有 C09 订单事实职责保留。十二个审批/命令引用模型和 C13 的默认关闭准入模型同步入字典。契约名称含 testnet 不代表真实交易所连接：该工程路径仍须显式 opt-in，凭据、真实 HTTP/目标环境和发布验收未授予。
+
+同步当前 C01/C17/C10 provider 源身份，复验 auth/settings 17 项、audit/export 14 项及 Assisted 默认关闭、恢复、双审批路径 5 项。历史验收文档及摘要、historicalReviewedSourceSha 和 reviewedSourceSha=null 保留；盘点 Closed 不升级为当前集成或发布 READY。原始失败、精确历史凭据扫描登记及验证边界见[本轮 CI 修复记录](../audit/ci-remediation-89ddea26-2026-10-27.md)。

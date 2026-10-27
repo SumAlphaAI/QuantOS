@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { URL } from "node:url";
 import YAML from "yaml";
 
 import { validatePre01 } from "../check-pre01.mjs";
@@ -114,6 +115,16 @@ test("P05 quality alerts require C16 ownership on the consumer page", () => {
   assert.throws(() => validatePre01({ ...valid, ledger, scenarios }), /P05: operation subscribeAlerts requires traced contract C16/);
 });
 
+test('Assisted approval operation names are checked instead of ignored', () => {
+  const coverage = valid.coverage.replace('approveAssistedRequest', 'approveUnknownAssistedRequest');
+  assert.notEqual(coverage, valid.coverage);
+  assert.throws(() => validatePre01({ ...valid, coverage }), /unknown operation approveUnknownAssistedRequest/);
+});
+test('P11 Assisted request consumers require their C08 trace', () => {
+  const scenarios = valid.scenarios.replace(/^\| P11 \|.*$/m, row => row.replace('C08/C09', 'C09'));
+  assert.notEqual(scenarios, valid.scenarios);
+  assert.throws(() => validatePre01({ ...valid, scenarios }), /P11: ledger contract C08 missing from traceability/);
+});
 for(const version of ['1.4.0','99.99.0']) test(`API register rejects current version ${version}`,()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replaceAll(currentApiVersion,version)}),/version differs/));
 test('published register row cannot omit API version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(/^\| GS \|.*$/m,row=>row.replaceAll(currentApiVersion,'unspecified'))}),/published API version missing/));
 test('published register row cannot omit generated mock version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(`${currentApiVersion}（generated only）`,'未生成')}),/generated mock version missing/));

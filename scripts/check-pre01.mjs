@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
+import process from "node:process";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -142,7 +143,7 @@ export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs
   // Shared authentication is owned by the GS trace. Domain operations must be
   // traceable on their consumer page even if they also appear on another page.
   const sharedAuth = new Set(["getSession", "getContext", "reauth", "mfaChallenge", "logout"]);
-  const operationToken = /\b(?:get|list|search|create|save|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check|update|ack|unack)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
+  const operationToken = /\b(?:get|list|search|create|save|run|submit|request|engage|release|decide|approve|cancel|subscribe|revoke|setup|clear|check|update|ack|unack)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
   for (const row of registered) {
     assert.equal(row.length, 11, `${row[0]}: incomplete API register row`);
     const operations = row.slice(2,5).join(" ").match(operationToken) ?? [];

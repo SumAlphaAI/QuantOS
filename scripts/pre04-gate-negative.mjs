@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { loadPre04Inputs, validatePre04Inventory } from './pre04-inventory.mjs';
 import { renderFieldDictionary } from './pre04-fields.mjs';
+const { structuredClone } = globalThis;
 const current = loadPre04Inputs();
 function change(text, from, to) { assert(text.includes(from), `fixture mutation must match ${from}`); return text.replace(from, to); }
 function rejected(mutate, message) {
@@ -19,7 +20,11 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 713]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 792]);
+});
+test('controlled Assisted approval operations and wire models cannot disappear from inventory', () => {
+  rejected(i => { i.catalog.contracts.C08.publishedOperations = i.catalog.contracts.C08.publishedOperations.filter(id => id !== 'submitAssistedRequest'); }, 'catalog publishes every OpenAPI operation');
+  rejected(i => { i.baseline.contracts.C08.models = i.baseline.contracts.C08.models.filter(name => name !== 'AssistedRequestView'); }, 'C08 inventories every published domain wire model');
 });
 test('missing Gap is rejected', () => rejected(i => {i.gaps = i.gaps.replace(/^\| GAP-13 \|.*\n/m, '');}, 'gap list contains'));
 test('undecided realtime dependency is rejected', () => rejected(i => {i.ledger = change(i.ledger, 'C13 preflight/quote refresh', '待开发时再定');}, 'P20 Realtime dependency is explicit'));

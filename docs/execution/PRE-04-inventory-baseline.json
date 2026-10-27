@@ -1,6 +1,6 @@
 {
   "schema": "quantos-pre04-baseline/v2",
-  "version": "1.11",
+  "version": "1.12",
   "date": "2026-10-27",
   "reviewedSourceSha": null,
   "protoDigests": [
@@ -257,7 +257,19 @@
       "owners": "BFF TL + Auth owner（F06）",
       "protoCoverage": "部分（RiskDecision；缺 Approval 消息）",
       "models": [
-        "Approval"
+        "Approval",
+        "AssistedNativeCapabilities",
+        "AssistedSubject",
+        "AssistedApprovalRequest",
+        "AssistedNativeOrder",
+        "AssistedNativeCommand",
+        "AssistedRequestView",
+        "AssistedSubjectList",
+        "AssistedRequestList",
+        "AssistedApprovalAudit",
+        "OpenAssistedRequest",
+        "ApproveAssistedRequest",
+        "SubmitAssistedRequest"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -265,8 +277,8 @@
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "approval list/get",
-        "decide（签名+MFA challenge ref）、reauth",
+        "approval list/get；受控 Assisted capabilities/subjects/requests/audit",
+        "decide（签名+MFA challenge ref）、reauth；默认关闭 opt-in Assisted open/approve/submit（返回 Command/Order 引用）",
         "无（拉取式，决策：操作前强制刷新版本/有效期）"
       ]
     },
@@ -406,7 +418,8 @@
       "protoCoverage": "部分（复用 trading.v1 对象；缺 preflight 模型）",
       "models": [
         "OrderCapabilities",
-        "TradePreflight"
+        "TradePreflight",
+        "AssistedTestnetAdmission"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -585,13 +598,13 @@
       "C07 proposal 状态 stream"
     ],
     "P10": [
-      "C07 proposal/evaluation context + C08 approval list/get + C10 audit/evidence chain",
-      "C08 decide/MFA/reauth + C10 export",
+      "C07 proposal/evaluation context + C08 approval list/get、受控 Assisted capabilities/subjects/requests/audit + C10 audit/evidence chain",
+      "C08 decide/MFA/reauth；默认关闭 opt-in Assisted open/approve/submit + C10 export",
       "无（拉取式；操作前强制刷新）"
     ],
     "P11": [
-      "C09 order list/get + C10 audit/evidence chain + C15 reconciliation references",
-      "C09 cancel request + C10 export",
+      "C09 order list/get + C08 受控 Assisted request/Command 引用查询 + C10 audit/evidence chain + C15 reconciliation references",
+      "C09 cancel request；C08 默认关闭 opt-in Assisted submit + C10 export",
       "C09 order event stream"
     ],
     "P12": [
@@ -656,7 +669,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "362f2154ee3bd67d5f3d41652a545ee3dd11746873e93662c418595c932c67f2"
+          "sha256": "f7f60902a1713373f03ae501c65549f0b1aa112e6668530a2d0d358ff7702d83"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -674,7 +687,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "362f2154ee3bd67d5f3d41652a545ee3dd11746873e93662c418595c932c67f2"
+          "sha256": "f7f60902a1713373f03ae501c65549f0b1aa112e6668530a2d0d358ff7702d83"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -692,7 +705,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "362f2154ee3bd67d5f3d41652a545ee3dd11746873e93662c418595c932c67f2"
+          "sha256": "f7f60902a1713373f03ae501c65549f0b1aa112e6668530a2d0d358ff7702d83"
         },
         {
           "path": "services/bff-gateway/tests/audit_export_provider.rs",
@@ -1272,25 +1285,25 @@
     "scope": "A1 security contract corrections; local engineering only; historical reviewedSourceSha retained",
     "evidence": "docs/audit/BFF-FE-000-remediation-validation-2026-10-03.md"
   },
-  "revisionEvidence": "docs/audit/ci-remediation-c084b2cf-2026-10-27.md",
-  "revisionScope": "Current C01/C17/C10 reference-provider source identity review only; 1.16.0 API, 134 operations, 119 schemas and historical receipts unchanged; target/release NOT_RUN",
+  "revisionEvidence": "docs/audit/ci-remediation-89ddea26-2026-10-27.md",
+  "revisionScope": "API 1.18.0 / 142 operations / 132 schemas; inventory controlled opt-in Assisted approval lifecycle on P10/P11 and default-off admission. Current provider source identity only; historical receipts and acceptance unchanged; actual exchange/target/release NOT_RUN",
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
   "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
   "openapiInventory": {
-    "version": "1.16.0",
-    "operations": 134,
-    "schemas": 119
+    "version": "1.18.0",
+    "operations": 142,
+    "schemas": 132
   },
   "sourceDigests": [
     {
       "path": "bff/openapi/quantos-bff.v1.yaml",
       "representation": "parsed-json",
-      "sha256": "c87590ec3fd54e2d4ae4daa3c7fed48817b95896e640d49676aa8e2651cc3af3"
+      "sha256": "6e5e03456c6783f0b2aeaa0f364621ab6e7368010b06fb01343b9d6d015c3c6c"
     },
     {
       "path": "bff/page-operation-catalog.yaml",
       "representation": "parsed-json",
-      "sha256": "4c62025b8f17cbaa3e0e138e08f2e3984d2ff9f357a89898935ddfa7e3ae4057"
+      "sha256": "560960c36a8cc561deaf908c48c97e54db0552238a7b9f6a0107c6cc136de087"
     }
   ]
 }

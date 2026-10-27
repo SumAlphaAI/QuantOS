@@ -38,7 +38,7 @@
 | P08 | Portfolio 与 Risk | v1 | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | Web | 交、风 | P0 | 高 | C06 | FEP-5 |
 | P09 | TradeProposal 列表与详情 | v1 | `/proposals`、`/proposals/:proposalId` | Web | 交、风、审 | P0 | 高 | C07、C10 | FEP-5 |
 | P10 | Approvals 与 RiskDecision | v1 | `/approvals`、`/approvals/:approvalId` | Web | 风（审批人） | P0 | 高 | C07、C08、C10 | FEP-5 |
-| P11 | Orders 与执行详情 | v1 | `/orders`、`/orders/:orderId` | Web | 交、运、风 | P0 | 高 | C09、C10、C15 | FEP-5 |
+| P11 | Orders 与执行详情 | v1 | `/orders`、`/orders/:orderId` | Web | 交、运、风 | P0 | 高 | C08、C09、C10、C15 | FEP-5 |
 | P12 | Audit Explorer 与导出 | v1 | `/audit`、`/audit/:correlationId`、`/exports/:exportId` | Web | 审、管、资源级授权 | P0 | 高 | C10 | FEP-5 |
 | P13 | Operations 与 Incident | v2 | `/operations`、`/operations/incidents/:incidentId` | Web | 运、管 | P1 | 高 | C11、C16 | FEP-6 |
 | P14 | Admin 治理 | v2 | `/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags` | Web | 管 | P1 | 高 | C01、C11 | FEP-6 |

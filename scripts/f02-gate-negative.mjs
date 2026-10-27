@@ -8,6 +8,9 @@ import {adjudicate,validateWaivers} from './sca-policy.mjs';
 import {allowed,licenseAllowed} from './license-policy.mjs';
 import {verifyRelease} from './verify-release.mjs';
 import {sha} from './f01-lib.mjs';
+import process from 'node:process';
+import {Buffer} from 'node:buffer';
+const {structuredClone}=globalThis;
 const repo=process.cwd();
 function fixture(t){const d=fs.mkdtempSync(path.join(os.tmpdir(),'f02-test-'));t.after(()=>fs.rmSync(d,{recursive:true,force:true}));return d;}
 function run(binary,args,root=repo,env={}){return spawnSync(binary,args,{cwd:root,env:{...process.env,...env},encoding:'utf8'});}
@@ -27,7 +30,7 @@ test('real Gitleaks positive control and GitHub/Slack leaks',t=>{
  }
 });
 test('historical digest exceptions do not waive fresh credentials in audit JSON',t=>{
- for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json','docs/audit/evidence/bff-fe-010-local-20261020/preflight/history-sha256.json','docs/audit/evidence/core-r1-local-20261026/attempt-01/r1-browser/r1-integration-R1-RD-actual-research-Signal-Proposal-Audit-chromium/r1-chain.json']) {
+ for(const relativePath of ['docs/audit/evidence/secret-probe/manifest.json','docs/audit/evidence/bff-fe-006-local-20261019/preflight/history-sha256.json','docs/audit/evidence/bff-fe-010-local-20261020/preflight/history-sha256.json','docs/audit/evidence/core-r1-local-20261026/attempt-01/r1-browser/r1-integration-R1-RD-actual-research-Signal-Proposal-Audit-chromium/r1-chain.json','docs/audit/evidence/frontend-g8-current-20261027/attempt-02/browser/cases/frontend-g8-G8-actual-Pape-05f53-hout-exposing-Assisted-Live-chromium/frontend-g8.json','docs/audit/evidence/core-l03-local-20261027/attempt-01/browser/cases/core-l03-CORE-L03-actual-P-8b935-same-source-native-recovery-chromium/frontend-g8.json']) {
  const d=fixture(t);pass(run('git',['init','-q'],d));
  const file=path.join(d,relativePath);fs.mkdirSync(path.dirname(file),{recursive:true});
  const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],d));};

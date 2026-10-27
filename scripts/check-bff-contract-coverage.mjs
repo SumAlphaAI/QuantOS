@@ -2,7 +2,9 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
+import process from "node:process";
+import console from "node:console";
 import YAML from "yaml";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -36,7 +38,7 @@ for (const name of Object.keys(openapi.components?.schemas ?? {})) {
 
 const referencedIds = new Set();
 const plannedIds = new Set(Object.values(catalog.contracts ?? {}).flatMap((entry) => entry.plannedOperations ?? []));
-const operationToken = /\b(?:get|download|list|search|create|save|update|delete|ack|unack|open|resolve|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
+const operationToken = /\b(?:get|download|list|search|create|save|update|delete|ack|unack|open|resolve|run|submit|request|engage|release|decide|approve|cancel|subscribe|revoke|setup|clear|check)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
 for (const line of coverage.split("\n")) {
   if (!/^\| (?:GS|官网|P\d{2}) \|/.test(line)) continue;
   const operationCells = line.split("|").slice(3, 6).join(" ");
