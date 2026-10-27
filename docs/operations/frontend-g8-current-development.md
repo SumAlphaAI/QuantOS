@@ -32,6 +32,8 @@ P10/P11 在 transport 获得授权拒绝状态时就执行自己的 lifetime abo
 
 先提交候选，再运行 `node scripts/frontend-g8-current-review.mjs --run docs/audit/evidence/frontend-g8-current-20261027/attempt-NN`；白名单环境、固定 pnpm、Cargo locked/offline，禁止读取 dotenv/生产凭据，attempt 不覆盖。`--verify` 只读核对固定回执/输入/binary/build 与 current matrix。20261024 的原 G8 verifier 保留原冻结范围，不能承担本次新增跨 C09/P10/P11 范围。
 
+首个冻结候选 `2eb1eea8` 的 attempt-01 停在兼容性检查：原比较器把已有 parameters 数组的可选增量也判为破坏。保留失败原件；整改仅接受原参数逐字不变、身份无重复且新增 inline query/header/cookie 非必填参数，其他变化仍走原数组对比及原回执，新增 11 项专项测试并保留 A1 21 项回归。重新冻结后使用新 attempt，不覆盖首轮记录。
+
 19 项原始业务 gap 的 ID 和 OPEN 均保留，进展单列：[当前机器评估](../execution/frontend-g8-current-assessment.json)。共同事实/审计、真实 Research/Release→Proposal、C15/C16 等 15 项继承缺口，C11 activation、P10/P11 双审批正向、C09→L01 同源、F06/双审批→C10/持久恢复四项未闭合。新的安全缺陷修复不等于完整 gap 自动关闭。
 
 目标 NOT_RUN：真实 IdP/MFA/Cookie/CORS、Vault/数据库迁移/RLS/角色/事务/Storage、业务持久审计与跨进程多副本恢复、实际 venue HTTP/signing/testnet、OS/目标网络/秘密轮换、部署/通知/容量/全面安全/长稳/同 SHA CI、全浏览器/人工读屏/原生200%缩放以及 RELEASE。没有生产凭据、真实外部下单、push、部署或发布。`FRONTEND-GATE:G8` 与 `FE:FEP-8` INTEGRATION 均保持 STAGE_NOT_READY；正式确认另行 PENDING，不自签。
