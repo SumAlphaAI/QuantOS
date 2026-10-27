@@ -20,7 +20,7 @@ NetworkAllowlist 在建立连接前检查精确主机、端口和预先批准的
 
 ## 验证和移交
 
-入口 `pnpm assess:core-l02:local docs/audit/evidence/core-l02-local-20261027/attempt-NN`：先提交候选、白名单环境、locked/offline、不可覆盖 attempt。`pnpm check:core-l02:local` 核对原候选/输入/命令/日志/证据，`pnpm test:core-l02:gate` 验证 Gate 与 SQL/网络变异。真实 TLS 场景包括无证书、过期、错误 CA、未登记研究类客户端、服务端 CA/hostname/pin、会话/命令有效期、账户/会话绑定、重复命令、轮换与撤销。有效及拒绝路径都使用自有样本。
+入口 `pnpm assess:core-l02:local docs/audit/evidence/core-l02-local-20261027/attempt-NN`：先提交候选、白名单环境、locked/offline、不可覆盖 attempt。`pnpm check:core-l02:local` 核对原候选/输入/命令/日志/证据，`pnpm test:core-l02:gate` 验证 Gate 与 SQL/网络变异。秘密扫描限定本任务差异与当前 attempt，使用 Gitleaks 8.28.0；历史 F06 公共固定幂等值只按精确规则+文件+值的 AND 条件排除，核对基线不变并实际验证另值/另文件两条合成反例仍被拒绝，不修改全局配置。真实 TLS 场景包括无证书、过期、错误 CA、未登记研究类客户端、服务端 CA/hostname/pin、会话/命令有效期、账户/会话绑定、重复命令、轮换与撤销。有效及拒绝路径都使用自有样本。
 
 直接影响回归限定于修改的 Auth 库、旧 zone helper、Execution 服务单测、L01 协议映射和 TP07 signed dispatch；不复验完整 F06/X3/L01 Gate、不跑全仓/覆盖率/数据库 campaign 或三轮构建。不改前端，不执行浏览器测试。历史结果不改绑新 HEAD。
 

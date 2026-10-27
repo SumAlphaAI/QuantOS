@@ -34,12 +34,26 @@ export function validateProcess(t,r,s,e){
  assert.equal(s.schema,'quantos-l02-signed-process/v1');assert.equal(s.scope,'ACTUAL_X03_TO_OWNED_MTLS_ZONE_L01_X04');assert.equal(s.orderStatus,'filled');assert.equal(s.fills,1);assert.equal(s.protocolWrites,1);assert.equal(s.replayedWithoutRemoteIo,true);assert.equal(s.vaultResolver,'OWNED_SYNTHETIC_HMAC_NOT_SUPABASE');assert.equal(s.actualTestnet,false);assert.equal(s.productionCredentialsUsed,false);
  assert.equal(e.schema,'quantos-l02-session-expiry/v1');assert.equal(e.scope,'ACTUAL_MTLS_WITH_CONTROLLED_SESSION_CLOCK');assert.equal(e.atSessionExpiry,'DENIED');assert.equal(e.protocolWrites,0);assert.equal(e.productionCredentialsUsed,false);
 }
+export function scanConfig(baseline,current,projectConfig){
+ const line='idempotency_'+'key: '+JSON.stringify('f06-isolated-probe')+'.to_owned(),';
+ assert.equal(baseline.split(line).length,2);assert.equal(current.split(line).length,2);assert(baseline.includes('fn run_f06_paper_probe()'));assert(current.includes('fn run_f06_paper_probe()'));
+ return projectConfig+`
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "L02 reviewed unchanged F06 synthetic idempotency value; not credential material"
+condition = "AND"
+regexTarget = "secret"
+paths = ['services/execution-gateway/src/main\\.rs$']
+regexes = ['^f06-isolated-probe$']
+`;
+}
 export function scan(attempt){
  assert(new RegExp('^'+directory+'/attempt-[0-9]+$').test(attempt));const paths=[...new Set([...execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean),...files(attempt)])].sort();
- const temp=mkdtempSync(join(tmpdir(),'quantos-l02-scan-')),tool='artifacts/tools/gitleaks',report=resolve(attempt+'/secret-scan-report.json');
- try{for(const path of paths){assert(!path.includes('..')&&!path.startsWith('/')&&!/(?:^|\/)\.env(?:\.|$)/.test(path));const to=join(temp,path);mkdirSync(dirname(to),{recursive:true});copyFileSync(path,to);}
- const env=webEnvironment(),version=execFileSync(tool,['version'],{env,encoding:'utf8'}).trim();assert.equal(version,'8.28.0');const out=spawnSync(tool,['dir',temp,'--config',resolve('.gitleaks.toml'),'--redact','--no-banner','--report-format','json','--report-path',report],{env,encoding:'utf8',timeout:60000});writeFileSync(attempt+'/gitleaks.log',(out.stdout??'')+(out.stderr??''));assert.equal(out.status,0,'see redacted gitleaks report');assert.equal(out.signal,null);assert.deepEqual(json(report),[]);return{scope:'TASK_DIFF_AND_CURRENT_ATTEMPT_ONLY',files:paths.length,tool:'gitleaks',version,binarySha256:hash(read(tool)),findings:0,wholeRepositoryAudit:'NOT_RUN',ephemeralPrivateKeysIncluded:false};
- }finally{rmSync(temp,{recursive:true,force:true});}
+ const container=mkdtempSync(join(tmpdir(),'quantos-l02-scan-')),temp=join(container,'positive'),tool='artifacts/tools/gitleaks',report=resolve(attempt+'/secret-scan-report.json');
+ try{const configPath=resolve(attempt+'/secret-scan-config.toml'),config=scanConfig(execFileSync('git',['show',base+':services/execution-gateway/src/main.rs'],{encoding:'utf8'}),read('services/execution-gateway/src/main.rs').toString(),read('.gitleaks.toml').toString());writeFileSync(configPath,config);writeFileSync(attempt+'/secret-exception.json',JSON.stringify({classification:'NON_SECRET_OWNED_IDEMPOTENCY_VALUE',ruleId:'generic-api-key',path:'services/execution-gateway/src/main.rs',base,publicValueSha256:hash('f06-isolated-probe'),baselineIdentical:true,scope:'EXACT_RULE_AND_PATH_AND_VALUE_ONLY'})+'\n');for(const path of paths){assert(!path.includes('..')&&!path.startsWith('/')&&!/(?:^|\/)\.env(?:\.|$)/.test(path));const to=join(temp,path);mkdirSync(dirname(to),{recursive:true});copyFileSync(path,to);}
+ const env=webEnvironment(),version=execFileSync(tool,['version'],{env,encoding:'utf8'}).trim();assert.equal(version,'8.28.0');const out=spawnSync(tool,['dir',temp,'--config',configPath,'--redact','--no-banner','--report-format','json','--report-path',report],{env,encoding:'utf8',timeout:60000});writeFileSync(attempt+'/gitleaks.log',(out.stdout??'')+(out.stderr??''));assert.equal(out.status,0,'see redacted gitleaks report');assert.equal(out.signal,null);assert.deepEqual(json(report),[]);const negative=join(container,'negative');for(const[path,value]of [['services/execution-gateway/src/main.rs','zQ8m4T7n2L6x9P3v5R1c8A0s4D7f2G9h6K3j5B'],['other/probe.rs','f06-isolated-probe']]){const target=join(negative,path);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,'idempotency_key: '+JSON.stringify(value)+',\n');}const negativeReport=resolve(attempt+'/secret-negative-report.json'),refusal=spawnSync(tool,['dir',negative,'--config',configPath,'--redact','--no-banner','--report-format','json','--report-path',negativeReport],{env,encoding:'utf8',timeout:60000});writeFileSync(attempt+'/gitleaks-negative.log',(refusal.stdout??'')+(refusal.stderr??''));assert.equal(refusal.status,1);assert.equal(json(negativeReport).length,2);return{reviewedNonSecretExceptions:1,actualNegativeRefusals:2,scope:'TASK_DIFF_AND_CURRENT_ATTEMPT_ONLY',files:paths.length,tool:'gitleaks',version,binarySha256:hash(read(tool)),findings:0,wholeRepositoryAudit:'NOT_RUN',ephemeralPrivateKeysIncluded:false};
+ }finally{rmSync(container,{recursive:true,force:true});}
 }
 export function verify(r){
  assert.equal(r.schema,'quantos-core-l02-current/v1');validateBoundary(r.boundary);assert(new RegExp('^'+directory+'/attempt-[0-9]+$').test(r.attempt));verifyInputs(r.sourceCommit,r.inputs);assert.deepEqual(inputs(),r.inputs);assert.equal(r.executions.length,checks.length);
@@ -51,7 +65,7 @@ export function verify(r){
  const node=read(r.attempt+'/gate-tests.log').toString();assert.match(node,/# fail 0/);assert.match(node,/# skipped 0/);const nodeCases=Number(node.match(/# pass (\d+)/)[1]);assert(nodeCases>=70);
  const sql=json(r.attempt+'/sql-network-static.log');assert.equal(sql.targetDatabase,'NOT_RUN');assert.equal(sql.positiveDecryption,'NOT_RUN');assert.equal(sql.packetLevelEgress,'NOT_RUN');
  assert.equal(json(r.attempt+'/integration-refusal.log').reason,'STAGE_NOT_READY');assert.equal(json(r.attempt+'/next-development.log').allowed,true);
- const scan=json(r.attempt+'/secret-scan.log');assert.equal(scan.findings,0);assert.equal(scan.wholeRepositoryAudit,'NOT_RUN');assert.equal(scan.ephemeralPrivateKeysIncluded,false);assert.equal(scan.binarySha256,hash(read('artifacts/tools/gitleaks')));assert.deepEqual(json(r.attempt+'/secret-scan-report.json'),[]);
+ const scan=json(r.attempt+'/secret-scan.log');assert.equal(scan.findings,0);assert.equal(scan.reviewedNonSecretExceptions,1);assert.equal(scan.actualNegativeRefusals,2);assert.equal(json(r.attempt+'/secret-negative-report.json').length,2);assert.equal(json(r.attempt+'/secret-exception.json').baselineIdentical,true);assert.equal(scan.wholeRepositoryAudit,'NOT_RUN');assert.equal(scan.ephemeralPrivateKeysIncluded,false);assert.equal(scan.binarySha256,hash(read('artifacts/tools/gitleaks')));assert.deepEqual(json(r.attempt+'/secret-scan-report.json'),[]);
  return{sourceCommit:r.sourceCommit,...r.boundary,checks:checks.length,rustCases,nodeCases,tlsScenarioRows:13};
 }
 export function run(attempt){

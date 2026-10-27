@@ -1,4 +1,4 @@
-import test from'node:test';import assert from'node:assert/strict';import{boundary,validateBoundary,validateProcess,checks}from'./core-l02-review.mjs';
+import test from'node:test';import assert from'node:assert/strict';import{boundary,validateBoundary,validateProcess,scanConfig,checks}from'./core-l02-review.mjs';
 test('L02 local engineering receipt preserves target/formal exclusions',()=>validateBoundary(boundary()));
 for(const key of Object.keys(boundary()))test('L02 rejects Gate promotion '+key,()=>{const b=boundary();b[key]=typeof b[key]==='boolean'?!b[key]:'READY';assert.throws(()=>validateBoundary(b));});
 const evidence=()=>[
@@ -10,3 +10,7 @@ const evidence=()=>[
 test('L02 separate TLS, rotation, signed and session receipts retain local provenance',()=>validateProcess(...evidence()));
 for(const[index,key,value]of [[0,'cases',[]],[0,'actualVault',true],[0,'actualTestnet',true],[0,'protocolWrites',2],[0,'privateKeysExported',true],[0,'childEnvironmentCleared',false],[1,'oldDeniedAtSecondsAfterRotation',301],[1,'revokedActiveDenied',false],[1,'realVaultRotationSla','PASS'],[2,'orderStatus','accepted'],[2,'vaultResolver','SUPABASE'],[2,'replayedWithoutRemoteIo',false],[3,'protocolWrites',1],[3,'atSessionExpiry','ALLOWED']])test('L02 rejects process receipt drift '+index+'/'+key,()=>{const e=evidence();e[index][key]=value;assert.throws(()=>validateProcess(...e));});
 test('L02 does not schedule recursive, DB, publication, coverage or whole workspace campaigns',()=>{assert(!checks.some(([,args])=>args.some(a=>/--workspace|llvm-cov|--release|f06-vault-check|DATABASE_URL|docker/.test(a))));assert(checks.some(([id,,exit])=>id==='integration-refusal'&&exit===1));assert(checks.some(([,args])=>args.includes('SERVICE:L03')));});
+
+const historical='fn run_f06_paper_probe() { idempotency_'+'key: '+JSON.stringify('f06-isolated-probe')+'.to_owned(), }';
+test('L02 scanner exception is exact rule AND path AND unchanged public fixture value',()=>{const c=scanConfig(historical,historical,'[extend]\nuseDefault = true\n');assert(c.includes('condition = "AND"'));assert(c.includes('id = "generic-api-key"'));assert(c.includes("regexes = ['^f06-isolated-probe$']"));assert(c.includes('paths = ['));});
+for(const side of ['baseline','current'])test('L02 scanner rejects changed historical fixture '+side,()=>assert.throws(()=>scanConfig(side==='baseline'?'changed':historical,side==='current'?'changed':historical,'')));
