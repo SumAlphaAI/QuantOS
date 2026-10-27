@@ -15,6 +15,10 @@ dev = [
   "ruff==0.12.7",
 ]
 
+[tool.uv]
+# pip-audit -> CacheControl -> msgpack: GHSA-j586-36cw-2gc2 fixed in 1.2.3.
+constraint-dependencies = ["msgpack>=1.2.3"]
+
 [tool.uv.workspace]
 members = [
   "engine-sdk",
