@@ -16,7 +16,7 @@ TradeCommand issuance and approval state machine for QuantOS.
 - order state machine with a legality table (`OrderStatus::can_transition_to`), append-only order facts, and `FillFact` records traceable to the issuing Command
 - legacy `paper::ExecutionGateway` / `VenueAdapter` remain synthetic compatibility fixtures; trusted X03 consumption uses `dispatch::SignedExecutionGateway` and the Decimal `gateway` reducer
 - `venue::TestnetVenueAdapter`: L01 approved-venue testnet plugin over the `TestnetTransport` boundary with order-intent/precision/rate-limit mapping, classified network/authentication/rate-limit failures, production endpoint/key bans, and deterministic `CompatReport` coverage over 200 normal/reject/cancel/partial-fill scenarios
-- `zone` module (L02): restricted execution zone with static Vault secret references resolvable only by the Execution Gateway, service-session/command TTL enforcement, minimum-egress allowlists, mTLS identity checks, and credential rotation/revocation with a five-minute recovery window
+- `zone` module (L02): legacy declarative fixture helpers, with bounded session/command clocks and half-open rotation checks. Caller enums and fingerprint strings do not prove mTLS or Vault access. Actual verified TLS peers, the certificate/version-bound database signer and protected host are in `execution_gateway::restricted_zone`; see `docs/operations/core-l02-current-function.md`.
 - `dual` module (L03): M5 feature gate plus dual-approval policy — separation of duties, notional caps, symbol allowlists, MFA proofs, and approval TTLs — producing one signed audit entry per approver only after every check passes
 
 ## TP07 execution gateway (`gateway` module)

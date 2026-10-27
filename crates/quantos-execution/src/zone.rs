@@ -1,3 +1,6 @@
+//! Legacy declarative fixture helpers; enums/fingerprint strings are not TLS proofs.
+//! The verified peer, bounded Vault signer and protected host live in
+//! execution_gateway::restricted_zone.
 use std::collections::BTreeSet;
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
@@ -104,7 +107,13 @@ pub struct ServiceSession {
 
 impl ServiceSession {
     pub fn validate(&self, now: DateTime<Utc>) -> Result<(), ZoneError> {
-        if self.expires_at <= now {
+        if self.issued_at > now
+            || self.expires_at <= self.issued_at
+            || self.expires_at - self.issued_at > ChronoDuration::minutes(15)
+            || self.service_name != "execution-gateway"
+            || self.mtls_fingerprint.is_empty()
+            || self.expires_at <= now
+        {
             return Err(ZoneError::SessionExpired {
                 service: self.service_name.clone(),
                 expires_at: self.expires_at,
@@ -115,7 +124,7 @@ impl ServiceSession {
 }
 
 pub fn validate_command_ttl(command: &TradeCommand, now: DateTime<Utc>) -> Result<(), ZoneError> {
-    if command.expires_at <= now {
+    if command.issued_at > now || command.expires_at <= now {
         return Err(ZoneError::CommandExpired {
             command_id: command.command_id.to_string(),
             expires_at: command.expires_at,
@@ -141,11 +150,11 @@ impl EgressPolicy {
         }
     }
 
-    /// Default execution-zone policy: only the approved testnet venue plus the
-    /// platform control plane are reachable.
+    /// Legacy default: only the approved testnet host. The platform control
+    /// plane requires its own explicit reviewed policy.
     #[must_use]
     pub fn execution_default() -> Self {
-        Self::new(["testnet.binance.vision", "supabase.sumalpha.internal"])
+        Self::new(["testnet.binance.vision"])
     }
 
     pub fn check(&self, host: &str) -> Result<(), ZoneError> {
@@ -216,6 +225,14 @@ impl RotationManager {
     }
 
     pub fn rotate(&mut self, next: CredentialVersion, rotated_at: DateTime<Utc>) {
+        // Legacy reference-only API: invalid control updates cannot change authority.
+        if next.version <= self.active.version
+            || next.issued_at > rotated_at
+            || rotated_at < self.active.issued_at
+            || next.fingerprint.is_empty()
+        {
+            return;
+        }
         self.previous = Some((std::mem::replace(&mut self.active, next), rotated_at));
     }
 
@@ -226,12 +243,14 @@ impl RotationManager {
     /// A credential is usable when it is active, or when it is the immediately
     /// previous version still inside the five-minute recovery window.
     pub fn validate(&self, version: u64, now: DateTime<Utc>) -> Result<(), ZoneError> {
-        if version == self.active.version {
+        if version == self.active.version && now >= self.active.issued_at {
             return Ok(());
         }
         if let Some((previous, rotated_at)) = &self.previous
             && version == previous.version
-            && now - *rotated_at <= ROTATION_RECOVERY_WINDOW
+            && now >= *rotated_at
+            && now >= previous.issued_at
+            && now - *rotated_at < ROTATION_RECOVERY_WINDOW
         {
             return Ok(());
         }

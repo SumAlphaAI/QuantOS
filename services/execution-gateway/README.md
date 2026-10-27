@@ -77,3 +77,9 @@ validation, not durable DB or deployed Nautilus acceptance.
 mixed order events; `make x04-local-check` verifies current scoped evidence and
 `make x04-release-check` refuses missing real target/formal evidence. No recursive
 upstream revalidation is performed. See [X04 procedure](../../docs/operations/x04-local-admission.md).
+
+## L02 protected host (local function scope)
+
+`restricted_zone` supplies a real OpenSSL mutual-TLS peer boundary, exact DNS/port/address client allowlist, a trusted session/version registry, and a protected host around the L01 kernel. Session/account/certificate/version/expiry are rechecked before signing and again at dispatch. `DatabaseVaultSigner` uses only the new certificate/version-bound SQL function; it has no DATABASE_URL fallback.
+
+The default service exposes no new order listener. `execution-gateway --l02-owned-zone-fixture` is an explicitly selected owned mode used only by owned subprocess tests, with temporary certificates, cleared environment, synthetic process-local HMAC material and a controlled fixture clock. It is not a deployed gateway or Vault broker. The signature hash is diagnostic, not execution authority or Binance HTTP authentication. See [L02 procedure](../../docs/operations/core-l02-current-function.md) and [rotation runbook](../../supabase/OPERATIONS.md#l02-execution-secret-zone-rotation-runbook).

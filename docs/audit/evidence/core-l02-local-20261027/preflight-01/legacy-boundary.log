@@ -1,0 +1,36 @@
+
+running 3 tests
+test l02_rotation_never_authorizes_before_issuance_or_before_rotation ... FAILED
+test l02_future_session_is_not_yet_authority ... FAILED
+test l02_rotation_window_is_half_open_and_previous_can_be_revoked ... FAILED
+
+failures:
+
+---- l02_rotation_never_authorizes_before_issuance_or_before_rotation stdout ----
+
+thread 'l02_rotation_never_authorizes_before_issuance_or_before_rotation' (845744) panicked at crates/quantos-execution/tests/l02_zone.rs:14:2:
+assertion failed: r.validate(2, now()).is_err()
+
+---- l02_future_session_is_not_yet_authority stdout ----
+
+thread 'l02_future_session_is_not_yet_authority' (845743) panicked at crates/quantos-execution/tests/l02_zone.rs:8:2:
+assertion failed: session.validate(now()).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- l02_rotation_window_is_half_open_and_previous_can_be_revoked stdout ----
+
+thread 'l02_rotation_window_is_half_open_and_previous_can_be_revoked' (845745) panicked at crates/quantos-execution/tests/l02_zone.rs:21:2:
+assertion failed: r.validate(1, now() + Duration::seconds(300)).is_err()
+
+
+failures:
+    l02_future_session_is_not_yet_authority
+    l02_rotation_never_authorizes_before_issuance_or_before_rotation
+    l02_rotation_window_is_half_open_and_previous_can_be_revoked
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.04s
+     Running tests/l02_zone.rs (target/debug/deps/l02_zone-7cbdc031d64c72ad)
+error: test failed, to rerun pass `-p quantos-execution --test l02_zone`

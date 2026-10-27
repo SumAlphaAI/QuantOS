@@ -1,3 +1,5 @@
+mod owned_zone_fixture;
+
 use anyhow::{Context, Result, bail};
 use chrono::{Duration, Utc};
 use execution_gateway::ExecutionCommandService;
@@ -12,6 +14,15 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
+    if std::env::args().nth(1).as_deref() == Some("--l02-owned-zone-fixture") {
+        let args: Vec<_> = std::env::args().skip(2).collect();
+        if args.len() != 1 {
+            bail!("owned L02 fixture requires its explicit temporary directory");
+        }
+        return owned_zone_fixture::serve_owned_fixture(&args[0])
+            .map_err(anyhow::Error::from_boxed);
+    }
+
     if std::env::args().nth(1).as_deref() == Some("--x04-paper-resting-kernel") {
         quantos_execution::process_kernel::serve_resting_paper_kernel(
             std::io::stdin().lock(),

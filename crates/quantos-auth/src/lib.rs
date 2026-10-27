@@ -108,6 +108,12 @@ pub enum AuthError {
 /// authoritative authorization boundary.
 pub struct ExecutionSecret(String);
 
+impl Drop for ExecutionSecret {
+    fn drop(&mut self) {
+        zeroize::Zeroize::zeroize(&mut self.0);
+    }
+}
+
 impl ExecutionSecret {
     pub fn expose_to_venue_adapter(&self) -> &str {
         &self.0
@@ -129,6 +135,32 @@ impl ExecutionSecretStore {
             return Err(AuthError::ExecutionRoleRequired);
         }
         Ok(Self { client })
+    }
+
+    /// L02: certificate/version-bound resolver. No generic DATABASE_URL fallback.
+    pub fn resolve_for_zone(
+        &mut self,
+        session_token_hash: &str,
+        secret_name: &str,
+        command_expires_at: DateTime<Utc>,
+        command_account_id: Uuid,
+        peer_fingerprint: &str,
+        credential_version: u64,
+    ) -> Result<Option<ExecutionSecret>, AuthError> {
+        let version =
+            i64::try_from(credential_version).map_err(|_| AuthError::ExecutionRoleRequired)?;
+        let row = self.client.query_typed_one(
+            "select quantos.resolve_execution_zone_secret($1,$2,$3,$4,$5,$6) as value",
+            &[
+                (&session_token_hash, Type::TEXT),
+                (&secret_name, Type::TEXT),
+                (&command_expires_at, Type::TIMESTAMPTZ),
+                (&command_account_id, Type::UUID),
+                (&peer_fingerprint, Type::TEXT),
+                (&version, Type::INT8),
+            ],
+        )?;
+        Ok(row.get::<_, Option<String>>("value").map(ExecutionSecret))
     }
 
     pub fn resolve_for_command(

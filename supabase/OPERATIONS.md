@@ -61,29 +61,31 @@ The repository workflow reads `DATABASE_URL` from GitHub Actions secrets when av
 
 ## L02 Execution Secret Zone Rotation Runbook
 
-Applies to the restricted execution zone (`quantos_execution_gateway` role, `quantos.execution_secret_refs`, L01 venue credentials, and mTLS identities).
+当前实现与边界见 [L02 规程](../docs/operations/core-l02-current-function.md)。2026-10-27 本地证据只覆盖自有临时证书、真实 mTLS 子进程、合成签名器与静态 SQL/网络契约；没有连接 Supabase、解密目标秘密、安装网络策略或验证实际恢复 SLA。
 
-### Rules
+### 权限与静态秘密
 
-- Secret material lives only in Supabase Vault. Code, fixtures, migrations, and reports must carry `vault://` / `secret://` references only — never key material. Dynamic Vault leases are intentionally not used.
-- Only the Execution Gateway resolves plaintext through `quantos.resolve_execution_vault_secret(session_hash, secret_name, command_expiry)`. The previous `resolve_execution_secret_ref` overloads are revoked from application roles. Research engines, UI sessions, and ordinary BFF roles have no EXECUTE grant.
-- Supabase's platform-managed `service_role` may retain direct `vault.decrypted_secrets` access. It is an **operator/platform exception only**; neither BFF nor Engine may hold it, including through inherited roles or a shared connection URL. Both services reject elevated login roles at startup.
-- Egress from the execution zone is limited to the approved testnet venue host and the platform control plane (`EgressPolicy::execution_default`). Adding a host requires a reviewed change to the allowlist.
-- Service sessions and issued commands carry TTLs; expired ones are rejected without retry.
+- 使用独立、verify-full 的 Execution 登录，受限 `quantos_execution_gateway` 角色；不得把 operator、service_role、BFF 或 Engine 连接配置传给执行宿主。平台 service_role 的 Vault 特权是 operator 例外，不能成为应用权限。
+- L02 新迁移改用 `quantos.resolve_execution_zone_secret(session_hash, secret_name, command_expiry, account_id, verified_peer_fingerprint, credential_version)`。peer fingerprint 必须来自真实 TLS 证书，不能来自请求头或 JSON。函数独立验证服务 actor/账户/capability、会话/命令 TTL、证书绑定和版本状态，固定 search_path，拒绝非 Execution 角色。旧 3/4 参数 Vault 解密及名称查询对全部应用角色撤权。
+- 版本元数据位于 `quantos.execution_credential_versions`，关联当前 `quantos.secret_references`；旧 `execution_secret_refs` 是历史兼容表，不是新授权源。仅保存 Vault UUID 路径、指纹和有效期；不建立动态租约。数据库端只通过 Vault decrypted view 解密，应用角色不能直读。
+- `DatabaseVaultSigner` 在 Execution 进程内使用返回的 opaque ExecutionSecret 计算 HMAC；String 在 Drop 时 zeroize，不实现 Debug/Serialize。当前传回的是签名摘要诊断，不是 Binance REST 签名或授予执行权限的回执。原生执行权限仍由 X03 当前授权检查决定。
 
-### Credential rotation (target recovery ≤ 5 minutes)
+### 轮换与撤销（目标恢复 ≤5 分钟；目标 SLA NOT_RUN）
 
-1. Issue the new credential (certificate or Vault entry version) and register its fingerprint with the gateway out of band.
-2. Deploy the new credential to the gateway; the previous credential remains valid for up to 5 minutes (`ROTATION_RECOVERY_WINDOW`) while connections drain.
-3. Verify the gateway reports the new credential version as active and venue smoke checks pass.
-4. Update `quantos.execution_secret_refs.rotated_at` for the rotated entry.
-5. After at most 5 minutes, revoke the previous credential and set `revoked_at` if the entry is retired. Stale credentials are rejected automatically.
+以下均为获准目标环境的后续操作，本轮没有执行：
 
-### Revocation (incident)
+1. 独立创建新证书、静态 Vault entry/version 和更高版本号，记录来源、账户、指纹与期限。保留历史版本；禁止版本回滚。
+2. 在受控事务中将旧版本设为 draining，`rotated_at` 使用目标时钟，`retire_at` 不晚于其后 300 秒；创建唯一 active 新版本。使用新证书签发新短会话（≤15 分钟），绑定同账户/指纹/版本。命令不超过会话及 5 分钟上限。
+3. 原子更新宿主可信 registry，再用新证书和新版本做独立、获准的最小 smoke；记录真实开始/恢复时刻。旧版本仅在半开区间 `[rotated_at, retire_at)` 可用；300 秒边界即拒绝。控制面/SQL 不一致会拒绝，不回退旧秘密。
+4. 在期限前撤销旧会话/版本、关闭旧连接。紧急事件直接 revoked 匹配版本并撤销会话，不等待 drain；不要删除业务事件或审计。新版本和旧版本都须分别证明撤销。
+5. 采集已绑定候选 SHA 的真实 Vault、角色/RLS、证书/秘密轮换、撤销与 ≤5 分钟恢复证据。本地受控时钟只是机制测试，不是实际 SLA。
 
-1. Set `quantos.execution_secret_refs.revoked_at = now()` for the compromised entry and revoke the matching mTLS identity.
-2. All subsequent resolutions fail closed (`ZONE_SECRET_REVOKED` / `ZONE_MTLS_INVALID`); no cache path bypasses this.
-3. Rotate in a fresh credential using the steps above, then clear the incident per the Operations runbook.
+### 网络与恢复
+
+- `NetworkAllowlist` 在 connect 前核对精确 DNS、端口和已批准地址，再验证服务端 CA/hostname/pin；不使用代理环境、重定向或 DNS fallback。fixture 显式允许 loopback，不代表目标网络策略已生效。
+- `deploy/execution-zone-policy.json` 和 systemd drop-in 是未安装的默认拒绝模板；地址集合为空、IPAddressDeny=any。operator 在获准环境明确核对目标 DNS/地址/专用数据库、ingress mTLS、DNS 更新与必要存储路径前，不得部署或声称可用。目标 DNS/IP、OS/eBPF/防火墙及进程隔离需实际验收。
+- 未知网络/签名/协议结果不得自动重发；保留原命令及 X04 不确定占位，使用原 L01 只读恢复路径。当前 L02 fixture 仅验证 submit；受限取消/恢复完整业务链、持久去重和跨副本恢复尚未联调。
+- 目标只读权限探针为 `supabase/tests/l02_zone_privileges.sql`，须另行授权且已应用 L02 迁移。本地静态检查不证明 SQL 可执行、RLS 或真实解密。旧 F06 4 参数 target probe 的历史回执保持原范围；L02 迁移后它应拒绝，不可用作新准入，也不得把它重新放权来恢复旧 probe。
 
 ## F06 isolated acceptance and application login setup
 

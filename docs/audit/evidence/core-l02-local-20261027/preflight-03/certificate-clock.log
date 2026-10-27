@@ -1,0 +1,39 @@
+
+running 4 tests
+test l02_real_process_mutual_tls_identity_ttl_egress_and_no_reissue ... FAILED
+test l02_service_session_expiry_crosses_actual_tls_before_any_protocol_write ... FAILED
+test l02_real_process_certificate_and_synthetic_secret_rotation_revoke ... FAILED
+test l02_x03_signed_gateway_to_actual_mtls_zone_l01_and_x04_fill ... ok
+
+failures:
+
+---- l02_real_process_mutual_tls_identity_ttl_egress_and_no_reissue stdout ----
+
+thread 'l02_real_process_mutual_tls_identity_ttl_egress_and_no_reissue' (921491) panicked at services/execution-gateway/tests/l02_mtls.rs:282:10:
+called `Result::unwrap()` on an `Err` value: Tls
+
+---- l02_service_session_expiry_crosses_actual_tls_before_any_protocol_write stdout ----
+
+thread 'l02_service_session_expiry_crosses_actual_tls_before_any_protocol_write' (921492) panicked at services/execution-gateway/tests/l02_mtls.rs:483:5:
+assertion `left == right` failed
+  left: Some(Tls)
+ right: Some(Expired)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- l02_real_process_certificate_and_synthetic_secret_rotation_revoke stdout ----
+
+thread 'l02_real_process_certificate_and_synthetic_secret_rotation_revoke' (921490) panicked at services/execution-gateway/tests/l02_mtls.rs:429:10:
+called `Result::unwrap()` on an `Err` value: Tls
+
+
+failures:
+    l02_real_process_certificate_and_synthetic_secret_rotation_revoke
+    l02_real_process_mutual_tls_identity_ttl_egress_and_no_reissue
+    l02_service_session_expiry_crosses_actual_tls_before_any_protocol_write
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.34s
+
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
+     Running tests/l02_mtls.rs (target/debug/deps/l02_mtls-430e8e247cd2aef7)
+error: test failed, to rerun pass `-p execution-gateway --test l02_mtls`

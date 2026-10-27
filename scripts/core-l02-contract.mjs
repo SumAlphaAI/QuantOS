@@ -1,0 +1,22 @@
+// Local static contract review, never SQL execution or network policy deployment.
+import assert from 'node:assert/strict';
+import{readFileSync}from'node:fs';import{pathToFileURL}from'node:url';import{resolve}from'node:path';import process from'node:process';import console from'node:console';
+export const migration='supabase/migrations/20261027090000_l02_bound_execution_zone.sql';
+export function validateSql(sql){
+ for(const clause of ["begin;","commit;","security definer set search_path = ''","input_session_token_hash !~ '^sha256:[0-9a-f]{64}$'","input_secret_name is distinct from 'binance-testnet-key'","input_command_expires_at <= observed_at","input_command_expires_at > observed_at + interval '5 minutes'","session.account_id = input_command_account_id","session.execution_peer_fingerprint = input_peer_fingerprint","session.execution_credential_version = input_credential_version","session.revoked_at is null","session.created_at <= observed_at","session.expires_at > observed_at","session.expires_at <= session.created_at + interval '15 minutes'","input_command_expires_at <= session.expires_at","secret.rotation_state = 'active'","credential.valid_from <= observed_at","credential.valid_until > observed_at","credential.retire_at > observed_at","newer.version > credential.version","capability.mode_scope = account.mode","retire_at <= rotated_at + interval '5 minutes'","enable row level security","force row level security","into decrypted using substring(target_path from 9)::uuid"]){assert(sql.includes(clause),'missing L02 SQL contract: '+clause);}
+ assert.match(sql,/alter role quantos_execution_gateway nologin noinherit;/);assert(sql.includes("and not (rolsuper or rolbypassrls or rolcreatedb or rolcreaterole or rolreplication)"));
+ assert.match(sql,/execute 'select decrypted_secret from vault\.decrypted_secrets where id = \$1'/);
+ const grants=[...sql.matchAll(/grant execute on function ([\s\S]*?)\s+to ([a-z_]+);/g)];assert.equal(grants.length,1);assert.equal(grants[0][1],'quantos.resolve_execution_zone_secret(text,text,timestamptz,uuid,text,bigint)');assert.equal(grants[0][2],'quantos_execution_gateway');
+ for(const signature of ['quantos.resolve_execution_vault_secret(text,text,timestamptz,uuid)','quantos.resolve_execution_vault_secret(text,text,timestamptz)','quantos.resolve_execution_secret_ref(text)','quantos.resolve_execution_secret_reference(text,text,text)']){assert(sql.includes('revoke all on function '+signature));}
+ assert.match(sql,/revoke all on function quantos\.resolve_execution_zone_secret[^;]+from public,anon,authenticated,service_role,quantos_bff,quantos_engine,quantos_runtime;/);
+ assert(!/grant (?:select|all)|create role .+login|create_secret|update_secret/i.test(sql));
+ return{migration:'STATIC_CONTRACT_ONLY_NOT_DATABASE_PARSE_OR_EXECUTION',targetDatabase:'NOT_RUN',rolesAndRls:'NOT_RUN',positiveDecryption:'NOT_RUN'};
+}
+export function validateNetwork(policy,unit){
+ assert.equal(policy.schema,'quantos-l02-network-policy/v1');assert.equal(policy.status,'NOT_DEPLOYED_FAIL_CLOSED_TEMPLATE');assert.equal(policy.defaultDenyIngress,true);assert.equal(policy.defaultDenyEgress,true);assert.equal(policy.allowedVenueOrigin,'https://testnet.binance.vision');assert.equal(policy.venuePort,443);assert.equal(policy.controlPlaneEndpoint,null);assert.deepEqual(policy.approvedTargetAddresses,[]);
+ for(const key of ['allowDnsFallback','allowRedirects','allowProxyEnvironment'])assert.equal(policy[key],false);for(const key of ['certificateHostnameVerification','certificatePinRequired'])assert.equal(policy[key],true);assert.equal(policy.targetNetworkEnforcement,'NOT_RUN');
+ for(const line of ['NoNewPrivileges=yes','UMask=0077','ProtectSystem=strict','ProtectHome=yes','IPAddressDeny=any','RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6'])assert(unit.split('\n').includes(line));assert(!/^IPAddressAllow=/m.test(unit));
+ return{policy:'STATIC_DEFAULT_DENY_TEMPLATE',installed:'NOT_RUN',packetLevelEgress:'NOT_RUN'};
+}
+export function review(){return{...validateSql(readFileSync(migration,'utf8')),...validateNetwork(JSON.parse(readFileSync('deploy/execution-zone-policy.json')),readFileSync('deploy/systemd/quantos-execution-zone.service.d/10-restrictions.conf','utf8'))};}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{console.log(JSON.stringify(review()));}catch(e){console.error(e.stack);process.exitCode=1;}}

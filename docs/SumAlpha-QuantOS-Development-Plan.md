@@ -2694,7 +2694,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - depends_on: ["CORE:F06", "CORE:L01", "CORE-GATE:X3", "FE:FEP-7"]
 - core_prerequisites: ["CORE:F06", "CORE:L01", "CORE-GATE:X3"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `L4-SERVICE`
 - 需求描述：Supabase Vault、mTLS 与受限执行区
@@ -2704,7 +2704,7 @@ X3-SERVICE历史工程复核（P0共享门禁输入变化后独立READY撤回）
 - 阶段执行：本地开发验证秘密隔离、双向身份与证书拒绝、过期/越权/egress拒绝、轮换撤销恢复机制；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F06、L01
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-27 完成真实 mTLS verified-peer 与受控宿主、专用数据库签名器接口、六参数证书/版本/账户绑定 SQL 迁移、默认拒绝网络模板及轮换撤销规程。当前服务会话/命令 TTL、证书有效期、签名后重检、版本/账户拒绝与半开轮换通过自有本机进程和受控时钟验证；一个真实 X03 签发→mTLS→L01→X04 Fill 用例成立。[功能规程](./operations/core-l02-current-function.md)、[验收证据](./audit/evidence/core-l02-local-20261027/README.md)。工程 Gate `PASS_OWNED_LOCAL_L02_RESTRICTED_ZONE`；完整 Gate `NOT_READY_GAPS_OPEN`，stage_gate 保持 `NOT_ASSESSED`、formalAccepted=false、runtime `DENIED`。SQL/网络仅静态契约，真实 Vault/角色/RLS、OS/目标部署、真实轮换 SLA、受限取消/恢复完整链路、持久去重和 testnet 均 `NOT_RUN`；历史证据不改绑。下一可执行原项 `SERVICE:L03`。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-l03"></a>
 ### SERVICE:L03：验收检查点
