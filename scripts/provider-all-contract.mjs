@@ -11,7 +11,8 @@ export const domains=[
  ['performance','scripts/test-bff-fe-008-http.mjs',[]],
  ['operations','scripts/test-bff-fe-010-http.mjs',[]],
  ['command','scripts/test-bff-fe-002-http.mjs',[]],
- ['platform','scripts/test-bff-fe-011-http.mjs',[]]
+ ['platform','scripts/test-bff-fe-011-http.mjs',[]],
+ ['assisted','scripts/test-provider-all-assisted-http.mjs',[]]
 ];
 export function contract(read=p=>readFileSync(p)){
  const api=YAML.parse(read('bff/openapi/quantos-bff.v1.yaml').toString()),catalog=YAML.parse(read('bff/page-operation-catalog.yaml').toString());

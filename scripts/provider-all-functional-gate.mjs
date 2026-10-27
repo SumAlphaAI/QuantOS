@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import process from 'node:process';
+import console from 'node:console';
 import {readFileSync,writeFileSync,existsSync,rmSync,mkdirSync} from 'node:fs';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {dirname,resolve} from 'node:path';
@@ -22,6 +24,7 @@ import {coverage as command} from './bff-fe-002-functional-gate.mjs';
 import {coverage as platform} from './bff-fe-011-functional-gate.mjs';
 import {nodeId,profile,prerequisites,commands,snapshot,environment} from './provider-all-functional-scope.mjs';
 import {operations,domains,contract} from './provider-all-contract.mjs';
+import {assistedCoverage} from './provider-all-assisted-coverage.mjs';
 export {nodeId,profile,verifySource};
 export const directory='docs/audit/evidence/provider-all-local-20261020',manifest=directory+'/manifest.json',schema='quantos-provider-all-functional-development/v1';
 const read=p=>readFileSync(confined(p));
@@ -30,11 +33,11 @@ export const phases={functionImplementation:'PASS',businessIntegration:'NOT_RUN'
 export const flags=['databaseExecution','formalAccepted','production','externalExecution','externalPublished','upstreamAccepted','performanceAccepted','syncApproved','targetCanaryAccepted','targetRollbackAccepted'];
 export const blocker='G0_CURRENT_SCOPE_CONFIRMATION_PENDING';
 export const dependencies=()=>prerequisites.map(nodeId=>({nodeId,status:'NOT_REVALIDATED',referenceOnly:true,owner:'PROVIDER:ALL'}));
-export const release=()=>({checkpoint:'RELEASE-GATE:BETA',status:'NOT_RUN',handoff:'All134 published operations validated locally with owned Paper/Shadow reference hosts. No production credentials or venue submission. Full UI/business integration, Supabase/Auth/RLS/Storage/persistent recovery, real external sources/licenses/venues, target security/performance/soak/deployment and same-SHA hosted CI NOT_RUN. Current G0/ALL confirmation pending; no new-page or runtime admission.',prerequisiteChecks:[{id:'all-target',command:['MANUAL_AUTHORIZED_NONPRODUCTION_TARGET','ALL_CURRENT_REAL_SOURCES_AUTH_STORAGE_RECOVERY_AND_FULL_UI'],automation:'NOT_IMPLEMENTED',status:'NOT_RUN'}]});
+export const release=()=>({checkpoint:'RELEASE-GATE:BETA',status:'NOT_RUN',handoff:`All${operations.length} published operations require current owned Paper/Shadow/Assisted reference proofs. No production credentials or venue submission. Full UI/business integration, Supabase/Auth/RLS/Storage/persistent recovery, real external sources/licenses/venues, target security/performance/soak/deployment and same-SHA hosted CI NOT_RUN. Current G0/ALL confirmation pending; no new-page or runtime admission.`,prerequisiteChecks:[{id:'all-target',command:['MANUAL_AUTHORIZED_NONPRODUCTION_TARGET','ALL_CURRENT_REAL_SOURCES_AUTH_STORAGE_RECOVERY_AND_FULL_UI'],automation:'NOT_IMPLEMENTED',status:'NOT_RUN'}]});
 export function freeze(inputs=snapshot()){
  const f=freezeBaseline(inputs),request=scopeRequest(),ledgerPath='docs/gate-records/G0-current-scope-confirmations.json',ledger=JSON.parse(read(ledgerPath));
  assert.equal(ledger.status,'PENDING');assert.equal(ledger.approval,null);assert.equal(ledger.scopeDigest,null);
- return{...f,schema:'quantos-provider-all-functional-freeze/v1',providerScope:'ALL_134_CURRENT_PUBLISHED_OPERATIONS',g0:{...f.g0,request,ledger:{path:ledgerPath,sha256:digest(read(ledgerPath))},blocker},pageAdmission:'DENIED'};
+ return{...f,schema:'quantos-provider-all-functional-freeze/v1',providerScope:`ALL_${operations.length}_CURRENT_PUBLISHED_OPERATIONS`,g0:{...f.g0,request,ledger:{path:ledgerPath,sha256:digest(read(ledgerPath))},blocker},pageAdmission:'DENIED'};
 }
 export function references(){
  const registry=JSON.parse(read(directory+'/preflight/original-receipts.json'));assert.equal(registry.length,18);assert.deepEqual(registry.map(r=>r.nodeId),prerequisites.slice(0,18));
@@ -44,10 +47,10 @@ export function references(){
   return{...entry,sha256:digest(raw),checksVerified:r.checks.length,referenceOnly:true,currentReady:'NOT_CLAIMED'};});
  return{receipts:rows,a6Confirmation:verifyConfirmation(),g0:{nodeId:'FRONTEND-GATE:G0',status:'NOT_GRANTED',confirmation:'PENDING',historicalReuse:false},upstreamAdmission:'NOT_CLAIMED'};
 }
-const validators=[null,research,market,execution,strategy,reconciliation,performance,operationsCoverage,command,platform];
+const validators=[null,research,market,execution,strategy,reconciliation,performance,operationsCoverage,command,platform,assistedCoverage];
 export function coverage(http,{readBytes=read}={}){
  for(const[k,v]of Object.entries({schema:'quantos-provider-all-http/v1',status:'PASS',failure:null,databaseExecution:false,externalExecution:false,formalAccepted:false}))assert.equal(http[k],v);
- assert.deepEqual(http.operations,operations);assert.match(http.sourceCommit,/^[a-f0-9]{40}$/);assert.equal(http.artifacts.length,10);assert.equal(http.executions.length,10);
+ assert.deepEqual(http.operations,operations);assert.match(http.sourceCommit,/^[a-f0-9]{40}$/);assert.equal(http.artifacts.length,domains.length);assert.equal(http.executions.length,domains.length);
  const owned=[],records=[],catalogRows=contract();
  for(const[i,[id,script,args]]of domains.entries()){
   const a=http.artifacts[i],e=http.executions[i];assert.equal(a.id,id);assert.equal(e.id,id);assert.equal(e.sourceCommit,http.sourceCommit);assert.match(a.path,new RegExp('^'+directory+'/function-attempt-[0-9]{2}/'+id+'-http.json$'));assert.deepEqual(e.command,['node',script,a.path,...args]);
@@ -56,7 +59,7 @@ export function coverage(http,{readBytes=read}={}){
   if(i)owned.push(...validators[i](child,{readBytes}));else{const ids=catalogRows.filter(r=>['BFF-FE-001','BFF-FE-007','BFF-FE-011'].includes(r.owner));for(const r of ids){assert(child.records.some(c=>c.operationId===r.operationId&&c.status>=200&&c.status<300),'A1 current success absent '+r.operationId);owned.push(r);}for(const r of ids.filter(r=>r.owner==='BFF-FE-007'))for(const status of [401,403])assert(child.records.some(c=>c.operationId===r.operationId&&c.status===status));}
   records.push(...child.records.map(r=>({...r,domain:id})));
  }
- assert.deepEqual(http.records,records);const unique=[...new Set(owned.map(r=>r.operationId))].sort();assert.deepEqual(unique,[...operations].sort());assert.equal(owned.length,136,'Only the two platform operations may repeat');assert(owned.filter(r=>catalogRows.find(c=>c.operationId===r.operationId)?.owner!=='BFF-FE-011').length===132);
+ assert.deepEqual(http.records,records);const unique=[...new Set(owned.map(r=>r.operationId))].sort();assert.deepEqual(unique,[...operations].sort());assert.equal(owned.length,operations.length+2,'Only the two platform operations may repeat');assert(owned.filter(r=>catalogRows.find(c=>c.operationId===r.operationId)?.owner!=='BFF-FE-011').length===operations.length-2);
  return catalogRows.map(r=>({...r,successfulStatuses:[...new Set(records.filter(c=>c.operationId===r.operationId&&c.status>=200&&c.status<300).map(c=>c.status))].sort(),execution:'CURRENT_FROZEN_SOURCE_LOOPBACK_ONLY'}));
 }
 export function validateWiring(){const p=JSON.parse(read('package.json'));assert.equal(p.scripts['check:provider-all'],'node scripts/provider-all-development.mjs --ready');assert.equal(p.scripts['check:provider-all:engineering'],'node scripts/provider-all-development.mjs --engineering');assert.equal(p.scripts['check:provider-all:ci'],'node scripts/ci-stage-disposition.mjs PROVIDER:ALL');const w=YAML.parse(read('.github/workflows/frontend-baseline.yml').toString());assert(Object.values(w.jobs).some(j=>j.if===undefined&&j['continue-on-error']===undefined&&j.steps.some(s=>s.if===undefined&&s['continue-on-error']===undefined&&s.run==='pnpm check:provider-all:ci && pnpm test:provider-all')));}
@@ -71,7 +74,7 @@ export function verify(r,{current=snapshot(),nodes=nodesFromPlans(),readBytes=re
  for(const id of ['native','identity-audit']){const m=[...logs.get(id).matchAll(/test result: ok\. (\d+) passed; 0 failed; (\d+) ignored/g)];assert.equal(m.length,id==='native'?1:2);assert(m.every(m=>Number(m[1])>0&&Number(m[2])===0));}
  for(const name of ['all_domains_share_one_provider_without_read_execution_authority','missing_identity_is_denied_across_every_domain','quarantined_identity_is_denied_across_every_domain','expired_identity_is_denied_across_every_domain','shadow_aggregate_reads_never_seed_paper_orders','current_member_revocation_denies_all_previously_read_domains'])assert(logs.get('native').includes(name+' ... ok'));
  for(const id of ['freeze-negative','confirmation','gate-tests','plan-policy']){const s=logs.get(id),n=/(?:^|\n)(?:# |ℹ )?tests (\d+)(?:\r?\n|$)/.exec(s)?.[1],p=/(?:^|\n)(?:# |ℹ )?pass (\d+)(?:\r?\n|$)/.exec(s)?.[1];assert(Number(n)>0&&n===p);assert(/(?:^|\n)(?:# |ℹ )?fail 0(?:\r?\n|$)/.test(s));}
- assert(logs.get('generated').includes('BFF generated artifacts match'));assert(logs.get('contract').includes('134 unique operations'));assert(/Tests\s+\d+ passed/.test(logs.get('consumers')));assert(logs.get('consumers').includes('provider-all-aggregate-consumer.test.ts'));
+ assert(logs.get('generated').includes('BFF generated artifacts match'));assert(logs.get('contract').includes(`${operations.length} unique operations`));assert(/Tests\s+\d+ passed/.test(logs.get('consumers')));assert(logs.get('consumers').includes('provider-all-aggregate-consumer.test.ts'));
  const web=JSON.parse(logs.get('web-poc').split('A1_WEB_POC=')[1].trim());assert.equal(web.status,'PASS');assert.equal(web.sourceCommit,r.observedSourceCommit);assert.equal(web.oidc,'MOCK_ROUTE_INTERCEPTED');assert.equal(web.cases,11);assert.equal(web.staticBudget,'PASS');assert.equal(web.performanceAcceptance,'NOT_RUN');
  const paths=[r.attempt+'/aggregate-http.json',...domains.map(([id])=>r.attempt+'/'+id+'-http.json')];assert.deepEqual(r.artifacts.map(a=>a.path),paths);for(const a of r.artifacts)assert.equal(digest(readBytes(a.path)),a.sha256);
  const http=JSON.parse(readBytes(paths[0]));assert.equal(http.sourceCommit,r.observedSourceCommit);assert.deepEqual(http.artifacts.map(a=>({path:a.path,sha256:a.sha256})),r.artifacts.slice(1));assert.deepEqual(r.apiCoverage,coverage(http,{readBytes}));assert.deepEqual(r.release,release());

@@ -65,6 +65,9 @@ async fn main() -> anyhow::Result<()> {
             } else {
                 BffProvider::default()
             };
+        let public_origin = env::var("QUANTOS_BFF_PUBLIC_ORIGIN")
+            .unwrap_or_else(|_| "https://bff.reference.invalid".to_owned());
+        let provider = provider.with_download_origin(&public_origin)?;
         if env::var("QUANTOS_BFF_REFERENCE_OPS_FEED").as_deref() == Ok("clear-once") {
             let feed = provider.clone();
             tokio::spawn(async move {
@@ -72,9 +75,7 @@ async fn main() -> anyhow::Result<()> {
                 let _ = feed.renew_operations_reference().await;
             });
         }
-        let public_origin = env::var("QUANTOS_BFF_PUBLIC_ORIGIN")
-            .unwrap_or_else(|_| "https://bff.reference.invalid".to_owned());
-        provider.with_download_origin(&public_origin)?.router()
+        provider.router()
     };
     println!(
         r#"{{"service":"bff-gateway","ready":true,"mode":"{}","address":"{address}"}}"#,

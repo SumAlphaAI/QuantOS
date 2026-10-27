@@ -1,5 +1,7 @@
 // Current child probes, not child Gates or historical READY receipts.
 import assert from 'node:assert/strict';
+import process from 'node:process';
+import console from 'node:console';
 import {spawnSync,execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {dirname} from 'node:path';
@@ -16,5 +18,5 @@ try{for(const[id,script,args]of domains){const path=dir+'/'+id+'-http.json',star
  artifacts.push({id,path,sha256:digest(bytes)});records.push(...child.records.map(r=>({...r,domain:id})));
  }for(const id of operations)assert(records.some(r=>r.operationId===id&&r.status>=200&&r.status<300),'missing success '+id);
 }catch(e){failure=e.message;}
-writeFileSync(output,JSON.stringify({schema:'quantos-provider-all-http/v1',status:failure?'FAIL':'PASS',failure,sourceCommit,operations,artifacts,executions,records,databaseExecution:false,externalExecution:false,formalAccepted:false,scope:'134 unique operations. Platform duplicates counted once; A1/Research legacy artifact source bound by current parent invocation. Native and generated-consumer mixed-domain probes are separate same-provider tests. No upstream Gate execution.'},null,2)+'\n');
+writeFileSync(output,JSON.stringify({schema:'quantos-provider-all-http/v1',status:failure?'FAIL':'PASS',failure,sourceCommit,operations,artifacts,executions,records,databaseExecution:false,externalExecution:false,formalAccepted:false,scope:`${operations.length} unique operations. Platform duplicates counted once; A1/Research legacy artifact source bound by current parent invocation. Native and generated-consumer mixed-domain probes are separate same-provider tests. No upstream Gate execution.`},null,2)+'\n');
 console.log(JSON.stringify({status:failure?'FAIL':'PASS',operations:operations.length,records:records.length,failure}));if(failure)process.exitCode=1;

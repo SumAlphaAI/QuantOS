@@ -40,3 +40,7 @@ test('replay schema injection, truncation and non-replay names are rejected',()=
   for(const name of ['quantos',schema+';drop schema quantos cascade',schema.slice(1),schema.toUpperCase(),schema+'b'])
     assert.throws(()=>replayMigrationSql(filename,original,name),/Invalid migration replay schema/);
 });
+test('credential registry forward policy is restrictive and refuses all reads and writes',()=>{
+  const sql=fs.readFileSync('supabase/migrations/20261027220000_execution_credential_deny_policy.sql','utf8').replace(/--[^\n]*/g,'').replace(/\s+/g,' ').trim();
+  assert.match(sql,/^begin; create policy execution_credential_versions_deny_all on quantos\.execution_credential_versions as restrictive for all to public using \(false\) with check \(false\); commit;$/i);
+});

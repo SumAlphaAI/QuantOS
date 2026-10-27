@@ -58,6 +58,19 @@ test('RLS baseline rejects policy deletion and late disabling with recovery',t=>
  }
  fs.writeFileSync(f,good.replace('create policy tenant on quantos.example using (true)','create index tenant on quantos.example(id)'));reject(scan(),/RLS_BASELINE/);
 });
+test('L02 credential registry requires its forward deny policy and keeps forced RLS',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const original='20261027090000_l02_bound_execution_zone.sql',forward='20261027220000_execution_credential_deny_policy.sql';
+ const source=fs.readFileSync(path.join(repo,'supabase/migrations',original),'utf8');
+ const policy=fs.readFileSync(path.join(repo,'supabase/migrations',forward),'utf8');
+ const scan=()=>run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d});
+ fs.writeFileSync(path.join(dir,original),source);reject(scan(),/execution_credential_versions requires/);
+ fs.writeFileSync(path.join(dir,forward),policy);pass(scan());
+ for(const mutation of [policy+'\ndrop policy execution_credential_versions_deny_all on quantos.execution_credential_versions;',policy+'\nalter table quantos.execution_credential_versions no force row level security;',policy+'\nalter table quantos.execution_credential_versions disable row level security;']){
+  fs.writeFileSync(path.join(dir,forward),mutation);reject(scan(),/RLS_BASELINE/);
+ }
+ fs.writeFileSync(path.join(dir,forward),policy);pass(scan());
+});
 test('RLS preflight recognizes the actual ten-table A2 migration and rejects incomplete loops',t=>{
  const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
  const f=path.join(dir,'20261003090000_bff_a2_identity_settings.sql');
