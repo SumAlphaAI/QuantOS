@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -21,6 +21,16 @@
         "operations"
       ],
       "responseSchema": "OpsIncident",
+      "sse": false
+    },
+    {
+      "operationId": "approveAssistedRequest",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/requests/{requestId}/approvals",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedRequestView",
       "sse": false
     },
     {
@@ -281,6 +291,36 @@
         "data"
       ],
       "responseSchema": "ArtifactAttachment",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedApprovalAudit",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/requests/{requestId}/audit",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedApprovalAudit",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedNativeCapabilities",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/capabilities",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedNativeCapabilities",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedRequest",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/requests/{requestId}",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedRequestView",
       "sse": false
     },
     {
@@ -724,6 +764,26 @@
       "sse": false
     },
     {
+      "operationId": "listAssistedRequests",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/requests",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedRequestList",
+      "sse": false
+    },
+    {
+      "operationId": "listAssistedSubjects",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/subjects",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedSubjectList",
+      "sse": false
+    },
+    {
       "operationId": "listCapabilities",
       "method": "GET",
       "path": "/v1/admin/capabilities",
@@ -931,6 +991,16 @@
         "session"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "openAssistedRequest",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/requests",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedRequestView",
       "sse": false
     },
     {
@@ -1181,6 +1251,16 @@
         "session"
       ],
       "responseSchema": "AuditedAsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "submitAssistedRequest",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/requests/{requestId}/commands",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedNativeCommand",
       "sse": false
     },
     {

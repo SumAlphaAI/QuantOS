@@ -1,3 +1,4 @@
+mod assisted;
 mod audit_core;
 pub mod command;
 mod download_contract;
@@ -76,6 +77,7 @@ struct ProviderData {
     strategy: Option<strategy::StrategyHost>,
     consumed_step_proofs: std::collections::BTreeSet<String>,
     execution: Option<execution::ExecutionService>,
+    assisted: Option<assisted::OwnedHost>,
     research: research::Fixture,
     market: market::Fixture,
     session_active: bool,
@@ -112,6 +114,7 @@ impl Default for ProviderData {
             command: Default::default(),
             reference_shadow: false,
             execution: None,
+            assisted: None,
             strategy: None,
             reconciliation: None,
             performance: None,
@@ -216,6 +219,18 @@ impl BffProvider {
             })),
         }
     }
+    /// Explicit loopback-only composition; never called by live startup.
+    pub fn assisted_reference(enabled: bool) -> Self {
+        let mut state = ProviderData::default();
+        state.assisted = Some(assisted::OwnedHost::new(
+            enabled,
+            state.now(),
+            state.session_expires_at,
+        ));
+        Self {
+            data: Arc::new(Mutex::new(state)),
+        }
+    }
     /// Explicit synthetic reference observer feed; unavailable on live state.
     pub async fn renew_operations_reference(&self) -> anyhow::Result<()> {
         let mut state = self.data.lock().await;
@@ -252,6 +267,7 @@ impl BffProvider {
             .merge(research::reference_routes())
             .merge(market::reference_routes())
             .merge(execution::reference_routes())
+            .merge(assisted::routes())
             .merge(strategy::reference_routes())
             .merge(reconciliation::reference_routes())
             .merge(performance::reference_routes())
@@ -713,6 +729,26 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
     let correlation = correlation_id();
     let state = data.lock().await;
     let mut payload = session_payload(&headers, state.session_expires_at);
+    if state.assisted.is_some() {
+        payload["mode"] = json!("assisted_live");
+        payload["capabilities"].as_array_mut().unwrap().retain(|v| {
+            matches!(
+                v.as_str(),
+                Some("settings.read" | "execution.operate" | "strategy.approve")
+            )
+        });
+        if state.assisted.as_ref().is_some_and(|h| h.enabled())
+            && matches!(
+                cookies(&headers).get("quantos_session").copied(),
+                Some(CURRENT_SESSION | "session-approver" | "session-owner")
+            )
+        {
+            payload["capabilities"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!("execution.assisted_testnet"));
+        }
+    }
     if state.reference_shadow {
         payload["mode"] = json!("shadow");
     }

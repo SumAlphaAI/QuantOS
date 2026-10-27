@@ -1898,10 +1898,244 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getAssistedNativeCapabilities */
+        get: operations["getAssistedNativeCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/subjects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listAssistedSubjects */
+        get: operations["listAssistedSubjects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listAssistedRequests */
+        get: operations["listAssistedRequests"];
+        put?: never;
+        /** openAssistedRequest */
+        post: operations["openAssistedRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/requests/{requestId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getAssistedRequest */
+        get: operations["getAssistedRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/requests/{requestId}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** approveAssistedRequest */
+        post: operations["approveAssistedRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/requests/{requestId}/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** submitAssistedRequest */
+        post: operations["submitAssistedRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/requests/{requestId}/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getAssistedApprovalAudit */
+        get: operations["getAssistedApprovalAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AssistedNativeCapabilities: {
+            /** @enum {string} */
+            schemaVersion: "quantos-assisted-testnet-capabilities.v1";
+            actorId: components["schemas"]["UUID"];
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "paper" | "shadow" | "assisted_live";
+            serverFlagEnabled: boolean;
+            targetEnabled: boolean;
+            canRequest: boolean;
+            canApprove: boolean;
+            /** @enum {boolean} */
+            executionAuthority: false;
+            policyRevision: number;
+            /** @enum {string} */
+            policyVersion: "core-l03-local.v1";
+            /** Format: date-time */
+            checkedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        AssistedSubject: {
+            subjectId: components["schemas"]["UUID"];
+            subjectHash: string;
+            proposalHash: string;
+            decisionId: components["schemas"]["UUID"];
+            originator: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            symbol: string;
+            /** @enum {string} */
+            side: "buy" | "sell";
+            quantity: components["schemas"]["DecimalValue"];
+            limitPrice: components["schemas"]["DecimalValue"];
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        AssistedApprovalRequest: {
+            requesterId: components["schemas"]["UUID"];
+            requestId: components["schemas"]["UUID"];
+            subjectId: components["schemas"]["UUID"];
+            subjectHash: string;
+            policyVersion: string;
+            revision: number;
+            /** @enum {string} */
+            status: "pending" | "awaiting_second" | "approved";
+            approvers: components["schemas"]["UUID"][];
+            /** Format: date-time */
+            expiresAt: string;
+            notional: components["schemas"]["DecimalValue"];
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedNativeOrder: {
+            orderId: string;
+            commandId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            symbol: string;
+            /** @enum {string} */
+            side: "buy" | "sell";
+            quantity: components["schemas"]["DecimalValue"];
+            filledQuantity: components["schemas"]["DecimalValue"];
+            status: string;
+        };
+        AssistedNativeCommand: {
+            requestId: components["schemas"]["UUID"];
+            subjectHash: string;
+            commandId: components["schemas"]["UUID"];
+            /** Format: date-time */
+            expiresAt: string;
+            /** @enum {string} */
+            state: "accepted" | "unknown";
+            signature: string;
+            order?: components["schemas"]["AssistedNativeOrder"];
+        };
+        AssistedRequestView: {
+            request: components["schemas"]["AssistedApprovalRequest"];
+            subject: components["schemas"]["AssistedSubject"];
+            command?: components["schemas"]["AssistedNativeCommand"];
+        };
+        AssistedSubjectList: {
+            items: components["schemas"]["AssistedSubject"][];
+        };
+        AssistedRequestList: {
+            items: components["schemas"]["AssistedRequestView"][];
+        };
+        AssistedApprovalAudit: {
+            items: {
+                sequence: number;
+                requestId: components["schemas"]["UUID"];
+                subjectHash: string;
+                actorId: components["schemas"]["UUID"];
+                userId: components["schemas"]["UUID"];
+                /** @enum {integer} */
+                slot: 1 | 2;
+                signature: string;
+            }[];
+            /** @enum {boolean} */
+            verified: true;
+            nativeSubmissions: number;
+        };
+        OpenAssistedRequest: {
+            subjectId: components["schemas"]["UUID"];
+        };
+        ApproveAssistedRequest: {
+            expectedRevision: number;
+            mfaChallengeRef: string;
+            reauthTokenRef: string;
+        };
+        SubmitAssistedRequest: {
+            /** @enum {integer} */
+            expectedRevision: 2;
+        };
         /** Format: uuid */
         UUID: string;
         /**
@@ -10746,6 +10980,467 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedNativeCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-assisted-testnet-capabilities.v1",
+                     *       "actorId": "11111111-1111-4111-8111-111111111111",
+                     *       "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *       "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "paper",
+                     *       "serverFlagEnabled": false,
+                     *       "targetEnabled": false,
+                     *       "canRequest": false,
+                     *       "canApprove": false,
+                     *       "executionAuthority": false,
+                     *       "policyVersion": "core-l03-local.v1",
+                     *       "policyRevision": 1,
+                     *       "checkedAt": "2026-10-27T00:00:00Z",
+                     *       "expiresAt": "2026-10-27T00:00:08Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedNativeCapabilities"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listAssistedSubjects: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *           "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "proposalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "decisionId": "11111111-1111-4111-8111-111111111111",
+                     *           "originator": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "symbol": "BTCUSDT",
+                     *           "side": "buy",
+                     *           "quantity": "1",
+                     *           "limitPrice": "1000",
+                     *           "expiresAt": "2026-10-27T00:00:00Z"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedSubjectList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listAssistedRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "request": {
+                     *             "requestId": "11111111-1111-4111-8111-111111111111",
+                     *             "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *             "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "policyVersion": "1",
+                     *             "revision": 0,
+                     *             "status": "pending",
+                     *             "approvers": [],
+                     *             "expiresAt": "2026-10-27T00:00:00Z",
+                     *             "notional": "1000",
+                     *             "executionAuthority": false,
+                     *             "requesterId": "11111111-1111-4111-8111-111111111111"
+                     *           },
+                     *           "subject": {
+                     *             "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *             "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "proposalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "decisionId": "11111111-1111-4111-8111-111111111111",
+                     *             "originator": "11111111-1111-4111-8111-111111111111",
+                     *             "accountId": "11111111-1111-4111-8111-111111111111",
+                     *             "symbol": "BTCUSDT",
+                     *             "side": "buy",
+                     *             "quantity": "1",
+                     *             "limitPrice": "1000",
+                     *             "expiresAt": "2026-10-27T00:00:00Z"
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedRequestList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    openAssistedRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "subjectId": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["OpenAssistedRequest"];
+            };
+        };
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "request": {
+                     *         "requestId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "policyVersion": "1",
+                     *         "revision": 0,
+                     *         "status": "pending",
+                     *         "approvers": [],
+                     *         "expiresAt": "2026-10-27T00:00:00Z",
+                     *         "notional": "1000",
+                     *         "executionAuthority": false,
+                     *         "requesterId": "11111111-1111-4111-8111-111111111111"
+                     *       },
+                     *       "subject": {
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "proposalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "decisionId": "11111111-1111-4111-8111-111111111111",
+                     *         "originator": "11111111-1111-4111-8111-111111111111",
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "symbol": "BTCUSDT",
+                     *         "side": "buy",
+                     *         "quantity": "1",
+                     *         "limitPrice": "1000",
+                     *         "expiresAt": "2026-10-27T00:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedRequestView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "request": {
+                     *         "requestId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "policyVersion": "1",
+                     *         "revision": 0,
+                     *         "status": "pending",
+                     *         "approvers": [],
+                     *         "expiresAt": "2026-10-27T00:00:00Z",
+                     *         "notional": "1000",
+                     *         "executionAuthority": false,
+                     *         "requesterId": "11111111-1111-4111-8111-111111111111"
+                     *       },
+                     *       "subject": {
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "proposalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "decisionId": "11111111-1111-4111-8111-111111111111",
+                     *         "originator": "11111111-1111-4111-8111-111111111111",
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "symbol": "BTCUSDT",
+                     *         "side": "buy",
+                     *         "quantity": "1",
+                     *         "limitPrice": "1000",
+                     *         "expiresAt": "2026-10-27T00:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedRequestView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    approveAssistedRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                requestId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": 0,
+                 *       "mfaChallengeRef": "fixture-challenge",
+                 *       "reauthTokenRef": "fixture-reauth"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ApproveAssistedRequest"];
+            };
+        };
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "request": {
+                     *         "requestId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "policyVersion": "1",
+                     *         "revision": 0,
+                     *         "status": "pending",
+                     *         "approvers": [],
+                     *         "expiresAt": "2026-10-27T00:00:00Z",
+                     *         "notional": "1000",
+                     *         "executionAuthority": false,
+                     *         "requesterId": "11111111-1111-4111-8111-111111111111"
+                     *       },
+                     *       "subject": {
+                     *         "subjectId": "11111111-1111-4111-8111-111111111111",
+                     *         "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "proposalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "decisionId": "11111111-1111-4111-8111-111111111111",
+                     *         "originator": "11111111-1111-4111-8111-111111111111",
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "symbol": "BTCUSDT",
+                     *         "side": "buy",
+                     *         "quantity": "1",
+                     *         "limitPrice": "1000",
+                     *         "expiresAt": "2026-10-27T00:00:00Z"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedRequestView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    submitAssistedRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                requestId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": 2
+                 *     }
+                 */
+                "application/json": components["schemas"]["SubmitAssistedRequest"];
+            };
+        };
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "requestId": "11111111-1111-4111-8111-111111111111",
+                     *       "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "commandId": "11111111-1111-4111-8111-111111111111",
+                     *       "expiresAt": "2026-10-27T00:00:00Z",
+                     *       "state": "unknown",
+                     *       "signature": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedNativeCommand"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedApprovalAudit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [],
+                     *       "verified": true,
+                     *       "nativeSubmissions": 0
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedApprovalAudit"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
             default: components["responses"]["ServerError"];
         };
     };

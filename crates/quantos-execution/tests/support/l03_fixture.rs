@@ -99,6 +99,7 @@ impl Fixture {
             venue: EXECUTION_VENUE.into(),
             symbol: "BTCUSDT".into(),
             quote_currency: "USDT".into(),
+            side: quantos_execution::OrderSide::Buy,
             quantity: "1".into(),
             limit_price: "1000".into(),
             created_at: now,

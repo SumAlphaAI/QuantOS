@@ -88,6 +88,7 @@ fn l4_same_account_proposal_and_risk_service_approval_never_becomes_native_autho
         venue: f.venue.venue.clone(),
         symbol: f.intent.symbol.clone(),
         quote_currency: "USDT".into(),
+        side: quantos_execution::OrderSide::Buy,
         quantity: f.intent.quantity.clone(),
         limit_price: f.intent.limit_price.clone(),
         created_at: f.now,

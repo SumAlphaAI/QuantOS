@@ -127,6 +127,7 @@ pub struct Subject {
     pub venue: String,
     pub symbol: String,
     pub quote_currency: String,
+    pub side: crate::OrderSide,
     pub quantity: String,
     pub limit_price: String,
     pub created_at: DateTime<Utc>,
@@ -230,6 +231,7 @@ impl MfaAttestor {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Receipt {
+    pub requester: ActorId,
     pub request: ProposalId,
     pub subject_hash: ContentHash,
     pub policy_revision: u64,
@@ -278,6 +280,8 @@ struct Request {
     hash: ContentHash,
     requester: ActorId,
     requester_user: Uuid,
+    requester_session: String,
+    requester_revision: u64,
     receipt: Receipt,
     approvals: Vec<Approval>,
 }
@@ -386,6 +390,13 @@ impl State {
             return Err(Error::Expired);
         }
         self.subject(&r.subject, at)?;
+        let requester = self.auth(&r.requester_session, at, false)?;
+        if requester.revision != r.requester_revision
+            || requester.auth.actor_id != r.requester
+            || requester.auth.user_id != r.requester_user
+        {
+            return Err(Error::Unauthorized);
+        }
         for a in &r.approvals {
             self.proof(r, &a.session, &a.proof, at)?;
         }
@@ -565,7 +576,7 @@ impl AssistedApprovalService {
         let request = s.policy.enabled && s.auth(session, at, false).is_ok();
         let approve = s.policy.enabled && s.auth(session, at, true).is_ok();
         Ok(
-            serde_json::json!({"request":request,"approve":approve,"executionAuthority":false,"venue":"binance-spot-testnet"}),
+            serde_json::json!({"enabled":s.policy.enabled,"policyRevision":s.revision,"request":request,"approve":approve,"executionAuthority":false,"venue":"binance-spot-testnet"}),
         )
     }
     pub fn open(
@@ -579,6 +590,7 @@ impl AssistedApprovalService {
         let at = clock.sample();
         s.gate()?;
         s.tick(at)?;
+        let requester_revision = s.auth(session, at, false)?.revision;
         let identity = s.auth(session, at, false)?.auth.clone();
         let sub = s.subjects.get(&subject).ok_or(Error::Invalid)?.clone();
         let notional = s.subject(&sub, at)?;
@@ -599,6 +611,7 @@ impl AssistedApprovalService {
             return Err(Error::Unavailable);
         }
         let receipt = Receipt {
+            requester: identity.actor_id,
             request: ProposalId::new(),
             subject_hash: hash(&sub)?,
             policy_revision: s.revision,
@@ -614,6 +627,8 @@ impl AssistedApprovalService {
             hash: receipt.subject_hash.clone(),
             requester: identity.actor_id,
             requester_user: identity.user_id,
+            requester_session: session.into(),
+            requester_revision,
             receipt: receipt.clone(),
             approvals: vec![],
         };
@@ -636,6 +651,17 @@ impl AssistedApprovalService {
         id: ProposalId,
         clock: impl ClockInput,
     ) -> Result<Challenge, Error> {
+        self.challenge_until(session, id, None, clock)
+    }
+    /// A verified owner may shorten the step-up deadline to the original F06
+    /// completion window. It can never extend the configured/session deadline.
+    pub fn challenge_until(
+        &self,
+        session: &str,
+        id: ProposalId,
+        original_deadline: Option<DateTime<Utc>>,
+        clock: impl ClockInput,
+    ) -> Result<Challenge, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
         s.gate()?;
@@ -644,6 +670,9 @@ impl AssistedApprovalService {
         let r = s.requests.get(&id).ok_or(Error::Invalid)?;
         s.current(r, at)?;
         Self::independent(r, &a.auth)?;
+        if original_deadline.is_some_and(|d| d <= at) {
+            return Err(Error::Expired);
+        }
         if r.approvals.len() >= 2 || s.challenges.len() >= 8192 {
             return Err(Error::Conflict);
         }
@@ -662,7 +691,8 @@ impl AssistedApprovalService {
                 .receipt
                 .expires_at
                 .min(a.expires_at)
-                .min(at + s.policy.mfa_ttl),
+                .min(at + s.policy.mfa_ttl)
+                .min(original_deadline.unwrap_or(DateTime::<Utc>::MAX_UTC)),
         };
         s.challenges.insert(c.id, c.clone());
         Ok(c)
@@ -783,6 +813,55 @@ impl AssistedApprovalService {
         let r = s.requests.get(&id).ok_or(Error::Invalid)?;
         s.current(r, at)?;
         Ok(r.receipt.clone())
+    }
+    /// The native bridge runs under the approval lock. A receipt or serialized
+    /// proof is never an execution token; current policy, identities and subject
+    /// are rechecked even for original-command recovery. Lock order: bridge -> service.
+    pub(crate) fn with_execution<T>(
+        &self,
+        session: &str,
+        id: ProposalId,
+        clock: impl ClockInput,
+        action: impl FnOnce(&Subject, &Receipt, DateTime<Utc>, DateTime<Utc>) -> Result<T, Error>,
+    ) -> Result<T, Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let now = clock.sample();
+        s.gate()?;
+        s.tick(now)?;
+        let actor = s.auth(session, now, false)?;
+        let r = s.requests.get(&id).ok_or(Error::Invalid)?;
+        s.current(r, now)?;
+        if session != r.requester_session
+            || r.requester != actor.auth.actor_id
+            || r.requester_user != actor.auth.user_id
+            || r.receipt.status != "approved"
+            || r.approvals.len() != 2
+            || s.subjects.get(&r.subject.id) != Some(&r.subject)
+        {
+            return Err(Error::Unauthorized);
+        }
+        action(
+            &r.subject,
+            &r.receipt,
+            r.receipt.expires_at.min(actor.expires_at),
+            now,
+        )
+    }
+    /// Read facts after an approval deadline without restoring write authority.
+    pub fn execution_view(
+        &self,
+        session: &str,
+        id: ProposalId,
+        clock: impl ClockInput,
+    ) -> Result<Receipt, Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let now = clock.sample();
+        s.gate()?;
+        s.tick(now)?;
+        if s.auth(session, now, false).is_err() {
+            s.auth(session, now, true)?;
+        }
+        Ok(s.requests.get(&id).ok_or(Error::Invalid)?.receipt.clone())
     }
     /// Trusted audit export, not a client permission or restore/issuance API.
     pub fn audit_snapshot(&self) -> Result<(Vec<Audit>, Anchor), Error> {

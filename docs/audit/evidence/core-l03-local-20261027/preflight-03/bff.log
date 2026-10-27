@@ -1,0 +1,43 @@
+
+running 4 tests
+test assisted::tests::core_l03_public_rejects_injected_payload_forged_mfa_self_and_cross_session ... FAILED
+test assisted::tests::core_l03_public_proof_expiry_and_policy_revocation_block_native_recovery ... FAILED
+test assisted::tests::core_l03_public_fifty_dual_approval_workflows_issue_same_subject_native_l01_commands ... FAILED
+test assisted::tests::core_l03_default_off_rejects_public_commands_before_body_and_no_mode_downgrade ... ok
+
+failures:
+
+---- assisted::tests::core_l03_public_rejects_injected_payload_forged_mfa_self_and_cross_session stdout ----
+
+thread 'assisted::tests::core_l03_public_rejects_injected_payload_forged_mfa_self_and_cross_session' (1735734) panicked at services/bff-gateway/src/assisted/tests.rs:10:751:
+called `Option::unwrap()` on a `None` value
+
+---- assisted::tests::core_l03_public_proof_expiry_and_policy_revocation_block_native_recovery stdout ----
+
+thread 'assisted::tests::core_l03_public_proof_expiry_and_policy_revocation_block_native_recovery' (1735733) panicked at services/bff-gateway/src/assisted/tests.rs:11:451:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- assisted::tests::core_l03_public_fifty_dual_approval_workflows_issue_same_subject_native_l01_commands stdout ----
+
+thread 'assisted::tests::core_l03_public_fifty_dual_approval_workflows_issue_same_subject_native_l01_commands' (1735732) panicked at services/bff-gateway/src/assisted/tests.rs:6:588:
+assertion `left == right` failed: {"code":"INVALID_REQUEST","correlationId":"01a17cb3-0b70-7be1-afca-76e082badc17","message":"请求未通过契约校验。"}
+  left: 422
+ right: 200
+
+
+failures:
+    assisted::tests::core_l03_public_fifty_dual_approval_workflows_issue_same_subject_native_l01_commands
+    assisted::tests::core_l03_public_proof_expiry_and_policy_revocation_block_native_recovery
+    assisted::tests::core_l03_public_rejects_injected_payload_forged_mfa_self_and_cross_session
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 255 filtered out; finished in 2.21s
+
+    Blocking waiting for file lock on build directory
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.64s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-dcacb93bb2239dad)
+error: test failed, to rerun pass `-p bff-gateway --lib`

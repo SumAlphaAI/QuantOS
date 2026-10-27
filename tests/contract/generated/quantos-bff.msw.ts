@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.17.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.18.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -13,6 +13,7 @@ export type BffMockResolvers = Partial<Record<BffOperationId, BffMockResolver>>;
 export type BffOperationId =
   | "ackAlert"
   | "ackIncident"
+  | "approveAssistedRequest"
   | "cancelExport"
   | "cancelResearchRun"
   | "checkRunbookPreconditions"
@@ -39,6 +40,9 @@ export type BffOperationId =
   | "getApproval"
   | "getArtifact"
   | "getArtifactAttachment"
+  | "getAssistedApprovalAudit"
+  | "getAssistedNativeCapabilities"
+  | "getAssistedRequest"
   | "getBacktest"
   | "getCandleSeries"
   | "getCapability"
@@ -83,6 +87,8 @@ export type BffOperationId =
   | "getWatchlist"
   | "listAlerts"
   | "listApprovals"
+  | "listAssistedRequests"
+  | "listAssistedSubjects"
   | "listCapabilities"
   | "listDataSnapshots"
   | "listDevices"
@@ -104,6 +110,7 @@ export type BffOperationId =
   | "listStrategies"
   | "logout"
   | "mfaChallenge"
+  | "openAssistedRequest"
   | "openIncident"
   | "reauth"
   | "releaseKillSwitch"
@@ -129,6 +136,7 @@ export type BffOperationId =
   | "searchAuditEvents"
   | "setupMfa"
   | "submitAccessRequest"
+  | "submitAssistedRequest"
   | "submitReleaseApproval"
   | "submitTradeCommand"
   | "subscribeAlerts"
@@ -167,6 +175,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.ackIncident;
     if (resolver) return resolver({ request, params });
     return missingResolver("ackIncident");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/requests/:requestId/approvals`, async ({ request, params }) => {
+    const resolver = resolvers.approveAssistedRequest;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("approveAssistedRequest");
   }),
   http.post(`${baseUrl}/v1/exports/:exportId/cancel`, async ({ request, params }) => {
     const resolver = resolvers.cancelExport;
@@ -297,6 +310,21 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getArtifactAttachment;
     if (resolver) return resolver({ request, params });
     return missingResolver("getArtifactAttachment");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/requests/:requestId/audit`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedApprovalAudit;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedApprovalAudit");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/capabilities`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedNativeCapabilities;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedNativeCapabilities");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/requests/:requestId`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedRequest;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedRequest");
   }),
   http.get(`${baseUrl}/v1/backtests/:runId`, async ({ request, params }) => {
     const resolver = resolvers.getBacktest;
@@ -518,6 +546,16 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("listApprovals");
   }),
+  http.get(`${baseUrl}/v1/assisted-testnet/requests`, async ({ request, params }) => {
+    const resolver = resolvers.listAssistedRequests;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listAssistedRequests");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/subjects`, async ({ request, params }) => {
+    const resolver = resolvers.listAssistedSubjects;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listAssistedSubjects");
+  }),
   http.get(`${baseUrl}/v1/admin/capabilities`, async ({ request, params }) => {
     const resolver = resolvers.listCapabilities;
     if (resolver) return resolver({ request, params });
@@ -622,6 +660,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.mfaChallenge;
     if (resolver) return resolver({ request, params });
     return missingResolver("mfaChallenge");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/requests`, async ({ request, params }) => {
+    const resolver = resolvers.openAssistedRequest;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("openAssistedRequest");
   }),
   http.post(`${baseUrl}/v1/operations/incidents`, async ({ request, params }) => {
     const resolver = resolvers.openIncident;
@@ -747,6 +790,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.submitAccessRequest;
     if (resolver) return resolver({ request, params });
     return missingResolver("submitAccessRequest");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/requests/:requestId/commands`, async ({ request, params }) => {
+    const resolver = resolvers.submitAssistedRequest;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("submitAssistedRequest");
   }),
   http.post(`${baseUrl}/v1/releases/:releaseId/approval-submissions`, async ({ request, params }) => {
     const resolver = resolvers.submitReleaseApproval;

@@ -6,10 +6,10 @@ import {createBffClient} from '@sumalpha/api-client';
 import {referenceBffExecutable,referenceBffRoot,referenceBffSourceEnv} from './reference-bff';
 export const csrf='csrf-token-0000000000000001';
 const hash=(s:string|Uint8Array)=>'sha256:'+createHash('sha256').update(s).digest('hex');
-export async function reference(mode:'paper'|'shadow'='paper'){
+export async function reference(mode:'paper'|'shadow'|'assisted-local'='paper',assistedEnabled=true){
  if(process.env.DATABASE_URL||process.env.SUPABASE_SERVICE_ROLE_KEY)throw Error('Reference environment must exclude credentials');
  const reserve=createServer();await new Promise<void>(r=>reserve.listen(0,'127.0.0.1',r));const port=(reserve.address()as{port:number}).port;await new Promise<void>(r=>reserve.close(()=>r()));const origin=`http://127.0.0.1:${port}`;
- const child:ChildProcess=spawn(referenceBffExecutable(),[],{cwd:referenceBffRoot,env:{...referenceBffSourceEnv(),NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_REFERENCE_CONTEXT:mode,QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});
+ const child:ChildProcess=spawn(referenceBffExecutable(),[],{cwd:referenceBffRoot,env:{...referenceBffSourceEnv(),NODE_ENV:'test',PATH:process.env.PATH,HOME:process.env.HOME,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_REFERENCE_CONTEXT:mode,QUANTOS_BFF_OWNED_ASSISTED:mode==='assisted-local'&&assistedEnabled?'enabled':'off',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});
  let diagnostics='';child.stderr?.on('data',b=>{diagnostics=(diagnostics+String(b)).slice(-4000);});
  try{await new Promise<void>((r,j)=>{const t=setTimeout(()=>j(Error('reference startup timeout')),15000);child.once('error',e=>{clearTimeout(t);j(e);});child.once('exit',()=>{clearTimeout(t);j(Error('reference exited: '+diagnostics));});child.stdout!.on('data',b=>{if(String(b).includes('"ready":true')){clearTimeout(t);r();}});});}catch(e){child.kill();throw e;}
  const requests:Request[]=[],rows:{method:string;path:string;status:number;bodyHash:string;keyHash?:string;responseHash:string;deliveredResponseHash?:string;source:string;referenceSession:string}[]=[];

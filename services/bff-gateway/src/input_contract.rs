@@ -156,6 +156,26 @@ pub(crate) async fn guard(
     request: Request,
     next: Next,
 ) -> Response {
+    let assisted_profile = data.lock().await.assisted.is_some();
+    let path = request.uri().path();
+    if assisted_profile
+        && path.starts_with("/v1/")
+        && !path.starts_with("/v1/assisted-testnet/")
+        && !path.starts_with("/v1/auth/")
+        && !matches!(
+            path,
+            "/v1/session" | "/v1/context" | "/v1/settings/sessions/stream"
+        )
+    {
+        return crate::research::Fault(axum::http::StatusCode::FORBIDDEN, "CONTEXT_MODE_REQUIRED")
+            .response();
+    }
+    if request.uri().path().starts_with("/v1/assisted-testnet/")
+        && !request.uri().path().ends_with("/capabilities")
+        && let Err(e) = crate::assisted::guard(request.headers(), &data).await
+    {
+        return e;
+    }
     let Some(op) = operation(request.method().as_str(), request.uri().path()) else {
         return next.run(request).await;
     };

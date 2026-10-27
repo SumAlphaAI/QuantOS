@@ -1,6 +1,115 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.17.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.18.0). Do not edit.
 import { z } from "zod";
+
+export const AssistedNativeCapabilitiesSchema = z.object({
+  "schemaVersion": z.literal("quantos-assisted-testnet-capabilities.v1"),
+  "actorId": z.lazy(() => UUIDSchema),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.enum(["paper","shadow","assisted_live"]),
+  "serverFlagEnabled": z.boolean(),
+  "targetEnabled": z.boolean(),
+  "canRequest": z.boolean(),
+  "canApprove": z.boolean(),
+  "executionAuthority": z.literal(false),
+  "policyRevision": z.number().int().min(1),
+  "policyVersion": z.literal("core-l03-local.v1"),
+  "checkedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+}).strict();
+
+export const AssistedSubjectSchema = z.object({
+  "subjectId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "decisionId": z.lazy(() => UUIDSchema),
+  "originator": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "symbol": z.string().min(1).max(20),
+  "side": z.enum(["buy","sell"]),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "limitPrice": z.lazy(() => DecimalValueSchema),
+  "expiresAt": z.string().datetime({ offset: true }),
+}).strict();
+
+export const AssistedApprovalRequestSchema = z.object({
+  "requesterId": z.lazy(() => UUIDSchema),
+  "requestId": z.lazy(() => UUIDSchema),
+  "subjectId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "policyVersion": z.string().min(1).max(20),
+  "revision": z.number().int().min(0).max(2),
+  "status": z.enum(["pending","awaiting_second","approved"]),
+  "approvers": z.array(z.lazy(() => UUIDSchema)).max(2),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "notional": z.lazy(() => DecimalValueSchema),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedNativeOrderSchema = z.object({
+  "orderId": z.string().min(1).max(128),
+  "commandId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "symbol": z.string().min(1).max(20),
+  "side": z.enum(["buy","sell"]),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "filledQuantity": z.lazy(() => DecimalValueSchema),
+  "status": z.string().min(1).max(32),
+}).strict();
+
+export const AssistedNativeCommandSchema = z.object({
+  "requestId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "commandId": z.lazy(() => UUIDSchema),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "state": z.enum(["accepted","unknown"]),
+  "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "order": z.lazy(() => AssistedNativeOrderSchema).optional(),
+}).strict();
+
+export const AssistedRequestViewSchema = z.object({
+  "request": z.lazy(() => AssistedApprovalRequestSchema),
+  "subject": z.lazy(() => AssistedSubjectSchema),
+  "command": z.lazy(() => AssistedNativeCommandSchema).optional(),
+}).strict();
+
+export const AssistedSubjectListSchema = z.object({
+  "items": z.array(z.lazy(() => AssistedSubjectSchema)).max(50),
+}).strict();
+
+export const AssistedRequestListSchema = z.object({
+  "items": z.array(z.lazy(() => AssistedRequestViewSchema)).max(200),
+}).strict();
+
+export const AssistedApprovalAuditSchema = z.object({
+  "items": z.array(z.object({
+  "sequence": z.number().int().min(1),
+  "requestId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "actorId": z.lazy(() => UUIDSchema),
+  "userId": z.lazy(() => UUIDSchema),
+  "slot": z.union([z.literal(1), z.literal(2)]),
+  "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+}).strict()).max(2),
+  "verified": z.literal(true),
+  "nativeSubmissions": z.number().int().min(0),
+}).strict();
+
+export const OpenAssistedRequestSchema = z.object({
+  "subjectId": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const ApproveAssistedRequestSchema = z.object({
+  "expectedRevision": z.number().int().min(0).max(1),
+  "mfaChallengeRef": z.string().min(1).max(128),
+  "reauthTokenRef": z.string().min(1).max(128),
+}).strict();
+
+export const SubmitAssistedRequestSchema = z.object({
+  "expectedRevision": z.literal(2),
+}).strict();
 
 export const UUIDSchema = z.string().uuid();
 
@@ -1280,6 +1389,18 @@ export const CommandSummarySchema = z.object({
 }).strict();
 
 export const bffZodSchemas = {
+  AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
+  AssistedSubject: AssistedSubjectSchema,
+  AssistedApprovalRequest: AssistedApprovalRequestSchema,
+  AssistedNativeOrder: AssistedNativeOrderSchema,
+  AssistedNativeCommand: AssistedNativeCommandSchema,
+  AssistedRequestView: AssistedRequestViewSchema,
+  AssistedSubjectList: AssistedSubjectListSchema,
+  AssistedRequestList: AssistedRequestListSchema,
+  AssistedApprovalAudit: AssistedApprovalAuditSchema,
+  OpenAssistedRequest: OpenAssistedRequestSchema,
+  ApproveAssistedRequest: ApproveAssistedRequestSchema,
+  SubmitAssistedRequest: SubmitAssistedRequestSchema,
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
   DecimalValue: DecimalValueSchema,
@@ -2324,6 +2445,70 @@ export const bffResponseSchemas = {
     "200": z.undefined(),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedNativeCapabilities": {
+    "200": z.lazy(() => AssistedNativeCapabilitiesSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listAssistedSubjects": {
+    "200": z.lazy(() => AssistedSubjectListSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listAssistedRequests": {
+    "200": z.lazy(() => AssistedRequestListSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "openAssistedRequest": {
+    "200": z.lazy(() => AssistedRequestViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedRequest": {
+    "200": z.lazy(() => AssistedRequestViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "approveAssistedRequest": {
+    "200": z.lazy(() => AssistedRequestViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "submitAssistedRequest": {
+    "200": z.lazy(() => AssistedNativeCommandSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedApprovalAudit": {
+    "200": z.lazy(() => AssistedApprovalAuditSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;

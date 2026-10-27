@@ -2825,7 +2825,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - depends_on: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03", "FE:FEP-8"]
 - core_prerequisites: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `I10`
 - 需求描述：双人审批、MFA 与 Assisted Live UI Gate
@@ -2836,6 +2836,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X02、X03、L02
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+
+- 当前本机实现（2026-10-27）：公共C01/MFA/reauth→独立双审批→新AssistedExecution权限→X04/L01自有协议端口→实际P10/P11同源Command/Order已接通；回执不授予执行权限、默认关闭、原MFA/命令期限与原key/body/CSRF恢复不降级，旧Paper签发继续拒绝Assisted Live。OpenAPI 1.18.0新增8操作，50案例/100条HMAC审计分别在Axum与实际HTTP验证，当前UI/拒绝/恢复见[规程](./operations/core-l03-current-function.md)、[范围](./execution/core-l03-scope-assessment.json)、[证据](./audit/evidence/core-l03-local-20261027/README.md)。工程Gate `PASS_OWNED_LOCAL_CORE_L03_PUBLIC_NATIVE_JOIN`，开发IMPLEMENTED_PENDING_ACCEPTANCE；完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED，M5及原19项gap不提升。当前in-process owned profile不是L02 mTLS/真实F06/R04/X02/C10持久链，live未挂载；目标/实际testnet/同SHA CI/发布NOT_RUN。下一原任务CORE:L04 DEVELOPMENT，接续受限进程和公共持久审计/恢复，不拼接历史证据。
 
 <a id="task-l04"></a>
 ### L04：容量、恢复、安全与上线证据包

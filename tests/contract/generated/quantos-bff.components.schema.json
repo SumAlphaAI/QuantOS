@@ -1,8 +1,488 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.17.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.18.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
+    "AssistedNativeCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "actorId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "serverFlagEnabled",
+        "targetEnabled",
+        "canRequest",
+        "canApprove",
+        "executionAuthority",
+        "policyVersion",
+        "policyRevision",
+        "checkedAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-assisted-testnet-capabilities.v1"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "shadow",
+            "assisted_live"
+          ]
+        },
+        "serverFlagEnabled": {
+          "type": "boolean"
+        },
+        "targetEnabled": {
+          "type": "boolean"
+        },
+        "canRequest": {
+          "type": "boolean"
+        },
+        "canApprove": {
+          "type": "boolean"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "policyRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "policyVersion": {
+          "type": "string",
+          "enum": [
+            "core-l03-local.v1"
+          ]
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AssistedSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subjectId",
+        "subjectHash",
+        "proposalHash",
+        "decisionId",
+        "originator",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "limitPrice",
+        "expiresAt"
+      ],
+      "properties": {
+        "subjectId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "originator": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "limitPrice": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AssistedApprovalRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "requesterId",
+        "subjectId",
+        "subjectHash",
+        "policyVersion",
+        "revision",
+        "status",
+        "approvers",
+        "expiresAt",
+        "notional",
+        "executionAuthority"
+      ],
+      "properties": {
+        "requesterId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "requestId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "awaiting_second",
+            "approved"
+          ]
+        },
+        "approvers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          },
+          "maxItems": 2
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notional": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedNativeOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId",
+        "commandId",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "filledQuantity",
+        "status"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "filledQuantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "AssistedNativeCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "subjectHash",
+        "commandId",
+        "expiresAt",
+        "state",
+        "signature"
+      ],
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "unknown"
+          ]
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "order": {
+          "$ref": "#/$defs/AssistedNativeOrder"
+        }
+      }
+    },
+    "AssistedRequestView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "subject"
+      ],
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/AssistedApprovalRequest"
+        },
+        "subject": {
+          "$ref": "#/$defs/AssistedSubject"
+        },
+        "command": {
+          "$ref": "#/$defs/AssistedNativeCommand"
+        }
+      }
+    },
+    "AssistedSubjectList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedSubject"
+          },
+          "maxItems": 50
+        }
+      }
+    },
+    "AssistedRequestList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedRequestView"
+          },
+          "maxItems": 200
+        }
+      }
+    },
+    "AssistedApprovalAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "verified",
+        "nativeSubmissions"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence",
+              "requestId",
+              "subjectHash",
+              "actorId",
+              "userId",
+              "slot",
+              "signature"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "requestId": {
+                "$ref": "#/$defs/UUID"
+              },
+              "subjectHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "actorId": {
+                "$ref": "#/$defs/UUID"
+              },
+              "userId": {
+                "$ref": "#/$defs/UUID"
+              },
+              "slot": {
+                "type": "integer",
+                "enum": [
+                  1,
+                  2
+                ]
+              },
+              "signature": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "maxItems": 2
+        },
+        "verified": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "nativeSubmissions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "OpenAssistedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subjectId"
+      ],
+      "properties": {
+        "subjectId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "ApproveAssistedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mfaChallengeRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "reauthTokenRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "SubmitAssistedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "integer",
+          "enum": [
+            2
+          ]
+        }
+      }
+    },
     "UUID": {
       "type": "string",
       "format": "uuid"

@@ -1,0 +1,15 @@
+
+> @sumalpha/terminal@0.1.0 typecheck /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+> tsc --project tsconfig.json --noEmit
+
+src/assisted/runtime.ts(28,21): error TS2345: Argument of type 'FetchResponse<{ parameters: { query?: undefined; header: { "Idempotency-Key": string; "X-CSRF-Token": string; "X-Request-Id": string; }; path?: undefined; cookie?: undefined; }; requestBody: { content: { "application/json": { ...; }; }; }; responses: { ...; }; }, { ...; }, `${string}/${string}`> | { ...; }' is not assignable to parameter of type '{ response: Response; data?: { request: { requestId: string; subjectId: string; subjectHash: string; policyVersion: string; revision: number; status: "pending" | "awaiting_second" | "approved"; approvers: string[]; expiresAt: string; notional: string; executionAuthority: false; }; subject: { ...; }; command?: { ...;...'.
+  Type '{ data: { requestId: string; subjectHash: string; commandId: string; expiresAt: string; state: "unknown" | "accepted"; signature: string; order?: { orderId: string; commandId: string; accountId: string; ... 4 more ...; status: string; } | undefined; }; error?: undefined; response: Response; }' is not assignable to type '{ response: Response; data?: { request: { requestId: string; subjectId: string; subjectHash: string; policyVersion: string; revision: number; status: "pending" | "awaiting_second" | "approved"; approvers: string[]; expiresAt: string; notional: string; executionAuthority: false; }; subject: { ...; }; command?: { ...;...'.
+    Types of property 'data' are incompatible.
+      Type '{ requestId: string; subjectHash: string; commandId: string; expiresAt: string; state: "unknown" | "accepted"; signature: string; order?: { orderId: string; commandId: string; accountId: string; ... 4 more ...; status: string; } | undefined; }' is missing the following properties from type '{ request: { requestId: string; subjectId: string; subjectHash: string; policyVersion: string; revision: number; status: "pending" | "awaiting_second" | "approved"; approvers: string[]; expiresAt: string; notional: string; executionAuthority: false; }; subject: { ...; }; command?: { ...; } | undefined; }': request, subject
+src/assisted/runtime.ts(37,93): error TS18048: 'i' is possibly 'undefined'.
+src/assisted/runtime.ts(37,111): error TS18048: 'i' is possibly 'undefined'.
+src/assisted/runtime.ts(37,175): error TS2345: Argument of type 'Intent | undefined' is not assignable to parameter of type 'Intent'.
+  Type 'undefined' is not assignable to type 'Intent'.
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 typecheck: `tsc --project tsconfig.json --noEmit`
+Exit status 2

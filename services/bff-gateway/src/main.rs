@@ -55,11 +55,16 @@ async fn main() -> anyhow::Result<()> {
         .await
         .context("live BFF initialization failed")??
     } else {
-        let provider = if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("shadow") {
-            BffProvider::shadow_reference()
-        } else {
-            BffProvider::default()
-        };
+        let provider =
+            if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("assisted-local") {
+                BffProvider::assisted_reference(
+                    env::var("QUANTOS_BFF_OWNED_ASSISTED").as_deref() == Ok("enabled"),
+                )
+            } else if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("shadow") {
+                BffProvider::shadow_reference()
+            } else {
+                BffProvider::default()
+            };
         if env::var("QUANTOS_BFF_REFERENCE_OPS_FEED").as_deref() == Ok("clear-once") {
             let feed = provider.clone();
             tokio::spawn(async move {

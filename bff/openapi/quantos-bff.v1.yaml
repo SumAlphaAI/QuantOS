@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.17.0
+  version: 1.18.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -10622,6 +10622,680 @@ paths:
         default:
           $ref: "#/components/responses/ServerError"
       x-quantos-policy: *a1
+  /v1/assisted-testnet/capabilities:
+    get:
+      operationId: getAssistedNativeCapabilities
+      tags:
+        - execution
+      summary: getAssistedNativeCapabilities
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedNativeCapabilities"
+              example:
+                schemaVersion: quantos-assisted-testnet-capabilities.v1
+                actorId: 11111111-1111-4111-8111-111111111111
+                tenantId: 11111111-1111-4111-8111-111111111111
+                workspaceId: 11111111-1111-4111-8111-111111111111
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: paper
+                serverFlagEnabled: false
+                targetEnabled: false
+                canRequest: false
+                canApprove: false
+                executionAuthority: false
+                policyVersion: core-l03-local.v1
+                policyRevision: 1
+                checkedAt: 2026-10-27T00:00:00Z
+                expiresAt: 2026-10-27T00:00:08Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/subjects:
+    get:
+      operationId: listAssistedSubjects
+      tags:
+        - execution
+      summary: listAssistedSubjects
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedSubjectList"
+              example:
+                items:
+                  - subjectId: 11111111-1111-4111-8111-111111111111
+                    subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    proposalHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    decisionId: 11111111-1111-4111-8111-111111111111
+                    originator: 11111111-1111-4111-8111-111111111111
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    symbol: BTCUSDT
+                    side: buy
+                    quantity: "1"
+                    limitPrice: "1000"
+                    expiresAt: 2026-10-27T00:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/requests:
+    get:
+      operationId: listAssistedRequests
+      tags:
+        - execution
+      summary: listAssistedRequests
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedRequestList"
+              example:
+                items:
+                  - request:
+                      requestId: 11111111-1111-4111-8111-111111111111
+                      subjectId: 11111111-1111-4111-8111-111111111111
+                      subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      policyVersion: "1"
+                      revision: 0
+                      status: pending
+                      approvers: []
+                      expiresAt: 2026-10-27T00:00:00Z
+                      notional: "1000"
+                      executionAuthority: false
+                      requesterId: 11111111-1111-4111-8111-111111111111
+                    subject:
+                      subjectId: 11111111-1111-4111-8111-111111111111
+                      subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      proposalHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      decisionId: 11111111-1111-4111-8111-111111111111
+                      originator: 11111111-1111-4111-8111-111111111111
+                      accountId: 11111111-1111-4111-8111-111111111111
+                      symbol: BTCUSDT
+                      side: buy
+                      quantity: "1"
+                      limitPrice: "1000"
+                      expiresAt: 2026-10-27T00:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+    post:
+      operationId: openAssistedRequest
+      tags:
+        - execution
+      summary: openAssistedRequest
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedRequestView"
+              example:
+                request:
+                  requestId: 11111111-1111-4111-8111-111111111111
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  policyVersion: "1"
+                  revision: 0
+                  status: pending
+                  approvers: []
+                  expiresAt: 2026-10-27T00:00:00Z
+                  notional: "1000"
+                  executionAuthority: false
+                  requesterId: 11111111-1111-4111-8111-111111111111
+                subject:
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  proposalHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  decisionId: 11111111-1111-4111-8111-111111111111
+                  originator: 11111111-1111-4111-8111-111111111111
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  symbol: BTCUSDT
+                  side: buy
+                  quantity: "1"
+                  limitPrice: "1000"
+                  expiresAt: 2026-10-27T00:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: Required exact actor/request/key/body/proof binding; original
+          response-loss recovery only, no automatic replay, cache hits recheck
+          current authority and original deadlines.
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenAssistedRequest"
+            example:
+              subjectId: 11111111-1111-4111-8111-111111111111
+  /v1/assisted-testnet/requests/{requestId}:
+    get:
+      operationId: getAssistedRequest
+      tags:
+        - execution
+      summary: getAssistedRequest
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedRequestView"
+              example:
+                request:
+                  requestId: 11111111-1111-4111-8111-111111111111
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  policyVersion: "1"
+                  revision: 0
+                  status: pending
+                  approvers: []
+                  expiresAt: 2026-10-27T00:00:00Z
+                  notional: "1000"
+                  executionAuthority: false
+                  requesterId: 11111111-1111-4111-8111-111111111111
+                subject:
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  proposalHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  decisionId: 11111111-1111-4111-8111-111111111111
+                  originator: 11111111-1111-4111-8111-111111111111
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  symbol: BTCUSDT
+                  side: buy
+                  quantity: "1"
+                  limitPrice: "1000"
+                  expiresAt: 2026-10-27T00:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/requests/{requestId}/approvals:
+    post:
+      operationId: approveAssistedRequest
+      tags:
+        - execution
+      summary: approveAssistedRequest
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedRequestView"
+              example:
+                request:
+                  requestId: 11111111-1111-4111-8111-111111111111
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  policyVersion: "1"
+                  revision: 0
+                  status: pending
+                  approvers: []
+                  expiresAt: 2026-10-27T00:00:00Z
+                  notional: "1000"
+                  executionAuthority: false
+                  requesterId: 11111111-1111-4111-8111-111111111111
+                subject:
+                  subjectId: 11111111-1111-4111-8111-111111111111
+                  subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  proposalHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  decisionId: 11111111-1111-4111-8111-111111111111
+                  originator: 11111111-1111-4111-8111-111111111111
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  symbol: BTCUSDT
+                  side: buy
+                  quantity: "1"
+                  limitPrice: "1000"
+                  expiresAt: 2026-10-27T00:00:00Z
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: Required exact actor/request/key/body/proof binding; original
+          response-loss recovery only, no automatic replay, cache hits recheck
+          current authority and original deadlines.
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveAssistedRequest"
+            example:
+              expectedRevision: 0
+              mfaChallengeRef: fixture-challenge
+              reauthTokenRef: fixture-reauth
+  /v1/assisted-testnet/requests/{requestId}/commands:
+    post:
+      operationId: submitAssistedRequest
+      tags:
+        - execution
+      summary: submitAssistedRequest
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedNativeCommand"
+              example:
+                requestId: 11111111-1111-4111-8111-111111111111
+                subjectHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                commandId: 11111111-1111-4111-8111-111111111111
+                expiresAt: 2026-10-27T00:00:00Z
+                state: unknown
+                signature: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: Required exact actor/request/key/body/proof binding; original
+          response-loss recovery only, no automatic replay, cache hits recheck
+          current authority and original deadlines.
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitAssistedRequest"
+            example:
+              expectedRevision: 2
+  /v1/assisted-testnet/requests/{requestId}/audit:
+    get:
+      operationId: getAssistedApprovalAudit
+      tags:
+        - execution
+      summary: getAssistedApprovalAudit
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedApprovalAudit"
+              example:
+                items: []
+                verified: true
+                nativeSubmissions: 0
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is
+          not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable
+          subject/risk projection and half-open proof/request/command deadlines;
+          never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no
+          blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and
+          same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no
+            unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths;
+          tenant/workspace/actor are server-injected.
+
 components:
   securitySchemes:
     cookieAuth:
@@ -10855,6 +11529,361 @@ components:
             message: 服务暂不可用，请稍后重试。
             correlationId: 11111111-1111-4111-8111-111111111111
   schemas:
+    AssistedNativeCapabilities:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - actorId
+        - tenantId
+        - workspaceId
+        - accountId
+        - mode
+        - serverFlagEnabled
+        - targetEnabled
+        - canRequest
+        - canApprove
+        - executionAuthority
+        - policyVersion
+        - policyRevision
+        - checkedAt
+        - expiresAt
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-assisted-testnet-capabilities.v1
+        actorId:
+          $ref: "#/components/schemas/UUID"
+        tenantId:
+          $ref: "#/components/schemas/UUID"
+        workspaceId:
+          $ref: "#/components/schemas/UUID"
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          type: string
+          enum:
+            - paper
+            - shadow
+            - assisted_live
+        serverFlagEnabled:
+          type: boolean
+        targetEnabled:
+          type: boolean
+        canRequest:
+          type: boolean
+        canApprove:
+          type: boolean
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+        policyRevision:
+          type: integer
+          minimum: 1
+        policyVersion:
+          type: string
+          enum:
+            - core-l03-local.v1
+        checkedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+    AssistedSubject:
+      type: object
+      additionalProperties: false
+      required:
+        - subjectId
+        - subjectHash
+        - proposalHash
+        - decisionId
+        - originator
+        - accountId
+        - symbol
+        - side
+        - quantity
+        - limitPrice
+        - expiresAt
+      properties:
+        subjectId:
+          $ref: "#/components/schemas/UUID"
+        subjectHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        proposalHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        decisionId:
+          $ref: "#/components/schemas/UUID"
+        originator:
+          $ref: "#/components/schemas/UUID"
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        quantity:
+          $ref: "#/components/schemas/DecimalValue"
+        limitPrice:
+          $ref: "#/components/schemas/DecimalValue"
+        expiresAt:
+          type: string
+          format: date-time
+    AssistedApprovalRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - requesterId
+        - subjectId
+        - subjectHash
+        - policyVersion
+        - revision
+        - status
+        - approvers
+        - expiresAt
+        - notional
+        - executionAuthority
+      properties:
+        requesterId:
+          $ref: "#/components/schemas/UUID"
+        requestId:
+          $ref: "#/components/schemas/UUID"
+        subjectId:
+          $ref: "#/components/schemas/UUID"
+        subjectHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        policyVersion:
+          type: string
+          minLength: 1
+          maxLength: 20
+        revision:
+          type: integer
+          minimum: 0
+          maximum: 2
+        status:
+          type: string
+          enum:
+            - pending
+            - awaiting_second
+            - approved
+        approvers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UUID"
+          maxItems: 2
+        expiresAt:
+          type: string
+          format: date-time
+        notional:
+          $ref: "#/components/schemas/DecimalValue"
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    AssistedNativeOrder:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - commandId
+        - accountId
+        - symbol
+        - side
+        - quantity
+        - filledQuantity
+        - status
+      properties:
+        orderId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        commandId:
+          $ref: "#/components/schemas/UUID"
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        quantity:
+          $ref: "#/components/schemas/DecimalValue"
+        filledQuantity:
+          $ref: "#/components/schemas/DecimalValue"
+        status:
+          type: string
+          minLength: 1
+          maxLength: 32
+    AssistedNativeCommand:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - subjectHash
+        - commandId
+        - expiresAt
+        - state
+        - signature
+      properties:
+        requestId:
+          $ref: "#/components/schemas/UUID"
+        subjectHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        commandId:
+          $ref: "#/components/schemas/UUID"
+        expiresAt:
+          type: string
+          format: date-time
+        state:
+          type: string
+          enum:
+            - accepted
+            - unknown
+        signature:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        order:
+          $ref: "#/components/schemas/AssistedNativeOrder"
+    AssistedRequestView:
+      type: object
+      additionalProperties: false
+      required:
+        - request
+        - subject
+      properties:
+        request:
+          $ref: "#/components/schemas/AssistedApprovalRequest"
+        subject:
+          $ref: "#/components/schemas/AssistedSubject"
+        command:
+          $ref: "#/components/schemas/AssistedNativeCommand"
+    AssistedSubjectList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssistedSubject"
+          maxItems: 50
+    AssistedRequestList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssistedRequestView"
+          maxItems: 200
+    AssistedApprovalAudit:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - verified
+        - nativeSubmissions
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - sequence
+              - requestId
+              - subjectHash
+              - actorId
+              - userId
+              - slot
+              - signature
+            properties:
+              sequence:
+                type: integer
+                minimum: 1
+              requestId:
+                $ref: "#/components/schemas/UUID"
+              subjectHash:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              actorId:
+                $ref: "#/components/schemas/UUID"
+              userId:
+                $ref: "#/components/schemas/UUID"
+              slot:
+                type: integer
+                enum:
+                  - 1
+                  - 2
+              signature:
+                type: string
+                pattern: ^[a-f0-9]{64}$
+          maxItems: 2
+        verified:
+          type: boolean
+          enum:
+            - true
+        nativeSubmissions:
+          type: integer
+          minimum: 0
+    OpenAssistedRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - subjectId
+      properties:
+        subjectId:
+          $ref: "#/components/schemas/UUID"
+    ApproveAssistedRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedRevision
+        - mfaChallengeRef
+        - reauthTokenRef
+      properties:
+        expectedRevision:
+          type: integer
+          minimum: 0
+          maximum: 1
+        mfaChallengeRef:
+          type: string
+          minLength: 1
+          maxLength: 128
+        reauthTokenRef:
+          type: string
+          minLength: 1
+          maxLength: 128
+    SubmitAssistedRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - expectedRevision
+      properties:
+        expectedRevision:
+          type: integer
+          enum:
+            - 2
+
     UUID:
       type: string
       format: uuid

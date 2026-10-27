@@ -1,0 +1,314 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/core-l03-off.spec.ts:4:5 › CORE L03 server flag off removes actual P10 and P11 native actions (1.5s)
+  ✓   2 [chromium] › tests/e2e/core-l03.spec.ts:7:5 › CORE L03 actual P10 two independent MFA approvers and P11 same-source native recovery (1.4s)
+  ✓   3 [chromium] › tests/e2e/core-l03.spec.ts:20:5 › CORE L03 native small screen remains read-only and current authority loss clears private facts (263ms)
+  ✘   4 [chromium] › tests/e2e/fep5-function.spec.ts:9:5 › FEP5 actual Trade to Order Audit cancellation journey keeps correlated server facts (30.1s)
+  ✘   5 [chromium] › tests/e2e/fep5-function.spec.ts:10:5 › FEP5 response correlation substitution cannot carry reviewed intent into another approval (30.1s)
+  ✘   6 [chromium] › tests/e2e/fep5-function.spec.ts:11:5 › FEP5 current actual Kill after independent approval prevents Order creation (30.1s)
+  ✘   7 [chromium] › tests/e2e/fep5-function.spec.ts:12:5 › FEP5 small screens close open signing/cancel dialogs and retain only read facts (30.1s)
+  ✘   8 [chromium] › tests/e2e/fep5-function.spec.ts:13:5 › FEP5 approval correlation substitution stays unknown until exact original recovery (30.1s)
+  ✘   9 [chromium] › tests/e2e/frontend-g8.spec.ts:9:5 › G8 actual Paper P10 MFA approval P11 recovery and Audit preserve separate actors without exposing Assisted Live (2.9s)
+  ✘  10 [chromium] › tests/e2e/frontend-g8.spec.ts:19:5 › G8 explicit consumer assisted mode and malformed entry cannot widen current P10 P11 authority (7.1s)
+  ✘  11 [chromium] › tests/e2e/g8-current.spec.ts:6:5 › G8 current P10 P11 show actual server-closed conditions with no assisted entry or writes (7.0s)
+  ✘  12 [chromium] › tests/e2e/g8-current.spec.ts:12:5 › G8 current non-JSON authority refusal clears actual P10 private facts and no assisted route is exposed (7.0s)
+
+
+  1) [chromium] › tests/e2e/fep5-function.spec.ts:9:5 › FEP5 actual Trade to Order Audit cancellation journey keeps correlated server facts 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Proposal', { exact: true })
+        - locator resolved to <select aria-label="Proposal">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      3 | installReferenceHooks();
+      4 | const errors=(p:Page)=>p.locator('.p20 > [role=alert]');
+    > 5 | async function reviewed(p:Page){await p.goto('/trade/BTCUSDT');await authorized(p);await p.getByLabel('Proposal',{exact:true}).selectOption({index:1});await p.getByLabel('行情参考',{exact:true}).selectOption({index:1});await p.getByRole('button',{name:'读取并重新核查',exact:true}).click();await expect(p.getByTestId('trade-snapshot')).toContainText('OWNED_PAPER');await p.getByRole('button',{name:'重新核查并继续',exact:true}).click();await p.getByRole('button',{name:'重新核查并预填 intent',exact:true}).click();await expect(p.getByTestId('intent-ready')).toBeVisible();}
+        |                                                                                                                                ^
+      6 | async function confirm(p:Page,action:'risk'|'command'){await p.getByRole('button',{name:action==='risk'?'运行风险评估':'提交服务端 Command',exact:true}).click();const d=p.getByRole('dialog');await d.getByLabel(`输入“${action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND'}”以确认`).fill(action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND');await d.getByRole('button',{name:action==='risk'?'确认风险评估申请':'确认提交 Command',exact:true}).click();}
+      7 | async function readOrders(){const c=await control('/v1/context'),r=await control('/v1/orders?accountId='+c.body.accountId);expect(r.status).toBe(200);return r.body.items as {orderId:string;proposalId:string;correlationId:string}[];}
+      8 | async function approve(){const a=((await control('/v1/approvals')).body.items as Record<string,unknown>[]).find(a=>a.status==='pending')!,m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-approver'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-approver'});expect((await control('/v1/approvals/'+a.approvalId+'/decisions',{decision:'approve',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},String(a.objectVersion),{method:'POST',session:'session-approver'})).status).toBe(200);return a;}
+        at reviewed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:5:128)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:9:113
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-actual--3907a-eps-correlated-server-facts-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-actual--3907a-eps-correlated-server-facts-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/fep5-function.spec.ts:10:5 › FEP5 response correlation substitution cannot carry reviewed intent into another approval 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Proposal', { exact: true })
+        - locator resolved to <select aria-label="Proposal">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      3 | installReferenceHooks();
+      4 | const errors=(p:Page)=>p.locator('.p20 > [role=alert]');
+    > 5 | async function reviewed(p:Page){await p.goto('/trade/BTCUSDT');await authorized(p);await p.getByLabel('Proposal',{exact:true}).selectOption({index:1});await p.getByLabel('行情参考',{exact:true}).selectOption({index:1});await p.getByRole('button',{name:'读取并重新核查',exact:true}).click();await expect(p.getByTestId('trade-snapshot')).toContainText('OWNED_PAPER');await p.getByRole('button',{name:'重新核查并继续',exact:true}).click();await p.getByRole('button',{name:'重新核查并预填 intent',exact:true}).click();await expect(p.getByTestId('intent-ready')).toBeVisible();}
+        |                                                                                                                                ^
+      6 | async function confirm(p:Page,action:'risk'|'command'){await p.getByRole('button',{name:action==='risk'?'运行风险评估':'提交服务端 Command',exact:true}).click();const d=p.getByRole('dialog');await d.getByLabel(`输入“${action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND'}”以确认`).fill(action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND');await d.getByRole('button',{name:action==='risk'?'确认风险评估申请':'确认提交 Command',exact:true}).click();}
+      7 | async function readOrders(){const c=await control('/v1/context'),r=await control('/v1/orders?accountId='+c.body.accountId);expect(r.status).toBe(200);return r.body.items as {orderId:string;proposalId:string;correlationId:string}[];}
+      8 | async function approve(){const a=((await control('/v1/approvals')).body.items as Record<string,unknown>[]).find(a=>a.status==='pending')!,m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-approver'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-approver'});expect((await control('/v1/approvals/'+a.approvalId+'/decisions',{decision:'approve',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},String(a.objectVersion),{method:'POST',session:'session-approver'})).status).toBe(200);return a;}
+        at reviewed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:5:128)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:10:114
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-respons-747fa-ntent-into-another-approval-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-respons-747fa-ntent-into-another-approval-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/fep5-function.spec.ts:11:5 › FEP5 current actual Kill after independent approval prevents Order creation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Proposal', { exact: true })
+        - locator resolved to <select aria-label="Proposal">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      3 | installReferenceHooks();
+      4 | const errors=(p:Page)=>p.locator('.p20 > [role=alert]');
+    > 5 | async function reviewed(p:Page){await p.goto('/trade/BTCUSDT');await authorized(p);await p.getByLabel('Proposal',{exact:true}).selectOption({index:1});await p.getByLabel('行情参考',{exact:true}).selectOption({index:1});await p.getByRole('button',{name:'读取并重新核查',exact:true}).click();await expect(p.getByTestId('trade-snapshot')).toContainText('OWNED_PAPER');await p.getByRole('button',{name:'重新核查并继续',exact:true}).click();await p.getByRole('button',{name:'重新核查并预填 intent',exact:true}).click();await expect(p.getByTestId('intent-ready')).toBeVisible();}
+        |                                                                                                                                ^
+      6 | async function confirm(p:Page,action:'risk'|'command'){await p.getByRole('button',{name:action==='risk'?'运行风险评估':'提交服务端 Command',exact:true}).click();const d=p.getByRole('dialog');await d.getByLabel(`输入“${action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND'}”以确认`).fill(action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND');await d.getByRole('button',{name:action==='risk'?'确认风险评估申请':'确认提交 Command',exact:true}).click();}
+      7 | async function readOrders(){const c=await control('/v1/context'),r=await control('/v1/orders?accountId='+c.body.accountId);expect(r.status).toBe(200);return r.body.items as {orderId:string;proposalId:string;correlationId:string}[];}
+      8 | async function approve(){const a=((await control('/v1/approvals')).body.items as Record<string,unknown>[]).find(a=>a.status==='pending')!,m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-approver'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-approver'});expect((await control('/v1/approvals/'+a.approvalId+'/decisions',{decision:'approve',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},String(a.objectVersion),{method:'POST',session:'session-approver'})).status).toBe(200);return a;}
+        at reviewed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:5:128)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:11:100
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-current-40c61-val-prevents-Order-creation-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-current-40c61-val-prevents-Order-creation-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/fep5-function.spec.ts:12:5 › FEP5 small screens close open signing/cancel dialogs and retain only read facts 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Proposal', { exact: true })
+        - locator resolved to <select aria-label="Proposal">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      3 | installReferenceHooks();
+      4 | const errors=(p:Page)=>p.locator('.p20 > [role=alert]');
+    > 5 | async function reviewed(p:Page){await p.goto('/trade/BTCUSDT');await authorized(p);await p.getByLabel('Proposal',{exact:true}).selectOption({index:1});await p.getByLabel('行情参考',{exact:true}).selectOption({index:1});await p.getByRole('button',{name:'读取并重新核查',exact:true}).click();await expect(p.getByTestId('trade-snapshot')).toContainText('OWNED_PAPER');await p.getByRole('button',{name:'重新核查并继续',exact:true}).click();await p.getByRole('button',{name:'重新核查并预填 intent',exact:true}).click();await expect(p.getByTestId('intent-ready')).toBeVisible();}
+        |                                                                                                                                ^
+      6 | async function confirm(p:Page,action:'risk'|'command'){await p.getByRole('button',{name:action==='risk'?'运行风险评估':'提交服务端 Command',exact:true}).click();const d=p.getByRole('dialog');await d.getByLabel(`输入“${action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND'}”以确认`).fill(action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND');await d.getByRole('button',{name:action==='risk'?'确认风险评估申请':'确认提交 Command',exact:true}).click();}
+      7 | async function readOrders(){const c=await control('/v1/context'),r=await control('/v1/orders?accountId='+c.body.accountId);expect(r.status).toBe(200);return r.body.items as {orderId:string;proposalId:string;correlationId:string}[];}
+      8 | async function approve(){const a=((await control('/v1/approvals')).body.items as Record<string,unknown>[]).find(a=>a.status==='pending')!,m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-approver'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-approver'});expect((await control('/v1/approvals/'+a.approvalId+'/decisions',{decision:'approve',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},String(a.objectVersion),{method:'POST',session:'session-approver'})).status).toBe(200);return a;}
+        at reviewed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:5:128)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:12:109
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-small-s-ca41b--and-retain-only-read-facts-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-small-s-ca41b--and-retain-only-read-facts-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/fep5-function.spec.ts:13:5 › FEP5 approval correlation substitution stays unknown until exact original recovery 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByLabel('Proposal', { exact: true })
+        - locator resolved to <select aria-label="Proposal">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - did not find some options
+         - retrying select option action
+           - waiting 500ms
+
+
+      3 | installReferenceHooks();
+      4 | const errors=(p:Page)=>p.locator('.p20 > [role=alert]');
+    > 5 | async function reviewed(p:Page){await p.goto('/trade/BTCUSDT');await authorized(p);await p.getByLabel('Proposal',{exact:true}).selectOption({index:1});await p.getByLabel('行情参考',{exact:true}).selectOption({index:1});await p.getByRole('button',{name:'读取并重新核查',exact:true}).click();await expect(p.getByTestId('trade-snapshot')).toContainText('OWNED_PAPER');await p.getByRole('button',{name:'重新核查并继续',exact:true}).click();await p.getByRole('button',{name:'重新核查并预填 intent',exact:true}).click();await expect(p.getByTestId('intent-ready')).toBeVisible();}
+        |                                                                                                                                ^
+      6 | async function confirm(p:Page,action:'risk'|'command'){await p.getByRole('button',{name:action==='risk'?'运行风险评估':'提交服务端 Command',exact:true}).click();const d=p.getByRole('dialog');await d.getByLabel(`输入“${action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND'}”以确认`).fill(action==='risk'?'EVALUATE RISK':'SUBMIT COMMAND');await d.getByRole('button',{name:action==='risk'?'确认风险评估申请':'确认提交 Command',exact:true}).click();}
+      7 | async function readOrders(){const c=await control('/v1/context'),r=await control('/v1/orders?accountId='+c.body.accountId);expect(r.status).toBe(200);return r.body.items as {orderId:string;proposalId:string;correlationId:string}[];}
+      8 | async function approve(){const a=((await control('/v1/approvals')).body.items as Record<string,unknown>[]).find(a=>a.status==='pending')!,m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session:'session-approver'}),g=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{method:'POST',session:'session-approver'});expect((await control('/v1/approvals/'+a.approvalId+'/decisions',{decision:'approve',mfaChallengeRef:m.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},String(a.objectVersion),{method:'POST',session:'session-approver'})).status).toBe(200);return a;}
+        at reviewed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:5:128)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fep5-function.spec.ts:13:112
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-approva-ecaac-til-exact-original-recovery-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/fep5-function-FEP5-approva-ecaac-til-exact-original-recovery-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/frontend-g8.spec.ts:9:5 › G8 actual Paper P10 MFA approval P11 recovery and Audit preserve separate actors without exposing Assisted Live 
+
+    TypeError: Cannot read properties of undefined (reading '0')
+
+       6 | installReferenceHooks();
+       7 | const operator={session:'session-current' as const};
+    >  8 | async function seed(){const p=((await control('/v1/proposals',undefined,undefined,operator)).body.items as Record<string,unknown>[])[0]!,q=await control(`/v1/trade-preflight?accountId=${p.accountId}&proposalId=${p.proposalId}`,undefined,undefined,operator);expect((await control(`/v1/proposals/${p.proposalId}/risk-evaluations`,{contextHash:q.body.contextHash},String(p.objectVersion),{...operator,method:'POST'})).status).toBe(202);const a=((await control('/v1/approvals',undefined,undefined,operator)).body.items as Record<string,unknown>[]).find(a=>a.correlationId===p.correlationId)!;return{proposal:p,approval:a};}
+         |                                                                                                        ^
+       9 | test('G8 actual Paper P10 MFA approval P11 recovery and Audit preserve separate actors without exposing Assisted Live',async({page},info)=>{
+      10 |  test.setTimeout(60000);const {proposal,approval}=await seed(),aid=String(approval.approvalId);
+      11 |  await page.goto('/approvals/'+aid);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();expect(networkRows().filter(r=>!r.control&&r.path.endsWith('/decisions'))).toHaveLength(0);
+        at seed (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g8.spec.ts:8:104)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g8.spec.ts:10:51
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/frontend-g8-G8-actual-Pape-05f53-hout-exposing-Assisted-Live-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/frontend-g8-G8-actual-Pape-05f53-hout-exposing-Assisted-Live-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/frontend-g8.spec.ts:19:5 › G8 explicit consumer assisted mode and malformed entry cannot widen current P10 P11 authority 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Orders 引用无效', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Orders 引用无效', exact: true })
+
+
+      21 |  await page.route(/\/v1\/(session|context)$/,async route=>{const response=await route.fetch(),original=await response.text(),body=JSON.stringify({...JSON.parse(original),mode:'assisted_live'});deliveries.push({path:new URL(route.request().url()).pathname,originalHash:hash(original),deliveredHash:hash(body),scope:'EXPLICIT_BROWSER_DELIVERY_ONLY_NOT_BFF_IDENTITY'});await route.fulfill({response,body});});
+      22 |  for(const path of ['/approvals','/orders']){await page.goto(path);await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(page.locator('[data-route-access="authorized"]')).toHaveCount(0);}
+    > 23 |  const n=networkRows().length;await page.goto('/orders?mode=assisted_live&testnet=on');await expect(page.getByRole('heading',{name:'Orders 引用无效',exact:true})).toBeVisible();expect(networkRows()).toHaveLength(n);expect(networkRows().filter(r=>!r.control&&r.method==='POST')).toHaveLength(0);await writeFile(info.outputPath('g8-mode-refusal.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scope:'EXPLICIT_CONSUMER_ASSISTED_MODE_NO_BACKEND_POSITIVE',actualTestnetConnected:false,businessWrites:0,deliveries},null,2));
+         |                                                                                                                                                                ^
+      24 | });
+      25 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/frontend-g8.spec.ts:23:160
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/frontend-g8-G8-explicit-co-0e2c7-n-current-P10-P11-authority-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/frontend-g8-G8-explicit-co-0e2c7-n-current-P10-P11-authority-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/g8-current.spec.ts:6:5 › G8 current P10 P11 show actual server-closed conditions with no assisted entry or writes 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('assisted-testnet-admission')
+    Expected: "closed"
+    Received: "unavailable"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for getByTestId('assisted-testnet-admission')
+        14 × locator resolved to <p role="status" class="p10-admission" data-state="unavailable" data-testid="assisted-testnet-admission">尚未核实 Assisted Live（testnet）开放条件；当前不可进入。</p>
+           - unexpected value "unavailable"
+
+
+       5 | installReferenceHooks();
+       6 | test('G8 current P10 P11 show actual server-closed conditions with no assisted entry or writes',async({page},info)=>{
+    >  7 |  useSession('session-approver');await page.goto('/approvals');await authorized(page);await expect(page.getByTestId('assisted-testnet-admission')).toHaveAttribute('data-state','closed');await expect(page.getByTestId('assisted-testnet-admission')).toContainText('暂未开放');await expect(page.getByRole('button',{name:/进入.*Assisted Live/})).toHaveCount(0);await page.screenshot({path:info.outputPath('g8-current-p10.png')});
+         |                                                                                                                                                   ^
+       8 |  useSession('session-current');await page.goto('/orders');await authorized(page);await expect(page.getByTestId('assisted-testnet-admission')).toHaveAttribute('data-state','closed');await expect(page.getByRole('button',{name:/进入.*Assisted Live/})).toHaveCount(0);await page.setViewportSize({width:390,height:844});await expect(page.getByTestId('assisted-testnet-admission')).toContainText('暂未开放');
+       9 |  const axe=await new AxeBuilder({page}).analyze();expect(axe.violations).toEqual([]);await writeFile(info.outputPath('g8-current-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,violations:axe.violations,incomplete:axe.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));await page.screenshot({path:info.outputPath('g8-current-p11-small.png')});
+      10 |  expect(networkRows().filter(r=>!r.control&&r.method!=='GET')).toHaveLength(0);await writeFile(info.outputPath('g8-current-admission.json'),JSON.stringify({schema:'quantos-g8-current-browser/v1',sourceCommit:process.env.GITHUB_SHA,source:'ACTUAL_REFERENCE_C01_C09_NOT_NATIVE_ASSISTED_AUTHORITY',p10:'SERVER_CLOSED',p11:'SERVER_CLOSED',viewport:'390x844',businessWrites:0,actualTestnetConnected:false,rows:networkRows()},null,2));
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/g8-current.spec.ts:7:147
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/g8-current-G8-current-P10--2b5be-no-assisted-entry-or-writes-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/g8-current-G8-current-P10--2b5be-no-assisted-entry-or-writes-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/g8-current.spec.ts:12:5 › G8 current non-JSON authority refusal clears actual P10 private facts and no assisted route is exposed 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('assisted-testnet-admission')
+    Expected: "closed"
+    Received: "unavailable"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for getByTestId('assisted-testnet-admission')
+        14 × locator resolved to <p role="status" class="p10-admission" data-state="unavailable" data-testid="assisted-testnet-admission">尚未核实 Assisted Live（testnet）开放条件；当前不可进入。</p>
+           - unexpected value "unavailable"
+
+
+      11 | });
+      12 | test('G8 current non-JSON authority refusal clears actual P10 private facts and no assisted route is exposed',async({page},info)=>{
+    > 13 |  useSession('session-approver');await page.goto('/approvals');await authorized(page);await expect(page.getByTestId('assisted-testnet-admission')).toHaveAttribute('data-state','closed');fault({nonJsonPath:'/v1/context',refusal:403});await page.getByRole('button',{name:/刷新列表|刷新审批|刷新/}).first().click();await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(page.locator('[data-route-access="authorized"]')).toHaveCount(0);expect(networkRows().filter(r=>!r.control&&r.method!=='GET')).toHaveLength(0);await writeFile(info.outputPath('g8-current-revocation.json'),JSON.stringify({schema:'quantos-g8-current-browser-revocation/v1',sourceCommit:process.env.GITHUB_SHA,source:'ACTUAL_REFERENCE_WITH_EXPLICIT_NON_JSON_403_TRANSPORT_PROBE',privateFactsCleared:true,businessWrites:0,actualTestnetConnected:false,rows:networkRows()},null,2));
+         |                                                                                                                                                   ^
+      14 | });
+      15 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/g8-current.spec.ts:13:147
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/g8-current-G8-current-non--d093a-o-assisted-route-is-exposed-chromium/error-context.md
+
+    Error Context: ../../../../../../private/tmp/core-l03-browser-preflight/cases/g8-current-G8-current-non--d093a-o-assisted-route-is-exposed-chromium/error-context.md
+
+  9 failed
+    [chromium] › tests/e2e/fep5-function.spec.ts:9:5 › FEP5 actual Trade to Order Audit cancellation journey keeps correlated server facts 
+    [chromium] › tests/e2e/fep5-function.spec.ts:10:5 › FEP5 response correlation substitution cannot carry reviewed intent into another approval 
+    [chromium] › tests/e2e/fep5-function.spec.ts:11:5 › FEP5 current actual Kill after independent approval prevents Order creation 
+    [chromium] › tests/e2e/fep5-function.spec.ts:12:5 › FEP5 small screens close open signing/cancel dialogs and retain only read facts 
+    [chromium] › tests/e2e/fep5-function.spec.ts:13:5 › FEP5 approval correlation substitution stays unknown until exact original recovery 
+    [chromium] › tests/e2e/frontend-g8.spec.ts:9:5 › G8 actual Paper P10 MFA approval P11 recovery and Audit preserve separate actors without exposing Assisted Live 
+    [chromium] › tests/e2e/frontend-g8.spec.ts:19:5 › G8 explicit consumer assisted mode and malformed entry cannot widen current P10 P11 authority 
+    [chromium] › tests/e2e/g8-current.spec.ts:6:5 › G8 current P10 P11 show actual server-closed conditions with no assisted entry or writes 
+    [chromium] › tests/e2e/g8-current.spec.ts:12:5 › G8 current non-JSON authority refusal clears actual P10 private facts and no assisted route is exposed 
+  3 passed (3.0m)

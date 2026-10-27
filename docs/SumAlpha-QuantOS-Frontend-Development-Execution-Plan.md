@@ -3489,6 +3489,8 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 
 - 当前收口/M5准备跟进（2026-10-27）：基于 G8 `18408e7b` 与最新 L4 原范围记录，更新六维事实与19项直接依赖、19项缺口 owners/关闭判据；修复只读 census 硬编码旧 binary 来源，并核查当前 C09 1.17.0 opt-in 默认关闭声明和 Paper/Shadow 权限拒绝。详见[当前评审](./operations/fep8-current-m5-review.md)、[机器材料](./execution/fep8-current-m5-review.json)、[冻结证据](./audit/evidence/fep8-current-local-20261027/README.md)，执行 `node scripts/fep8-current-review.mjs --verify`。工程 Gate `PASS_FEP8_CURRENT_SCOPE_AND_M5_REVIEW_PREPARATION` 仅适用于当前已实现前端范围；FEP-8仍PARTIAL，FEP-8/G8 NOT_READY_GAPS_OPEN、M5 PREPARED_NOT_READY、159阶段NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。原材料/失败/axe incomplete保留原SHA；本轮未改页面，不重跑UI/原生/上游矩阵，不据此关闭核心L03/L04或19项缺口。下一原任务 CORE:L03 DEVELOPMENT，承接C09已存在关闭声明并开展公共双审批权限/原生签发/P10/P11同源本机接续，INTEGRATION与RELEASE未放行。
 
+- CORE:L03 当前本机接续（2026-10-27）：P10/P11新增受服务端C01/版本化flag/policyRevision控制的Assisted Live本机流程，两名不同actor/user逐次MFA/reauth后接同源原生命令与L01 Order；保持Paper/Shadow原行为、引用规范化先于IO、小屏只读、失权清理及原请求恢复。限定50案例和12项当前浏览器结果以[CORE:L03证据](./audit/evidence/core-l03-local-20261027/README.md)为准，[当前边界](./operations/core-l03-current-function.md)明确reference身份/自有无网络协议端口与当前in-process限制。FEP-8/G8/M5及19项原gap不自动关闭，159阶段不提升；下一原项CORE:L04 DEVELOPMENT补受限进程/公共C10持久恢复，真实环境/发布仍NOT_RUN。
+
 ## 5. 接口对接清单与契约基线
 
 ### 5.1 契约状态说明
