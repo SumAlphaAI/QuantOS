@@ -4,6 +4,7 @@ import test from "node:test";
 import { loadBffFe001Inputs, validateBffFe001 } from "./check-bff-fe-001.mjs";
 
 import { executionSources, digest } from "./bff-fe-001-execution.mjs";
+const { structuredClone } = globalThis;
 
 // Receiver unit fixture only: ignored artifact caches are not test prerequisites.
 // Actual executed semantics remain required by the CLI and scoped admission gate.
@@ -89,8 +90,19 @@ test("disabled CI steps cannot satisfy the Gate", () => {
   const frontendWorkflow = current.frontendWorkflow.replace("run: pnpm check:bff-fe-001 && pnpm test:bff-fe-001", "if: false\n        run: pnpm check:bff-fe-001 && pnpm test:bff-fe-001");
   assert.equal(validateBffFe001({ ...current, frontendWorkflow }).status, "FAIL");
 });
-test("outdated inventory cannot satisfy the active evidence Gate", () => {
-  assert.equal(validateBffFe001({ ...current, activeEvidence: { ...current.activeEvidence, apiVersion: "1.2.0" } }).status, "FAIL");
+for (const [field, value] of [["apiVersion", "1.16.0"], ["operationCount", 134], ["schemaCount", 119]]) {
+  test(`stale inventory ${field} cannot satisfy the active evidence Gate`, () => {
+    const report = validateBffFe001({ ...current, activeEvidence: { ...current.activeEvidence, [field]: value } });
+    assert.equal(report.status, "FAIL");
+    assert(report.failures.includes("active evidence inventory matches current OpenAPI"));
+  });
+}
+test("stale active summary cannot satisfy the current contract Gate", () => {
+  const summary = current.summary.replaceAll(`API ${current.openapi.info.version}`, "API 1.16.0");
+  assert.notEqual(summary, current.summary);
+  const report = validateBffFe001({ ...current, summary });
+  assert.equal(report.status, "FAIL");
+  assert(report.failures.includes("active summary identifies current evidence and final-review boundary"));
 });
 
 test("commented Make recipes do not satisfy executable wiring", () => {
