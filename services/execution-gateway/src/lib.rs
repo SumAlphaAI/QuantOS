@@ -1,6 +1,7 @@
 //! Typed trusted-backend command services; no public order endpoint is exposed.
 //! X03CommandService is the keyed authority path. ExecutionCommandService below
 //! remains an explicitly synthetic F06/legacy compatibility probe only.
+pub mod l03_http;
 pub mod restricted_zone;
 
 pub use quantos_execution::dispatch::SignedExecutionGateway as X03CommandService;

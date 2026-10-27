@@ -1,0 +1,39 @@
+
+running 3 tests
+test l03_legacy_denied_risk_decision_is_not_approvable ... FAILED
+test l03_legacy_nonfinite_and_nonpositive_amounts_are_not_approvable ... FAILED
+test l03_legacy_future_approval_is_not_current_authority ... FAILED
+
+failures:
+
+---- l03_legacy_denied_risk_decision_is_not_approvable stdout ----
+
+thread 'l03_legacy_denied_risk_decision_is_not_approvable' (1028153) panicked at crates/quantos-execution/tests/service_l03_legacy.rs:8:114:
+assertion failed: DualApprovalVerifier::verify(&M5FeatureGate::testnet_enabled(),
+        &DualApprovalPolicy::default(), &r, &d, d.decided_at).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- l03_legacy_nonfinite_and_nonpositive_amounts_are_not_approvable stdout ----
+
+thread 'l03_legacy_nonfinite_and_nonpositive_amounts_are_not_approvable' (1028155) panicked at crates/quantos-execution/tests/service_l03_legacy.rs:6:166:
+assertion failed: DualApprovalVerifier::verify(&M5FeatureGate::testnet_enabled(),
+        &DualApprovalPolicy::default(), &r, &d, d.decided_at).is_err()
+
+---- l03_legacy_future_approval_is_not_current_authority stdout ----
+
+thread 'l03_legacy_future_approval_is_not_current_authority' (1028154) panicked at crates/quantos-execution/tests/service_l03_legacy.rs:7:182:
+assertion failed: DualApprovalVerifier::verify(&M5FeatureGate::testnet_enabled(),
+        &DualApprovalPolicy::default(), &r, &d, d.decided_at).is_err()
+
+
+failures:
+    l03_legacy_denied_risk_decision_is_not_approvable
+    l03_legacy_future_approval_is_not_current_authority
+    l03_legacy_nonfinite_and_nonpositive_amounts_are_not_approvable
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.92s
+     Running tests/service_l03_legacy.rs (target/debug/deps/service_l03_legacy-990ffe8fdf039f24)
+error: test failed, to rerun pass `-p quantos-execution --test service_l03_legacy`

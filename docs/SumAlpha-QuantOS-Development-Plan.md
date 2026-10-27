@@ -2722,9 +2722,12 @@ L03服务功能范围：feature/capability、双人职责分离、MFA、额度/�
     "FE:FEP-7"
   ],
   "required_scope": "L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
-  "evidence": [],
+  "evidence": [
+    "operations/service-l03-current-assessment.md",
+    "audit/evidence/service-l03-local-20261027/README.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "NOT_ASSESSED",
@@ -2733,6 +2736,8 @@ L03服务功能范围：feature/capability、双人职责分离、MFA、额度/�
   }
 }
 ```
+
+当前工程执行（2026-10-27）：本地服务功能已实现并进入评审。新增可信会话/MFA 证明绑定、独立 actor/user 的两人审批、Decimal cap/白名单、CAS/幂等恢复与 HMAC 链式审计；50 个自有样本经 native/真实 HTTP 两面验证，flag-off 50 次实际请求拒绝，native X03 AssistedLive 下单保持拒绝。工程 Gate `PASS_OWNED_LOCAL_SERVICE_L03_APPROVALS`；完整 Gate `NOT_READY_GAPS_OPEN`，stage `NOT_ASSESSED`、formalAccepted=false、runtime `DENIED`。MFA/身份/当前来源为明确自有可信端口；真实 MFA、持久审批/审计、生产 BFF/部署、UI/testnet/实际执行与正式验收 NOT_RUN。正式 source_commit 暂不填写，工程候选由 [固定回执](./audit/evidence/service-l03-local-20261027/README.md) 单独绑定；[规程](./operations/service-l03-current-assessment.md)与未决义务已同步。下一原项 SERVICE:L04，不改绑历史证据或递归复验上游。
 
 <a id="acceptance-service-l04"></a>
 ### SERVICE:L04：验收检查点

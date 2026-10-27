@@ -17,7 +17,7 @@ TradeCommand issuance and approval state machine for QuantOS.
 - legacy `paper::ExecutionGateway` / `VenueAdapter` remain synthetic compatibility fixtures; trusted X03 consumption uses `dispatch::SignedExecutionGateway` and the Decimal `gateway` reducer
 - `venue::TestnetVenueAdapter`: L01 approved-venue testnet plugin over the `TestnetTransport` boundary with order-intent/precision/rate-limit mapping, classified network/authentication/rate-limit failures, production endpoint/key bans, and deterministic `CompatReport` coverage over 200 normal/reject/cancel/partial-fill scenarios
 - `zone` module (L02): legacy declarative fixture helpers, with bounded session/command clocks and half-open rotation checks. Caller enums and fingerprint strings do not prove mTLS or Vault access. Actual verified TLS peers, the certificate/version-bound database signer and protected host are in `execution_gateway::restricted_zone`; see `docs/operations/core-l02-current-function.md`.
-- `dual` module (L03): M5 feature gate plus dual-approval policy — separation of duties, notional caps, symbol allowlists, MFA proofs, and approval TTLs — producing one signed audit entry per approver only after every check passes
+- `dual` module: legacy checksum/prefix fixture compatibility only; it grants no real MFA or execution authority. `assisted` implements SERVICE:L03 current-session/subject-bound two-person approvals, scoped HMAC step-up attestations, exact Decimal caps, CAS/idempotency and an authenticated append-only audit chain. The trusted MFA test port is synthetic and receipts never authorize trading; see `docs/operations/service-l03-current-assessment.md`.
 
 ## TP07 execution gateway (`gateway` module)
 

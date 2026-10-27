@@ -1,3 +1,4 @@
+mod l03_owned_fixture;
 mod owned_zone_fixture;
 
 use anyhow::{Context, Result, bail};
@@ -14,6 +15,14 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
+    if std::env::args().nth(1).as_deref() == Some("--service-l03-owned-fixture") {
+        let args: Vec<_> = std::env::args().skip(2).collect();
+        if args.len() != 1 || !matches!(args[0].as_str(), "off" | "owned-enabled") {
+            bail!("owned L03 mode must be off or owned-enabled");
+        }
+        return l03_owned_fixture::serve(&args[0]);
+    }
+
     if std::env::args().nth(1).as_deref() == Some("--l02-owned-zone-fixture") {
         let args: Vec<_> = std::env::args().skip(2).collect();
         if args.len() != 1 {

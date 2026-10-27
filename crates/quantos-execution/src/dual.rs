@@ -1,3 +1,5 @@
+//! Legacy fixture compatibility only: MFA prefixes and public checksums are not
+//! service authority. Use assisted::AssistedApprovalService for keyed workflow.
 use std::collections::BTreeSet;
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
@@ -87,6 +89,8 @@ pub struct SignedApprovalAuditEntry {
 
 #[derive(Debug, Error)]
 pub enum DualApprovalError {
+    #[error("DUAL_APPROVAL_INVALID_FIXTURE")]
+    InvalidFixture,
     #[error(transparent)]
     Core(#[from] quantos_core::CoreError),
     #[error("ASSISTED_LIVE_UNREACHABLE: the M5 feature flag is disabled")]
@@ -126,6 +130,19 @@ impl DualApprovalVerifier {
     ) -> Result<Vec<SignedApprovalAuditEntry>, DualApprovalError> {
         gate.ensure_assisted_live_reachable()?;
 
+        if !policy.max_notional.is_finite()
+            || policy.max_notional <= 0.0
+            || policy.approval_ttl <= ChronoDuration::zero()
+            || policy.approval_ttl > ChronoDuration::minutes(10)
+            || !request.notional.is_finite()
+            || request.notional <= 0.0
+            || request.proposal_id.is_empty()
+            || request.proposal_id.len() > 128
+            || decision.verdict != quantos_risk::RiskVerdict::ApprovalRequired
+            || decision.decided_at > now
+        {
+            return Err(DualApprovalError::InvalidFixture);
+        }
         if !policy.symbol_allowlist.contains(&request.symbol) {
             return Err(DualApprovalError::SymbolNotAllowed {
                 symbol: request.symbol.clone(),
@@ -154,7 +171,13 @@ impl DualApprovalVerifier {
                     slot: slot.to_owned(),
                 });
             }
-            if approval.approved_at + policy.approval_ttl <= now {
+            if approval.approved_at > now
+                || approval.approved_at < decision.decided_at
+                || approval
+                    .approved_at
+                    .checked_add_signed(policy.approval_ttl)
+                    .is_none_or(|until| until <= now)
+            {
                 return Err(DualApprovalError::ApprovalExpired {
                     slot: slot.to_owned(),
                     approved_at: approval.approved_at,

@@ -83,3 +83,9 @@ upstream revalidation is performed. See [X04 procedure](../../docs/operations/x0
 `restricted_zone` supplies a real OpenSSL mutual-TLS peer boundary, exact DNS/port/address client allowlist, a trusted session/version registry, and a protected host around the L01 kernel. Session/account/certificate/version/expiry are rechecked before signing and again at dispatch. `DatabaseVaultSigner` uses only the new certificate/version-bound SQL function; it has no DATABASE_URL fallback.
 
 The default service exposes no new order listener. `execution-gateway --l02-owned-zone-fixture` is an explicitly selected owned mode used only by owned subprocess tests, with temporary certificates, cleared environment, synthetic process-local HMAC material and a controlled fixture clock. It is not a deployed gateway or Vault broker. The signature hash is diagnostic, not execution authority or Binance HTTP authentication. See [L02 procedure](../../docs/operations/core-l02-current-function.md) and [rotation runbook](../../supabase/OPERATIONS.md#l02-execution-secret-zone-rotation-runbook).
+
+## SERVICE:L03 approval owner adapter
+
+`l03_http` is a private owner router around `AssistedApprovalService`. Its default policy is disabled and its capability projection always reports executionAuthority=false. It is not merged into the public BFF or started by the default service. The explicit `--service-l03-owned-fixture off|owned-enabled` mode binds only loopback, clears its environment, and supplies synthetic trusted identity/MFA/subject ports for actual HTTP tests. Its `/_owned/*` completion/clock/audit routes are fixture-only.
+
+Fifty workflows produce 100 HMAC-authenticated approval audits, with same-key response-loss recovery and current authority rechecks. Native X03 AssistedLive submission remains denied. Real MFA, persistent audit, deployment, public BFF/UI and testnet execution remain NOT_RUN. See [current scope](../../docs/operations/service-l03-current-assessment.md).
