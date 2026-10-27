@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {directory,files,verify,validateBoundary} from '../../../../scripts/service-l04-review.mjs';
+import {hash,verifyInputs} from '../../../../scripts/g1-download-review.mjs';
+const read=p=>readFileSync(p),json=p=>JSON.parse(read(p));
+const manifestPath=directory+'/manifest.json',manifest=json(manifestPath);
+assert.equal(manifest.schema,'quantos-service-l04-evidence-manifest/v1');
+validateBoundary(manifest.boundary);
+assert.deepEqual(manifest.files.map(f=>f.path),files(directory).filter(p=>p!==manifestPath));
+for(const f of manifest.files)assert.equal(hash(read(f.path)),f.sha256,f.path);
+const receipt=json(directory+'/receipt.json');
+assert.equal(manifest.sourceCommit,receipt.sourceCommit);
+const result=verify(receipt);
+assert.equal(result.rustCases,35);assert.equal(result.nodeCases,66);assert.equal(result.checks,15);assert.equal(result.archiveAuditEntries,15);
+const status=json(directory+'/confirmation-status.json');
+assert.equal(status.status,'PENDING');assert.equal(status.approval,null);assert.equal(status.actualUserReply,null);assert.equal(status.formalAccepted,false);
+assert.equal(status.request.nodeId,'SERVICE:L04');assert.equal(status.request.stage,'DEVELOPMENT');assert.equal(status.request.sourceCommit,receipt.sourceCommit);
+assert.equal(status.request.inputsDigest,hash(JSON.stringify(receipt.inputs)));
+assert.equal(status.documentSha256,hash(read(status.document)));
+const draft=JSON.parse(read(status.document).toString().match(/```json\s*([\s\S]*?)\s*```/)[1]);
+assert.equal(draft.status,'PENDING');assert.equal(draft.draftedBy,'Codex');assert.equal(draft.mode,'AGENT_DRAFT_USER_CONFIRMATION');
+assert.deepEqual(draft.request,status.request);assert.deepEqual(draft.reviewDimensions,['Product','Frontend','BFF','QA','Security','Risk']);assert.deepEqual(draft.request.reviewDimensions,draft.reviewDimensions);
+const handoff=json(directory+'/handoff.json');assert.equal(handoff.sourceCommit,receipt.sourceCommit);validateBoundary(handoff.boundary);assert.equal(handoff.nextTask,'CORE-GATE:L4-SERVICE');assert.equal(handoff.targets.length,8);assert(handoff.targets.every(t=>t.status==='NOT_RUN'));
+assert.match(read(directory+'/preflight-01/report.log').toString(),/test result: FAILED\. 0 passed; 3 failed/);
+assert.match(read(directory+'/preflight-02/replay-origin.log').toString(),/test result: FAILED\. 0 passed; 4 failed/);
+// Historical evidence is checked only for original-source/content integrity.
+// Do not use the current verifier binary or current-input admission for it.
+const historical=json(directory+'/attempt-01-original-receipt.json');
+assert.equal(historical.sourceCommit,'e10fecced73e5bba0674081c8d39b3194a958337');
+verifyInputs(historical.sourceCommit,historical.inputs);
+assert.deepEqual(historical.artifacts.map(f=>f.path),files(directory+'/attempt-01'));
+for(const f of historical.artifacts)assert.equal(hash(read(f.path)),f.sha256,f.path);
+console.log(JSON.stringify({...result,evidenceFiles:manifest.files.length,confirmation:status.status,historicalAttempt:'ORIGINAL_SCOPE_ONLY'}));
