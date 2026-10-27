@@ -14,6 +14,8 @@
 
 2026-10-22 用户进一步调整 F05/F07：日常数据库正确性、恢复、权限测试改为人工维护；取消日常全量数据库及覆盖率强制执行，包括 push/PR/schedule。离线功能/静态检查继续；新缺陷不能以人工维护为由放任。完整工具仅在 `QUANTOS_MANUAL_F05_F07=1` 下手工运行，GitHub 仅 `workflow_dispatch` 并确认输入。发布矩阵按候选另行人工组织，缺失结果仍为 `NOT_RUN`。该条优先于旧任务卡及旧验收文档中的 F05/F07 Nightly 要求，详见 [维护与数据保留规程](f05-f07-manual-maintenance.md)。
 
+2026-10-27 浏览器入口同步：默认 `playwright.config.ts` 执行公开 mock profile 的常规比较。U01、TP01、R1 业务链分别保留在 `playwright.u01.config.ts`、`playwright.tp01.config.ts`、`playwright.r1.config.ts`，由对应功能 runner 准备宿主回执、worker 输入和串行端口后运行；默认无宿主的并行任务不采集这三个套件。`node --test scripts/playwright-git-history.test.mjs` 核对实际发现结果：常规用例仍在，三个专用配置非空、串行，业务用例的预期状态仍为 passed。仅发现配置不算执行业务链，未执行的专用联调仍记 NOT_RUN，适用联调及发布义务保留。
+
 机器策略为 `scripts/development-testing-policy.json`。`provider-a1-receipts.mjs::assess` 是旧聚合执行器，现要求显式 `campaign={phase:'INTEGRATION'|'RELEASE', reason:'具体业务链及扩大范围理由'}`，默认调用在调度和创建证据目录前拒绝；旧 recorder 不再能自动发起开发全闭包。现有聚合回执仍可按原范围审计；执行器参数不会把结果自动升级为对应阶段验收。后续任务应像 X03 一样建立当前功能/影响范围清单，再进入记录器，不应复制旧全闭包入口作为默认开发 Gate。
 
 X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-scope.mjs`：12 组当前功能与直接影响检查，逐组 reason。`record-x03-local.mjs` 不调用聚合 assess、不读取历史 READY、不修改上游 canonical 产物；在新目录记录真实结果，只有全部必要检查正常退出、输入未漂移及覆盖率满足后才事务写入 X03 manifest 和两份计划。SIGTERM/SIGINT 中断会停止当前子进程组、保存 INTERRUPTED 并拒绝发布。

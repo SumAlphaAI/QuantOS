@@ -42,3 +42,7 @@ API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注�
 ## 2026-10-25 CI 源身份与字段维护
 
 当前受控盘点基线为 v1.10：API 1.16.0、134 operations、119 schemas，字段字典 713 行。复核当前 C01/C17/C10/C12 参考 provider 与测试的源身份，更新受控绑定并重新生成字段字典及台账数量；历史验收文档字节/摘要、historicalReviewedSourceSha 均保留，reviewedSourceSha 仍为 null。源身份维护不授予当前目标环境、正式 G0 或历史 READY 复验通过。原始失败、当前回归和未执行边界见[本轮 CI 修复记录](../audit/ci-remediation-3548844b-2026-10-25.md)。
+
+## 2026-10-27 CI 参考 provider 源身份维护
+
+受控基线 v1.11 仅同步 C01/C17/C10 共用参考 provider 的三处当前源码摘要，并重新生成字段字典版本头。API 1.16.0、134 operations、119 schemas 和 713 字段行均不变。当前 auth/settings 与 audit/export provider 回归分别 17、14 项通过；历史验收文档及摘要、historicalReviewedSourceSha 保留，reviewedSourceSha 仍为 null，目标验收保持 NOT_RUN / NO_RECEIPT。原始失败、当前源码复核和验证范围见[本轮 CI 修复记录](../audit/ci-remediation-c084b2cf-2026-10-27.md)。

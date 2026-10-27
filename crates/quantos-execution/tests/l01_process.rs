@@ -50,8 +50,25 @@ impl ProtocolPort for Port {
 }
 #[test]
 fn l01_two_hundred_cases_through_actual_owned_stdio_and_x04_replay() {
-    let exe = std::env::var("QUANTOS_L01_FIXTURE_EXECUTABLE")
-        .expect("explicit owned fixture executable required");
+    // Cargo builds this package's owned example for ordinary `cargo test`.
+    // Resolve it beside the active test profile, including custom target dirs;
+    // the explicit override remains available to the sealed L01 review runner.
+    let exe = std::env::var_os("QUANTOS_L01_FIXTURE_EXECUTABLE")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| {
+            std::env::current_exe()
+                .expect("test executable path")
+                .parent()
+                .and_then(std::path::Path::parent)
+                .expect("Cargo test profile directory")
+                .join("examples")
+                .join(format!("l01_fixture{}", std::env::consts::EXE_SUFFIX))
+        });
+    assert!(
+        exe.is_file(),
+        "Cargo-built owned fixture missing: {}",
+        exe.display()
+    );
     assert!(!std::env::vars().any(|(k, _)| {
         [
             "DATABASE_URL",

@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import process from 'node:process';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
@@ -48,4 +49,29 @@ test('Playwright PR reporting preserves complete history for downstream security
       if (!broken) assert.equal(git(checkout, 'rev-list', '--count', 'HEAD'), '2', name);
     }
   } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
+});
+
+test('default browser discovery excludes owned-host integration suites while dedicated configs retain them', () => {
+  const require = createRequire(import.meta.url);
+  const list = config => JSON.parse(execFileSync(process.execPath,
+    [require.resolve('@playwright/test/cli'), 'test', '--config', config, '--project=chromium', '--list', '--reporter=json'],
+    {cwd: root, encoding: 'utf8', timeout: 30000, maxBuffer: 4 * 1024 * 1024}));
+  const specs = report => {
+    const visit = suite => [...(suite.specs ?? []), ...(suite.suites ?? []).flatMap(visit)];
+    return report.suites.flatMap(visit);
+  };
+  const ordinary = specs(list('playwright.config.ts'));
+  assert(ordinary.length > 0);
+  assert(!ordinary.some(spec => spec.file.endsWith('-integration.spec.ts')));
+  for (const file of ['command.spec.ts', 'ui102-auth.spec.ts', 'ui104-settings.spec.ts', 'ui-p01.spec.ts']) {
+    assert(ordinary.some(spec => spec.file.endsWith(file)), `default suite lost ${file}`);
+  }
+  for (const name of ['u01', 'tp01', 'r1']) {
+    const report = list(`playwright.${name}.config.ts`);
+    const cases = specs(report);
+    assert(cases.length > 0, `${name} dedicated suite is empty`);
+    assert(cases.every(spec => spec.file.endsWith(`${name}-integration.spec.ts`)));
+    assert(cases.every(spec => spec.tests.every(t => t.expectedStatus === 'passed')));
+    assert.equal(report.config.workers, 1);
+  }
 });
