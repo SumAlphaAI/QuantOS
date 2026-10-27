@@ -1,0 +1,568 @@
+TAP version 13
+# Subtest: L02 SQL/network checks remain static and preserve target NOT_RUN
+ok 1 - L02 SQL/network checks remain static and preserve target NOT_RUN
+  ---
+  duration_ms: 1.034208
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.account_id = input_command_account_id
+ok 2 - L02 SQL refuses missing boundary session.account_id = input_command_account_id
+  ---
+  duration_ms: 0.315583
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.execution_peer_fingerprint = input_peer_fingerprint
+ok 3 - L02 SQL refuses missing boundary session.execution_peer_fingerprint = input_peer_fingerprint
+  ---
+  duration_ms: 0.113208
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.execution_credential_version = input_credential_version
+ok 4 - L02 SQL refuses missing boundary session.execution_credential_version = input_credential_version
+  ---
+  duration_ms: 0.464208
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.revoked_at is null
+ok 5 - L02 SQL refuses missing boundary session.revoked_at is null
+  ---
+  duration_ms: 0.095625
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.expires_at > observed_at
+ok 6 - L02 SQL refuses missing boundary session.expires_at > observed_at
+  ---
+  duration_ms: 0.066792
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary session.expires_at <= session.created_at + interval '15 minutes'
+ok 7 - L02 SQL refuses missing boundary session.expires_at <= session.created_at + interval '15 minutes'
+  ---
+  duration_ms: 0.068
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary input_command_expires_at <= observed_at
+ok 8 - L02 SQL refuses missing boundary input_command_expires_at <= observed_at
+  ---
+  duration_ms: 0.13775
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary security definer set search_path = ''
+ok 9 - L02 SQL refuses missing boundary security definer set search_path = ''
+  ---
+  duration_ms: 0.083792
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary credential.retire_at > observed_at
+ok 10 - L02 SQL refuses missing boundary credential.retire_at > observed_at
+  ---
+  duration_ms: 0.135708
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary newer.version > credential.version
+ok 11 - L02 SQL refuses missing boundary newer.version > credential.version
+  ---
+  duration_ms: 0.08775
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses missing boundary secret.rotation_state = 'active'
+ok 12 - L02 SQL refuses missing boundary secret.rotation_state = 'active'
+  ---
+  duration_ms: 0.071041
+  type: 'test'
+  ...
+# Subtest: L02 SQL refuses a broadened resolver grant
+ok 13 - L02 SQL refuses a broadened resolver grant
+  ---
+  duration_ms: 0.366333
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift defaultDenyIngress
+ok 14 - L02 network refuses drift defaultDenyIngress
+  ---
+  duration_ms: 0.106291
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift defaultDenyEgress
+ok 15 - L02 network refuses drift defaultDenyEgress
+  ---
+  duration_ms: 0.06125
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift allowDnsFallback
+ok 16 - L02 network refuses drift allowDnsFallback
+  ---
+  duration_ms: 0.050917
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift allowRedirects
+ok 17 - L02 network refuses drift allowRedirects
+  ---
+  duration_ms: 0.049667
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift allowProxyEnvironment
+ok 18 - L02 network refuses drift allowProxyEnvironment
+  ---
+  duration_ms: 0.057541
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift certificateHostnameVerification
+ok 19 - L02 network refuses drift certificateHostnameVerification
+  ---
+  duration_ms: 0.064291
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift certificatePinRequired
+ok 20 - L02 network refuses drift certificatePinRequired
+  ---
+  duration_ms: 0.039459
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift targetNetworkEnforcement
+ok 21 - L02 network refuses drift targetNetworkEnforcement
+  ---
+  duration_ms: 0.0475
+  type: 'test'
+  ...
+# Subtest: L02 network refuses drift approvedTargetAddresses
+ok 22 - L02 network refuses drift approvedTargetAddresses
+  ---
+  duration_ms: 0.18075
+  type: 'test'
+  ...
+# Subtest: L02 default-deny unit refuses permissive address escape
+ok 23 - L02 default-deny unit refuses permissive address escape
+  ---
+  duration_ms: 2.12175
+  type: 'test'
+  ...
+# Subtest: L02 local engineering receipt preserves target/formal exclusions
+ok 24 - L02 local engineering receipt preserves target/formal exclusions
+  ---
+  duration_ms: 0.677083
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion nodeId
+ok 25 - L02 rejects Gate promotion nodeId
+  ---
+  duration_ms: 0.654417
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion engineeringGate
+ok 26 - L02 rejects Gate promotion engineeringGate
+  ---
+  duration_ms: 0.14925
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion gate
+ok 27 - L02 rejects Gate promotion gate
+  ---
+  duration_ms: 0.118125
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion stageGate
+ok 28 - L02 rejects Gate promotion stageGate
+  ---
+  duration_ms: 0.118417
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion formalAccepted
+ok 29 - L02 rejects Gate promotion formalAccepted
+  ---
+  duration_ms: 0.110291
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion runtimeAdmission
+ok 30 - L02 rejects Gate promotion runtimeAdmission
+  ---
+  duration_ms: 0.087666
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion developmentStatus
+ok 31 - L02 rejects Gate promotion developmentStatus
+  ---
+  duration_ms: 0.109208
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion tls
+ok 32 - L02 rejects Gate promotion tls
+  ---
+  duration_ms: 0.108
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion signedChain
+ok 33 - L02 rejects Gate promotion signedChain
+  ---
+  duration_ms: 0.125875
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion vault
+ok 34 - L02 rejects Gate promotion vault
+  ---
+  duration_ms: 0.116625
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion sql
+ok 35 - L02 rejects Gate promotion sql
+  ---
+  duration_ms: 0.099125
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion network
+ok 36 - L02 rejects Gate promotion network
+  ---
+  duration_ms: 0.08275
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion rotation
+ok 37 - L02 rejects Gate promotion rotation
+  ---
+  duration_ms: 0.078792
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion actualVaultDecryption
+ok 38 - L02 rejects Gate promotion actualVaultDecryption
+  ---
+  duration_ms: 0.072833
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion targetRolesRlsMigration
+ok 39 - L02 rejects Gate promotion targetRolesRlsMigration
+  ---
+  duration_ms: 0.068417
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion targetNetworkEnforcement
+ok 40 - L02 rejects Gate promotion targetNetworkEnforcement
+  ---
+  duration_ms: 0.062792
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion actualRotationRecoverySla
+ok 41 - L02 rejects Gate promotion actualRotationRecoverySla
+  ---
+  duration_ms: 0.053375
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion restrictedCancelRecoveryBusinessLoop
+ok 42 - L02 rejects Gate promotion restrictedCancelRecoveryBusinessLoop
+  ---
+  duration_ms: 0.059833
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion crossProcessDurableDedupe
+ok 43 - L02 rejects Gate promotion crossProcessDurableDedupe
+  ---
+  duration_ms: 0.056291
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion realVenueHttpTestnet
+ok 44 - L02 rejects Gate promotion realVenueHttpTestnet
+  ---
+  duration_ms: 0.068875
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion wholeWorkspaceIntegration
+ok 45 - L02 rejects Gate promotion wholeWorkspaceIntegration
+  ---
+  duration_ms: 0.217834
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion remoteCiPerformanceSoakRelease
+ok 46 - L02 rejects Gate promotion remoteCiPerformanceSoakRelease
+  ---
+  duration_ms: 0.149333
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion productionCredentialsUsed
+ok 47 - L02 rejects Gate promotion productionCredentialsUsed
+  ---
+  duration_ms: 0.117708
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion externalPublished
+ok 48 - L02 rejects Gate promotion externalPublished
+  ---
+  duration_ms: 0.092333
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion pushed
+ok 49 - L02 rejects Gate promotion pushed
+  ---
+  duration_ms: 0.073
+  type: 'test'
+  ...
+# Subtest: L02 rejects Gate promotion nextTask
+ok 50 - L02 rejects Gate promotion nextTask
+  ---
+  duration_ms: 0.069625
+  type: 'test'
+  ...
+# Subtest: L02 separate TLS, rotation, signed and session receipts retain local provenance
+ok 51 - L02 separate TLS, rotation, signed and session receipts retain local provenance
+  ---
+  duration_ms: 0.20825
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/cases
+ok 52 - L02 rejects process receipt drift 0/cases
+  ---
+  duration_ms: 0.113125
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/actualVault
+ok 53 - L02 rejects process receipt drift 0/actualVault
+  ---
+  duration_ms: 0.055833
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/actualTestnet
+ok 54 - L02 rejects process receipt drift 0/actualTestnet
+  ---
+  duration_ms: 0.0525
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/protocolWrites
+ok 55 - L02 rejects process receipt drift 0/protocolWrites
+  ---
+  duration_ms: 0.049208
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/privateKeysExported
+ok 56 - L02 rejects process receipt drift 0/privateKeysExported
+  ---
+  duration_ms: 0.040833
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 0/childEnvironmentCleared
+ok 57 - L02 rejects process receipt drift 0/childEnvironmentCleared
+  ---
+  duration_ms: 0.040333
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 1/oldDeniedAtSecondsAfterRotation
+ok 58 - L02 rejects process receipt drift 1/oldDeniedAtSecondsAfterRotation
+  ---
+  duration_ms: 0.070583
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 1/revokedActiveDenied
+ok 59 - L02 rejects process receipt drift 1/revokedActiveDenied
+  ---
+  duration_ms: 0.055083
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 1/realVaultRotationSla
+ok 60 - L02 rejects process receipt drift 1/realVaultRotationSla
+  ---
+  duration_ms: 0.052209
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 2/orderStatus
+ok 61 - L02 rejects process receipt drift 2/orderStatus
+  ---
+  duration_ms: 0.083875
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 2/vaultResolver
+ok 62 - L02 rejects process receipt drift 2/vaultResolver
+  ---
+  duration_ms: 0.046833
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 2/replayedWithoutRemoteIo
+ok 63 - L02 rejects process receipt drift 2/replayedWithoutRemoteIo
+  ---
+  duration_ms: 0.041
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 3/protocolWrites
+ok 64 - L02 rejects process receipt drift 3/protocolWrites
+  ---
+  duration_ms: 0.040334
+  type: 'test'
+  ...
+# Subtest: L02 rejects process receipt drift 3/atSessionExpiry
+ok 65 - L02 rejects process receipt drift 3/atSessionExpiry
+  ---
+  duration_ms: 0.04175
+  type: 'test'
+  ...
+# Subtest: L02 does not schedule recursive, DB, publication, coverage or whole workspace campaigns
+ok 66 - L02 does not schedule recursive, DB, publication, coverage or whole workspace campaigns
+  ---
+  duration_ms: 0.126166
+  type: 'test'
+  ...
+# Subtest: L02 scanner exception is exact rule AND path AND unchanged public fixture value
+ok 67 - L02 scanner exception is exact rule AND path AND unchanged public fixture value
+  ---
+  duration_ms: 0.051084
+  type: 'test'
+  ...
+# Subtest: L02 scanner rejects changed historical fixture baseline
+ok 68 - L02 scanner rejects changed historical fixture baseline
+  ---
+  duration_ms: 0.046667
+  type: 'test'
+  ...
+# Subtest: L02 scanner rejects changed historical fixture current
+ok 69 - L02 scanner rejects changed historical fixture current
+  ---
+  duration_ms: 0.052458
+  type: 'test'
+  ...
+# Subtest: FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups
+ok 70 - FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups
+  ---
+  duration_ms: 25.373208
+  type: 'test'
+  ...
+# Subtest: next original I2 UI-507 can develop without claiming G1 readiness
+ok 71 - next original I2 UI-507 can develop without claiming G1 readiness
+  ---
+  duration_ms: 20.065959
+  type: 'test'
+  ...
+# Subtest: retained G1-DEP-01 never becomes a development prerequisite
+ok 72 - retained G1-DEP-01 never becomes a development prerequisite
+  ---
+  duration_ms: 16.892834
+  type: 'test'
+  ...
+# Subtest: retained G1-CONF-01 never becomes a development prerequisite
+ok 73 - retained G1-CONF-01 never becomes a development prerequisite
+  ---
+  duration_ms: 18.045917
+  type: 'test'
+  ...
+# Subtest: retained G1-ENV-01 never becomes a development prerequisite
+ok 74 - retained G1-ENV-01 never becomes a development prerequisite
+  ---
+  duration_ms: 18.381875
+  type: 'test'
+  ...
+# Subtest: retained G1-TARGET-01 never becomes a development prerequisite
+ok 75 - retained G1-TARGET-01 never becomes a development prerequisite
+  ---
+  duration_ms: 17.783667
+  type: 'test'
+  ...
+# Subtest: unready dependency NOT_ASSESSED does not prohibit development or grant integration
+ok 76 - unready dependency NOT_ASSESSED does not prohibit development or grant integration
+  ---
+  duration_ms: 18.186667
+  type: 'test'
+  ...
+# Subtest: unready dependency BLOCKED does not prohibit development or grant integration
+ok 77 - unready dependency BLOCKED does not prohibit development or grant integration
+  ---
+  duration_ms: 17.12525
+  type: 'test'
+  ...
+# Subtest: known affected functional defect blocks its task even when all dependencies ready
+ok 78 - known affected functional defect blocks its task even when all dependencies ready
+  ---
+  duration_ms: 17.538042
+  type: 'test'
+  ...
+# Subtest: unknown defect status fails closed instead of claiming verification
+ok 79 - unknown defect status fails closed instead of claiming verification
+  ---
+  duration_ms: 16.862
+  type: 'test'
+  ...
+# Subtest: caller cannot omit actual affected scope
+ok 80 - caller cannot omit actual affected scope
+  ---
+  duration_ms: 16.842917
+  type: 'test'
+  ...
+# Subtest: accounting cannot add independent auxiliary prerequisites
+ok 81 - accounting cannot add independent auxiliary prerequisites
+  ---
+  duration_ms: 17.28625
+  type: 'test'
+  ...
+# Subtest: unknown finding kind rejects
+ok 82 - unknown finding kind rejects
+  ---
+  duration_ms: 17.606834
+  type: 'test'
+  ...
+# Subtest: finding evidence must exist
+ok 83 - finding evidence must exist
+  ---
+  duration_ms: 16.859167
+  type: 'test'
+  ...
+# Subtest: invented task IDs cannot replace original plan sequence
+ok 84 - invented task IDs cannot replace original plan sequence
+  ---
+  duration_ms: 17.126583
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite dependencyStageReadyRequiredToStart
+ok 85 - reject policy that restores development prerequisite dependencyStageReadyRequiredToStart
+  ---
+  duration_ms: 17.04225
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite historicalConfirmationRequiredToStart
+ok 86 - reject policy that restores development prerequisite historicalConfirmationRequiredToStart
+  ---
+  duration_ms: 17.055458
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite auxiliaryActionsArePrerequisites
+ok 87 - reject policy that restores development prerequisite auxiliaryActionsArePrerequisites
+  ---
+  duration_ms: 16.859125
+  type: 'test'
+  ...
+# Subtest: reject weakening knownAffectedFunctionalDefectsBlock
+ok 88 - reject weakening knownAffectedFunctionalDefectsBlock
+  ---
+  duration_ms: 16.942459
+  type: 'test'
+  ...
+# Subtest: reject weakening stageReadinessUnchanged
+ok 89 - reject weakening stageReadinessUnchanged
+  ---
+  duration_ms: 15.404833
+  type: 'test'
+  ...
+# Subtest: dependency READY alone cannot grant milestone READY
+ok 90 - dependency READY alone cannot grant milestone READY
+  ---
+  duration_ms: 14.989958
+  type: 'test'
+  ...
+# Subtest: milestone READY alone cannot bypass dependency stage
+ok 91 - milestone READY alone cannot bypass dependency stage
+  ---
+  duration_ms: 14.474875
+  type: 'test'
+  ...
+# Subtest: release remains denied even if every stage is marked ready
+ok 92 - release remains denied even if every stage is marked ready
+  ---
+  duration_ms: 15.380625
+  type: 'test'
+  ...
+# Subtest: known affected functional defect also refuses integration even with historical READY flags
+ok 93 - known affected functional defect also refuses integration even with historical READY flags
+  ---
+  duration_ms: 15.935083
+  type: 'test'
+  ...
+1..93
+# tests 93
+# suites 0
+# pass 93
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 613.789208
