@@ -64,6 +64,20 @@ export function scan(attempt){
   return {scope:'CURRENT_TASK_DIFF_AND_ATTEMPT_NOT_WHOLE_REPOSITORY',files:paths.length,unreviewedFindings:0,actualCanaryRefusals:1,binarySha256:hash(read(tool))};
  }finally{rmSync(temporary,{recursive:true,force:true});}
 }
+export const expectedRustCases={'native-l04':5,'native-approval-regression':24,'public-process':3,'bff-native':5,'bff-paper':29,'l02-process':4};
+export function validateRustCases(actual){for(const[id,n]of Object.entries(expectedRustCases))assert.equal(actual[id],n,id);}
+const validatorPaths=['scripts/core-l04-review.mjs','scripts/core-l04-review.test.mjs'];
+export function validateValidation(v,source){
+ assert.equal(v.schema,'quantos-core-l04-validation-repair/v1');assert.equal(v.sourceCommit,source);assert.equal(v.reason,'CORRECT_L02_EXPECTED_TEST_COUNT_NO_RUNTIME_SOURCE_CHANGE');
+ assert(/^[a-f0-9]{40}$/.test(v.validatorCommit));git('merge-base','--is-ancestor',source,v.validatorCommit);
+ const changed=git('diff','--name-only',source,v.validatorCommit).trim().split('\n').filter(Boolean);assert(changed.length>0&&changed.every(p=>validatorPaths.includes(p)));
+ assert.deepEqual(v.inputs.map(f=>f.path),validatorPaths);
+ for(const f of v.inputs){assert.equal(hash(read(f.path)),f.sha256);assert.equal(hash(execFileSync('git',['show',v.validatorCommit+':'+f.path])),f.sha256);}
+ for(const[id,args]of [['gate',['node','--test','--test-reporter=tap',...validatorPaths.filter(p=>p.endsWith('.test.mjs')),'scripts/development-execution.test.mjs']],['lint',['pnpm','exec','eslint',...validatorPaths]]]){
+  const e=v.executions.find(e=>e.id===id);assert(e);assert.deepEqual(e.command,args);assert.equal(e.exitCode,0);assert.equal(e.signal,null);assert.equal(hash(read(e.log)),e.logSha256);
+ }
+ assert.match(read(v.executions[0].log).toString(),/# fail 0/);assert.match(read(v.executions[0].log).toString(),/# skipped 0/);
+}
 export function validateAssessment(){
  const a=json('docs/execution/core-l04-scope-assessment.json'),prior=json('docs/execution/core-l03-scope-assessment.json');
  assert.equal(a.nodeId,'CORE:L04');assert.equal(a.developmentStatus,'IMPLEMENTED_PENDING_ACCEPTANCE');assert.equal(a.gate,'NOT_READY_GAPS_OPEN');assert.equal(a.stageGate,'NOT_ASSESSED');assert.equal(a.formalAccepted,false);assert.equal(a.runtimeAdmission,'DENIED');assert.equal(a.confirmation.selfApproved,false);assert.equal(a.confirmation.status,'PENDING_USER_REVIEW');assert.equal(a.gaps.length,19);
@@ -71,7 +85,10 @@ export function validateAssessment(){
 }
 export function verify(r){
  validateAssessment();assert.equal(r.schema,'quantos-core-l04-development/v1');validateBoundary(r.boundary);assert(/^[a-f0-9]{40}$/.test(r.sourceCommit)&&!/^0+$/.test(r.sourceCommit));
- assert.deepEqual(inputs(),r.inputs);for(const f of r.inputs)assert.equal(hash(execFileSync('git',['show',r.sourceCommit+':'+f.path],{maxBuffer:64e6})),f.sha256,f.path);
+ const current=inputs();assert.deepEqual(current.map(f=>f.path),r.inputs.map(f=>f.path));
+ if(r.validation)validateValidation(r.validation,r.sourceCommit);
+ for(const f of current)if(!r.validation||!validatorPaths.includes(f.path))assert.equal(f.sha256,r.inputs.find(i=>i.path===f.path).sha256,f.path);
+ for(const f of r.inputs)assert.equal(hash(execFileSync('git',['show',r.sourceCommit+':'+f.path],{maxBuffer:64e6})),f.sha256,f.path);
  assert.equal(r.executions.length,checks.length);
  for(const[i,e]of r.executions.entries()){const[id,args,code=0]=checks[i];assert.equal(e.id,id);assert.deepEqual(e.command,args.map(a=>a.replaceAll('{attempt}',r.attempt)));assert.equal(e.exitCode,code,id);assert.equal(e.signal,null);assert.equal(e.errorCode,null);assert.equal(e.log,r.attempt+'/'+id+'.log');assert.equal(hash(read(e.log)),e.logSha256);}
  assert.deepEqual(r.artifacts.map(f=>f.path),files(r.attempt));for(const f of r.artifacts)assert.equal(hash(read(f.path)),f.sha256,f.path);
@@ -80,14 +97,14 @@ export function verify(r){
  const rustCases={};for(const id of ['native-l04','native-approval-regression','public-process','bff-native','bff-paper','bff-c10','l02-process','l02-guard']){
   const rows=[...read(r.attempt+'/'+id+'.log').toString().matchAll(/test result: ok\. (\d+) passed; 0 failed; 0 ignored/g)];assert(rows.length>0);rustCases[id]=rows.reduce((n,m)=>n+Number(m[1]),0);
  }
- for(const[id,n]of Object.entries({'native-l04':5,'native-approval-regression':24,'public-process':3,'bff-native':5,'bff-paper':29,'l02-process':2}))assert.equal(rustCases[id],n);
+ validateRustCases(rustCases);
  assert(rustCases['bff-c10']>0&&rustCases['l02-guard']>0);
  const counts={};for(const id of ['contract','consumer']){const packet=json(r.attempt+'/'+id+'.json');assert.equal(packet.success,true);assert.equal(packet.numFailedTests,0);assert.equal(packet.numPendingTests,0);counts[id]=packet.numPassedTests;}
  assert.equal(counts.consumer,26);assert.equal(counts.contract,106);
  const nodes=read(r.attempt+'/gate-tests.log').toString();assert.match(nodes,/# fail 0/);assert.match(nodes,/# skipped 0/);
  assert.equal(json(r.attempt+'/integration-refusal.log').reason,'STAGE_NOT_READY');assert.equal(json(r.attempt+'/next-development.log').allowed,true);
  assert.equal(json(r.attempt+'/secret-scan.log').unreviewedFindings,0);assert.deepEqual(json(r.attempt+'/secret-report.json'),[]);
- return {sourceCommit:r.sourceCommit,...boundary(),checks:checks.length,rustCases,...counts,nodeCases:Number(nodes.match(/# pass (\d+)/)[1])};
+ return {sourceCommit:r.sourceCommit,...boundary(),checks:checks.length,rustCases,...counts,nodeCases:Number(nodes.match(/# pass (\d+)/)[1]),validatorCommit:r.validation?.validatorCommit??r.sourceCommit,validatorNodeCases:r.validation?Number(read(r.validation.executions[0].log).toString().match(/# pass (\d+)/)[1]):null};
 }
 export function run(attempt){
  assert(new RegExp('^'+directory+'/attempt-[0-9]+$').test(attempt));assert(!existsSync(attempt),'fresh attempt required');mkdirSync(attempt,{recursive:true});
@@ -97,6 +114,19 @@ export function run(attempt){
  const r={schema:'quantos-core-l04-development/v1',sourceCommit,boundary:boundary(),inputs:snapshot,attempt,executions,artifacts:files(attempt).map(path=>({path,sha256:hash(read(path))}))};let result;try{result=verify(r);}catch(e){writeFileSync(attempt+'/verification-failure.json',JSON.stringify({sourceCommit,status:'FAIL',error:e.stack},null,2)+'\n');throw e;}
  writeFileSync(directory+'/receipt.json',JSON.stringify(r,null,2)+'\n');writeFileSync(directory+'/result.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }
+export function reverify(attempt,source){
+ assert(new RegExp('^'+directory+'/attempt-[0-9]+$').test(attempt));
+ assert.equal(json(attempt+'/verification-failure.json').sourceCommit,source);
+ const validatorCommit=git('rev-parse','HEAD').trim(),validationDirectory=directory+'/validation-01';assert(!existsSync(validationDirectory));mkdirSync(validationDirectory);
+ const v={schema:'quantos-core-l04-validation-repair/v1',sourceCommit:source,validatorCommit,reason:'CORRECT_L02_EXPECTED_TEST_COUNT_NO_RUNTIME_SOURCE_CHANGE',inputs:validatorPaths.map(path=>({path,sha256:hash(read(path))})),executions:[]};
+ for(const[id,command]of [['gate',['node','--test','--test-reporter=tap','scripts/core-l04-review.test.mjs','scripts/development-execution.test.mjs']],['lint',['pnpm','exec','eslint',...validatorPaths]]]){
+  const out=spawnSync(command[0],command.slice(1),{env:webEnvironment(),encoding:'utf8',maxBuffer:16e6,timeout:60000}),log=validationDirectory+'/'+id+'.log';writeFileSync(log,out.stdout+out.stderr);v.executions.push({id,command,exitCode:out.status,signal:out.signal,log,logSha256:hash(read(log))});assert.equal(out.status,0);
+ }
+ writeFileSync(validationDirectory+'/receipt.json',JSON.stringify(v,null,2)+'\n');validateValidation(v,source);
+ const snapshot=inputs().map(({path})=>({path,sha256:hash(execFileSync('git',['show',source+':'+path],{maxBuffer:64e6}))}));
+ const r={schema:'quantos-core-l04-development/v1',sourceCommit:source,boundary:boundary(),inputs:snapshot,attempt,executions:json(attempt+'/executions.json'),artifacts:files(attempt).map(path=>({path,sha256:hash(read(path))})),validation:v};
+ const result=verify(r);writeFileSync(directory+'/receipt.json',JSON.stringify(r,null,2)+'\n');writeFileSync(directory+'/result.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
+}
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{
- if(process.argv[2]==='--run')run(process.argv[3]);else if(process.argv[2]==='--verify')console.log(JSON.stringify(verify(json(directory+'/receipt.json'))));else if(process.argv[2]==='--scan')console.log(JSON.stringify(scan(process.argv[3])));else throw Error('Use --run <fresh attempt>, --verify or --scan');
+ if(process.argv[2]==='--reverify')reverify(process.argv[3],process.argv[4]);else if(process.argv[2]==='--run')run(process.argv[3]);else if(process.argv[2]==='--verify')console.log(JSON.stringify(verify(json(directory+'/receipt.json'))));else if(process.argv[2]==='--scan')console.log(JSON.stringify(scan(process.argv[3])));else throw Error('Use --run <fresh attempt>, --verify or --scan');
 }catch(e){console.error(e.stack);process.exitCode=1;}}
