@@ -85,7 +85,7 @@ bff-contract-check:
 	pnpm test:provider-a4
 
 bff-provider-test:
-	cargo test -p bff-gateway
+	node scripts/test-rust-with-l02.mjs -p bff-gateway --locked
 
 quality-gate-self-test:
 	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs scripts/service-readiness.test.cjs
@@ -306,7 +306,8 @@ build-web:
 	pnpm build
 
 test-rust:
-	cargo test --workspace --locked
+	node --test scripts/test-rust-with-l02.test.mjs
+	node scripts/test-rust-with-l02.mjs --workspace --locked
 
 observability-check:
 	cargo test -p quantos-observability --lib --locked

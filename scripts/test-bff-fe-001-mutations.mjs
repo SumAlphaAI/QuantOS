@@ -21,10 +21,9 @@ const mutations = [
   ["challenge-freshness", source => source.replace("expires_at: now + Duration::minutes(5)", "expires_at: now + Duration::days(365)").replace(".is_some_and(|at| at + Duration::minutes(5) > now)", ".is_some_and(|at| at + Duration::days(365) > now)"), "challenges_are_fresh_single_use_and_cooldown_precedes_verification"],
 ];
 try {
-  // Library tests compile SQL include_str! inputs and the X3 service fixture
-  // referenced by #[path]. Preserve both in the reduced workspace without
-  // executing migrations or adding unrelated service workspace members.
-  for (const folder of ["crates", "services/bff-gateway", "services/execution-gateway/tests", "supabase/migrations"]) cpSync(resolve(root, folder), resolve(scratch, folder), { recursive: true });
+  // Preserve the direct execution-gateway path dependency, its X3 test fixture
+  // referenced by #[path], and SQL include_str! inputs. No migrations run here.
+  for (const folder of ["crates", "services/bff-gateway", "services/execution-gateway", "supabase/migrations"]) cpSync(resolve(root, folder), resolve(scratch, folder), { recursive: true });
   const manifest = readFileSync(resolve(root, "Cargo.toml"), "utf8").replace(/members = \[[\s\S]*?\]/, 'members = ["services/bff-gateway"]');
   writeFileSync(join(scratch, "Cargo.toml"), manifest);
   cpSync(resolve(root, "Cargo.lock"), join(scratch, "Cargo.lock"));

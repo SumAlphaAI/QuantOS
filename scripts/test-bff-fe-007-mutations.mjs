@@ -18,7 +18,8 @@ const mutations=[
  ['retention',s=>s.replace('if retention <= state.now() {','if false && retention <= state.now() {').replace('if retention <= state.now() && !matches!','if false && retention <= state.now() && !matches!'),'redaction_hashes_and_retention_are_enforced_by_business_calls'],
 ];
 try{
- for(const folder of ['crates','services/bff-gateway'])cpSync(resolve(root,folder),resolve(scratch,folder),{recursive:true});
+ // Keep the same path dependencies and compile-time fixtures as the A2 auth runner.
+ for(const folder of ['crates','services/bff-gateway','services/execution-gateway','supabase/migrations'])cpSync(resolve(root,folder),resolve(scratch,folder),{recursive:true});
  const manifest=readFileSync(resolve(root,'Cargo.toml'),'utf8').replace(/members = \[[\s\S]*?\]/,'members = ["services/bff-gateway"]');writeFileSync(join(scratch,'Cargo.toml'),manifest);cpSync(resolve(root,'Cargo.lock'),join(scratch,'Cargo.lock'));
   // A reduced workspace prunes unused members from the copied lock. Retain every
   // resolved package identity/checksum from the pinned root; never update the root.
