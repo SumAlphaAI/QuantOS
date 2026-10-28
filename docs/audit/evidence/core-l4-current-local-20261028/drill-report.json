@@ -1,0 +1,50 @@
+{
+  "schema": "quantos-core-l4-controlled-drills/v1",
+  "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895",
+  "scope": "OWNED_LOCAL_MECHANISMS_NOT_DEPLOYED_TARGET_DRILLS",
+  "drills": [
+    {
+      "id": "replay",
+      "status": "PASS_OWNED_LOCAL",
+      "finding": "Twelve original-key requests across two BFF processes issue one command",
+      "proof": {
+        "log": "docs/audit/evidence/core-l4-current-local-20261028/attempt-01/public-process.log",
+        "logSha256": "103d54ca541268fe3e9eeebac333dedce7660dead2712e64b00cfb2129744790",
+        "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895"
+      }
+    },
+    {
+      "id": "process-recovery",
+      "status": "PASS_OWNED_LOCAL",
+      "finding": "Recover approvals/request and original receipt after BFF death; committed response loss keeps original unknown without reissue",
+      "proof": {
+        "log": "docs/audit/evidence/core-l4-current-local-20261028/attempt-01/public-process.log",
+        "logSha256": "103d54ca541268fe3e9eeebac333dedce7660dead2712e64b00cfb2129744790",
+        "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895"
+      }
+    },
+    {
+      "id": "engine-fault",
+      "status": "PASS_OWNED_LOCAL",
+      "finding": "Actual zone process killed; durable reservation/outcome remains unknown without retry",
+      "proof": {
+        "log": "docs/audit/evidence/core-l4-current-local-20261028/attempt-01/public-process.log",
+        "logSha256": "103d54ca541268fe3e9eeebac333dedce7660dead2712e64b00cfb2129744790",
+        "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895"
+      }
+    },
+    {
+      "id": "kill-switch",
+      "status": "PASS_OWNED_LOCAL",
+      "finding": "One-way native durable stop survives independent instances and restart; public global/account control join remains open",
+      "proof": {
+        "log": "docs/audit/evidence/core-l4-current-local-20261028/attempt-01/native-durable.log",
+        "logSha256": "91113753703ba772488e79e1bd77c40e364bdaab0aed56945cbf8c44a885e333",
+        "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895"
+      }
+    }
+  ],
+  "targetDatabaseEventRecovery": "NOT_RUN",
+  "deployedHostDeathNotifications": "NOT_RUN",
+  "rollbackAndReconciliationAcrossActualVenue": "NOT_RUN"
+}

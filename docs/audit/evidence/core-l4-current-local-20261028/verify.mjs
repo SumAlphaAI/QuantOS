@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {directory,files,verify} from '../../../../scripts/core-l4-review.mjs';
+const read=p=>readFileSync(p),json=p=>JSON.parse(read(p)),hash=b=>createHash('sha256').update(b).digest('hex');
+const manifest=json(directory+'/manifest.json');assert.deepEqual(manifest.files.map(f=>f.path),files(directory).filter(p=>p!==directory+'/manifest.json'));for(const f of manifest.files)assert.equal(hash(read(f.path)),f.sha256,f.path);
+const r=json(directory+'/receipt.json'),result=verify(r);assert.deepEqual(result,json(directory+'/result.json'));assert.equal(manifest.sourceCommit,r.sourceCommit);
+const handoff=json(directory+'/handoff.json');assert.equal(handoff.sourceCommit,r.sourceCommit);assert.equal(handoff.gaps.length,19);assert(handoff.gaps.every(g=>g.status==='OPEN'));assert.equal(handoff.obligations.length,8);assert(handoff.obligations.every(o=>o.status==='OPEN'));assert.equal(handoff.next.nodeId,'CORE:X02');assert.equal(handoff.runtimeAdmission,'DENIED');
+const scan=json(directory+'/seal-secret-scan.json');assert.equal(scan.unreviewedFindings,0);assert.equal(scan.actualCanaryRefusalsFromAttempt,1);
+console.log(JSON.stringify({status:'PASS_CURRENT_L4_DEVELOPMENT_ASSESSMENT_PACKET_ONLY',sourceCommit:r.sourceCommit,sealedFiles:manifest.files.length,engineeringGate:result.engineeringGate,gate:result.gate,stageGate:result.stageGate,formalAccepted:false,runtimeAdmission:'DENIED',inheritedOpenGaps:19,currentOpenObligations:8,nextTask:result.nextTask}));

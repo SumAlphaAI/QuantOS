@@ -1,0 +1,88 @@
+{
+  "schema": "quantos-core-l4-release-transfer/v1",
+  "sourceCommit": "ca057dbd96167a439e4697dc3317c46bee0c8895",
+  "releaseAdmission": "DENIED",
+  "automaticDeployment": false,
+  "requirements": [
+    {
+      "id": "L4-IDENTITY-01",
+      "phase": "INTEGRATION",
+      "owners": [
+        "CORE:F06",
+        "CORE:L03"
+      ],
+      "criterion": "Replace reference MFA/session ports with actual current identity and verify revocation at IO",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "REAL_IDENTITY_REQUIRES_OWN_AUTHORIZATION",
+      "developmentPrerequisite": false
+    },
+    {
+      "id": "L4-PERSISTENCE-01",
+      "phase": "RELEASE",
+      "owners": [
+        "CORE:F05",
+        "CORE:F07",
+        "CORE:L02",
+        "CORE:L04"
+      ],
+      "criterion": "Actual Supabase/Vault/RLS transactional reservations/common audit/outbox/recovery and cross-host fencing",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "TARGET_NOT_RUN_MODULE_OPT_IN_REQUIRED",
+      "developmentPrerequisite": false
+    },
+    {
+      "id": "L4-TESTNET-01",
+      "phase": "INTEGRATION",
+      "owners": [
+        "CORE:L01",
+        "CORE:L02",
+        "CORE:L03",
+        "FRONTEND-GATE:G8"
+      ],
+      "criterion": "Authorized real testnet MFA/two-person representative workflow; native protocol samples do not count as venue orders",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "EXTERNAL_AUTHORIZATION_NOT_GRANTED",
+      "developmentPrerequisite": false
+    },
+    {
+      "id": "L4-RELEASE-01",
+      "phase": "RELEASE",
+      "owners": [
+        "CORE:F07",
+        "CORE:F09",
+        "CORE:L04"
+      ],
+      "criterion": "Target isolation/network/rotation, load/security, four deployed drills, durable audit, actual notifications/soak/same-SHA CI and Beta/Live readiness",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "TARGET_NOT_RUN_NO_PRODUCTION_AUTHORIZATION",
+      "developmentPrerequisite": false
+    },
+    {
+      "id": "F07_RUNTIME_TARGET_TRANSFER",
+      "status": "NOT_RUN",
+      "owners": [
+        "CORE:F07",
+        "CORE:L04"
+      ],
+      "criterion": "Target HTTPS identity/session, worker recovery/private artifact/cross-tenant refusal; runtime only quantos-artifacts, other buckets denied, rotation/revocation, exact candidate receipt"
+    },
+    {
+      "id": "F09_RUNTIME_TARGET_TRANSFER",
+      "status": "NOT_RUN",
+      "owners": [
+        "CORE:F09",
+        "CORE:L04"
+      ],
+      "criterion": "Retain B01-B03/H05/M03; nine real producers/minute monitor/dashboard/sustained thresholds/actual notifications/three same-chain failures/no secret leakage, bound candidate SHA"
+    },
+    {
+      "id": "LIVE_READINESS_ORIGINAL_TARGETS",
+      "status": "NOT_RUN",
+      "criterion": "200 actual venue testnet cases, 50 independent approvals, 100% flag/self/quota/expiry refusals, <=5min secret rotation, no duplicate Command/Order, 100% durable target audit, four deployed drills and high-risk=0; same-SHA CI/security/load/soak remain pending"
+    }
+  ]
+}
