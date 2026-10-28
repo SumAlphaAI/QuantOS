@@ -18,6 +18,8 @@ The code is QuantOS-owned and reads only a closed synthetic fixture. Experiment 
 
 The checked-in `mappings/` files are current reproducible examples. Their research envelope binds the exact `engines/uv.lock` bytes, so a reviewed lock update requires regenerating these examples and `receipt.json` with the CLI above. The 2026-10-25 filelock update, like the earlier certifi update, changes only the research environment hash, its envelope hash and the corresponding receipt digest; synthetic inputs, all three object bytes and reference-only restrictions stay identical. Historical audit evidence remains bound to its original source and environment.
 
+The 2026-10-28 msgpack security update follows the same rule. Regenerate into a temporary artifact directory, review the byte differences, and copy the changed current examples and receipt into `mappings/`. The TP08 Python replay and Node verifier must both pass before committing a workspace lock update. This refresh is current offline sample maintenance; historical TP08 receipts and formal admission remain unchanged.
+
 No Qlib, full Alpha158, trained model, MLflow, database, persistent storage or deployed Runtime executes. Tenant/workspace/actor scope is enforced by the reference in-memory store; this is not deployed authentication. Mock URIs are backed by checked-in bytes, not uploaded objects. Synthetic metrics are diagnostics, not investment results.
 
 ## Supply chain and Gate
