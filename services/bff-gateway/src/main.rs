@@ -56,7 +56,14 @@ async fn main() -> anyhow::Result<()> {
         .context("live BFF initialization failed")??
     } else {
         let provider =
-            if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("assisted-local") {
+            if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("assisted-mtls-local") {
+                let directory = env::var("QUANTOS_BFF_OWNED_MTLS_DIRECTORY")
+                    .context("explicit owned mTLS directory required")?;
+                BffProvider::owned_mtls_reference(
+                    std::path::Path::new(&directory),
+                    env::var("QUANTOS_BFF_OWNED_ASSISTED").as_deref() == Ok("enabled"),
+                )?
+            } else if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("assisted-local") {
                 BffProvider::assisted_reference(
                     env::var("QUANTOS_BFF_OWNED_ASSISTED").as_deref() == Ok("enabled"),
                 )

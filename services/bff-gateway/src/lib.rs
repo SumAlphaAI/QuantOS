@@ -1,3 +1,4 @@
+pub use assisted::RestrictedReference;
 mod assisted;
 mod audit_core;
 pub mod command;
@@ -31,7 +32,7 @@ use axum::{
     routing::{delete, get, post},
 };
 use chrono::{Duration, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use tokio::sync::Mutex;
 use uuid::Uuid;
@@ -43,14 +44,14 @@ const ALLOWED_ORIGIN: &str = "http://localhost:3190";
 const AUDIT_CORRELATION: &str = "aaaaaaaa-1111-4111-8111-111111111111";
 const EXPIRED_EXPORT: &str = "eeeeeeee-1111-4111-8111-111111111111";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ReauthGrant {
     challenge_ref: String,
     expires_at: chrono::DateTime<Utc>,
     session: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct MfaChallenge {
     session: String,
     purpose: String,
@@ -222,6 +223,7 @@ impl BffProvider {
     /// Explicit loopback-only composition; never called by live startup.
     pub fn assisted_reference(enabled: bool) -> Self {
         let mut state = ProviderData::default();
+        state.audits.clear();
         state.assisted = Some(assisted::OwnedHost::new(
             enabled,
             state.now(),
@@ -230,6 +232,26 @@ impl BffProvider {
         Self {
             data: Arc::new(Mutex::new(state)),
         }
+    }
+    /// Local reference identity with a real L02 TLS process, never live startup.
+    pub fn assisted_restricted_reference(
+        config: assisted::RestrictedReference,
+    ) -> anyhow::Result<Self> {
+        let mut state = ProviderData {
+            session_expires_at: config.expires_at,
+            ..Default::default()
+        };
+        state.audits.clear();
+        state.assisted = Some(assisted::OwnedHost::restricted(config)?);
+        Ok(Self {
+            data: Arc::new(Mutex::new(state)),
+        })
+    }
+    pub fn owned_mtls_reference(
+        directory: &std::path::Path,
+        enabled: bool,
+    ) -> anyhow::Result<Self> {
+        Self::assisted_restricted_reference(assisted::persistence::load_owned(directory, enabled)?)
     }
     /// Explicit synthetic reference observer feed; unavailable on live state.
     pub async fn renew_operations_reference(&self) -> anyhow::Result<()> {
@@ -317,6 +339,10 @@ impl BffProvider {
             .layer(axum::middleware::from_fn_with_state(
                 self.data.clone(),
                 input_contract::guard,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                self.data.clone(),
+                assisted::persistence::transaction,
             ))
     }
 
@@ -734,7 +760,7 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
         payload["capabilities"].as_array_mut().unwrap().retain(|v| {
             matches!(
                 v.as_str(),
-                Some("settings.read" | "execution.operate" | "strategy.approve")
+                Some("settings.read" | "execution.operate" | "strategy.approve" | "audit:read")
             )
         });
         if state.assisted.as_ref().is_some_and(|h| h.enabled())
@@ -1591,6 +1617,17 @@ async fn search_audit_events(
         },
     };
     let mut state = data.lock().await;
+    if let Err(e) = assisted::persistence::refresh_common(&mut state) {
+        return research::Fault(
+            StatusCode::SERVICE_UNAVAILABLE,
+            if e == quantos_execution::assisted::Error::Disabled {
+                "FEATURE_DISABLED"
+            } else {
+                "SERVICE_UNAVAILABLE"
+            },
+        )
+        .response();
+    }
     let mut matching = state
         .audits
         .iter()
@@ -1702,9 +1739,13 @@ async fn get_evidence_chain(
         let auth = strategy::reference_auth(&session);
         let allowed = !state.reference_shadow
             && (state
-                .execution
+                .assisted
                 .as_ref()
-                .is_some_and(|e| e.has_approval_correlation(&auth, &correlation_id_value))
+                .is_some_and(|h| h.has_correlation(&correlation_id_value))
+                || state
+                    .execution
+                    .as_ref()
+                    .is_some_and(|e| e.has_approval_correlation(&auth, &correlation_id_value))
                 || state
                     .strategy
                     .as_ref()
@@ -1727,6 +1768,17 @@ async fn get_evidence_chain(
         Err(response) => return *response,
     };
     let mut state = data.lock().await;
+    if let Err(e) = assisted::persistence::refresh_common(&mut state) {
+        return research::Fault(
+            StatusCode::SERVICE_UNAVAILABLE,
+            if e == quantos_execution::assisted::Error::Disabled {
+                "FEATURE_DISABLED"
+            } else {
+                "SERVICE_UNAVAILABLE"
+            },
+        )
+        .response();
+    }
     let events = state
         .audits
         .iter()

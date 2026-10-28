@@ -531,6 +531,67 @@ pub fn read_frame(input: &mut impl Read) -> Result<Vec<u8>, Denial> {
     Err(Denial::Protocol)
 }
 
+/// Native X04 adapter to the existing L02 verified mTLS channel. Its service
+/// session/peer configuration is owner supplied and never read from a Web body.
+/// A transport failure is unknown; no retry or alternate endpoint is attempted.
+pub struct ZoneExecutionKernel {
+    client: ZoneClient,
+    host: String,
+    address: SocketAddr,
+    session_hash: String,
+    version: u64,
+    events: Vec<KernelEvent>,
+}
+impl ZoneExecutionKernel {
+    pub fn new(
+        client: ZoneClient,
+        host: String,
+        address: SocketAddr,
+        session_hash: String,
+        version: u64,
+    ) -> Result<Self, Denial> {
+        client.policy.check(&host, address)?;
+        if !fp_valid(&session_hash) || version == 0 {
+            return Err(Denial::Session);
+        }
+        Ok(Self {
+            client,
+            host,
+            address,
+            session_hash,
+            version,
+            events: vec![],
+        })
+    }
+}
+impl ExecutionKernel for ZoneExecutionKernel {
+    fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String> {
+        self.submit_at(command, Utc::now())
+    }
+    fn submit_at(&mut self, command: &BoundaryCommand, now: DateTime<Utc>) -> Result<(), String> {
+        if command.expires_at <= now {
+            return Err("restricted command expired".into());
+        }
+        let result = self
+            .client
+            .execute(
+                &self.host,
+                self.address,
+                &ZoneRequest {
+                    session_hash: self.session_hash.clone(),
+                    version: self.version,
+                    command: command.clone(),
+                },
+            )
+            .map_err(|_| "restricted execution result unknown".to_owned())?;
+        self.events.extend(result.events);
+        Ok(())
+    }
+    fn drain_events(&mut self) -> Vec<KernelEvent> {
+        std::mem::take(&mut self.events)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

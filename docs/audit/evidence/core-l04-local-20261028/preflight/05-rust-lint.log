@@ -1,0 +1,37 @@
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error: unnecessary map of the identity function
+   --> crates/quantos-execution/src/assisted.rs:875:35
+    |
+875 |             "cache":s.cache.iter().map(|(k,v)|(k,v)).collect::<Vec<_>>(),"audit":s.audit
+    |                                   ^^^^^^^^^^^^^^^^^^ help: remove the call to `map`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#map_identity
+    = note: `-D clippy::map-identity` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::map_identity)]`
+
+error: this `if` statement can be collapsed
+   --> crates/quantos-execution/src/assisted_execution.rs:239:21
+    |
+239 | /                     if let Some(tx) = &transaction {
+240 | |                         if tx.write(&checkpoint(&state)?).is_err() {
+241 | |                             state.poisoned = true;
+242 | |                             return Err(Error::Unavailable);
+243 | |                         }
+244 | |                     }
+    | |_____________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+239 ~                     if let Some(tx) = &transaction
+240 ~                         && tx.write(&checkpoint(&state)?).is_err() {
+241 |                             state.poisoned = true;
+242 |                             return Err(Error::Unavailable);
+243 ~                         }
+    |
+
+error: could not compile `quantos-execution` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-execution` (lib test) due to 2 previous errors

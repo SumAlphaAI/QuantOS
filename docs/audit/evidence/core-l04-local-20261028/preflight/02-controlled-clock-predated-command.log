@@ -1,0 +1,33 @@
+
+running 1 test
+test core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills ... FAILED
+
+failures:
+
+failures:
+    core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.80s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-9f24c70283e7d04e)
+
+thread 'core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills' (1503647) panicked at services/bff-gateway/tests/core_l04.rs:299:9:
+assertion `left == right` failed: {"commandId":"01a1828a-7174-76c3-9266-3bea2c0250ba","expiresAt":"2026-10-28T12:45:03.523Z","order":{"accountId":"44444444-4444-4444-8444-444444444444","commandId":"01a1828a-7174-76c3-9266-3bea2c0250ba","filledQuantity":"0","orderId":"order:5dec2c0c538b520e854d6687bc2134264872b0bef0434553529f0d2037d08d1f","quantity":"1","side":"buy","status":"submitted","symbol":"BTCUSDT"},"requestId":"01a1828a-701a-7ff1-991f-893b97df984b","signature":"fb8a588c8ed1810e783a78071f6dfcb403cf86ce9c8b6293abd98e4e1aa53bb2","state":"unknown","subjectHash":"sha256:28859b6067443d5ea201b159468c2960219bff7b4ecdee827df2f6ad7eb79468"}
+  left: String("unknown")
+ right: "accepted"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (1503767) panicked at services/bff-gateway/tests/core_l04.rs:185:10:
+called `Result::unwrap()` on an `Err` value: reqwest::Error { kind: Request, url: "http://127.0.0.1:60754/v1/assisted-testnet/requests/01a1828a-701a-7ff1-991f-893b97df984b/commands", source: hyper_util::client::legacy::Error(SendRequest, hyper::Error(IncompleteMessage)) }
+
+thread '<unnamed>' (1503763) panicked at services/bff-gateway/tests/core_l04.rs:185:10:
+called `Result::unwrap()` on an `Err` value: reqwest::Error { kind: Request, url: "http://127.0.0.1:60754/v1/assisted-testnet/requests/01a1828a-701a-7ff1-991f-893b97df984b/commands", source: hyper_util::client::legacy::Error(SendRequest, hyper::Error(IncompleteMessage)) }
+
+thread '<unnamed>' (1503751) panicked at services/bff-gateway/tests/core_l04.rs:185:10:
+called `Result::unwrap()` on an `Err` value: reqwest::Error { kind: Request, url: "http://127.0.0.1:60754/v1/assisted-testnet/requests/01a1828a-701a-7ff1-991f-893b97df984b/commands", source: hyper_util::client::legacy::Error(SendRequest, hyper::Error(IncompleteMessage)) }
+
+thread '<unnamed>' (1503753) panicked at services/bff-gateway/tests/core_l04.rs:185:10:
+called `Result::unwrap()` on an `Err` value: reqwest::Error { kind: Request, url: "http://127.0.0.1:60754/v1/assisted-testnet/requests/01a1828a-701a-7ff1-991f-893b97df984b/commands", source: hyper_util::client::legacy::Error(SendRequest, hyper::Error(IncompleteMessage)) }
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

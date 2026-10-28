@@ -1,0 +1,281 @@
+//! Owner-only local state. C01/F06 remain explicit reference adapters. No keys
+//! are included in checkpoints. Approval/current native reservations use separate
+//! synced files; the common audit projection is rebuilt solely from those facts.
+use super::*;
+use quantos_execution::durable::{DurableStore, LockedStore};
+impl OwnedHost {
+    pub(crate) fn has_correlation(&self, id: &str) -> bool {
+        self.requests.keys().any(|r| r.to_string() == id)
+    }
+    pub(crate) fn restricted(c: RestrictedReference) -> Result<Self, Error> {
+        if !c.directory.is_absolute()
+            || c.expires_at <= c.created_at
+            || c.expires_at - c.created_at > Duration::minutes(15)
+            || c.keys
+                .iter()
+                .enumerate()
+                .any(|(i, k)| k.iter().all(|b| *b == 0) || c.keys[..i].contains(k))
+        {
+            return Err(Error::Invalid);
+        }
+        let mut h = Self::configured(
+            c.enabled,
+            c.created_at,
+            c.expires_at,
+            [c.keys[0], c.keys[1], c.keys[2]],
+            Some(HostKernel::Restricted(Box::new(c.kernel))),
+        )?;
+        h.native =
+            h.native
+                .with_durable(DurableStore::new(&c.directory, "commands", c.keys[3])?)?;
+        h.durable = Some(Arc::new(DurableStore::new(
+            &c.directory,
+            "approvals",
+            c.keys[3],
+        )?));
+        Ok(h)
+    }
+    pub(super) fn common_audit(&self) -> Result<Vec<Value>, Error> {
+        let (entries, anchor) = self.service.audit_snapshot()?;
+        self.service.verify_audit(&entries, &anchor)?;
+        let mut all = vec![];
+        for id in self.requests.keys() {
+            let mut chain = vec![];
+            let subject = self.subject(*self.requests.get(id).ok_or(Error::Invalid)?)?;
+            let actor = subject["originator"].clone();
+            let opened = *self.opened_at.get(id).ok_or(Error::Invalid)?;
+            let mut add = |kind: &str, at: DateTime<Utc>, actor: Value, payload: Value| {
+                let event_id = event_id(&format!("{id}:{kind}:{}", chain.len()));
+                let cause = chain
+                    .last()
+                    .map(|v: &Value| v["eventId"].clone())
+                    .unwrap_or(json!(event_id));
+                let hash = crate::audit_core::payload_hash(&payload);
+                chain.push(json!({"auditRef":event_id,"eventId":event_id,"correlationId":id,"causationId":cause,"sequence":chain.len()+1,"kind":kind,"actor":actor,"objectRef":format!("assisted-request:{id}"),"occurredAt":at,"route":format!("/orders?approval={id}"),"redactionApplied":true,"redactedPayload":payload,"payloadHash":hash,"retentionUntil":opened+Duration::days(90)}));
+            };
+            add(
+                "assisted.request_opened",
+                opened,
+                actor.clone(),
+                json!({"requestId":id,"subjectHash":subject["subjectHash"],"proposalHash":subject["proposalHash"],"decisionId":subject["decisionId"]}),
+            );
+            for a in entries.iter().filter(|a| a.request == *id) {
+                add(
+                    "assisted.independent_approval",
+                    a.at,
+                    json!(a.actor),
+                    json!({"requestId":id,"subjectHash":a.subject_hash,"approvalSignature":a.signature,"slot":a.slot}),
+                );
+            }
+            for fact in self
+                .native
+                .audit_facts()?
+                .into_iter()
+                .filter(|f| f["requestId"] == id.to_string())
+            {
+                let at: DateTime<Utc> =
+                    serde_json::from_value(fact["issuedAt"].clone()).map_err(|_| Error::Invalid)?;
+                add(
+                    "assisted.command_reserved",
+                    at,
+                    actor.clone(),
+                    json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"]}),
+                );
+                if fact["completed"] == true {
+                    add(
+                        if fact["state"] == "accepted" {
+                            "assisted.command_accepted"
+                        } else {
+                            "assisted.command_unknown"
+                        },
+                        at,
+                        actor.clone(),
+                        json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"],"orderId":fact["orderId"],"state":fact["state"]}),
+                    );
+                }
+            }
+            all.extend(chain);
+        }
+        Ok(all)
+    }
+}
+fn event_id(text: &str) -> Uuid {
+    let hash = ContentHash::sha256_bytes(text.as_bytes()).to_string();
+    Uuid::parse_str(&hash[7..39]).expect("digest UUID")
+}
+fn decode<T: serde::de::DeserializeOwned>(v: &Value) -> Result<T, Error> {
+    serde_json::from_value(v.clone()).map_err(|_| Error::Unavailable)
+}
+pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Error> {
+    if let Some(v) = tx.read()? {
+        let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
+        h.service.restore_checkpoint(&v["service"])?;
+        h.subjects = decode(&v["subjects"])?;
+        h.requests = decode(&v["requests"])?;
+        h.opened_at = decode(&v["openedAt"])?;
+        state.audits = decode(&v["c10Access"])?;
+        h.open_keys = decode::<Vec<((String, String), ProposalId)>>(&v["openKeys"])?
+            .into_iter()
+            .collect();
+        h.proofs = decode::<Vec<((String, String), Replay)>>(&v["proofs"])?
+            .into_iter()
+            .collect();
+        // Restore the original windows; startup must not mint renewed sessions.
+        if decode::<DateTime<Utc>>(&v["sessionExpiresAt"])? != state.session_expires_at {
+            return Err(Error::Unauthorized);
+        }
+        state.session_active = decode(&v["sessionActive"])?;
+        state.challenges = decode(&v["challenges"])?;
+        state.reauth_grants = decode(&v["reauthGrants"])?;
+        state.consumed_step_proofs = decode(&v["consumedStepProofs"])?;
+    }
+    if !state.session_active {
+        state
+            .assisted
+            .as_ref()
+            .ok_or(Error::Unavailable)?
+            .service
+            .revoke_session("session-current")?;
+    }
+    Ok(())
+}
+pub(super) fn save(state: &ProviderData, tx: &LockedStore) -> Result<(), Error> {
+    let h = state.assisted.as_ref().ok_or(Error::Unavailable)?;
+    if !state.session_active {
+        h.service.revoke_session("session-current")?;
+    }
+    tx.write(&json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs}))
+}
+/// Called by the existing public C10 reader, with current C01 authorization.
+/// The stable disk lock also fences it against every cooperating local writer.
+pub(crate) fn refresh_common(state: &mut ProviderData) -> Result<(), Error> {
+    let Some(_) = state.assisted.as_ref() else {
+        return Ok(());
+    };
+    let facts = state
+        .assisted
+        .as_ref()
+        .ok_or(Error::Unavailable)?
+        .common_audit()?;
+    state.audits.retain(|e| {
+        !e["kind"]
+            .as_str()
+            .is_some_and(|k| k.starts_with("assisted."))
+    });
+    state.audits.extend(facts);
+    Ok(())
+}
+
+/// Fences every C01/F06/native/C10 request and persists even refusals which may
+/// consume a proof. OS-lock acquisition runs off the async executor threads.
+pub(crate) async fn transaction(
+    State(data): State<Arc<Mutex<ProviderData>>>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> Response {
+    let store = data
+        .lock()
+        .await
+        .assisted
+        .as_ref()
+        .and_then(|h| h.durable.clone());
+    let Some(store) = store else {
+        return next.run(request).await;
+    };
+    let tx = match tokio::task::spawn_blocking(move || store.lock()).await {
+        Ok(Ok(tx)) => tx,
+        _ => return fail(Error::Unavailable).response(),
+    };
+    {
+        let mut state = data.lock().await;
+        if let Err(e) = restore(&mut state, &tx) {
+            return fail(e).response();
+        }
+    }
+    let response = next.run(request).await;
+    {
+        let state = data.lock().await;
+        if let Err(e) = save(&state, &tx) {
+            return fail(e).response();
+        }
+    }
+    response
+}
+
+/// Explicit fixture startup only: private temporary owner directory, loopback
+/// address and .invalid DNS, ephemeral test CA/key. No dotenv or DB fallback.
+pub(crate) fn load_owned(
+    directory: &std::path::Path,
+    enabled: bool,
+) -> anyhow::Result<RestrictedReference> {
+    use execution_gateway::restricted_zone::{NetworkAllowlist, ZoneClient, ZoneExecutionKernel};
+    use openssl::{pkey::PKey, x509::X509};
+    use std::{fs, net::SocketAddr};
+    let root = directory.canonicalize()?;
+    anyhow::ensure!(
+        root == directory
+            && root.parent() == Some(std::env::temp_dir().canonicalize()?.as_path())
+            && root
+                .file_name()
+                .and_then(|v| v.to_str())
+                .is_some_and(|n| n.starts_with("quantos-l02-")),
+        "owned mTLS directory required"
+    );
+    let read = |name: &str| -> anyhow::Result<Vec<u8>> {
+        let p = root.join(name);
+        let m = fs::symlink_metadata(&p)?;
+        anyhow::ensure!(m.is_file(), "regular owner file required");
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            anyhow::ensure!(
+                m.permissions().mode() & 0o077 == 0,
+                "private owner file required"
+            );
+        }
+        Ok(fs::read(p)?)
+    };
+    #[derive(serde::Deserialize)]
+    #[serde(rename_all = "camelCase", deny_unknown_fields)]
+    struct Owner {
+        address: SocketAddr,
+        server_fingerprint: String,
+        session_hash: String,
+        keys: [[u8; 32]; 4],
+        created_at: DateTime<Utc>,
+        expires_at: DateTime<Utc>,
+    }
+    let c: Owner = serde_json::from_slice(&read("bff-owner.json")?)?;
+    anyhow::ensure!(
+        c.address.ip().is_loopback(),
+        "owned endpoint must be loopback"
+    );
+    let ca = X509::from_pem(&read("ca.pem")?)?;
+    let cert = X509::from_pem(&read("peer-1.pem")?)?;
+    let key = PKey::private_key_from_pem(&read("peer-1-key.pem")?)?;
+    let client = ZoneClient::new(
+        &ca,
+        &cert,
+        &key,
+        NetworkAllowlist::new(
+            "execution-zone.invalid".into(),
+            c.address.port(),
+            [c.address.ip()].into(),
+        )?,
+        c.server_fingerprint,
+    )?;
+    Ok(RestrictedReference {
+        directory: root,
+        kernel: ZoneExecutionKernel::new(
+            client,
+            "execution-zone.invalid".into(),
+            c.address,
+            c.session_hash,
+            1,
+        )?,
+        keys: c.keys,
+        created_at: c.created_at,
+        expires_at: c.expires_at,
+        enabled,
+    })
+}

@@ -1,0 +1,29 @@
+
+running 5 tests
+test core_l04_checkpoint_tamper_wrong_authority_and_current_sessions_not_restored ... ok
+test core_l04_kill_switch_persists_and_blocks_other_instances_before_io ... ok
+test core_l04_store_hmac_wrong_key_corruption_deletion_permissions_and_link_refuse ... ok
+test core_l04_original_half_open_deadline_is_not_extended_by_recovery ... ok
+test core_l04_durable_independent_instances_fence_proposal_and_current_revocation ... FAILED
+
+failures:
+
+---- core_l04_durable_independent_instances_fence_proposal_and_current_revocation stdout ----
+
+thread '<unnamed>' (1513262) panicked at crates/quantos-execution/tests/core_l04.rs:76:74:
+called `Result::unwrap()` on an `Err` value: Unavailable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'core_l04_durable_independent_instances_fence_proposal_and_current_revocation' (1513257) panicked at crates/quantos-execution/tests/core_l04.rs:77:38:
+called `Result::unwrap()` on an `Err` value: Any { .. }
+
+
+failures:
+    core_l04_durable_independent_instances_fence_proposal_and_current_revocation
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.87s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-0ac74ff55a857a72)
+error: test failed, to rerun pass `-p quantos-execution --test core_l04`

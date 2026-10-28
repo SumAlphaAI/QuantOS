@@ -269,12 +269,12 @@ pub struct Anchor {
     pub count: usize,
     pub head: Option<ContentHash>,
 }
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Approval {
     session: String,
     proof: StepUpProof,
 }
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Request {
     subject: Subject,
     hash: ContentHash,
@@ -285,6 +285,7 @@ struct Request {
     receipt: Receipt,
     approvals: Vec<Approval>,
 }
+#[derive(Clone, Serialize, Deserialize)]
 struct Cached {
     binding: ContentHash,
     receipt: Receipt,
@@ -862,6 +863,56 @@ impl AssistedApprovalService {
             s.auth(session, now, true)?;
         }
         Ok(s.requests.get(&id).ok_or(Error::Invalid)?.receipt.clone())
+    }
+    /// Trusted owner persistence only. This is authenticated with the audit key;
+    /// restoring a browser receipt or a checkpoint from another scope is denied.
+    pub fn checkpoint(&self) -> Result<serde_json::Value, Error> {
+        let s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let value = serde_json::json!({
+            "scope":s.scope,"revision":s.revision,"clock":s.clock,
+            "subjects":s.subjects,"revokedSubjects":s.revoked_subjects,
+            "requests":s.requests,"challenges":s.challenges,"used":s.used,
+            "cache":s.cache.iter().collect::<Vec<_>>(),"audit":s.audit
+        });
+        Ok(
+            serde_json::json!({"value":value,"signature":sign(&s.audit_key,"l04-approval-checkpoint/v1",&value)?}),
+        )
+    }
+    /// Current policy and sessions are supplied by the trusted owner, never
+    /// restored from disk. Original request/session generations remain pinned.
+    pub fn restore_checkpoint(&self, checkpoint: &serde_json::Value) -> Result<(), Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let v = &checkpoint["value"];
+        verify(
+            &s.audit_key,
+            "l04-approval-checkpoint/v1",
+            v,
+            checkpoint["signature"].as_str().ok_or(Error::Invalid)?,
+        )?;
+        if v["scope"] != serde_json::to_value(&s.scope).map_err(|_| Error::Invalid)?
+            || v["revision"].as_u64() != Some(s.revision)
+        {
+            return Err(Error::PolicyChanged);
+        }
+        fn decode<T: serde::de::DeserializeOwned>(v: &serde_json::Value) -> Result<T, Error> {
+            serde_json::from_value(v.clone()).map_err(|_| Error::Invalid)
+        }
+        let clock = decode(&v["clock"])?;
+        if clock < s.clock && !s.requests.is_empty() {
+            return Err(Error::Expired);
+        }
+        s.clock = clock;
+        s.subjects = decode(&v["subjects"])?;
+        s.revoked_subjects
+            .extend(decode::<BTreeSet<ProposalId>>(&v["revokedSubjects"])?);
+        s.requests = decode(&v["requests"])?;
+        s.challenges = decode(&v["challenges"])?;
+        s.used = decode(&v["used"])?;
+        s.cache = decode::<Vec<((ActorId, ContentHash), Cached)>>(&v["cache"])?
+            .into_iter()
+            .collect();
+        s.audit = decode(&v["audit"])?;
+        Ok(())
     }
     /// Trusted audit export, not a client permission or restore/issuance API.
     pub fn audit_snapshot(&self) -> Result<(Vec<Audit>, Anchor), Error> {

@@ -3491,6 +3491,8 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 
 - CORE:L03 当前本机接续（2026-10-27）：P10/P11新增受服务端C01/版本化flag/policyRevision控制的Assisted Live本机流程，两名不同actor/user逐次MFA/reauth后接同源原生命令与L01 Order；保持Paper/Shadow原行为、引用规范化先于IO、小屏只读、失权清理及原请求恢复。限定50案例和12项当前浏览器结果以[CORE:L03证据](./audit/evidence/core-l03-local-20261027/README.md)为准，[当前边界](./operations/core-l03-current-function.md)明确reference身份/自有无网络协议端口与当前in-process限制。FEP-8/G8/M5及19项原gap不自动关闭，159阶段不提升；下一原项CORE:L04 DEVELOPMENT补受限进程/公共C10持久恢复，真实环境/发布仍NOT_RUN。
 
+- CORE:L04 当前后端接续（2026-10-28）：同一公共审批/原生Command已接实际L02 mTLS进程；公共C10加入持久审批、命令预留/结果与因果链，本机重启和双副本恢复不补发unknown。证据及目标边界见[CORE:L04规程](./operations/core-l04-current-function.md)与[限定证据](./audit/evidence/core-l04-local-20261028/README.md)。本轮未改页面，L03/P10/P11历史浏览器/axe结果不改绑；FEP-8/G8/M5、19项gap、159阶段与formal/runtime状态保持原边界。下一原项CORE-GATE:L4 DEVELOPMENT评估当前组合；真实IdP/Vault/DB/testnet、跨主机持久恢复及发布仍NOT_RUN。
+
 ## 5. 接口对接清单与契约基线
 
 ### 5.1 契约状态说明

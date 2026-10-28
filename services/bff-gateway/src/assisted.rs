@@ -16,7 +16,10 @@ use quantos_core::{
     AccountId, ContentHash, DecisionId, ProposalId, TenantId, WorkspaceId, canonical_json_bytes,
 };
 use quantos_execution::{
-    assisted::*, assisted_execution::*, gateway::GatewayLimits, venue::VenueConfig,
+    assisted::*,
+    assisted_execution::*,
+    gateway::{BoundaryCommand, ExecutionKernel, GatewayLimits, KernelEvent},
+    venue::VenueConfig,
     venue_protocol::*,
 };
 use quantos_policy::{Capability, Role, RunMode};
@@ -68,6 +71,37 @@ impl ProtocolPort for OwnedPort {
         Ok(quantos_execution::venue_protocol::Response{status:200,retry_after_seconds:None,body:serde_json::to_vec(&json!({"symbol":p["symbol"],"orderId":self.sequence,"clientOrderId":p["newClientOrderId"],"transactTime":p["timestamp"].parse::<i64>().unwrap_or(0),"price":p["price"],"origQty":p["quantity"],"executedQty":"0","cummulativeQuoteQty":"0","status":"NEW","timeInForce":"GTC","type":"LIMIT","side":p["side"],"fills":[]})).expect("owned reply")})
     }
 }
+enum HostKernel {
+    Owned(Box<ProtocolKernel<OwnedPort>>),
+    Restricted(Box<execution_gateway::restricted_zone::ZoneExecutionKernel>),
+}
+impl ExecutionKernel for HostKernel {
+    fn submit(&mut self, c: &BoundaryCommand) -> Result<(), String> {
+        self.submit_at(c, Utc::now())
+    }
+    fn submit_at(&mut self, c: &BoundaryCommand, at: DateTime<Utc>) -> Result<(), String> {
+        match self {
+            Self::Owned(k) => k.submit_at(c, at),
+            Self::Restricted(k) => k.submit_at(c, at),
+        }
+    }
+    fn drain_events(&mut self) -> Vec<KernelEvent> {
+        match self {
+            Self::Owned(k) => k.drain_events(),
+            Self::Restricted(k) => k.drain_events(),
+        }
+    }
+}
+/// Explicit local owner configuration, never deserialized from an HTTP request.
+pub struct RestrictedReference {
+    pub directory: std::path::PathBuf,
+    pub kernel: execution_gateway::restricted_zone::ZoneExecutionKernel,
+    pub keys: [[u8; 32]; 4],
+    pub created_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+    pub enabled: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
 struct Replay {
     binding: Value,
     proof: StepUpProof,
@@ -75,9 +109,11 @@ struct Replay {
 pub(crate) struct OwnedHost {
     service: AssistedApprovalService,
     mfa: MfaAttestor,
-    native: AssistedExecution<ProtocolKernel<OwnedPort>>,
+    native: AssistedExecution<HostKernel>,
+    durable: Option<Arc<quantos_execution::durable::DurableStore>>,
     subjects: BTreeMap<ProposalId, Subject>,
     requests: BTreeMap<ProposalId, ProposalId>,
+    opened_at: BTreeMap<ProposalId, DateTime<Utc>>,
     open_keys: BTreeMap<(String, String), ProposalId>,
     proofs: BTreeMap<(String, String), Replay>,
 }
@@ -91,13 +127,22 @@ impl OwnedHost {
         self.service.reachable().unwrap_or(false)
     }
     pub(crate) fn new(enabled: bool, at: DateTime<Utc>, expiry: DateTime<Utc>) -> Self {
+        Self::configured(enabled, at, expiry, [key(), key(), key()], None).expect("owned host")
+    }
+    fn configured(
+        enabled: bool,
+        at: DateTime<Utc>,
+        expiry: DateTime<Utc>,
+        keys: [[u8; 32]; 3],
+        restricted: Option<HostKernel>,
+    ) -> Result<Self, Error> {
         let at = now(at);
         let scope = Scope {
             tenant: TenantId::parse_str("22222222-2222-4222-8222-222222222222").unwrap(),
             workspace: WorkspaceId::parse_str("33333333-3333-4333-8333-333333333333").unwrap(),
             account: AccountId::parse_str("44444444-4444-4444-8444-444444444444").unwrap(),
         };
-        let mfa_key = key();
+        let mfa_key = keys[0];
         let service = AssistedApprovalService::new(
             scope.clone(),
             Policy {
@@ -105,7 +150,7 @@ impl OwnedHost {
                 ..Policy::default()
             },
             mfa_key,
-            key(),
+            keys[1],
             at,
         )
         .unwrap();
@@ -170,8 +215,8 @@ impl OwnedHost {
                 max_notional: 50000.into(),
                 allowed_venues: vec![EXECUTION_VENUE.into()],
             },
-            kernel,
-            key(),
+            restricted.unwrap_or(HostKernel::Owned(Box::new(kernel))),
+            keys[2],
         )
         .unwrap();
         let mut subjects = BTreeMap::new();
@@ -199,15 +244,17 @@ impl OwnedHost {
             service.register_subject(subject.clone()).unwrap();
             subjects.insert(id, subject);
         }
-        Self {
+        Ok(Self {
             service,
+            durable: None,
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
             subjects,
             requests: BTreeMap::new(),
+            opened_at: BTreeMap::new(),
             open_keys: BTreeMap::new(),
             proofs: BTreeMap::new(),
-        }
+        })
     }
     fn subject(&self, id: ProposalId) -> Result<Value, Error> {
         let s = self.subjects.get(&id).ok_or(Error::Invalid)?;
@@ -398,6 +445,7 @@ async fn handle(
                 .ok_or(Error::Invalid)?;
             let r = h.service.open(&sid, subject, key, at)?.receipt;
             h.requests.insert(r.request, subject);
+            h.opened_at.entry(r.request).or_insert(at);
             h.open_keys.insert((sid.clone(), key.to_owned()), r.request);
             return h.view(&sid, r.request, at);
         }
@@ -454,5 +502,6 @@ async fn handle(
         Err(e) => fail(e).response(),
     }
 }
+pub(crate) mod persistence;
 #[cfg(test)]
 mod tests;

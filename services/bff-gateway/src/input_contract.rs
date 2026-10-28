@@ -162,6 +162,8 @@ pub(crate) async fn guard(
         && path.starts_with("/v1/")
         && !path.starts_with("/v1/assisted-testnet/")
         && !path.starts_with("/v1/auth/")
+        && !(request.method() == axum::http::Method::GET
+            && (path == "/v1/audit/events" || path.starts_with("/v1/audit/evidence-chains/")))
         && !matches!(
             path,
             "/v1/session" | "/v1/context" | "/v1/settings/sessions/stream"

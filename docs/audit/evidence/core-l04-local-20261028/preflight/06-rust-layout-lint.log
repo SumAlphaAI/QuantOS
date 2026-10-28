@@ -1,0 +1,49 @@
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: items after a test module
+   --> services/execution-gateway/src/restricted_zone.rs:535:1
+    |
+535 | mod tests {
+    | ^^^^^^^^^
+...
+815 | pub struct ZoneExecutionKernel {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+823 | impl ZoneExecutionKernel {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+845 | impl ExecutionKernel for ZoneExecutionKernel {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#items_after_test_module
+    = note: `-D clippy::items-after-test-module` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::items_after_test_module)]`
+    = help: move the items to before the test module was defined
+
+error: could not compile `execution-gateway` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: large size difference between variants
+  --> services/bff-gateway/src/assisted.rs:74:1
+   |
+74 | / enum HostKernel {
+75 | |     Owned(ProtocolKernel<OwnedPort>),
+   | |     -------------------------------- the largest variant contains at least 416 bytes
+76 | |     Restricted(Box<execution_gateway::restricted_zone::ZoneExecutionKernel>),
+   | |     ------------------------------------------------------------------------ the second-largest variant contains at least 8 bytes
+77 | | }
+   | |_^ the entire enum is at least 416 bytes
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#large_enum_variant
+   = note: `-D clippy::large-enum-variant` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::large_enum_variant)]`
+help: consider boxing the large fields or introducing indirection in some other way to reduce the total size of the enum
+   |
+75 -     Owned(ProtocolKernel<OwnedPort>),
+75 +     Owned(Box<ProtocolKernel<OwnedPort>>),
+   |
+
+error: could not compile `bff-gateway` (lib) due to 1 previous error
+error: could not compile `bff-gateway` (lib test) due to 1 previous error

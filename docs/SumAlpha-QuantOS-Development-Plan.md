@@ -2849,7 +2849,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - depends_on: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04", "FE:FEP-8"]
 - core_prerequisites: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `L4-TOTAL`
 - 需求描述：容量、恢复、安全与上线证据包
@@ -2862,6 +2862,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
 - F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+
+- 当前本机开发（2026-10-28）：接续L03公共审批与原生权限至实际L02 mTLS受限进程；新增同主机HMAC/fsync持久预留、原请求/证明恢复、跨副本去重、unknown不补发与持久kill switch，公共C10投影同一审批/Command/Order及causation。详见[当前规程](./operations/core-l04-current-function.md)、[范围](./execution/core-l04-scope-assessment.json)、[限定证据](./audit/evidence/core-l04-local-20261028/README.md)。工程Gate `PASS_OWNED_LOCAL_CORE_L04_MTLS_C10_DURABLE_RECOVERY`，开发IMPLEMENTED_PENDING_ACCEPTANCE；完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED，19项gap/M5及历史回执不提升。当前reference身份、owned signer/协议端口与单主机文件恢复不代表真实IdP/Vault/Supabase、跨主机恢复、venue/testnet、目标安全/容量/通知/发布验收；这些保持NOT_RUN。下一原任务CORE-GATE:L4 DEVELOPMENT开展当前功能评估，不授予外部联调或发布权限。
 
 <a id="105-l4-gate"></a>
 <a id="gate-l4"></a>

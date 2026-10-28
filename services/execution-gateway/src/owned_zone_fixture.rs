@@ -141,7 +141,12 @@ pub fn serve_owned_fixture(
         };
         let result = if let Ok(request) = serde_json::from_slice::<ZoneRequest>(&bytes) {
             // Schedule is fixture-only trusted control input, never a request clock field.
-            let at = base + Duration::seconds(config["schedule"][index].as_i64().unwrap_or(0));
+            let at = if config["wallClock"] == true {
+                DateTime::from_timestamp_millis(Utc::now().timestamp_millis())
+                    .ok_or(Denial::Protocol)?
+            } else {
+                base + Duration::seconds(config["schedule"][index].as_i64().unwrap_or(0))
+            };
             index += 1;
             if config["rotation"] == true && at >= base + Duration::seconds(10) && !rotated {
                 host.control_mut()
@@ -157,6 +162,15 @@ pub fn serve_owned_fixture(
         } else {
             Err(Denial::Protocol)
         };
+        if config["pauseReplyAtRequest"].as_u64() == Some(index as u64) {
+            println!(
+                "L02_PENDING={}",
+                json!({"protocolCalls":calls.load(Ordering::SeqCst),"requests":index})
+            );
+            stdout().flush()?;
+            // Explicit owned crash-window injection; never used by live ingress.
+            std::thread::sleep(std::time::Duration::from_millis(800));
+        }
         let bytes = serde_json::to_vec(&result)?;
         let _ = channel.write_all(&bytes);
         let _ = channel.write_all(b"\n");
