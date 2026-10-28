@@ -3493,6 +3493,8 @@ G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testn
 
 - CORE:L04 当前后端接续（2026-10-28）：同一公共审批/原生Command已接实际L02 mTLS进程；公共C10加入持久审批、命令预留/结果与因果链，本机重启和双副本恢复不补发unknown。证据及目标边界见[CORE:L04规程](./operations/core-l04-current-function.md)与[限定证据](./audit/evidence/core-l04-local-20261028/README.md)。本轮未改页面，L03/P10/P11历史浏览器/axe结果不改绑；FEP-8/G8/M5、19项gap、159阶段与formal/runtime状态保持原边界。下一原项CORE-GATE:L4 DEVELOPMENT评估当前组合；真实IdP/Vault/DB/testnet、跨主机持久恢复及发布仍NOT_RUN。
 
+- CORE-GATE:L4 当前开发评估（2026-10-28）：实际P10/P11接L02 mTLS受限进程及公共C10只读审计；修复Orders引用参数、C10规范UUID和Audit消费者模式拒绝，Assisted模式导出继续拒绝，Paper/Shadow既有行为按影响回归。详见[当前L4评估](./operations/core-l4-current-assessment.md)与[证据](./audit/evidence/core-l4-current-local-20261028/README.md)。本机当前组合与历史SHA参考分别记账；FEP-8/G8/M5、19项原缺口、159阶段与正式/运行准入不提升，目标环境及发布NOT_RUN。下一原项CORE:X02 DEVELOPMENT接当前风险/来源与公共审批，不自动执行外部testnet。
+
 ## 5. 接口对接清单与契约基线
 
 ### 5.1 契约状态说明

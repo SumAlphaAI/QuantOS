@@ -1,0 +1,102 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/core-l4-audit.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 20[2mms[22m[39m
+[31m     [31m×[31m reads assisted audit and resolves the actual Orders reference contract[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m refuses assisted create before any export or MFA IO even with export capability[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m refuses assisted cancel before any export or MFA IO even with export capability[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m refuses assisted download before any export or MFA IO even with export capability[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m refuses assisted status before any export or MFA IO even with export capability[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m does not turn guarded live into an admitted audit mode[39m[32m 3[2mms[22m[39m
+     [32m✓[39m refuses missing audit permission[32m 0[2mms[22m[39m
+[31m     [31m×[31m does not renew the original audit deadline[39m[32m 0[2mms[22m[39m
+     [32m✓[39m refuses old misspelled and injected order queries[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 21:45:31
+[2m   Duration [22m 330ms[2m (transform 147ms, setup 0ms, import 238ms, tests 20ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mreads assisted audit and resolves the actual Orders reference contract
+[31m[1mAuditGatewayError[22m: 访问条件已变化，请重新验证。[39m
+[36m [2m❯[22m fail apps/terminal/src/audit/runtime.ts:[2m15:71[22m[39m
+    [90m 13|[39m   let uncertain: string | undefined, boundAuthority:string|undefined, …
+    [90m 14|[39m   const keys = new Map<string,string>(), searchCursors = new Set<strin…
+    [90m 15|[39m   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw …
+    [90m   |[39m                                                                       [31m^[39m
+    [90m 16|[39m   [35mconst[39m localPolicyFailures[33m=[39m[35mnew[39m [33mWeakSet[39m[33m<[39mobject[33m>[39m()[33m;[39m
+    [90m 17|[39m   const policyFail=(status:number,message?:string):never=>{const error…
+[90m [2m❯[22m Object.identity [as load] apps/terminal/src/audit/runtime.ts:[2m75:238[22m[39m
+[90m [2m❯[22m apps/terminal/tests/core-l4-audit.test.ts:[2m14:112[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mrefuses assisted create before any export or MFA IO even with export capability
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mrefuses assisted cancel before any export or MFA IO even with export capability
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mrefuses assisted download before any export or MFA IO even with export capability
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mrefuses assisted status before any export or MFA IO even with export capability
+[31m[1mAuditGatewayError[22m: 访问条件已变化，请重新验证。[39m
+[36m [2m❯[22m fail apps/terminal/src/audit/runtime.ts:[2m15:71[22m[39m
+    [90m 13|[39m   let uncertain: string | undefined, boundAuthority:string|undefined, …
+    [90m 14|[39m   const keys = new Map<string,string>(), searchCursors = new Set<strin…
+    [90m 15|[39m   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw …
+    [90m   |[39m                                                                       [31m^[39m
+    [90m 16|[39m   [35mconst[39m localPolicyFailures[33m=[39m[35mnew[39m [33mWeakSet[39m[33m<[39mobject[33m>[39m()[33m;[39m
+    [90m 17|[39m   const policyFail=(status:number,message?:string):never=>{const error…
+[90m [2m❯[22m Object.identity [as load] apps/terminal/src/audit/runtime.ts:[2m75:238[22m[39m
+[90m [2m❯[22m apps/terminal/tests/core-l4-audit.test.ts:[2m15:224[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mdoes not turn guarded live into an admitted audit mode
+[31m[1mAssertionError[22m: expected ZodError: [
+  {
+    "code": "invalid_valu… { …(2) } to match object { status: 403 }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "status": 403,[39m
+[31m+ ZodError {[39m
+[31m+   "message": "[[39m
+[31m+   {[39m
+[31m+     \"code\": \"invalid_value\",[39m
+[31m+     \"values\": [[39m
+[31m+       \"research\",[39m
+[31m+       \"paper\",[39m
+[31m+       \"shadow\",[39m
+[31m+       \"assisted_live\"[39m
+[31m+     ],[39m
+[31m+     \"path\": [[39m
+[31m+       \"mode\"[39m
+[31m+     ],[39m
+[31m+     \"message\": \"Invalid option: expected one of \\\"research\\\"|\\\"paper\\\"|\\\"shadow\\\"|\\\"assisted_live\\\"\"[39m
+[31m+   }[39m
+[31m+ ]",[39m
+[31m+   "name": "ZodError",[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/core-l4-audit.test.ts:[2m16:149[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-l4-audit.test.ts[2m > [22mCORE L4 current common C10 read consumption[2m > [22mdoes not renew the original audit deadline
+[31m[1mAuditGatewayError[22m: 访问条件已变化，请重新验证。[39m
+[36m [2m❯[22m fail apps/terminal/src/audit/runtime.ts:[2m15:71[22m[39m
+    [90m 13|[39m   let uncertain: string | undefined, boundAuthority:string|undefined, …
+    [90m 14|[39m   const keys = new Map<string,string>(), searchCursors = new Set<strin…
+    [90m 15|[39m   const fail = (status: number, message = "访问条件已变化，请重新验证。") => {throw …
+    [90m   |[39m                                                                       [31m^[39m
+    [90m 16|[39m   [35mconst[39m localPolicyFailures[33m=[39m[35mnew[39m [33mWeakSet[39m[33m<[39mobject[33m>[39m()[33m;[39m
+    [90m 17|[39m   const policyFail=(status:number,message?:string):never=>{const error…
+[90m [2m❯[22m Object.identity [as load] apps/terminal/src/audit/runtime.ts:[2m75:238[22m[39m
+[90m [2m❯[22m apps/terminal/tests/core-l4-audit.test.ts:[2m18:76[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+

@@ -1,0 +1,41 @@
+{
+  "scope": "UNFROZEN_DIAGNOSTICS_ONLY_NOT_CANDIDATE_ACCEPTANCE",
+  "entries": [
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/audit-mode-before.log",
+      "status": "FAIL",
+      "finding": "Admitted assisted audit was refused; unsupported guarded-mode probe also had a schema-refusal expectation mismatch, not a product bypass"
+    },
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/c10-route-before.log",
+      "status": "FAIL",
+      "finding": "Actual HTTP C10 route used approval rather than approvalId"
+    },
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/browser-01/report.json",
+      "status": "FAIL",
+      "finding": "Mock build used localhost HTTP origin instead of local-integrated HTTPS reference proxy; no upstream browser rows"
+    },
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/browser-02/report.json",
+      "status": "FAIL",
+      "finding": "Three scenarios passed; current audit UI failed on non-RFC digest UUID, repaired version/variant bits"
+    },
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/browser-03/report.json",
+      "status": "PASS_UNFROZEN_SCOPE_ONLY",
+      "finding": "Only previously failing current mTLS/UI/C10 path rerun; not the frozen full four-case matrix"
+    },
+    {
+      "path": "docs/audit/evidence/core-l4-current-local-20261028/preflight/script-lint-before.log",
+      "status": "FAIL",
+      "finding": "Explicit node Buffer imports added to gate tests"
+    }
+  ],
+  "permissionReview": {
+    "status": "FIRST_REQUEST_NOT_EXECUTED_REVIEW_TIMEOUT",
+    "reason": "Automatic approval review deadline, no unsafe-action finding",
+    "retry": "AUTHORIZED_SINGLE_RETRY_EXECUTED_LOCAL_LOOPBACK_ONLY",
+    "action": "C10 route pre-fix reproduction"
+  }
+}

@@ -316,6 +316,17 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     let chain = get(&other, &format!("/v1/audit/evidence-chains/{id}"));
     let nodes = chain["items"].as_array().unwrap();
     assert_eq!(nodes.len(), 5, "{chain}");
+    assert!(
+        nodes
+            .iter()
+            .all(|n| n["route"] == format!("/orders?approvalId={id}")),
+        "invalid Orders route: {chain}"
+    );
+    for node in nodes {
+        let event = Uuid::parse_str(node["eventId"].as_str().unwrap()).unwrap();
+        assert_eq!(event.get_version_num(), 8);
+        assert_eq!(event.get_variant(), uuid::Variant::RFC4122);
+    }
     assert_eq!(nodes[3]["kind"], "assisted.command_reserved");
     assert_eq!(nodes[4]["kind"], "assisted.command_accepted");
     for pair in nodes.windows(2) {

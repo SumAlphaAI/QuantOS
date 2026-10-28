@@ -51,7 +51,7 @@ impl OwnedHost {
                     .map(|v: &Value| v["eventId"].clone())
                     .unwrap_or(json!(event_id));
                 let hash = crate::audit_core::payload_hash(&payload);
-                chain.push(json!({"auditRef":event_id,"eventId":event_id,"correlationId":id,"causationId":cause,"sequence":chain.len()+1,"kind":kind,"actor":actor,"objectRef":format!("assisted-request:{id}"),"occurredAt":at,"route":format!("/orders?approval={id}"),"redactionApplied":true,"redactedPayload":payload,"payloadHash":hash,"retentionUntil":opened+Duration::days(90)}));
+                chain.push(json!({"auditRef":event_id,"eventId":event_id,"correlationId":id,"causationId":cause,"sequence":chain.len()+1,"kind":kind,"actor":actor,"objectRef":format!("assisted-request:{id}"),"occurredAt":at,"route":format!("/orders?approvalId={id}"),"redactionApplied":true,"redactedPayload":payload,"payloadHash":hash,"retentionUntil":opened+Duration::days(90)}));
             };
             add(
                 "assisted.request_opened",
@@ -101,7 +101,14 @@ impl OwnedHost {
 }
 fn event_id(text: &str) -> Uuid {
     let hash = ContentHash::sha256_bytes(text.as_bytes()).to_string();
-    Uuid::parse_str(&hash[7..39]).expect("digest UUID")
+    let mut bytes = *Uuid::parse_str(&hash[7..39])
+        .expect("digest UUID")
+        .as_bytes();
+    // RFC 9562 custom deterministic UUID: set version 8 and RFC variant.
+    // Raw digest bytes can carry invalid version/variant bits rejected by SDKs.
+    bytes[6] = (bytes[6] & 0x0f) | 0x80;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    Uuid::from_bytes(bytes)
 }
 fn decode<T: serde::de::DeserializeOwned>(v: &Value) -> Result<T, Error> {
     serde_json::from_value(v.clone()).map_err(|_| Error::Unavailable)

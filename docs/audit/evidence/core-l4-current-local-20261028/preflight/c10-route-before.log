@@ -1,0 +1,22 @@
+
+running 1 test
+test core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills ... FAILED
+
+failures:
+
+---- core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills stdout ----
+
+thread 'core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills' (1638589) panicked at services/bff-gateway/tests/core_l04.rs:319:5:
+invalid Orders route: {"complete":true,"correlationId":"01a182c4-6ba2-7823-b063-b1fda63e1e58","items":[{"causationId":"8937c51c-ec2d-9aaf-6a4f-e3218cf1dbc0","eventId":"8937c51c-ec2d-9aaf-6a4f-e3218cf1dbc0","kind":"assisted.request_opened","objectRef":"assisted-request:01a182c4-6ba2-7823-b063-b1fda63e1e58","occurredAt":"2026-10-28T13:47:53.122Z","payloadHash":"sha256:ecd3d398bd03c45a9da6c92e5e34086076fa5de2cf615b306c341a635d8d2a7d","retentionUntil":"2027-01-26T13:47:53.122Z","route":"/orders?approval=01a182c4-6ba2-7823-b063-b1fda63e1e58","sequence":1},{"causationId":"8937c51c-ec2d-9aaf-6a4f-e3218cf1dbc0","eventId":"c3a44c4e-ac0c-1360-57af-8e18f9a8d837","kind":"assisted.independent_approval","objectRef":"assisted-request:01a182c4-6ba2-7823-b063-b1fda63e1e58","occurredAt":"2026-10-28T13:47:53.217Z","payloadHash":"sha256:1d1b010a3d17f2fb782e153ded4a6a64035b88a92d71ab36d0dfe91fc788ddf3","retentionUntil":"2027-01-26T13:47:53.122Z","route":"/orders?approval=01a182c4-6ba2-7823-b063-b1fda63e1e58","sequence":2},{"causationId":"c3a44c4e-ac0c-1360-57af-8e18f9a8d837","eventId":"d55a1101-5197-6c15-6a65-e6b2c705cbed","kind":"assisted.independent_approval","objectRef":"assisted-request:01a182c4-6ba2-7823-b063-b1fda63e1e58","occurredAt":"2026-10-28T13:47:53.344Z","payloadHash":"sha256:74b780d7b0c8963a2bed9d05000b7dd4ac706581e10510afae095e4de58d396b","retentionUntil":"2027-01-26T13:47:53.122Z","route":"/orders?approval=01a182c4-6ba2-7823-b063-b1fda63e1e58","sequence":3},{"causationId":"d55a1101-5197-6c15-6a65-e6b2c705cbed","eventId":"e81ad9f2-70ca-df81-b387-d977e7a4e89e","kind":"assisted.command_reserved","objectRef":"assisted-request:01a182c4-6ba2-7823-b063-b1fda63e1e58","occurredAt":"2026-10-28T13:47:53.466Z","payloadHash":"sha256:36f21853eb5e94767e132ef7e925aa8c5b94c283f7423575599c54df866adfa2","retentionUntil":"2027-01-26T13:47:53.122Z","route":"/orders?approval=01a182c4-6ba2-7823-b063-b1fda63e1e58","sequence":4},{"causationId":"e81ad9f2-70ca-df81-b387-d977e7a4e89e","eventId":"7ce482ad-2b9e-a3c3-0975-c886e88a8198","kind":"assisted.command_accepted","objectRef":"assisted-request:01a182c4-6ba2-7823-b063-b1fda63e1e58","occurredAt":"2026-10-28T13:47:53.466Z","payloadHash":"sha256:08c6cb3862ab8181a7472bf9e18fd10c547da3cc4b75b04b10ba204a10bafc04","retentionUntil":"2027-01-26T13:47:53.122Z","route":"/orders?approval=01a182c4-6ba2-7823-b063-b1fda63e1e58","sequence":5}]}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 2.30s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.60s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-9f24c70283e7d04e)
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

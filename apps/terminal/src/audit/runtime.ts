@@ -24,6 +24,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
       if (!Number.isFinite(now()) || now() >= Date.parse(context!.expiresAt)) fail(401);
       if (!context!.capabilities.includes("audit:read")) fail(403);
     }catch(error){clear();throw error;}
+    if(write&&context!.mode==="assisted_live")policyFail(403,"当前模式仅支持共同审计查询，导出尚未开放。");
     if(write&&!context!.capabilities.includes("audit:export"))policyFail(403);
     if (write && !config.csrf()) policyFail(403);
     if (highRisk && config.width() < 768) policyFail(403,"小屏仅支持审计查询和已授权下载。");
@@ -68,11 +69,13 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
       const read = async (path:"/v1/session"|"/v1/context") => {
         const r=await client.GET(path,{cache:"no-store"});
         if (!r.data) fail(r.response.status);
-        return bffZodSchemas.SessionContext.parse(r.data);
+        const checked=bffZodSchemas.SessionContext.safeParse(r.data);
+        if(!checked.success)fail(403,"审计身份响应无效，请重新核对访问权限。");
+        return checked.data!;
       };
       const session=await read("/v1/session");authorize();
       const current=await read("/v1/context");authorize();
-      if (lifetime.signal.aborted || authority(session)!==authority(current) || boundAuthority!==undefined&&boundAuthority!==authority(current) || current.mfaState==="challenged" || !["research","paper","shadow"].includes(current.mode)) fail(403);
+      if (lifetime.signal.aborted || authority(session)!==authority(current) || boundAuthority!==undefined&&boundAuthority!==authority(current) || current.mfaState==="challenged" || !["research","paper","shadow","assisted_live"].includes(current.mode)) fail(403);
       boundAuthority??=authority(current);boundDeadline=Math.min(boundDeadline,Date.parse(session.expiresAt),Date.parse(current.expiresAt));
       context={...current,expiresAt:new Date(boundDeadline).toISOString()};guard();
       return structuredClone(context);
@@ -111,7 +114,7 @@ export function createAuditRuntime(config: AuditRuntimeOptions) {
       const intent=JSON.stringify(["create",body]);
       return mutation(intent,code,(key,grant)=>createControlledExport(config.origin,body,key,config.csrf(),grant,transport,options));
     });},
-    status(id: string) {return exclusive(async()=>{guard();uuid(id);const result=await loadExportStatus(config.origin,id,transport,options);guard();job=result;const intent=JSON.stringify(["cancel",id]);if(uncertain===intent&&["cancelled","cancel_requested"].includes(result.status)){uncertain=undefined;keys.delete(intent);}return structuredClone(result);});},
+    status(id: string) {return exclusive(async()=>{guard();if(context!.mode==="assisted_live")policyFail(403);uuid(id);const result=await loadExportStatus(config.origin,id,transport,options);guard();job=result;const intent=JSON.stringify(["cancel",id]);if(uncertain===intent&&["cancelled","cancel_requested"].includes(result.status)){uncertain=undefined;keys.delete(intent);}return structuredClone(result);});},
     cancel(id: string, code: string) {return exclusive(async()=>{
       guard(true,true);uuid(id);
       const latest=await loadExportStatus(config.origin,id,transport,options);guard(true,true);job=latest;

@@ -2891,7 +2891,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
     "FRONTEND-GATE:G8"
   ],
   "required_scope": "关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
+  "review_status": "IN_REVIEW",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {
@@ -2902,6 +2902,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
   }
 }
 ```
+
+当前开发评估（2026-10-28）：本轮核对4项直接依赖与5份原范围回执，维护19项继承缺口和8项当前/目标义务；修复公共C10的Orders引用参数、确定性UUID及Assisted Live只读消费者拒绝，受控P10/P11→公共双审批→实际L02 mTLS进程→owned L01→共同C10只读链按当前候选验证。详见[当前L4评估](./operations/core-l4-current-assessment.md)、[机器清单](./execution/core-l4-current-assessment.json)、[证据](./audit/evidence/core-l4-current-local-20261028/README.md)。工程Gate `PASS_L4_CURRENT_COMPOSITION_AND_GAP_ASSESSMENT`，开发评估COMPLETED_CURRENT_SCOPE；完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED、M5 PREPARED_NOT_READY，原19项不关闭。真实身份/当前R04-X02源、公共成交对账/Alert与kill控制、目标Vault/DB/跨主机、获准testnet及发布义务保留。历史FAIL/原SHA不改绑，不递归全链复验。下一原任务CORE:X02 DEVELOPMENT，先接当前Proposal/签名RiskDecision及kill generation到公共审批Subject，不授予外部环境或发布权限。
 
 ## 11. 自动执行命令与阶段回归清单
 

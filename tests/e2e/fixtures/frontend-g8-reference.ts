@@ -1,4 +1,5 @@
 // Actual G8 C01/C10/C11/C16 reference BFF bytes through a loopback TLS/CORS and identity substitute.
+import {ownedZone} from "./core-l4-zone";
 import { test, expect, type Page } from "@playwright/test";
 import { spawn, execFileSync, type ChildProcess } from "node:child_process";
 import { createServer as reserveServer } from "node:net";
@@ -28,6 +29,8 @@ export function useSession(session: Session) { activeSession = session; }
 const receipts: Record<string, unknown>[] = [];
 export const businessReceipts = () => receipts;
 let rows: Row[] = [], child: ChildProcess, port: number, scratch: string;
+let zone: Awaited<ReturnType<typeof ownedZone>> | undefined;
+export const zoneSnapshot=()=>zone?.snapshot();
 let flags: {
     drop?: boolean;
     readonly?: boolean;
@@ -138,7 +141,7 @@ export async function control(path: string, body?: unknown, version?: string, op
     return new Promise((resolve, reject) => { const req = secureRequest(origin + path, { rejectUnauthorized: false, method, headers: { "x-frontend-g8-control": "1", "x-frontend-g8-session": options.session ?? "session-owner", ...(write ? { "content-type": "application/json", ...(version ? { "if-match": version } : {}), "idempotency-key": crypto.randomUUID(), "x-request-id": crypto.randomUUID(), "x-csrf-token": csrf } : {}) } }, res => { const parts: Buffer[] = []; res.on("data", b => parts.push(Buffer.from(b))); res.on("end", () => resolve({ status: res.statusCode!, body: Buffer.concat(parts).length ? JSON.parse(Buffer.concat(parts).toString()) : {} })); }); req.on("error", reject); req.end(body ? JSON.stringify(body) : undefined); });
 }
 export async function authorized(page: Page) { await expect(page.locator('[data-route-access="authorized"]')).toBeVisible(); }
-export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local" = "paper", assistedEnabled = true) {
+export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local" | "assisted-mtls-local" = "paper", assistedEnabled = true) {
     test.beforeAll(async () => {
         expect(process.env.DATABASE_URL).toBeUndefined();
         expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBeUndefined();
@@ -163,7 +166,8 @@ export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local
             port: number;
         }).port;
         await new Promise<void>(r => reserve.close(() => r()));
-        child = spawn(resolve("target/debug/bff-gateway"), [], { env: { PATH: process.env.PATH, HOME: process.env.HOME, GITHUB_SHA: process.env.GITHUB_SHA, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_REFERENCE_CONTEXT: mode, QUANTOS_BFF_OWNED_ASSISTED: mode === "assisted-local" && assistedEnabled ? "enabled" : "off", QUANTOS_BFF_BIND: `127.0.0.1:${port}`, QUANTOS_BFF_PUBLIC_ORIGIN: origin }, stdio: ["ignore", "pipe", "pipe"] });
+        zone=mode==="assisted-mtls-local"?await ownedZone():undefined;
+        child = spawn(resolve("target/debug/bff-gateway"), [], { env: { PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: process.env.TMPDIR, ...(zone?{QUANTOS_BFF_OWNED_MTLS_DIRECTORY:zone.directory}:{}), GITHUB_SHA: process.env.GITHUB_SHA, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_REFERENCE_CONTEXT: mode, QUANTOS_BFF_OWNED_ASSISTED: (mode === "assisted-local" || mode === "assisted-mtls-local") && assistedEnabled ? "enabled" : "off", QUANTOS_BFF_BIND: `127.0.0.1:${port}`, QUANTOS_BFF_PUBLIC_ORIGIN: origin }, stdio: ["ignore", "pipe", "pipe"] });
         await new Promise<void>((done, reject) => {
             const timer = setTimeout(() => reject(Error("reference startup timeout")), 15000);
             child.once("error", e => { clearTimeout(timer); reject(e); });
@@ -181,7 +185,7 @@ export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local
             await writeFile(info.outputPath("page-state.txt"), await page.locator("main").innerText({ timeout: 1000 }).catch(() => "unavailable"));
             await page.screenshot({ path: info.outputPath("failure.png"), fullPage: true, timeout: 5000 }).catch(() => { });
         }
-        await writeFile(info.outputPath("frontend-g8.json"), JSON.stringify({ schema: "quantos-frontend-g8-browser/v1", scenario: info.title, status: info.status, sourceCommit: process.env.GITHUB_SHA, binarySha256: hash(await readFile("target/debug/bff-gateway")), identity: "EXPLICIT_REFERENCE_COOKIE_BRIDGE", cors: "LOOPBACK_PROXY_SUBSTITUTION", mode, businessWrites: mode === "assisted-local" ? "CORE_L03_PUBLIC_DUAL_TO_NATIVE_L01_OWNED_PROTOCOL_PORT" : "PAPER_C01_C07_C08_C09_C10_RECOVERY_ONLY_NOT_ASSISTED_TESTNET", referenceInstance: `owned-process-${port}`, realIdp: "NOT_RUN", realCookieCors: "NOT_RUN", probes, rows }, null, 2));
+        await writeFile(info.outputPath("frontend-g8.json"), JSON.stringify({ schema: "quantos-frontend-g8-browser/v1", scenario: info.title, status: info.status, sourceCommit: process.env.GITHUB_SHA, binarySha256: hash(await readFile("target/debug/bff-gateway")), identity: "EXPLICIT_REFERENCE_COOKIE_BRIDGE", cors: "LOOPBACK_PROXY_SUBSTITUTION", mode, businessWrites: mode === "assisted-mtls-local" ? "CORE_L4_PUBLIC_UI_TO_ACTUAL_L02_MTLS_OWNED_PROTOCOL" : mode === "assisted-local" ? "CORE_L03_PUBLIC_DUAL_TO_NATIVE_L01_OWNED_PROTOCOL_PORT" : "PAPER_C01_C07_C08_C09_C10_RECOVERY_ONLY_NOT_ASSISTED_TESTNET", referenceInstance: `owned-process-${port}`, realIdp: "NOT_RUN", realCookieCors: "NOT_RUN", probes, rows }, null, 2));
         await context.close();
         for (const s of streams)
             s.destroy();
@@ -191,6 +195,7 @@ export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local
             child.kill();
             await new Promise(r => child.once("close", r));
         }
+        await zone?.close();zone=undefined;
     });
     test.afterAll(async () => { proxy.closeAllConnections(); await new Promise<void>(r => proxy.close(() => r())); await rm(scratch, { recursive: true, force: true }); });
 }
