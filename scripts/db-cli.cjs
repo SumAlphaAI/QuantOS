@@ -218,8 +218,8 @@ async function replayMigrationsInIsolatedSchema() {
   });
 }
 
-async function liveRlsCheck() {
-  await withClient(async (client) => {
+async function liveRlsCheck(runWithClient = withClient) {
+  await runWithClient(async (client) => {
     const missingRls = await client.query(`
       select n.nspname || '.' || c.relname as table_name
       from pg_class as c
@@ -344,6 +344,8 @@ async function liveRlsCheck() {
       "quantos.resolve_execution_vault_secret(text, text, timestamp with time zone, uuid)";
     const oldVaultSecretFunctionName =
       "quantos.resolve_execution_vault_secret(text, text, timestamp with time zone)";
+    const zoneSecretFunctionName =
+      "quantos.resolve_execution_zone_secret(text, text, timestamp with time zone, uuid, text, bigint)";
     const secretFunctionPrivileges = await client.query(
       `
         select
@@ -359,14 +361,29 @@ async function liveRlsCheck() {
           has_function_privilege('anon', $3, 'EXECUTE') as anon_vault,
           has_function_privilege('service_role', $3, 'EXECUTE') as service_role_vault,
           has_function_privilege('quantos_execution_gateway', $3, 'EXECUTE') as gateway_vault,
+          has_function_privilege('authenticated', $4, 'EXECUTE') as authenticated_old_vault,
+          has_function_privilege('anon', $4, 'EXECUTE') as anon_old_vault,
+          has_function_privilege('service_role', $4, 'EXECUTE') as service_role_old_vault,
           has_function_privilege('quantos_execution_gateway', $4, 'EXECUTE') as gateway_old_vault,
+          has_function_privilege('authenticated', $5, 'EXECUTE') as authenticated_zone,
+          has_function_privilege('anon', $5, 'EXECUTE') as anon_zone,
+          has_function_privilege('service_role', $5, 'EXECUTE') as service_role_zone,
+          has_function_privilege('quantos_execution_gateway', $5, 'EXECUTE') as gateway_zone,
           has_table_privilege('service_role', 'quantos.execution_secret_refs', 'SELECT') as service_role_table_select
       `,
       [legacySecretFunctionName, restrictedSecretFunctionName, vaultSecretFunctionName,
-        oldVaultSecretFunctionName],
+        oldVaultSecretFunctionName, zoneSecretFunctionName],
     );
 
     const privilegeRow = secretFunctionPrivileges.rows[0];
+    const privilegeColumns = ["authenticated", "anon", "service_role", "gateway"]
+      .flatMap(role => ["legacy", "restricted", "vault", "old_vault", "zone"]
+        .map(entry => `${role}_${entry}`));
+    privilegeColumns.push("service_role_table_select");
+    if (secretFunctionPrivileges.rows.length !== 1 ||
+        privilegeColumns.some(column => typeof privilegeRow?.[column] !== "boolean")) {
+      throw new Error("Execution secret privilege catalog must return one complete boolean row.");
+    }
     if (
       privilegeRow.authenticated_legacy ||
       privilegeRow.anon_legacy ||
@@ -377,6 +394,12 @@ async function liveRlsCheck() {
       privilegeRow.authenticated_vault ||
       privilegeRow.anon_vault ||
       privilegeRow.service_role_vault ||
+      privilegeRow.authenticated_old_vault ||
+      privilegeRow.anon_old_vault ||
+      privilegeRow.service_role_old_vault ||
+      privilegeRow.authenticated_zone ||
+      privilegeRow.anon_zone ||
+      privilegeRow.service_role_zone ||
       privilegeRow.service_role_table_select
     ) {
       throw new Error(
@@ -385,9 +408,10 @@ async function liveRlsCheck() {
     }
 
     if (privilegeRow.gateway_legacy || privilegeRow.gateway_restricted ||
-        privilegeRow.gateway_old_vault || !privilegeRow.gateway_vault) {
+        privilegeRow.gateway_old_vault || privilegeRow.gateway_vault ||
+        !privilegeRow.gateway_zone) {
       throw new Error(
-        "Only the scoped Vault function may be executable by quantos_execution_gateway.",
+        "Only the L02 peer/version-bound Vault function may be executable by quantos_execution_gateway.",
       );
     }
 
@@ -444,7 +468,7 @@ function connectionHint(error) {
   return null;
 }
 
-module.exports = { assertMigrationLedgerMatches, buildClientConfig };
+module.exports = { assertMigrationLedgerMatches, buildClientConfig, liveRlsCheck };
 
 if (require.main === module) {
   main().catch((error) => {
