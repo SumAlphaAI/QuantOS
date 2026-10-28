@@ -1,0 +1,46 @@
+{
+  "schema": "quantos-core-l04-validation-repair/v1",
+  "sourceCommit": "41344ffcc40910662d3d043a494be41cfdbd1975",
+  "validatorCommit": "7b3ef529008eafcc56bbdc39b92f887e2b7c4bbe",
+  "reason": "CORRECT_L02_EXPECTED_TEST_COUNT_NO_RUNTIME_SOURCE_CHANGE",
+  "inputs": [
+    {
+      "path": "scripts/core-l04-review.mjs",
+      "sha256": "30ee5e8e01cacfaf143c39734eba3da1406e90572eec22a65ce2799a5e92bc23"
+    },
+    {
+      "path": "scripts/core-l04-review.test.mjs",
+      "sha256": "07c5d959cf1136617d51530cdde01fa5b9c45717ffc38d195753fa773e7b9cf1"
+    }
+  ],
+  "executions": [
+    {
+      "id": "gate",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/core-l04-review.test.mjs",
+        "scripts/development-execution.test.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "docs/audit/evidence/core-l04-local-20261028/validation-01/gate.log",
+      "logSha256": "a4c3c3f0ad8d7305f177bccafd07f42613c43341f0570623708e1a0abccc3c6d"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "scripts/core-l04-review.mjs",
+        "scripts/core-l04-review.test.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "docs/audit/evidence/core-l04-local-20261028/validation-01/lint.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

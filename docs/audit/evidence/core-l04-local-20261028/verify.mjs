@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {verify,files,directory} from '../../../../scripts/core-l04-review.mjs';
+const read=p=>readFileSync(p),json=p=>JSON.parse(read(p)),hash=b=>createHash('sha256').update(b).digest('hex');
+const manifest=json(directory+'/manifest.json');
+assert.deepEqual(manifest.files.map(f=>f.path),files(directory).filter(p=>p!==directory+'/manifest.json'));
+for(const f of manifest.files)assert.equal(hash(read(f.path)),f.sha256,f.path);
+const r=json(directory+'/receipt.json'),result=verify(r);assert.deepEqual(result,json(directory+'/result.json'));
+assert.equal(manifest.sourceCommit,r.sourceCommit);assert.equal(manifest.validatorCommit,r.validation.validatorCommit);
+const handoff=json(directory+'/handoff.json');assert.equal(handoff.sourceCommit,r.sourceCommit);assert.equal(handoff.runtimeAdmission,'DENIED');assert.equal(handoff.gaps.length,19);assert(handoff.gaps.every(g=>g.status==='OPEN'));
+const failure=json(r.attempt+'/verification-failure.json');assert.equal(failure.status,'FAIL');assert.equal(failure.sourceCommit,r.sourceCommit);
+console.log(JSON.stringify({status:'PASS_CURRENT_CORE_L04_LOCAL_PACKET_ONLY',sourceCommit:r.sourceCommit,validatorCommit:r.validation.validatorCommit,sealedFiles:manifest.files.length,originalSealFailure:'PRESERVED_NOT_REWRITTEN',engineeringGate:result.engineeringGate,gate:result.gate,stageGate:result.stageGate,formalAccepted:false,runtimeAdmission:'DENIED',nextTask:result.nextTask}));
