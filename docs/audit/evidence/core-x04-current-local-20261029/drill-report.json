@@ -1,0 +1,38 @@
+{
+  "schema": "quantos-core-x04-current-drills/v1",
+  "sourceCommit": "c8f1e7302e6f6075619340490b08e358d774834e",
+  "scope": "OWNED_SINGLE_HOST_CONTROLLED_MECHANISMS_ONLY",
+  "cases": [
+    {
+      "mechanism": "actual two-partial-fill exact-fee source with venue duplicate suppression, authenticated restart and original expiry readonly",
+      "evidence": "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/native-facts.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "native per-command replay rejects inconsistent authenticated snapshots; unauthorized/revoked/foreign scope and corrupt store refuse",
+      "evidence": "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/native-facts.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "original key / restart / 12 replica requests -> one native mTLS protocol call, same public source hash and C10 fillIds",
+      "evidence": "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/native-facts.json",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "engine death, response loss and crash-after-zone-commit preserve unknown with no resend",
+      "evidence": [
+        "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/flow.json",
+        "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/crash.json"
+      ],
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "legacy no-journal receipt, non-quote fee and unresolved outcome do not invent executable/financial facts",
+      "evidence": "docs/audit/evidence/core-x04-current-local-20261029/attempt-01/native-facts.log",
+      "status": "PASS_OWNED_LOCAL"
+    }
+  ],
+  "targetFourDrills": "NOT_RUN",
+  "actualNotificationsDatabaseRecoveryDeploymentRollback": "NOT_RUN",
+  "unknown": "PRESERVED_NO_AUTO_REPLAY"
+}
