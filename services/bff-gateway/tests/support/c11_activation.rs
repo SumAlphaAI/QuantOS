@@ -1,5 +1,5 @@
 use super::*;
-fn current(url: &str) -> Value {
+pub(super) fn current(url: &str) -> Value {
     let v = get(url, "/v1/admin/feature-flags");
     v["items"][0].clone()
 }
@@ -59,7 +59,7 @@ fn put(url: &str, v: &Value, b: Value, key: &str) -> (u16, Value) {
     let s = r.status().as_u16();
     (s, r.json().unwrap())
 }
-fn change(url: &str, v: &Value, enabled: bool) -> Value {
+pub(super) fn change(url: &str, v: &Value, enabled: bool) -> Value {
     let b = body(url, v, enabled);
     let (s, r) = put(url, v, b, &Uuid::new_v4().to_string());
     assert_eq!(s, 200, "{r}");
@@ -343,6 +343,7 @@ pub(super) fn unknown_current_c11(lab: &Lab, url: &str, unknown: &Value) {
     );
     assert_eq!(after["appliedFillCount"], 0);
     assert_eq!(after["quarantinedCommandCount"], 1);
+    super::l4_controls::unknown_join(lab, unknown, &before, &alerts, &off, &on);
     evidence(
         "QUANTOS_C11_UNKNOWN_RESULT",
         json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"command":unknown,"before":before,"after":after,"alerts":alerts,"afterAlerts":after_alerts,"off":off,"on":on,"killGenerationBefore":stopped["generation"],"unknownReservationsUnchanged":true,"noResend":true,"protocolCalls":1,"actualTestnet":false}),

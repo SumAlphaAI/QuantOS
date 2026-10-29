@@ -816,6 +816,7 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         &key,
     );
     assert_eq!(s, 503);
+    l4_controls::accepted_join(&lab, &url, &id, &view, &ledger, &events);
     // A separate original ledger has no preceding trade/review fence. Exercise
     // actual engine death, then preserve its unknown command across restart.
     let lab = Lab::new();
@@ -1087,3 +1088,6 @@ mod native_control;
 
 #[path = "support/c11_activation.rs"]
 mod c11_activation;
+
+#[path = "support/l4_controls.rs"]
+mod l4_controls;
