@@ -22,33 +22,73 @@ impl CurrentSubjectSource {
         if state.native_reviews.len() >= 512 || state.entries.len() >= 4096 {
             return Err(Error::Unavailable);
         }
-        let old = state.entries.get(&id).cloned().ok_or(Error::Invalid)?;
+        let (auth, record, intent, current) = if let Some(e) = state.entries.get(&id) {
+            (
+                e.auth.clone(),
+                e.record.clone(),
+                e.intent.clone(),
+                e.current.clone(),
+            )
+        } else {
+            let c = state.candidates.get(&id).ok_or(Error::Invalid)?;
+            (
+                c.auth.clone(),
+                c.record.clone(),
+                c.intent.clone(),
+                c.current.clone(),
+            )
+        };
         // Refresh is an explicit re-evaluation, including after kill release or
         // source revocation; it cannot repair an expired/changed Proposal.
-        validate_proposal_binding(&old.auth, &old.record, &old.intent).map_err(invalid)?;
-        if at < old.record.created_at || at >= old.record.expires_at {
+        validate_proposal_binding(&auth, &record, &intent).map_err(invalid)?;
+        if at < record.created_at || at >= record.expires_at {
             return Err(Error::Expired);
         }
-        let proposal_hash = digest(&old.record)?;
+        let proposal_hash = digest(&record)?;
         let decision = self
             .guard
             .evaluate_native_review(
-                &old.auth,
-                &old.intent,
+                &auth,
+                &intent,
                 &context,
-                &old.current.venue,
-                &old.current.release,
+                &current.venue,
+                &current.release,
                 &proposal_hash,
                 at,
             )
             .map_err(invalid)?;
-        let mut next = old.clone();
-        next.native = Some(context.clone());
-        next.decision = decision.clone();
-        next.subject.id = ProposalId::new();
-        next.subject.decision = decision.decision_id;
-        next.subject.created_at = at;
-        next.subject.expires_at = old.record.expires_at.min(decision.expires_at);
+        let next = Entry {
+            subject: Subject {
+                id: ProposalId::new(),
+                scope: Scope {
+                    tenant: auth.tenant_id,
+                    workspace: auth.workspace_id,
+                    account: intent.account_id,
+                },
+                originator: auth.actor_id,
+                originator_user: auth.user_id,
+                proposal_hash: proposal_hash.clone(),
+                decision: decision.decision_id,
+                verdict: decision.verdict,
+                venue: EXECUTION_VENUE.into(),
+                quote_currency: "USDT".into(),
+                symbol: intent.symbol.clone(),
+                side: match intent.side {
+                    Side::Buy => OrderSide::Buy,
+                    Side::Sell => OrderSide::Sell,
+                },
+                quantity: intent.quantity.clone(),
+                limit_price: intent.limit_price.clone(),
+                created_at: at,
+                expires_at: record.expires_at.min(decision.expires_at),
+            },
+            auth,
+            record: record.clone(),
+            intent,
+            current,
+            decision: decision.clone(),
+            native: Some(context.clone()),
+        };
         let subject = if decision.verdict == RiskVerdict::ApprovalRequired {
             bind(&next)?;
             self.check(&next, at, |_| ())?;
@@ -58,7 +98,7 @@ impl CurrentSubjectSource {
         };
         let r = NativeReview {
             previous_subject_id: id,
-            proposal_id: old.record.proposal_id,
+            proposal_id: record.proposal_id,
             proposal_hash,
             decision,
             context,
@@ -134,7 +174,13 @@ impl CurrentSubjectSource {
     /// is not a reason to hide the still-live Proposal or renew its lifetime.
     pub fn review_candidates(&self, at: DateTime<Utc>) -> Result<Vec<Value>, Error> {
         let state = self.state.lock().map_err(|_| Error::Unavailable)?;
-        state.entries.values().filter(|e|e.native.is_none()&&e.record.created_at<=at&&at<e.record.expires_at).map(|e|Ok(json!({"subjectId":e.subject.id,"proposalId":e.record.proposal_id,"proposalHash":e.subject.proposal_hash,"proposalExpiresAt":e.record.expires_at,"accountId":e.subject.scope.account,"symbol":e.subject.symbol,"side":e.subject.side,"quantity":e.subject.quantity,"limitPrice":e.subject.limit_price,"executionAuthority":false}))).collect()
+        let mut rows: Vec<Value> = state.entries.values().filter(|e|e.native.is_none()&&e.record.created_at<=at&&at<e.record.expires_at).map(|e|Ok(json!({"subjectId":e.subject.id,"proposalId":e.record.proposal_id,"proposalHash":e.subject.proposal_hash,"proposalExpiresAt":e.record.expires_at,"accountId":e.subject.scope.account,"symbol":e.subject.symbol,"side":e.subject.side,"quantity":e.subject.quantity,"limitPrice":e.subject.limit_price,"executionAuthority":false}))).collect::<Result<_,Error>>()?;
+        for (id, c) in &state.candidates {
+            if c.record.created_at <= at && at < c.record.expires_at {
+                rows.push(json!({"subjectId":id,"proposalId":c.record.proposal_id,"proposalHash":digest(&c.record)?,"proposalExpiresAt":c.record.expires_at,"accountId":c.intent.account_id,"symbol":c.intent.symbol,"side":match c.intent.side{Side::Buy=>"buy",Side::Sell=>"sell"},"quantity":c.intent.quantity,"limitPrice":c.intent.limit_price,"executionAuthority":false}));
+            }
+        }
+        Ok(rows)
     }
     pub fn native_risk_binding(&self, id: ProposalId) -> Result<Option<Value>, Error> {
         let state = self.state.lock().map_err(|_| Error::Unavailable)?;

@@ -1,0 +1,39 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/current-native-execution.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 47[2mms[22m[39m
+   [32m✓[39m explicit current execution requires owner admission and validates immutable current binding[32m 27[2mms[22m[39m
+   [32m✓[39m current execution lost response recovers through GET only after source advances[32m 3[2mms[22m[39m
+   [32m✓[39m UNKNOWN current execution is query only and never emits a second POST[32m 5[2mms[22m[39m
+   [32m✓[39m foreign current command binding never becomes a trusted receipt[32m 2[2mms[22m[39m
+   [32m✓[39m current source change refuses dispatch[32m 1[2mms[22m[39m
+   [32m✓[39m current generation change refuses dispatch[32m 1[2mms[22m[39m
+   [32m✓[39m current phone change refuses dispatch[32m 1[2mms[22m[39m
+   [32m✓[39m current csrf change refuses dispatch[32m 2[2mms[22m[39m
+[31m   [31m×[31m actual owned current Command/Fill/ledger response retains the immutable receipt binding[39m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 22:30:19
+[2m   Duration [22m 368ms[2m (transform 158ms, setup 0ms, import 249ms, tests 47ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/current-native-execution.test.ts[2m > [22mactual owned current Command/Fill/ledger response retains the immutable receipt binding
+[31m[1mBffTransportError[22m: BFF request could not be completed[39m
+[36m [2m❯[22m packages/api-client/src/bff-transport.ts:[2m49:13[22m[39m
+    [90m 47|[39m     } [35mcatch[39m (error) {
+    [90m 48|[39m       [35mif[39m (error [35minstanceof[39m [33mBffTransportError[39m) [35mthrow[39m error[33m;[39m
+    [90m 49|[39m       throw new BffTransportError(controller.signal.aborted ? code : "…
+    [90m   |[39m             [31m^[39m
+    [90m 50|[39m     } [35mfinally[39m {
+    [90m 51|[39m       [34mclearTimeout[39m(timer)[33m;[39m
+[90m [2m❯[22m coreFetch node_modules/.pnpm/openapi-fetch@0.17.0/node_modules/openapi-fetch/src/index.js:[2m171:19[22m[39m
+[90m [2m❯[22m loadIdentity apps/terminal/src/assisted/runtime.ts:[2m27:88[22m[39m
+[90m [2m❯[22m load apps/terminal/src/assisted/runtime.ts:[2m28:35[22m[39m
+[90m [2m❯[22m Object.refresh apps/terminal/src/assisted/runtime.ts:[2m30:31[22m[39m
+[90m [2m❯[22m apps/terminal/tests/current-native-execution.test.ts:[2m25:6[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

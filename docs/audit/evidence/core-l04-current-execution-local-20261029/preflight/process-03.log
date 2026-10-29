@@ -1,0 +1,30 @@
+L02 owned fixture selected: /Users/anray/Documents/project/SumAlpha/QuantOS/target/debug/execution-gateway
+
+running 1 test
+test current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation ... FAILED
+
+failures:
+
+failures:
+    current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 7.80s
+
+{"schema":"quantos-rust-tests-with-l02/v1","status":101,"signal":null,"errorCode":null,"phase":"test"}
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.39s
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.09s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-fe01b394a7c7b29e)
+
+thread 'current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation' (751464) panicked at services/bff-gateway/tests/support/current_execution.rs:25:39:
+assertion `left == right` failed: {"decision":{"checks":[{"breached":false,"limit_id":"x02.Identity","rule":"identity"},{"breached":false,"limit_id":"x02.Numbers","rule":"numbers"},{"breached":false,"limit_id":"x02.Precision","rule":"precision"},{"breached":false,"limit_id":"x02.GlobalKill","rule":"global_kill"},{"breached":false,"limit_id":"x02.AccountKill","rule":"account_kill"},{"breached":true,"limit_id":"x02.Release","rule":"release"},{"breached":false,"limit_id":"x02.Snapshot","rule":"snapshot"},{"breached":false,"limit_id":"x02.Financials","rule":"financials"},{"breached":false,"limit_id":"x02.Venue","rule":"venue"},{"breached":false,"limit_id":"x02.Duplicate","rule":"duplicate"},{"breached":false,"limit_id":"x02.OrderNotional","rule":"order_notional"},{"breached":false,"limit_id":"x02.Leverage","rule":"leverage"},{"breached":false,"limit_id":"x02.Concentration","rule":"concentration"},{"breached":false,"limit_id":"x02.DailyLoss","rule":"daily_loss"},{"breached":true,"limit_id":"x02.Approval","rule":"approval"}],"decidedAt":"2026-10-29T14:03:10.194Z","decisionId":"01a187f8-c5fe-7b11-9441-938f0b63f2a1","executionAuthority":false,"expiresAt":"2026-10-29T14:03:39.576Z","factsHash":"sha256:a209343929665f869df423294f72a174ec685844dca7fc7eb3997eb7af0af6d7","intentHash":"sha256:a3aa2b50811861d8cdb6a4de8896f4500c1a8b78e0ddf9daab7d9fa1cd9c5db4","killGeneration":"0","policyVersion":"core-x02-owned.v1","proposalHash":"sha256:909d8529b10544c8da3b82fcb4265204b84cc36a304d22a39dc6692ea2582be8","purpose":"assisted_testnet_review","signature":"8dfdf8dfac8bb55a6ace23c4129545d3359ee6919fa7bdb4fd205058761eadfb","signer":"core-x02-owned-risk.v1","snapshotHash":"sha256:aa54824964ee2b956f131e412d7c916ba47f0f16b90603372b0a6bcb1a2c1bef","verdict":"deny"},"executionAuthority":false,"killGeneration":"0","ledgerHash":"sha256:aaf6c8e434aacc12082d7388f3690cd0307351f0cb4207ff1696d7cbec8783d3","previousSubjectId":"01a187f8-b989-7a63-9fba-113bcdf2237e","proposalHash":"sha256:909d8529b10544c8da3b82fcb4265204b84cc36a304d22a39dc6692ea2582be8","proposalId":"proposal:owned-current-unreviewed-eth","schemaVersion":"quantos-native-risk-review.v1","snapshotHash":"sha256:aa54824964ee2b956f131e412d7c916ba47f0f16b90603372b0a6bcb1a2c1bef","sourceHash":"sha256:70442d08e9825bf0a05bce6d2752e9ca19107e491baa649200b6ea4a00d064a3","sourceTrust":"OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET","sourceVersion":"1"}
+  left: String("deny")
+ right: "approval_required"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

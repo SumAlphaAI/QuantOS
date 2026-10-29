@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.26.0
+  version: 1.27.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -11188,7 +11188,7 @@ paths:
       operationId: submitAssistedRequest
       tags:
         - execution
-      summary: submitAssistedRequest
+      summary: Explicit two-person approved owned testnet submission; current risk uses an owner-only default-off ceiling
       parameters:
         - name: requestId
           in: path
@@ -11240,8 +11240,8 @@ paths:
         filter: []
         expression: not applicable
         cache: no-store
-        freshness: Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.
-        idempotency: Required exact actor/request/key/body/proof binding; original response-loss recovery only, no automatic replay, cache hits recheck current authority and original deadlines.
+        freshness: Current identity and two approvals, exact native snapshot/ledger/authenticated input/generation and current C11 lease at IO; original minimum deadlines. Snapshot budget and Proposal are durably reserved before IO.
+        idempotency: Required original actor/request/key/body binding. Legacy original recovery retains that binding. Current-risk command response loss and UNKNOWN use GET request inspection only; never another command POST or automatic resend.
         version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
         audit: Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.
         limits:
@@ -11413,6 +11413,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NativeRiskReviewView"
+              example: {"decision":{"checks":[{"breached":false,"limit_id":"x02.Identity","rule":"identity"},{"breached":false,"limit_id":"x02.Numbers","rule":"numbers"},{"breached":false,"limit_id":"x02.Precision","rule":"precision"},{"breached":false,"limit_id":"x02.GlobalKill","rule":"global_kill"},{"breached":false,"limit_id":"x02.AccountKill","rule":"account_kill"},{"breached":false,"limit_id":"x02.Release","rule":"release"},{"breached":false,"limit_id":"x02.Snapshot","rule":"snapshot"},{"breached":false,"limit_id":"x02.Financials","rule":"financials"},{"breached":false,"limit_id":"x02.Venue","rule":"venue"},{"breached":false,"limit_id":"x02.Duplicate","rule":"duplicate"},{"breached":false,"limit_id":"x02.OrderNotional","rule":"order_notional"},{"breached":false,"limit_id":"x02.Leverage","rule":"leverage"},{"breached":true,"limit_id":"x02.Concentration","rule":"concentration"},{"breached":false,"limit_id":"x02.DailyLoss","rule":"daily_loss"},{"breached":true,"limit_id":"x02.Approval","rule":"approval"}],"decidedAt":"2026-10-29T12:43:03.910Z","decisionId":"01a187af-6f70-7140-8f9d-7b47b69417d1","executionAuthority":false,"expiresAt":"2026-10-29T12:43:33.650Z","factsHash":"sha256:5cf187d8e43977d18ca5a795a41badf1f0b5466f3f6e3604b49a94225f0064e6","intentHash":"sha256:0e70515c8b5d7a50ca461fe5adea23bf9e4f08096955514a91f4fcd0429169cf","killGeneration":"0","policyVersion":"core-x02-owned.v1","proposalHash":"sha256:a8afa4fcc88d9d152cb9258d6714aa94d322665fc84befdc070bd7066826260c","purpose":"assisted_testnet_review","signature":"dfe212270d65cd2eb30911eee40667c3a67447c2a5cb4853f00ad9bc096fbd14","signer":"core-x02-owned-risk.v1","snapshotHash":"sha256:ab2500f5eaa54acb8680fd59ad386d0ef6535e50c0804d65ad41f5267775bd69","verdict":"deny"},"executionAuthority":false,"killGeneration":"0","ledgerHash":"sha256:602747ae87e8d4b56d90db7b78d44d45affb418e200ec7217d4f64d45f5e405f","previousSubjectId":"01a187af-5cd1-78a0-a583-9fc85d4005f8","proposalHash":"sha256:a8afa4fcc88d9d152cb9258d6714aa94d322665fc84befdc070bd7066826260c","proposalId":"proposal:owned-current-r04-0","schemaVersion":"quantos-native-risk-review.v1","snapshotHash":"sha256:ab2500f5eaa54acb8680fd59ad386d0ef6535e50c0804d65ad41f5267775bd69","sourceHash":"sha256:8da7a68775ff607b7c49698b61d5c0cd5eda44f8eb0b88f58f5655e6b532dcee","sourceTrust":"OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET","sourceVersion":"1"}
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -11451,6 +11452,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/NativeRiskReviewRequest"
+            example:
+              snapshotHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              expectedGeneration: "0"
       description: Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry
         required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals
         and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current
@@ -11717,6 +11721,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssistedKillReceipt"
+              example: {"schemaVersion":"quantos-current-kill-receipt.v1","event":{"action":"approve_release","actorId":"842e725a-2892-4388-8d3c-7eb11d8c54ab","approvalRef":null,"correlationId":"01a186c9-58b8-7b30-ba55-8b09b5640ad9","eventId":"01a186c9-6144-7142-a512-629c5eae1e46","executionAuthority":false,"expiresAt":"2026-10-29T08:33:46.648Z","generation":"3","occurredAt":"2026-10-29T08:31:47.012Z","reason":"owned public kill control","recordHash":"sha256:149dbec662e2a629869035e77038ae2b12b7a720d912f3d8cf3aeb95fa1ee741","riskReceiptHash":null,"scope":"global","sequence":"5","unknownPreserved":true},"readCurrentState":true,"executionAuthority":false}
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -11780,6 +11785,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssistedActivationHistory"
+              example: {"resourceId":"e6a4a592-78a7-8efa-8146-eb69094a1c6b","version":"1","totalCount":1,"items":[{"actorId":"842e725a-2892-4388-8d3c-7eb11d8c54ab","correlationId":"e6a4a592-78a7-8efa-8146-eb69094a1c6b","enabled":false,"eventId":"01a186c9-33b6-7751-b3a2-4a45724ab6bd","executionAuthority":false,"previous":"sha256:0199a9ac89aa6484d0becc7430573b561e888d6b117e97c620462c2deba82ee2","reason":"owned current scoped C11 review","recordHash":"sha256:d5a345ca31f5bb622d3690ea77ca681fbfce5805e76d99bdd1dd92d240e4e2da","resourceId":"e6a4a592-78a7-8efa-8146-eb69094a1c6b","source":"public_c11","unknownPreserved":true,"validFrom":"2026-10-29T08:31:35.350Z","validUntil":"2026-10-29T08:33:35.264Z","version":"1"}],"nextCursor":null,"executionAuthority":false}
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -12109,6 +12115,9 @@ components:
           maxLength: 20
         activationExpiresAt:
           $ref: "#/components/schemas/DateTime"
+        currentReviewExecutionEnabled:
+          type: boolean
+          description: Owner-only bounded local reference admission; never real venue authority.
         currentRiskReviewOnly:
           type: boolean
         nativeRiskReviewEnabled:
@@ -12281,8 +12290,57 @@ components:
         signature:
           type: string
           pattern: ^[a-f0-9]{64}$
+        currentRisk:
+          $ref: "#/components/schemas/AssistedCurrentExecutionBinding"
         order:
           $ref: "#/components/schemas/AssistedNativeOrder"
+    AssistedCurrentExecutionBinding:
+      type: object
+      additionalProperties: false
+      required: [snapshotHash, ledgerHash, sourceHash, sourceVersion, killGeneration, decisionId, proposalHash, activation, notional]
+      properties:
+        snapshotHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        ledgerHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        sourceHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        proposalHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        sourceVersion:
+          type: integer
+          minimum: 1
+        killGeneration:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        decisionId:
+          $ref: "#/components/schemas/UUID"
+        notional:
+          $ref: "#/components/schemas/DecimalValue"
+        activation:
+          type: object
+          additionalProperties: false
+          required: [version, enabled, validFrom, validUntil, head]
+          properties:
+            version:
+              type: integer
+              minimum: 0
+            enabled:
+              type: boolean
+              enum: [true]
+            validFrom:
+              type: string
+              format: date-time
+            validUntil:
+              type: string
+              format: date-time
+            head:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
     AssistedObservedOrder:
       type: object
       additionalProperties: false
@@ -12482,7 +12540,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AssistedSubject"
-          maxItems: 50
+          maxItems: 4096
     AssistedRequestList:
       type: object
       additionalProperties: false

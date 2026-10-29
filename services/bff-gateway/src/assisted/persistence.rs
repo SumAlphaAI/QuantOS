@@ -34,6 +34,7 @@ impl OwnedHost {
             [c.keys[0], c.keys[1], c.keys[2]],
             Some(HostKernel::Restricted(Box::new(c.kernel))),
         )?;
+        h.current_review_execution_enabled = c.current_review_execution_enabled;
         h.control_fixture_directory = Some(c.directory.clone());
         h.native =
             h.native
@@ -102,14 +103,16 @@ impl OwnedHost {
             {
                 let at: DateTime<Utc> =
                     serde_json::from_value(fact["issuedAt"].clone()).map_err(|_| Error::Invalid)?;
-                add(
-                    "assisted.command_reserved",
-                    at,
-                    actor.clone(),
-                    json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"]}),
-                );
+                let mut reservation = json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"]});
+                if !fact["currentRisk"].is_null() {
+                    reservation["currentRisk"] = fact["currentRisk"].clone();
+                }
+                add("assisted.command_reserved", at, actor.clone(), reservation);
                 if fact["completed"] == true {
                     let mut payload = json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"],"orderId":fact["orderId"],"state":fact["state"]});
+                    if !fact["currentRisk"].is_null() {
+                        payload["currentRisk"] = fact["currentRisk"].clone();
+                    }
                     if !fact["executionFactsHash"].is_null() {
                         payload["executionFactsHash"] = fact["executionFactsHash"].clone();
                         payload["fillIds"] = fact["fillIds"].clone();
@@ -478,6 +481,8 @@ pub(crate) fn load_owned(
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase", deny_unknown_fields)]
     struct Owner {
+        #[serde(default)]
+        current_review_execution_enabled: bool,
         address: SocketAddr,
         server_fingerprint: String,
         session_hash: String,
@@ -505,6 +510,7 @@ pub(crate) fn load_owned(
         c.server_fingerprint.clone(),
     )?;
     Ok(RestrictedReference {
+        current_review_execution_enabled: c.current_review_execution_enabled,
         observer_certificate: Some((read("server.pem")?, c.server_fingerprint.clone())),
         directory: root,
         kernel: ZoneExecutionKernel::new(

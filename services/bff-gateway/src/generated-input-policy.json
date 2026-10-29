@@ -1,5 +1,5 @@
 {
-  "version": "1.26.0",
+  "version": "1.27.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -94,6 +94,10 @@
         },
         "activationExpiresAt": {
           "$ref": "#/components/schemas/DateTime"
+        },
+        "currentReviewExecutionEnabled": {
+          "type": "boolean",
+          "description": "Owner-only bounded local reference admission; never real venue authority."
         },
         "currentRiskReviewOnly": {
           "type": "boolean"
@@ -324,8 +328,93 @@
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         },
+        "currentRisk": {
+          "$ref": "#/components/schemas/AssistedCurrentExecutionBinding"
+        },
         "order": {
           "$ref": "#/components/schemas/AssistedNativeOrder"
+        }
+      }
+    },
+    "AssistedCurrentExecutionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshotHash",
+        "ledgerHash",
+        "sourceHash",
+        "sourceVersion",
+        "killGeneration",
+        "decisionId",
+        "proposalHash",
+        "activation",
+        "notional"
+      ],
+      "properties": {
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decisionId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "notional": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "activation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "enabled",
+            "validFrom",
+            "validUntil",
+            "head"
+          ],
+          "properties": {
+            "version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "enabled": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "validFrom": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntil": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "head": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
         }
       }
     },
@@ -639,7 +728,7 @@
           "items": {
             "$ref": "#/components/schemas/AssistedSubject"
           },
-          "maxItems": 50
+          "maxItems": 4096
         }
       }
     },
@@ -18805,8 +18894,8 @@
         "filter": [],
         "expression": "not applicable",
         "cache": "no-store",
-        "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
-        "idempotency": "Required exact actor/request/key/body/proof binding; original response-loss recovery only, no automatic replay, cache hits recheck current authority and original deadlines.",
+        "freshness": "Current identity and two approvals, exact native snapshot/ledger/authenticated input/generation and current C11 lease at IO; original minimum deadlines. Snapshot budget and Proposal are durably reserved before IO.",
+        "idempotency": "Required original actor/request/key/body binding. Legacy original recovery retains that binding. Current-risk command response loss and UNKNOWN use GET request inspection only; never another command POST or automatic resend.",
         "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
         "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
         "limits": {
@@ -18935,7 +19024,10 @@
       "body": {
         "$ref": "#/components/schemas/NativeRiskReviewRequest"
       },
-      "bodyExample": null,
+      "bodyExample": {
+        "snapshotHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "expectedGeneration": "0"
+      },
       "policy": {
         "owner": "BFF-FE-006",
         "auth": "cookie + resource-scoped authorization",

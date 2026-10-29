@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.26.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.27.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -96,6 +96,10 @@
         },
         "activationExpiresAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "currentReviewExecutionEnabled": {
+          "type": "boolean",
+          "description": "Owner-only bounded local reference admission; never real venue authority."
         },
         "currentRiskReviewOnly": {
           "type": "boolean"
@@ -326,8 +330,93 @@
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         },
+        "currentRisk": {
+          "$ref": "#/$defs/AssistedCurrentExecutionBinding"
+        },
         "order": {
           "$ref": "#/$defs/AssistedNativeOrder"
+        }
+      }
+    },
+    "AssistedCurrentExecutionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshotHash",
+        "ledgerHash",
+        "sourceHash",
+        "sourceVersion",
+        "killGeneration",
+        "decisionId",
+        "proposalHash",
+        "activation",
+        "notional"
+      ],
+      "properties": {
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "notional": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "activation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "enabled",
+            "validFrom",
+            "validUntil",
+            "head"
+          ],
+          "properties": {
+            "version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "enabled": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "validFrom": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntil": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "head": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
         }
       }
     },
@@ -641,7 +730,7 @@
           "items": {
             "$ref": "#/$defs/AssistedSubject"
           },
-          "maxItems": 50
+          "maxItems": 4096
         }
       }
     },

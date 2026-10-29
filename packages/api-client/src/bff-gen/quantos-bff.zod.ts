@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.26.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.27.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -21,6 +21,7 @@ export const AssistedNativeCapabilitiesSchema = z.object({
   "reconciliationReaderEnabled": z.boolean().optional(),
   "activationVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20).optional(),
   "activationExpiresAt": z.lazy(() => DateTimeSchema).optional(),
+  "currentReviewExecutionEnabled": z.boolean().describe("Owner-only bounded local reference admission; never real venue authority.").optional(),
   "currentRiskReviewOnly": z.boolean().optional(),
   "nativeRiskReviewEnabled": z.boolean().optional(),
 }).strict();
@@ -72,7 +73,26 @@ export const AssistedNativeCommandSchema = z.object({
   "expiresAt": z.string().datetime({ offset: true }),
   "state": z.enum(["accepted","unknown"]),
   "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "currentRisk": z.lazy(() => AssistedCurrentExecutionBindingSchema).optional(),
   "order": z.lazy(() => AssistedNativeOrderSchema).optional(),
+}).strict();
+
+export const AssistedCurrentExecutionBindingSchema = z.object({
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.number().int().min(1),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "decisionId": z.lazy(() => UUIDSchema),
+  "notional": z.lazy(() => DecimalValueSchema),
+  "activation": z.object({
+  "version": z.number().int().min(0),
+  "enabled": z.literal(true),
+  "validFrom": z.string().datetime({ offset: true }),
+  "validUntil": z.string().datetime({ offset: true }),
+  "head": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+}).strict(),
 }).strict();
 
 export const AssistedObservedOrderSchema = z.object({
@@ -137,7 +157,7 @@ export const AssistedRequestViewSchema = z.object({
 }).strict();
 
 export const AssistedSubjectListSchema = z.object({
-  "items": z.array(z.lazy(() => AssistedSubjectSchema)).max(50),
+  "items": z.array(z.lazy(() => AssistedSubjectSchema)).max(4096),
 }).strict();
 
 export const AssistedRequestListSchema = z.object({
@@ -1929,6 +1949,7 @@ export const bffZodSchemas = {
   AssistedApprovalRequest: AssistedApprovalRequestSchema,
   AssistedNativeOrder: AssistedNativeOrderSchema,
   AssistedNativeCommand: AssistedNativeCommandSchema,
+  AssistedCurrentExecutionBinding: AssistedCurrentExecutionBindingSchema,
   AssistedObservedOrder: AssistedObservedOrderSchema,
   AssistedObservedFill: AssistedObservedFillSchema,
   AssistedExecutionFacts: AssistedExecutionFactsSchema,

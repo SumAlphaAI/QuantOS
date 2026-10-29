@@ -1,6 +1,6 @@
 {
   "schema": "quantos-pre04-baseline/v2",
-  "version": "1.13",
+  "version": "1.14",
   "date": "2026-10-29",
   "reviewedSourceSha": null,
   "protoDigests": [
@@ -209,7 +209,11 @@
       "models": [
         "PortfolioView",
         "RiskView",
-        "Position"
+        "Position",
+        "AssistedKillIntent",
+        "AssistedKillReceipt",
+        "AssistedKillView",
+        "AssistedLedgerView"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -269,7 +273,10 @@
         "AssistedApprovalAudit",
         "OpenAssistedRequest",
         "ApproveAssistedRequest",
-        "SubmitAssistedRequest"
+        "SubmitAssistedRequest",
+        "NativeRiskCandidateList",
+        "NativeRiskReviewRequest",
+        "AssistedCurrentExecutionBinding"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -293,7 +300,8 @@
       "protoCoverage": "对象级（TradeCommand/Order/Fill/OrderStatus）",
       "models": [
         "Order",
-        "Fill"
+        "Fill",
+        "AssistedReconciliationView"
       ],
       "plannedFields": [],
       "priority": "P0",
@@ -360,7 +368,12 @@
         "OpsPrecheck",
         "OpsRunbookActions",
         "OpsRunbookExecute",
-        "OpsRunbookReceipt"
+        "OpsRunbookReceipt",
+        "AssistedActivationAction",
+        "AssistedActivationHistory",
+        "AssistedActivationPage",
+        "AssistedActivationReceipt",
+        "AssistedActivationView"
       ],
       "plannedFields": [],
       "priority": "P1",
@@ -669,7 +682,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "6bdc33a5cd80e2dc267d04d72d6f0f0cdc7232433830bd56ef0cca286c704f10"
+          "sha256": "df5adb1d22d134e544ba1af870ff21fcd7717a8fb93dbab82647372dfb2cadf5"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -687,7 +700,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "6bdc33a5cd80e2dc267d04d72d6f0f0cdc7232433830bd56ef0cca286c704f10"
+          "sha256": "df5adb1d22d134e544ba1af870ff21fcd7717a8fb93dbab82647372dfb2cadf5"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -705,7 +718,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "6bdc33a5cd80e2dc267d04d72d6f0f0cdc7232433830bd56ef0cca286c704f10"
+          "sha256": "df5adb1d22d134e544ba1af870ff21fcd7717a8fb93dbab82647372dfb2cadf5"
         },
         {
           "path": "services/bff-gateway/tests/audit_export_provider.rs",
@@ -1290,20 +1303,20 @@
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
   "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
   "openapiInventory": {
-    "version": "1.18.0",
-    "operations": 142,
-    "schemas": 132
+    "version": "1.27.0",
+    "operations": 150,
+    "schemas": 164
   },
   "sourceDigests": [
     {
       "path": "bff/openapi/quantos-bff.v1.yaml",
       "representation": "parsed-json",
-      "sha256": "6e5e03456c6783f0b2aeaa0f364621ab6e7368010b06fb01343b9d6d015c3c6c"
+      "sha256": "bdbe4500fe471a5c953ff97eb78fd372c6219454228470c6aae4453de1de0f1b"
     },
     {
       "path": "bff/page-operation-catalog.yaml",
       "representation": "parsed-json",
-      "sha256": "560960c36a8cc561deaf908c48c97e54db0552238a7b9f6a0107c6cc136de087"
+      "sha256": "74256fa7f974b0d4836555ac19ae0eda91a76fc98202161a1ab32a23268bd4bb"
     }
   ]
 }

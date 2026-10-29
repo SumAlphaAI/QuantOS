@@ -1,0 +1,31 @@
+L02 owned fixture selected: /Users/anray/Documents/project/SumAlpha/QuantOS/target/debug/execution-gateway
+
+running 2 tests
+test current_execution::current_review_default_off_and_changed_mark_fail_before_native_io ... FAILED
+test current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation ... FAILED
+
+failures:
+
+failures:
+    current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation
+    current_execution::current_review_default_off_and_changed_mark_fail_before_native_io
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 14 filtered out; finished in 7.82s
+
+{"schema":"quantos-rust-tests-with-l02/v1","status":101,"signal":null,"errorCode":null,"phase":"test"}
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.64s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-fe01b394a7c7b29e)
+
+thread 'current_execution::current_review_default_off_and_changed_mark_fail_before_native_io' (746085) panicked at services/bff-gateway/tests/support/current_execution.rs:25:39:
+assertion `left == right` failed
+  left: String("deny")
+ right: "approval_required"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'current_execution::current_review_actual_mtls_executes_exact_eth_once_and_recovers_original_reservation' (746084) panicked at services/bff-gateway/tests/support/current_execution.rs:25:39:
+assertion `left == right` failed
+  left: String("deny")
+ right: "approval_required"
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

@@ -2013,7 +2013,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** submitAssistedRequest */
+        /** Explicit two-person approved owned testnet submission; current risk uses an owner-only default-off ceiling */
         post: operations["submitAssistedRequest"];
         delete?: never;
         options?: never;
@@ -2192,6 +2192,8 @@ export interface components {
             reconciliationReaderEnabled?: boolean;
             activationVersion?: string;
             activationExpiresAt?: components["schemas"]["DateTime"];
+            /** @description Owner-only bounded local reference admission; never real venue authority. */
+            currentReviewExecutionEnabled?: boolean;
             currentRiskReviewOnly?: boolean;
             nativeRiskReviewEnabled?: boolean;
         };
@@ -2247,7 +2249,28 @@ export interface components {
             /** @enum {string} */
             state: "accepted" | "unknown";
             signature: string;
+            currentRisk?: components["schemas"]["AssistedCurrentExecutionBinding"];
             order?: components["schemas"]["AssistedNativeOrder"];
+        };
+        AssistedCurrentExecutionBinding: {
+            snapshotHash: string;
+            ledgerHash: string;
+            sourceHash: string;
+            proposalHash: string;
+            sourceVersion: number;
+            killGeneration: string;
+            decisionId: components["schemas"]["UUID"];
+            notional: components["schemas"]["DecimalValue"];
+            activation: {
+                version: number;
+                /** @enum {boolean} */
+                enabled: true;
+                /** Format: date-time */
+                validFrom: string;
+                /** Format: date-time */
+                validUntil: string;
+                head: string;
+            };
         };
         AssistedObservedOrder: {
             orderId: string;
@@ -12312,6 +12335,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "snapshotHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "expectedGeneration": "0"
+                 *     }
+                 */
                 "application/json": components["schemas"]["NativeRiskReviewRequest"];
             };
         };
@@ -12322,6 +12351,114 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "decision": {
+                     *         "checks": [
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Identity",
+                     *             "rule": "identity"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Numbers",
+                     *             "rule": "numbers"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Precision",
+                     *             "rule": "precision"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.GlobalKill",
+                     *             "rule": "global_kill"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.AccountKill",
+                     *             "rule": "account_kill"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Release",
+                     *             "rule": "release"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Snapshot",
+                     *             "rule": "snapshot"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Financials",
+                     *             "rule": "financials"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Venue",
+                     *             "rule": "venue"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Duplicate",
+                     *             "rule": "duplicate"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.OrderNotional",
+                     *             "rule": "order_notional"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.Leverage",
+                     *             "rule": "leverage"
+                     *           },
+                     *           {
+                     *             "breached": true,
+                     *             "limit_id": "x02.Concentration",
+                     *             "rule": "concentration"
+                     *           },
+                     *           {
+                     *             "breached": false,
+                     *             "limit_id": "x02.DailyLoss",
+                     *             "rule": "daily_loss"
+                     *           },
+                     *           {
+                     *             "breached": true,
+                     *             "limit_id": "x02.Approval",
+                     *             "rule": "approval"
+                     *           }
+                     *         ],
+                     *         "decidedAt": "2026-10-29T12:43:03.910Z",
+                     *         "decisionId": "01a187af-6f70-7140-8f9d-7b47b69417d1",
+                     *         "executionAuthority": false,
+                     *         "expiresAt": "2026-10-29T12:43:33.650Z",
+                     *         "factsHash": "sha256:5cf187d8e43977d18ca5a795a41badf1f0b5466f3f6e3604b49a94225f0064e6",
+                     *         "intentHash": "sha256:0e70515c8b5d7a50ca461fe5adea23bf9e4f08096955514a91f4fcd0429169cf",
+                     *         "killGeneration": "0",
+                     *         "policyVersion": "core-x02-owned.v1",
+                     *         "proposalHash": "sha256:a8afa4fcc88d9d152cb9258d6714aa94d322665fc84befdc070bd7066826260c",
+                     *         "purpose": "assisted_testnet_review",
+                     *         "signature": "dfe212270d65cd2eb30911eee40667c3a67447c2a5cb4853f00ad9bc096fbd14",
+                     *         "signer": "core-x02-owned-risk.v1",
+                     *         "snapshotHash": "sha256:ab2500f5eaa54acb8680fd59ad386d0ef6535e50c0804d65ad41f5267775bd69",
+                     *         "verdict": "deny"
+                     *       },
+                     *       "executionAuthority": false,
+                     *       "killGeneration": "0",
+                     *       "ledgerHash": "sha256:602747ae87e8d4b56d90db7b78d44d45affb418e200ec7217d4f64d45f5e405f",
+                     *       "previousSubjectId": "01a187af-5cd1-78a0-a583-9fc85d4005f8",
+                     *       "proposalHash": "sha256:a8afa4fcc88d9d152cb9258d6714aa94d322665fc84befdc070bd7066826260c",
+                     *       "proposalId": "proposal:owned-current-r04-0",
+                     *       "schemaVersion": "quantos-native-risk-review.v1",
+                     *       "snapshotHash": "sha256:ab2500f5eaa54acb8680fd59ad386d0ef6535e50c0804d65ad41f5267775bd69",
+                     *       "sourceHash": "sha256:8da7a68775ff607b7c49698b61d5c0cd5eda44f8eb0b88f58f5655e6b532dcee",
+                     *       "sourceTrust": "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET",
+                     *       "sourceVersion": "1"
+                     *     }
+                     */
                     "application/json": components["schemas"]["NativeRiskReviewView"];
                 };
             };
@@ -12536,6 +12673,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-current-kill-receipt.v1",
+                     *       "event": {
+                     *         "action": "approve_release",
+                     *         "actorId": "842e725a-2892-4388-8d3c-7eb11d8c54ab",
+                     *         "approvalRef": null,
+                     *         "correlationId": "01a186c9-58b8-7b30-ba55-8b09b5640ad9",
+                     *         "eventId": "01a186c9-6144-7142-a512-629c5eae1e46",
+                     *         "executionAuthority": false,
+                     *         "expiresAt": "2026-10-29T08:33:46.648Z",
+                     *         "generation": "3",
+                     *         "occurredAt": "2026-10-29T08:31:47.012Z",
+                     *         "reason": "owned public kill control",
+                     *         "recordHash": "sha256:149dbec662e2a629869035e77038ae2b12b7a720d912f3d8cf3aeb95fa1ee741",
+                     *         "riskReceiptHash": null,
+                     *         "scope": "global",
+                     *         "sequence": "5",
+                     *         "unknownPreserved": true
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["AssistedKillReceipt"];
                 };
             };
@@ -12565,6 +12726,33 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "resourceId": "e6a4a592-78a7-8efa-8146-eb69094a1c6b",
+                     *       "version": "1",
+                     *       "totalCount": 1,
+                     *       "items": [
+                     *         {
+                     *           "actorId": "842e725a-2892-4388-8d3c-7eb11d8c54ab",
+                     *           "correlationId": "e6a4a592-78a7-8efa-8146-eb69094a1c6b",
+                     *           "enabled": false,
+                     *           "eventId": "01a186c9-33b6-7751-b3a2-4a45724ab6bd",
+                     *           "executionAuthority": false,
+                     *           "previous": "sha256:0199a9ac89aa6484d0becc7430573b561e888d6b117e97c620462c2deba82ee2",
+                     *           "reason": "owned current scoped C11 review",
+                     *           "recordHash": "sha256:d5a345ca31f5bb622d3690ea77ca681fbfce5805e76d99bdd1dd92d240e4e2da",
+                     *           "resourceId": "e6a4a592-78a7-8efa-8146-eb69094a1c6b",
+                     *           "source": "public_c11",
+                     *           "unknownPreserved": true,
+                     *           "validFrom": "2026-10-29T08:31:35.350Z",
+                     *           "validUntil": "2026-10-29T08:33:35.264Z",
+                     *           "version": "1"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["AssistedActivationHistory"];
                 };
             };

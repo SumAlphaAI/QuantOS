@@ -1,0 +1,10 @@
+import {expect,it} from 'vitest';
+import {bffZodSchemas} from '../../packages/api-client/src/bff-gen/quantos-bff.zod';
+import {validateFixture} from './validate.mjs';
+const uuid='11111111-1111-4111-8111-111111111111',hash='sha256:'+'a'.repeat(64),at='2026-10-29T00:00:00Z';
+const subject={subjectId:uuid,subjectHash:hash,proposalHash:hash,decisionId:uuid,originator:uuid,accountId:uuid,symbol:'ETHUSDT',side:'buy',quantity:'1',limitPrice:'1000',expiresAt:at};
+const command={requestId:uuid,subjectHash:hash,commandId:uuid,expiresAt:at,state:'unknown',signature:'b'.repeat(64),currentRisk:{snapshotHash:hash,ledgerHash:hash,sourceHash:hash,sourceVersion:1,killGeneration:'0',decisionId:uuid,proposalHash:hash,notional:'1000',activation:{version:0,enabled:true,validFrom:at,validUntil:at,head:hash}}};
+it('current binding accepts the real initial C11 version zero without dropping provenance',()=>{expect(validateFixture(command,{schema:'AssistedNativeCommand'})).toEqual([]);expect(bffZodSchemas.AssistedNativeCommand.parse(command).currentRisk).toEqual(command.currentRisk);});
+it('current command cannot carry a disabled activation',()=>{const v=structuredClone(command);v.currentRisk.activation.enabled=false;expect(validateFixture(v,{schema:'AssistedNativeCommand'}).length).toBeGreaterThan(0);expect(bffZodSchemas.AssistedNativeCommand.safeParse(v).success).toBe(false);});
+it('current binding cannot omit a durable source or use a numeric generation',()=>{const v:Record<string,unknown>=structuredClone(command.currentRisk);delete v.sourceHash;v.killGeneration=0;expect(bffZodSchemas.AssistedCurrentExecutionBinding.safeParse(v).success).toBe(false);});
+it('current catalog admits fifty original Subjects plus a newly reviewed Subject',()=>{const v={items:Array.from({length:51},()=>subject)};expect(validateFixture(v,{schema:'AssistedSubjectList'})).toEqual([]);expect(bffZodSchemas.AssistedSubjectList.parse(v).items).toHaveLength(51);});

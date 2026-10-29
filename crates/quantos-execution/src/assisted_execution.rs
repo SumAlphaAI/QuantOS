@@ -5,6 +5,7 @@ use crate::{OrderIntent, TradeCommand, VenueKind, assisted::*, gateway::*};
 use chrono::{DateTime, Duration, Utc};
 use hmac::{Hmac, Mac};
 use quantos_core::{CommandId, ContentHash, ProposalId, canonical_json_bytes};
+use quantos_risk::guard::NativeRiskContext;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::Sha256;
@@ -12,6 +13,20 @@ use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex},
 };
+/// Immutable exact current-risk reservation. It is evidence, never a public IO token.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CurrentExecutionBinding {
+    pub snapshot_hash: ContentHash,
+    pub ledger_hash: ContentHash,
+    pub source_hash: ContentHash,
+    pub source_version: u64,
+    pub kill_generation: String,
+    pub decision_id: quantos_core::DecisionId,
+    pub proposal_hash: ContentHash,
+    pub activation: crate::assisted_activation::RuntimeActivation,
+    pub notional: String,
+}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CommandReceipt {
@@ -22,6 +37,8 @@ pub struct CommandReceipt {
     pub state: String,
     pub order: Option<GatewayOrder>,
     pub signature: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_risk: Option<CurrentExecutionBinding>,
 }
 #[derive(Serialize, Deserialize)]
 struct Issued {
@@ -33,6 +50,8 @@ struct Issued {
     subject: Option<Subject>,
     #[serde(default)]
     evidence: Option<crate::execution_facts::CommandFacts>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    approval: Option<Receipt>,
 }
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -45,6 +64,7 @@ struct Inner<K: ExecutionKernel> {
     gateway: ExecutionGateway<K>,
     issued: BTreeMap<ProposalId, Issued>,
     proposal_claims: BTreeMap<ContentHash, ProposalId>,
+    snapshot_claims: BTreeMap<ContentHash, ProposalId>,
     key: [u8; 32],
     durable: Option<crate::durable::DurableStore>,
     poisoned: bool,
@@ -80,6 +100,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
             gateway: ExecutionGateway::new(limits, kernel),
             issued: BTreeMap::new(),
             proposal_claims: BTreeMap::new(),
+            snapshot_claims: BTreeMap::new(),
             key,
             durable: None,
             poisoned: false,
@@ -185,11 +206,20 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                 load(&mut s, stored.clone())?;
             }
             let anchor = ContentHash::sha256_bytes(
-                &canonical_json_bytes(&json!([
-                    "quantos-native-reservation-anchor/v1",
-                    s.issued,
-                    s.proposal_claims
-                ]))
+                &canonical_json_bytes(&if s.snapshot_claims.is_empty() {
+                    json!([
+                        "quantos-native-reservation-anchor/v1",
+                        s.issued,
+                        s.proposal_claims
+                    ])
+                } else {
+                    json!([
+                        "quantos-native-reservation-anchor/v1",
+                        s.issued,
+                        s.proposal_claims,
+                        s.snapshot_claims
+                    ])
+                })
                 .map_err(|_| Error::Unavailable)?,
             );
             let mut reservations = BTreeMap::new();
@@ -207,8 +237,14 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                     ContentHash::sha256_bytes(request.to_string().as_bytes()),
                 );
             }
+            for (snapshot, request) in &s.snapshot_claims {
+                reservations.insert(
+                    format!("snapshot:{snapshot}"),
+                    ContentHash::sha256_bytes(request.to_string().as_bytes()),
+                );
+            }
             Ok(
-                json!({"activation":s.activation,"reservations":reservations,"generation":s.control.generation,"active":s.control.active,"permanentStop":s.killed,"stopped":s.killed||s.control.active,"initialized":stored.is_some(),"reservationAnchor":anchor,"issuedCount":s.issued.len(),"unknownCount":s.issued.values().filter(|r|r.receipt.state=="unknown").count()}),
+                json!({"snapshotClaims":s.snapshot_claims,"activation":s.activation,"reservations":reservations,"generation":s.control.generation,"active":s.control.active,"permanentStop":s.killed,"stopped":s.killed||s.control.active,"initialized":stored.is_some(),"reservationAnchor":anchor,"issuedCount":s.issued.len(),"unknownCount":s.issued.values().filter(|r|r.receipt.state=="unknown").count()}),
             )
         })();
         s.durable = store;
@@ -219,6 +255,28 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         session: &str,
         request: ProposalId,
         key: &str,
+        clock: impl ClockInput,
+    ) -> Result<CommandReceipt, Error> {
+        self.submit_checked(session, request, key, None, clock)
+    }
+    /// Owner-only exact current snapshot. Caller holds its authenticated input and
+    /// ledger serialization locks through this call. Public clients cannot supply it.
+    pub fn submit_current(
+        &self,
+        session: &str,
+        request: ProposalId,
+        key: &str,
+        current: &NativeRiskContext,
+        clock: impl ClockInput,
+    ) -> Result<CommandReceipt, Error> {
+        self.submit_checked(session, request, key, Some(current), clock)
+    }
+    fn submit_checked(
+        &self,
+        session: &str,
+        request: ProposalId,
+        key: &str,
+        current: Option<&NativeRiskContext>,
         clock: impl ClockInput,
     ) -> Result<CommandReceipt, Error> {
         if key.is_empty() || key.len() > 128 {
@@ -241,7 +299,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                 session,
                 request,
                 clock,
-                |subject, approval, deadline, now| {
+                |subject, approval, deadline, now, signed_context, current_activation| {
                     if state.killed
                         || state.control.active
                         || state.activation.as_ref().is_some_and(|a| !a.effective(now))
@@ -257,6 +315,51 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                         }
                         return Ok(old.receipt.clone()); // no resubmit, including unknown
                     }
+                    // Never let the legacy interface execute a current-risk Subject.
+                    // Equality includes ledger bytes, authenticated input, original
+                    // scope/generation and half-open source deadline, not just a hash.
+                    let binding = match (signed_context, current) {
+                        (None, None) => None,
+                        (Some(signed), Some(current)) if &signed == current => {
+                            if current.snapshot.kill_generation
+                                != state.control.generation.to_string()
+                                || now >= current.snapshot.expires_at
+                            {
+                                return Err(Error::PolicyChanged);
+                            }
+                            let activation = state.activation.clone().ok_or(Error::Disabled)?;
+                            if Some(&activation) != current_activation || !activation.effective(now)
+                            {
+                                return Err(Error::Disabled);
+                            }
+                            if state
+                                .snapshot_claims
+                                .contains_key(&current.snapshot.snapshot_hash)
+                            {
+                                return Err(Error::Conflict);
+                            }
+                            use std::str::FromStr;
+                            let notional = rust_decimal::Decimal::from_str(&subject.quantity)
+                                .map_err(|_| Error::Invalid)?
+                                .checked_mul(
+                                    rust_decimal::Decimal::from_str(&subject.limit_price)
+                                        .map_err(|_| Error::Invalid)?,
+                                )
+                                .ok_or(Error::Invalid)?;
+                            Some(CurrentExecutionBinding {
+                                snapshot_hash: current.snapshot.snapshot_hash.clone(),
+                                ledger_hash: current.snapshot.ledger_hash.clone(),
+                                source_hash: current.snapshot.source_hash.clone(),
+                                source_version: current.snapshot.source_version,
+                                kill_generation: current.snapshot.kill_generation.clone(),
+                                decision_id: subject.decision,
+                                proposal_hash: subject.proposal_hash.clone(),
+                                activation,
+                                notional: notional.normalize().to_string(),
+                            })
+                        }
+                        _ => return Err(Error::PolicyChanged),
+                    };
                     if state.proposal_claims.contains_key(&subject.proposal_hash) {
                         return Err(Error::Conflict);
                     }
@@ -271,19 +374,15 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                             .map(|a| a.valid_until)
                             .unwrap_or(deadline),
                     );
-                    let bytes = canonical_json_bytes(&json!([
-                        "core-l03-native-command/v1",
+                    let signature = command_signature(
+                        &state.key,
                         request,
                         approval,
                         subject,
                         id,
-                        expires
-                    ]))
-                    .map_err(|_| Error::Invalid)?;
-                    let mut mac =
-                        Hmac::<Sha256>::new_from_slice(&state.key).map_err(|_| Error::Invalid)?;
-                    mac.update(&bytes);
-                    let signature = hex::encode(mac.finalize().into_bytes());
+                        expires,
+                        binding.as_ref(),
+                    )?;
                     let command = TradeCommand {
                         command_id: id,
                         decision_id: subject.decision,
@@ -317,7 +416,13 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                         state: "unknown".into(),
                         order: None,
                         signature,
+                        current_risk: binding.clone(),
                     };
+                    if let Some(b) = &binding {
+                        state
+                            .snapshot_claims
+                            .insert(b.snapshot_hash.clone(), request);
+                    }
                     state
                         .proposal_claims
                         .insert(subject.proposal_hash.clone(), request);
@@ -330,6 +435,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                             receipt,
                             subject: Some(subject.clone()),
                             evidence: None,
+                            approval: Some(approval.clone()),
                         },
                     );
                     if let Some(tx) = &transaction {
@@ -455,7 +561,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         s.issued.values().map(|i| {
             if !s.approvals.matches_execution_binding(i.receipt.request_id,&i.receipt.subject_hash)? {return Err(Error::Unavailable);}
             let facts=i.subject.as_ref().map(|subject| crate::execution_facts::project(subject,i.receipt.request_id,i.receipt.subject_hash.clone(),i.receipt.command_id,&i.receipt.state,i.issued_at,i.evidence.as_ref())).transpose()?;
-            Ok(json!({"requestId":i.receipt.request_id,"commandId":i.receipt.command_id,"subjectHash":i.receipt.subject_hash,"issuedAt":i.issued_at,"completed":i.completed,"state":i.receipt.state,"orderId":i.receipt.order.as_ref().map(|o|&o.order_id),"executionFactsHash":facts.as_ref().map(|f|&f.source_hash),"fillIds":facts.as_ref().map(|f|f.fills.iter().map(|fill|&fill.fill_id).collect::<Vec<_>>()).unwrap_or_default()}))
+            Ok(json!({"requestId":i.receipt.request_id,"commandId":i.receipt.command_id,"subjectHash":i.receipt.subject_hash,"issuedAt":i.issued_at,"completed":i.completed,"state":i.receipt.state,"orderId":i.receipt.order.as_ref().map(|o|&o.order_id),"currentRisk":i.receipt.current_risk,"executionFactsHash":facts.as_ref().map(|f|&f.source_hash),"fillIds":facts.as_ref().map(|f|f.fills.iter().map(|fill|&fill.fill_id).collect::<Vec<_>>()).unwrap_or_default()}))
         }).collect()
     }
     pub fn submission_count(&self) -> Result<usize, Error> {
@@ -470,7 +576,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
 
 fn checkpoint<K: ExecutionKernel>(state: &Inner<K>) -> Result<serde_json::Value, Error> {
     Ok(
-        json!({"issued":state.issued,"claims":state.proposal_claims,"killed":state.killed,"control":state.control,"activation":state.activation}),
+        json!({"issued":state.issued,"claims":state.proposal_claims,"snapshotClaims":state.snapshot_claims,"killed":state.killed,"control":state.control,"activation":state.activation}),
     )
 }
 fn load<K: ExecutionKernel>(
@@ -488,7 +594,7 @@ fn load<K: ExecutionKernel>(
             (None, Some(_)) => return Err(Error::Unavailable),
             _ => (),
         }
-        state.activation = activation;
+
         let control = v
             .get("control")
             .map(|v| {
@@ -502,18 +608,46 @@ fn load<K: ExecutionKernel>(
         {
             return Err(Error::Conflict);
         }
-        state.control = control;
+
         let killed = v["killed"].as_bool().ok_or(Error::Unavailable)?;
         if state.killed && !killed {
             return Err(Error::Conflict);
         }
-        state.killed = killed;
-        if state.killed {
-            state.gateway.engage_kill_switch();
-        }
-        state.issued =
+        let issued: BTreeMap<ProposalId, Issued> =
             serde_json::from_value(v["issued"].clone()).map_err(|_| Error::Unavailable)?;
-        for (id, i) in &state.issued {
+        for (id, old) in &state.issued {
+            let next = issued.get(id).ok_or(Error::Conflict)?;
+            if old.key != next.key
+                || old.issued_at != next.issued_at
+                || old.subject != next.subject
+                || old.approval != next.approval
+                || old.receipt.command_id != next.receipt.command_id
+                || old.receipt.signature != next.receipt.signature
+                || old.receipt.expires_at != next.receipt.expires_at
+                || old.receipt.current_risk != next.receipt.current_risk
+                || old.completed
+                    && serde_json::to_value(old).map_err(|_| Error::Unavailable)?
+                        != serde_json::to_value(next).map_err(|_| Error::Unavailable)?
+            {
+                return Err(Error::Conflict);
+            }
+        }
+        let claims: BTreeMap<ContentHash, ProposalId> =
+            serde_json::from_value(v["claims"].clone()).map_err(|_| Error::Unavailable)?;
+        let snapshots: BTreeMap<ContentHash, ProposalId> =
+            serde_json::from_value(v.get("snapshotClaims").cloned().unwrap_or(json!({})))
+                .map_err(|_| Error::Unavailable)?;
+        for (key, id) in &state.proposal_claims {
+            if claims.get(key) != Some(id) {
+                return Err(Error::Conflict);
+            }
+        }
+        for (key, id) in &state.snapshot_claims {
+            if snapshots.get(key) != Some(id) {
+                return Err(Error::Conflict);
+            }
+        }
+        for (id, i) in &issued {
             if !matches!(i.receipt.state.as_str(), "accepted" | "unknown")
                 || i.receipt.state == "accepted"
                     && (!i.completed || i.subject.is_some() && i.evidence.is_none())
@@ -533,6 +667,30 @@ fn load<K: ExecutionKernel>(
                 if hash != i.receipt.subject_hash {
                     return Err(Error::Unavailable);
                 }
+                if claims.get(&subject.proposal_hash) != Some(id) {
+                    return Err(Error::Unavailable);
+                }
+                if let Some(binding) = &i.receipt.current_risk {
+                    let approval = i.approval.as_ref().ok_or(Error::Unavailable)?;
+                    if binding.proposal_hash != subject.proposal_hash
+                        || binding.decision_id != subject.decision
+                        || snapshots.get(&binding.snapshot_hash) != Some(id)
+                        || approval.request != *id
+                        || approval.subject_hash != hash
+                        || i.receipt.expires_at > binding.activation.valid_until
+                        || command_signature(
+                            &state.key,
+                            *id,
+                            approval,
+                            subject,
+                            i.receipt.command_id,
+                            i.receipt.expires_at,
+                            Some(binding),
+                        )? != i.receipt.signature
+                    {
+                        return Err(Error::Unavailable);
+                    }
+                }
                 if let Some(e) = &i.evidence {
                     e.validate(subject, i.receipt.command_id, i.receipt.order.as_ref())?;
                 }
@@ -541,8 +699,25 @@ fn load<K: ExecutionKernel>(
             }
         }
 
-        state.proposal_claims =
-            serde_json::from_value(v["claims"].clone()).map_err(|_| Error::Unavailable)?;
+        if claims.values().any(|id| !issued.contains_key(id))
+            || snapshots.iter().any(|(hash, id)| {
+                issued
+                    .get(id)
+                    .and_then(|i| i.receipt.current_risk.as_ref())
+                    .is_none_or(|b| &b.snapshot_hash != hash)
+            })
+        {
+            return Err(Error::Unavailable);
+        }
+        state.activation = activation;
+        state.control = control;
+        state.killed = killed;
+        if killed {
+            state.gateway.engage_kill_switch();
+        }
+        state.issued = issued;
+        state.proposal_claims = claims;
+        state.snapshot_claims = snapshots;
     } else if !state.issued.is_empty()
         || state.control.generation > 0
         || state.killed
@@ -551,4 +726,39 @@ fn load<K: ExecutionKernel>(
         return Err(Error::Unavailable);
     }
     Ok(())
+}
+
+fn command_signature(
+    key: &[u8; 32],
+    request: ProposalId,
+    approval: &Receipt,
+    subject: &Subject,
+    id: CommandId,
+    expires: DateTime<Utc>,
+    binding: Option<&CurrentExecutionBinding>,
+) -> Result<String, Error> {
+    let value = if let Some(binding) = binding {
+        json!([
+            "core-l04-current-native-command/v1",
+            request,
+            approval,
+            subject,
+            id,
+            expires,
+            binding
+        ])
+    } else {
+        json!([
+            "core-l03-native-command/v1",
+            request,
+            approval,
+            subject,
+            id,
+            expires
+        ])
+    };
+    let bytes = canonical_json_bytes(&value).map_err(|_| Error::Invalid)?;
+    let mut mac = Hmac::<Sha256>::new_from_slice(key).map_err(|_| Error::Invalid)?;
+    mac.update(&bytes);
+    Ok(hex::encode(mac.finalize().into_bytes()))
 }

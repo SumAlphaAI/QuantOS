@@ -1,0 +1,32 @@
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-l04-current-execution.mjs:65
+ const flow=validateFlow(json(attempt+'/execution.json'),sourceCommit),unknown=validateUnknown(json(attempt+'/unknown.json'),sourceInputs=inputs();const web=json(attempt+'/web-build.json');assert.equal(web.sourceDigest,sourceDigest(resolve('.'),Object.fromEntries(Object.entries(publicEnv()).filter(([k])=>k.startsWith('NEXT_PUBLIC_')))));const browser=json(attempt+'/browser/report.json');assert.equal(browser.stats.expected,4);for(const k of ['unexpected','flaky','skipped'])assert.equal(browser.stats[k],0);const browserProof=files(attempt+'/browser/cases').find(p=>p.endsWith('/current-execution-browser.json'));assert(browserProof);const bp=json(browserProof);assert.equal(bp.sourceCommit,sourceCommit);assert.equal(bp.explicitCommandPosts,1);assert.equal(bp.recovery,'GET_ONLY');assert.equal(bp.protocolCalls,2);assert.deepEqual(bp.violations,[]);const secret=secrets(attempt,sourceCommit);write(directory+'/result.json',{schema:'quantos-l04-current-execution-result/v1',status:'PASS_CURRENT_FUNCTION_ONLY',sourceCommit,attempt,boundary:boundary(),inputs:sourceInputs,inputDigest:hash(JSON.stringify(sourceInputs)),executions,flow,unknown,browser:{chromium:4,violations:0,incomplete:bp.incomplete.length,manualAccessibility:'NOT_RUN'},secrets:secret,files:files(directory).filter(p=>!p.endsWith('/result.json')&&!p.endsWith('/README.md')).map(path=>({path,sha256:hash(read(path))}))});verify();console.log('PASS_CURRENT_FUNCTION_ONLY');
+                                                                                                                                                 ^
+
+SyntaxError: missing ) after argument list
+    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:111:18)
+    at #translate (node:internal/modules/esm/loader:473:20)
+    at afterLoad (node:internal/modules/esm/loader:529:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:534:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:571:36)
+    at afterResolve (node:internal/modules/esm/loader:624:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:630:12)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:143:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:228:17)
+
+Node.js v24.12.0
+✖ scripts/core-l04-current-execution.test.mjs (26.111625ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.355791
+
+✖ failing tests:
+
+test at scripts/core-l04-current-execution.test.mjs:1:1
+✖ scripts/core-l04-current-execution.test.mjs (26.111625ms)
+  'test failed'

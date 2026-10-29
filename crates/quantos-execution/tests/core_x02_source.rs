@@ -742,5 +742,7 @@ fn immutable_source_cache_never_caches_kill_clock_or_current_revocation() {
     assert!(f.service.restore_checkpoint(&tampered).is_err());
 }
 
+#[path = "support/current_execution_cases.rs"]
+mod current_execution_cases;
 #[path = "support/native_refresh_cases.rs"]
 mod native_refresh_cases;

@@ -111,15 +111,19 @@ impl Observer {
         self.save()
     }
 }
-struct OwnedPort(Arc<AtomicUsize>, Observer);
+struct OwnedPort(Arc<AtomicUsize>, Arc<Mutex<Observer>>);
 impl ProtocolPort for OwnedPort {
     fn exchange(&mut self, request: &Request) -> Result<Response, TransportFault> {
         let count = self.0.fetch_add(1, Ordering::SeqCst) + 1;
         let case = json!({"kind":"filled","quantity":request.params["quantity"],"price":request.params["price"],"side":request.params["side"].to_lowercase(),"orderId":count as u64+100,"tradeId":count as u64+200});
-        let reply = fixture::reply(&case, request, &request.params["newClientOrderId"]);
+        let mut reply = fixture::reply(&case, request, &request.params["newClientOrderId"]);
+        reply["body"]["symbol"] = json!(request.params["symbol"]);
         // This independent observation is committed before native mapping/reply.
         // It is never reconstructed from the BFF/X01 ledger.
-        self.1.record(request, &reply)?;
+        self.1
+            .lock()
+            .map_err(|_| TransportFault::Disconnected)?
+            .record(request, &reply)?;
         Ok(fixture::response(reply))
     }
 }
@@ -190,12 +194,20 @@ pub fn serve_owned_fixture(
         payload: json!({"schemaVersion":"quantos-independent-protocol-journal.v1","sourceId":fingerprint(&cert)?,"accountId":account,"revision":0,"capturedAt":base,"records":[]}),
     };
     observer.save().map_err(|_| Denial::Unknown)?;
-    let kernel = ProtocolKernel::new(
-        VenueConfig::approved_testnet(),
-        rules,
-        OwnedPort(calls.clone(), observer),
-    )
-    .map_err(|_| Denial::Protocol)?;
+    let observer = Arc::new(Mutex::new(observer));
+    let mut kernels = std::collections::BTreeMap::new();
+    for symbol in ["BTCUSDT", "ETHUSDT"] {
+        let mut symbol_rules = rules.clone();
+        symbol_rules.symbol = symbol.into();
+        let kernel = ProtocolKernel::new(
+            VenueConfig::approved_testnet(),
+            symbol_rules,
+            OwnedPort(calls.clone(), observer.clone()),
+        )
+        .map_err(|_| Denial::Protocol)?;
+        kernels.insert(symbol.to_owned(), kernel);
+    }
+    let kernel = OwnedKernels(kernels);
     let mut host = RestrictedHost::new(guard, kernel, OwnedSigner([owned_key(), owned_key()]));
     let tls = acceptor(&ca, &cert, &key)?;
     let listener = TcpListener::bind("127.0.0.1:0")?;
@@ -265,4 +277,25 @@ pub fn serve_owned_fixture(
         stdout().flush()?;
     }
     Ok(())
+}
+
+// Fixed owner-configured universe. No symbol/rule creation from a command.
+struct OwnedKernels(std::collections::BTreeMap<String, ProtocolKernel<OwnedPort>>);
+impl quantos_execution::gateway::ExecutionKernel for OwnedKernels {
+    fn submit(&mut self, _: &quantos_execution::gateway::BoundaryCommand) -> Result<(), String> {
+        Err("controlled clock required".into())
+    }
+    fn submit_at(
+        &mut self,
+        c: &quantos_execution::gateway::BoundaryCommand,
+        at: DateTime<Utc>,
+    ) -> Result<(), String> {
+        self.0
+            .get_mut(&c.symbol)
+            .ok_or("unsupported owned symbol")?
+            .submit_at(c, at)
+    }
+    fn drain_events(&mut self) -> Vec<quantos_execution::gateway::KernelEvent> {
+        self.0.values_mut().flat_map(|k| k.drain_events()).collect()
+    }
 }

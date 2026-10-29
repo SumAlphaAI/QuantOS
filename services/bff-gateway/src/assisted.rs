@@ -93,6 +93,7 @@ impl ExecutionKernel for HostKernel {
 }
 /// Explicit local owner configuration, never deserialized from an HTTP request.
 pub struct RestrictedReference {
+    pub current_review_execution_enabled: bool,
     pub observer_certificate: Option<(Vec<u8>, String)>,
     pub directory: std::path::PathBuf,
     pub kernel: execution_gateway::restricted_zone::ZoneExecutionKernel,
@@ -118,6 +119,7 @@ pub(crate) struct OwnedHost {
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
     valuation: quantos_portfolio::native_valuation::State,
     valuation_committed: quantos_portfolio::native_valuation::State,
+    current_review_execution_enabled: bool,
     risk_refreshes: BTreeMap<(String, String), Value>,
     valuation_input: Option<quantos_execution::durable::DurableStore>,
     controls: control::Controls,
@@ -256,6 +258,7 @@ impl OwnedHost {
             valuation: Default::default(),
             valuation_committed: Default::default(),
             valuation_input: None,
+            current_review_execution_enabled: false,
             risk_refreshes: Default::default(),
             controls: Default::default(),
             native_anchor: None,
@@ -307,6 +310,9 @@ impl OwnedHost {
 }
 fn command(c: CommandReceipt) -> Value {
     let mut v = json!({"requestId":c.request_id,"subjectHash":c.subject_hash,"commandId":c.command_id,"expiresAt":c.expires_at,"state":c.state,"signature":c.signature});
+    if let Some(b) = c.current_risk {
+        v["currentRisk"] = json!(b);
+    }
     if let Some(o) = c.order {
         v["order"] = json!({"orderId":o.order_id,"commandId":o.command_id,"accountId":o.account_id,"symbol":o.symbol,"side":o.side,"quantity":o.quantity,"filledQuantity":o.filled_quantity,"status":o.status});
     }
@@ -392,7 +398,7 @@ async fn handle(
             .unwrap_or(json!({"request":false,"approve":false}));
         return crate::response(
             StatusCode::OK,
-            json!({"currentRiskReviewOnly":state.assisted.as_ref().is_some_and(|h|!h.risk_refreshes.is_empty()),"nativeRiskReviewEnabled":state.assisted.as_ref().is_some_and(|h|h.valuation_input.is_some()),"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":state.assisted.as_ref().is_some_and(|h|h.enabled()),"activationVersion":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.version.to_string()),"activationExpiresAt":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.valid_until),"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
+            json!({"currentReviewExecutionEnabled":state.assisted.as_ref().is_some_and(|h|h.current_review_execution_enabled),"currentRiskReviewOnly":state.assisted.as_ref().is_some_and(|h|!h.risk_refreshes.is_empty()&&!h.current_review_execution_enabled),"nativeRiskReviewEnabled":state.assisted.as_ref().is_some_and(|h|h.valuation_input.is_some()),"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":state.assisted.as_ref().is_some_and(|h|h.enabled()),"activationVersion":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.version.to_string()),"activationExpiresAt":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.valid_until),"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
             &crate::correlation_id(),
         );
     }
@@ -574,27 +580,54 @@ async fn handle(
                 return Err(Error::Conflict);
             }
             let existing = h.native.inspect(&sid, id, clock())?;
-            if existing.is_none() && !h.risk_refreshes.is_empty() {
-                return Err(Error::PolicyChanged);
+            // Read-only recovery of an existing reservation never enters dispatch.
+            if let Some(receipt) = existing {
+                if receipt.current_risk.is_some() {
+                    return Err(Error::Conflict);
+                }
+                return Ok(command(h.native.submit(&sid, id, key, &clock)?));
             }
-            let ledger = h.sync_ledger(&sid, clock())?;
-            // No trusted new valuation/review is registered for this profile after
-            // financial/quarantined ledger progress. Keep original command recovery, fence new IO.
-            if existing.is_none()
-                && (ledger["appliedFillCount"].as_u64().unwrap_or(0) > 0
-                    || ledger["consumerReady"] != true)
-            {
-                return Err(Error::PolicyChanged);
-            }
-            // Native refresh subjects are review-only until the explicit L03
-            // current-review execution handoff; no refreshed decision bypasses IO guards.
-            if h.sources
-                .native_snapshot(*h.requests.get(&id).ok_or(Error::Invalid)?)?
-                .is_some()
-            {
-                return Err(Error::PolicyChanged);
-            }
-            let receipt = h.native.submit(&sid, id, key, &clock)?;
+            let subject_id = *h.requests.get(&id).ok_or(Error::Invalid)?;
+            let receipt = if h.sources.native_snapshot(subject_id)?.is_some() {
+                if !h.current_review_execution_enabled {
+                    return Err(Error::Disabled);
+                }
+                // Stable authenticated owner-input inode lock remains held through
+                // native reservation/fsync/IO. Outer approval lock serializes the
+                // ledger and other cooperating BFF processes on this owner scope.
+                let store = h.valuation_input.clone().ok_or(Error::Unavailable)?;
+                let tx = store.lock()?;
+                let input = tx.read()?.ok_or(Error::PolicyChanged)?;
+                let view = h.sync_valuation_input(&sid, clock(), Some(input))?;
+                if view["riskInputReady"] != true {
+                    return Err(Error::PolicyChanged);
+                }
+                let snapshot = serde_json::from_value(view["snapshot"].clone())
+                    .map_err(|_| Error::Unavailable)?;
+                let current = quantos_risk::guard::NativeRiskContext {
+                    input: h
+                        .valuation
+                        .input_for(&snapshot)
+                        .map_err(|_| Error::Unavailable)?,
+                    snapshot,
+                    ledger_checkpoint: h
+                        .ledger
+                        .as_ref()
+                        .ok_or(Error::Unavailable)?
+                        .checkpoint()
+                        .map_err(|_| Error::Unavailable)?,
+                };
+                h.native.submit_current(&sid, id, key, &current, &clock)?
+            } else {
+                let ledger = h.sync_ledger(&sid, clock())?;
+                if !h.risk_refreshes.is_empty()
+                    || ledger["appliedFillCount"].as_u64().unwrap_or(0) > 0
+                    || ledger["consumerReady"] != true
+                {
+                    return Err(Error::PolicyChanged);
+                }
+                h.native.submit(&sid, id, key, &clock)?
+            };
             h.sync_ledger(&sid, clock())?;
             return Ok(command(receipt));
         }

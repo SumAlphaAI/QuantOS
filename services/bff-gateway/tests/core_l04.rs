@@ -67,6 +67,9 @@ impl Lab {
         Self::configured(false)
     }
     fn configured(pause: bool) -> Self {
+        Self::pause_at(if pause { 1 } else { 0 })
+    }
+    fn pause_at(pause: usize) -> Self {
         assert!(!std::env::vars().any(|(k, _)| {
             [
                 "DATABASE_URL",
@@ -110,7 +113,7 @@ impl Lab {
             private_write(directory.join(name), bytes);
         }
         let at = chrono::DateTime::from_timestamp(Utc::now().timestamp(), 0).unwrap();
-        private_write(directory.join("config.json"),serde_json::to_vec(&json!({"account":"44444444-4444-4444-8444-444444444444","now":at,"rotation":false,"schedule":[],"wallClock":true,"pauseReplyAtRequest":if pause{1}else{0}})).unwrap());
+        private_write(directory.join("config.json"),serde_json::to_vec(&json!({"account":"44444444-4444-4444-8444-444444444444","now":at,"rotation":false,"schedule":[],"wallClock":true,"pauseReplyAtRequest":pause})).unwrap());
         let executable = std::env::var("QUANTOS_L02_FIXTURE_EXECUTABLE")
             .expect("build execution-gateway and explicitly select the owned executable");
         let mut zone = Process(
@@ -1099,5 +1102,7 @@ mod l4_controls;
 #[path = "support/valuation.rs"]
 mod valuation;
 
+#[path = "support/current_execution.rs"]
+mod current_execution;
 #[path = "support/risk_refresh.rs"]
 mod risk_refresh;

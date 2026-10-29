@@ -4,7 +4,7 @@ import {mkdtemp,readFile,writeFile,chmod,readdir,rm,realpath} from 'node:fs/prom
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {randomBytes,X509Certificate} from 'node:crypto';
-export async function ownedZone(){
+export async function ownedZone(currentReviewExecutionEnabled=false){
  if(['DATABASE_URL','QUANTOS_EXECUTION_DATABASE_URL','SUPABASE_SERVICE_ROLE_KEY','BINANCE_API_KEY','BINANCE_API_SECRET'].some(k=>process.env[k]))throw Error('Owned zone must not load credentials');
  const directory=await realpath(await mkdtemp(join(tmpdir(),'quantos-l02-')));await chmod(directory,0o700);let child:ChildProcess|undefined,protocolCalls=0;
  const ssl=(args:string[])=>execFileSync('openssl',args,{cwd:directory,stdio:'ignore'});
@@ -28,7 +28,7 @@ export async function ownedZone(){
   });
   if(ready.pid!==child.pid||ready.backend!=='OWNED_L02_MTLS'||!ready.address.startsWith('127.0.0.1:'))throw Error('Unexpected owned zone identity');
   const fingerprint='sha256:'+new X509Certificate(await readFile(join(directory,'server.pem'))).fingerprint256.replaceAll(':','').toLowerCase();if(fingerprint!==ready.serverFingerprint)throw Error('Wrong owned server pin');
-  await writeFile(join(directory,'bff-owner.json'),JSON.stringify({address:ready.address,serverFingerprint:fingerprint,sessionHash:'sha256:'+'1'.repeat(64),keys:Array.from({length:4},()=>Array.from(randomBytes(32))),createdAt:at,expiresAt}),{mode:0o600});
+  await writeFile(join(directory,'bff-owner.json'),JSON.stringify({currentReviewExecutionEnabled,address:ready.address,serverFingerprint:fingerprint,sessionHash:'sha256:'+'1'.repeat(64),keys:Array.from({length:4},()=>Array.from(randomBytes(32))),createdAt:at,expiresAt}),{mode:0o600});
   return{directory,close,snapshot:()=>({backend:ready.backend,pid:ready.pid,protocolCalls,actualTestnetConnected:false})};
  }catch(e){await close();throw e;}
 }

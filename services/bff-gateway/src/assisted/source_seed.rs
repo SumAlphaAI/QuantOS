@@ -90,5 +90,35 @@ pub(super) fn current(
         service.register_subject(s.clone())?;
         subjects.insert(s.id, s);
     }
+    // Unreviewed immutable ETH Proposal: no legacy RiskDecision/Subject is
+    // fabricated to bypass the original concentration policy. Only a subsequent
+    // exact native snapshot evaluation can make it independently approvable.
+    let mut payload = crate::execution::reference_seed::release_fixture::payload();
+    payload["strategy"]["parameters"]["universe"] = json!(["BTCUSDT", "ETHUSDT"]);
+    let eth = crate::execution::reference_seed::Fixture::with_payload_at(600, at, &payload);
+    f.release = eth.release;
+    f.intent.release_id = f.release.release_id;
+    f.intent.command_key = "owned-current-unreviewed-eth".into();
+    f.intent.symbol = "ETHUSDT".into();
+    f.intent.quantity = "1".into();
+    f.venue.symbol = "ETHUSDT".into();
+    let mut record = f.record();
+    record.output["notional"]["value"] = json!("1000");
+    record.expires_at = record.expires_at.min(expiry);
+    record.output["expires_at"] = json!(record.expires_at);
+    let bytes = canonical_json_bytes(&record.output).map_err(|_| Error::Invalid)?;
+    record.artifact_manifest.content_hash = ContentHash::sha256_bytes(&bytes);
+    record.artifact_manifest.size_bytes = bytes.len() as u64;
+    source.register_candidate(
+        f.auth.clone(),
+        repository.upsert_proposal(record).clone(),
+        f.intent.clone(),
+        CurrentRiskSources {
+            snapshot: f.input.clone(),
+            financials: f.financials.clone(),
+            venue: f.venue.clone(),
+            release: f.release.clone(),
+        },
+    )?;
     Ok((source, subjects))
 }

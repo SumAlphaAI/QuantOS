@@ -877,7 +877,14 @@ impl AssistedApprovalService {
         session: &str,
         id: ProposalId,
         clock: impl ClockInput,
-        action: impl FnOnce(&Subject, &Receipt, DateTime<Utc>, DateTime<Utc>) -> Result<T, Error>,
+        action: impl FnOnce(
+            &Subject,
+            &Receipt,
+            DateTime<Utc>,
+            DateTime<Utc>,
+            Option<quantos_risk::guard::NativeRiskContext>,
+            Option<&crate::assisted_activation::RuntimeActivation>,
+        ) -> Result<T, Error>,
     ) -> Result<T, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let now = clock.sample();
@@ -907,17 +914,24 @@ impl AssistedApprovalService {
                     .map(|a| a.valid_until)
                     .unwrap_or(r.receipt.expires_at),
             );
-        let run = |current| {
+        let run = |current, native| {
             s.activation_gate(current)?;
             if current >= deadline {
                 return Err(Error::Expired);
             }
-            action(&r.subject, &r.receipt, deadline, current)
+            action(
+                &r.subject,
+                &r.receipt,
+                deadline,
+                current,
+                native,
+                s.activation.as_ref(),
+            )
         };
         if let Some(source) = &s.current_sources {
-            source.with_current_at(&r.subject, &|| clock.sample(), run)?
+            source.with_current_context_at(&r.subject, &|| clock.sample(), run)?
         } else {
-            run(now)
+            run(now, None)
         }
     }
 

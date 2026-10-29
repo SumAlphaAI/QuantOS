@@ -9,14 +9,6 @@ impl OwnedHost {
         session: &str,
         at: DateTime<Utc>,
     ) -> Result<Value, Error> {
-        let ledger_view = self.sync_ledger(session, at)?;
-        let ledger = self.ledger.as_ref().ok_or(Error::Unavailable)?;
-        self.valuation
-            .validate(ledger)
-            .map_err(|_| Error::Unavailable)?;
-        let generation = self.sources.kill_status(ledger.scope().account_id)?["revision"]
-            .as_u64()
-            .ok_or(Error::Unavailable)?;
         let input = self
             .valuation_input
             .as_ref()
@@ -27,6 +19,22 @@ impl OwnedHost {
             .ok()
             .flatten()
             .flatten();
+        self.sync_valuation_input(session, at, input)
+    }
+    pub(super) fn sync_valuation_input(
+        &mut self,
+        session: &str,
+        at: DateTime<Utc>,
+        input: Option<Value>,
+    ) -> Result<Value, Error> {
+        let ledger_view = self.sync_ledger(session, at)?;
+        let ledger = self.ledger.as_ref().ok_or(Error::Unavailable)?;
+        self.valuation
+            .validate(ledger)
+            .map_err(|_| Error::Unavailable)?;
+        let generation = self.sources.kill_status(ledger.scope().account_id)?["revision"]
+            .as_u64()
+            .ok_or(Error::Unavailable)?;
         let mut view = json!({"schemaVersion":"quantos-native-valuation-view.v1","tenantId":ledger.scope().tenant_id,"workspaceId":ledger.scope().workspace_id,"accountId":ledger.scope().account_id,"mode":"assisted_live","checkedAt":at,"expiresAt":at+Duration::seconds(8),"ledgerHash":ledger_view["ledgerHash"],"ledgerAnchor":ledger.anchor(),"killGeneration":generation.to_string(),"quarantinedCommandCount":ledger_view["quarantinedCommandCount"],"riskInputReady":false,"reason":"SOURCE_UNAVAILABLE","sourceTrust":TRUST,"executionAuthority":false});
         if ledger_view["consumerReady"] != true {
             view["reason"] = json!("UNKNOWN_OR_QUARANTINED_OBLIGATIONS");

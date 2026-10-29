@@ -1,0 +1,39 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/current-risk-execution.spec.ts:12:5 › current native ETH approval to explicit P11 execution and GET-only lost response recovery (16.9s)
+  ✓  2 [chromium] › tests/e2e/current-risk-review-off.spec.ts:3:5 › server default-off exposes no current-risk mutation and denies its catalog (4.2s)
+  ✓  3 [chromium] › tests/e2e/current-risk-review.spec.ts:7:5 › explicit current native risk action displays signed Deny and recovers only the original request (10.8s)
+  ✓  4 [chromium] › tests/e2e/current-risk-review.spec.ts:24:5 › small screen risk review is read-only and current authority loss clears facts (4.5s)
+
+
+  1) [chromium] › tests/e2e/current-risk-execution.spec.ts:12:5 › current native ETH approval to explicit P11 execution and GET-only lost response recovery 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('assisted-approval-status')
+    Expected substring: "pending"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('assisted-approval-status')
+
+
+      21 |  await expect(panel.getByTestId('native-risk-result')).toContainText('ApprovalRequired');
+      22 |  await panel.getByRole('button',{name:'为新 Subject 发起独立审批',exact:true}).click();
+    > 23 |  await expect(page.getByTestId('assisted-approval-status')).toContainText('pending');
+         |                                                             ^
+      24 |  const requests=await control('/v1/assisted-testnet/requests',undefined,undefined,{session:'session-current'});
+      25 |  const current=(requests.body.items as {subject:{symbol:string};request:{requestId:string;revision:number}}[]).find(r=>r.subject.symbol==='ETHUSDT')!;expect(current.request.revision).toBe(0);await approve(current.request.requestId);
+      26 |  await page.goto('/orders');await authorized(page);await page.getByRole('button',{name:new RegExp(current.request.requestId)}).click();await page.getByLabel(ack,{exact:true}).check();
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/current-risk-execution.spec.ts:23:61
+
+    Error Context: docs/audit/evidence/core-l04-current-execution-local-20261029/preflight/browser-02/cases/current-risk-execution-cur-ffa09-only-lost-response-recovery-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-l04-current-execution-local-20261029/preflight/browser-02/cases/current-risk-execution-cur-ffa09-only-lost-response-recovery-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/current-risk-execution.spec.ts:12:5 › current native ETH approval to explicit P11 execution and GET-only lost response recovery 
+  3 passed (37.9s)

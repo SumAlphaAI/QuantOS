@@ -38,6 +38,7 @@ struct Entry {
 }
 #[derive(Default)]
 struct State {
+    candidates: BTreeMap<ProposalId, Candidate>,
     entries: BTreeMap<ProposalId, Entry>,
     revoked: BTreeSet<ProposalId>,
     native_reviews: BTreeMap<quantos_core::DecisionId, NativeReview>,
@@ -241,6 +242,14 @@ impl CurrentSubjectSource {
         clock: impl ClockInput,
         action: impl FnOnce(DateTime<Utc>) -> T,
     ) -> Result<T, Error> {
+        self.with_current_context_at(subject, clock, |at, _| action(at))
+    }
+    pub(crate) fn with_current_context_at<T>(
+        &self,
+        subject: &Subject,
+        clock: impl ClockInput,
+        action: impl FnOnce(DateTime<Utc>, Option<NativeRiskContext>) -> T,
+    ) -> Result<T, Error> {
         let state = self.state.lock().map_err(|_| Error::Unavailable)?;
         let e = state.entries.get(&subject.id).ok_or(Error::Invalid)?;
         if state.revoked.contains(&subject.id) || &e.subject != subject {
@@ -250,7 +259,7 @@ impl CurrentSubjectSource {
             if now >= subject.expires_at {
                 Err(Error::Expired)
             } else {
-                Ok(action(now))
+                Ok(action(now, e.native.clone()))
             }
         })?
     }
@@ -337,7 +346,7 @@ impl CurrentSubjectSource {
                     "native":e.native,"snapshot":e.current.snapshot,"financials":e.current.financials,"venue":e.current.venue,"releaseHash":e.current.release.content_hash}))
             }).collect::<Result<Vec<_>,_>>()?;
             s.immutable_checkpoint = Some(
-                json!({"entries":entries,"releases":releases,"nativeReviews":s.native_reviews}),
+                json!({"entries":entries,"candidates":candidate_checkpoint(&s.candidates, &mut releases, &self.storage_key.0)?,"releases":releases,"nativeReviews":s.native_reviews}),
             );
         }
         // Only immutable, already verified bytes are cached. Every checkpoint
@@ -371,7 +380,7 @@ impl CurrentSubjectSource {
             #[serde(rename = "releaseHash")]
             release_hash: ContentHash,
         }
-        let immutable = json!({"entries":v["entries"],"releases":v["releases"],"nativeReviews":v.get("nativeReviews").cloned().unwrap_or(json!({}))});
+        let immutable = json!({"entries":v["entries"],"candidates":v.get("candidates").cloned().unwrap_or(json!({})),"releases":v["releases"],"nativeReviews":v.get("nativeReviews").cloned().unwrap_or(json!({}))});
         let revoked: BTreeSet<ProposalId> =
             serde_json::from_value(v["revoked"].clone()).map_err(invalid)?;
         {
@@ -406,6 +415,7 @@ impl CurrentSubjectSource {
                 Ok((key, r))
             })
             .collect::<Result<BTreeMap<_, _>, Error>>()?;
+        let candidates = restore_candidates(v.get("candidates").unwrap_or(&json!({})), &releases)?;
         for r in rows {
             let e = Entry {
                 subject: r.subject,
@@ -454,26 +464,28 @@ impl CurrentSubjectSource {
             {
                 return Err(Error::Invalid);
             }
-            let previous = entries.get(&r.previous_subject_id).ok_or(Error::Invalid)?;
+            let (record, current) = if let Some(previous) = entries.get(&r.previous_subject_id) {
+                (&previous.record, &previous.current)
+            } else {
+                let previous = candidates
+                    .get(&r.previous_subject_id)
+                    .ok_or(Error::Invalid)?;
+                (&previous.record, &previous.current)
+            };
             if id != &r.decision.decision_id
-                || r.proposal_hash != digest(&previous.record)?
-                || r.proposal_id != previous.record.proposal_id
+                || r.proposal_hash != digest(record)?
+                || r.proposal_id != record.proposal_id
                 || r.decision.proposal_hash.as_ref() != Some(&r.proposal_hash)
             {
                 return Err(Error::Invalid);
             }
             self.guard
-                .verify_native_binding(
-                    &r.decision,
-                    &r.context,
-                    &previous.current.venue,
-                    &previous.current.release,
-                )
+                .verify_native_binding(&r.decision, &r.context, &current.venue, &current.release)
                 .map_err(invalid)?;
             if let Some(subject) = &r.subject {
                 let next = entries.get(&subject.id).ok_or(Error::Invalid)?;
                 if &next.subject != subject
-                    || next.record != previous.record
+                    || &next.record != record
                     || next.decision != r.decision
                     || next.native.as_ref() != Some(&r.context)
                 {
@@ -491,7 +503,17 @@ impl CurrentSubjectSource {
         self.guard
             .restore_assisted_checkpoint(&v["risk"])
             .map_err(invalid)?;
+        if s.immutable_checkpoint.is_some() {
+            for (id, old) in &s.candidates {
+                if candidate_digest(candidates.get(id).ok_or(Error::Conflict)?)?
+                    != candidate_digest(old)?
+                {
+                    return Err(Error::Conflict);
+                }
+            }
+        }
         s.entries = entries;
+        s.candidates = candidates;
         s.native_reviews = reviews;
         s.immutable_checkpoint = Some(immutable);
         s.revoked.extend(revoked);
@@ -501,3 +523,6 @@ impl CurrentSubjectSource {
 
 mod native_refresh;
 pub use native_refresh::NativeReview;
+
+mod candidates;
+use candidates::*;

@@ -6,7 +6,7 @@ use quantos_portfolio::{
 #[path = "../../../quantos-portfolio/tests/support/native_fixture.rs"]
 #[allow(dead_code)]
 mod facts;
-fn context(f: &F, diverse: bool, generation: u64) -> NativeRiskContext {
+pub(super) fn context(f: &F, diverse: bool, generation: u64) -> NativeRiskContext {
     let scope = LedgerScope {
         tenant_id: f.f.auth.tenant_id,
         workspace_id: f.f.auth.workspace_id,
