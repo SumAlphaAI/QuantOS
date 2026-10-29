@@ -1,5 +1,5 @@
 {
-  "version": "1.20.0",
+  "version": "1.21.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -5709,7 +5709,65 @@
         "objectRef",
         "correlationId"
       ],
+      "if": {
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "const": "assisted_live"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "sourceEvidence",
+          "readOnly",
+          "auditRef"
+        ],
+        "properties": {
+          "readOnly": {
+            "const": true
+          },
+          "status": {
+            "const": "unacked"
+          },
+          "active": {
+            "const": true
+          },
+          "resolved": {
+            "const": false
+          },
+          "ackActor": {
+            "type": "null"
+          },
+          "ackAt": {
+            "type": "null"
+          },
+          "objectRef": {
+            "const": "/orders"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "objectRef": {
+            "const": "/operations/health"
+          }
+        },
+        "not": {
+          "required": [
+            "sourceEvidence"
+          ]
+        }
+      },
       "properties": {
+        "readOnly": {
+          "type": "boolean"
+        },
+        "sourceEvidence": {
+          "$ref": "#/components/schemas/AssistedReconciliationAlertEvidence"
+        },
         "id": {
           "$ref": "#/components/schemas/UUID"
         },
@@ -5750,7 +5808,8 @@
           "type": "string",
           "enum": [
             "paper",
-            "shadow"
+            "shadow",
+            "assisted_live"
           ]
         },
         "status": {
@@ -5799,7 +5858,8 @@
         "objectRef": {
           "type": "string",
           "enum": [
-            "/operations/health"
+            "/operations/health",
+            "/orders"
           ]
         },
         "auditRef": {

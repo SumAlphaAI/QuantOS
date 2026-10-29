@@ -10,6 +10,11 @@ export function version(v:string){if(!/^(0|[1-9][0-9]*)$/.test(v)||BigInt(v)>184
 export function fact(raw:unknown,c:RouteContext,now:number):Alert{
  const a=bffZodSchemas.OpsAlert.parse(raw);
  if(a.id!==a.alertId||a.accountId!==c.accountId||a.mode!==c.mode||a.active===a.resolved||!a.rule.trim())throw Error('Alert scope mismatch');
+ if(c.mode==='assisted_live'){
+  const e=a.sourceEvidence;
+  if(!a.readOnly||!e||e.status!=='OPEN'||e.executionAuthority||!a.active||a.resolved||a.status!=='unacked'||a.objectVersion!=='1'||a.sourceRef!==e.evidenceId||a.rule!==e.finding.kind||e.scope.tenantId!==c.tenantId||e.scope.workspaceId!==c.workspaceId||e.scope.accountId!==c.accountId||a.occurredAt!==e.observedAt||a.asOf!==e.observedAt||a.objectRef!=='/orders'||!a.auditRef||e.binding&&a.correlationId!==e.binding.requestId||e.binding&&e.finding.commandId&&e.finding.commandId!==e.binding.commandId)throw Error('Current evidence binding mismatch');
+ }
+ if(c.mode!=='assisted_live'&&(a.sourceEvidence||a.readOnly))throw Error('Foreign current evidence');
  version(a.objectVersion);version(a.sourceVersion);
  if(Date.parse(a.occurredAt)>Date.parse(a.asOf)||Date.parse(a.asOf)>now||a.ackAt&&Date.parse(a.ackAt)>now)throw Error('Invalid alert time');
  if(a.status==='acked'?(!a.ackActor||!a.ackAt):(a.ackActor!==null||a.ackAt!==null))throw Error('Invalid acknowledgement');

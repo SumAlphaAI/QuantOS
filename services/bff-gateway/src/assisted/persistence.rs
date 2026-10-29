@@ -6,6 +6,10 @@ use quantos_execution::durable::{DurableStore, LockedStore};
 impl OwnedHost {
     pub(crate) fn has_correlation(&self, id: &str) -> bool {
         self.requests.keys().any(|r| r.to_string() == id)
+            || self
+                .alert_inbox
+                .as_ref()
+                .is_some_and(|i| i.rows().iter().any(|r| r["correlationId"] == id))
     }
     pub(crate) fn restricted(c: RestrictedReference) -> Result<Self, Error> {
         if !c.directory.is_absolute()
@@ -28,6 +32,7 @@ impl OwnedHost {
         h.native =
             h.native
                 .with_durable(DurableStore::new(&c.directory, "commands", c.keys[3])?)?;
+        h.alert_store = Some(DurableStore::new(&c.directory, "alerts", c.keys[3])?);
         h.ledger_store = Some(DurableStore::new(&c.directory, "portfolio", c.keys[3])?);
         h.reconciliation_store = Some(DurableStore::new(
             &c.directory,
@@ -112,10 +117,11 @@ impl OwnedHost {
             }
             all.extend(chain);
         }
+        self.alert_audit(&mut all)?;
         Ok(all)
     }
 }
-fn event_id(text: &str) -> Uuid {
+pub(super) fn event_id(text: &str) -> Uuid {
     let hash = ContentHash::sha256_bytes(text.as_bytes()).to_string();
     let mut bytes = *Uuid::parse_str(&hash[7..39])
         .expect("digest UUID")
@@ -156,6 +162,11 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         } else {
             Default::default()
         };
+        h.alert_anchor = v
+            .get("alertAnchor")
+            .map(decode)
+            .transpose()?
+            .unwrap_or_default();
         state.audits = decode(&v["c10Access"])?;
         h.open_keys = decode::<Vec<((String, String), ProposalId)>>(&v["openKeys"])?
             .into_iter()
@@ -173,6 +184,11 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         state.consumed_step_proofs = decode(&v["consumedStepProofs"])?;
         state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(v);
     }
+    state
+        .assisted
+        .as_mut()
+        .ok_or(Error::Unavailable)?
+        .load_alerts()?;
     if !state.session_active {
         state
             .assisted
@@ -188,7 +204,7 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
     if !state.session_active {
         h.service.revoke_session("session-current")?;
     }
-    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
     tx.write(&value)?;
     state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(value);
     Ok(())
@@ -199,6 +215,11 @@ pub(crate) fn refresh_common(state: &mut ProviderData) -> Result<(), Error> {
     let Some(_) = state.assisted.as_ref() else {
         return Ok(());
     };
+    state
+        .assisted
+        .as_mut()
+        .ok_or(Error::Unavailable)?
+        .load_alerts()?;
     let facts = state
         .assisted
         .as_ref()

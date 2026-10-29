@@ -1,0 +1,49 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m tests/contract/core-x06-alerts.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/core-x06-alerts.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 27[2mms[22m[39m
+   [32m✓[39m consumes same-source OPEN alert and C10 reference through generated client without dispatch[32m 17[2mms[22m[39m
+   [32m✓[39m refuses scope mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses source mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses rule mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses request mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses command mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses capture time mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses authority mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m refuses closed mismatch[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses mutations, subscriptions and stream even with operator capability and emits no action request[39m[32m 4[2mms[22m[39m
+   [32m✓[39m does not publish a chain missing the exact consumption event[32m 1[2mms[22m[39m
+   [32m✓[39m scope change clears all private evidence before any new alert read[32m 1[2mms[22m[39m
+   [32m✓[39m non-JSON authority refusal clears current evidence[32m 1[2mms[22m[39m
+   [32m✓[39m source recovery read cannot silently resolve the prior alert[32m 1[2mms[22m[39m
+   [32m✓[39m Assisted source offers audit and orders without valuation or health authority[32m 0[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/ui-p23.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m39 passed[39m[22m[90m (40)[39m
+[2m   Start at [22m 12:22:03
+[2m   Duration [22m 382ms[2m (transform 381ms, setup 0ms, import 641ms, tests 82ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x06-alerts.test.ts[2m > [22mrefuses mutations, subscriptions and stream even with operator capability and emits no action request
+[31m[1mAssertionError[22m: expected Error: Alerts could not be verified { …(3) } to match object { status: 403, …(1) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "code": "READ_ONLY_PROFILE",[39m
+[31m+ AlertsError {[39m
+[31m+   "code": "FORBIDDEN",[39m
+[2m    "status": 403,[22m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/core-x06-alerts.test.ts:[2m12:468[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

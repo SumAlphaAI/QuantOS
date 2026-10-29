@@ -1,0 +1,36 @@
+
+running 3 tests
+test core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills ... FAILED
+test core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit ... FAILED
+test core_l04_logout_survives_process_recovery_and_denies_c10_and_native ... FAILED
+
+failures:
+
+---- core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills stdout ----
+
+thread 'core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills' (1047812) panicked at services/bff-gateway/tests/core_l04.rs:167:64:
+called `Result::unwrap()` on an `Err` value: NotPresent
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit stdout ----
+
+thread 'core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit' (1047810) panicked at services/bff-gateway/tests/core_l04.rs:167:64:
+called `Result::unwrap()` on an `Err` value: NotPresent
+
+---- core_l04_logout_survives_process_recovery_and_denies_c10_and_native stdout ----
+
+thread 'core_l04_logout_survives_process_recovery_and_denies_c10_and_native' (1047811) panicked at services/bff-gateway/tests/core_l04.rs:167:64:
+called `Result::unwrap()` on an `Err` value: NotPresent
+
+
+failures:
+    core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit
+    core_l04_logout_survives_process_recovery_and_denies_c10_and_native
+    core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.95s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

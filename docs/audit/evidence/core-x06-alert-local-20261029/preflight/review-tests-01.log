@@ -1,0 +1,91 @@
+✖ same-source validator accepts bounded model fixture without claiming current execution (43.502417ms)
+✔ validator refuses auto-close (0.592125ms)
+✔ validator refuses ack (0.399417ms)
+✔ validator refuses wrong mode (0.412125ms)
+✔ validator refuses source hash (0.497792ms)
+✔ validator refuses report hash (0.460292ms)
+✔ validator refuses ledger binding (0.360458ms)
+✔ validator refuses books binding (0.335375ms)
+✔ validator refuses missing audit (3.24925ms)
+✔ validator refuses event hash (0.558833ms)
+✔ validator refuses missing obligation (0.664167ms)
+✔ validator refuses invented posting (0.546541ms)
+✔ validator refuses duplicate resend (0.493958ms)
+✔ validator refuses restart changed (0.55025ms)
+✔ validator refuses checkpoint edit (0.290666ms)
+✔ validator refuses checkpoint drop (0.248292ms)
+✔ validator refuses false current SHA (0.140625ms)
+✔ validator refuses source disappeared (0.136708ms)
+✔ validator refuses duplicate alert (0.537875ms)
+✔ validator refuses scope swap (0.320083ms)
+✔ validator refuses authority forged (0.231167ms)
+✔ retains exact inherited gaps/obligations and denied admission (0.07975ms)
+✔ refuses boundary promotion gate (0.089959ms)
+✔ refuses boundary promotion stageGate (0.066958ms)
+✔ refuses boundary promotion formalAccepted (0.053625ms)
+✔ refuses boundary promotion runtimeAdmission (0.053292ms)
+✔ refuses boundary promotion fullBooksReady (0.052ms)
+✔ refuses boundary promotion delivery (0.049125ms)
+✔ refuses boundary promotion productionCredentialsUsed (0.049959ms)
+✔ closed inherited obligation and synthetic approval refuse (0.315625ms)
+✔ unsafe evidence paths refuse (0.38475ms)
+✔ command receipts require named actual execution, correct exit and unchanged log (4.269709ms)
+✔ required current source, named model/consumer and refusal checks cannot be silently zeroed (0.046875ms)
+✔ FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups (30.45225ms)
+✔ next original I2 UI-507 can develop without claiming G1 readiness (17.872125ms)
+✔ retained G1-DEP-01 never becomes a development prerequisite (17.925292ms)
+✔ retained G1-CONF-01 never becomes a development prerequisite (15.997208ms)
+✔ retained G1-ENV-01 never becomes a development prerequisite (15.642167ms)
+✔ retained G1-TARGET-01 never becomes a development prerequisite (14.832584ms)
+✔ unready dependency NOT_ASSESSED does not prohibit development or grant integration (15.11ms)
+✔ unready dependency BLOCKED does not prohibit development or grant integration (15.676959ms)
+✔ known affected functional defect blocks its task even when all dependencies ready (14.088708ms)
+✔ unknown defect status fails closed instead of claiming verification (14.367958ms)
+✔ caller cannot omit actual affected scope (14.175042ms)
+✔ accounting cannot add independent auxiliary prerequisites (14.106833ms)
+✔ unknown finding kind rejects (14.125584ms)
+✔ finding evidence must exist (13.734375ms)
+✔ invented task IDs cannot replace original plan sequence (14.390375ms)
+✔ reject policy that restores development prerequisite dependencyStageReadyRequiredToStart (13.967042ms)
+✔ reject policy that restores development prerequisite historicalConfirmationRequiredToStart (14.707416ms)
+✔ reject policy that restores development prerequisite auxiliaryActionsArePrerequisites (13.641ms)
+✔ reject weakening knownAffectedFunctionalDefectsBlock (14.050084ms)
+✔ reject weakening stageReadinessUnchanged (14.199791ms)
+✔ dependency READY alone cannot grant milestone READY (14.12725ms)
+✔ milestone READY alone cannot bypass dependency stage (14.043625ms)
+✔ release remains denied even if every stage is marked ready (13.503208ms)
+✔ known affected functional defect also refuses integration even with historical READY flags (13.917917ms)
+ℹ tests 57
+ℹ suites 0
+ℹ pass 56
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 560.302667
+
+✖ failing tests:
+
+test at scripts/core-x06-current-review.test.mjs:13:1
+✖ same-source validator accepts bounded model fixture without claiming current execution (43.502417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'schema: /nextCursor must be string'
+  + ]
+  - []
+  
+      at validateDelivery (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x06-current-review.mjs:60:84)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x06-current-review.test.mjs:13:112)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'schema: /nextCursor must be string' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -162,6 +162,7 @@ pub(crate) async fn guard(
         && path.starts_with("/v1/")
         && !path.starts_with("/v1/assisted-testnet/")
         && !path.starts_with("/v1/auth/")
+        && !(path == "/v1/alerts" || path.starts_with("/v1/alerts/"))
         && !(request.method() == axum::http::Method::GET
             && (path == "/v1/audit/events" || path.starts_with("/v1/audit/evidence-chains/")))
         && !matches!(
@@ -170,6 +171,16 @@ pub(crate) async fn guard(
         )
     {
         return crate::research::Fault(axum::http::StatusCode::FORBIDDEN, "CONTEXT_MODE_REQUIRED")
+            .response();
+    }
+    if assisted_profile
+        && (path == "/v1/alerts" || path.starts_with("/v1/alerts/"))
+        && request.method() != axum::http::Method::GET
+    {
+        if let Err(e) = crate::authenticate(request.headers(), &data).await {
+            return e;
+        }
+        return crate::research::Fault(axum::http::StatusCode::FORBIDDEN, "READ_ONLY_PROFILE")
             .response();
     }
     if request.uri().path().starts_with("/v1/assisted-testnet/")

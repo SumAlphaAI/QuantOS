@@ -1,0 +1,41 @@
+import {test,expect} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import {writeFile} from 'node:fs/promises';
+import {installReferenceHooks,useSession,authorized,control,invalidateOwnedObserver,zoneSnapshot,networkRows} from './fixtures/frontend-g8-reference';
+import type {BffComponents} from '@sumalpha/api-client';
+installReferenceHooks('assisted-mtls-local');
+test('X06 consumes current X05 OPEN evidence into public P23 and common C10 without closure or resend',async({page},info)=>{
+ useSession('session-current');
+ const subjects=await control('/v1/assisted-testnet/subjects',undefined,undefined,{session:'session-current'});
+ const subject=(subjects.body.items as {subjectId:string}[])[0];
+ const opened=await control('/v1/assisted-testnet/requests',{subjectId:subject.subjectId},undefined,{method:'POST',session:'session-current'});expect(opened.status).toBe(200);
+ const id=(opened.body.request as {requestId:string}).requestId,path='/v1/assisted-testnet/requests/'+id;
+ for(const [slot,session]of (['session-approver','session-owner'] as const).entries()){
+  const c=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{method:'POST',session});expect(c.status).toBe(200);
+  const g=await control('/v1/auth/reauth',{challengeRef:c.body.challengeRef},undefined,{method:'POST',session});expect(g.status).toBe(200);
+  const a=await control(path+'/approvals',{expectedRevision:slot,mfaChallengeRef:c.body.challengeRef,reauthTokenRef:g.body.reauthTokenRef},undefined,{method:'POST',session});expect(a.status).toBe(200);
+ }
+ const command=await control(path+'/commands',{expectedRevision:2},undefined,{method:'POST',session:'session-current'});expect(command.status).toBe(200);
+ const originalChain=await control('/v1/audit/evidence-chains/'+id,undefined,undefined,{session:'session-current'});expect(originalChain.body.items).toHaveLength(5);
+ const restore=await invalidateOwnedObserver();
+ const delivered=await control('/v1/alerts',undefined,undefined,{session:'session-current'});expect(delivered.status).toBe(200);
+ const row=(delivered.body.items as BffComponents['schemas']['OpsAlert'][])[0];expect(row.sourceEvidence?.status).toBe('OPEN');expect(row.readOnly).toBe(true);expect(row.resolved).toBe(false);
+ await restore();const source=await control('/v1/assisted-testnet/reconciliation',undefined,undefined,{session:'session-current'});expect(source.body.comparisonStatus).toBe('MATCHED_OBSERVATIONS');expect(source.body.openAlertEvidenceCount).toBe(1);
+ await page.goto('/alerts/'+row.id);await authorized(page);
+ await expect(page.getByTestId('current-alert-source')).toContainText(row.sourceRef);
+ await expect(page.getByTestId('current-alert-source')).toContainText('UNKNOWN 义务保留');
+ await expect(page.getByRole('button',{name:'准备标记已读',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'读取审计证据链',exact:true}).click();
+ await expect(page.locator('.p23-audit')).toContainText('assisted.x05_alert_consumed');
+ const axe=await new AxeBuilder({page}).analyze();expect(axe.violations).toEqual([]);
+ await writeFile(info.outputPath('core-x06-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,violations:axe.violations,incomplete:axe.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));
+ await page.screenshot({path:info.outputPath('core-x06-p23.png'),fullPage:true});
+ await page.getByRole('link',{name:'查看审计',exact:true}).click();await authorized(page);
+ await expect(page.getByText('assisted.x05_alert_consumed').first()).toBeVisible();
+ await page.screenshot({path:info.outputPath('core-x06-c10.png'),fullPage:true});
+ const consumed=await control('/v1/audit/evidence-chains/'+row.correlationId,undefined,undefined,{session:'session-current'});expect((consumed.body.items as {eventId:string}[]).some(e=>e.eventId===row.auditRef)).toBe(true);
+ const recovered=await control('/v1/alerts/'+row.id,undefined,undefined,{session:'session-current'});expect(recovered.body).toEqual(row);
+ expect(zoneSnapshot()?.protocolCalls).toBe(1);
+ expect(networkRows().filter(r=>!r.control&&r.method!=='GET'&&(r.path.startsWith('/v1/alerts')||r.path.endsWith('/commands')))).toEqual([]);
+ await writeFile(info.outputPath('core-x06-delivery.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,delivered,source,consumed,recovered,protocolCalls:1,noBrowserMutations:true,readOnly:true,actualTestnet:false},null,2));
+});

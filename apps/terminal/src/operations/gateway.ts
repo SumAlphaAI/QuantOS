@@ -9,7 +9,7 @@ export function governanceFact(raw:unknown,status:number,kind:BffComponents["sch
 }
 export function alertFact(raw:unknown,accountId:string){
  const row=bffZodSchemas.OpsAlert.parse(raw);
- if(row.accountId!==accountId||row.active===row.resolved)throw Error("Alert source mismatch");
+ if(!['paper','shadow'].includes(row.mode)||row.accountId!==accountId||row.active===row.resolved)throw Error("Alert source mismatch");
  if(row.status==="acked"&&(!row.ackActor||!row.ackAt))throw Error("Acknowledgement evidence missing");
  if(row.status==="unacked"&&(row.ackActor!==null||row.ackAt!==null))throw Error("Unacknowledged alert carries acknowledgement");
  return structuredClone(row);

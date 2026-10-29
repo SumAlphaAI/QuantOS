@@ -3459,6 +3459,8 @@ export interface components {
             }[];
         };
         OpsAlert: {
+            readOnly?: boolean;
+            sourceEvidence?: components["schemas"]["AssistedReconciliationAlertEvidence"];
             id: components["schemas"]["UUID"];
             alertId: components["schemas"]["UUID"];
             sourceRef: string;
@@ -3469,7 +3471,7 @@ export interface components {
             domain: "risk" | "order" | "market" | "reconciliation" | "report" | "system";
             accountId: components["schemas"]["UUID"];
             /** @enum {string} */
-            mode: "paper" | "shadow";
+            mode: "paper" | "shadow" | "assisted_live";
             /** @enum {string} */
             status: "unacked" | "acked";
             active: boolean;
@@ -3485,7 +3487,7 @@ export interface components {
             /** Format: date-time */
             ackAt: string | null;
             /** @enum {string} */
-            objectRef: "/operations/health";
+            objectRef: "/operations/health" | "/orders";
             auditRef?: components["schemas"]["UUID"];
             correlationId: components["schemas"]["UUID"];
         };

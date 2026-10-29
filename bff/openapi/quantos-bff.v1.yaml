@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.20.0
+  version: 1.21.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -15602,7 +15602,39 @@ components:
         - ackAt
         - objectRef
         - correlationId
+      if:
+        required: [mode]
+        properties:
+          mode:
+            const: assisted_live
+      then:
+        required: [sourceEvidence, readOnly, auditRef]
+        properties:
+          readOnly:
+            const: true
+          status:
+            const: unacked
+          active:
+            const: true
+          resolved:
+            const: false
+          ackActor:
+            type: "null"
+          ackAt:
+            type: "null"
+          objectRef:
+            const: /orders
+      else:
+        properties:
+          objectRef:
+            const: /operations/health
+        not:
+          required: [sourceEvidence]
       properties:
+        readOnly:
+          type: boolean
+        sourceEvidence:
+          $ref: "#/components/schemas/AssistedReconciliationAlertEvidence"
         id: &a45
           $ref: "#/components/schemas/UUID"
         alertId: *a45
@@ -15633,6 +15665,7 @@ components:
           enum:
             - paper
             - shadow
+            - assisted_live
         status:
           type: string
           enum:
@@ -15663,6 +15696,7 @@ components:
           type: string
           enum:
             - /operations/health
+            - /orders
         auditRef: *a45
         correlationId: *a45
     OpsIncident:

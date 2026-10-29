@@ -773,6 +773,10 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
                 .as_array_mut()
                 .unwrap()
                 .push(json!("execution.assisted_testnet"));
+            payload["capabilities"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!("alerts.read"));
         }
     }
     if state.reference_shadow {

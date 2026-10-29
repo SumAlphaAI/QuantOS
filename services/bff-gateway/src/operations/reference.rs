@@ -201,6 +201,16 @@ pub(super) async fn handle(
     if let Err(r) = crate::authenticate(&h, &data).await {
         return r;
     }
+    let assisted = data.lock().await.assisted.is_some();
+    if assisted {
+        let sid = crate::cookies(&h)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or("")
+            .to_owned();
+        return crate::assisted::alerts::handle(data, &sid, m, uri.path(), q, bytes.is_empty())
+            .await;
+    }
     if m != Method::GET
         && let Err(r) = crate::execution::reference_step_guard(&h, &data).await
     {

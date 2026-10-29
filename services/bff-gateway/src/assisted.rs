@@ -116,6 +116,9 @@ pub(crate) struct OwnedHost {
     ledger: Option<quantos_portfolio::native_ledger::NativeLedger>,
     ledger_store: Option<quantos_execution::durable::DurableStore>,
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
+    alert_inbox: Option<alerts::Inbox>,
+    alert_store: Option<quantos_execution::durable::DurableStore>,
+    alert_anchor: quantos_portfolio::native_ledger::Anchor,
     observer: Option<reconciliation::ObserverReader>,
     reconciliation: Option<quantos_reconcile::current::CurrentReconciliation>,
     reconciliation_store: Option<quantos_execution::durable::DurableStore>,
@@ -237,6 +240,9 @@ impl OwnedHost {
             ledger: None,
             ledger_store: None,
             ledger_anchor: Default::default(),
+            alert_inbox: None,
+            alert_store: None,
+            alert_anchor: Default::default(),
             observer: None,
             reconciliation: None,
             reconciliation_store: None,
@@ -530,6 +536,7 @@ pub(crate) mod persistence;
 #[cfg(test)]
 mod tests;
 
+pub(crate) mod alerts;
 mod ledger;
 mod reconciliation;
 mod source_seed;

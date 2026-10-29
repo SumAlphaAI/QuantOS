@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.20.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.21.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1253,6 +1253,8 @@ export const OpsHealthSchema = z.object({
 }).strict();
 
 export const OpsAlertSchema = z.object({
+  "readOnly": z.boolean().optional(),
+  "sourceEvidence": z.lazy(() => AssistedReconciliationAlertEvidenceSchema).optional(),
   "id": z.lazy(() => UUIDSchema),
   "alertId": z.lazy(() => UUIDSchema),
   "sourceRef": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
@@ -1260,7 +1262,7 @@ export const OpsAlertSchema = z.object({
   "severity": z.enum(["critical","warning","info"]),
   "domain": z.enum(["risk","order","market","reconciliation","report","system"]),
   "accountId": z.lazy(() => UUIDSchema),
-  "mode": z.enum(["paper","shadow"]),
+  "mode": z.enum(["paper","shadow","assisted_live"]),
   "status": z.enum(["unacked","acked"]),
   "active": z.boolean(),
   "resolved": z.boolean(),
@@ -1270,7 +1272,7 @@ export const OpsAlertSchema = z.object({
   "asOf": z.string().datetime({ offset: true }),
   "ackActor": z.union([z.string().uuid(), z.null()]),
   "ackAt": z.union([z.string().datetime({ offset: true }), z.null()]),
-  "objectRef": z.literal("/operations/health"),
+  "objectRef": z.enum(["/operations/health","/orders"]),
   "auditRef": z.lazy(() => UUIDSchema).optional(),
   "correlationId": z.lazy(() => UUIDSchema),
 }).strict();

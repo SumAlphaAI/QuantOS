@@ -399,6 +399,106 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         get(&url, "/v1/assisted-testnet/reconciliation"),
         unavailable
     );
+    let delivered = get(&other, "/v1/alerts");
+    assert_eq!(delivered["items"].as_array().unwrap().len(), 1);
+    let replicas = std::thread::scope(|scope| {
+        (0..12)
+            .map(|i| {
+                let base = if i % 2 == 0 { &url } else { &other };
+                scope.spawn(move || get(base, "/v1/alerts"))
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|t| t.join().unwrap())
+            .collect::<Vec<_>>()
+    });
+    assert!(replicas.iter().all(|v| v == &delivered));
+    let alert = &delivered["items"][0];
+    assert_eq!(alert["sourceEvidence"], unavailable["alertEvidence"][0]);
+    assert_eq!(
+        alert["sourceRef"],
+        unavailable["alertEvidence"][0]["evidenceId"]
+    );
+    assert_eq!(alert["readOnly"], true);
+    let alert_path = format!("/v1/alerts/{}", alert["id"].as_str().unwrap());
+    assert_eq!(get(&url, &alert_path), *alert);
+    let consumed = get(
+        &url,
+        &format!(
+            "/v1/audit/evidence-chains/{}",
+            alert["correlationId"].as_str().unwrap()
+        ),
+    );
+    assert_eq!(consumed["items"].as_array().unwrap().len(), 1);
+    assert_eq!(consumed["items"][0]["eventId"], alert["auditRef"]);
+    assert_eq!(consumed["items"][0]["kind"], "assisted.x05_alert_consumed");
+    for forbidden in [
+        "/v1/alerts/subscriptions",
+        "/v1/alerts/stream",
+        "/v1/operations/health",
+    ] {
+        assert_ne!(
+            call(&url, "session-current", "GET", forbidden, json!({}), "read").0,
+            200
+        );
+    }
+    for action in ["ack", "unack"] {
+        assert_eq!(
+            call(
+                &url,
+                "session-current",
+                "POST",
+                &format!("{alert_path}/{action}"),
+                json!({}),
+                "no-write"
+            )
+            .0,
+            403
+        );
+    }
+    assert_eq!(
+        call(
+            &url,
+            "session-viewer",
+            "GET",
+            "/v1/alerts",
+            json!({}),
+            "viewer"
+        )
+        .0,
+        403
+    );
+    assert_eq!(
+        call(
+            &url,
+            "session-current",
+            "GET",
+            "/v1/alerts?accountId=55555555-5555-4555-8555-555555555555",
+            json!({}),
+            "wrong"
+        )
+        .0,
+        404
+    );
+    let (_off, off) = lab.bff(false);
+    assert!(
+        !get(&off, "/v1/session")["capabilities"]
+            .as_array()
+            .unwrap()
+            .contains(&json!("alerts.read"))
+    );
+    assert_eq!(
+        call(
+            &off,
+            "session-current",
+            "GET",
+            "/v1/alerts",
+            json!({}),
+            "off"
+        )
+        .0,
+        403
+    );
     private_write(lab.directory.join("observer.json"), &observer);
     let restored = get(&other, "/v1/assisted-testnet/reconciliation");
     assert_eq!(restored["comparisonStatus"], "MATCHED_OBSERVATIONS");
@@ -409,6 +509,79 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         get(&recon_restart, "/v1/assisted-testnet/reconciliation"),
         restored
     );
+    assert_eq!(get(&recon_restart, "/v1/alerts"), delivered);
+    assert_eq!(
+        get(
+            &recon_restart,
+            &format!(
+                "/v1/audit/evidence-chains/{}",
+                alert["correlationId"].as_str().unwrap()
+            )
+        ),
+        consumed
+    );
+    // Simulate the synced-inbox / older approval-anchor crash window. A new
+    // real BFF process must recover only the authenticated monotonic prefix.
+    let approvals = owner_store(&lab, "approvals");
+    let saved_approvals = approvals.lock().unwrap().read().unwrap().unwrap();
+    let mut older_anchor = saved_approvals.clone();
+    older_anchor["alertAnchor"] = json!({"sequence":0,"head":null});
+    approvals.lock().unwrap().write(&older_anchor).unwrap();
+    let (_ahead_restart, ahead_restart) = lab.bff(true);
+    assert_eq!(get(&ahead_restart, "/v1/alerts"), delivered);
+    approvals.lock().unwrap().write(&saved_approvals).unwrap();
+    let alert_bytes = fs::read(lab.directory.join("alerts.json")).unwrap();
+    private_write(lab.directory.join("alerts.json"), b"{broken");
+    assert_eq!(
+        call(
+            &recon_restart,
+            "session-current",
+            "GET",
+            "/v1/alerts",
+            json!({}),
+            "corrupt"
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("alerts.json"), &alert_bytes);
+    let store = owner_store(&lab, "alerts");
+    let original = store.lock().unwrap().read().unwrap().unwrap();
+    let mut rollback = original.clone();
+    rollback["records"] = json!([]);
+    rollback["anchor"] = json!({"sequence":0,"head":null});
+    store.lock().unwrap().write(&rollback).unwrap();
+    assert_eq!(
+        call(
+            &recon_restart,
+            "session-current",
+            "GET",
+            "/v1/alerts",
+            json!({}),
+            "rollback"
+        )
+        .0,
+        503
+    );
+    store.lock().unwrap().write(&original).unwrap();
+    fs::remove_file(lab.directory.join("alerts.json")).unwrap();
+    assert_eq!(
+        call(
+            &recon_restart,
+            "session-current",
+            "GET",
+            "/v1/alerts",
+            json!({}),
+            "missing"
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("alerts.json"), &alert_bytes);
+    assert_eq!(get(&recon_restart, "/v1/alerts"), delivered);
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X06_ALERT_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"delivered":delivered,"source":unavailable,"recoveredSource":restored,"audit":consumed,"events":get(&recon_restart,&format!("/v1/audit/events?correlationId={}",alert["correlationId"].as_str().unwrap())),"checkpoint":original,"restarted":get(&recon_restart,"/v1/alerts"),"concurrentIngestionRequests":12,"authenticatedAheadAnchorRecovery":true,"noAutomaticClosure":true,"corruptMissingRollbackDenied":true,"unauthorizedAndMutationDenied":true,"nativeProtocolCalls":1,"actualTestnet":false})).unwrap());
+    }
     let recon_bytes = fs::read(lab.directory.join("reconciliation.json")).unwrap();
     private_write(lab.directory.join("reconciliation.json"), b"{broken");
     assert_eq!(
@@ -771,10 +944,56 @@ fn core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit() {
     if let Ok(out) = std::env::var("QUANTOS_CORE_X01_UNKNOWN_RESULT") {
         private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"ledger":ledger,"checkpoint":portfolio_checkpoint(&lab),"command":recovered,"nativeProtocolCalls":1,"restartPreserved":true,"noReplayTrace":true,"actualTestnet":false})).unwrap());
     }
+    let delivered = get(&restarted, "/v1/alerts");
+    assert_eq!(
+        delivered["items"].as_array().unwrap().len(),
+        reconciliation["alertEvidence"].as_array().unwrap().len()
+    );
+    for a in delivered["items"].as_array().unwrap() {
+        assert_eq!(a["resolved"], false);
+        assert_eq!(a["sourceEvidence"]["status"], "OPEN");
+        assert_eq!(a["correlationId"], id);
+    }
+    let first = get(&restarted, "/v1/alerts?pageSize=1&sort=id:asc");
+    assert_eq!(first["items"].as_array().unwrap().len(), 1);
+    let cursor = first["nextCursor"].as_str().unwrap();
+    let next = get(
+        &restarted,
+        &format!("/v1/alerts?pageSize=1&sort=id:asc&cursor={cursor}"),
+    );
+    assert_ne!(first["items"][0]["id"], next["items"][0]["id"]);
+    assert_eq!(
+        call(
+            &restarted,
+            "session-owner",
+            "GET",
+            &format!("/v1/alerts?pageSize=1&sort=id:asc&cursor={cursor}"),
+            json!({}),
+            "cross"
+        )
+        .0,
+        409
+    );
+    assert_eq!(get(&again, "/v1/alerts"), delivered);
+    assert_eq!(get(&again, "/v1/assisted-testnet/ledger"), ledger);
     assert_eq!(lab.trace()["protocolCalls"], 1);
     let chain = get(&restarted, &format!("/v1/audit/evidence-chains/{id}"));
-    assert_eq!(chain["items"].as_array().unwrap().len(), 4);
+    assert_eq!(
+        chain["items"].as_array().unwrap().len(),
+        4 + delivered["items"].as_array().unwrap().len()
+    );
     assert_eq!(chain["items"][3]["kind"], "assisted.command_reserved");
+    for a in delivered["items"].as_array().unwrap() {
+        assert!(
+            chain["items"].as_array().unwrap().iter().any(
+                |n| n["eventId"] == a["auditRef"] && n["kind"] == "assisted.x05_alert_consumed"
+            )
+        );
+    }
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X06_UNKNOWN_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"delivered":delivered,"source":reconciliation,"ledger":ledger,"audit":chain,"events":get(&again,&format!("/v1/audit/events?correlationId={id}")),"checkpoint":owner_store(&lab,"alerts").lock().unwrap().read().unwrap().unwrap(),"restart":get(&again,"/v1/alerts"),"paginationScopeDenied":true,"protocolCalls":1,"noReplay":true,"actualTestnet":false})).unwrap());
+    }
+
     if let Ok(out) = std::env::var("QUANTOS_CORE_L04_CRASH_RESULT") {
         private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"zoneProtocolCallsBeforeKill":1,"callerObservedResponseLoss":true,"recoveredState":recovered["state"],"recoveredOrderAbsent":true,"commonC10ReservationNodes":4,"noReplayTrace":true,"actualTestnetConnected":false})).unwrap());
     }
@@ -807,6 +1026,7 @@ fn core_l04_logout_survives_process_recovery_and_denies_c10_and_native() {
         "/v1/session".into(),
         "/v1/assisted-testnet/ledger".into(),
         "/v1/assisted-testnet/reconciliation".into(),
+        "/v1/alerts".into(),
     ] {
         let (s, _) = call(
             &restarted,

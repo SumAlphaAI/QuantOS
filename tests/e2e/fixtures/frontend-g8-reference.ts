@@ -31,6 +31,14 @@ export const businessReceipts = () => receipts;
 let rows: Row[] = [], child: ChildProcess, port: number, scratch: string;
 let zone: Awaited<ReturnType<typeof ownedZone>> | undefined;
 export const zoneSnapshot=()=>zone?.snapshot();
+// Owner-side fault injection only; no product upload/mutation route is added.
+export async function invalidateOwnedObserver(){
+ if(!zone)throw Error('Owned mTLS zone required');
+ const {readFile,writeFile}=await import('node:fs/promises'),path=zone.directory+'/observer.json';
+ const original=await readFile(path),envelope=JSON.parse(original.toString());
+ envelope.signature='00';await writeFile(path,JSON.stringify(envelope),{mode:0o600});
+ return async()=>{await writeFile(path,original,{mode:0o600});};
+}
 let flags: {
     drop?: boolean;
     readonly?: boolean;
