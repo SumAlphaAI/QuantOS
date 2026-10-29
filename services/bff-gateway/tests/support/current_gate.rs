@@ -4,7 +4,7 @@ use super::*;
 use super::{
     c11_activation as c11, current_execution as current, native_control as kill, valuation,
 };
-fn native(lab: &Lab) -> Value {
+pub(super) fn native(lab: &Lab) -> Value {
     owner_store(lab, "commands")
         .lock()
         .unwrap()
@@ -12,16 +12,16 @@ fn native(lab: &Lab) -> Value {
         .unwrap()
         .unwrap()
 }
-fn immutable(v: &Value) -> Value {
+pub(super) fn immutable(v: &Value) -> Value {
     json!({"issued":v["issued"],"claims":v["claims"],"snapshotClaims":v["snapshotClaims"]})
 }
-fn inspect(url: &str, id: &str) -> Value {
+pub(super) fn inspect(url: &str, id: &str) -> Value {
     get(url, &format!("/v1/assisted-testnet/requests/{id}"))
 }
-fn audit(url: &str, id: &str) -> Value {
+pub(super) fn audit(url: &str, id: &str) -> Value {
     get(url, &format!("/v1/audit/events?correlationId={id}"))
 }
-fn release(url: &str, scope: &str, generation: u64) -> Value {
+pub(super) fn release(url: &str, scope: &str, generation: u64) -> Value {
     let p = kill::mutate(
         url,
         "session-approver",
@@ -39,7 +39,7 @@ fn release(url: &str, scope: &str, generation: u64) -> Value {
         p["event"]["eventId"].as_str(),
     )
 }
-fn roundtrip(url: &str) -> Value {
+pub(super) fn roundtrip(url: &str) -> Value {
     let before = c11::current(url);
     c11::change(url, &before, false);
     let off = c11::current(url);

@@ -3,7 +3,7 @@
 use super::*;
 use openssl::{hash::MessageDigest, pkey::PKey, sign::Signer, x509::X509};
 use quantos_reconcile::account_books::{Balance, Books, COVERAGE};
-fn statement(lab: &Lab) -> Books {
+pub(super) fn statement(lab: &Lab) -> Books {
     let owner: Value =
         serde_json::from_slice(&fs::read(lab.directory.join("bff-owner.json")).unwrap()).unwrap();
     let cert = X509::from_pem(&fs::read(lab.directory.join("server.pem")).unwrap()).unwrap();
@@ -64,10 +64,10 @@ fn write(lab: &Lab, b: &Books, domain: &str) {
         serde_json::to_vec(&json!({"payload":b,"signature":signature})).unwrap(),
     );
 }
-fn publish(lab: &Lab, b: &Books) {
+pub(super) fn publish(lab: &Lab, b: &Books) {
     write(lab, b, "quantos-x05-independent-account-books-signature/v1");
 }
-fn advance(b: &mut Books) {
+pub(super) fn advance(b: &mut Books) {
     b.previous_hash = Some(b.content_hash().unwrap());
     b.version += 1;
     let at = chrono::DateTime::<Utc>::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap();
