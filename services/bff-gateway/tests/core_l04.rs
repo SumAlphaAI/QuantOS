@@ -308,6 +308,44 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         "pure reads rewrote current authority ledger"
     );
 
+    // L4 assessment probes identify current public product gaps. A mode refusal
+    // is an OPEN gap, never successful kill/C11 activation acceptance.
+    let mut gap_probes = vec![];
+    for (method, path, body) in [
+        (
+            "POST",
+            "/v1/risk/kill-switch/engage",
+            json!({"accountId":"44444444-4444-4444-8444-444444444444","reason":"bounded L4 refusal probe","mfaChallengeRef":Uuid::new_v4(),"reauthTokenRef":Uuid::new_v4(),"confirmPhrase":"ENGAGE KILL"}),
+        ),
+        (
+            "POST",
+            "/v1/risk/kill-switch/release",
+            json!({"accountId":"44444444-4444-4444-8444-444444444444","reason":"bounded L4 refusal probe","mfaChallengeRef":Uuid::new_v4(),"reauthTokenRef":Uuid::new_v4(),"confirmPhrase":"RELEASE KILL"}),
+        ),
+        ("GET", "/v1/admin/feature-flags", json!({})),
+        (
+            "POST",
+            "/v1/admin/feature-flags",
+            json!({"spec":{"kind":"flag","name":"assisted-live-testnet","enabled":true,"rolloutPercent":100}}),
+        ),
+        ("GET", "/v1/operations/health", json!({})),
+    ] {
+        let (status, reply) = call(
+            &url,
+            "session-current",
+            method,
+            path,
+            body,
+            &Uuid::new_v4().to_string(),
+        );
+        assert_eq!(status, 403, "{path}: {reply}");
+        assert_eq!(reply["code"], "CONTEXT_MODE_REQUIRED");
+        gap_probes.push(json!({"method":method,"path":path,"status":status,"code":reply["code"],"interpretation":"OPEN_PRODUCT_JOIN_GAP_NOT_SUCCESSFUL_CONTROL"}));
+    }
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    if let Ok(out) = std::env::var("QUANTOS_CORE_L4_GAP_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"profile":"CURRENT_OWNED_ASSISTED_LIVE","probes":gap_probes,"noZoneTraceDuringProbes":true,"publicNativeKillJoin":"NOT_JOINED","c11ActivationJoin":"NOT_JOINED","globalKillApiRepresentation":"NOT_JOINED_OR_NOT_EXPOSED","closureGranted":false,"actualTestnet":false})).unwrap());
+    }
     let id = open(&url, &subjects["items"][0]);
     assert_ne!(
         fs::read(lab.directory.join("approvals.json")).unwrap(),

@@ -2913,6 +2913,9 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 
 当前开发评估（2026-10-28）：本轮核对4项直接依赖与5份原范围回执，维护19项继承缺口和8项当前/目标义务；修复公共C10的Orders引用参数、确定性UUID及Assisted Live只读消费者拒绝，受控P10/P11→公共双审批→实际L02 mTLS进程→owned L01→共同C10只读链按当前候选验证。详见[当前L4评估](./operations/core-l4-current-assessment.md)、[机器清单](./execution/core-l4-current-assessment.json)、[证据](./audit/evidence/core-l4-current-local-20261028/README.md)。工程Gate `PASS_L4_CURRENT_COMPOSITION_AND_GAP_ASSESSMENT`，开发评估COMPLETED_CURRENT_SCOPE；完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED、M5 PREPARED_NOT_READY，原19项不关闭。真实身份/当前R04-X02源、公共成交对账/Alert与kill控制、目标Vault/DB/跨主机、获准testnet及发布义务保留。历史FAIL/原SHA不改绑，不递归全链复验。下一原任务CORE:X02 DEVELOPMENT，先接当前Proposal/签名RiskDecision及kill generation到公共审批Subject，不授予外部环境或发布权限。
 
+
+当前组合再评估（2026-10-29，CORE-GATE:L4 DEVELOPMENT）：当前X02/R04签名来源与kill generation→公共Subject→native X04→X01持久账本→X05独立签名协议观察→X06公共只读Alert/P23/C10已在owned本机范围接续；UNKNOWN保留隔离/OPEN，不补发、不入账、不自动关闭。旧2026-10-28与各组件回执保持原SHA/范围，不改绑为本轮完整准入。见[本轮规程](./operations/core-l4-composition-assessment-20261029.md)、[机器评估](./execution/core-l4-composition-assessment-20261029.json)、[证据](./audit/evidence/core-l4-composition-local-20261029/README.md)。工程Gate目标PASS_L4_CURRENT_X02_X04_X01_X05_X06_COMPOSITION_AND_GAPS，以冻结执行为准；开发评估COMPLETED_CURRENT_SCOPE，完整Gate NOT_READY_GAPS_OPEN，stage NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，M5 PREPARED_NOT_READY，19gap/8义务OPEN，159规范阶段不提升。实际公共kill与C11启用仍被模式门禁拒绝，此拒绝记录为产品接续缺口；完整books/估值/异步成交与费用换算、外部通知/阅读确认/明确关闭、真实身份/DB/Vault/venue/跨主机、目标安全性能长稳同SHA CI与发布未验收。仅当前组合与直接影响回归，不递归全仓/上游campaign。下一CORE:X06 DEVELOPMENT，先接L4-NATIVE-CONTROL-01公共全局/账户kill、当前X02 generation、原生持久停止和共同C10，再接C11版本化启用。无生产凭据或外部发布授权。
+
 ## 11. 自动执行命令与阶段回归清单
 
 表中命令是已有或须在所属实现任务内固化的入口，执行前核对 Makefile/CI。计划结构校验不证明运行命令已按阶段拆开；混合入口依第 2.10 节处理，不伪造整条命令 PASS。
