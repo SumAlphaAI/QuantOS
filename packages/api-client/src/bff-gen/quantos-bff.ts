@@ -3890,6 +3890,7 @@ export interface components {
             executionAuthority: false;
         };
         AssistedReconciliationView: {
+            accountBooks?: components["schemas"]["AssistedAccountBooksReport"];
             /** @enum {string} */
             schemaVersion: "quantos-current-reconciliation.v1";
             tenantId: components["schemas"]["UUID"];
@@ -3923,6 +3924,33 @@ export interface components {
                 sequence: number;
                 head: string | null;
             };
+        };
+        AssistedAccountBooksReport: {
+            reportId: string;
+            sourceHash: string | null;
+            sourceId: string;
+            sourceVersion: string | null;
+            sourceRef: string | null;
+            basisHash: string | null;
+            ledgerHash: string;
+            /** @enum {string} */
+            coverage: "SPOT_EMPTY_ORIGIN_NO_EXTERNAL_FLOWS_QUOTE_FEES";
+            /** @enum {string} */
+            sourceTrust: "PINNED_INDEPENDENT_OWNER_REFERENCE_NOT_VENUE_ACCOUNT";
+            periodStart: components["schemas"]["DateTime"] | null;
+            coverageThrough: components["schemas"]["DateTime"] | null;
+            capturedAt: components["schemas"]["DateTime"] | null;
+            validUntil: components["schemas"]["DateTime"] | null;
+            comparisonReady: boolean;
+            /** @enum {string} */
+            status: "SOURCE_UNAVAILABLE" | "UNKNOWN_OR_QUARANTINED_OBLIGATIONS" | "STALE_SOURCE" | "LOCAL_OPENING_BASIS_UNAVAILABLE" | "INCOMPLETE_OR_UNSUPPORTED_COVERAGE" | "NATIVE_PERIOD_OR_OPEN_ORDERS_NOT_COVERED" | "MATCHED_DECLARED_ACCOUNT_BOOKS" | "DIFFERENCES";
+            findings: components["schemas"]["AssistedReconciliationFinding"][];
+            /** @enum {boolean} */
+            fullBooksReady: false;
+            /** @enum {boolean} */
+            dayCloseAllowed: false;
+            /** @enum {boolean} */
+            executionAuthority: false;
         };
         AssistedKillEvent: {
             eventId: components["schemas"]["UUID"];

@@ -137,6 +137,12 @@ pub struct Input {
     pub ledger_checkpoint: Value,
     pub books: Option<ProtocolJournal>,
     pub checked_at: DateTime<Utc>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_books: Option<crate::account_books::Books>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_basis: Option<crate::account_books::Basis>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub account_books_checked: bool,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -181,6 +187,8 @@ struct Report {
     bindings: Vec<Binding>,
     findings: Vec<Finding>,
     unknown_obligations_open: usize,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    account_books: Option<crate::account_books::Report>,
 }
 fn compare(input: &Input) -> Result<Report> {
     let ledger = NativeLedger::restore(input.scope.clone(), &input.ledger_checkpoint)
@@ -509,6 +517,7 @@ fn compare(input: &Input) -> Result<Report> {
         bindings,
         findings,
         unknown_obligations_open: unknown,
+        account_books: None,
     })
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -527,6 +536,7 @@ pub struct CurrentReconciliation {
     last: Option<Report>,
     observer: Option<ProtocolJournal>,
     outbox: BTreeMap<ContentHash, AlertEvidence>,
+    account_history: crate::account_books::History,
 }
 impl CurrentReconciliation {
     pub fn new(scope: Scope, origin_id: String) -> Result<Self> {
@@ -538,6 +548,7 @@ impl CurrentReconciliation {
             last: None,
             observer: None,
             outbox: BTreeMap::new(),
+            account_history: crate::account_books::History::default(),
         })
     }
     pub fn anchor(&self) -> Anchor {
@@ -577,7 +588,31 @@ impl CurrentReconciliation {
         {
             return Err(Error::Conflict);
         }
-        let report = compare(&input)?;
+        let mut report = compare(&input)?;
+        let mut account_history = self.account_history.clone();
+        if input.account_books_checked {
+            account_history.observe(
+                input.account_books.as_ref(),
+                input.account_basis.as_ref(),
+                &self.scope,
+                &self.origin_id,
+                input.checked_at,
+            )?;
+            let ledger = NativeLedger::restore(self.scope.clone(), &input.ledger_checkpoint)
+                .map_err(|_| invalid())?;
+            let account = crate::account_books::compare(&input, &ledger)?;
+            report.report_id = digest(&json!([
+                "quantos-x05-combined-report/v1",
+                report.report_id,
+                account.report_id
+            ]))?;
+            report.account_books = Some(account);
+        } else if input.account_books.is_some()
+            || input.account_basis.is_some()
+            || account_history.established()
+        {
+            return Err(invalid());
+        }
         if self
             .last
             .as_ref()
@@ -612,6 +647,36 @@ impl CurrentReconciliation {
                 execution_authority: false,
             });
         }
+        // Account-level evidence uses the independent statement hash, never the
+        // protocol journal hash. Establishing this optional source cannot close
+        // old protocol or account evidence; subsequent absence remains OPEN.
+        if account_history.established()
+            && let Some(account) = &report.account_books
+        {
+            for finding in &account.findings {
+                let binding: Option<Binding> = None;
+                let id = digest(&json!([
+                    "quantos-x05-alert-evidence/v1",
+                    self.scope,
+                    finding,
+                    binding,
+                    report.ledger_hash,
+                    account.source_hash
+                ]))?;
+                outbox.entry(id.clone()).or_insert(AlertEvidence {
+                    evidence_id: id,
+                    report_id: account.report_id.clone(),
+                    scope: self.scope.clone(),
+                    finding: finding.clone(),
+                    binding,
+                    ledger_hash: report.ledger_hash.clone(),
+                    books_hash: account.source_hash.clone(),
+                    observed_at: input.checked_at,
+                    status: "OPEN".into(),
+                    execution_authority: false,
+                });
+            }
+        }
         let previous = self.anchor().head;
         if outbox.len() > 20000 {
             return Err(Error::Unavailable);
@@ -633,6 +698,7 @@ impl CurrentReconciliation {
             hash,
         });
         self.outbox = outbox;
+        self.account_history = account_history;
         self.last = Some(report);
         Ok(true)
     }
@@ -682,8 +748,10 @@ impl CurrentReconciliation {
     }
     pub fn view(&self) -> Result<Value> {
         let r = self.last.as_ref().ok_or(Error::Unavailable)?;
-        Ok(
-            json!({"schemaVersion":"quantos-current-reconciliation.v1","tenantId":self.scope.tenant_id,"workspaceId":self.scope.workspace_id,"accountId":self.scope.account_id,"mode":"assisted_live","reportId":r.report_id,"ledgerHash":r.ledger_hash,"booksHash":r.books_hash,"booksSourceId":self.origin_id,"booksState":r.books_state,"comparisonStatus":r.comparison_status,"coverage":"OBSERVED_EXECUTION_DELTAS_ONLY","fullBooksReady":false,"dayCloseAllowed":false,"executionAuthority":false,"checkedAt":r.checked_at,"sourceBindings":r.bindings,"findings":r.findings,"unknownObligationsOpen":r.unknown_obligations_open,"openAlertEvidenceCount":self.outbox.len(),"alertEvidence":self.outbox.values().collect::<Vec<_>>(),"anchor":self.anchor()}),
-        )
+        let mut view = json!({"schemaVersion":"quantos-current-reconciliation.v1","tenantId":self.scope.tenant_id,"workspaceId":self.scope.workspace_id,"accountId":self.scope.account_id,"mode":"assisted_live","reportId":r.report_id,"ledgerHash":r.ledger_hash,"booksHash":r.books_hash,"booksSourceId":self.origin_id,"booksState":r.books_state,"comparisonStatus":r.comparison_status,"coverage":"OBSERVED_EXECUTION_DELTAS_ONLY","fullBooksReady":false,"dayCloseAllowed":false,"executionAuthority":false,"checkedAt":r.checked_at,"sourceBindings":r.bindings,"findings":r.findings,"unknownObligationsOpen":r.unknown_obligations_open,"openAlertEvidenceCount":self.outbox.len(),"alertEvidence":self.outbox.values().collect::<Vec<_>>(),"anchor":self.anchor()});
+        if let Some(account) = &r.account_books {
+            view["accountBooks"] = json!(account);
+        }
+        Ok(view)
     }
 }

@@ -471,6 +471,9 @@ async fn handle(
                 return Ok(json!({"items":h.sources.review_candidates(at)?}));
             }
             if path == "/v1/assisted-testnet/reconciliation" {
+                if uri.query().is_some() || !input.is_empty() {
+                    return Err(Error::Invalid);
+                }
                 return h.sync_reconciliation(&sid, at);
             }
             if path == "/v1/assisted-testnet/valuation" {

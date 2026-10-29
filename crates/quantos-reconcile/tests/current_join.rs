@@ -6,6 +6,8 @@ use quantos_portfolio::{
 };
 use quantos_reconcile::current::*;
 use serde_json::{Value, json};
+#[path = "support/account_books.rs"]
+mod account_books;
 fn input() -> Input {
     let p: Value = serde_json::from_str(include_str!(
         "../../../docs/audit/evidence/core-x01-current-local-20261029/attempt-01/native-ledger.json"
@@ -45,6 +47,9 @@ fn input() -> Input {
         sources: vec![s],
         ledger_checkpoint: p["checkpoint"].clone(),
         books: Some(books),
+        account_books: None,
+        account_basis: None,
+        account_books_checked: false,
     }
 }
 fn state(i: &Input) -> CurrentReconciliation {

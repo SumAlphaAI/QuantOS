@@ -1,0 +1,40 @@
+{
+  "scope": "UNFROZEN_DIAGNOSTICS_NOT_CURRENT_ACCEPTANCE",
+  "baseForFixtureGitGuard": "8d929c70388f31aa24d4b830eeb20d191c958048",
+  "failures": [
+    {
+      "run": 1,
+      "status": "FAIL",
+      "command": "cargo test --locked --offline -p bff-gateway --test core_l04 account_books:: -- --nocapture",
+      "observed": "Wrong fixture tenant/workspace rejected with 503; corrected fixture constants only."
+    },
+    {
+      "run": 2,
+      "status": "FAIL",
+      "observed": "Full control-view equality included volatile checkedAt/expiresAt; compare immutable controls after explicitly excluding these two read timestamps."
+    },
+    {
+      "run": 3,
+      "status": "FAIL",
+      "passed": 2,
+      "failed": 1,
+      "observed": "UNKNOWN test left original second L02 trace unconsumed; assert original protocolCalls=2 before checking absence of additional trace."
+    },
+    {
+      "run": 4,
+      "status": "FAIL",
+      "passed": 2,
+      "failed": 1,
+      "observed": "Extra reconciliation query was ignored (200); fixed the public read adapter to reject any query/body (422), matching the owner-only input port."
+    }
+  ],
+  "failedModelRuns": 0,
+  "rawFailureLogs": "Tool outputs in task history; this index retains observed summaries, not a fabricated complete raw transcript.",
+  "latestDiagnostic": {
+    "status": "PASS_DIAGNOSTIC_ONLY",
+    "passed": 3,
+    "failed": 0,
+    "filtered": 19,
+    "sourceFrozen": false
+  }
+}

@@ -29,7 +29,28 @@ impl ObserverReader {
         })
     }
     fn read(&self) -> Result<ProtocolJournal, Error> {
-        let metadata = std::fs::symlink_metadata(&self.path).map_err(|_| Error::Unavailable)?;
+        let payload =
+            self.read_payload(&self.path, "quantos-x05-independent-observer-signature/v1")?;
+        let book: ProtocolJournal =
+            serde_json::from_value(payload).map_err(|_| Error::Unavailable)?;
+        if book.source_id != self.identity {
+            return Err(Error::Unavailable);
+        }
+        Ok(book)
+    }
+    fn account_books(&self) -> Result<quantos_reconcile::account_books::Books, Error> {
+        let path = self.path.with_file_name("account-books.json");
+        let payload =
+            self.read_payload(&path, "quantos-x05-independent-account-books-signature/v1")?;
+        let book: quantos_reconcile::account_books::Books =
+            serde_json::from_value(payload).map_err(|_| Error::Unavailable)?;
+        if book.source_id != self.identity {
+            return Err(Error::Unavailable);
+        }
+        Ok(book)
+    }
+    fn read_payload(&self, path: &std::path::Path, domain: &str) -> Result<Value, Error> {
+        let metadata = std::fs::symlink_metadata(path).map_err(|_| Error::Unavailable)?;
         if !metadata.is_file() || metadata.len() > 4 * 1024 * 1024 {
             return Err(Error::Unavailable);
         }
@@ -47,7 +68,7 @@ impl ObserverReader {
             signature: String,
         }
         let value: Envelope =
-            serde_json::from_slice(&std::fs::read(&self.path).map_err(|_| Error::Unavailable)?)
+            serde_json::from_slice(&std::fs::read(path).map_err(|_| Error::Unavailable)?)
                 .map_err(|_| Error::Unavailable)?;
         if value.signature.len() > 8192
             || !value.signature.len().is_multiple_of(2)
@@ -61,11 +82,8 @@ impl ObserverReader {
                 u8::from_str_radix(&value.signature[i..i + 2], 16).map_err(|_| Error::Unavailable)
             })
             .collect::<Result<Vec<_>, _>>()?;
-        let bytes = canonical_json_bytes(&json!([
-            "quantos-x05-independent-observer-signature/v1",
-            value.payload
-        ]))
-        .map_err(|_| Error::Unavailable)?;
+        let bytes = canonical_json_bytes(&json!([domain, value.payload]))
+            .map_err(|_| Error::Unavailable)?;
         let mut verifier =
             Verifier::new(MessageDigest::sha256(), &self.key).map_err(|_| Error::Unavailable)?;
         verifier.update(&bytes).map_err(|_| Error::Unavailable)?;
@@ -75,12 +93,7 @@ impl ObserverReader {
         {
             return Err(Error::Unavailable);
         }
-        let book: ProtocolJournal =
-            serde_json::from_value(value.payload).map_err(|_| Error::Unavailable)?;
-        if book.source_id != self.identity {
-            return Err(Error::Unavailable);
-        }
-        Ok(book)
+        Ok(value.payload)
     }
 }
 impl OwnedHost {
@@ -115,6 +128,18 @@ impl OwnedHost {
         // Missing/bad independent observations are unavailable, never a clean
         // empty book. The durable outbox/last verified high-water survives.
         let books = self.observer.as_ref().and_then(|r| r.read().ok());
+        // A separate signed statement, not protocol-journal normalization or a
+        // copy of X01 balances. Only a previously authenticated X01 origin is
+        // used on the local side; no current mark is fabricated for this read.
+        let account_books = self.observer.as_ref().and_then(|r| r.account_books().ok());
+        let account_basis = self
+            .valuation
+            .verified_opening(ledger)
+            .map_err(|_| Error::Unavailable)?
+            .as_ref()
+            .map(quantos_reconcile::account_books::Basis::from_valuation)
+            .transpose()
+            .map_err(|_| Error::Unavailable)?;
         let tx = self
             .reconciliation_store
             .as_ref()
@@ -152,6 +177,9 @@ impl OwnedHost {
                 ledger_checkpoint: ledger.checkpoint().map_err(|_| Error::Unavailable)?,
                 books,
                 checked_at: at,
+                account_books,
+                account_basis,
+                account_books_checked: true,
             })
             .map_err(|_| Error::Unavailable)?;
         if let Some(tx) = tx

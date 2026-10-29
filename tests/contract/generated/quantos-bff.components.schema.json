@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.27.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.28.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -7271,6 +7271,9 @@
         "anchor"
       ],
       "properties": {
+        "accountBooks": {
+          "$ref": "#/$defs/AssistedAccountBooksReport"
+        },
         "schemaVersion": {
           "type": "string",
           "enum": [
@@ -7415,6 +7418,184 @@
               ]
             }
           }
+        }
+      }
+    },
+    "AssistedAccountBooksReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reportId",
+        "sourceHash",
+        "sourceId",
+        "sourceVersion",
+        "sourceRef",
+        "basisHash",
+        "ledgerHash",
+        "coverage",
+        "sourceTrust",
+        "periodStart",
+        "coverageThrough",
+        "capturedAt",
+        "validUntil",
+        "comparisonReady",
+        "status",
+        "findings",
+        "fullBooksReady",
+        "dayCloseAllowed",
+        "executionAuthority"
+      ],
+      "properties": {
+        "reportId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sourceVersion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceRef": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basisHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "type": "string",
+          "enum": [
+            "SPOT_EMPTY_ORIGIN_NO_EXTERNAL_FLOWS_QUOTE_FEES"
+          ]
+        },
+        "sourceTrust": {
+          "type": "string",
+          "enum": [
+            "PINNED_INDEPENDENT_OWNER_REFERENCE_NOT_VENUE_ACCOUNT"
+          ]
+        },
+        "periodStart": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverageThrough": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capturedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validUntil": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comparisonReady": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "SOURCE_UNAVAILABLE",
+            "UNKNOWN_OR_QUARANTINED_OBLIGATIONS",
+            "STALE_SOURCE",
+            "LOCAL_OPENING_BASIS_UNAVAILABLE",
+            "INCOMPLETE_OR_UNSUPPORTED_COVERAGE",
+            "NATIVE_PERIOD_OR_OPEN_ORDERS_NOT_COVERED",
+            "MATCHED_DECLARED_ACCOUNT_BOOKS",
+            "DIFFERENCES"
+          ]
+        },
+        "findings": {
+          "type": "array",
+          "maxItems": 20000,
+          "items": {
+            "$ref": "#/$defs/AssistedReconciliationFinding"
+          }
+        },
+        "fullBooksReady": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "dayCloseAllowed": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
         }
       }
     },

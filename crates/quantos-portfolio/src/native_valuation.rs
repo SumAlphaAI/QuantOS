@@ -499,6 +499,12 @@ impl State {
     pub fn counts(&self) -> (usize, usize) {
         (self.sources.len(), self.snapshots.len())
     }
+    /// Immutable opening authority for read-only account reconciliation. This is
+    /// not a current mark or permission to create a new risk decision.
+    pub fn verified_opening(&self, ledger: &NativeLedger) -> Result<Option<Inputs>> {
+        self.validate(ledger)?;
+        Ok(self.sources.first().cloned())
+    }
     pub fn checkpoint(&self) -> Result<Value> {
         serde_json::to_value(self).map_err(|_| Error)
     }

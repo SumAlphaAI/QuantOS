@@ -1102,6 +1102,8 @@ mod l4_controls;
 #[path = "support/valuation.rs"]
 mod valuation;
 
+#[path = "support/account_books.rs"]
+mod account_books;
 #[path = "support/current_execution.rs"]
 mod current_execution;
 #[path = "support/current_gate.rs"]

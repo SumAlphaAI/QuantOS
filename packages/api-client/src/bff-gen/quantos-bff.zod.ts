@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.27.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.28.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1547,6 +1547,7 @@ export const AssistedReconciliationAlertEvidenceSchema = z.object({
 }).strict();
 
 export const AssistedReconciliationViewSchema = z.object({
+  "accountBooks": z.lazy(() => AssistedAccountBooksReportSchema).optional(),
   "schemaVersion": z.literal("quantos-current-reconciliation.v1"),
   "tenantId": z.lazy(() => UUIDSchema),
   "workspaceId": z.lazy(() => UUIDSchema),
@@ -1572,6 +1573,28 @@ export const AssistedReconciliationViewSchema = z.object({
   "sequence": z.number().int().min(0).max(20000),
   "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
 }).strict(),
+}).strict();
+
+export const AssistedAccountBooksReportSchema = z.object({
+  "reportId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "sourceId": z.string().min(1).max(512),
+  "sourceVersion": z.union([z.string().regex(new RegExp("^[1-9][0-9]*$")), z.null()]),
+  "sourceRef": z.union([z.string().min(1).max(256), z.null()]),
+  "basisHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "coverage": z.literal("SPOT_EMPTY_ORIGIN_NO_EXTERNAL_FLOWS_QUOTE_FEES"),
+  "sourceTrust": z.literal("PINNED_INDEPENDENT_OWNER_REFERENCE_NOT_VENUE_ACCOUNT"),
+  "periodStart": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "coverageThrough": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "capturedAt": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "validUntil": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "comparisonReady": z.boolean(),
+  "status": z.enum(["SOURCE_UNAVAILABLE","UNKNOWN_OR_QUARANTINED_OBLIGATIONS","STALE_SOURCE","LOCAL_OPENING_BASIS_UNAVAILABLE","INCOMPLETE_OR_UNSUPPORTED_COVERAGE","NATIVE_PERIOD_OR_OPEN_ORDERS_NOT_COVERED","MATCHED_DECLARED_ACCOUNT_BOOKS","DIFFERENCES"]),
+  "findings": z.array(z.lazy(() => AssistedReconciliationFindingSchema)).max(20000),
+  "fullBooksReady": z.literal(false),
+  "dayCloseAllowed": z.literal(false),
+  "executionAuthority": z.literal(false),
 }).strict();
 
 export const AssistedKillEventSchema = z.object({
@@ -2087,6 +2110,7 @@ export const bffZodSchemas = {
   AssistedReconciliationFinding: AssistedReconciliationFindingSchema,
   AssistedReconciliationAlertEvidence: AssistedReconciliationAlertEvidenceSchema,
   AssistedReconciliationView: AssistedReconciliationViewSchema,
+  AssistedAccountBooksReport: AssistedAccountBooksReportSchema,
   AssistedKillEvent: AssistedKillEventSchema,
   AssistedKillIntent: AssistedKillIntentSchema,
   AssistedKillView: AssistedKillViewSchema,
