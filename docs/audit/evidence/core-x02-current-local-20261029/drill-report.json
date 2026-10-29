@@ -1,0 +1,38 @@
+{
+  "schema": "quantos-core-x02-current-drills/v1",
+  "sourceCommit": "14db5c0f0bfdf20e95d4463fa5097a0606736f6b",
+  "scope": "OWNED_SINGLE_HOST_CONTROLLED_MECHANISMS_ONLY",
+  "cases": [
+    {
+      "mechanism": "original-key/restart/12 requests two BFF replicas -> one protocol call",
+      "evidence": "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/flow.json",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "actual zone death/native response unknown retains original command",
+      "evidence": "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/public-process.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "BFF killed after zone commit -> original unknown/no resend",
+      "evidence": "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/crash.json",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "global/account generation, release cannot revive old decision; lock-clock expiry; authenticated restart; cache cannot clear current stop",
+      "evidence": "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/native-source.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "byte cache sees another writer; bad key/bytes/permissions denied; pure identity reads do not rewrite ledger; current corrupted authority refuses cached readers",
+      "evidence": [
+        "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/native-recovery.log",
+        "docs/audit/evidence/core-x02-current-local-20261029/attempt-03/public-process.log"
+      ],
+      "status": "PASS_OWNED_LOCAL"
+    }
+  ],
+  "targetFourDrills": "NOT_RUN",
+  "actualNotificationsDatabaseRecoveryDeploymentRollback": "NOT_RUN",
+  "unknown": "PRESERVED_NO_AUTO_REPLAY"
+}

@@ -1,0 +1,225 @@
+{
+  "schema": "quantos-core-x02-current-handoff/v1",
+  "sourceCommit": "14db5c0f0bfdf20e95d4463fa5097a0606736f6b",
+  "engineeringGate": "PASS_CURRENT_R04_X02_PUBLIC_SUBJECT_BINDING",
+  "gate": "NOT_READY_GAPS_OPEN",
+  "stageGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED",
+  "m5": "PREPARED_NOT_READY",
+  "currentJoin": "R04 immutable record hash + intent + current X01/S03 owned module outputs + X02 registered signed review + kill generation -> same public Subject/approvals/native Command/Order/C10",
+  "remainingGaps": [
+    {
+      "id": "G7-RESEARCH-HANDOFF-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G7-RELEASE-PROPOSAL-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "FEP5-INTEGRATION-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "FEP5-INTEGRATION-02",
+      "status": "OPEN"
+    },
+    {
+      "id": "UI402-MARKER-SOURCE-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "P19-C10-EXPORT-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G4-C12-C14-VALUATION",
+      "status": "OPEN"
+    },
+    {
+      "id": "UI601-INSPECT-EVIDENCE-HTTP",
+      "status": "OPEN"
+    },
+    {
+      "id": "UI601-RESOLVE-HTTP",
+      "status": "OPEN"
+    },
+    {
+      "id": "P13-C11-SERVICE-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "P14-C11-METADATA-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "P14-C11-HISTORY-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "P14-C11-EXPORT-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "P14-C11-STREAM-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G7-SHADOW-C06-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G8-SERVER-FLAG-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G8-P10-P11-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G8-C09-L01-JOIN-01",
+      "status": "OPEN"
+    },
+    {
+      "id": "G8-L03-L04-AUDIT-01",
+      "status": "OPEN"
+    }
+  ],
+  "obligations": [
+    {
+      "id": "L4-CURRENT-SOURCE-01",
+      "phase": "DEVELOPMENT",
+      "owners": [
+        "CORE:X02",
+        "CORE:R04",
+        "CORE:L03"
+      ],
+      "criterion": "Current immutable Proposal and X02 signed RiskDecision, freshness/account/limits/kill revision must authorize the same public Subject",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "CURRENT_PRODUCT_ADAPTER_JOIN",
+      "developmentPrerequisite": false,
+      "currentProgress": "CURRENT_MODULE_JOIN_OWNED_LOCAL_ONLY_TARGET_NOT_RUN"
+    },
+    {
+      "id": "L4-IDENTITY-01",
+      "phase": "INTEGRATION",
+      "owners": [
+        "CORE:F06",
+        "CORE:L03"
+      ],
+      "criterion": "Replace reference MFA/session ports with actual current identity and verify revocation at IO",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "REAL_IDENTITY_REQUIRES_OWN_AUTHORIZATION",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-LEDGER-01",
+      "phase": "DEVELOPMENT",
+      "owners": [
+        "CORE:X04",
+        "CORE:X05",
+        "CORE:X06"
+      ],
+      "criterion": "Same current public Order/Fill must enter reconciliation ledger and Alert; unknown is reconciled read-only without resubmit",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "CURRENT_PRODUCT_ADAPTER_JOIN",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-NATIVE-CONTROL-01",
+      "phase": "DEVELOPMENT",
+      "owners": [
+        "CORE:X02",
+        "CORE:X06",
+        "CORE:L04"
+      ],
+      "criterion": "Join public global/account kill controls to the durable native stop, audit and current generation",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "CURRENT_PRODUCT_ADAPTER_JOIN",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-C11-ACTIVATION-01",
+      "phase": "DEVELOPMENT",
+      "owners": [
+        "CORE:X06",
+        "FE:UI-P14"
+      ],
+      "criterion": "Current scoped versioned activation/history must control runtime instead of reference enabled flag",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "CURRENT_PRODUCT_ADAPTER_JOIN",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-PERSISTENCE-01",
+      "phase": "RELEASE",
+      "owners": [
+        "CORE:F05",
+        "CORE:F07",
+        "CORE:L02",
+        "CORE:L04"
+      ],
+      "criterion": "Actual Supabase/Vault/RLS transactional reservations/common audit/outbox/recovery and cross-host fencing",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "TARGET_NOT_RUN_MODULE_OPT_IN_REQUIRED",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-TESTNET-01",
+      "phase": "INTEGRATION",
+      "owners": [
+        "CORE:L01",
+        "CORE:L02",
+        "CORE:L03",
+        "FRONTEND-GATE:G8"
+      ],
+      "criterion": "Authorized real testnet MFA/two-person representative workflow; native protocol samples do not count as venue orders",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "EXTERNAL_AUTHORIZATION_NOT_GRANTED",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    },
+    {
+      "id": "L4-RELEASE-01",
+      "phase": "RELEASE",
+      "owners": [
+        "CORE:F07",
+        "CORE:F09",
+        "CORE:L04"
+      ],
+      "criterion": "Target isolation/network/rotation, load/security, four deployed drills, durable audit, actual notifications/soak/same-SHA CI and Beta/Live readiness",
+      "status": "OPEN",
+      "evidence": "NOT_RUN_OR_NOT_JOINED",
+      "reason": "TARGET_NOT_RUN_NO_PRODUCTION_AUTHORIZATION",
+      "developmentPrerequisite": false,
+      "currentProgress": "NOT_ASSESSED_BY_THIS_TASK"
+    }
+  ],
+  "next": {
+    "nodeId": "CORE:X04",
+    "phase": "DEVELOPMENT",
+    "obligation": "L4-LEDGER-01",
+    "scope": "NATIVE_FILL_ORDER_TO_PUBLIC_FACTS_FOR_X01_X05_AND_ALERT_SAME_SOURCE_JOIN"
+  },
+  "conditions": [
+    "No production credentials or external publication",
+    "Shadow release is a research prerequisite, not Assisted deployment eligibility",
+    "No real IdP, actual research/ledger feed, Vault/Supabase/RLS, cross-host or venue/testnet evidence",
+    "Retain unknown reservation; query-only facts after expiry; no automatic resend",
+    "Old checkpoints without current sources are refused for reads and writes; files are retained, no production migration performed",
+    "Owner rollback of whole directory/keys is outside this single-host store contract"
+  ]
+}

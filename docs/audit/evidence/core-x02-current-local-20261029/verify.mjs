@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import console from 'node:console';
+import {verify,files,hash,safe,directory} from '../../../../scripts/core-x02-current-review.mjs';
+const json=p=>JSON.parse(readFileSync(p));
+const receipt=json(directory+'/receipt.json'),result=verify(receipt),manifest=json(directory+'/manifest.json');
+assert.equal(manifest.schema,'quantos-core-x02-current-manifest/v1');
+assert.equal(manifest.sourceCommit,receipt.sourceCommit);
+assert.equal(manifest.scope,'CURRENT_OWNED_FUNCTION_ONLY_WITH_ORIGINAL_FAILURES');
+assert.deepEqual(manifest.files.map(v=>v.path),files(directory).filter(p=>p!==directory+'/manifest.json'));
+for(const f of manifest.files){safe(f.path);assert(f.path.startsWith(directory+'/'));assert.equal(hash(readFileSync(f.path)),f.sha256,f.path);}
+assert.deepEqual(json(directory+'/result.json'),result);
+assert.equal(json(directory+'/scope-summary.json').approval,null);
+assert.equal(json(directory+'/handoff.json').runtimeAdmission,'DENIED');
+assert.equal(json(directory+'/handoff.json').next.nodeId,'CORE:X04');
+assert.equal(json(directory+'/release-checklist.json').status,'NOT_RUN');
+assert.equal(json(directory+'/seal-secret-scan.json').unreviewedFindings,0);
+execFileSync('git',['merge-base','--is-ancestor',receipt.sourceCommit,'HEAD']);
+console.log(JSON.stringify({status:'PASS_CURRENT_X02_FUNCTION_PACKET_ONLY',sourceCommit:receipt.sourceCommit,sealedFiles:manifest.files.length,checks:result.checks,rust:result.rustTotal,consumers:result.consumers,contracts:result.contracts,gates:result.nodeCases,chromium:result.chromiumCases,axeIncomplete:result.axeIncomplete,gate:result.gate,stageGate:result.stageGate,formalAccepted:false,runtimeAdmission:'DENIED',openGaps:19,openObligations:8,nextTask:'CORE:X04 DEVELOPMENT'}));
