@@ -1,0 +1,35 @@
+{
+  "schema": "quantos-core-x01-current-drills/v1",
+  "sourceCommit": "1601d98145a3d2d2f2e5df6d0d57648089cc8e41",
+  "scope": "OWNED_SINGLE_HOST_CONTROLLED_MECHANISMS_ONLY",
+  "cases": [
+    {
+      "mechanism": "actual two native partial fills -> exact 0.2 fee ledger, duplicate replay no posting, checkpoint restore same result",
+      "evidence": "docs/audit/evidence/core-x01-current-local-20261029/attempt-01/native-facts.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "two BFF replicas, 12 original-key submissions -> one mTLS protocol call, one durable Fill, same sourceHash/entry and byte-identical ledger reads/restart",
+      "evidence": "docs/audit/evidence/core-x01-current-local-20261029/attempt-01/native-ledger.json",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "missing/corrupt portfolio or missing/authenticated-empty command source refuses orphan ledger; stale pre-fill review cannot create another native IO",
+      "evidence": "docs/audit/evidence/core-x01-current-local-20261029/attempt-01/public-process.log",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "actual crash after zone commit -> original unknown, durable quarantine, no fill posting or reissue, same ledger after another restart",
+      "evidence": "docs/audit/evidence/core-x01-current-local-20261029/attempt-01/unknown-ledger.json",
+      "status": "PASS_OWNED_LOCAL"
+    },
+    {
+      "mechanism": "immutable binding conflicts, fill reuse, arithmetic failure, non-quote fee, anchor fork, legacy no journal and unknown observed fills stay refused/quarantined atomically",
+      "evidence": "docs/audit/evidence/core-x01-current-local-20261029/attempt-01/ledger-model.log",
+      "status": "PASS_MODEL_AND_LOCAL_ONLY"
+    }
+  ],
+  "targetFourDeployedDrills": "NOT_RUN",
+  "actualNotificationsDatabaseRecoveryDeploymentRollback": "NOT_RUN",
+  "unknown": "PRESERVED_NO_AUTO_REPLAY"
+}
