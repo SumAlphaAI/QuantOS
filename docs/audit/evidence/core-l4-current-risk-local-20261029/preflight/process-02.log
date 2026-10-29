@@ -1,0 +1,35 @@
+L02 owned fixture selected: /Users/anray/Documents/project/SumAlpha/QuantOS/target/debug/execution-gateway
+
+running 2 tests
+test current_gate::current_gate_unknown_remains_open_across_public_c11_kill_release_and_restart ... FAILED
+test current_gate::current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_repeat_proposal ... FAILED
+
+failures:
+
+failures:
+    current_gate::current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_repeat_proposal
+    current_gate::current_gate_unknown_remains_open_across_public_c11_kill_release_and_restart
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 17 filtered out; finished in 4.22s
+
+{"schema":"quantos-rust-tests-with-l02/v1","status":101,"signal":null,"errorCode":null,"phase":"test"}
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.36s
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-fe01b394a7c7b29e)
+
+thread 'main' (1060583) panicked at services/bff-gateway/src/execution/reference_release.rs:142:6:
+owned fixture requires a checkout HEAD or frozen archive SHA: Custom { kind: InvalidData, error: "fixture source SHA unavailable or inconsistent" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'main' (1060582) panicked at services/bff-gateway/src/execution/reference_release.rs:142:6:
+owned fixture requires a checkout HEAD or frozen archive SHA: Custom { kind: InvalidData, error: "fixture source SHA unavailable or inconsistent" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'current_gate::current_gate_unknown_remains_open_across_public_c11_kill_release_and_restart' (1060576) panicked at services/bff-gateway/tests/core_l04.rs:155:14:
+owned BFF must start
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'current_gate::current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_repeat_proposal' (1060575) panicked at services/bff-gateway/tests/core_l04.rs:155:14:
+owned BFF must start
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

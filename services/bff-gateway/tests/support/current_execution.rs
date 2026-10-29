@@ -1,12 +1,12 @@
 use super::valuation::{evidence, input, write};
 use super::*;
-fn enabled(lab: &Lab) {
+pub(super) fn enabled(lab: &Lab) {
     let p = lab.directory.join("bff-owner.json");
     let mut owner: Value = serde_json::from_slice(&fs::read(&p).unwrap()).unwrap();
     owner["currentReviewExecutionEnabled"] = json!(true);
     private_write(p, serde_json::to_vec(&owner).unwrap());
 }
-fn submit(url: &str, id: &str, _key: &str) -> (u16, Value) {
+pub(super) fn submit(url: &str, id: &str, _key: &str) -> (u16, Value) {
     call(
         url,
         "session-current",
@@ -16,7 +16,7 @@ fn submit(url: &str, id: &str, _key: &str) -> (u16, Value) {
         &Uuid::new_v4().to_string(),
     )
 }
-fn prepare(lab: &Lab, url: &str) -> (Value, Value, String) {
+pub(super) fn prepare(lab: &Lab, url: &str) -> (Value, Value, String) {
     let rows = get(url, "/v1/assisted-testnet/subjects");
     let btc = rows["items"]
         .as_array()

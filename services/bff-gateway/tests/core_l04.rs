@@ -1104,5 +1104,7 @@ mod valuation;
 
 #[path = "support/current_execution.rs"]
 mod current_execution;
+#[path = "support/current_gate.rs"]
+mod current_gate;
 #[path = "support/risk_refresh.rs"]
 mod risk_refresh;
