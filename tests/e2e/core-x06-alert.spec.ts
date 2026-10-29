@@ -29,6 +29,9 @@ test('X06 consumes current X05 OPEN evidence into public P23 and common C10 with
  await expect(page.locator('.p23-audit')).toContainText('assisted.x05_alert_consumed');
  const axe=await new AxeBuilder({page}).analyze();expect(axe.violations).toEqual([]);
  await writeFile(info.outputPath('core-x06-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,violations:axe.violations,incomplete:axe.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));
+ const sourceBox=page.getByTestId('current-alert-source');await sourceBox.scrollIntoViewIfNeeded();
+ const geometry=await sourceBox.evaluate(e=>({clientWidth:e.clientWidth,scrollWidth:e.scrollWidth,lines:[...e.querySelectorAll('p')].map(p=>({clientWidth:p.clientWidth,scrollWidth:p.scrollWidth}))}));expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth);for(const p of geometry.lines)expect(p.scrollWidth).toBeLessThanOrEqual(p.clientWidth);
+ await writeFile(info.outputPath('core-x06-source-geometry.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,...geometry},null,2));
  await page.screenshot({path:info.outputPath('core-x06-p23.png'),fullPage:true});
  await page.getByRole('link',{name:'查看审计',exact:true}).click();await authorized(page);
  await expect(page.getByText('assisted.x05_alert_consumed').first()).toBeVisible();
