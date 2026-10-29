@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.25.0
+  version: 1.26.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -10718,6 +10718,64 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/risk-review-candidates:
+    get:
+      operationId: listAssistedNativeRiskCandidates
+      tags:
+        - execution
+      summary: List immutable live R04 candidates for explicit current risk review
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NativeRiskCandidateList"
+              example:
+                items: []
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open
+          proof/request/command deadlines; never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt
+          grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      description: Catalog does not grant risk, approval or command authority. Includes still-live Proposals after old
+        decision expiry; never extends Proposal lifetime. Read-only, no client parameters.
   /v1/assisted-testnet/subjects:
     get:
       operationId: listAssistedSubjects
@@ -12051,6 +12109,10 @@ components:
           maxLength: 20
         activationExpiresAt:
           $ref: "#/components/schemas/DateTime"
+        currentRiskReviewOnly:
+          type: boolean
+        nativeRiskReviewEnabled:
+          type: boolean
     AssistedSubject:
       type: object
       additionalProperties: false
@@ -12097,6 +12159,8 @@ components:
         expiresAt:
           type: string
           format: date-time
+        nativeRiskBinding:
+          $ref: "#/components/schemas/NativeSubjectRiskBinding"
     AssistedApprovalRequest:
       type: object
       additionalProperties: false
@@ -18281,3 +18345,93 @@ components:
                 - false
             subject:
               $ref: "#/components/schemas/AssistedSubject"
+    NativeSubjectRiskBinding:
+      type: object
+      additionalProperties: false
+      required:
+        - snapshotHash
+        - ledgerHash
+        - sourceHash
+        - sourceVersion
+        - killGeneration
+        - expiresAt
+        - executionAuthority
+      properties:
+        snapshotHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        ledgerHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        sourceHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        sourceVersion:
+          type: string
+          pattern: ^[1-9][0-9]*$
+        killGeneration:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        expiresAt:
+          type: string
+          format: date-time
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    NativeRiskCandidate:
+      type: object
+      additionalProperties: false
+      required:
+        - subjectId
+        - proposalId
+        - proposalHash
+        - proposalExpiresAt
+        - accountId
+        - symbol
+        - side
+        - quantity
+        - limitPrice
+        - executionAuthority
+      properties:
+        subjectId:
+          $ref: "#/components/schemas/UUID"
+        proposalId:
+          type: string
+          minLength: 1
+        proposalHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        proposalExpiresAt:
+          type: string
+          format: date-time
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        symbol:
+          type: string
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        quantity:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+        limitPrice:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    NativeRiskCandidateList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          maxItems: 4096
+          items:
+            $ref: "#/components/schemas/NativeRiskCandidate"

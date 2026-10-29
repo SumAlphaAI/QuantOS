@@ -211,3 +211,15 @@ export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local
     });
     test.afterAll(async () => { proxy.closeAllConnections(); await new Promise<void>(r => proxy.close(() => r())); await rm(scratch, { recursive: true, force: true }); });
 }
+/** Owner publication for the current valuation port; never a product HTTP upload. */
+export async function publishOwnedValuation(ledger:Record<string,unknown>){
+ if(!zone)throw Error('Owned mTLS zone required');
+ const {createHmac}=await import('node:crypto'),{rename}=await import('node:fs/promises');
+ const owner=JSON.parse((await readFile(join(zone.directory,'bff-owner.json'))).toString());
+ const canonical=(v:unknown):string=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical((v as Record<string,unknown>)[k])).join(',')+'}':JSON.stringify(v);
+ const scope={tenantId:ledger.tenantId,workspaceId:ledger.workspaceId,accountId:ledger.accountId},at=new Date().toISOString();
+ const value={schemaVersion:'quantos-native-valuation-input.v1',sourceId:'owned-reference-valuation:v1',version:1,scope,basis:'EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS',originLedgerHash:'sha256:'+hash(canonical({schemaVersion:'quantos-native-ledger-checkpoint.v1',scope,entries:[],anchor:{sequence:0,head:null}})),openingAt:owner.createdAt,cashSourceRef:'browser:owned-opening-cash',quoteCashAtOpening:'10000',realizedPnlBeforeOriginToday:'-5',quoteCurrency:'USDT',ledgerHash:ledger.ledgerHash,ledgerAnchor:ledger.anchor,asOf:at,validUntil:new Date(Date.parse(at)+30000).toISOString(),cashCoverageThrough:at,accountStatus:'active',accountStatusAt:at,statusSourceRef:'browser:owned-status',marks:(ledger.positions as {symbol:string;quantity:string}[]).filter(p=>p.quantity!=='0').map(p=>({symbol:p.symbol,price:'1100',sourceRef:'browser:independent-owned-mark',observedAt:at,quality:'normal'}))};
+ const packet={value,signature:createHmac('sha256',Buffer.from(owner.keys[3])).update(canonical(['quantos-l04-durable/v1','valuation-input',value])).digest('hex')};
+ const temp=join(zone.directory,'browser-valuation.tmp');await writeFile(temp,JSON.stringify(packet),{mode:0o600});await rename(temp,join(zone.directory,'valuation-input.json'));
+ return{scope:'OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET',version:1};
+}

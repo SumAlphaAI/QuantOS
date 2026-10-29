@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.25.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.26.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -96,6 +96,12 @@
         },
         "activationExpiresAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "currentRiskReviewOnly": {
+          "type": "boolean"
+        },
+        "nativeRiskReviewEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -157,6 +163,9 @@
         "expiresAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "nativeRiskBinding": {
+          "$ref": "#/$defs/NativeSubjectRiskBinding"
         }
       }
     },
@@ -9110,6 +9119,127 @@
           }
         }
       ]
+    },
+    "NativeSubjectRiskBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshotHash",
+        "ledgerHash",
+        "sourceHash",
+        "sourceVersion",
+        "killGeneration",
+        "expiresAt",
+        "executionAuthority"
+      ],
+      "properties": {
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceVersion": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "NativeRiskCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subjectId",
+        "proposalId",
+        "proposalHash",
+        "proposalExpiresAt",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "limitPrice",
+        "executionAuthority"
+      ],
+      "properties": {
+        "subjectId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "proposalId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "proposalExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "limitPrice": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "NativeRiskCandidateList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/NativeRiskCandidate"
+          }
+        }
+      }
     }
   }
 }

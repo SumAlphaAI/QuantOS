@@ -1,0 +1,45 @@
+{
+  "schema": "quantos-l03-current-review-diagnostics/v1",
+  "scope": "UNFROZEN_DIAGNOSTIC_ONLY",
+  "acceptance": false,
+  "notes": [
+    "GITHUB_SHA in all preflight exports is the initial baseline, not an unfrozen working-tree source claim. Final evidence needs a fresh frozen attempt.",
+    "Repeated model/process captures used shared JSON exports before indexing. Do not associate every diagnostic log with the latest shared export as if it were that run original.",
+    "Original failed browser output remains under preflight/browser; later successful browser diagnostics have a fresh browser-02 directory."
+  ],
+  "failures": [
+    {
+      "file": "models-01.log",
+      "cause": "23/25; test reused an old approval idempotency key for a new Subject (correct Conflict), and tested catalog at Proposal expiry rather than earlier risk expiry. Fixed fixture with fresh per-Subject keys and stricter five-second risk TTL; production limits unchanged."
+    },
+    {
+      "file": "consumers-01.json",
+      "cause": "35/36; attempted unrelated write while review response unknown cleared parent capabilities needed for original recovery. Fixed parent refusal to preserve current recovery conditions while risk intent remains pending."
+    },
+    {
+      "file": "lint-01.log",
+      "cause": "Deferred cyclic runtime binding required const; fixed explicit const after construction."
+    },
+    {
+      "file": "web-build-01.log",
+      "cause": "Build compiled but stopped on the same prefer-const lint; original failure retained."
+    },
+    {
+      "file": "browser/report.json",
+      "cause": "2/3; combined label/select made exact accessible label unavailable. Separated label and select, fresh browser-02 passed3/3."
+    }
+  ],
+  "uncapturedToolDiagnostics": [
+    "Initial UI discriminated unions required explicit function fail/narrowing; repaired and terminal typecheck passed.",
+    "One temporary Python edit containing non-ASCII text stopped before editing workspace.tsx; source edits applied explicitly afterward.",
+    "Preflight index initially used pathlib component ordering, differing from the verifier whole-path lexical ordering. Fixed index order only; original bytes remain intact."
+  ],
+  "additionalHardening": "Explicit current review revokes all earlier Subjects for that same immutable Proposal while retaining signatures/history; public currentRiskReviewOnly also refuses legacy seed new Command fallback. Empty-ledger OS write/cold recovery fixture proves no order is issued.",
+  "secretReview": "Actual gitleaks flagged SHA256 idempotency keyHash columns in original browser network evidence; exact source/file/hash/line/row classification only, no blanket allowlist or raw evidence rewrite. Canary remains an actual refusal.",
+  "rawWhitespaceDiagnostic": {
+    "path": "docs/audit/evidence/core-l03-current-review-local-20261029/preflight/browser/cases/current-risk-review-explic-d3754-s-only-the-original-request-chromium/error-context.md",
+    "line": 53,
+    "result": "ORIGINAL_PLAYWRIGHT_FAILURE_SOURCE_EXCERPT_TRAILING_WHITESPACE_PRESERVED",
+    "check": "git diff --cached --check excludes only this exact original raw artifact; all source and other task files checked"
+  }
+}

@@ -1,0 +1,54 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: current-risk-review.spec.ts >> explicit current native risk action displays signed Deny and recovers only the original request
+- Location: tests/e2e/current-risk-review.spec.ts:6:5
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.selectOption: Target page, context or browser has been closed
+Call log:
+  - waiting for getByTestId('native-risk-review').getByLabel('待评估的 Proposal', { exact: true })
+
+```
+
+# Test source
+
+```ts
+  1  | import {test,expect} from '@playwright/test';
+  2  | import AxeBuilder from '@axe-core/playwright';
+  3  | import {writeFile} from 'node:fs/promises';
+  4  | import {installReferenceHooks,control,useSession,authorized,publishOwnedValuation,fault,networkRows,zoneSnapshot} from './fixtures/frontend-g8-reference';
+  5  | installReferenceHooks('assisted-mtls-local');
+  6  | test('explicit current native risk action displays signed Deny and recovers only the original request',async({page},info)=>{
+  7  |  const rows=await control('/v1/assisted-testnet/subjects',undefined,undefined,{session:'session-current'});const subject=(rows.body.items as {subjectId:string}[])[0]!;
+  8  |  const opened=await control('/v1/assisted-testnet/requests',{subjectId:subject.subjectId},undefined,{session:'session-current',method:'POST'});expect(opened.status).toBe(200);const id=(opened.body.request as {requestId:string}).requestId;
+  9  |  for(const[slot,session]of(['session-approver','session-owner']as const).entries()){
+  10 |   const m=await control('/v1/auth/mfa/challenges',{purpose:'security_change',code:'123456'},undefined,{session,method:'POST'});const a=await control('/v1/auth/reauth',{challengeRef:m.body.challengeRef},undefined,{session,method:'POST'});
+  11 |   const approval=await control(`/v1/assisted-testnet/requests/${id}/approvals`,{expectedRevision:slot,mfaChallengeRef:m.body.challengeRef,reauthTokenRef:a.body.reauthTokenRef},undefined,{session,method:'POST'});expect(approval.status).toBe(200);
+  12 |  }
+  13 |  expect((await control(`/v1/assisted-testnet/requests/${id}/commands`,{expectedRevision:2},undefined,{session:'session-current',method:'POST'})).status).toBe(200);
+  14 |  const original=await control(`/v1/assisted-testnet/requests/${id}`,undefined,undefined,{session:'session-current'}),ledger=await control('/v1/assisted-testnet/ledger',undefined,undefined,{session:'session-current'});expect(ledger.body.appliedFillCount).toBe(1);
+> 15 |  useSession('session-current');await page.goto('/approvals');await authorized(page);const panel=page.getByTestId('native-risk-review');await expect(panel).toBeVisible();await panel.getByLabel('待评估的 Proposal',{exact:true}).selectOption({index:1});await panel.getByRole('button',{name:'核对当前估值',exact:true}).click();await expect(panel.getByTestId('native-risk-valuation')).toContainText('SOURCE_UNAVAILABLE');await expect(panel.getByRole('button',{name:'评估当前风险',exact:true})).toBeDisabled();
+     |                                                                                                                                                                                                                               ^ Error: locator.selectOption: Target page, context or browser has been closed
+  16 |  await publishOwnedValuation(ledger.body);await panel.getByRole('button',{name:'核对当前估值',exact:true}).click();await expect(panel.getByTestId('native-risk-valuation')).toContainText('10099.99');const path=networkRows().filter(r=>!r.control&&r.path==='/v1/assisted-testnet/risk-review-candidates');expect(path.length).toBeGreaterThan(0);expect(networkRows().filter(r=>!r.control&&r.path.endsWith('/risk-reviews'))).toHaveLength(0);
+  17 |  const candidate=await panel.getByLabel('待评估的 Proposal',{exact:true}).inputValue();fault({dropPath:`/v1/assisted-testnet/subjects/${candidate}/risk-reviews`});await panel.getByRole('button',{name:'评估当前风险',exact:true}).click();await expect(panel).toContainText('风险评估结果未知');await panel.getByRole('button',{name:'恢复原风险评估',exact:true}).click();await expect(panel.getByTestId('native-risk-result')).toContainText('风险拒绝 · Deny');await expect(panel.getByTestId('native-risk-result')).toContainText('concentration');await expect(panel.getByRole('button',{name:'为新 Subject 发起独立审批',exact:true})).toHaveCount(0);
+  18 |  const pair=networkRows().filter(r=>!r.control&&r.path.endsWith('/risk-reviews'));expect(pair).toHaveLength(2);expect(pair[0].keyHash).toBe(pair[1].keyHash);expect(pair[0].bodyHash).toBe(pair[1].bodyHash);expect((await control(`/v1/assisted-testnet/requests/${id}`,undefined,undefined,{session:'session-current'})).body).toEqual(original.body);expect(zoneSnapshot()?.protocolCalls).toBe(1);
+  19 |  const axe=await new AxeBuilder({page}).analyze();expect(axe.violations).toEqual([]);await writeFile(info.outputPath('current-risk-axe.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,violations:axe.violations,incomplete:axe.incomplete,manualScreenReader:'NOT_RUN',nativeZoom200:'NOT_RUN'},null,2));await page.screenshot({path:info.outputPath('current-risk-deny.png'),fullPage:true});
+  20 |  await writeFile(info.outputPath('current-risk-browser.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,scope:'ACTUAL_REFERENCE_BFF_OWNED_MTLS_CURRENT_SINGLE_BTC_DENY',explicitReview:true,oldRequestUnchanged:true,independentApprovalsInherited:false,protocolCalls:1,actualTestnet:false,pair:pair.map(({keyHash,...r})=>({...r,idempotencyDigest:keyHash}))},null,2));
+  21 | });
+  22 | test('small screen risk review is read-only and current authority loss clears facts',async({page},info)=>{
+  23 |  useSession('session-current');await page.setViewportSize({width:390,height:844});await page.goto('/approvals');await authorized(page);const panel=page.getByTestId('native-risk-review');await expect(panel).toBeVisible();await expect(panel.getByRole('button',{name:'评估当前风险',exact:true})).toHaveCount(0);await expect(panel.getByRole('button',{name:'为新 Subject 发起独立审批',exact:true})).toHaveCount(0);fault({nonJsonPath:'/v1/context',refusal:403});await page.getByRole('button',{name:'刷新当前事实',exact:true}).click();await expect(page.locator('[data-route-access="denied"]')).toBeVisible();await expect(panel).toHaveCount(0);expect(networkRows().filter(r=>!r.control&&r.method==='POST')).toHaveLength(0);expect(zoneSnapshot()?.protocolCalls).toBe(0);await writeFile(info.outputPath('current-risk-small.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,readOnly:true,authorityLossClearsFacts:true,reviewPosts:0,protocolCalls:0},null,2));
+  24 | });
+  25 | 
+```

@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.25.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.26.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -94,6 +94,7 @@ export type BffOperationId =
   | "getWatchlist"
   | "listAlerts"
   | "listApprovals"
+  | "listAssistedNativeRiskCandidates"
   | "listAssistedRequests"
   | "listAssistedSubjects"
   | "listCapabilities"
@@ -587,6 +588,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.listApprovals;
     if (resolver) return resolver({ request, params });
     return missingResolver("listApprovals");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/risk-review-candidates`, async ({ request, params }) => {
+    const resolver = resolvers.listAssistedNativeRiskCandidates;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listAssistedNativeRiskCandidates");
   }),
   http.get(`${baseUrl}/v1/assisted-testnet/requests`, async ({ request, params }) => {
     const resolver = resolvers.listAssistedRequests;

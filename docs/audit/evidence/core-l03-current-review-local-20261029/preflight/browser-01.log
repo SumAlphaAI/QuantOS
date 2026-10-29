@@ -1,0 +1,33 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/current-risk-review-off.spec.ts:3:5 › server default-off exposes no current-risk mutation and denies its catalog (4.1s)
+  ✘  2 [chromium] › tests/e2e/current-risk-review.spec.ts:6:5 › explicit current native risk action displays signed Deny and recovers only the original request (30.1s)
+  ✓  3 [chromium] › tests/e2e/current-risk-review.spec.ts:22:5 › small screen risk review is read-only and current authority loss clears facts (4.3s)
+
+
+  1) [chromium] › tests/e2e/current-risk-review.spec.ts:6:5 › explicit current native risk action displays signed Deny and recovers only the original request 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByTestId('native-risk-review').getByLabel('待评估的 Proposal', { exact: true })
+
+
+      13 |  expect((await control(`/v1/assisted-testnet/requests/${id}/commands`,{expectedRevision:2},undefined,{session:'session-current',method:'POST'})).status).toBe(200);
+      14 |  const original=await control(`/v1/assisted-testnet/requests/${id}`,undefined,undefined,{session:'session-current'}),ledger=await control('/v1/assisted-testnet/ledger',undefined,undefined,{session:'session-current'});expect(ledger.body.appliedFillCount).toBe(1);
+    > 15 |  useSession('session-current');await page.goto('/approvals');await authorized(page);const panel=page.getByTestId('native-risk-review');await expect(panel).toBeVisible();await panel.getByLabel('待评估的 Proposal',{exact:true}).selectOption({index:1});await panel.getByRole('button',{name:'核对当前估值',exact:true}).click();await expect(panel.getByTestId('native-risk-valuation')).toContainText('SOURCE_UNAVAILABLE');await expect(panel.getByRole('button',{name:'评估当前风险',exact:true})).toBeDisabled();
+         |                                                                                                                                                                                                                               ^
+      16 |  await publishOwnedValuation(ledger.body);await panel.getByRole('button',{name:'核对当前估值',exact:true}).click();await expect(panel.getByTestId('native-risk-valuation')).toContainText('10099.99');const path=networkRows().filter(r=>!r.control&&r.path==='/v1/assisted-testnet/risk-review-candidates');expect(path.length).toBeGreaterThan(0);expect(networkRows().filter(r=>!r.control&&r.path.endsWith('/risk-reviews'))).toHaveLength(0);
+      17 |  const candidate=await panel.getByLabel('待评估的 Proposal',{exact:true}).inputValue();fault({dropPath:`/v1/assisted-testnet/subjects/${candidate}/risk-reviews`});await panel.getByRole('button',{name:'评估当前风险',exact:true}).click();await expect(panel).toContainText('风险评估结果未知');await panel.getByRole('button',{name:'恢复原风险评估',exact:true}).click();await expect(panel.getByTestId('native-risk-result')).toContainText('风险拒绝 · Deny');await expect(panel.getByTestId('native-risk-result')).toContainText('concentration');await expect(panel.getByRole('button',{name:'为新 Subject 发起独立审批',exact:true})).toHaveCount(0);
+      18 |  const pair=networkRows().filter(r=>!r.control&&r.path.endsWith('/risk-reviews'));expect(pair).toHaveLength(2);expect(pair[0].keyHash).toBe(pair[1].keyHash);expect(pair[0].bodyHash).toBe(pair[1].bodyHash);expect((await control(`/v1/assisted-testnet/requests/${id}`,undefined,undefined,{session:'session-current'})).body).toEqual(original.body);expect(zoneSnapshot()?.protocolCalls).toBe(1);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/current-risk-review.spec.ts:15:223
+
+    Error Context: docs/audit/evidence/core-l03-current-review-local-20261029/preflight/browser/cases/current-risk-review-explic-d3754-s-only-the-original-request-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-l03-current-review-local-20261029/preflight/browser/cases/current-risk-review-explic-d3754-s-only-the-original-request-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/current-risk-review.spec.ts:6:5 › explicit current native risk action displays signed Deny and recovers only the original request 
+  2 passed (40.2s)

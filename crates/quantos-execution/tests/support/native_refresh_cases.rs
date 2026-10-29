@@ -100,6 +100,7 @@ fn native_refresh_creates_new_review_and_subject_without_rebinding_original_prop
     f.guard.verify_decision(&r.decision).unwrap();
     f.source.with_current(subject, f.f.now, || ()).unwrap();
     assert_eq!(f.source.provenance(old.id).unwrap(), old_source);
+    assert!(f.source.with_current(&old, f.f.now, || ()).is_err());
     f.service.register_subject(subject.clone()).unwrap();
     let opened = f
         .service
@@ -143,6 +144,7 @@ fn current_single_symbol_concentration_yields_signed_deny_without_subject() {
         .unwrap();
     assert_eq!(r.decision.verdict, RiskVerdict::Deny);
     assert!(r.subject.is_none());
+    assert!(f.source.with_current(&f.subject, f.f.now, || ()).is_err());
     assert_eq!(r.decision.checks.len(), 15);
     assert!(
         r.decision
@@ -355,4 +357,159 @@ fn cold_native_review_restore_retains_original_hashes_and_rejects_wrong_current_
             )
             .is_err()
     );
+}
+#[test]
+fn current_native_subject_requires_two_fresh_independent_mfa_approvals_without_inheriting_old_pair()
+{
+    let f = F::new();
+    let original = f.pair();
+    let review = f
+        .source
+        .refresh_native(f.subject.id, context(&f, true, 0), f.f.now)
+        .unwrap();
+    let subject = review.subject.clone().unwrap();
+    f.service.register_subject(subject.clone()).unwrap();
+    let opened = f
+        .service
+        .open("requester", subject.id, "native-new-open", f.f.now)
+        .unwrap()
+        .receipt;
+    assert_eq!(opened.revision, 0);
+    assert!(opened.approvers.is_empty());
+    assert!(
+        f.service
+            .challenge("requester", opened.request, f.f.now)
+            .is_err()
+    );
+    for (slot, who) in ["first", "second"].into_iter().enumerate() {
+        let proof = f
+            .mfa
+            .attest_provider_completed(
+                f.service.challenge(who, opened.request, f.f.now).unwrap(),
+                f.f.now,
+            )
+            .unwrap();
+        f.service
+            .approve(
+                who,
+                opened.request,
+                slot as u64,
+                &format!("new-{who}"),
+                proof,
+                f.f.now,
+            )
+            .unwrap();
+        if slot == 0 {
+            assert!(f.service.challenge(who, opened.request, f.f.now).is_err());
+        }
+    }
+    let approved = f
+        .service
+        .inspect("requester", opened.request, f.f.now)
+        .unwrap();
+    assert_eq!(approved.revision, 2);
+    assert_eq!(approved.approvers.len(), 2);
+    assert_eq!(
+        f.service
+            .execution_view("requester", original.request, f.f.now)
+            .unwrap(),
+        original
+    );
+    let (audit, anchor) = f.service.audit_snapshot().unwrap();
+    f.service.verify_audit(&audit, &anchor).unwrap();
+    assert_eq!(
+        audit.iter().filter(|a| a.request == opened.request).count(),
+        2
+    );
+    assert!(
+        f.service
+            .open("requester", f.subject.id, "never-fallback", f.f.now)
+            .is_err()
+    );
+    if let Ok(path) = std::env::var("QUANTOS_L03_CURRENT_APPROVAL_MODEL_RESULT") {
+        std::fs::write(path,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"scope":"REAL_DOMAIN_CURRENT_NATIVE_SUBJECT_APPROVAL_NOT_FULL_BFF_NATIVE_SUCCESS","review":review.public_view().unwrap(),"originalReceipt":original,"opened":opened,"approved":approved,"newAuditCount":2,"auditVerified":true,"selfAndDuplicateDenied":true,"originalPairUnchanged":true,"noCommandsIssued":true,"executionAuthority":false})).unwrap()).unwrap();
+    }
+    let newer = f
+        .source
+        .refresh_native(f.subject.id, context(&f, true, 0), f.f.now)
+        .unwrap();
+    assert!(f.source.with_current(&subject, f.f.now, || ()).is_err());
+    f.source
+        .with_current(newer.subject.as_ref().unwrap(), f.f.now, || ())
+        .unwrap();
+}
+#[test]
+fn candidate_catalog_preserves_original_proposal_deadline_after_old_risk_expiry() {
+    let f = F::with_ttl(5);
+    let at = f.decision.expires_at;
+    assert!(f.source.with_current(&f.subject, at, || ()).is_err());
+    let list = f.source.review_candidates(at).unwrap();
+    assert_eq!(list.len(), 1);
+    assert_eq!(list[0]["subjectId"], json!(f.subject.id));
+    assert_eq!(list[0]["proposalHash"], json!(f.subject.proposal_hash));
+    let r = f
+        .source
+        .refresh_native(f.subject.id, context(&f, true, 0), at)
+        .unwrap();
+    assert_eq!(r.proposal_hash, f.subject.proposal_hash);
+    assert!(r.subject.unwrap().expires_at <= f.f.record().expires_at);
+    assert!(
+        f.source
+            .review_candidates(f.f.record().expires_at)
+            .unwrap()
+            .is_empty()
+    );
+}
+#[test]
+fn kill_between_native_mfa_and_second_approval_preserves_first_and_original_generation() {
+    let f = F::new();
+    let review = f
+        .source
+        .refresh_native(f.subject.id, context(&f, true, 0), f.f.now)
+        .unwrap();
+    let subject = review.subject.unwrap();
+    f.service.register_subject(subject.clone()).unwrap();
+    let opened = f
+        .service
+        .open("requester", subject.id, "current-open", f.f.now)
+        .unwrap()
+        .receipt;
+    let proof = f
+        .mfa
+        .attest_provider_completed(
+            f.service
+                .challenge("first", opened.request, f.f.now)
+                .unwrap(),
+            f.f.now,
+        )
+        .unwrap();
+    f.service
+        .approve("first", opened.request, 0, "one", proof, f.f.now)
+        .unwrap();
+    let proof = f
+        .mfa
+        .attest_provider_completed(
+            f.service
+                .challenge("second", opened.request, f.f.now)
+                .unwrap(),
+            f.f.now,
+        )
+        .unwrap();
+    f.source
+        .set_kill_switch(
+            &f.f.owner(),
+            KillScope::Global,
+            true,
+            0,
+            "stop before approval",
+            f.f.now,
+        )
+        .unwrap();
+    assert!(
+        f.service
+            .approve("second", opened.request, 1, "two", proof, f.f.now)
+            .is_err()
+    );
+    assert_eq!(f.service.audit_snapshot().unwrap().0.len(), 1);
+    assert_eq!(review.decision.kill_revision, 0);
 }

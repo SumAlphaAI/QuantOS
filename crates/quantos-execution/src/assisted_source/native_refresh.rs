@@ -64,6 +64,15 @@ impl CurrentSubjectSource {
             context,
             subject,
         };
+        // Preserve every old record, but never fall back to an earlier review
+        // of this immutable Proposal after an explicit current evaluation.
+        let superseded = state
+            .entries
+            .iter()
+            .filter(|(_, e)| e.record.proposal_id == r.proposal_id)
+            .map(|(id, _)| *id)
+            .collect::<Vec<_>>();
+        state.revoked.extend(superseded);
         if r.subject.is_some() {
             state.entries.insert(next.subject.id, next);
         }
@@ -93,6 +102,9 @@ impl NativeReview {
         if let Some(s) = &self.subject {
             response["subject"] = json!({"subjectId":s.id,"subjectHash":digest(s)?,"proposalHash":s.proposal_hash,"decisionId":s.decision,"originator":s.originator,"accountId":s.scope.account,"symbol":s.symbol,"side":s.side,"quantity":s.quantity,"limitPrice":s.limit_price,"expiresAt":s.expires_at});
         }
+        if let Some(subject) = response.get_mut("subject") {
+            subject["nativeRiskBinding"] = native_binding(&self.context);
+        }
         Ok(response)
     }
 }
@@ -111,5 +123,27 @@ impl CurrentSubjectSource {
             return Err(Error::Invalid);
         }
         Ok(())
+    }
+}
+fn native_binding(c: &NativeRiskContext) -> Value {
+    let s = &c.snapshot;
+    json!({"snapshotHash":s.snapshot_hash,"ledgerHash":s.ledger_hash,"sourceHash":s.source_hash,"sourceVersion":s.source_version.to_string(),"killGeneration":s.kill_generation,"expiresAt":s.expires_at,"executionAuthority":false})
+}
+impl CurrentSubjectSource {
+    /// Immutable R04 catalog for explicit re-evaluation. A stale old risk review
+    /// is not a reason to hide the still-live Proposal or renew its lifetime.
+    pub fn review_candidates(&self, at: DateTime<Utc>) -> Result<Vec<Value>, Error> {
+        let state = self.state.lock().map_err(|_| Error::Unavailable)?;
+        state.entries.values().filter(|e|e.native.is_none()&&e.record.created_at<=at&&at<e.record.expires_at).map(|e|Ok(json!({"subjectId":e.subject.id,"proposalId":e.record.proposal_id,"proposalHash":e.subject.proposal_hash,"proposalExpiresAt":e.record.expires_at,"accountId":e.subject.scope.account,"symbol":e.subject.symbol,"side":e.subject.side,"quantity":e.subject.quantity,"limitPrice":e.subject.limit_price,"executionAuthority":false}))).collect()
+    }
+    pub fn native_risk_binding(&self, id: ProposalId) -> Result<Option<Value>, Error> {
+        let state = self.state.lock().map_err(|_| Error::Unavailable)?;
+        Ok(state
+            .entries
+            .get(&id)
+            .ok_or(Error::Invalid)?
+            .native
+            .as_ref()
+            .map(native_binding))
     }
 }

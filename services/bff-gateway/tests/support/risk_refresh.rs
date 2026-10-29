@@ -48,6 +48,15 @@ fn current_native_snapshot_explicit_new_signed_deny_same_proposal_idempotency_re
     write(&lab, &i);
     let view = get(&url, "/v1/assisted-testnet/valuation");
     assert_eq!(view["riskInputReady"], true);
+    let catalog = get(&url, "/v1/assisted-testnet/risk-review-candidates");
+    assert!(
+        catalog["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["subjectId"] == original["subjectId"]
+                && c["proposalHash"] == original["proposalHash"])
+    );
     let key = Uuid::new_v4().to_string();
     let (s, review) = request(&url, &original, &view, &key);
     assert_eq!(s, 200, "{review}");
@@ -132,7 +141,7 @@ fn current_native_snapshot_explicit_new_signed_deny_same_proposal_idempotency_re
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     evidence(
         "QUANTOS_X02_NATIVE_REVIEW_RESULT",
-        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"audit":events,"originalSubject":original,"native":native,"ledger":ledger,"valuation":view,"review":review,"shortReview":short_review,"sameProposal":true,"idempotentOriginalResponse":true,"coldRecovery":true,"missingMarkAndExpiryDenied":true,"injectedFinancialsWrongRoleHashGenerationDenied":true,"originalNativeReservationsUnchanged":true,"protocolCalls":1,"noResend":true,"automaticClosure":false}),
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"catalog":catalog,"audit":events,"originalSubject":original,"native":native,"ledger":ledger,"valuation":view,"review":review,"shortReview":short_review,"sameProposal":true,"idempotentOriginalResponse":true,"coldRecovery":true,"missingMarkAndExpiryDenied":true,"injectedFinancialsWrongRoleHashGenerationDenied":true,"originalNativeReservationsUnchanged":true,"protocolCalls":1,"noResend":true,"automaticClosure":false}),
     );
 }
 pub(super) fn unknown_refusal(lab: &Lab, url: &str, command: &Value) {
@@ -206,9 +215,31 @@ fn native_review_real_write_failure_withholds_response_and_cold_recovery_creates
         .unwrap()
         .unwrap();
     assert_eq!(after["riskRefreshes"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        get(&cold, "/v1/assisted-testnet/capabilities")["currentRiskReviewOnly"],
+        true
+    );
+    let legacy = get(&cold, "/v1/assisted-testnet/subjects");
+    let other = legacy["items"].as_array().unwrap().last().unwrap();
+    let fallback = open(&cold, other);
+    approve(&cold, &fallback, 0);
+    approve(&cold, &fallback, 1);
+    assert_eq!(
+        call(
+            &cold,
+            "session-current",
+            "POST",
+            &format!("/v1/assisted-testnet/requests/{fallback}/commands"),
+            json!({"expectedRevision":2}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        409
+    );
+
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     evidence(
         "QUANTOS_X02_NATIVE_WRITE_RESULT",
-        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualOsWriteDenied":true,"failedStatus":503,"checkpointUnchanged":true,"coldRecoveryExplicitReview":review,"persistedReviewCount":1,"protocolCalls":0,"noResend":true}),
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualOsWriteDenied":true,"failedStatus":503,"checkpointUnchanged":true,"coldRecoveryExplicitReview":review,"persistedReviewCount":1,"legacyFallbackDenied":true,"protocolCalls":0,"noResend":true}),
     );
 }

@@ -278,10 +278,13 @@ impl OwnedHost {
     }
     fn subject(&self, id: ProposalId) -> Result<Value, Error> {
         let s = self.subjects.get(&id).ok_or(Error::Invalid)?;
-        Ok(
-            json!({"subjectId":id,"subjectHash":hashed(s),"proposalHash":s.proposal_hash,"decisionId":s.decision,"originator":s.originator,"accountId":s.scope.account,"symbol":s.symbol,"side":s.side,"quantity":s.quantity,"limitPrice":s.limit_price,"expiresAt":s.expires_at}),
-        )
+        let mut v = json!({"subjectId":id,"subjectHash":hashed(s),"proposalHash":s.proposal_hash,"decisionId":s.decision,"originator":s.originator,"accountId":s.scope.account,"symbol":s.symbol,"side":s.side,"quantity":s.quantity,"limitPrice":s.limit_price,"expiresAt":s.expires_at});
+        if let Some(binding) = self.sources.native_risk_binding(id)? {
+            v["nativeRiskBinding"] = binding;
+        }
+        Ok(v)
     }
+
     fn receipt(&self, r: &Receipt) -> Value {
         json!({"requestId":r.request,"requesterId":r.requester,"subjectId":self.requests.get(&r.request),"subjectHash":r.subject_hash,"policyVersion":r.policy_revision.to_string(),"revision":r.revision,"status":r.status,"approvers":r.approvers,"expiresAt":r.expires_at,"notional":r.notional,"executionAuthority":false})
     }
@@ -315,6 +318,7 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
         .merge(activation::routes())
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
+        .route("/v1/assisted-testnet/risk-review-candidates", get(handle))
         .route(
             "/v1/assisted-testnet/subjects/:subjectId/risk-reviews",
             post(handle),
@@ -388,7 +392,7 @@ async fn handle(
             .unwrap_or(json!({"request":false,"approve":false}));
         return crate::response(
             StatusCode::OK,
-            json!({"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":state.assisted.as_ref().is_some_and(|h|h.enabled()),"activationVersion":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.version.to_string()),"activationExpiresAt":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.valid_until),"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
+            json!({"currentRiskReviewOnly":state.assisted.as_ref().is_some_and(|h|!h.risk_refreshes.is_empty()),"nativeRiskReviewEnabled":state.assisted.as_ref().is_some_and(|h|h.valuation_input.is_some()),"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":state.assisted.as_ref().is_some_and(|h|h.enabled()),"activationVersion":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.version.to_string()),"activationExpiresAt":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.valid_until),"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
             &crate::correlation_id(),
         );
     }
@@ -454,6 +458,12 @@ async fn handle(
             return Err(Error::Disabled);
         }
         if method == Method::GET {
+            if path == "/v1/assisted-testnet/risk-review-candidates" {
+                if uri.query().is_some() || !input.is_empty() {
+                    return Err(Error::Invalid);
+                }
+                return Ok(json!({"items":h.sources.review_candidates(at)?}));
+            }
             if path == "/v1/assisted-testnet/reconciliation" {
                 return h.sync_reconciliation(&sid, at);
             }
@@ -554,6 +564,7 @@ async fn handle(
                 );
                 proof
             };
+            h.require_native_snapshot(&sid, *h.requests.get(&id).ok_or(Error::Invalid)?, clock())?;
             h.service.approve(&sid, id, expected, key, proof, &clock)?;
             return h.view(&sid, id, clock());
         }
@@ -563,6 +574,9 @@ async fn handle(
                 return Err(Error::Conflict);
             }
             let existing = h.native.inspect(&sid, id, clock())?;
+            if existing.is_none() && !h.risk_refreshes.is_empty() {
+                return Err(Error::PolicyChanged);
+            }
             let ledger = h.sync_ledger(&sid, clock())?;
             // No trusted new valuation/review is registered for this profile after
             // financial/quarantined ledger progress. Keep original command recovery, fence new IO.

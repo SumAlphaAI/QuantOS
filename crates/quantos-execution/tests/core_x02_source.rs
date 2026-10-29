@@ -99,7 +99,11 @@ impl F {
         svc
     }
     fn new() -> Self {
-        let f = Self::inputs();
+        Self::with_ttl(60)
+    }
+    fn with_ttl(ttl: i64) -> Self {
+        let mut f = Self::inputs();
+        f.policy.decision_ttl_seconds = ttl;
         let guard = f.guard();
         let source = CurrentSubjectSource::new(guard.clone(), [74; 32]).unwrap();
         let record = Self::record(&f);

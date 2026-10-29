@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.25.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.26.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -21,6 +21,8 @@ export const AssistedNativeCapabilitiesSchema = z.object({
   "reconciliationReaderEnabled": z.boolean().optional(),
   "activationVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20).optional(),
   "activationExpiresAt": z.lazy(() => DateTimeSchema).optional(),
+  "currentRiskReviewOnly": z.boolean().optional(),
+  "nativeRiskReviewEnabled": z.boolean().optional(),
 }).strict();
 
 export const AssistedSubjectSchema = z.object({
@@ -35,6 +37,7 @@ export const AssistedSubjectSchema = z.object({
   "quantity": z.lazy(() => DecimalValueSchema),
   "limitPrice": z.lazy(() => DecimalValueSchema),
   "expiresAt": z.string().datetime({ offset: true }),
+  "nativeRiskBinding": z.lazy(() => NativeSubjectRiskBindingSchema).optional(),
 }).strict();
 
 export const AssistedApprovalRequestSchema = z.object({
@@ -1893,6 +1896,33 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
   "subject": z.lazy(() => AssistedSubjectSchema),
 }).strict()]);
 
+export const NativeSubjectRiskBindingSchema = z.object({
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.string().regex(new RegExp("^[1-9][0-9]*$")),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const NativeRiskCandidateSchema = z.object({
+  "subjectId": z.lazy(() => UUIDSchema),
+  "proposalId": z.string().min(1),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "proposalExpiresAt": z.string().datetime({ offset: true }),
+  "accountId": z.lazy(() => UUIDSchema),
+  "symbol": z.string(),
+  "side": z.enum(["buy","sell"]),
+  "quantity": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "limitPrice": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const NativeRiskCandidateListSchema = z.object({
+  "items": z.array(z.lazy(() => NativeRiskCandidateSchema)).max(4096),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -2054,6 +2084,9 @@ export const bffZodSchemas = {
   NativeCurrentRiskDecision: NativeCurrentRiskDecisionSchema,
   NativeRiskReviewRequest: NativeRiskReviewRequestSchema,
   NativeRiskReviewView: NativeRiskReviewViewSchema,
+  NativeSubjectRiskBinding: NativeSubjectRiskBindingSchema,
+  NativeRiskCandidate: NativeRiskCandidateSchema,
+  NativeRiskCandidateList: NativeRiskCandidateListSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2982,6 +3015,14 @@ export const bffResponseSchemas = {
   },
   "getAssistedNativeCapabilities": {
     "200": z.lazy(() => AssistedNativeCapabilitiesSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listAssistedNativeRiskCandidates": {
+    "200": z.lazy(() => NativeRiskCandidateListSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),

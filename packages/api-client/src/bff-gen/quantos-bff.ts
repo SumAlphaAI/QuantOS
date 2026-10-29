@@ -1915,6 +1915,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/risk-review-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List immutable live R04 candidates for explicit current risk review
+         * @description Catalog does not grant risk, approval or command authority. Includes still-live Proposals after old decision expiry; never extends Proposal lifetime. Read-only, no client parameters.
+         */
+        get: operations["listAssistedNativeRiskCandidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/assisted-testnet/subjects": {
         parameters: {
             query?: never;
@@ -2172,6 +2192,8 @@ export interface components {
             reconciliationReaderEnabled?: boolean;
             activationVersion?: string;
             activationExpiresAt?: components["schemas"]["DateTime"];
+            currentRiskReviewOnly?: boolean;
+            nativeRiskReviewEnabled?: boolean;
         };
         AssistedSubject: {
             subjectId: components["schemas"]["UUID"];
@@ -2187,6 +2209,7 @@ export interface components {
             limitPrice: components["schemas"]["DecimalValue"];
             /** Format: date-time */
             expiresAt: string;
+            nativeRiskBinding?: components["schemas"]["NativeSubjectRiskBinding"];
         };
         AssistedApprovalRequest: {
             requesterId: components["schemas"]["UUID"];
@@ -4278,6 +4301,35 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
             subject: components["schemas"]["AssistedSubject"];
+        };
+        NativeSubjectRiskBinding: {
+            snapshotHash: string;
+            ledgerHash: string;
+            sourceHash: string;
+            sourceVersion: string;
+            killGeneration: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        NativeRiskCandidate: {
+            subjectId: components["schemas"]["UUID"];
+            proposalId: string;
+            proposalHash: string;
+            /** Format: date-time */
+            proposalExpiresAt: string;
+            accountId: components["schemas"]["UUID"];
+            symbol: string;
+            /** @enum {string} */
+            side: "buy" | "sell";
+            quantity: string;
+            limitPrice: string;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        NativeRiskCandidateList: {
+            items: components["schemas"]["NativeRiskCandidate"][];
         };
     };
     responses: {
@@ -11734,6 +11786,39 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["AssistedNativeCapabilities"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listAssistedNativeRiskCandidates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
+                    "application/json": components["schemas"]["NativeRiskCandidateList"];
                 };
             };
             401: components["responses"]["Unauthorized"];
