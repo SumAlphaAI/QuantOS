@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import {Buffer} from 'node:buffer';import {readFileSync} from 'node:fs';
-import {boundary,validateBoundary,validateScope,validatePlans,checks,validateExecutions,hash,directory,canonical,validateFacts,reviewedDigest,validateLedger,validateReconciliation,reviewedClientId,canonical as canonicalValue,preflight} from './core-x05-current-review.mjs';
+import {boundary,validateBoundary,validateScope,validatePlans,checks,validateExecutions,hash,directory,canonical,validateFacts,reviewedDigest,validateLedger,validateReconciliation,reviewedClientId,canonical as canonicalValue,preflight,failedHistory} from './core-x05-current-review.mjs';
 const source='1'.repeat(40),attempt=directory+'/attempt-01',json=p=>JSON.parse(readFileSync(p));
 test('current function check scope excludes recursive campaigns and grants',()=>{validateBoundary(boundary());assert.equal(checks.length,28);assert(!checks.some(([,c])=>c.includes('--workspace')||c.includes('install')));});
 for(const key of Object.keys(boundary()))test('boundary refuses changed '+key,()=>{const b=boundary();b[key]=null;assert.throws(()=>validateBoundary(b));});
@@ -53,3 +53,6 @@ test("Alert evidence does not auto-close after source recovery",()=>{const[p,u,a
 test("derived protocol client id exception excludes secret or wrong command values",()=>{const c="11111111-1111-4111-8111-111111111111",id="q"+hash(canonicalValue(["l01-client/v1",c,c])).slice(0,31),raw=JSON.stringify({sourceCommit:source,records:[{commandId:c,response:{clientOrderId:id}}]},null,2),line=raw.split("\n").findIndex(l=>l.includes("clientOrderId"))+1,f={File:"/tmp/scan/positive/"+attempt+"/reconciliation.json",RuleID:"generic-api-key",StartLine:line,EndLine:line};assert(reviewedClientId(f,attempt,source,()=>raw));assert.equal(reviewedClientId(f,attempt,source,()=>raw.replace(id,"q"+"c".repeat(31))),null);assert.equal(reviewedClientId({...f,File:f.File.replace("reconciliation.json","secrets.json")},attempt,source,()=>raw),null);});
 
 test("current preflight index schema and every actual input hash are checked",()=>{assert(preflight().files>0);});
+
+test("standalone zone test precedes composition binary pinning",()=>assert(checks.findIndex(c=>c[0]==="restricted-zone")<checks.findIndex(c=>c[0]==="build")));
+test("original failed attempt remains source-bound FAIL",()=>assert.equal(failedHistory().status,"FAIL_FINAL_VERIFICATION_BINARY_PROFILE_CHANGED"));
