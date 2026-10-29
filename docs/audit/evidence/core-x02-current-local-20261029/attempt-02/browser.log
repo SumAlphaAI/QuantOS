@@ -1,0 +1,43 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/core-l4-off.spec.ts:5:5 › CORE L4 default off refuses public command and exposes no high risk actions (10.1s)
+  ✘  2 [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery (30.1s)
+  ✓  3 [chromium] › tests/e2e/g8-current.spec.ts:6:5 › G8 current P10 P11 show actual server-closed conditions with no assisted entry or writes (2.9s)
+  ✓  4 [chromium] › tests/e2e/g8-current.spec.ts:12:5 › G8 current non-JSON authority refusal clears actual P10 private facts and no assisted route is exposed (2.5s)
+
+
+  1) [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('assisted-approval-status')
+    Expected substring: "approved"
+    Received string:    "awaiting_second"
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('assisted-approval-status')
+        6 × locator resolved to <dd data-testid="assisted-approval-status">awaiting_second</dd>
+          - unexpected value "awaiting_second"
+      - Target page, context or browser has been closed
+
+
+      11 |   useSession(who);await page.goto('/approvals');await authorized(page);await page.getByRole('button',{name:new RegExp(id)}).click();await expect(page.getByTestId('assisted-approval-status')).toContainText(slot===0?'pending':'awaiting_second');await page.getByLabel(ack,{exact:true}).check();await page.getByRole('button',{name:'独立审批并验证 MFA',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.getByLabel('输入“APPROVE TESTNET”以确认').fill('APPROVE TESTNET');await dialog.getByLabel('MFA 验证码',{exact:true}).fill('123456');if(slot===0)fault({dropPath:path+'/approvals'});await dialog.getByRole('button',{name:'验证并批准',exact:true}).click();
+      12 |   if(slot===0){await expect(page.getByRole('region',{name:'未知操作结果'})).toBeVisible();await page.getByRole('button',{name:'恢复原请求',exact:true}).click();}
+    > 13 |   await expect(page.getByTestId('assisted-approval-status')).toContainText(slot===0?'awaiting_second':'approved');
+         |                                                              ^
+      14 |  }
+      15 |  useSession('session-current');await page.goto('/orders');await authorized(page);await page.getByRole('button',{name:new RegExp(id)}).click();await page.getByLabel(ack,{exact:true}).check();await page.getByRole('button',{name:'提交已双人批准的 testnet Command',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.getByLabel('输入“SUBMIT ASSISTED TESTNET”以确认').fill('SUBMIT ASSISTED TESTNET');fault({dropPath:path+'/commands'});await dialog.getByRole('button',{name:'确认提交 Command',exact:true}).click();await expect(page.getByRole('region',{name:'未知操作结果'})).toBeVisible();await page.getByRole('button',{name:'恢复原请求',exact:true}).click();await expect(page.getByTestId('assisted-native-order')).toContainText('filled');
+      16 |  const audit=await control(path+'/audit',undefined,undefined,{session:'session-current'});expect(audit.body.verified).toBe(true);expect(audit.body.nativeSubmissions).toBe(1);expect(audit.body.items).toHaveLength(2);const latest=await control(path,undefined,undefined,{session:'session-current'});const c=latest.body.command as {commandId:string;subjectHash:string;order:{commandId:string;orderId:string}};expect(c.subjectHash).toBe(row.subject.subjectHash);expect(c.commandId).toBe(c.order.commandId);
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/core-l4.spec.ts:13:62
+
+    Error Context: docs/audit/evidence/core-x02-current-local-20261029/attempt-02/browser/cases/core-l4-CORE-L4-current-P1-9f407-ommon-C10-read-and-recovery-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-x02-current-local-20261029/attempt-02/browser/cases/core-l4-CORE-L4-current-P1-9f407-ommon-C10-read-and-recovery-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery 
+  3 passed (47.3s)

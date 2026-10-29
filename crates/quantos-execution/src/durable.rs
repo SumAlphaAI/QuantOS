@@ -11,6 +11,7 @@ use std::{
     fs::{self, File, OpenOptions},
     io::{Read, Write},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 
 #[derive(Clone)]
@@ -18,6 +19,14 @@ pub struct DurableStore {
     directory: PathBuf,
     name: String,
     key: [u8; 32],
+    verified: Arc<Mutex<Option<VerifiedBytes>>>,
+}
+// Bound to one immutable store name/key. Only successful MAC verification or
+// completed authenticated fsync writes may populate this cache. No assertions
+// supplied by callers or checkpoints can create a verified entry.
+struct VerifiedBytes {
+    bytes: Vec<u8>,
+    value: Value,
 }
 pub struct LockedStore {
     store: DurableStore,
@@ -81,6 +90,7 @@ impl DurableStore {
             directory: directory.into(),
             name: name.into(),
             key,
+            verified: Arc::new(Mutex::new(None)),
         };
         // Complete bootstrap before handing a store to request processing.
         {
@@ -135,6 +145,12 @@ impl LockedStore {
         f.take(32 * 1024 * 1024 + 1)
             .read_to_end(&mut bytes)
             .map_err(unavailable)?;
+        {
+            let cached = self.store.verified.lock().map_err(unavailable)?;
+            if let Some(v) = cached.as_ref().filter(|v| v.bytes == bytes) {
+                return Ok((!v.value.is_null()).then(|| v.value.clone()));
+            }
+        }
         let packet: Value = serde_json::from_slice(&bytes).map_err(unavailable)?;
         let raw = canonical_json_bytes(&json!([
             "quantos-l04-durable/v1",
@@ -147,7 +163,12 @@ impl LockedStore {
         let mut mac = Hmac::<Sha256>::new_from_slice(&self.store.key).map_err(unavailable)?;
         mac.update(&raw);
         mac.verify_slice(&signature).map_err(unavailable)?;
-        Ok((!packet["value"].is_null()).then(|| packet["value"].clone()))
+        let value = packet["value"].clone();
+        *self.store.verified.lock().map_err(unavailable)? = Some(VerifiedBytes {
+            bytes,
+            value: value.clone(),
+        });
+        Ok((!value.is_null()).then_some(value))
     }
     pub fn write(&self, value: &Value) -> Result<(), Error> {
         let raw = canonical_json_bytes(&json!(["quantos-l04-durable/v1", self.store.name, value]))
@@ -172,6 +193,11 @@ impl LockedStore {
         fs::rename(&temporary, self.store.path("json")).map_err(unavailable)?;
         File::open(&self.store.directory)
             .and_then(|f| f.sync_all())
-            .map_err(unavailable)
+            .map_err(unavailable)?;
+        *self.store.verified.lock().map_err(unavailable)? = Some(VerifiedBytes {
+            bytes,
+            value: value.clone(),
+        });
+        Ok(())
     }
 }

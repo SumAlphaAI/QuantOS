@@ -201,3 +201,42 @@ fn core_l04_kill_switch_persists_and_blocks_other_instances_before_io() {
     );
     assert_eq!(calls.load(Ordering::SeqCst), 0);
 }
+#[test]
+fn core_l04_verified_byte_cache_observes_other_writers_and_never_masks_corruption_or_permissions() {
+    let d = Directory::new();
+    let secret = key();
+    let a = DurableStore::new(&d.0, "cache", secret).unwrap();
+    a.lock().unwrap().write(&json!({"revision":1})).unwrap();
+    assert_eq!(
+        a.lock().unwrap().read().unwrap(),
+        Some(json!({"revision":1}))
+    );
+    let b = DurableStore::new(&d.0, "cache", secret).unwrap();
+    b.lock().unwrap().write(&json!({"revision":2})).unwrap();
+    assert_eq!(
+        a.lock().unwrap().read().unwrap(),
+        Some(json!({"revision":2})),
+        "cached read hid another writer"
+    );
+    let original = fs::read(d.0.join("cache.json")).unwrap();
+    fs::write(d.0.join("cache.json"), b"{broken").unwrap();
+    assert!(a.lock().unwrap().read().is_err());
+    fs::write(d.0.join("cache.json"), &original).unwrap();
+    assert_eq!(
+        a.lock().unwrap().read().unwrap(),
+        Some(json!({"revision":2}))
+    );
+    assert!(
+        DurableStore::new(&d.0, "cache", key()).is_err(),
+        "another key reused verified bytes"
+    );
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(d.0.join("cache.json"), fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(
+            a.lock().is_err(),
+            "byte cache bypassed current file permissions"
+        );
+    }
+}

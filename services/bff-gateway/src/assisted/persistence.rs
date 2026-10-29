@@ -113,8 +113,18 @@ fn event_id(text: &str) -> Uuid {
 fn decode<T: serde::de::DeserializeOwned>(v: &Value) -> Result<T, Error> {
     serde_json::from_value(v.clone()).map_err(|_| Error::Unavailable)
 }
-pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Error> {
-    if let Some(v) = tx.read()? {
+pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool, Error> {
+    let value = tx.read()?; // Always authenticate current disk bytes under the stable OS lock.
+    let initialized = value.is_some();
+    if let Some(v) = value
+        && state
+            .assisted
+            .as_ref()
+            .ok_or(Error::Unavailable)?
+            .persisted
+            .as_ref()
+            != Some(&v)
+    {
         let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
         h.service.restore_checkpoint(&v["service"])?;
         h.subjects = decode(&v["subjects"])?;
@@ -135,6 +145,7 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<(), 
         state.challenges = decode(&v["challenges"])?;
         state.reauth_grants = decode(&v["reauthGrants"])?;
         state.consumed_step_proofs = decode(&v["consumedStepProofs"])?;
+        state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(v);
     }
     if !state.session_active {
         state
@@ -144,14 +155,17 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<(), 
             .service
             .revoke_session("session-current")?;
     }
-    Ok(())
+    Ok(initialized)
 }
-pub(super) fn save(state: &ProviderData, tx: &LockedStore) -> Result<(), Error> {
+pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Error> {
     let h = state.assisted.as_ref().ok_or(Error::Unavailable)?;
     if !state.session_active {
         h.service.revoke_session("session-current")?;
     }
-    tx.write(&json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs}))
+    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    tx.write(&value)?;
+    state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(value);
+    Ok(())
 }
 /// Called by the existing public C10 reader, with current C01 authorization.
 /// The stable disk lock also fences it against every cooperating local writer.
@@ -193,16 +207,26 @@ pub(crate) async fn transaction(
         Ok(Ok(tx)) => tx,
         _ => return fail(Error::Unavailable).response(),
     };
-    {
+    let pure_read = request.method() == Method::GET
+        && matches!(
+            request.uri().path(),
+            "/v1/session" | "/v1/context" | "/v1/assisted-testnet/capabilities"
+        );
+    let initialized = {
         let mut state = data.lock().await;
-        if let Err(e) = restore(&mut state, &tx) {
-            return fail(e).response();
+        match restore(&mut state, &tx) {
+            Ok(initialized) => initialized,
+            Err(e) => return fail(e).response(),
         }
-    }
+    };
     let response = next.run(request).await;
-    {
-        let state = data.lock().await;
-        if let Err(e) = save(&state, &tx) {
+    // These exact handlers are pure identity/capability reads. Keep their OS
+    // lock/current authenticated reload, but avoid rewriting the entire ledger.
+    // First read still initializes shared state; all other paths persist even
+    // refusals, including consumed MFA and C10 access audit records.
+    if !pure_read || !initialized {
+        let mut state = data.lock().await;
+        if let Err(e) = save(&mut state, &tx) {
             return fail(e).response();
         }
     }

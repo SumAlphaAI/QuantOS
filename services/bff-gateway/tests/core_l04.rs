@@ -273,7 +273,26 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     let lab = Lab::new();
     let (mut a, url) = lab.bff(true);
     let subjects = get(&url, "/v1/assisted-testnet/subjects");
+    let before = fs::read(lab.directory.join("approvals.json")).unwrap();
+    for path in [
+        "/v1/session",
+        "/v1/context",
+        "/v1/assisted-testnet/capabilities",
+    ] {
+        get(&url, path);
+    }
+    assert_eq!(
+        fs::read(lab.directory.join("approvals.json")).unwrap(),
+        before,
+        "pure reads rewrote current authority ledger"
+    );
+
     let id = open(&url, &subjects["items"][0]);
+    assert_ne!(
+        fs::read(lab.directory.join("approvals.json")).unwrap(),
+        before,
+        "business write was not persisted"
+    );
     approve(&url, &id, 0);
     approve(&url, &id, 1);
     // Actual process death after approvals: recover original immutable source.
@@ -424,6 +443,25 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         &key2,
     );
     assert_eq!(s, 503);
+    private_write(lab.directory.join("approvals.json"), b"{broken");
+    for path in [
+        "/v1/session",
+        "/v1/context",
+        "/v1/assisted-testnet/capabilities",
+    ] {
+        let (status, _) = call(
+            &restarted,
+            "session-current",
+            "GET",
+            path,
+            json!({}),
+            &Uuid::new_v4().to_string(),
+        );
+        assert_eq!(
+            status, 503,
+            "warm authority cache masked corrupt current store"
+        );
+    }
     if let Ok(out) = std::env::var("QUANTOS_CORE_L04_RESULT") {
         fs::write(out,serde_json::to_vec_pretty(&json!({"schema":"quantos-core-l04-local/v1","sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"sameSource":true,"mutualTls":true,"realBffProcesses":true,"replicaRequests":12,"nativeProtocolCalls":1,"commonC10Nodes":5,"unknownNotReissued":true,"fourDrills":["replay","process-recovery","engine-fault","kill-switch"],"corruptStoreDenied":true,"actualTestnetConnected":false,"gate":"NOT_READY_GAPS_OPEN","runtimeAdmission":"DENIED"})).unwrap()).unwrap();
     }

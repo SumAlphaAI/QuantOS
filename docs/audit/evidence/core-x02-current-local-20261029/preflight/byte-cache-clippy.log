@@ -1,0 +1,45 @@
+    Checking quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+    Checking quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: this `if` statement can be collapsed
+   --> services/bff-gateway/src/assisted/persistence.rs:119:5
+    |
+119 | /     if let Some(v) = value {
+120 | |         if state
+121 | |             .assisted
+122 | |             .as_ref()
+...   |
+150 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+119 ~     if let Some(v) = value
+120 ~         && state
+121 |             .assisted
+...
+148 |             state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(v);
+149 ~         }
+    |
+
+error: could not compile `bff-gateway` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `bff-gateway` (lib test) due to 1 previous error
