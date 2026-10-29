@@ -14,7 +14,7 @@
 
 version 0 明确导入既有 owned 参考配置及原 createdAt/expiresAt，source=`owner_reference_bootstrap`、actorId=null。它保持已有组件测试的受控 fixture 前提，不冒充公共 MFA 决定或目标准入；target ceiling 默认关闭时，Owner 也不能公开启用。后续 source=`public_c11`，版本严格递增。私有启动 ceiling 或原窗口与持久 C11 origin 不一致时整笔请求拒绝503，不能用重启参数覆写现有 C11 历史。原目标迁移、真实身份和多主机激活另行验收。
 
-控制 journal、proof 消费与来源事件写入同一认证审批事务，再同步审批服务和 native durable runtime lease，成功后返回；每次 durable 请求先认证、校验 scope/历史/native 预留锚点并同步后处理。实际 BFF 在提交后、native ack 前死亡可恢复同一已授权决定；不创建新 version 或延长原期限。私有 owner 临时目录 `pause-activation-after-commit` 是唯一故障钩子，没有公开注入 HTTP 路径。
+控制 journal、proof 消费与来源事件写入同一认证审批事务，再同步审批服务和 native durable runtime lease，成功后返回；每次 durable 请求先认证、校验 scope/历史/native 预留锚点并同步后处理。handler 开始前将候选内存缓存标记为未提交；只有认证保存成功才能恢复缓存。真实 OS 写入拒绝后，warm read 只重载原持久版本，不能同步未提交启用；原请求显式恢复仍沿用原 proof/版本。实际 BFF 在提交后、native ack 前死亡可恢复同一已授权决定；不创建新 version 或延长原期限。私有 owner 临时目录 `pause-activation-after-commit` 是唯一故障钩子，没有公开注入 HTTP 路径。
 
 native 在实际提交边界按当前时钟检查 lease，并把原 lease 截止并入 Command deadline；当前 Proposal/RiskDecision、两人审批、MFA/session、risk generation 和 kill 仍独立核对。C11 version 不改变 kill generation、审批策略/request revision、旧命令 signature/nonce/有效期、永久停止或手动 kill。C11 effective 只表示租约满足；runtimeWritable 还要求未停止，两者均 `executionAuthority=false`，不代表单独授予交易或正式运行准入。
 

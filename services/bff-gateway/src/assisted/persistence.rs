@@ -327,6 +327,13 @@ pub(crate) async fn transaction(
             Err(e) => return fail(e).response(),
         }
     };
+    // Any handler may stage state which a failed fsync must never promote on
+    // the next cache hit. Only a successful authenticated save restores cache.
+    if (!pure_read || !initialized)
+        && let Some(h) = data.lock().await.assisted.as_mut()
+    {
+        h.persisted = None;
+    }
     let response = next.run(request).await;
     // These exact handlers are pure identity/capability reads. Keep their OS
     // lock/current authenticated reload, but avoid rewriting the entire ledger.

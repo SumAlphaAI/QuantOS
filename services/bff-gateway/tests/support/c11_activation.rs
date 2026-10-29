@@ -348,3 +348,59 @@ pub(super) fn unknown_current_c11(lab: &Lab, url: &str, unknown: &Value) {
         json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"command":unknown,"before":before,"after":after,"alerts":alerts,"afterAlerts":after_alerts,"off":off,"on":on,"killGenerationBefore":stopped["generation"],"unknownReservationsUnchanged":true,"noResend":true,"protocolCalls":1,"actualTestnet":false}),
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn c11_failed_journal_write_cannot_activate_uncommitted_lease_on_warm_read() {
+    use std::os::unix::fs::PermissionsExt;
+    let lab = Lab::new();
+    let (_p, url) = lab.bff(true);
+    let initial = current(&url);
+    change(&url, &initial, false);
+    let off = current(&url);
+    let input = body(&url, &off, true);
+    let key = Uuid::new_v4().to_string();
+    let committed = owner_store(&lab, "approvals")
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap()
+        .unwrap();
+    // Real OS write denial, not a synthetic HTTP outcome or accepted zero IO.
+    fs::set_permissions(&lab.directory, fs::Permissions::from_mode(0o500)).unwrap();
+    assert!(
+        fs::write(lab.directory.join("write-denial-probe"), b"must refuse").is_err(),
+        "owned test requires an unprivileged Unix caller"
+    );
+    let denied = put(&url, &off, input.clone(), &key);
+    fs::set_permissions(&lab.directory, fs::Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(denied.0, 503, "{:?}", denied.1);
+    assert_eq!(
+        owner_store(&lab, "approvals")
+            .lock()
+            .unwrap()
+            .read()
+            .unwrap()
+            .unwrap(),
+        committed
+    );
+    let identity = get(&url, "/v1/session");
+    assert_eq!(identity["mode"], "assisted_live");
+    let after = current(&url);
+    assert_eq!(after["version"], "1");
+    assert_eq!(after["effective"], false);
+    assert_eq!(after["nativeActivationVersion"], "1");
+    assert_eq!(after["historyCount"], 2);
+    let (s, receipt) = put(&url, &off, input, &key);
+    assert_eq!(s, 200, "{receipt}");
+    let recovered = current(&url);
+    assert_eq!(recovered["version"], "2");
+    assert_eq!(recovered["effective"], true);
+    assert_eq!(recovered["killGeneration"], "0");
+    assert_eq!(recovered["historyCount"], 3);
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    evidence(
+        "QUANTOS_C11_WRITE_FAILURE_RESULT",
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualOsWriteDenied":true,"failedResponseStatus":denied.0,"committedStateUnchanged":true,"warmRead":after,"manualOriginalReceipt":receipt,"afterManualRecovery":recovered,"noImplicitActivation":true,"protocolCalls":0,"actualTestnet":false}),
+    );
+}

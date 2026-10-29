@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {validateScope,validateView,validateDrills,validateExecutions,classifyFinding,json,scopePath,checks,hash,directory} from './core-x06-c11-activation-review.mjs';
+import {validateScope,validateView,validateDrills,validateWriteFailure,validateExecutions,classifyFinding,json,scopePath,checks,hash,directory} from './core-x06-c11-activation-review.mjs';
 import {activationView,activationEvent,id,at} from '../apps/terminal/tests/fixtures/c11-activation.ts';
 const copy=globalThis.structuredClone,source='a'.repeat(40),stamp=n=>new Date(at+n).toISOString();
 const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
@@ -16,3 +16,7 @@ for(const mutate of [p=>p[2].on.killGeneration='0',p=>p[2].after={appliedFillCou
 function executions(){return checks.map(([id,cmd,want=0])=>({id,command:cmd.map(s=>s.replaceAll('{attempt}','attempt')),exitCode:want,signal:null,errorCode:null,log:'attempt/'+id+'.log',logSha256:hash('bytes'),startedAt:stamp(0),finishedAt:stamp(1000)}));}
 test('no zero-command or modified-command acceptance',()=>{assert.doesNotThrow(()=>validateExecutions(executions(),'attempt',()=> 'bytes'));for(const change of [r=>r.pop(),r=>r[0].exitCode=1,r=>r[0].command.push('--skip'),r=>r[0].logSha256='fake']){const r=executions();change(r);assert.throws(()=>validateExecutions(r,'attempt',()=> 'bytes'));}});
 test('exact source-bound PUT digest is reviewed, arbitrary key/path/rule remains rejected',()=>{const attempt=directory+'/attempt-01',path=attempt+'/browser/cases/owned-chromium/frontend-g8.json',raw=JSON.stringify({sourceCommit:source,keyHash:'a'.repeat(64),rows:[{keyHash:'a'.repeat(64),method:'PUT',path:'/v1/admin/feature-flags/'+id,bodyHash:'b'.repeat(64)}]},null,2),f={File:'/tmp/positive/'+path,RuleID:'generic-api-key',StartLine:3,EndLine:3};assert(classifyFinding(f,attempt,source,()=>raw));for(const change of [{StartLine:2},{RuleID:'private-key'},{File:'/tmp/positive/random.json'},{EndLine:4}])assert.equal(classifyFinding({...f,...change},attempt,source,()=>raw),null);assert.equal(classifyFinding(f,attempt,'b'.repeat(40),()=>raw),null);});
+
+function writePacket(){const p=packet()[0];return{sourceCommit:source,actualTestnet:false,actualOsWriteDenied:true,failedResponseStatus:503,committedStateUnchanged:true,noImplicitActivation:true,protocolCalls:0,warmRead:p.off,afterManualRecovery:p.on,manualOriginalReceipt:{event:p.history.items[2],readCurrentState:true}};}
+test('real journal write refusal requires old warm state and explicit original recovery',()=>assert.equal(validateWriteFailure(writePacket(),source).uncommittedWarmActivationDenied,true));
+for(const change of [p=>p.failedResponseStatus=200,p=>p.warmRead.version='2',p=>p.committedStateUnchanged=false,p=>p.manualOriginalReceipt.event.version='3',p=>p.sourceCommit='b'.repeat(40)])test('rejects uncommitted write-failure promotion or missing evidence',()=>{const p=writePacket();change(p);assert.throws(()=>validateWriteFailure(p,source));});
