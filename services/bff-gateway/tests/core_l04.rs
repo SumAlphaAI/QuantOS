@@ -8,7 +8,6 @@ use serde_json::{Value, json};
 use std::{
     fs,
     io::{BufRead, BufReader},
-    net::TcpListener,
     path::PathBuf,
     process::{Child, Command, Stdio},
     sync::mpsc,
@@ -153,15 +152,12 @@ impl Lab {
             .expect("owned BFF must start")
     }
     fn bff_or_startup_refusal(&self, enabled: bool) -> Option<(Process, String)> {
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let address = listener.local_addr().unwrap();
-        drop(listener);
         let mut child = Process(
             Command::new(env!("CARGO_BIN_EXE_bff-gateway"))
                 .env_clear()
                 .env("PATH", std::env::var("PATH").unwrap())
                 .env("TMPDIR", std::env::temp_dir())
-                .env("QUANTOS_BFF_BIND", address.to_string())
+                .env("QUANTOS_BFF_BIND", "127.0.0.1:0")
                 .env("QUANTOS_BFF_REFERENCE_CONTEXT", "assisted-mtls-local")
                 .env("QUANTOS_BFF_OWNED_MTLS_DIRECTORY", &self.directory)
                 .env(
@@ -192,6 +188,13 @@ impl Lab {
         }
         let ready: Value = serde_json::from_str(&ready_line).expect("owned BFF readiness JSON");
         assert_eq!(ready["ready"], true);
+        let address: std::net::SocketAddr = ready["address"].as_str().unwrap().parse().unwrap();
+        assert!(address.ip().is_loopback());
+        assert_ne!(
+            address.port(),
+            0,
+            "readiness must report the retained OS listener"
+        );
         Some((child, format!("http://{address}")))
     }
     fn trace(&self) -> Value {

@@ -26,6 +26,8 @@ node docs/audit/evidence/core-l4-controls-local-20261029/verify.mjs
 
 必须新attempt，冻结源码绑定。package当前入口指向本轮；旧脚本保留原作用域，不能对当前源码执行旧门禁后改绑历史。工程Gate目标 `PASS_L4_CURRENT_COMPOSITION_WITH_PUBLIC_KILL_C11_AND_GAPS`，以实际回执为准；开发评估 `COMPLETED_CURRENT_SCOPE`，完整Gate `NOT_READY_GAPS_OPEN`、stage `NOT_ASSESSED`、formalAccepted=false、runtimeAdmission=DENIED、M5 PREPARED_NOT_READY。正式文稿待用户确认，不自行批准。
 
+首轮冻结0b6aede8的进程检查8/9，原fixture预占/释放端口后由BFF再次绑定发生EADDRINUSE；后续14项NOT_RUN。原attempt-01与日志按hash保留FAIL。修复只使BFF直接绑定OS分配的端口0、readiness报告listener.local_addr，fixture消费已持有的真实loopback地址；不添加启动自动重试、不修改业务授权。修复后的候选独立新attempt验收。
+
 当前参考C01/F06/自有签名端口/临时mTLS和认证fsync文件+配合OS锁，不能抵抗全目录/密钥/宿主同时回滚，不证明Supabase/Vault/RLS、分布式原子提交或真实testnet。实际身份/目标DB/Vault/venue、完整财务和books、跨主机、外部通知/明确关闭、目标安全/容量/性能/长稳/同SHA CI/发布、完整浏览器/人工无障碍均NOT_RUN。无生产凭据、推送或外部发布。
 
 下一原任务 `CORE:X01 DEVELOPMENT / L4-VALUATION-RISK-INPUT-01`（属于既有L4-LEDGER-01与L4-CURRENT-SOURCE-01，不新增分母）：接当前不可变账本的资金/mark来源、valuation/P&L/exposure与风险输入快照，验证账户/来源/时效/UNKNOWN保留；没有可信mark或已有UNKNOWN时保持风险拒绝。随后由X02消费新快照生成显式新风险决定，X05补齐独立books与通知/审查关闭。目标准入仍独立办理。

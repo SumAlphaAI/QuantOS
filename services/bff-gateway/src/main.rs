@@ -28,6 +28,9 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(address)
         .await
         .with_context(|| format!("failed to bind the reference provider to {address}"))?;
+    // Port zero asks the OS to allocate and retain an ephemeral listener. Report
+    // the bound address so owned callers need no reserve/drop/rebind race.
+    let address = listener.local_addr().context("read bound BFF address")?;
     let router = if live {
         let database_url = env::var("QUANTOS_BFF_DATABASE_URL")
             .context("live BFF requires QUANTOS_BFF_DATABASE_URL")?;

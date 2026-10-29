@@ -1,0 +1,93 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T08:31:16.108Z",
+    "finishedAt": "2026-10-29T08:31:16.333Z",
+    "log": "docs/audit/evidence/core-l4-controls-local-20261029/attempt-01/development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "assessment",
+    "command": [
+      "node",
+      "scripts/core-l4-controls-review.mjs",
+      "--audit"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T08:31:16.333Z",
+    "finishedAt": "2026-10-29T08:31:19.188Z",
+    "log": "docs/audit/evidence/core-l4-controls-local-20261029/attempt-01/assessment.log",
+    "logSha256": "b45356534ce995a3d88910ef59be21eeb12c798e9cbeaf2ed85f165ea4fd00b1"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T08:31:19.188Z",
+    "finishedAt": "2026-10-29T08:31:19.384Z",
+    "log": "docs/audit/evidence/core-l4-controls-local-20261029/attempt-01/build.log",
+    "logSha256": "f0788aa36d1c86b6ccdfb7f4042a5574102d82061c046422a2d42e008a1e4710"
+  },
+  {
+    "id": "authority",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "assisted::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T08:31:19.441Z",
+    "finishedAt": "2026-10-29T08:31:29.529Z",
+    "log": "docs/audit/evidence/core-l4-controls-local-20261029/attempt-01/authority.log",
+    "logSha256": "cf337a94eccca9e4655a4b1c425870978bf9b6d9bc3be0be449926345fcaebca"
+  },
+  {
+    "id": "public-process",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04"
+    ],
+    "exitCode": 101,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T08:31:29.530Z",
+    "finishedAt": "2026-10-29T08:32:39.348Z",
+    "log": "docs/audit/evidence/core-l4-controls-local-20261029/attempt-01/public-process.log",
+    "logSha256": "7e664dc0cb0529670679701734b36d6d99166a24e8633307365516c34199541d"
+  }
+]
