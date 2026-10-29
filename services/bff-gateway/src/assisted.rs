@@ -116,6 +116,9 @@ pub(crate) struct OwnedHost {
     ledger: Option<quantos_portfolio::native_ledger::NativeLedger>,
     ledger_store: Option<quantos_execution::durable::DurableStore>,
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
+    valuation: quantos_portfolio::native_valuation::State,
+    valuation_committed: quantos_portfolio::native_valuation::State,
+    valuation_input: Option<quantos_execution::durable::DurableStore>,
     controls: control::Controls,
     activation: activation::Activation,
     activation_origin: activation::Activation,
@@ -249,6 +252,9 @@ impl OwnedHost {
             ledger: None,
             ledger_store: None,
             ledger_anchor: Default::default(),
+            valuation: Default::default(),
+            valuation_committed: Default::default(),
+            valuation_input: None,
             controls: Default::default(),
             native_anchor: None,
             control_fixture_directory: None,
@@ -308,6 +314,7 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
         .route("/v1/assisted-testnet/ledger", get(handle))
+        .route("/v1/assisted-testnet/valuation", get(handle))
         .route("/v1/assisted-testnet/reconciliation", get(handle))
         .route("/v1/assisted-testnet/requests", get(handle).post(handle))
         .route("/v1/assisted-testnet/requests/:requestId", get(handle))
@@ -444,6 +451,12 @@ async fn handle(
             if path == "/v1/assisted-testnet/reconciliation" {
                 return h.sync_reconciliation(&sid, at);
             }
+            if path == "/v1/assisted-testnet/valuation" {
+                if uri.query().is_some() || !input.is_empty() {
+                    return Err(Error::Invalid);
+                }
+                return h.sync_valuation(&sid, at);
+            }
             if path == "/v1/assisted-testnet/ledger" {
                 return h.sync_ledger(&sid, at);
             }
@@ -564,3 +577,5 @@ mod reconciliation;
 mod source_seed;
 
 pub(crate) mod activation;
+
+mod valuation;

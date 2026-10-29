@@ -2035,6 +2035,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/valuation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read current source-bound X01 valuation exposure and risk-input snapshot
+         * @description Owner authenticated reference inputs only; bind scope, current ledger, source version, original source deadline and current kill generation. UNKNOWN or missing/stale marks return no usable snapshot. No browser input, new RiskDecision, command authority, reset or automatic closure.
+         */
+        get: operations["getAssistedNativeValuation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/assisted-testnet/reconciliation": {
         parameters: {
             query?: never;
@@ -4005,6 +4025,122 @@ export interface components {
             readCurrentState: true;
             /** @enum {boolean} */
             executionAuthority: false;
+        };
+        NativeValuationScope: {
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+        };
+        NativeValuationPosition: {
+            symbol: string;
+            quantity: string;
+            averageEntryPrice: string;
+            markPrice: string;
+            marketValue: string;
+            unrealizedPnl: string;
+            realizedPnl: string;
+            markSourceRef: string;
+            /** Format: date-time */
+            markObservedAt: string;
+        };
+        NativeRiskInputSnapshot: {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-risk-input-snapshot.v1";
+            scope: components["schemas"]["NativeValuationScope"];
+            ledgerHash: string;
+            ledgerAnchor: {
+                sequence: number;
+                head: string | null;
+            };
+            sourceHash: string;
+            sourceVersion: number;
+            /** @enum {string} */
+            sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
+            /** @enum {string} */
+            basis: "EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS";
+            killGeneration: string;
+            /** @enum {string} */
+            quoteCurrency: "USDT";
+            positions: components["schemas"]["NativeValuationPosition"][];
+            quoteCash: string;
+            equity: string;
+            realizedPnlToday: string;
+            unrealizedPnl: string;
+            totalPnlToday: string;
+            exposureGross: string;
+            exposureNet: string;
+            /** Format: date-time */
+            generatedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            snapshotHash: string;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        NativeValuationView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-valuation-view.v1";
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            /** Format: date-time */
+            checkedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            ledgerHash: string;
+            ledgerAnchor: {
+                sequence: number;
+                head: string | null;
+            };
+            killGeneration: string;
+            /** @enum {integer} */
+            quarantinedCommandCount: 0;
+            /** @enum {boolean} */
+            riskInputReady: true;
+            /** @enum {string} */
+            reason: "READY_OWNED_REFERENCE_INPUT";
+            /** @enum {string} */
+            sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
+            /** @enum {boolean} */
+            executionAuthority: false;
+            sourceVersions: number;
+            snapshotCount: number;
+            sourceHash: string;
+            sourceVersion: string;
+            snapshot: components["schemas"]["NativeRiskInputSnapshot"];
+        } | {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-valuation-view.v1";
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            /** Format: date-time */
+            checkedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            ledgerHash: string;
+            ledgerAnchor: {
+                sequence: number;
+                head: string | null;
+            };
+            killGeneration: string;
+            quarantinedCommandCount: number;
+            /** @enum {boolean} */
+            riskInputReady: false;
+            /** @enum {string} */
+            reason: "SOURCE_UNAVAILABLE" | "OPEN_ORDER_RESERVATIONS_UNMODELED" | "UNKNOWN_OR_QUARANTINED_OBLIGATIONS" | "LEDGER_MISMATCH" | "LEDGER_TIME_MISMATCH" | "DAY_ROLLOVER" | "STALE_SOURCE" | "INACTIVE_ACCOUNT" | "MISSING_MARK" | "STALE_OR_UNTRUSTED_MARK" | "INVALID_ACCOUNT_CASH_OR_EQUITY";
+            /** @enum {string} */
+            sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
+            /** @enum {boolean} */
+            executionAuthority: false;
+            sourceVersions: number;
+            snapshotCount: number;
+            sourceHash?: string;
+            sourceVersion?: string;
         };
     };
     responses: {
@@ -11927,6 +12063,58 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["AssistedLedgerView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedNativeValuation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-native-valuation-view.v1",
+                     *       "tenantId": "22222222-2222-4222-8222-222222222222",
+                     *       "workspaceId": "33333333-3333-4333-8333-333333333333",
+                     *       "accountId": "44444444-4444-4444-8444-444444444444",
+                     *       "mode": "assisted_live",
+                     *       "checkedAt": "2026-10-29T00:00:00Z",
+                     *       "expiresAt": "2026-10-29T00:00:08Z",
+                     *       "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "ledgerAnchor": {
+                     *         "sequence": 0,
+                     *         "head": null
+                     *       },
+                     *       "killGeneration": "0",
+                     *       "quarantinedCommandCount": 0,
+                     *       "riskInputReady": false,
+                     *       "reason": "SOURCE_UNAVAILABLE",
+                     *       "sourceTrust": "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET",
+                     *       "executionAuthority": false,
+                     *       "sourceVersions": 0,
+                     *       "snapshotCount": 0
+                     *     }
+                     */
+                    "application/json": components["schemas"]["NativeValuationView"];
                 };
             };
             401: components["responses"]["Unauthorized"];

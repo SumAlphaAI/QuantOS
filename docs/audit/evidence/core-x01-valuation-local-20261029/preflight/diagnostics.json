@@ -1,0 +1,40 @@
+{
+  "schema": "quantos-x01-valuation-preflight-diagnostics/v1",
+  "scope": "UNFROZEN_DIAGNOSTIC_ONLY",
+  "acceptance": false,
+  "notes": [
+    "All preflight executions used an unfrozen working tree; GITHUB_SHA was the baseline and is not a current-source acceptance binding. Final acceptance requires a fresh frozen attempt.",
+    "Raw failed outputs remain. Later captures replaced the shared valuation/unknown/write-failure JSON exports before this index; do not associate each diagnostic log with the latest JSON as if it were its original artifact.",
+    "generate-01 preceded the actual OpenAPI transform and belongs only to the earlier schema scope."
+  ],
+  "failures": [
+    {
+      "artifact": "process-01.log",
+      "cause": "Test helper attempted JSON parsing of a valid empty HTTP 405 response. Narrow fix asserts raw status; public POST remains unavailable."
+    },
+    {
+      "artifact": "process-02.log",
+      "cause": "Three-second source lease was published before process recovery and correctly expired during startup. Producer publication now occurs after restart; original runtime deadlines unchanged."
+    },
+    {
+      "artifact": "contracts-01.log",
+      "cause": "New root contract suite could not resolve workspace package alias. Fixed to relative generated Zod import; old nine cases passed and current 27 cases separately passed."
+    }
+  ],
+  "uncapturedDiagnostics": [
+    "Initial Rust compile rejected private generation access; fixed by using current authoritative kill_status revision. Timestamp generic/import warnings repaired before succeeding compile.",
+    "Temporary API helper initially lacked YAML module resolution; corrected createRequire against repository package.json.",
+    "Temporary OpenAPI enum indentation issue prevented helper import before test execution; repaired and generated artifacts checked."
+  ],
+  "currentDiagnosticCounts": {
+    "models": 27,
+    "authorityFromActualFullProcessBuild": "FINAL_FROZEN_RUN_REQUIRED",
+    "process": 12,
+    "consumer": 11,
+    "contract": 27,
+    "node": 64
+  },
+  "preservedUnknown": true,
+  "noProductionCredentials": true,
+  "noExternalPublication": true
+}

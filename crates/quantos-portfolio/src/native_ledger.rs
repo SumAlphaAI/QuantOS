@@ -17,13 +17,13 @@ pub enum Error {
     Conflict,
 }
 type Result<T> = std::result::Result<T, Error>;
-fn digest(v: &impl Serialize) -> Result<ContentHash> {
+pub(crate) fn digest(v: &impl Serialize) -> Result<ContentHash> {
     Ok(ContentHash::sha256_bytes(
         &canonical_json_bytes(&serde_json::to_value(v).map_err(|_| Error::Invalid)?)
             .map_err(|_| Error::Invalid)?,
     ))
 }
-fn decimal(s: &str) -> Result<Decimal> {
+pub(crate) fn decimal(s: &str) -> Result<Decimal> {
     if s.is_empty() || s.len() > 80 || s.contains(['e', 'E', '+']) {
         return Err(Error::Invalid);
     }
@@ -36,7 +36,7 @@ fn positive(s: &str) -> Result<Decimal> {
     }
     Ok(d)
 }
-fn add(a: Decimal, b: Decimal) -> Result<Decimal> {
+pub(crate) fn add(a: Decimal, b: Decimal) -> Result<Decimal> {
     let scale = a.scale().max(b.scale());
     let a = a
         .mantissa()
@@ -56,10 +56,10 @@ fn add(a: Decimal, b: Decimal) -> Result<Decimal> {
         .ok_or(Error::Invalid)?;
     exact(a.checked_add(b).ok_or(Error::Invalid)?, scale)
 }
-fn sub(a: Decimal, b: Decimal) -> Result<Decimal> {
+pub(crate) fn sub(a: Decimal, b: Decimal) -> Result<Decimal> {
     add(a, -b)
 }
-fn mul(a: Decimal, b: Decimal) -> Result<Decimal> {
+pub(crate) fn mul(a: Decimal, b: Decimal) -> Result<Decimal> {
     let a = a.normalize();
     let b = b.normalize();
     exact(
@@ -76,7 +76,7 @@ fn exact(mut value: i128, mut scale: u32) -> Result<Decimal> {
     }
     Decimal::try_from_i128_with_scale(value, scale).map_err(|_| Error::Invalid)
 }
-fn text(d: Decimal) -> String {
+pub(crate) fn text(d: Decimal) -> String {
     d.normalize().to_string()
 }
 
@@ -309,6 +309,43 @@ impl NativeLedger {
             cash: Decimal::ZERO,
             fees: Decimal::ZERO,
         })
+    }
+    pub fn scope(&self) -> &Scope {
+        &self.scope
+    }
+    pub(crate) fn has_open_orders(&self) -> bool {
+        self.entries.iter().any(|e| match &e.observation {
+            Observation::Facts(f) => f.order.as_ref().is_some_and(|o| {
+                !matches!(
+                    o.status.as_str(),
+                    "filled" | "cancelled" | "rejected" | "expired"
+                )
+            }),
+            Observation::Legacy(_) => true,
+        })
+    }
+    pub(crate) fn source_window(
+        &self,
+    ) -> Option<(chrono::DateTime<chrono::Utc>, chrono::DateTime<chrono::Utc>)> {
+        let times = self
+            .entries
+            .iter()
+            .filter_map(|e| match &e.observation {
+                Observation::Facts(f) => Some((
+                    f.fills
+                        .iter()
+                        .map(|v| v.filled_at)
+                        .min()
+                        .unwrap_or(f.recorded_at),
+                    f.recorded_at,
+                )),
+                Observation::Legacy(_) => None,
+            })
+            .collect::<Vec<_>>();
+        Some((
+            times.iter().map(|t| t.0).min()?,
+            times.iter().map(|t| t.1).max()?,
+        ))
     }
     pub fn anchor(&self) -> Anchor {
         Anchor {

@@ -1033,6 +1033,7 @@ fn core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit() {
     }
     // The single original completion trace was consumed above.
     c11_activation::unknown_current_c11(&lab, &restarted, &recovered);
+    valuation::unknown(&lab, &restarted, &recovered);
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
 }
 
@@ -1094,3 +1095,6 @@ mod c11_activation;
 
 #[path = "support/l4_controls.rs"]
 mod l4_controls;
+
+#[path = "support/valuation.rs"]
+mod valuation;

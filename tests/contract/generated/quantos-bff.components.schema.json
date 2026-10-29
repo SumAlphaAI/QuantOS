@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.23.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.24.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -8065,6 +8065,505 @@
           ]
         }
       }
+    },
+    "NativeValuationScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "workspaceId",
+        "accountId"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "NativeValuationPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "quantity",
+        "averageEntryPrice",
+        "markPrice",
+        "marketValue",
+        "unrealizedPnl",
+        "realizedPnl",
+        "markSourceRef",
+        "markObservedAt"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "averageEntryPrice": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "markPrice": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "marketValue": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "unrealizedPnl": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "realizedPnl": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "markSourceRef": {
+          "type": "string"
+        },
+        "markObservedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "NativeRiskInputSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "ledgerHash",
+        "ledgerAnchor",
+        "sourceHash",
+        "sourceVersion",
+        "sourceTrust",
+        "basis",
+        "killGeneration",
+        "quoteCurrency",
+        "positions",
+        "quoteCash",
+        "equity",
+        "realizedPnlToday",
+        "unrealizedPnl",
+        "totalPnlToday",
+        "exposureGross",
+        "exposureNet",
+        "generatedAt",
+        "expiresAt",
+        "snapshotHash",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-native-risk-input-snapshot.v1"
+          ]
+        },
+        "scope": {
+          "$ref": "#/$defs/NativeValuationScope"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerAnchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "head"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "head": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 512
+        },
+        "sourceTrust": {
+          "type": "string",
+          "enum": [
+            "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS"
+          ]
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "quoteCurrency": {
+          "type": "string",
+          "enum": [
+            "USDT"
+          ]
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/NativeValuationPosition"
+          },
+          "maxItems": 256
+        },
+        "quoteCash": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "equity": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "realizedPnlToday": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "unrealizedPnl": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "totalPnlToday": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "exposureGross": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "exposureNet": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "NativeValuationView": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schemaVersion",
+            "tenantId",
+            "workspaceId",
+            "accountId",
+            "mode",
+            "checkedAt",
+            "expiresAt",
+            "ledgerHash",
+            "ledgerAnchor",
+            "killGeneration",
+            "quarantinedCommandCount",
+            "riskInputReady",
+            "reason",
+            "sourceTrust",
+            "executionAuthority",
+            "sourceVersions",
+            "snapshotCount",
+            "sourceHash",
+            "sourceVersion",
+            "snapshot"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "enum": [
+                "quantos-native-valuation-view.v1"
+              ]
+            },
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "assisted_live"
+              ]
+            },
+            "checkedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ledgerHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "ledgerAnchor": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "sequence",
+                "head"
+              ],
+              "properties": {
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "head": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                }
+              }
+            },
+            "killGeneration": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "quarantinedCommandCount": {
+              "type": "integer",
+              "enum": [
+                0
+              ]
+            },
+            "riskInputReady": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "READY_OWNED_REFERENCE_INPUT"
+              ]
+            },
+            "sourceTrust": {
+              "type": "string",
+              "enum": [
+                "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+              ]
+            },
+            "executionAuthority": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "sourceVersions": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512
+            },
+            "snapshotCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512
+            },
+            "sourceHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/NativeRiskInputSnapshot"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schemaVersion",
+            "tenantId",
+            "workspaceId",
+            "accountId",
+            "mode",
+            "checkedAt",
+            "expiresAt",
+            "ledgerHash",
+            "ledgerAnchor",
+            "killGeneration",
+            "quarantinedCommandCount",
+            "riskInputReady",
+            "reason",
+            "sourceTrust",
+            "executionAuthority",
+            "sourceVersions",
+            "snapshotCount"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "enum": [
+                "quantos-native-valuation-view.v1"
+              ]
+            },
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "assisted_live"
+              ]
+            },
+            "checkedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ledgerHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "ledgerAnchor": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "sequence",
+                "head"
+              ],
+              "properties": {
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "head": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                }
+              }
+            },
+            "killGeneration": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "quarantinedCommandCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "riskInputReady": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "SOURCE_UNAVAILABLE",
+                "OPEN_ORDER_RESERVATIONS_UNMODELED",
+                "UNKNOWN_OR_QUARANTINED_OBLIGATIONS",
+                "LEDGER_MISMATCH",
+                "LEDGER_TIME_MISMATCH",
+                "DAY_ROLLOVER",
+                "STALE_SOURCE",
+                "INACTIVE_ACCOUNT",
+                "MISSING_MARK",
+                "STALE_OR_UNTRUSTED_MARK",
+                "INVALID_ACCOUNT_CASH_OR_EQUITY"
+              ]
+            },
+            "sourceTrust": {
+              "type": "string",
+              "enum": [
+                "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+              ]
+            },
+            "executionAuthority": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "sourceVersions": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 512
+            },
+            "snapshotCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 512
+            },
+            "sourceHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceVersion": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            }
+          }
+        }
+      ]
     }
   }
 }

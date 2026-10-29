@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.23.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.24.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1702,6 +1702,101 @@ export const AssistedActivationReceiptSchema = z.object({
   "executionAuthority": z.literal(false),
 }).strict();
 
+export const NativeValuationScopeSchema = z.object({
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const NativeValuationPositionSchema = z.object({
+  "symbol": z.string(),
+  "quantity": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "averageEntryPrice": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "markPrice": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "marketValue": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "unrealizedPnl": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "realizedPnl": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "markSourceRef": z.string(),
+  "markObservedAt": z.string().datetime({ offset: true }),
+}).strict();
+
+export const NativeRiskInputSnapshotSchema = z.object({
+  "schemaVersion": z.literal("quantos-native-risk-input-snapshot.v1"),
+  "scope": z.lazy(() => NativeValuationScopeSchema),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerAnchor": z.object({
+  "sequence": z.number().int().min(0),
+  "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict(),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.number().int().min(1).max(512),
+  "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
+  "basis": z.literal("EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS"),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "quoteCurrency": z.literal("USDT"),
+  "positions": z.array(z.lazy(() => NativeValuationPositionSchema)).max(256),
+  "quoteCash": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "equity": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "realizedPnlToday": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "unrealizedPnl": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "totalPnlToday": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "exposureGross": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "exposureNet": z.string().regex(new RegExp("^-?[0-9]+(?:\\.[0-9]+)?$")),
+  "generatedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const NativeValuationViewSchema = z.union([z.object({
+  "schemaVersion": z.literal("quantos-native-valuation-view.v1"),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "checkedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerAnchor": z.object({
+  "sequence": z.number().int().min(0),
+  "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict(),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "quarantinedCommandCount": z.literal(0),
+  "riskInputReady": z.literal(true),
+  "reason": z.literal("READY_OWNED_REFERENCE_INPUT"),
+  "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
+  "executionAuthority": z.literal(false),
+  "sourceVersions": z.number().int().min(1).max(512),
+  "snapshotCount": z.number().int().min(1).max(512),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "snapshot": z.lazy(() => NativeRiskInputSnapshotSchema),
+}).strict(), z.object({
+  "schemaVersion": z.literal("quantos-native-valuation-view.v1"),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "checkedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerAnchor": z.object({
+  "sequence": z.number().int().min(0),
+  "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict(),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "quarantinedCommandCount": z.number().int().min(0),
+  "riskInputReady": z.literal(false),
+  "reason": z.enum(["SOURCE_UNAVAILABLE","OPEN_ORDER_RESERVATIONS_UNMODELED","UNKNOWN_OR_QUARANTINED_OBLIGATIONS","LEDGER_MISMATCH","LEDGER_TIME_MISMATCH","DAY_ROLLOVER","STALE_SOURCE","INACTIVE_ACCOUNT","MISSING_MARK","STALE_OR_UNTRUSTED_MARK","INVALID_ACCOUNT_CASH_OR_EQUITY"]),
+  "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
+  "executionAuthority": z.literal(false),
+  "sourceVersions": z.number().int().min(0).max(512),
+  "snapshotCount": z.number().int().min(0).max(512),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")).optional(),
+  "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).optional(),
+}).strict()]);
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1856,6 +1951,10 @@ export const bffZodSchemas = {
   AssistedActivationPage: AssistedActivationPageSchema,
   AssistedActivationHistory: AssistedActivationHistorySchema,
   AssistedActivationReceipt: AssistedActivationReceiptSchema,
+  NativeValuationScope: NativeValuationScopeSchema,
+  NativeValuationPosition: NativeValuationPositionSchema,
+  NativeRiskInputSnapshot: NativeRiskInputSnapshotSchema,
+  NativeValuationView: NativeValuationViewSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2848,6 +2947,14 @@ export const bffResponseSchemas = {
   },
   "getAssistedNativeLedger": {
     "200": z.lazy(() => AssistedLedgerViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedNativeValuation": {
+    "200": z.lazy(() => NativeValuationViewSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),
