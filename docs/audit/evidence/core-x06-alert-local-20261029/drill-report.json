@@ -1,0 +1,34 @@
+{
+  "sourceCommit": "f7660fcbee2bce2b64bd8d9ebe4cedeea374304d",
+  "scope": "ACTUAL_OWNED_LOCAL_PROCESSES_REFERENCE_IDENTITY_OWNED_PROTOCOL_ONLY",
+  "inAppDelivery": true,
+  "externalNotifications": "NOT_RUN",
+  "observations": [
+    "Authenticated X05 outbox is the only ingestion source; original independent raw-response certificate signature and ledger/native bindings independently verified by X05 verifier functions on fresh current artifacts.",
+    "12 concurrent reads across actual BFF replicas consume one evidence exactly once; immutable alert/audit/correlation IDs and original observation time survive repeated reads and process restart.",
+    "Owned invalid observer signature creates source-bound OPEN evidence, delivered through existing public Alert list/detail and C10; restoring signed source to MATCHED_OBSERVATIONS keeps original alert active/unacked/unresolved.",
+    "Corrupt, missing and authenticated rollback inboxes refuse. Explicit simulated synced-inbox/older approval-anchor crash window with a new real BFF accepts the authenticated monotonic prefix, without duplicate delivery.",
+    "Actual owned-zone commit and caller process death leaves UNKNOWN with independently observed Fill quantity 1. X01 remains zero posted, one quarantined; current Alert records and C10 consumption events retain original bindings. Native protocol call count stays 1; no resend.",
+    "Current C01 read/session expiry/logout and wrong scopes refuse; page cursor binds session, filters and size. Default-off does not advertise alerts.read. Mutations/subscriptions/stream/Ops remain denied."
+  ],
+  "sourcePackets": {
+    "positive": {
+      "delivered": 1,
+      "concurrentIngestionRequests": 12
+    },
+    "unknown": {
+      "delivered": 2,
+      "unknownObligationsOpen": 1,
+      "appliedFillCount": 0,
+      "protocolCalls": 1
+    }
+  },
+  "evidence": [
+    "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02/public-process.log",
+    "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02/public-alerts.json",
+    "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02/unknown-alerts.json",
+    "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02/reconciliation.json",
+    "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02/unknown-reconciliation.json"
+  ],
+  "targetDrills": "NOT_RUN"
+}

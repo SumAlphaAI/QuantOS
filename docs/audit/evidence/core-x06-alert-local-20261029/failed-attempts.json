@@ -1,0 +1,89 @@
+{
+  "sourceCommit": "f7660fcbee2bce2b64bd8d9ebe4cedeea374304d",
+  "preflight": {
+    "index": "preflight-index.json",
+    "scope": "UNFROZEN_DIAGNOSTIC_ONLY_ORIGINAL_FAILURES_RETAINED",
+    "files": 52,
+    "failedChecks": 10,
+    "noCaseChecks": 1
+  },
+  "failures": [
+    {
+      "logs": [
+        "web-01.log"
+      ],
+      "reason": "Local read-only policy 403 cleared context; subsequent refusal lost original policy code. Fixed local policy rejection to preserve authorized facts; true authority failures still clear."
+    },
+    {
+      "logs": [
+        "types-01.log"
+      ],
+      "reason": "Mixed properties/oneOf schema lost generated base shape and narrowed legacy receipt types. Replaced with OpenAPI conditional semantics plus explicit consumer cross-field checks, retaining legacy schema behavior."
+    },
+    {
+      "logs": [
+        "process-01.log"
+      ],
+      "reason": "Diagnostic wrapper omitted required GITHUB_SHA; no current runtime PASS claimed."
+    },
+    {
+      "logs": [
+        "process-02.log"
+      ],
+      "reason": "Original global Assisted profile guard rejected public Alert routes. Added exact Alert namespace and own read-only dispatch."
+    },
+    {
+      "logs": [
+        "process-03.log"
+      ],
+      "reason": "Malformed mutation body reached generic 422 before read-only refusal; added authenticated read-only mutation rejection before body validation."
+    },
+    {
+      "logs": [
+        "process-04.log"
+      ],
+      "reason": "Cross-account test used invalid UUID and received correct schema 422; replaced with valid foreign UUID to exercise 404 scope refusal. No validation weakened."
+    },
+    {
+      "logs": [
+        "browser-01.log"
+      ],
+      "reason": "Diagnostic web build omitted explicit local BFF origin; configured whitelist with loopback BFF and rebuilt. Failed browser artifacts retained."
+    },
+    {
+      "logs": [
+        "review-tests-01.log"
+      ],
+      "reason": "Gate model fixture gave AuditEventPage null nextCursor, although its contract requires absent/string; corrected fixture, actual API unchanged."
+    },
+    {
+      "logs": [
+        "review-lint-01.log"
+      ],
+      "reason": "Node test structuredClone global not declared by scoped lint config; used local JSON clone for JSON-only fixtures."
+    },
+    {
+      "logs": [
+        "types-03.log"
+      ],
+      "reason": "Authority safeParse failure path inferred possibly undefined return; returned never failure explicitly."
+    }
+  ],
+  "zeroExecution": {
+    "log": "preflight/contract-input-01.log",
+    "status": "NO_CASES_NOT_FUNCTIONAL_PASS",
+    "reason": "Filter matched no input_contract unit tests; excluded from frozen functional commands. Current input/refusal behavior is exercised through actual process cases."
+  },
+  "originalAttempt": {
+    "index": "original-attempt-index.json",
+    "sourceCommit": "6e82a5de4bb00830720936baac7121cee9c598d6",
+    "files": 68,
+    "status": "PASS_ORIGINAL_FUNCTION_SCOPE_BEFORE_VISUAL_WRAP_FIX",
+    "reason": "Pixel review found new source hashes truncated. Current attempt adds wrapping/geometry assertions and clarifies positive unknown scenario reporting; original bytes remain unchanged."
+  },
+  "frozenAttempt": {
+    "attempt": "docs/audit/evidence/core-x06-alert-local-20261029/attempt-02",
+    "status": "PASS_CURRENT_OWNED_FUNCTION_ONLY"
+  },
+  "policy": "No historical failure removed or rebound; X05 original source and 212 sealed files remain ORIGINAL_SCOPE_ONLY."
+}
