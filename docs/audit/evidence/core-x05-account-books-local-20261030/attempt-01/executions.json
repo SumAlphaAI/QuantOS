@@ -1,0 +1,363 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X05"
+    ],
+    "startedAt": "2026-10-29T16:11:06.820Z",
+    "finishedAt": "2026-10-29T16:11:07.025Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/development.log",
+    "logSha256": "c7f43b6e8b3f78cfe48d9ac7d51b6000ddbc45b5be5d379c37f426a5e657e9a2"
+  },
+  {
+    "id": "model",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "current_join"
+    ],
+    "startedAt": "2026-10-29T16:11:07.025Z",
+    "finishedAt": "2026-10-29T16:11:07.259Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/model.log",
+    "logSha256": "9a9982c56894f4a773b200fd197d56dabfe3492f350527d7601a932506d688da"
+  },
+  {
+    "id": "valuation",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "--test",
+      "native_valuation"
+    ],
+    "startedAt": "2026-10-29T16:11:07.260Z",
+    "finishedAt": "2026-10-29T16:11:15.021Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/valuation.log",
+    "logSha256": "7ad1873b71109362aa1061f156ae81c339b1a7cf6dd447ea8e5edcd5541195d0"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-29T16:11:15.021Z",
+    "finishedAt": "2026-10-29T16:11:15.191Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/build.log",
+    "logSha256": "728501132b185306c2403cc7932fcbf7e384a96c7fc4fa6b282a2567363999ee"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "account_books::",
+      "--",
+      "--nocapture"
+    ],
+    "startedAt": "2026-10-29T16:11:15.238Z",
+    "finishedAt": "2026-10-29T16:11:35.873Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/composition.log",
+    "logSha256": "4b9323f8636cb674ec758efb63fc8142a5c38442a50ccbb1e5391f9a1b3afa8e"
+  },
+  {
+    "id": "current-regression",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "current_gate::",
+      "--",
+      "--nocapture"
+    ],
+    "startedAt": "2026-10-29T16:11:35.874Z",
+    "finishedAt": "2026-10-29T16:12:07.181Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/current-regression.log",
+    "logSha256": "1f58aa2921d4a52dcc8dbc70e4afc76b55f811f458f92af9c77ebbb90d6c2be2"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/contract/core-x05-reconciliation.test.ts",
+      "tests/contract/core-x06-alerts.test.ts",
+      "apps/terminal/tests/core-x05-reconciliation.test.ts",
+      "apps/terminal/tests/core-x06-alerts.test.ts"
+    ],
+    "startedAt": "2026-10-29T16:12:07.181Z",
+    "finishedAt": "2026-10-29T16:12:08.280Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/consumer.log",
+    "logSha256": "95c5293073431b7d280f0fd604655dd078408c849f831e3abe3ff750e91394df"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-29T16:12:08.280Z",
+    "finishedAt": "2026-10-29T16:12:09.250Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/types.log",
+    "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-x05-account-books-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-29T16:12:09.250Z",
+    "finishedAt": "2026-10-29T16:12:10.165Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "69c49e21908644f624bf461004d8db889e62135550844efd4e6d5296b403dd34"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-29T16:12:10.165Z",
+    "finishedAt": "2026-10-29T16:12:10.225Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-29T16:12:10.225Z",
+    "finishedAt": "2026-10-29T16:12:10.745Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/generated.log",
+    "logSha256": "8b5565cce1443cf9638336f8891158b9c3d197b09f23159c693483db2633bf13"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-29T16:12:10.746Z",
+    "finishedAt": "2026-10-29T16:12:10.931Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/inventory.log",
+    "logSha256": "79eb98d8ab4fae9944a553f65dc60c983b119d61338f2b0f02926bf279286b31"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-29T16:12:10.931Z",
+    "finishedAt": "2026-10-29T16:12:10.958Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "c1077aaffe13f050588d7d3ee0771d838cff3c734a78670e9203fcbf11de19f2"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-29T16:12:10.958Z",
+    "finishedAt": "2026-10-29T16:12:11.372Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-29T16:12:11.372Z",
+    "finishedAt": "2026-10-29T16:12:22.102Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/clippy.log",
+    "logSha256": "5e3bfbfaa2fc373243cfefff4fd107e6cf1e13a92a3d0880d1ca955c1854572d"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-x05-account-books-review.mjs",
+      "scripts/core-x05-account-books-review.test.mjs"
+    ],
+    "startedAt": "2026-10-29T16:12:22.102Z",
+    "finishedAt": "2026-10-29T16:12:22.556Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:X05"
+    ],
+    "startedAt": "2026-10-29T16:12:22.556Z",
+    "finishedAt": "2026-10-29T16:12:22.761Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "bcba1454493b8ef63b31b5fa8f3868d9b80f399d8cf0fc5e235c5a6a364df3e7"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE:X05"
+    ],
+    "startedAt": "2026-10-29T16:12:22.761Z",
+    "finishedAt": "2026-10-29T16:12:22.964Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "215dba7d2621bd7f28bdaa177c5da12a86ff9da805874619da871f5d3143ec00"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-29T16:12:22.965Z",
+    "finishedAt": "2026-10-29T16:12:23.171Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/next-development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-x05-account-books-review.mjs",
+      "--scan",
+      "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-29T16:12:23.171Z",
+    "finishedAt": "2026-10-29T16:12:24.395Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x05-account-books-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "89477441d2c23c5140a2fdf633b570846e9216425603aabc6f806a6a98bd9014"
+  }
+]
