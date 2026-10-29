@@ -21,3 +21,5 @@ P11 只有新 Subject 双审批且 owner 条件允许才显示显式危险动作
 原始 preflight 保留请求键格式拒绝、策略 universe 拒绝、cold candidate 初始化冲突、测试时间模型、旧 inventory/example 漂移及浏览器夹具调用失败。修复后必须冻结源码，使用新 attempt 验证；失败不抹除、不计 PASS。PRE-04 同步八项已有发布操作、当前版本/模型/字段与当前 provider 文件摘要；schema example 仅为说明（沿用历史原范围公开投影），不重绑历史工程验收。
 
 下一任务：CORE-GATE:L4 DEVELOPMENT，评估当前组合和剩余缺口。正式验收文稿待用户确认，不能自行批准；integration/release/真实环境权限均不提升。
+
+最终复核发现：初版 owner 当前执行开关开启后，旧 Subject 在新 Deny 后仍显示可提交，服务端始终拒绝新 IO。新增直接回归探针真实 FAIL 已保留；修复为旧 Subject 始终受 currentRiskReviewOnly 围栏，新 native Subject 仅按独立当前开关核对。首个冻结 attempt-01 的21项原预期结果仅 ORIGINAL_SCOPE_ONLY；不得据此宣称本次修复通过，新源码使用 attempt-02。
