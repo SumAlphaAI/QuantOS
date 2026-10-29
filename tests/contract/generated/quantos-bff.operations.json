@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -71,6 +71,16 @@
         "operations"
       ],
       "responseSchema": "OpsPrecheck",
+      "sse": false
+    },
+    {
+      "operationId": "createAssistedNativeRiskReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/subjects/{subjectId}/risk-reviews",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "NativeRiskReviewView",
       "sse": false
     },
     {

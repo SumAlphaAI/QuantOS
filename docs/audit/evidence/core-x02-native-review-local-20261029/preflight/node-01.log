@@ -1,0 +1,548 @@
+✔ scope retains original open denominator and denies runtime admission (0.859125ms)
+✔ scope refuses formal accepted (0.867459ms)
+✔ scope refuses close gap (0.347125ms)
+✔ scope refuses new command admission (0.205625ms)
+✔ scope refuses skip next approval handoff (0.215708ms)
+✔ actual projection model preserves signed Deny and same Proposal (25.115333ms)
+✔ actual projection refuses reuse old decision (0.527917ms)
+✔ actual projection refuses replace proposal (0.395916ms)
+✔ actual projection refuses resend IO (0.381333ms)
+✔ actual projection refuses fake authority (0.34375ms)
+✖ real domain module model creates exact review with zero inherited approvals (0.761ms)
+✔ domain model refuses mutate signed financial snapshot (0.297792ms)
+✔ domain model refuses alter immutable Proposal (0.522042ms)
+✔ domain model refuses inherit old approvals (0.40275ms)
+✔ domain model refuses reuse original Subject (0.302583ms)
+✔ UNKNOWN refuses new review and cannot be automatically closed (0.432458ms)
+✔ actual write denial never publishes uncommitted response (0.356458ms)
+✔ execution receipt cannot claim zero execution, wrong arguments or stale log hash (0.632625ms)
+✔ only directly affected native authority and consumers run (0.101834ms)
+✔ artifact paths cannot read credentials or escape the repository (3.127042ms)
+✖ FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups (18.199666ms)
+✖ next original I2 UI-507 can develop without claiming G1 readiness (14.279125ms)
+✖ retained G1-DEP-01 never becomes a development prerequisite (14.703833ms)
+✖ retained G1-CONF-01 never becomes a development prerequisite (13.125166ms)
+✖ retained G1-ENV-01 never becomes a development prerequisite (13.187583ms)
+✖ retained G1-TARGET-01 never becomes a development prerequisite (12.539791ms)
+✖ unready dependency NOT_ASSESSED does not prohibit development or grant integration (12.43825ms)
+✖ unready dependency BLOCKED does not prohibit development or grant integration (11.7975ms)
+✖ known affected functional defect blocks its task even when all dependencies ready (12.395ms)
+✖ unknown defect status fails closed instead of claiming verification (12.003875ms)
+✖ caller cannot omit actual affected scope (11.522125ms)
+✖ accounting cannot add independent auxiliary prerequisites (11.443416ms)
+✖ unknown finding kind rejects (12.102583ms)
+✖ finding evidence must exist (11.324417ms)
+✔ invented task IDs cannot replace original plan sequence (11.616542ms)
+✖ reject policy that restores development prerequisite dependencyStageReadyRequiredToStart (11.784916ms)
+✖ reject policy that restores development prerequisite historicalConfirmationRequiredToStart (11.146459ms)
+✖ reject policy that restores development prerequisite auxiliaryActionsArePrerequisites (11.400959ms)
+✖ reject weakening knownAffectedFunctionalDefectsBlock (11.374875ms)
+✖ reject weakening stageReadinessUnchanged (11.227083ms)
+✖ dependency READY alone cannot grant milestone READY (11.290375ms)
+✖ milestone READY alone cannot bypass dependency stage (11.177333ms)
+✖ release remains denied even if every stage is marked ready (10.907792ms)
+✖ known affected functional defect also refuses integration even with historical READY flags (11.0695ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 20
+ℹ fail 24
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 497.294166
+
+✖ failing tests:
+
+test at scripts/core-x02-native-review.test.mjs:8:1
+✖ real domain module model creates exact review with zero inherited approvals (0.761ms)
+  SyntaxError: "undefined" is not valid JSON
+      at JSON.parse (<anonymous>)
+      at validateModel (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x02-native-review.mjs:20:850)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x02-native-review.test.mjs:8:88)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at scripts/development-execution.test.mjs:6:1
+✖ FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups (18.199666ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at executionDecision (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.mjs:12:69)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:6:107)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:7:1
+✖ next original I2 UI-507 can develop without claiming G1 readiness (14.279125ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at executionDecision (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.mjs:12:69)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:7:87)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:8:71
+✖ retained G1-DEP-01 never becomes a development prerequisite (14.703833ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:8:148)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:8:71
+✖ retained G1-CONF-01 never becomes a development prerequisite (13.125166ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:8:148)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:8:71
+✖ retained G1-ENV-01 never becomes a development prerequisite (13.187583ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:8:148)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:8:71
+✖ retained G1-TARGET-01 never becomes a development prerequisite (12.539791ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:8:148)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:9:48
+✖ unready dependency NOT_ASSESSED does not prohibit development or grant integration (12.43825ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:9:149)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:9:48
+✖ unready dependency BLOCKED does not prohibit development or grant integration (11.7975ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:9:149)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:10:1
+✖ known affected functional defect blocks its task even when all dependencies ready (12.395ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:10:103)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:11:1
+✖ unknown defect status fails closed instead of claiming verification (12.003875ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:11:89)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:12:1
+✖ caller cannot omit actual affected scope (11.522125ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:12:62)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:13:1
+✖ accounting cannot add independent auxiliary prerequisites (11.443416ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:13:79)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:14:1
+✖ unknown finding kind rejects (12.102583ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:14:50)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:15:1
+✖ finding evidence must exist (11.324417ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:15:49)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:17:133
+✖ reject policy that restores development prerequisite dependencyStageReadyRequiredToStart (11.784916ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:17:211)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:17:133
+✖ reject policy that restores development prerequisite historicalConfirmationRequiredToStart (11.146459ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:17:211)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:17:133
+✖ reject policy that restores development prerequisite auxiliaryActionsArePrerequisites (11.400959ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:17:211)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:18:84
+✖ reject weakening knownAffectedFunctionalDefectsBlock (11.374875ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:18:126)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:18:84
+✖ reject weakening stageReadinessUnchanged (11.227083ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:18:126)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:19:1
+✖ dependency READY alone cannot grant milestone READY (11.290375ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:19:73)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:20:1
+✖ milestone READY alone cannot bypass dependency stage (11.177333ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:20:74)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:21:1
+✖ release remains denied even if every stage is marked ready (10.907792ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:21:80)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-execution.test.mjs:23:1
+✖ known affected functional defect also refuses integration even with historical READY flags (11.0695ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./operations/core-x02-native-risk-review.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:186:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:41:14)
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:5:33)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-execution.test.mjs:23:112)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

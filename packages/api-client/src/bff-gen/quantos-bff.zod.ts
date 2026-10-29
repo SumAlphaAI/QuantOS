@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.24.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.25.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1797,6 +1797,102 @@ export const NativeValuationViewSchema = z.union([z.object({
   "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).optional(),
 }).strict()]);
 
+export const NativeCurrentRiskDecisionSchema = z.object({
+  "decisionId": z.lazy(() => UUIDSchema),
+  "verdict": z.enum(["deny","approval_required"]),
+  "purpose": z.literal("assisted_testnet_review"),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "intentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "factsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "policyVersion": z.string().min(1),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "checks": z.array(z.object({
+  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval"]),
+  "breached": z.boolean(),
+  "limit_id": z.string().min(1),
+}).strict()).min(15).max(15),
+  "decidedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "signer": z.string().min(1),
+  "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const NativeRiskReviewRequestSchema = z.object({
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "expectedGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+}).strict();
+
+export const NativeRiskReviewViewSchema = z.union([z.object({
+  "schemaVersion": z.literal("quantos-native-risk-review.v1"),
+  "previousSubjectId": z.lazy(() => UUIDSchema),
+  "proposalId": z.string().min(1),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.string().regex(new RegExp("^[1-9][0-9]*$")),
+  "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "decision": z.object({
+  "decisionId": z.lazy(() => UUIDSchema),
+  "verdict": z.literal("deny"),
+  "purpose": z.literal("assisted_testnet_review"),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "intentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "factsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "policyVersion": z.string().min(1),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "checks": z.array(z.object({
+  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval"]),
+  "breached": z.boolean(),
+  "limit_id": z.string().min(1),
+}).strict()).min(15).max(15),
+  "decidedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "signer": z.string().min(1),
+  "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "executionAuthority": z.literal(false),
+}).strict(),
+  "executionAuthority": z.literal(false),
+}).strict(), z.object({
+  "schemaVersion": z.literal("quantos-native-risk-review.v1"),
+  "previousSubjectId": z.lazy(() => UUIDSchema),
+  "proposalId": z.string().min(1),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceVersion": z.string().regex(new RegExp("^[1-9][0-9]*$")),
+  "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "decision": z.object({
+  "decisionId": z.lazy(() => UUIDSchema),
+  "verdict": z.literal("approval_required"),
+  "purpose": z.literal("assisted_testnet_review"),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "intentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "factsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "policyVersion": z.string().min(1),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "checks": z.array(z.object({
+  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval"]),
+  "breached": z.boolean(),
+  "limit_id": z.string().min(1),
+}).strict()).min(15).max(15),
+  "decidedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "signer": z.string().min(1),
+  "signature": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "executionAuthority": z.literal(false),
+}).strict(),
+  "executionAuthority": z.literal(false),
+  "subject": z.lazy(() => AssistedSubjectSchema),
+}).strict()]);
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1955,6 +2051,9 @@ export const bffZodSchemas = {
   NativeValuationPosition: NativeValuationPositionSchema,
   NativeRiskInputSnapshot: NativeRiskInputSnapshotSchema,
   NativeValuationView: NativeValuationViewSchema,
+  NativeCurrentRiskDecision: NativeCurrentRiskDecisionSchema,
+  NativeRiskReviewRequest: NativeRiskReviewRequestSchema,
+  NativeRiskReviewView: NativeRiskReviewViewSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2947,6 +3046,14 @@ export const bffResponseSchemas = {
   },
   "getAssistedNativeLedger": {
     "200": z.lazy(() => AssistedLedgerViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createAssistedNativeRiskReview": {
+    "200": z.lazy(() => NativeRiskReviewViewSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),

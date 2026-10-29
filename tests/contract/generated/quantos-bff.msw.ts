@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.24.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.25.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -18,6 +18,7 @@ export type BffOperationId =
   | "cancelExport"
   | "cancelResearchRun"
   | "checkRunbookPreconditions"
+  | "createAssistedNativeRiskReview"
   | "createBacktest"
   | "createCapability"
   | "createExport"
@@ -206,6 +207,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.checkRunbookPreconditions;
     if (resolver) return resolver({ request, params });
     return missingResolver("checkRunbookPreconditions");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/subjects/:subjectId/risk-reviews`, async ({ request, params }) => {
+    const resolver = resolvers.createAssistedNativeRiskReview;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createAssistedNativeRiskReview");
   }),
   http.post(`${baseUrl}/v1/backtests`, async ({ request, params }) => {
     const resolver = resolvers.createBacktest;

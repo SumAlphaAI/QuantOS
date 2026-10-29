@@ -5,7 +5,10 @@ use super::*;
 use quantos_execution::durable::{DurableStore, LockedStore};
 impl OwnedHost {
     pub(crate) fn has_correlation(&self, id: &str) -> bool {
-        self.activation.id().to_string() == id
+        self.risk_refreshes
+            .values()
+            .any(|v| v["response"]["decision"]["decisionId"] == id)
+            || self.activation.id().to_string() == id
             || self.controls.has_correlation(id)
             || self.requests.keys().any(|r| r.to_string() == id)
             || self
@@ -128,6 +131,7 @@ impl OwnedHost {
         self.alert_audit(&mut all)?;
         self.control_audit(&mut all);
         self.activation_audit(&mut all);
+        self.risk_refresh_audit(&mut all)?;
         Ok(all)
     }
 }
@@ -181,6 +185,29 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
             .map_err(|_| Error::Unavailable)?;
         h.valuation = valuation.clone();
         h.valuation_committed = valuation;
+        let refreshes: Vec<((String, String), Value)> = v
+            .get("riskRefreshes")
+            .map(decode)
+            .transpose()?
+            .unwrap_or_default();
+        let refreshes = refreshes.into_iter().collect::<BTreeMap<_, _>>();
+        for (key, old) in &h.risk_refreshes {
+            if refreshes.get(key) != Some(old) {
+                return Err(Error::Unavailable);
+            }
+        }
+        if refreshes.len() > 512 {
+            return Err(Error::Unavailable);
+        }
+        for row in refreshes.values() {
+            h.sources.verify_native_response(&row["response"])?;
+            if row["binding"]
+                != json!([row["response"]["previousSubjectId"],{"snapshotHash":row["response"]["snapshotHash"],"expectedGeneration":row["response"]["killGeneration"]}])
+            {
+                return Err(Error::Unavailable);
+            }
+        }
+        h.risk_refreshes = refreshes;
         h.requests = decode(&v["requests"])?;
         h.opened_at = decode(&v["openedAt"])?;
         h.ledger_anchor = if let Some(anchor) = v.get("ledgerAnchor") {
@@ -244,7 +271,7 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
     h.verify_controls()?;
     h.verify_activation()?;
     let anchor = h.native_anchor_now()?;
-    let mut value = json!({"valuation":h.valuation,"activation":h.activation,"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    let mut value = json!({"riskRefreshes":h.risk_refreshes.iter().collect::<Vec<_>>(),"valuation":h.valuation,"activation":h.activation,"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
     tx.write(&value)?;
     // Explicit owned-loopback drill only: owner file cannot be supplied via HTTP.
     if let Some(root) = &h.control_fixture_directory

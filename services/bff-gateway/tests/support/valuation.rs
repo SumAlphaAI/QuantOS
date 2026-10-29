@@ -3,7 +3,7 @@ use quantos_portfolio::{
     native_ledger::{NativeLedger, Scope},
     native_valuation::{BASIS, Inputs, Mark, SOURCE},
 };
-fn input(lab: &Lab, ledger: &Value, version: u64) -> Inputs {
+pub(super) fn input(lab: &Lab, ledger: &Value, version: u64) -> Inputs {
     let owner: Value =
         serde_json::from_slice(&fs::read(lab.directory.join("bff-owner.json")).unwrap()).unwrap();
     let scope = Scope {
@@ -50,14 +50,14 @@ fn input(lab: &Lab, ledger: &Value, version: u64) -> Inputs {
             .collect(),
     }
 }
-fn write(lab: &Lab, i: &Inputs) {
+pub(super) fn write(lab: &Lab, i: &Inputs) {
     owner_store(lab, "valuation-input")
         .lock()
         .unwrap()
         .write(&json!(i))
         .unwrap();
 }
-fn evidence(name: &str, v: Value) {
+pub(super) fn evidence(name: &str, v: Value) {
     if let Ok(p) = std::env::var(name) {
         private_write(p, serde_json::to_vec_pretty(&v).unwrap());
     }
@@ -320,6 +320,7 @@ fn current_native_valuation_sources_expiry_replay_and_recovery_do_not_authorize_
     );
 }
 pub(super) fn unknown(lab: &Lab, url: &str, command: &Value) {
+    super::risk_refresh::unknown_refusal(lab, url, command);
     let before = get(url, "/v1/assisted-testnet/ledger");
     let issued = owner_store(lab, "commands")
         .lock()

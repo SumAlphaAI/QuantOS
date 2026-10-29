@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.24.0
+  version: 1.25.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -11333,6 +11333,70 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/subjects/{subjectId}/risk-reviews:
+    post:
+      operationId: createAssistedNativeRiskReview
+      tags:
+        - execution
+      summary: Explicitly evaluate the current exact X01 snapshot against the same immutable R04 Proposal
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: New immutable signed review, or original idempotent response; never execution permission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NativeRiskReviewView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Exact native snapshot/source/ledger scope and current kill generation at each explicit request, approval or
+          read; original source and decision deadlines never renewed.
+        idempotency: Required exact actor/request/key/body/proof binding; original response-loss recovery only, no automatic
+          replay, cache hits recheck current authority and original deadlines.
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authenticated append-only native review and common C10 risk.native_review_created; no prior
+          decision/Proposal/UNKNOWN rewrite.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NativeRiskReviewRequest"
+      description: Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry
+        required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals
+        and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current
+        response.
   /v1/assisted-testnet/valuation:
     get:
       operationId: getAssistedNativeValuation
@@ -17799,3 +17863,421 @@ components:
             sourceVersion:
               type: string
               pattern: ^(0|[1-9][0-9]*)$
+    NativeCurrentRiskDecision:
+      type: object
+      additionalProperties: false
+      required:
+        - decisionId
+        - verdict
+        - purpose
+        - proposalHash
+        - snapshotHash
+        - intentHash
+        - factsHash
+        - policyVersion
+        - killGeneration
+        - checks
+        - decidedAt
+        - expiresAt
+        - signer
+        - signature
+        - executionAuthority
+      properties:
+        decisionId:
+          $ref: "#/components/schemas/UUID"
+        verdict:
+          type: string
+          enum:
+            - deny
+            - approval_required
+        purpose:
+          type: string
+          enum:
+            - assisted_testnet_review
+        proposalHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        snapshotHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        intentHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        factsHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        policyVersion:
+          type: string
+          minLength: 1
+        killGeneration:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        checks:
+          type: array
+          minItems: 15
+          maxItems: 15
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - rule
+              - breached
+              - limit_id
+            properties:
+              rule:
+                type: string
+                enum:
+                  - identity
+                  - numbers
+                  - precision
+                  - global_kill
+                  - account_kill
+                  - release
+                  - snapshot
+                  - financials
+                  - venue
+                  - duplicate
+                  - order_notional
+                  - leverage
+                  - concentration
+                  - daily_loss
+                  - approval
+              breached:
+                type: boolean
+              limit_id:
+                type: string
+                minLength: 1
+        decidedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        signer:
+          type: string
+          minLength: 1
+        signature:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    NativeRiskReviewRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - snapshotHash
+        - expectedGeneration
+      properties:
+        snapshotHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        expectedGeneration:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+    NativeRiskReviewView:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required:
+            - schemaVersion
+            - previousSubjectId
+            - proposalId
+            - proposalHash
+            - snapshotHash
+            - ledgerHash
+            - sourceHash
+            - sourceVersion
+            - sourceTrust
+            - killGeneration
+            - decision
+            - executionAuthority
+          properties:
+            schemaVersion:
+              type: string
+              enum:
+                - quantos-native-risk-review.v1
+            previousSubjectId:
+              $ref: "#/components/schemas/UUID"
+            proposalId:
+              type: string
+              minLength: 1
+            proposalHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            snapshotHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            ledgerHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            sourceHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            sourceVersion:
+              type: string
+              pattern: ^[1-9][0-9]*$
+            sourceTrust:
+              type: string
+              enum:
+                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
+            killGeneration:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            decision:
+              type: object
+              additionalProperties: false
+              required:
+                - decisionId
+                - verdict
+                - purpose
+                - proposalHash
+                - snapshotHash
+                - intentHash
+                - factsHash
+                - policyVersion
+                - killGeneration
+                - checks
+                - decidedAt
+                - expiresAt
+                - signer
+                - signature
+                - executionAuthority
+              properties:
+                decisionId:
+                  $ref: "#/components/schemas/UUID"
+                verdict:
+                  type: string
+                  enum:
+                    - deny
+                purpose:
+                  type: string
+                  enum:
+                    - assisted_testnet_review
+                proposalHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                snapshotHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                intentHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                factsHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                policyVersion:
+                  type: string
+                  minLength: 1
+                killGeneration:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                checks:
+                  type: array
+                  minItems: 15
+                  maxItems: 15
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - rule
+                      - breached
+                      - limit_id
+                    properties:
+                      rule:
+                        type: string
+                        enum:
+                          - identity
+                          - numbers
+                          - precision
+                          - global_kill
+                          - account_kill
+                          - release
+                          - snapshot
+                          - financials
+                          - venue
+                          - duplicate
+                          - order_notional
+                          - leverage
+                          - concentration
+                          - daily_loss
+                          - approval
+                      breached:
+                        type: boolean
+                      limit_id:
+                        type: string
+                        minLength: 1
+                decidedAt:
+                  type: string
+                  format: date-time
+                expiresAt:
+                  type: string
+                  format: date-time
+                signer:
+                  type: string
+                  minLength: 1
+                signature:
+                  type: string
+                  pattern: ^[a-f0-9]{64}$
+                executionAuthority:
+                  type: boolean
+                  enum:
+                    - false
+            executionAuthority:
+              type: boolean
+              enum:
+                - false
+        - type: object
+          additionalProperties: false
+          required:
+            - schemaVersion
+            - previousSubjectId
+            - proposalId
+            - proposalHash
+            - snapshotHash
+            - ledgerHash
+            - sourceHash
+            - sourceVersion
+            - sourceTrust
+            - killGeneration
+            - decision
+            - executionAuthority
+            - subject
+          properties:
+            schemaVersion:
+              type: string
+              enum:
+                - quantos-native-risk-review.v1
+            previousSubjectId:
+              $ref: "#/components/schemas/UUID"
+            proposalId:
+              type: string
+              minLength: 1
+            proposalHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            snapshotHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            ledgerHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            sourceHash:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            sourceVersion:
+              type: string
+              pattern: ^[1-9][0-9]*$
+            sourceTrust:
+              type: string
+              enum:
+                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
+            killGeneration:
+              type: string
+              pattern: ^(0|[1-9][0-9]*)$
+            decision:
+              type: object
+              additionalProperties: false
+              required:
+                - decisionId
+                - verdict
+                - purpose
+                - proposalHash
+                - snapshotHash
+                - intentHash
+                - factsHash
+                - policyVersion
+                - killGeneration
+                - checks
+                - decidedAt
+                - expiresAt
+                - signer
+                - signature
+                - executionAuthority
+              properties:
+                decisionId:
+                  $ref: "#/components/schemas/UUID"
+                verdict:
+                  type: string
+                  enum:
+                    - approval_required
+                purpose:
+                  type: string
+                  enum:
+                    - assisted_testnet_review
+                proposalHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                snapshotHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                intentHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                factsHash:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                policyVersion:
+                  type: string
+                  minLength: 1
+                killGeneration:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                checks:
+                  type: array
+                  minItems: 15
+                  maxItems: 15
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - rule
+                      - breached
+                      - limit_id
+                    properties:
+                      rule:
+                        type: string
+                        enum:
+                          - identity
+                          - numbers
+                          - precision
+                          - global_kill
+                          - account_kill
+                          - release
+                          - snapshot
+                          - financials
+                          - venue
+                          - duplicate
+                          - order_notional
+                          - leverage
+                          - concentration
+                          - daily_loss
+                          - approval
+                      breached:
+                        type: boolean
+                      limit_id:
+                        type: string
+                        minLength: 1
+                decidedAt:
+                  type: string
+                  format: date-time
+                expiresAt:
+                  type: string
+                  format: date-time
+                signer:
+                  type: string
+                  minLength: 1
+                signature:
+                  type: string
+                  pattern: ^[a-f0-9]{64}$
+                executionAuthority:
+                  type: boolean
+                  enum:
+                    - false
+            executionAuthority:
+              type: boolean
+              enum:
+                - false
+            subject:
+              $ref: "#/components/schemas/AssistedSubject"

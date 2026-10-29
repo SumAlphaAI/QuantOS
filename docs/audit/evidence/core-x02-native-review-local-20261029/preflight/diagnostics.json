@@ -1,0 +1,50 @@
+{
+  "schema": "quantos-x02-native-review-diagnostics/v1",
+  "scope": "UNFROZEN_DIAGNOSTIC_ONLY",
+  "acceptance": false,
+  "notes": [
+    "GITHUB_SHA in preflight is the initial baseline, not the unfrozen source. All current acceptance requires fresh frozen execution.",
+    "Shared valuation/unknown exports were captured before indexing and are diagnostic models only. Original failed contracts/consumer JSON reports are retained separately."
+  ],
+  "failures": [
+    {
+      "file": "quantos-x02-check.log",
+      "cause": "Initial compile caught record proposal_id String vs ProposalId; type fixed without coercing immutable identifiers."
+    },
+    {
+      "file": "model-01.log",
+      "cause": "Test partially moved a hash before using the review; clone fixed."
+    },
+    {
+      "file": "model-05.log",
+      "cause": "New evidence export referred to signed_payload before declaration; corrected Rust export preserves original canonical floating policy syntax for independent fixture-HMAC verification."
+    },
+    {
+      "file": "process-01.log",
+      "cause": "Test C10 evidence variable was absent; added actual audit query and assertions."
+    },
+    {
+      "file": "contracts.json",
+      "cause": "46/47; new wire schema allowed sourceVersion 0. Tightened new schema to positive version and regenerated, current47 pass."
+    },
+    {
+      "file": "consumers.json",
+      "cause": "11/13; two existing loopback consumers timed out while binding was restricted. Re-executed with owned loopback authorization; 13/13 passed, no product retry or deadline weakening."
+    },
+    {
+      "file": "node-01.log",
+      "cause": "Evidence signedPayload not yet exported; operation/README links not yet created during construction. Completed documentation and export; current44 pass."
+    },
+    {
+      "file": "lint-01.log",
+      "cause": "Explicit node:buffer imports missing in new scripts; fixed."
+    }
+  ],
+  "uncapturedToolDiagnostics": [
+    "Temporary OpenAPI helper checked nonexistent AssistedTestnetSubject schema before any mutation; corrected to existing AssistedSubject.",
+    "Two temporary edit helpers stopped on exact-text assertions/substrings during formatted-file edits; later edits applied explicitly."
+  ],
+  "preservedUnknown": true,
+  "productionCredentialsUsed": false,
+  "published": false
+}

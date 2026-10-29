@@ -2035,6 +2035,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/subjects/{subjectId}/risk-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Explicitly evaluate the current exact X01 snapshot against the same immutable R04 Proposal
+         * @description Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current response.
+         */
+        post: operations["createAssistedNativeRiskReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/assisted-testnet/valuation": {
         parameters: {
             query?: never;
@@ -4141,6 +4161,123 @@ export interface components {
             snapshotCount: number;
             sourceHash?: string;
             sourceVersion?: string;
+        };
+        NativeCurrentRiskDecision: {
+            decisionId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            verdict: "deny" | "approval_required";
+            /** @enum {string} */
+            purpose: "assisted_testnet_review";
+            proposalHash: string;
+            snapshotHash: string;
+            intentHash: string;
+            factsHash: string;
+            policyVersion: string;
+            killGeneration: string;
+            checks: {
+                /** @enum {string} */
+                rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval";
+                breached: boolean;
+                limit_id: string;
+            }[];
+            /** Format: date-time */
+            decidedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            signer: string;
+            signature: string;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        NativeRiskReviewRequest: {
+            snapshotHash: string;
+            expectedGeneration: string;
+        };
+        NativeRiskReviewView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-risk-review.v1";
+            previousSubjectId: components["schemas"]["UUID"];
+            proposalId: string;
+            proposalHash: string;
+            snapshotHash: string;
+            ledgerHash: string;
+            sourceHash: string;
+            sourceVersion: string;
+            /** @enum {string} */
+            sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
+            killGeneration: string;
+            decision: {
+                decisionId: components["schemas"]["UUID"];
+                /** @enum {string} */
+                verdict: "deny";
+                /** @enum {string} */
+                purpose: "assisted_testnet_review";
+                proposalHash: string;
+                snapshotHash: string;
+                intentHash: string;
+                factsHash: string;
+                policyVersion: string;
+                killGeneration: string;
+                checks: {
+                    /** @enum {string} */
+                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval";
+                    breached: boolean;
+                    limit_id: string;
+                }[];
+                /** Format: date-time */
+                decidedAt: string;
+                /** Format: date-time */
+                expiresAt: string;
+                signer: string;
+                signature: string;
+                /** @enum {boolean} */
+                executionAuthority: false;
+            };
+            /** @enum {boolean} */
+            executionAuthority: false;
+        } | {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-risk-review.v1";
+            previousSubjectId: components["schemas"]["UUID"];
+            proposalId: string;
+            proposalHash: string;
+            snapshotHash: string;
+            ledgerHash: string;
+            sourceHash: string;
+            sourceVersion: string;
+            /** @enum {string} */
+            sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
+            killGeneration: string;
+            decision: {
+                decisionId: components["schemas"]["UUID"];
+                /** @enum {string} */
+                verdict: "approval_required";
+                /** @enum {string} */
+                purpose: "assisted_testnet_review";
+                proposalHash: string;
+                snapshotHash: string;
+                intentHash: string;
+                factsHash: string;
+                policyVersion: string;
+                killGeneration: string;
+                checks: {
+                    /** @enum {string} */
+                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval";
+                    breached: boolean;
+                    limit_id: string;
+                }[];
+                /** Format: date-time */
+                decidedAt: string;
+                /** Format: date-time */
+                expiresAt: string;
+                signer: string;
+                signature: string;
+                /** @enum {boolean} */
+                executionAuthority: false;
+            };
+            /** @enum {boolean} */
+            executionAuthority: false;
+            subject: components["schemas"]["AssistedSubject"];
         };
     };
     responses: {
@@ -12063,6 +12200,44 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["AssistedLedgerView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createAssistedNativeRiskReview: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                subjectId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NativeRiskReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description New immutable signed review, or original idempotent response; never execution permission */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NativeRiskReviewView"];
                 };
             };
             401: components["responses"]["Unauthorized"];

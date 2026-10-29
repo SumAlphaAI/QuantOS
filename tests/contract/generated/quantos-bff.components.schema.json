@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.24.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.25.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -8560,6 +8560,552 @@
             "sourceVersion": {
               "type": "string",
               "pattern": "^(0|[1-9][0-9]*)$"
+            }
+          }
+        }
+      ]
+    },
+    "NativeCurrentRiskDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decisionId",
+        "verdict",
+        "purpose",
+        "proposalHash",
+        "snapshotHash",
+        "intentHash",
+        "factsHash",
+        "policyVersion",
+        "killGeneration",
+        "checks",
+        "decidedAt",
+        "expiresAt",
+        "signer",
+        "signature",
+        "executionAuthority"
+      ],
+      "properties": {
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "deny",
+            "approval_required"
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "assisted_testnet_review"
+          ]
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "intentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "factsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule",
+              "breached",
+              "limit_id"
+            ],
+            "properties": {
+              "rule": {
+                "type": "string",
+                "enum": [
+                  "identity",
+                  "numbers",
+                  "precision",
+                  "global_kill",
+                  "account_kill",
+                  "release",
+                  "snapshot",
+                  "financials",
+                  "venue",
+                  "duplicate",
+                  "order_notional",
+                  "leverage",
+                  "concentration",
+                  "daily_loss",
+                  "approval"
+                ]
+              },
+              "breached": {
+                "type": "boolean"
+              },
+              "limit_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "signer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "NativeRiskReviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshotHash",
+        "expectedGeneration"
+      ],
+      "properties": {
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "expectedGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "NativeRiskReviewView": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schemaVersion",
+            "previousSubjectId",
+            "proposalId",
+            "proposalHash",
+            "snapshotHash",
+            "ledgerHash",
+            "sourceHash",
+            "sourceVersion",
+            "sourceTrust",
+            "killGeneration",
+            "decision",
+            "executionAuthority"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "enum": [
+                "quantos-native-risk-review.v1"
+              ]
+            },
+            "previousSubjectId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "snapshotHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "ledgerHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceVersion": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "sourceTrust": {
+              "type": "string",
+              "enum": [
+                "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+              ]
+            },
+            "killGeneration": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "decision": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "decisionId",
+                "verdict",
+                "purpose",
+                "proposalHash",
+                "snapshotHash",
+                "intentHash",
+                "factsHash",
+                "policyVersion",
+                "killGeneration",
+                "checks",
+                "decidedAt",
+                "expiresAt",
+                "signer",
+                "signature",
+                "executionAuthority"
+              ],
+              "properties": {
+                "decisionId": {
+                  "$ref": "#/$defs/UUID"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "deny"
+                  ]
+                },
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "assisted_testnet_review"
+                  ]
+                },
+                "proposalHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "snapshotHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "intentHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "factsHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "policyVersion": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "killGeneration": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                "checks": {
+                  "type": "array",
+                  "minItems": 15,
+                  "maxItems": 15,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "rule",
+                      "breached",
+                      "limit_id"
+                    ],
+                    "properties": {
+                      "rule": {
+                        "type": "string",
+                        "enum": [
+                          "identity",
+                          "numbers",
+                          "precision",
+                          "global_kill",
+                          "account_kill",
+                          "release",
+                          "snapshot",
+                          "financials",
+                          "venue",
+                          "duplicate",
+                          "order_notional",
+                          "leverage",
+                          "concentration",
+                          "daily_loss",
+                          "approval"
+                        ]
+                      },
+                      "breached": {
+                        "type": "boolean"
+                      },
+                      "limit_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "decidedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "signer": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "signature": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "executionAuthority": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              }
+            },
+            "executionAuthority": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schemaVersion",
+            "previousSubjectId",
+            "proposalId",
+            "proposalHash",
+            "snapshotHash",
+            "ledgerHash",
+            "sourceHash",
+            "sourceVersion",
+            "sourceTrust",
+            "killGeneration",
+            "decision",
+            "executionAuthority",
+            "subject"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "enum": [
+                "quantos-native-risk-review.v1"
+              ]
+            },
+            "previousSubjectId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "snapshotHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "ledgerHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceHash": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceVersion": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            "sourceTrust": {
+              "type": "string",
+              "enum": [
+                "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+              ]
+            },
+            "killGeneration": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "decision": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "decisionId",
+                "verdict",
+                "purpose",
+                "proposalHash",
+                "snapshotHash",
+                "intentHash",
+                "factsHash",
+                "policyVersion",
+                "killGeneration",
+                "checks",
+                "decidedAt",
+                "expiresAt",
+                "signer",
+                "signature",
+                "executionAuthority"
+              ],
+              "properties": {
+                "decisionId": {
+                  "$ref": "#/$defs/UUID"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "approval_required"
+                  ]
+                },
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "assisted_testnet_review"
+                  ]
+                },
+                "proposalHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "snapshotHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "intentHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "factsHash": {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                "policyVersion": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "killGeneration": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                "checks": {
+                  "type": "array",
+                  "minItems": 15,
+                  "maxItems": 15,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "rule",
+                      "breached",
+                      "limit_id"
+                    ],
+                    "properties": {
+                      "rule": {
+                        "type": "string",
+                        "enum": [
+                          "identity",
+                          "numbers",
+                          "precision",
+                          "global_kill",
+                          "account_kill",
+                          "release",
+                          "snapshot",
+                          "financials",
+                          "venue",
+                          "duplicate",
+                          "order_notional",
+                          "leverage",
+                          "concentration",
+                          "daily_loss",
+                          "approval"
+                        ]
+                      },
+                      "breached": {
+                        "type": "boolean"
+                      },
+                      "limit_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "decidedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "signer": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "signature": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "executionAuthority": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              }
+            },
+            "executionAuthority": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "subject": {
+              "$ref": "#/$defs/AssistedSubject"
             }
           }
         }

@@ -118,6 +118,7 @@ pub(crate) struct OwnedHost {
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
     valuation: quantos_portfolio::native_valuation::State,
     valuation_committed: quantos_portfolio::native_valuation::State,
+    risk_refreshes: BTreeMap<(String, String), Value>,
     valuation_input: Option<quantos_execution::durable::DurableStore>,
     controls: control::Controls,
     activation: activation::Activation,
@@ -255,6 +256,7 @@ impl OwnedHost {
             valuation: Default::default(),
             valuation_committed: Default::default(),
             valuation_input: None,
+            risk_refreshes: Default::default(),
             controls: Default::default(),
             native_anchor: None,
             control_fixture_directory: None,
@@ -313,6 +315,10 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
         .merge(activation::routes())
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
+        .route(
+            "/v1/assisted-testnet/subjects/:subjectId/risk-reviews",
+            post(handle),
+        )
         .route("/v1/assisted-testnet/ledger", get(handle))
         .route("/v1/assisted-testnet/valuation", get(handle))
         .route("/v1/assisted-testnet/reconciliation", get(handle))
@@ -461,9 +467,18 @@ async fn handle(
                 return h.sync_ledger(&sid, at);
             }
             if path.ends_with("/subjects") {
-                return Ok(
-                    json!({"items":h.subjects.iter().filter(|(_,s)|h.sources.with_current(s,at,||()).is_ok()).map(|(id,_)|h.subject(*id)).collect::<Result<Vec<_>,_>>()?}),
-                );
+                let ids = h.subjects.keys().copied().collect::<Vec<_>>();
+                let mut items = vec![];
+                for id in ids {
+                    if h.require_native_snapshot(&sid, id, at).is_ok()
+                        && h.sources
+                            .with_current(h.subjects.get(&id).ok_or(Error::Invalid)?, at, || ())
+                            .is_ok()
+                    {
+                        items.push(h.subject(id)?);
+                    }
+                }
+                return Ok(json!({"items":items}));
             }
             if path == "/v1/assisted-testnet/requests" {
                 return Ok(
@@ -486,6 +501,12 @@ async fn handle(
             .get("idempotency-key")
             .and_then(|v| v.to_str().ok())
             .ok_or(Error::Invalid)?;
+        if path.ends_with("/risk-reviews") {
+            if uri.query().is_some() {
+                return Err(Error::Invalid);
+            }
+            return h.refresh_risk(&sid, id.ok_or(Error::Invalid)?, key, &body, at);
+        }
         if path == "/v1/assisted-testnet/requests" {
             if h.requests.len() >= 200 && !h.open_keys.contains_key(&(sid.clone(), key.to_owned()))
             {
@@ -495,6 +516,7 @@ async fn handle(
                 .as_str()
                 .and_then(|s| ProposalId::parse_str(s).ok())
                 .ok_or(Error::Invalid)?;
+            h.require_native_snapshot(&sid, subject, at)?;
             let r = h.service.open(&sid, subject, key, &clock)?.receipt;
             h.requests.insert(r.request, subject);
             h.opened_at.entry(r.request).or_insert(at);
@@ -504,6 +526,7 @@ async fn handle(
         let id = id.ok_or(Error::Invalid)?;
         let expected = body["expectedRevision"].as_u64().ok_or(Error::Invalid)?;
         if path.ends_with("/approvals") {
+            h.require_native_snapshot(&sid, *h.requests.get(&id).ok_or(Error::Invalid)?, at)?;
             if !verified {
                 return Err(Error::MfaInvalid);
             }
@@ -549,6 +572,14 @@ async fn handle(
             {
                 return Err(Error::PolicyChanged);
             }
+            // Native refresh subjects are review-only until the explicit L03
+            // current-review execution handoff; no refreshed decision bypasses IO guards.
+            if h.sources
+                .native_snapshot(*h.requests.get(&id).ok_or(Error::Invalid)?)?
+                .is_some()
+            {
+                return Err(Error::PolicyChanged);
+            }
             let receipt = h.native.submit(&sid, id, key, &clock)?;
             h.sync_ledger(&sid, clock())?;
             return Ok(command(receipt));
@@ -579,3 +610,5 @@ mod source_seed;
 pub(crate) mod activation;
 
 mod valuation;
+
+mod risk_refresh;

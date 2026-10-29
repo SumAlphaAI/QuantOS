@@ -488,6 +488,14 @@ impl State {
         }
         Ok(())
     }
+    /// Resolve only a previously validated snapshot's immutable authenticated input.
+    pub fn input_for(&self, snapshot: &Snapshot) -> Result<Inputs> {
+        self.sources
+            .iter()
+            .find(|i| i.content_hash().ok().as_ref() == Some(&snapshot.source_hash))
+            .cloned()
+            .ok_or(Error)
+    }
     pub fn counts(&self) -> (usize, usize) {
         (self.sources.len(), self.snapshots.len())
     }

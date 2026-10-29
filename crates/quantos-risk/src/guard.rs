@@ -1039,3 +1039,6 @@ fn decimal(s: &str) -> Option<(f64, u32)> {
     }
     Some((value, scale))
 }
+
+mod native;
+pub use native::NativeRiskContext;

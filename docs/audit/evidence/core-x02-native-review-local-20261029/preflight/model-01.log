@@ -1,0 +1,14 @@
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error[E0382]: borrow of partially moved value: `r`
+   --> crates/quantos-execution/tests/support/native_refresh_cases.rs:299:26
+    |
+297 |         Some(r.decision.snapshot_hash)
+    |              ------------------------ value partially moved here
+298 |     );
+299 |     let mut projection = r.public_view().unwrap();
+    |                          ^ value borrowed here after partial move
+    |
+    = note: partial move occurs because `r.decision.snapshot_hash` has type `quantos_core::ContentHash`, which does not implement the `Copy` trait
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `quantos-execution` (test "core_x02_source") due to 1 previous error

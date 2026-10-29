@@ -33,12 +33,14 @@ struct Entry {
     auth: AuthContext,
     intent: TradeIntent,
     decision: GuardDecision,
+    native: Option<NativeRiskContext>,
     current: CurrentRiskSources,
 }
 #[derive(Default)]
 struct State {
     entries: BTreeMap<ProposalId, Entry>,
     revoked: BTreeSet<ProposalId>,
+    native_reviews: BTreeMap<quantos_core::DecisionId, NativeReview>,
     immutable_checkpoint: Option<Value>,
 }
 /// Same guard instance must serve evaluation, kill CAS and dispatch validation.
@@ -170,6 +172,7 @@ impl CurrentSubjectSource {
             intent,
             decision,
             current,
+            native: None,
         };
         bind(&e)?;
         let mut state = self.state.lock().map_err(|_| Error::Unavailable)?;
@@ -193,6 +196,21 @@ impl CurrentSubjectSource {
         action: impl FnOnce(DateTime<Utc>) -> T,
     ) -> Result<T, Error> {
         bind(e)?;
+        if let Some(context) = &e.native {
+            return self
+                .guard
+                .with_current_native_review(
+                    &e.decision,
+                    &e.auth,
+                    &e.intent,
+                    context,
+                    &e.current.venue,
+                    &e.current.release,
+                    || clock.sample(),
+                    action,
+                )
+                .map_err(invalid);
+        }
         self.guard
             .with_current_assisted_review(
                 &e.decision,
@@ -296,14 +314,16 @@ impl CurrentSubjectSource {
     pub fn provenance(&self, id: ProposalId) -> Result<Value, Error> {
         let state = self.state.lock().map_err(|_| Error::Unavailable)?;
         let e = state.entries.get(&id).ok_or(Error::Invalid)?;
-        Ok(
-            json!({"schema":"quantos-current-assisted-source/v1","proposalId":e.record.proposal_id,
+        let mut value = json!({"schema":"quantos-current-assisted-source/v1","proposalId":e.record.proposal_id,
             "proposalArtifactHash":e.record.artifact_manifest.content_hash,"proposalRecordHash":e.subject.proposal_hash,
             "decisionId":e.decision.decision_id,"decisionSignature":e.decision.signature,"decisionPurpose":e.decision.purpose,
             "snapshotHash":e.decision.snapshot_hash,"factsHash":e.decision.facts_hash,"policyVersion":e.decision.policy.version,
             "killGeneration":e.decision.kill_revision,"sourceReleaseTarget":"shadow","executionTarget":"OWNED_TESTNET_ONLY",
-            "createdAt":e.subject.created_at,"expiresAt":e.subject.expires_at,"executionAuthority":false}),
-        )
+            "createdAt":e.subject.created_at,"expiresAt":e.subject.expires_at,"executionAuthority":false});
+        if let Some(c) = &e.native {
+            value["nativeRiskInput"] = json!({"snapshotHash":c.snapshot.snapshot_hash,"ledgerHash":c.snapshot.ledger_hash,"ledgerAnchor":c.snapshot.ledger_anchor,"sourceHash":c.snapshot.source_hash,"sourceVersion":c.snapshot.source_version.to_string(),"sourceTrust":c.snapshot.source_trust,"expiresAt":c.snapshot.expires_at,"executionAuthority":false});
+        }
+        Ok(value)
     }
     pub(crate) fn checkpoint(&self) -> Result<Value, Error> {
         let mut s = self.state.lock().map_err(|_| Error::Unavailable)?;
@@ -314,9 +334,11 @@ impl CurrentSubjectSource {
                     slot.insert(e.current.release.owner_checkpoint(&self.storage_key.0).map_err(invalid)?);
                 }
                 Ok::<_,Error>(json!({"subject":e.subject,"record":e.record,"auth":e.auth,"intent":e.intent,"decision":e.decision,
-                    "snapshot":e.current.snapshot,"financials":e.current.financials,"venue":e.current.venue,"releaseHash":e.current.release.content_hash}))
+                    "native":e.native,"snapshot":e.current.snapshot,"financials":e.current.financials,"venue":e.current.venue,"releaseHash":e.current.release.content_hash}))
             }).collect::<Result<Vec<_>,_>>()?;
-            s.immutable_checkpoint = Some(json!({"entries":entries,"releases":releases}));
+            s.immutable_checkpoint = Some(
+                json!({"entries":entries,"releases":releases,"nativeReviews":s.native_reviews}),
+            );
         }
         // Only immutable, already verified bytes are cached. Every checkpoint
         // still samples the actual risk generation/clock and current revocations.
@@ -341,13 +363,15 @@ impl CurrentSubjectSource {
             auth: AuthContext,
             intent: TradeIntent,
             decision: GuardDecision,
+            #[serde(default)]
+            native: Option<NativeRiskContext>,
             snapshot: RiskInputSnapshot,
             financials: AccountFinancials,
             venue: VenueState,
             #[serde(rename = "releaseHash")]
             release_hash: ContentHash,
         }
-        let immutable = json!({"entries":v["entries"],"releases":v["releases"]});
+        let immutable = json!({"entries":v["entries"],"releases":v["releases"],"nativeReviews":v.get("nativeReviews").cloned().unwrap_or(json!({}))});
         let revoked: BTreeSet<ProposalId> =
             serde_json::from_value(v["revoked"].clone()).map_err(invalid)?;
         {
@@ -389,6 +413,7 @@ impl CurrentSubjectSource {
                 auth: r.auth,
                 intent: r.intent,
                 decision: r.decision,
+                native: r.native,
                 current: CurrentRiskSources {
                     snapshot: r.snapshot,
                     financials: r.financials,
@@ -402,19 +427,77 @@ impl CurrentSubjectSource {
             // Current facts may intentionally be revoked/stale; restore must keep
             // them denied, not reject their read-only historical facts or renew them.
             self.guard.verify_decision(&e.decision).map_err(invalid)?;
-            if !ids.insert(e.record.proposal_id.clone())
+            bind(&e)?;
+            if let Some(c) = &e.native {
+                self.guard
+                    .verify_native_binding(&e.decision, c, &e.current.venue, &e.current.release)
+                    .map_err(invalid)?;
+            }
+            if (e.native.is_none() && !ids.insert(e.record.proposal_id.clone()))
                 || entries.insert(e.subject.id, e).is_some()
             {
                 return Err(Error::Conflict);
             }
         }
+        let reviews: BTreeMap<quantos_core::DecisionId, NativeReview> =
+            serde_json::from_value(v.get("nativeReviews").cloned().unwrap_or(json!({})))
+                .map_err(invalid)?;
+        if reviews.len() > 512 {
+            return Err(Error::Unavailable);
+        }
+        for (id, r) in &reviews {
+            if (r.decision.verdict == RiskVerdict::ApprovalRequired) != r.subject.is_some()
+                || !matches!(
+                    r.decision.verdict,
+                    RiskVerdict::Deny | RiskVerdict::ApprovalRequired
+                )
+            {
+                return Err(Error::Invalid);
+            }
+            let previous = entries.get(&r.previous_subject_id).ok_or(Error::Invalid)?;
+            if id != &r.decision.decision_id
+                || r.proposal_hash != digest(&previous.record)?
+                || r.proposal_id != previous.record.proposal_id
+                || r.decision.proposal_hash.as_ref() != Some(&r.proposal_hash)
+            {
+                return Err(Error::Invalid);
+            }
+            self.guard
+                .verify_native_binding(
+                    &r.decision,
+                    &r.context,
+                    &previous.current.venue,
+                    &previous.current.release,
+                )
+                .map_err(invalid)?;
+            if let Some(subject) = &r.subject {
+                let next = entries.get(&subject.id).ok_or(Error::Invalid)?;
+                if &next.subject != subject
+                    || next.record != previous.record
+                    || next.decision != r.decision
+                    || next.native.as_ref() != Some(&r.context)
+                {
+                    return Err(Error::Invalid);
+                }
+            }
+        }
         let mut s = self.state.lock().map_err(|_| Error::Unavailable)?;
+        // A hot authenticated restore may extend immutable records, never replace them.
+        for (id, old) in &s.native_reviews {
+            if reviews.get(id) != Some(old) {
+                return Err(Error::Conflict);
+            }
+        }
         self.guard
             .restore_assisted_checkpoint(&v["risk"])
             .map_err(invalid)?;
         s.entries = entries;
+        s.native_reviews = reviews;
         s.immutable_checkpoint = Some(immutable);
         s.revoked.extend(revoked);
         Ok(())
     }
 }
+
+mod native_refresh;
+pub use native_refresh::NativeReview;
