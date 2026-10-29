@@ -87,10 +87,6 @@ fn honest_snapshot(start: DateTime<Utc>, captured_at: DateTime<Utc>) -> DataSnap
     .expect("snapshot builds")
 }
 
-pub fn honest_request() -> BacktestRequest {
-    honest_request_at(Utc::now())
-}
-
 fn honest_request_at(now: DateTime<Utc>) -> BacktestRequest {
     // Each fixture owns one clock. A long test process must not reuse the first
     // fixture's wall time and accidentally age new risk inputs past their TTL.
@@ -125,8 +121,19 @@ pub(crate) fn material(
     BacktestRequest,
     Vec<DraftArtifactRef>,
 ) {
+    material_at(payload, Utc::now())
+}
+pub(crate) fn material_at(
+    payload: &Value,
+    at: DateTime<Utc>,
+) -> (
+    AuthContext,
+    DraftService,
+    BacktestRequest,
+    Vec<DraftArtifactRef>,
+) {
     let image_digest = reference_image_digest().clone();
-    let mut request = honest_request();
+    let mut request = honest_request_at(at);
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     request.candidate.source_commit = quantos_core::fixture_source::fixture_source_commit(
         &root,
@@ -181,8 +188,8 @@ pub(crate) fn material(
     );
     (auth, drafts, request, vec![reference])
 }
-pub fn fixture(payload: &Value) -> (AuthContext, ValidatedBacktest) {
-    let (auth, drafts, request, refs) = material(payload);
+pub(crate) fn fixture_at(payload: &Value, at: DateTime<Utc>) -> (AuthContext, ValidatedBacktest) {
+    let (auth, drafts, request, refs) = material_at(payload, at);
     let now = request.candidate.clock;
     let draft = drafts.create(&auth, "S03 strategy", now).unwrap();
     drafts

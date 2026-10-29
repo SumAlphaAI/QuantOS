@@ -333,6 +333,20 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         assert_eq!(pair[1]["causationId"], pair[0]["eventId"]);
     }
     let events = get(&url, &format!("/v1/audit/events?correlationId={id}"));
+    let source = &events["items"][0]["redactedPayload"]["source"];
+    assert_eq!(source["decisionPurpose"], "assisted_testnet_review");
+    assert_eq!(source["killGeneration"], 0);
+    assert_eq!(source["executionAuthority"], false);
+    assert_eq!(
+        source["proposalRecordHash"],
+        events["items"][0]["redactedPayload"]["proposalHash"]
+    );
+    assert_eq!(
+        source["decisionId"],
+        events["items"][0]["redactedPayload"]["decisionId"]
+    );
+    assert_eq!(source["decisionSignature"].as_str().unwrap().len(), 64);
+
     assert_eq!(events["items"].as_array().unwrap().len(), 5);
     assert_eq!(
         events["items"][4]["redactedPayload"]["commandId"],

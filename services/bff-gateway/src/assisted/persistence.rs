@@ -57,7 +57,7 @@ impl OwnedHost {
                 "assisted.request_opened",
                 opened,
                 actor.clone(),
-                json!({"requestId":id,"subjectHash":subject["subjectHash"],"proposalHash":subject["proposalHash"],"decisionId":subject["decisionId"]}),
+                json!({"requestId":id,"subjectHash":subject["subjectHash"],"proposalHash":subject["proposalHash"],"decisionId":subject["decisionId"],"source":self.sources.provenance(*self.requests.get(id).ok_or(Error::Invalid)?)?}),
             );
             for a in entries.iter().filter(|a| a.request == *id) {
                 add(

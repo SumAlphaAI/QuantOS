@@ -2224,13 +2224,15 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Pre/Post-trade Risk 与 kill switch
-- 技术要求：X02_LOCAL仅在新冻结候选完整41节点/135组重跑后放行本地功能，131依赖先于4组自身；拒绝历史READY拼接。规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
+- 技术要求：历史X02_LOCAL的41节点/135组保留原范围；当前DEVELOPMENT按AGENTS.md验证当前功能、必要编译/静态及直接影响回归，不递归重跑依赖或改绑历史READY。接续当前不可变R04 Proposal、X02签名review与kill generation到公共审批Subject；保持Assisted身份、原期限、拒绝与原key恢复。规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
 - 交付物：`quantos-risk`、rule fixtures、kill switch API
 - 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名
 - 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01、S03、F06
 - 当前工程复核：2026-10-17冻结5717f7a2完整41节点135组PASS；9个集成/API用例覆盖三类各≥50fixture、签名/审批绑定、共享kill/CAS/并发重复与时效；rules.rs实际LLVM分支16/16。仅X02_LOCAL DEVELOPMENT READY，正式确认PENDING；24组目标及P95/持久/分布式/X03签发集成NOT_RUN。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。 X03共享输入变更后独立READY撤回，历史证据原样保留原范围；X03按最新分阶段原则仅执行受影响的直接回归，不将历史回执改绑为新候选READY。
+
+当前开发接续（2026-10-29）：R04完整record/manifest与订单绑定、X01/S03 owned模块来源、X02签名assisted_testnet_review及kill generation已接公共Subject；审批/原key恢复与native IO前重查，风险锁覆盖提交，原MAC checkpoint恢复原来源和期限。只接approval_required，拒绝签名/scope/来源变化、撤销、过期及kill后旧generation；C10保留同源指纹。详见[当前规程](./operations/core-x02-current-subject.md)、[范围](./execution/core-x02-current-scope.json)、[证据](./audit/evidence/core-x02-current-local-20261029/README.md)。工程Gate `PASS_CURRENT_R04_X02_PUBLIC_SUBJECT_BINDING`；开发IMPLEMENTED_PENDING_ACCEPTANCE；完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED。Shadow release仅为研究前提，不新增真实Assisted部署资格；19项gap/8项义务保持OPEN，L4-CURRENT-SOURCE-01记录owned本机进展。真实身份/研究资金源/Vault/DB/testnet/跨主机与目标覆盖率/P95/发布NOT_RUN。下一原任务CORE:X04 DEVELOPMENT接原生Fill与公共成交账本；无外部授权。
 
 <a id="task-x03"></a>
 ### X03：TradeCommand 签发与审批状态机

@@ -13,7 +13,7 @@ use axum::{
 use chrono::{DateTime, Duration, Utc};
 use quantos_auth::AuthContext;
 use quantos_core::{
-    AccountId, ContentHash, DecisionId, ProposalId, TenantId, WorkspaceId, canonical_json_bytes,
+    AccountId, ContentHash, ProposalId, TenantId, WorkspaceId, canonical_json_bytes,
 };
 use quantos_execution::{
     assisted::*,
@@ -23,7 +23,6 @@ use quantos_execution::{
     venue_protocol::*,
 };
 use quantos_policy::{Capability, Role, RunMode};
-use quantos_risk::RiskVerdict;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, sync::Arc};
 use tokio::sync::Mutex;
@@ -108,6 +107,7 @@ struct Replay {
 }
 pub(crate) struct OwnedHost {
     service: AssistedApprovalService,
+    sources: quantos_execution::assisted_source::CurrentSubjectSource,
     mfa: MfaAttestor,
     native: AssistedExecution<HostKernel>,
     durable: Option<Arc<quantos_execution::durable::DurableStore>>,
@@ -219,33 +219,10 @@ impl OwnedHost {
             keys[2],
         )
         .unwrap();
-        let mut subjects = BTreeMap::new();
-        for i in 0..50 {
-            let id = ProposalId::new();
-            let subject = Subject {
-                id,
-                scope: scope.clone(),
-                originator: crate::execution::reference_actor("session-current"),
-                originator_user: *crate::execution::reference_actor("session-current").as_uuid(),
-                proposal_hash: ContentHash::sha256_bytes(
-                    format!("owned-core-l03-public-proposal-{i}").as_bytes(),
-                ),
-                decision: DecisionId::new(),
-                verdict: RiskVerdict::ApprovalRequired,
-                venue: EXECUTION_VENUE.into(),
-                symbol: "BTCUSDT".into(),
-                quote_currency: "USDT".into(),
-                side: quantos_execution::OrderSide::Buy,
-                quantity: (i + 1).to_string(),
-                limit_price: "1000".into(),
-                created_at: at,
-                expires_at: expiry.min(at + Duration::minutes(5)),
-            };
-            service.register_subject(subject.clone()).unwrap();
-            subjects.insert(id, subject);
-        }
+        let (sources, subjects) = source_seed::current(&service, &scope, keys[2], at, expiry)?;
         Ok(Self {
             service,
+            sources,
             durable: None,
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
@@ -401,16 +378,18 @@ async fn handle(
     let already_used = grant
         .as_ref()
         .is_some_and(|g| state.consumed_step_proofs.contains(g));
+    let clock_offset = state.clock_offset;
+    let clock = || now(Utc::now() + clock_offset);
     let h = state.assisted.as_mut().unwrap();
     let result = (|| -> Result<Value, Error> {
-        let caps = h.service.capabilities(&sid, at)?;
+        let caps = h.service.capabilities(&sid, &clock)?;
         if caps["request"] != true && caps["approve"] != true {
             return Err(Error::Unauthorized);
         }
         if method == Method::GET {
             if path.ends_with("/subjects") {
                 return Ok(
-                    json!({"items":h.subjects.keys().map(|id|h.subject(*id)).collect::<Result<Vec<_>,_>>()?}),
+                    json!({"items":h.subjects.iter().filter(|(_,s)|h.sources.with_current(s,at,||()).is_ok()).map(|(id,_)|h.subject(*id)).collect::<Result<Vec<_>,_>>()?}),
                 );
             }
             if path == "/v1/assisted-testnet/requests" {
@@ -428,7 +407,7 @@ async fn handle(
                     json!({"items":items,"verified":true,"nativeSubmissions":h.native.submission_count()?}),
                 );
             }
-            return h.view(&sid, id, at);
+            return h.view(&sid, id, clock());
         }
         let key = headers
             .get("idempotency-key")
@@ -443,11 +422,11 @@ async fn handle(
                 .as_str()
                 .and_then(|s| ProposalId::parse_str(s).ok())
                 .ok_or(Error::Invalid)?;
-            let r = h.service.open(&sid, subject, key, at)?.receipt;
+            let r = h.service.open(&sid, subject, key, &clock)?.receipt;
             h.requests.insert(r.request, subject);
             h.opened_at.entry(r.request).or_insert(at);
             h.open_keys.insert((sid.clone(), key.to_owned()), r.request);
-            return h.view(&sid, r.request, at);
+            return h.view(&sid, r.request, clock());
         }
         let id = id.ok_or(Error::Invalid)?;
         let expected = body["expectedRevision"].as_u64().ok_or(Error::Invalid)?;
@@ -479,15 +458,15 @@ async fn handle(
                 );
                 proof
             };
-            h.service.approve(&sid, id, expected, key, proof, at)?;
-            return h.view(&sid, id, at);
+            h.service.approve(&sid, id, expected, key, proof, &clock)?;
+            return h.view(&sid, id, clock());
         }
         if path.ends_with("/commands") {
-            let r = h.service.inspect(&sid, id, at)?;
+            let r = h.service.inspect(&sid, id, &clock)?;
             if r.revision != expected {
                 return Err(Error::Conflict);
             }
-            return h.native.submit(&sid, id, key, at).map(command);
+            return h.native.submit(&sid, id, key, &clock).map(command);
         }
         Err(Error::Invalid)
     })();
@@ -505,3 +484,5 @@ async fn handle(
 pub(crate) mod persistence;
 #[cfg(test)]
 mod tests;
+
+mod source_seed;

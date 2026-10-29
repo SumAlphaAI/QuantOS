@@ -226,65 +226,7 @@ impl AtomicCommandIssuer {
         now: DateTime<Utc>,
     ) -> Result<ContentHash, CommandError> {
         self.authorized(auth, &intent, false)?;
-        let out = &record.output;
-        let action = match intent.side {
-            Side::Buy => "PROPOSAL_ACTION_BUY",
-            Side::Sell => "PROPOSAL_ACTION_SELL",
-        };
-        let notional = Decimal::from_str_exact(&intent.quantity)
-            .ok()
-            .zip(Decimal::from_str_exact(&intent.limit_price).ok())
-            .and_then(|(q, p)| q.checked_mul(p));
-        let valid = out["notional"]["value"]
-            .as_str()
-            .and_then(|v| Decimal::from_str_exact(v).ok())
-            == notional
-            && notional.is_some()
-            && out["metadata"]["actor"]["actor_id"].as_str()
-                == Some(auth.actor_id.to_string().as_str())
-            && SignalProposalSchemaValidator::validate_proposal(out).is_ok()
-            && record.artifact_manifest.tenant_id == self.0.tenant
-            && record.artifact_manifest.content_hash == hash(out)?
-            && record.artifact_manifest.size_bytes == canonical_json_bytes(out)?.len() as u64
-            && record.artifact_manifest.media_type == "application/json"
-            && record.artifact_manifest.created_at <= record.created_at
-            && out["signal"]["symbol"].as_str() == Some(intent.symbol.as_str())
-            && out["signal"]["generated_at"]
-                .as_str()
-                .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-                .is_some_and(|at| at <= record.created_at)
-            && out["metadata"]["issued_at"]
-                .as_str()
-                .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-                .is_some_and(|at| at <= record.created_at)
-            && out["evidence_refs"]
-                == serde_json::to_value(&record.evidence_refs)
-                    .map_err(|_| CommandError::Rejected("serialization"))?
-            && out["counter_views"] == json!(record.counter_views)
-            && out["metadata"]["tenant_id"].as_str() == Some(self.0.tenant.to_string().as_str())
-            && out["metadata"]["workspace_id"].as_str()
-                == Some(self.0.workspace.to_string().as_str())
-            && out["proposal_id"].as_str() == Some(record.proposal_id.as_str())
-            && out["account_id"].as_str() == Some(record.account_id.as_str())
-            && record.account_id == intent.account_id.to_string()
-            && record.symbol == intent.symbol
-            && out["symbol"].as_str() == Some(intent.symbol.as_str())
-            && out["signal"]["strategy_release_id"].as_str()
-                == Some(intent.release_id.to_string().as_str())
-            && out["signal"]["signal_id"].as_str() == Some(record.signal_id.as_str())
-            && out["action"].as_str() == Some(action)
-            && out["quantity"]["value"].as_str() == Some(intent.quantity.as_str())
-            && out["expires_at"]
-                .as_str()
-                .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-                .is_some_and(|t| t == record.expires_at)
-            && record.capability == "decision.proposal.v1"
-            && !record.executable
-            && !record.evidence_refs.is_empty()
-            && !record.counter_views.is_empty();
-        if !valid {
-            return Err(CommandError::Rejected("proposal binding"));
-        }
+        validate_proposal_binding(auth, &record, &intent)?;
         let p = Proposal {
             record,
             intent,
@@ -886,4 +828,71 @@ impl AtomicCommandIssuer {
 fn hash<T: Serialize>(value: &T) -> Result<ContentHash, CommandError> {
     let v = serde_json::to_value(value).map_err(|_| CommandError::Rejected("serialization"))?;
     Ok(ContentHash::sha256_bytes(&canonical_json_bytes(&v)?))
+}
+
+/// Immutable R04 record binding shared by Paper/Shadow and Assisted review.
+pub(crate) fn validate_proposal_binding(
+    auth: &AuthContext,
+    record: &TradeProposalRecord,
+    intent: &TradeIntent,
+) -> Result<(), CommandError> {
+    let out = &record.output;
+    let action = match intent.side {
+        Side::Buy => "PROPOSAL_ACTION_BUY",
+        Side::Sell => "PROPOSAL_ACTION_SELL",
+    };
+    let notional = Decimal::from_str_exact(&intent.quantity)
+        .ok()
+        .zip(Decimal::from_str_exact(&intent.limit_price).ok())
+        .and_then(|(q, p)| q.checked_mul(p));
+    let valid = out["notional"]["value"]
+        .as_str()
+        .and_then(|v| Decimal::from_str_exact(v).ok())
+        == notional
+        && notional.is_some()
+        && out["metadata"]["actor"]["actor_id"].as_str()
+            == Some(auth.actor_id.to_string().as_str())
+        && SignalProposalSchemaValidator::validate_proposal(out).is_ok()
+        && record.artifact_manifest.tenant_id == auth.tenant_id
+        && record.artifact_manifest.content_hash == hash(out)?
+        && record.artifact_manifest.size_bytes == canonical_json_bytes(out)?.len() as u64
+        && record.artifact_manifest.media_type == "application/json"
+        && record.artifact_manifest.created_at <= record.created_at
+        && out["signal"]["symbol"].as_str() == Some(intent.symbol.as_str())
+        && out["signal"]["generated_at"]
+            .as_str()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+            .is_some_and(|at| at <= record.created_at)
+        && out["metadata"]["issued_at"]
+            .as_str()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+            .is_some_and(|at| at <= record.created_at)
+        && out["evidence_refs"]
+            == serde_json::to_value(&record.evidence_refs)
+                .map_err(|_| CommandError::Rejected("serialization"))?
+        && out["counter_views"] == json!(record.counter_views)
+        && out["metadata"]["tenant_id"].as_str() == Some(auth.tenant_id.to_string().as_str())
+        && out["metadata"]["workspace_id"].as_str() == Some(auth.workspace_id.to_string().as_str())
+        && out["proposal_id"].as_str() == Some(record.proposal_id.as_str())
+        && out["account_id"].as_str() == Some(record.account_id.as_str())
+        && record.account_id == intent.account_id.to_string()
+        && record.symbol == intent.symbol
+        && out["symbol"].as_str() == Some(intent.symbol.as_str())
+        && out["signal"]["strategy_release_id"].as_str()
+            == Some(intent.release_id.to_string().as_str())
+        && out["signal"]["signal_id"].as_str() == Some(record.signal_id.as_str())
+        && out["action"].as_str() == Some(action)
+        && out["quantity"]["value"].as_str() == Some(intent.quantity.as_str())
+        && out["expires_at"]
+            .as_str()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+            .is_some_and(|t| t == record.expires_at)
+        && record.capability == "decision.proposal.v1"
+        && !record.executable
+        && !record.evidence_refs.is_empty()
+        && !record.counter_views.is_empty();
+    if !valid {
+        return Err(CommandError::Rejected("proposal binding"));
+    }
+    Ok(())
 }

@@ -154,6 +154,9 @@ pub struct GuardDecision {
     pub account_id: AccountId,
     pub requester: ActorId,
     pub phase: Phase,
+    /// Review purpose is signed and cannot be consumed by the order issuer.
+    pub purpose: String,
+    pub proposal_hash: Option<ContentHash>,
     pub intent_hash: ContentHash,
     pub snapshot_hash: ContentHash,
     pub facts_hash: ContentHash,
@@ -369,7 +372,8 @@ impl RiskGuard {
         self.authorize(auth, intent)?;
         let state = self.lock()?;
         self.compute(
-            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now, false,
+            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now,
+            false, None,
         )
     }
     /// Current account rules, independent of a Proposal or a proposed order.
@@ -459,7 +463,8 @@ impl RiskGuard {
         self.authorize(auth, intent)?;
         let mut state = self.lock()?;
         let decision = self.compute(
-            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now, false,
+            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now,
+            false, None,
         )?;
         if decision.verdict == RiskVerdict::Allow {
             if phase == Phase::Pre {
@@ -477,6 +482,181 @@ impl RiskGuard {
             .decisions
             .insert(decision.decision_id, decision.clone());
         Ok(decision)
+    }
+    /// Native Assisted review uses the actual AssistedLive identity. The Shadow
+    /// release is a research prerequisite only; this never grants deployment or
+    /// an X03 Allow. The public two-person/native policy remains a separate gate.
+    #[allow(clippy::too_many_arguments)]
+    pub fn evaluate_assisted_review(
+        &self,
+        auth: &AuthContext,
+        intent: &TradeIntent,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        venue: &VenueState,
+        release: &StrategyRelease,
+        proposal_hash: &ContentHash,
+        now: DateTime<Utc>,
+    ) -> Result<GuardDecision, GuardError> {
+        self.authorize(auth, intent)?;
+        if auth.mode != RunMode::AssistedLive || !Self::capable(auth, "execution.assisted_testnet")
+        {
+            return Err(GuardError::Unauthorized);
+        }
+        let mut state = self.lock()?;
+        let d = self.compute(
+            &state,
+            auth,
+            Phase::Pre,
+            intent,
+            snapshot,
+            financials,
+            venue,
+            release,
+            None,
+            now,
+            false,
+            Some(proposal_hash),
+        )?;
+        state.at = Some(now);
+        state.decisions.insert(d.decision_id, d.clone());
+        Ok(d)
+    }
+    /// Service -> current sources -> RiskGuard is the lock order. Hold the kill
+    /// CAS lock through bounded native dispatch; callback must never reenter it.
+    #[allow(clippy::too_many_arguments)]
+    pub fn with_current_assisted_review<T>(
+        &self,
+        decision: &GuardDecision,
+        auth: &AuthContext,
+        intent: &TradeIntent,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        venue: &VenueState,
+        release: &StrategyRelease,
+        clock: impl FnOnce() -> DateTime<Utc>,
+        action: impl FnOnce(DateTime<Utc>) -> T,
+    ) -> Result<T, GuardError> {
+        self.authorize(auth, intent)?;
+        if auth.mode != RunMode::AssistedLive || !Self::capable(auth, "execution.assisted_testnet")
+        {
+            return Err(GuardError::Unauthorized);
+        }
+        let mut state = self.lock()?;
+        let now = clock();
+        self.verify_decision(decision)?;
+        if decision.proposal_hash.is_none()
+            || decision.purpose != "assisted_testnet_review"
+            || decision.phase != Phase::Pre
+            || decision.verdict != RiskVerdict::ApprovalRequired
+            || state.decisions.get(&decision.decision_id) != Some(decision)
+            || decision.kill_revision != state.revision
+            || state.global
+            || state.accounts.contains(&intent.account_id)
+            || decision.policy != self.0.policy
+            || decision.decided_at > now
+            || now >= decision.expires_at
+            || state.at.is_some_and(|at| now < at)
+            || decision.requester != auth.actor_id
+            || decision.account_id != intent.account_id
+            || decision.intent_hash != self.intent_hash(auth.actor_id, intent)?
+        {
+            return Err(GuardError::DecisionInvalid);
+        }
+        let current = self.compute(
+            &state,
+            auth,
+            Phase::Pre,
+            intent,
+            snapshot,
+            financials,
+            venue,
+            release,
+            None,
+            now,
+            false,
+            decision.proposal_hash.as_ref(),
+        )?;
+        if current.verdict != RiskVerdict::ApprovalRequired
+            || current.expires_at <= now
+            || current.snapshot_hash != decision.snapshot_hash
+            || current.facts_hash != decision.facts_hash
+        {
+            return Err(GuardError::DecisionInvalid);
+        }
+        state.at = Some(now);
+        Ok(action(now))
+    }
+    /// Authenticated owner storage, specifically the review namespace. No Allow
+    /// decision, approval token or issuer consumer can be restored through here.
+    pub fn assisted_checkpoint(&self) -> Result<serde_json::Value, GuardError> {
+        let s = self.lock()?;
+        let v = json!({"tenant":self.0.tenant,"workspace":self.0.workspace,"policy":self.0.policy,
+            "revision":s.revision,"global":s.global,"accounts":s.accounts,"at":s.at,
+            "receipts":s.receipts,"decisions":s.decisions.values().filter(|d|d.purpose=="assisted_testnet_review").collect::<Vec<_>>()});
+        Ok(json!({"value":v,"signature":self.sign("assisted-checkpoint",&v)?}))
+    }
+    pub fn restore_assisted_checkpoint(
+        &self,
+        checkpoint: &serde_json::Value,
+    ) -> Result<(), GuardError> {
+        let v = &checkpoint["value"];
+        self.verify_signature(
+            "assisted-checkpoint",
+            v,
+            checkpoint["signature"]
+                .as_str()
+                .ok_or(GuardError::DecisionInvalid)?,
+        )?;
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Saved {
+            tenant: TenantId,
+            workspace: WorkspaceId,
+            policy: RiskPolicy,
+            revision: u64,
+            global: bool,
+            accounts: BTreeSet<AccountId>,
+            at: Option<DateTime<Utc>>,
+            receipts: Vec<KillReceipt>,
+            decisions: Vec<GuardDecision>,
+        }
+        let saved: Saved =
+            serde_json::from_value(v.clone()).map_err(|_| GuardError::DecisionInvalid)?;
+        if saved.tenant != self.0.tenant
+            || saved.workspace != self.0.workspace
+            || saved.policy != self.0.policy
+        {
+            return Err(GuardError::DecisionInvalid);
+        }
+        for d in &saved.decisions {
+            self.verify_decision(d)?;
+            if d.purpose != "assisted_testnet_review" {
+                return Err(GuardError::DecisionInvalid);
+            }
+        }
+        for r in &saved.receipts {
+            self.verify_kill_receipt(r)?;
+        }
+        let mut s = self.lock()?;
+        if saved.revision < s.revision
+            || saved.at < s.at
+            || (saved.revision == s.revision
+                && (s.global != saved.global || s.accounts != saved.accounts))
+        {
+            return Err(GuardError::Conflict);
+        }
+        s.revision = saved.revision;
+        s.global = saved.global;
+        s.accounts = saved.accounts;
+        s.at = saved.at;
+        s.receipts = saved.receipts;
+        s.decisions
+            .retain(|_, d| d.purpose != "assisted_testnet_review");
+        for d in saved.decisions {
+            s.decisions.insert(d.decision_id, d);
+        }
+        Ok(())
     }
     fn authorize(&self, auth: &AuthContext, intent: &TradeIntent) -> Result<(), GuardError> {
         if !self.scoped(auth, Some(intent.account_id))
@@ -501,6 +681,7 @@ impl RiskGuard {
         approval: Option<&ApprovalToken>,
         now: DateTime<Utc>,
         reserved: bool,
+        review_proposal: Option<&ContentHash>,
     ) -> Result<GuardDecision, GuardError> {
         if state.at.is_some_and(|t| now < t) {
             return Err(GuardError::Invalid("backward clock"));
@@ -545,11 +726,15 @@ impl RiskGuard {
             identity: !intent.command_key.trim().is_empty()
                 && intent.command_key.len() <= 128
                 && symbol_valid(&intent.symbol)
-                && matches!(
-                    (auth.mode, intent.target),
-                    (RunMode::Paper, DeploymentTarget::Paper)
-                        | (RunMode::Shadow, DeploymentTarget::Shadow)
-                )
+                && (if review_proposal.is_some() {
+                    auth.mode == RunMode::AssistedLive && intent.target == DeploymentTarget::Shadow
+                } else {
+                    matches!(
+                        (auth.mode, intent.target),
+                        (RunMode::Paper, DeploymentTarget::Paper)
+                            | (RunMode::Shadow, DeploymentTarget::Shadow)
+                    )
+                })
                 && intent.release_id == release.release_id
                 && release.tenant_id == self.0.tenant
                 && release.workspace_id == self.0.workspace,
@@ -653,6 +838,13 @@ impl RiskGuard {
             account_id: intent.account_id,
             requester: auth.actor_id,
             phase,
+            purpose: if review_proposal.is_some() {
+                "assisted_testnet_review"
+            } else {
+                "order"
+            }
+            .into(),
+            proposal_hash: review_proposal.cloned(),
             intent_hash,
             snapshot_hash: snapshot.input_hash.clone(),
             facts_hash,
@@ -708,6 +900,7 @@ impl RiskGuard {
             approval,
             now,
             true,
+            None,
         )?;
         if current.verdict != RiskVerdict::Allow || current.expires_at <= now {
             return Err(GuardError::DecisionInvalid.into());
@@ -744,6 +937,7 @@ impl RiskGuard {
             || decision.workspace_id != self.0.workspace
             || decision.account_id != intent.account_id
             || decision.requester != auth.actor_id
+            || decision.purpose != "order"
             || decision.phase != Phase::Pre
             || decision.intent_hash != self.intent_hash(auth.actor_id, intent)?
             || decision.verdict != RiskVerdict::Allow

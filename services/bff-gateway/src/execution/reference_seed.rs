@@ -30,7 +30,10 @@ impl Fixture {
         Self::with_expiry(1800)
     }
     pub(crate) fn with_expiry(seconds: i64) -> Self {
-        let (mut auth, proof) = release_fixture::fixture(&release_fixture::payload());
+        Self::with_expiry_at(seconds, Utc::now())
+    }
+    pub(crate) fn with_expiry_at(seconds: i64, at: DateTime<Utc>) -> Self {
+        let (mut auth, proof) = release_fixture::fixture_at(&release_fixture::payload(), at);
         let now = proof.report().generated_at + Duration::seconds(10);
         let mut store = InMemoryStrategyReleaseStore::new();
         let release = store

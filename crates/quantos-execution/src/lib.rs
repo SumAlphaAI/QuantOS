@@ -3,6 +3,7 @@
 //! X03 keyed issuance is exclusively `authority::AtomicCommandIssuer`.
 pub mod assisted;
 pub mod assisted_execution;
+pub mod assisted_source;
 pub mod authority;
 pub mod dispatch;
 pub mod dual;

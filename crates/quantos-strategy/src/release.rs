@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Utc};
+use hmac::{Hmac, Mac};
 use quantos_auth::AuthContext;
 use quantos_core::{
     ActorId, ContentHash, CoreError, ProposalId, SnapshotId, StrategyDraftId, TenantId,
@@ -9,6 +10,7 @@ use quantos_core::{
 use quantos_policy::Capability;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use sha2::Sha256;
 use thiserror::Error;
 
 use crate::{DraftArtifactRef, backtest::BacktestValidationReport};
@@ -188,6 +190,111 @@ impl StrategyRelease {
                         .as_ref()
                         .is_some_and(|v| a.expires_at <= v.valid_until)
             })
+    }
+    /// Keyed owner checkpoint only; never an executable/deployment permission.
+    pub fn owner_checkpoint(
+        &self,
+        key: &[u8; 32],
+    ) -> Result<serde_json::Value, StrategyReleaseError> {
+        if key.iter().all(|b| *b == 0) || !self.is_approved() {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        let value =
+            serde_json::to_value(self).map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(key)
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        mac.update(&canonical_json_bytes(&json!([
+            "quantos-strategy-owner-checkpoint/v1",
+            value
+        ]))?);
+        Ok(json!({"value":value,"signature":hex::encode(mac.finalize().into_bytes())}))
+    }
+    /// No raw proof import/Deserialize: MAC verification precedes private proof
+    /// rehydration and full release integrity/approval checks. Owner keys never
+    /// come from HTTP; the public BFF provides no checkpoint import route.
+    pub fn from_owner_checkpoint(
+        checkpoint: serde_json::Value,
+        key: &[u8; 32],
+    ) -> Result<Self, StrategyReleaseError> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Checkpoint {
+            value: serde_json::Value,
+            signature: String,
+        }
+        let checkpoint: Checkpoint = serde_json::from_value(checkpoint)
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        if key.iter().all(|b| *b == 0) {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        let mut mac = Hmac::<Sha256>::new_from_slice(key)
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        mac.update(&canonical_json_bytes(&json!([
+            "quantos-strategy-owner-checkpoint/v1",
+            checkpoint.value
+        ]))?);
+        mac.verify_slice(
+            &hex::decode(checkpoint.signature)
+                .map_err(|_| StrategyReleaseError::InvalidEvidence)?,
+        )
+        .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        let value = checkpoint.value;
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Row {
+            release_id: ProposalId,
+            tenant_id: TenantId,
+            workspace_id: WorkspaceId,
+            validation: Option<serde_json::Value>,
+            approval: Option<ReleaseApproval>,
+            draft_id: StrategyDraftId,
+            draft_version: u64,
+            name: String,
+            source_digest: String,
+            image_digest: String,
+            parameter_hash: ContentHash,
+            backtest_report_hash: Option<ContentHash>,
+            data_snapshot_id: SnapshotId,
+            evidence_refs: Vec<DraftArtifactRef>,
+            allowed_targets: Vec<DeploymentTarget>,
+            approved_at: Option<DateTime<Utc>>,
+            approved_by: Option<ActorId>,
+            content_hash: ContentHash,
+            created_by: ActorId,
+            created_at: DateTime<Utc>,
+        }
+        let row: Row =
+            serde_json::from_value(value).map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        let release = Self {
+            release_id: row.release_id,
+            tenant_id: row.tenant_id,
+            workspace_id: row.workspace_id,
+            validation: row
+                .validation
+                .map(ValidatedBacktest::from_storage)
+                .transpose()
+                .map_err(|_| StrategyReleaseError::InvalidEvidence)?,
+            approval: row.approval,
+            draft_id: row.draft_id,
+            draft_version: row.draft_version,
+            name: row.name,
+            source_digest: row.source_digest,
+            image_digest: row.image_digest,
+            parameter_hash: row.parameter_hash,
+            backtest_report_hash: row.backtest_report_hash,
+            data_snapshot_id: row.data_snapshot_id,
+            evidence_refs: row.evidence_refs,
+            allowed_targets: row.allowed_targets,
+            approved_at: row.approved_at,
+            approved_by: row.approved_by,
+            content_hash: row.content_hash,
+            created_by: row.created_by,
+            created_at: row.created_at,
+        };
+        if !release.is_approved() {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        Ok(release)
     }
     pub(crate) fn recompute_hash(&self) -> Result<ContentHash, CoreError> {
         Ok(ContentHash::sha256_bytes(&canonical_json_bytes(&json!({

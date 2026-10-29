@@ -23,15 +23,15 @@ pub const ASSISTED_CAPABILITY: &str = "execution.assisted_testnet";
 /// Fixed times are for trusted controlled callers; the HTTP owner passes a
 /// clock callback which is sampled after the service state lock is held.
 pub trait ClockInput {
-    fn sample(self) -> DateTime<Utc>;
+    fn sample(&self) -> DateTime<Utc>;
 }
 impl ClockInput for DateTime<Utc> {
-    fn sample(self) -> DateTime<Utc> {
-        self
+    fn sample(&self) -> DateTime<Utc> {
+        *self
     }
 }
 impl<F: Fn() -> DateTime<Utc> + ?Sized> ClockInput for &F {
-    fn sample(self) -> DateTime<Utc> {
+    fn sample(&self) -> DateTime<Utc> {
         self()
     }
 }
@@ -300,6 +300,7 @@ struct State {
     sessions: BTreeMap<String, Session>,
     subjects: BTreeMap<ProposalId, Subject>,
     revoked_subjects: BTreeSet<ProposalId>,
+    current_sources: Option<crate::assisted_source::CurrentSubjectSource>,
     requests: BTreeMap<ProposalId, Request>,
     challenges: BTreeMap<ProposalId, Challenge>,
     used: BTreeSet<ProposalId>,
@@ -374,6 +375,9 @@ impl State {
             || !self.policy.symbols.contains(&s.symbol)
         {
             return Err(Error::Invalid);
+        }
+        if let Some(source) = &self.current_sources {
+            source.with_current(s, at, || ())?;
         }
         let n = amount(&s.quantity)?
             .checked_mul(amount(&s.limit_price)?)
@@ -471,6 +475,7 @@ impl AssistedApprovalService {
             sessions: BTreeMap::new(),
             subjects: BTreeMap::new(),
             revoked_subjects: BTreeSet::new(),
+            current_sources: None,
             requests: BTreeMap::new(),
             challenges: BTreeMap::new(),
             used: BTreeSet::new(),
@@ -527,6 +532,23 @@ impl AssistedApprovalService {
             .active = false;
         Ok(())
     }
+    /// Install before any subjects/requests. There is no detachment or fallback
+    /// to raw projections after a source authority has been configured.
+    pub fn with_current_sources(
+        &self,
+        source: crate::assisted_source::CurrentSubjectSource,
+    ) -> Result<(), Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        if s.current_sources.is_some()
+            || !s.subjects.is_empty()
+            || !s.requests.is_empty()
+            || !source.scope_matches(&s.scope)
+        {
+            return Err(Error::Invalid);
+        }
+        s.current_sources = Some(source);
+        Ok(())
+    }
     /// Trusted current subject feed only. Values cannot be overwritten in place.
     pub fn register_subject(&self, subject: Subject) -> Result<(), Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
@@ -538,6 +560,9 @@ impl AssistedApprovalService {
             || s.subjects.contains_key(&subject.id)
         {
             return Err(Error::Invalid);
+        }
+        if let Some(source) = &s.current_sources {
+            source.with_current(&subject, subject.created_at, || ())?;
         }
         s.subjects.insert(subject.id, subject);
         Ok(())
@@ -841,13 +866,25 @@ impl AssistedApprovalService {
         {
             return Err(Error::Unauthorized);
         }
-        action(
-            &r.subject,
-            &r.receipt,
-            r.receipt.expires_at.min(actor.expires_at),
-            now,
-        )
+        let deadline = r
+            .approvals
+            .iter()
+            .fold(r.receipt.expires_at.min(actor.expires_at), |d, a| {
+                d.min(a.proof.challenge.expires_at)
+            });
+        let run = |current| {
+            if current >= deadline {
+                return Err(Error::Expired);
+            }
+            action(&r.subject, &r.receipt, deadline, current)
+        };
+        if let Some(source) = &s.current_sources {
+            source.with_current_at(&r.subject, &|| clock.sample(), run)?
+        } else {
+            run(now)
+        }
     }
+
     /// Read facts after an approval deadline without restoring write authority.
     pub fn execution_view(
         &self,
@@ -872,7 +909,8 @@ impl AssistedApprovalService {
             "scope":s.scope,"revision":s.revision,"clock":s.clock,
             "subjects":s.subjects,"revokedSubjects":s.revoked_subjects,
             "requests":s.requests,"challenges":s.challenges,"used":s.used,
-            "cache":s.cache.iter().collect::<Vec<_>>(),"audit":s.audit
+            "cache":s.cache.iter().collect::<Vec<_>>(),"audit":s.audit,
+            "currentSources":s.current_sources.as_ref().map(|source|source.checkpoint()).transpose()?
         });
         Ok(
             serde_json::json!({"value":value,"signature":sign(&s.audit_key,"l04-approval-checkpoint/v1",&value)?}),
@@ -900,6 +938,11 @@ impl AssistedApprovalService {
         let clock = decode(&v["clock"])?;
         if clock < s.clock && !s.requests.is_empty() {
             return Err(Error::Expired);
+        }
+        match (&s.current_sources, v.get("currentSources")) {
+            (Some(source), Some(v)) if !v.is_null() => source.restore_authenticated(v)?,
+            (None, None | Some(serde_json::Value::Null)) => (),
+            _ => return Err(Error::Invalid),
         }
         s.clock = clock;
         s.subjects = decode(&v["subjects"])?;

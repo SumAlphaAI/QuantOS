@@ -1,0 +1,45 @@
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error[E0609]: no field `issued_at` on type `&quantos_execution::gateway::BoundaryCommand`
+   --> crates/quantos-execution/tests/core_x02_source.rs:202:19
+    |
+202 |             at: c.issued_at,
+    |                   ^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `command_id`, `account_id`, `venue`, `venue_kind`, `symbol` ... and 7 others
+
+error[E0277]: `std::sync::mpsc::Receiver<()>` cannot be shared between threads safely
+   --> crates/quantos-execution/tests/core_x02_source.rs:449:17
+    |
+449 |           s.spawn(|| {
+    |  ___________-----_^
+    | |           |
+    | |           required by a bound introduced by this call
+450 | |             f.source
+451 | |                 .with_current(&f.subject, f.f.now, || {
+452 | |                     entered.send(()).unwrap();
+...   |
+455 | |                 .unwrap()
+456 | |         });
+    | |_________^ `std::sync::mpsc::Receiver<()>` cannot be shared between threads safely
+    |
+    = help: the trait `Sync` is not implemented for `std::sync::mpsc::Receiver<()>`
+    = note: required for `&std::sync::mpsc::Receiver<()>` to implement `Send`
+note: required because it's used within this closure
+   --> crates/quantos-execution/tests/core_x02_source.rs:449:17
+    |
+449 |         s.spawn(|| {
+    |                 ^^
+note: required by a bound in `std::thread::Scope::<'scope, 'env>::spawn`
+   --> /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/thread/scoped.rs:197:28
+    |
+195 |     pub fn spawn<F, T>(&'scope self, f: F) -> ScopedJoinHandle<'scope, T>
+    |            ----- required by a bound in this associated function
+196 |     where
+197 |         F: FnOnce() -> T + Send + 'scope,
+    |                            ^^^^ required by this bound in `Scope::<'scope, 'env>::spawn`
+
+Some errors have detailed explanations: E0277, E0609.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `quantos-execution` (test "core_x02_source") due to 2 previous errors

@@ -3771,3 +3771,5 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 本检查点在功能候选后独立执行，不为 I1–I10 新增反向依赖。每项延期工作须落实 owner、缺口、环境/负载/时长、运行授权及验收命令，满足条件后一次集中优化和验证；不因暂缺部署环境反复重跑短窗口。采用空的新证据目录与具名 actor，提前退出保留失败、结束停止本次进程并停用 actor，保留既有 Supabase 不可变事实。
 
 testnet/Live 准备的部署与正式运行范围另见[核心 RELEASE-GATE:LIVE-READINESS](./SumAlpha-QuantOS-Development-Plan.md#acceptance-release-gate-live-readiness)。该检查点不授权生产 Assisted Live 或 Guarded Live。
+
+- CORE:X02 当前DEVELOPMENT接续（2026-10-29）：P10/P11的Subject现由R04不可变record与X02签名review/kill generation派生，审批及native提交复核同源和原期限，C10带同一Proposal/decision来源。公共身份保持Assisted，Audit只读；Shadow release仅为owned研究前提，实际Assisted部署资格/M5仍未开放。见[规程](./operations/core-x02-current-subject.md)、[范围](./execution/core-x02-current-scope.json)、[证据](./audit/evidence/core-x02-current-local-20261029/README.md)。工程Gate PASS_CURRENT_R04_X02_PUBLIC_SUBJECT_BINDING；FEP-8/G8/M5、19原gap、8义务及159阶段不提升，正式/目标/发布NOT_RUN。下一CORE:X04 DEVELOPMENT接原生Fill与公共成交事实，再接X01/X05/Alert。

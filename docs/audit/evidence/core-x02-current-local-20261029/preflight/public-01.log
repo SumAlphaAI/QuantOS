@@ -1,0 +1,56 @@
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0425]: cannot find function `reference_auth` in the crate root
+    --> services/bff-gateway/src/assisted/tests/current_source.rs:51:23
+     |
+  51 |       let auth = crate::reference_auth("session-owner");
+     |                         ^^^^^^^^^^^^^^
+     |
+    ::: services/bff-gateway/src/lib.rs:1495:1
+     |
+1495 | / fn reference_page(
+1496 | |     state: &mut ProviderData,
+1497 | |     cursor: Option<&str>,
+1498 | |     binding: &str,
+...    |
+1536 | |     Ok((events, offset, next))
+1537 | | }
+     | |_- similarly named function `reference_page` defined here
+     |
+note: function `crate::operations::governance::reference_auth` exists but is inaccessible
+    --> services/bff-gateway/src/operations/governance.rs:466:1
+     |
+ 466 | pub(super) fn reference_auth(session: &str, shadow: bool) -> AuthContext {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a function with a similar name exists
+     |
+  51 -     let auth = crate::reference_auth("session-owner");
+  51 +     let auth = crate::reference_page("session-owner");
+     |
+help: consider importing one of these functions
+     |
+   1 + use crate::reconciliation::reference_auth;
+     |
+   1 + use crate::strategy::reference_auth;
+     |
+help: if you import `reference_auth`, refer to it directly
+     |
+  51 -     let auth = crate::reference_auth("session-owner");
+  51 +     let auth = reference_auth("session-owner");
+     |
+
+error[E0609]: no field `clock` on type `tokio::sync::MutexGuard<'_, ProviderData>`
+   --> services/bff-gateway/src/assisted/tests/current_source.rs:212:25
+    |
+212 |     p.data.lock().await.clock = Some(until);
+    |                         ^^^^^ unknown field
+    |
+    = note: available fields are: `platform`, `downloads`, `command`, `reference_shadow`, `reconciliation` ... and 28 others
+
+Some errors have detailed explanations: E0425, E0609.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors
