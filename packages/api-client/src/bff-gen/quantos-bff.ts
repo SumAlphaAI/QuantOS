@@ -2035,6 +2035,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read current independent observation reconciliation and open Alert evidence */
+        get: operations["getAssistedCurrentReconciliation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2061,6 +2078,7 @@ export interface components {
             checkedAt: string;
             /** Format: date-time */
             expiresAt: string;
+            reconciliationReaderEnabled?: boolean;
         };
         AssistedSubject: {
             subjectId: components["schemas"]["UUID"];
@@ -3698,6 +3716,72 @@ export interface components {
             quoteFeesTotal: components["schemas"]["DecimalValue"];
             positions: components["schemas"]["AssistedLedgerPosition"][];
             entries: components["schemas"]["AssistedLedgerReceipt"][];
+        };
+        AssistedReconciliationBinding: {
+            requestId: components["schemas"]["UUID"];
+            commandId: components["schemas"]["UUID"];
+            sourceHash: string | null;
+            ledgerEntryHash: string;
+        };
+        AssistedReconciliationFinding: {
+            kind: string;
+            entity: string;
+            commandId: components["schemas"]["UUID"] | null;
+            expected: unknown;
+            observed: unknown;
+        };
+        AssistedReconciliationAlertEvidence: {
+            evidenceId: string;
+            reportId: string;
+            scope: {
+                tenantId: components["schemas"]["UUID"];
+                workspaceId: components["schemas"]["UUID"];
+                accountId: components["schemas"]["UUID"];
+            };
+            finding: components["schemas"]["AssistedReconciliationFinding"];
+            binding: components["schemas"]["AssistedReconciliationBinding"] | null;
+            ledgerHash: string;
+            booksHash: string | null;
+            observedAt: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            status: "OPEN";
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedReconciliationView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-current-reconciliation.v1";
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            reportId: string;
+            ledgerHash: string;
+            booksHash: string | null;
+            booksSourceId: string;
+            /** @enum {string} */
+            booksState: "AVAILABLE_OBSERVATIONS" | "UNAVAILABLE" | "STALE";
+            /** @enum {string} */
+            comparisonStatus: "MATCHED_OBSERVATIONS" | "DIFFERENCES" | "UNAVAILABLE";
+            /** @enum {string} */
+            coverage: "OBSERVED_EXECUTION_DELTAS_ONLY";
+            /** @enum {boolean} */
+            fullBooksReady: false;
+            /** @enum {boolean} */
+            dayCloseAllowed: false;
+            /** @enum {boolean} */
+            executionAuthority: false;
+            checkedAt: components["schemas"]["DateTime"];
+            sourceBindings: components["schemas"]["AssistedReconciliationBinding"][];
+            findings: components["schemas"]["AssistedReconciliationFinding"][];
+            unknownObligationsOpen: number;
+            openAlertEvidenceCount: number;
+            alertEvidence: components["schemas"]["AssistedReconciliationAlertEvidence"][];
+            anchor: {
+                sequence: number;
+                head: string | null;
+            };
         };
     };
     responses: {
@@ -11611,6 +11695,63 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["AssistedLedgerView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedCurrentReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-current-reconciliation.v1",
+                     *       "tenantId": "22222222-2222-4222-8222-222222222222",
+                     *       "workspaceId": "33333333-3333-4333-8333-333333333333",
+                     *       "accountId": "44444444-4444-4444-8444-444444444444",
+                     *       "mode": "assisted_live",
+                     *       "reportId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "ledgerHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                     *       "booksHash": null,
+                     *       "booksSourceId": "UNCONFIGURED_INDEPENDENT_BOOKS",
+                     *       "booksState": "UNAVAILABLE",
+                     *       "comparisonStatus": "UNAVAILABLE",
+                     *       "coverage": "OBSERVED_EXECUTION_DELTAS_ONLY",
+                     *       "fullBooksReady": false,
+                     *       "dayCloseAllowed": false,
+                     *       "executionAuthority": false,
+                     *       "checkedAt": "2026-10-29T00:00:00Z",
+                     *       "sourceBindings": [],
+                     *       "findings": [],
+                     *       "unknownObligationsOpen": 0,
+                     *       "openAlertEvidenceCount": 0,
+                     *       "alertEvidence": [],
+                     *       "anchor": {
+                     *         "sequence": 0,
+                     *         "head": null
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedReconciliationView"];
                 };
             };
             401: components["responses"]["Unauthorized"];

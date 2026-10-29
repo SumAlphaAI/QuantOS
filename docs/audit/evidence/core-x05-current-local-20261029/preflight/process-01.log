@@ -1,0 +1,34 @@
+
+running 3 tests
+test core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit ... FAILED
+test core_l04_logout_survives_process_recovery_and_denies_c10_and_native ... ok
+test core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills ... FAILED
+
+failures:
+
+---- core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit stdout ----
+
+thread 'core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit' (807243) panicked at services/bff-gateway/tests/core_l04.rs:231:5:
+assertion `left == right` failed: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a185b0-e74a-7ac2-8f2d-355216820762","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills stdout ----
+
+thread 'core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills' (807245) panicked at services/bff-gateway/tests/core_l04.rs:231:5:
+assertion `left == right` failed: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a185b0-ff3d-7dc2-b0fa-ed4ab1748ad2","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+
+
+failures:
+    core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit
+    core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.48s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.88s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

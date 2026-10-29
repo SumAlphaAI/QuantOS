@@ -10,6 +10,7 @@ paths = [
     "crates/quantos-reconcile/src/" + n
     for n in [
         "lib.rs",
+        "current.rs",
         "model.rs",
         "shadow.rs",
         "reconciliation.rs",
@@ -43,7 +44,7 @@ replay = raw[start:end]
 assert not re.search(r"\.\s*(?:submit|submit_at|cancel)\s*\(", replay)
 assert (
     "ExecutionGateway::<NautilusBoundaryAdapter>::replay_facts"
-    in (root / paths[3]).read_text()
+    in (root / "crates/quantos-reconcile/src/reconciliation.rs").read_text()
 )
 print(
     json.dumps(

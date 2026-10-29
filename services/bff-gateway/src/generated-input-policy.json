@@ -1,5 +1,5 @@
 {
-  "version": "1.19.0",
+  "version": "1.20.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -83,6 +83,9 @@
         "expiresAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "reconciliationReaderEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -6912,6 +6915,338 @@
             "$ref": "#/components/schemas/AssistedLedgerReceipt"
           },
           "maxItems": 10000
+        }
+      }
+    },
+    "AssistedReconciliationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "commandId",
+        "sourceHash",
+        "ledgerEntryHash"
+      ],
+      "properties": {
+        "requestId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledgerEntryHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "AssistedReconciliationFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "entity",
+        "commandId",
+        "expected",
+        "observed"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "commandId": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expected": {},
+        "observed": {}
+      }
+    },
+    "AssistedReconciliationAlertEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceId",
+        "reportId",
+        "scope",
+        "finding",
+        "binding",
+        "ledgerHash",
+        "booksHash",
+        "observedAt",
+        "status",
+        "executionAuthority"
+      ],
+      "properties": {
+        "evidenceId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reportId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "accountId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        "finding": {
+          "$ref": "#/components/schemas/AssistedReconciliationFinding"
+        },
+        "binding": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/AssistedReconciliationBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "booksHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedReconciliationView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "reportId",
+        "ledgerHash",
+        "booksHash",
+        "booksSourceId",
+        "booksState",
+        "comparisonStatus",
+        "coverage",
+        "fullBooksReady",
+        "dayCloseAllowed",
+        "executionAuthority",
+        "checkedAt",
+        "sourceBindings",
+        "findings",
+        "unknownObligationsOpen",
+        "openAlertEvidenceCount",
+        "alertEvidence",
+        "anchor"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-reconciliation.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "reportId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "booksHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "booksSourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "booksState": {
+          "type": "string",
+          "enum": [
+            "AVAILABLE_OBSERVATIONS",
+            "UNAVAILABLE",
+            "STALE"
+          ]
+        },
+        "comparisonStatus": {
+          "type": "string",
+          "enum": [
+            "MATCHED_OBSERVATIONS",
+            "DIFFERENCES",
+            "UNAVAILABLE"
+          ]
+        },
+        "coverage": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_EXECUTION_DELTAS_ONLY"
+          ]
+        },
+        "fullBooksReady": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "dayCloseAllowed": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "checkedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "sourceBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AssistedReconciliationBinding"
+          },
+          "maxItems": 20000
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AssistedReconciliationFinding"
+          },
+          "maxItems": 20000
+        },
+        "unknownObligationsOpen": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "openAlertEvidenceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "alertEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AssistedReconciliationAlertEvidence"
+          },
+          "maxItems": 20000
+        },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "head"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20000
+            },
+            "head": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
         }
       }
     }
@@ -16464,6 +16799,36 @@
       "path": "/v1/assisted-testnet/ledger",
       "method": "GET",
       "operationId": "getAssistedNativeLedger",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/reconciliation",
+      "method": "GET",
+      "operationId": "getAssistedCurrentReconciliation",
       "parameters": [],
       "body": null,
       "bodyExample": null,

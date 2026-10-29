@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.19.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.20.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -85,6 +85,9 @@
         "expiresAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "reconciliationReaderEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -6914,6 +6917,338 @@
             "$ref": "#/$defs/AssistedLedgerReceipt"
           },
           "maxItems": 10000
+        }
+      }
+    },
+    "AssistedReconciliationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "commandId",
+        "sourceHash",
+        "ledgerEntryHash"
+      ],
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledgerEntryHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "AssistedReconciliationFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "entity",
+        "commandId",
+        "expected",
+        "observed"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "commandId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expected": {},
+        "observed": {}
+      }
+    },
+    "AssistedReconciliationAlertEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceId",
+        "reportId",
+        "scope",
+        "finding",
+        "binding",
+        "ledgerHash",
+        "booksHash",
+        "observedAt",
+        "status",
+        "executionAuthority"
+      ],
+      "properties": {
+        "evidenceId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reportId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        "finding": {
+          "$ref": "#/$defs/AssistedReconciliationFinding"
+        },
+        "binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssistedReconciliationBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "booksHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedReconciliationView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "reportId",
+        "ledgerHash",
+        "booksHash",
+        "booksSourceId",
+        "booksState",
+        "comparisonStatus",
+        "coverage",
+        "fullBooksReady",
+        "dayCloseAllowed",
+        "executionAuthority",
+        "checkedAt",
+        "sourceBindings",
+        "findings",
+        "unknownObligationsOpen",
+        "openAlertEvidenceCount",
+        "alertEvidence",
+        "anchor"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-reconciliation.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "reportId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "booksHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "booksSourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "booksState": {
+          "type": "string",
+          "enum": [
+            "AVAILABLE_OBSERVATIONS",
+            "UNAVAILABLE",
+            "STALE"
+          ]
+        },
+        "comparisonStatus": {
+          "type": "string",
+          "enum": [
+            "MATCHED_OBSERVATIONS",
+            "DIFFERENCES",
+            "UNAVAILABLE"
+          ]
+        },
+        "coverage": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_EXECUTION_DELTAS_ONLY"
+          ]
+        },
+        "fullBooksReady": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "dayCloseAllowed": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "checkedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "sourceBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedReconciliationBinding"
+          },
+          "maxItems": 20000
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedReconciliationFinding"
+          },
+          "maxItems": 20000
+        },
+        "unknownObligationsOpen": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "openAlertEvidenceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "alertEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedReconciliationAlertEvidence"
+          },
+          "maxItems": 20000
+        },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "head"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20000
+            },
+            "head": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
         }
       }
     }

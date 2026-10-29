@@ -2365,6 +2365,8 @@ X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契�
 
 TP12更新：dispatch幂等键边界修复及共享计划/门禁输入变化，X05当前独立READY撤回；原4f527da8源码及原始证据保留，X05本模块运行时代码未修改。本轮仅验证Agent trace不能伪造X05关闭的直接边界，不重跑20类差异/10万事件或依赖闭包。
 
+当前观察接续（2026-10-29，CORE:X05 DEVELOPMENT）：原native/X01持久账本与另一个L02进程独立采集、签名的HTTP状态/协议原body接入只读对账，校验钉住的证书、scope/Command/Fill、ledger与books来源hash；不复制X01作为另一侧。当前只比较已观察成交/仓位/现金变化，完整账户books/mark未具备，fullBooksReady/dayCloseAllowed/executionAuthority均false，Assisted身份不改成Shadow。UNKNOWN即使独立观察已成交仍隔离，持久OPEN Alert证据含原source/ledger/books/report引用，恢复匹配不自动关闭或补发。新公共只读接口/P11显示来源及未决义务，旧C10事件不改写。见[规程](./operations/core-x05-current-reconciliation.md)、[范围](./execution/core-x05-current-scope.json)、[证据](./audit/evidence/core-x05-current-local-20261029/README.md)。工程Gate目标PASS_CURRENT_X05_OBSERVATION_RECONCILIATION_ALERT_EVIDENCE，实际以冻结证据为准；实现IMPLEMENTED_PENDING_ACCEPTANCE，完整Gate NOT_READY_GAPS_OPEN，stage NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，M5 PREPARED_NOT_READY。19gap/8义务仍OPEN；原20类Shadow模型与本次协议观察分别记账，真实10交易日/独立账户books/Alert消费投递关闭/DB/跨主机/目标/发布NOT_RUN。下一CORE:X06 DEVELOPMENT接真实公共Alert与审计消费，无生产凭据或外部发布授权。
+
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
 

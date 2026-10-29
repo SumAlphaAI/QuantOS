@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.19.0
+  version: 1.20.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -11305,6 +11305,83 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/assisted-testnet/reconciliation:
+    get:
+      operationId: getAssistedCurrentReconciliation
+      tags:
+        - execution
+      summary: Read current independent observation reconciliation and open Alert evidence
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedReconciliationView"
+              example:
+                schemaVersion: quantos-current-reconciliation.v1
+                tenantId: 22222222-2222-4222-8222-222222222222
+                workspaceId: 33333333-3333-4333-8333-333333333333
+                accountId: 44444444-4444-4444-8444-444444444444
+                mode: assisted_live
+                reportId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                ledgerHash: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+                booksHash: null
+                booksSourceId: UNCONFIGURED_INDEPENDENT_BOOKS
+                booksState: UNAVAILABLE
+                comparisonStatus: UNAVAILABLE
+                coverage: OBSERVED_EXECUTION_DELTAS_ONLY
+                fullBooksReady: false
+                dayCloseAllowed: false
+                executionAuthority: false
+                checkedAt: 2026-10-29T00:00:00Z
+                sourceBindings: []
+                findings: []
+                unknownObligationsOpen: 0
+                openAlertEvidenceCount: 0
+                alertEvidence: []
+                anchor:
+                  sequence: 0
+                  head: null
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 
 components:
   securitySchemes:
@@ -11602,6 +11679,8 @@ components:
         expiresAt:
           type: string
           format: date-time
+        reconciliationReaderEnabled:
+          type: boolean
     AssistedSubject:
       type: object
       additionalProperties: false
@@ -16329,3 +16408,213 @@ components:
           items:
             $ref: "#/components/schemas/AssistedLedgerReceipt"
           maxItems: 10000
+    AssistedReconciliationBinding:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - commandId
+        - sourceHash
+        - ledgerEntryHash
+      properties:
+        requestId:
+          $ref: "#/components/schemas/UUID"
+        commandId:
+          $ref: "#/components/schemas/UUID"
+        sourceHash:
+          anyOf:
+            - &a61
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            - type: "null"
+        ledgerEntryHash: *a61
+    AssistedReconciliationFinding:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - entity
+        - commandId
+        - expected
+        - observed
+      properties:
+        kind: &a61
+          type: string
+          minLength: 1
+          maxLength: 512
+        entity: *a61
+        commandId:
+          anyOf:
+            - $ref: "#/components/schemas/UUID"
+            - type: "null"
+        expected: {}
+        observed: {}
+    AssistedReconciliationAlertEvidence:
+      type: object
+      additionalProperties: false
+      required:
+        - evidenceId
+        - reportId
+        - scope
+        - finding
+        - binding
+        - ledgerHash
+        - booksHash
+        - observedAt
+        - status
+        - executionAuthority
+      properties:
+        evidenceId: &a61
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        reportId: *a61
+        scope:
+          type: object
+          additionalProperties: false
+          required:
+            - tenantId
+            - workspaceId
+            - accountId
+          properties:
+            tenantId:
+              $ref: "#/components/schemas/UUID"
+            workspaceId:
+              $ref: "#/components/schemas/UUID"
+            accountId:
+              $ref: "#/components/schemas/UUID"
+        finding:
+          $ref: "#/components/schemas/AssistedReconciliationFinding"
+        binding:
+          anyOf:
+            - $ref: "#/components/schemas/AssistedReconciliationBinding"
+            - type: "null"
+        ledgerHash: *a61
+        booksHash:
+          anyOf:
+            - *a61
+            - type: "null"
+        observedAt:
+          $ref: "#/components/schemas/DateTime"
+        status:
+          type: string
+          enum:
+            - OPEN
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    AssistedReconciliationView:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - tenantId
+        - workspaceId
+        - accountId
+        - mode
+        - reportId
+        - ledgerHash
+        - booksHash
+        - booksSourceId
+        - booksState
+        - comparisonStatus
+        - coverage
+        - fullBooksReady
+        - dayCloseAllowed
+        - executionAuthority
+        - checkedAt
+        - sourceBindings
+        - findings
+        - unknownObligationsOpen
+        - openAlertEvidenceCount
+        - alertEvidence
+        - anchor
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-current-reconciliation.v1
+        tenantId:
+          $ref: "#/components/schemas/UUID"
+        workspaceId:
+          $ref: "#/components/schemas/UUID"
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        mode:
+          type: string
+          enum:
+            - assisted_live
+        reportId: &a61
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        ledgerHash: *a61
+        booksHash:
+          anyOf:
+            - *a61
+            - type: "null"
+        booksSourceId:
+          type: string
+          minLength: 1
+          maxLength: 512
+        booksState:
+          type: string
+          enum:
+            - AVAILABLE_OBSERVATIONS
+            - UNAVAILABLE
+            - STALE
+        comparisonStatus:
+          type: string
+          enum:
+            - MATCHED_OBSERVATIONS
+            - DIFFERENCES
+            - UNAVAILABLE
+        coverage:
+          type: string
+          enum:
+            - OBSERVED_EXECUTION_DELTAS_ONLY
+        fullBooksReady:
+          type: boolean
+          enum:
+            - false
+        dayCloseAllowed:
+          type: boolean
+          enum:
+            - false
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+        checkedAt:
+          $ref: "#/components/schemas/DateTime"
+        sourceBindings:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssistedReconciliationBinding"
+          maxItems: 20000
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssistedReconciliationFinding"
+          maxItems: 20000
+        unknownObligationsOpen: &a62
+          type: integer
+          minimum: 0
+          maximum: 20000
+        openAlertEvidenceCount: *a62
+        alertEvidence:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssistedReconciliationAlertEvidence"
+          maxItems: 20000
+        anchor:
+          type: object
+          additionalProperties: false
+          required:
+            - sequence
+            - head
+          properties:
+            sequence: *a62
+            head:
+              anyOf:
+                - *a61
+                - type: "null"

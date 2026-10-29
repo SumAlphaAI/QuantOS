@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.19.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.20.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -18,6 +18,7 @@ export const AssistedNativeCapabilitiesSchema = z.object({
   "policyVersion": z.literal("core-l03-local.v1"),
   "checkedAt": z.string().datetime({ offset: true }),
   "expiresAt": z.string().datetime({ offset: true }),
+  "reconciliationReaderEnabled": z.boolean().optional(),
 }).strict();
 
 export const AssistedSubjectSchema = z.object({
@@ -1486,6 +1487,66 @@ export const AssistedLedgerViewSchema = z.object({
   "entries": z.array(z.lazy(() => AssistedLedgerReceiptSchema)).max(10000),
 }).strict();
 
+export const AssistedReconciliationBindingSchema = z.object({
+  "requestId": z.lazy(() => UUIDSchema),
+  "commandId": z.lazy(() => UUIDSchema),
+  "sourceHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "ledgerEntryHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+}).strict();
+
+export const AssistedReconciliationFindingSchema = z.object({
+  "kind": z.string().min(1).max(512),
+  "entity": z.string().min(1).max(512),
+  "commandId": z.union([z.lazy(() => UUIDSchema), z.null()]),
+  "expected": z.unknown(),
+  "observed": z.unknown(),
+}).strict();
+
+export const AssistedReconciliationAlertEvidenceSchema = z.object({
+  "evidenceId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "reportId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "scope": z.object({
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+}).strict(),
+  "finding": z.lazy(() => AssistedReconciliationFindingSchema),
+  "binding": z.union([z.lazy(() => AssistedReconciliationBindingSchema), z.null()]),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "booksHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "observedAt": z.lazy(() => DateTimeSchema),
+  "status": z.literal("OPEN"),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedReconciliationViewSchema = z.object({
+  "schemaVersion": z.literal("quantos-current-reconciliation.v1"),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "reportId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "booksHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "booksSourceId": z.string().min(1).max(512),
+  "booksState": z.enum(["AVAILABLE_OBSERVATIONS","UNAVAILABLE","STALE"]),
+  "comparisonStatus": z.enum(["MATCHED_OBSERVATIONS","DIFFERENCES","UNAVAILABLE"]),
+  "coverage": z.literal("OBSERVED_EXECUTION_DELTAS_ONLY"),
+  "fullBooksReady": z.literal(false),
+  "dayCloseAllowed": z.literal(false),
+  "executionAuthority": z.literal(false),
+  "checkedAt": z.lazy(() => DateTimeSchema),
+  "sourceBindings": z.array(z.lazy(() => AssistedReconciliationBindingSchema)).max(20000),
+  "findings": z.array(z.lazy(() => AssistedReconciliationFindingSchema)).max(20000),
+  "unknownObligationsOpen": z.number().int().min(0).max(20000),
+  "openAlertEvidenceCount": z.number().int().min(0).max(20000),
+  "alertEvidence": z.array(z.lazy(() => AssistedReconciliationAlertEvidenceSchema)).max(20000),
+  "anchor": z.object({
+  "sequence": z.number().int().min(0).max(20000),
+  "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict(),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1625,6 +1686,10 @@ export const bffZodSchemas = {
   AssistedLedgerReceipt: AssistedLedgerReceiptSchema,
   AssistedLedgerPosition: AssistedLedgerPositionSchema,
   AssistedLedgerView: AssistedLedgerViewSchema,
+  AssistedReconciliationBinding: AssistedReconciliationBindingSchema,
+  AssistedReconciliationFinding: AssistedReconciliationFindingSchema,
+  AssistedReconciliationAlertEvidence: AssistedReconciliationAlertEvidenceSchema,
+  AssistedReconciliationView: AssistedReconciliationViewSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2617,6 +2682,14 @@ export const bffResponseSchemas = {
   },
   "getAssistedNativeLedger": {
     "200": z.lazy(() => AssistedLedgerViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedCurrentReconciliation": {
+    "200": z.lazy(() => AssistedReconciliationViewSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),

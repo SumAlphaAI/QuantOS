@@ -228,7 +228,7 @@ fn get(base: &str, path: &str) -> Value {
         json!({}),
         &Uuid::new_v4().to_string(),
     );
-    assert_eq!(s, 200, "{v}");
+    assert_eq!(s, 200, "{path}: {v}");
     v
 }
 fn approve(base: &str, id: &str, slot: u8) {
@@ -363,6 +363,70 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     assert_eq!(facts["fills"][0]["orderId"], facts["order"]["orderId"]);
     assert_eq!(facts["fills"][0]["feeCurrency"], "USDT");
     let ledger = get(&other, "/v1/assisted-testnet/ledger");
+    let reconciliation = get(&other, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(reconciliation["comparisonStatus"], "MATCHED_OBSERVATIONS");
+    assert_eq!(reconciliation["fullBooksReady"], false);
+    assert_eq!(reconciliation["dayCloseAllowed"], false);
+    assert_eq!(reconciliation["executionAuthority"], false);
+    assert_eq!(
+        reconciliation["sourceBindings"][0]["sourceHash"],
+        facts["sourceHash"]
+    );
+    assert_eq!(
+        reconciliation["sourceBindings"][0]["ledgerEntryHash"],
+        view["ledger"]["entryHash"]
+    );
+    assert_eq!(reconciliation["ledgerHash"], ledger["ledgerHash"]);
+    assert_ne!(reconciliation["booksHash"], facts["sourceHash"]);
+    assert_eq!(
+        get(&url, "/v1/assisted-testnet/reconciliation"),
+        reconciliation
+    );
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X05_RECONCILIATION_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"view":reconciliation,"ledger":ledger,"nativeView":view,"checkpoint":owner_store(&lab,"reconciliation").lock().unwrap().read().unwrap().unwrap(),"observer":serde_json::from_slice::<Value>(&fs::read(lab.directory.join("observer.json")).unwrap()).unwrap(),"observerCertificate":fs::read_to_string(lab.directory.join("server.pem")).unwrap(),"protocolCalls":1,"readOnly":true,"actualTestnet":false})).unwrap());
+    }
+    let observer = fs::read(lab.directory.join("observer.json")).unwrap();
+    let mut tampered: Value = serde_json::from_slice(&observer).unwrap();
+    tampered["payload"]["records"][0]["response"]["fills"][0]["commission"] = json!("0.02");
+    private_write(
+        lab.directory.join("observer.json"),
+        serde_json::to_vec(&tampered).unwrap(),
+    );
+    let unavailable = get(&other, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(unavailable["comparisonStatus"], "UNAVAILABLE");
+    assert_eq!(unavailable["openAlertEvidenceCount"], 1);
+    assert_eq!(
+        get(&url, "/v1/assisted-testnet/reconciliation"),
+        unavailable
+    );
+    private_write(lab.directory.join("observer.json"), &observer);
+    let restored = get(&other, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(restored["comparisonStatus"], "MATCHED_OBSERVATIONS");
+    assert_eq!(restored["openAlertEvidenceCount"], 1);
+    assert_eq!(restored["alertEvidence"][0]["status"], "OPEN");
+    let (_recon_restart, recon_restart) = lab.bff(true);
+    assert_eq!(
+        get(&recon_restart, "/v1/assisted-testnet/reconciliation"),
+        restored
+    );
+    let recon_bytes = fs::read(lab.directory.join("reconciliation.json")).unwrap();
+    private_write(lab.directory.join("reconciliation.json"), b"{broken");
+    assert_eq!(
+        call(
+            &recon_restart,
+            "session-current",
+            "GET",
+            "/v1/assisted-testnet/reconciliation",
+            json!({}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("reconciliation.json"), recon_bytes);
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X05_ALERT_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"unavailable":unavailable,"restored":restored,"restart":get(&recon_restart,"/v1/assisted-testnet/reconciliation"),"corruptStoreDenied":true,"automaticClosure":false,"actualTestnet":false})).unwrap());
+    }
     assert_eq!(ledger["appliedFillCount"], 1);
     assert_eq!(ledger["quoteFeesTotal"], facts["fills"][0]["feeAmount"]);
     assert_eq!(ledger["positions"][0]["quantity"], "1");
@@ -676,6 +740,28 @@ fn core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit() {
     assert_eq!(recovered["state"], "unknown");
     assert!(recovered.get("order").is_none());
     let ledger = get(&restarted, "/v1/assisted-testnet/ledger");
+    let reconciliation = get(&restarted, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(reconciliation["unknownObligationsOpen"], 1);
+    assert_eq!(reconciliation["comparisonStatus"], "DIFFERENCES");
+    assert_eq!(reconciliation["fullBooksReady"], false);
+    assert!(
+        reconciliation["findings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|f| f["kind"] == "OUTCOME_UNRESOLVED")
+    );
+    assert!(
+        reconciliation["findings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|f| f["kind"] == "QUARANTINED_BOOK_OBSERVATION"
+                && f["observed"]["executedQuantity"] == "1")
+    );
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X05_UNKNOWN_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"view":reconciliation,"ledger":ledger,"checkpoint":owner_store(&lab,"reconciliation").lock().unwrap().read().unwrap().unwrap(),"observer":serde_json::from_slice::<Value>(&fs::read(lab.directory.join("observer.json")).unwrap()).unwrap(),"observerCertificate":fs::read_to_string(lab.directory.join("server.pem")).unwrap(),"protocolCalls":1,"noReplay":true,"actualTestnet":false})).unwrap());
+    }
     assert_eq!(ledger["consumerReady"], false);
     assert_eq!(ledger["quarantinedCommandCount"], 1);
     assert_eq!(ledger["appliedFillCount"], 0);
@@ -720,6 +806,7 @@ fn core_l04_logout_survives_process_recovery_and_denies_c10_and_native() {
         "/v1/audit/events".into(),
         "/v1/session".into(),
         "/v1/assisted-testnet/ledger".into(),
+        "/v1/assisted-testnet/reconciliation".into(),
     ] {
         let (s, _) = call(
             &restarted,

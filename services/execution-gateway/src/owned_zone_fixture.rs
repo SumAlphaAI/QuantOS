@@ -10,7 +10,7 @@ use std::{
     net::TcpListener,
     path::PathBuf,
     sync::{
-        Arc,
+        Arc, Mutex,
         atomic::{AtomicUsize, Ordering},
     },
 };
@@ -39,16 +39,88 @@ fn owned_key() -> PKey<openssl::pkey::Private> {
     bytes.fill(0);
     key
 }
-struct OwnedPort(Arc<AtomicUsize>);
+struct Observer {
+    directory: PathBuf,
+    key: PKey<openssl::pkey::Private>,
+    payload: Value,
+    context: Arc<Mutex<Option<Value>>>,
+}
+impl Observer {
+    fn save(&self) -> Result<(), TransportFault> {
+        let bytes = quantos_core::canonical_json_bytes(&json!([
+            "quantos-x05-independent-observer-signature/v1",
+            self.payload
+        ]))
+        .map_err(|_| TransportFault::Disconnected)?;
+        let mut signer = Signer::new(MessageDigest::sha256(), &self.key)
+            .map_err(|_| TransportFault::Disconnected)?;
+        signer
+            .update(&bytes)
+            .map_err(|_| TransportFault::Disconnected)?;
+        let signature = signer
+            .sign_to_vec()
+            .map_err(|_| TransportFault::Disconnected)?
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>();
+        let encoded = serde_json::to_vec(&json!({"payload":self.payload,"signature":signature}))
+            .map_err(|_| TransportFault::Disconnected)?;
+        let temp = self
+            .directory
+            .join(format!("observer-{}.tmp", std::process::id()));
+        let mut options = std::fs::OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        let mut file = options
+            .open(&temp)
+            .map_err(|_| TransportFault::Disconnected)?;
+        file.write_all(&encoded)
+            .map_err(|_| TransportFault::Disconnected)?;
+        file.sync_all().map_err(|_| TransportFault::Disconnected)?;
+        std::fs::rename(temp, self.directory.join("observer.json"))
+            .map_err(|_| TransportFault::Disconnected)?;
+        std::fs::File::open(&self.directory)
+            .and_then(|d| d.sync_all())
+            .map_err(|_| TransportFault::Disconnected)?;
+        Ok(())
+    }
+    fn record(&mut self, request: &Request, response: &Value) -> Result<(), TransportFault> {
+        let context = self
+            .context
+            .lock()
+            .map_err(|_| TransportFault::Disconnected)?
+            .clone()
+            .ok_or(TransportFault::Disconnected)?;
+        let rows = self.payload["records"]
+            .as_array_mut()
+            .ok_or(TransportFault::Disconnected)?;
+        if rows.len() >= 10000 {
+            return Err(TransportFault::Disconnected);
+        }
+        let request_hash = quantos_core::ContentHash::sha256_bytes(
+            &quantos_core::canonical_json_bytes(&json!(request))
+                .map_err(|_| TransportFault::Disconnected)?,
+        );
+        rows.push(json!({"commandId":context["commandId"],"accountId":context["accountId"],"observedAt":context["observedAt"],"requestHash":request_hash,"httpStatus":response["status"],"response":response["body"]}));
+        self.payload["revision"] = json!(rows.len());
+        self.payload["capturedAt"] = context["observedAt"].clone();
+        self.save()
+    }
+}
+struct OwnedPort(Arc<AtomicUsize>, Observer);
 impl ProtocolPort for OwnedPort {
     fn exchange(&mut self, request: &Request) -> Result<Response, TransportFault> {
         let count = self.0.fetch_add(1, Ordering::SeqCst) + 1;
         let case = json!({"kind":"filled","quantity":request.params["quantity"],"price":request.params["price"],"side":request.params["side"].to_lowercase(),"orderId":count as u64+100,"tradeId":count as u64+200});
-        Ok(fixture::response(fixture::reply(
-            &case,
-            request,
-            &request.params["newClientOrderId"],
-        )))
+        let reply = fixture::reply(&case, request, &request.params["newClientOrderId"]);
+        // This independent observation is committed before native mapping/reply.
+        // It is never reconstructed from the BFF/X01 ledger.
+        self.1.record(request, &reply)?;
+        Ok(fixture::response(reply))
     }
 }
 pub fn serve_owned_fixture(
@@ -110,10 +182,18 @@ pub fn serve_owned_fixture(
     rules.observed_at = base - Duration::seconds(1);
     rules.expires_at = base + Duration::hours(1);
     let calls = Arc::new(AtomicUsize::new(0));
+    let context = Arc::new(Mutex::new(None));
+    let observer = Observer {
+        directory: dir.clone(),
+        key: key.clone(),
+        context: context.clone(),
+        payload: json!({"schemaVersion":"quantos-independent-protocol-journal.v1","sourceId":fingerprint(&cert)?,"accountId":account,"revision":0,"capturedAt":base,"records":[]}),
+    };
+    observer.save().map_err(|_| Denial::Unknown)?;
     let kernel = ProtocolKernel::new(
         VenueConfig::approved_testnet(),
         rules,
-        OwnedPort(calls.clone()),
+        OwnedPort(calls.clone(), observer),
     )
     .map_err(|_| Denial::Protocol)?;
     let mut host = RestrictedHost::new(guard, kernel, OwnedSigner([owned_key(), owned_key()]));
@@ -158,6 +238,9 @@ pub fn serve_owned_fixture(
             if config["rotation"] == true && at >= base + Duration::seconds(320) {
                 host.control_mut().revoke_version(2);
             }
+            *context.lock().map_err(|_| Denial::Unknown)? = Some(
+                json!({"commandId":request.command.command_id,"accountId":request.command.account_id,"observedAt":at}),
+            );
             host.execute(&peer, &request, || at)
         } else {
             Err(Denial::Protocol)

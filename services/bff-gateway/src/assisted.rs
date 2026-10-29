@@ -93,6 +93,7 @@ impl ExecutionKernel for HostKernel {
 }
 /// Explicit local owner configuration, never deserialized from an HTTP request.
 pub struct RestrictedReference {
+    pub observer_certificate: Option<(Vec<u8>, String)>,
     pub directory: std::path::PathBuf,
     pub kernel: execution_gateway::restricted_zone::ZoneExecutionKernel,
     pub keys: [[u8; 32]; 4],
@@ -115,6 +116,10 @@ pub(crate) struct OwnedHost {
     ledger: Option<quantos_portfolio::native_ledger::NativeLedger>,
     ledger_store: Option<quantos_execution::durable::DurableStore>,
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
+    observer: Option<reconciliation::ObserverReader>,
+    reconciliation: Option<quantos_reconcile::current::CurrentReconciliation>,
+    reconciliation_store: Option<quantos_execution::durable::DurableStore>,
+    reconciliation_anchor: quantos_portfolio::native_ledger::Anchor,
     subjects: BTreeMap<ProposalId, Subject>,
     requests: BTreeMap<ProposalId, ProposalId>,
     opened_at: BTreeMap<ProposalId, DateTime<Utc>>,
@@ -232,6 +237,10 @@ impl OwnedHost {
             ledger: None,
             ledger_store: None,
             ledger_anchor: Default::default(),
+            observer: None,
+            reconciliation: None,
+            reconciliation_store: None,
+            reconciliation_anchor: Default::default(),
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
             subjects,
@@ -279,6 +288,7 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
         .route("/v1/assisted-testnet/ledger", get(handle))
+        .route("/v1/assisted-testnet/reconciliation", get(handle))
         .route("/v1/assisted-testnet/requests", get(handle).post(handle))
         .route("/v1/assisted-testnet/requests/:requestId", get(handle))
         .route(
@@ -340,7 +350,7 @@ async fn handle(
             .unwrap_or(json!({"request":false,"approve":false}));
         return crate::response(
             StatusCode::OK,
-            json!({"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":enabled,"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
+            json!({"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":enabled,"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
             &crate::correlation_id(),
         );
     }
@@ -404,6 +414,9 @@ async fn handle(
             return Err(Error::Unauthorized);
         }
         if method == Method::GET {
+            if path == "/v1/assisted-testnet/reconciliation" {
+                return h.sync_reconciliation(&sid, at);
+            }
             if path == "/v1/assisted-testnet/ledger" {
                 return h.sync_ledger(&sid, at);
             }
@@ -518,4 +531,5 @@ pub(crate) mod persistence;
 mod tests;
 
 mod ledger;
+mod reconciliation;
 mod source_seed;

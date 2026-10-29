@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.19.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.20.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -41,6 +41,7 @@ export type BffOperationId =
   | "getArtifact"
   | "getArtifactAttachment"
   | "getAssistedApprovalAudit"
+  | "getAssistedCurrentReconciliation"
   | "getAssistedNativeCapabilities"
   | "getAssistedNativeLedger"
   | "getAssistedRequest"
@@ -316,6 +317,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getAssistedApprovalAudit;
     if (resolver) return resolver({ request, params });
     return missingResolver("getAssistedApprovalAudit");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/reconciliation`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedCurrentReconciliation;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedCurrentReconciliation");
   }),
   http.get(`${baseUrl}/v1/assisted-testnet/capabilities`, async ({ request, params }) => {
     const resolver = resolvers.getAssistedNativeCapabilities;

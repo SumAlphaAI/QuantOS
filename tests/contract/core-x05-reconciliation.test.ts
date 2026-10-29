@@ -1,0 +1,5 @@
+import {it,expect} from 'vitest';
+import {validateFixture} from './validate.mjs';
+const id='11111111-1111-4111-8111-111111111111',h='sha256:'+'a'.repeat(64),binding={requestId:id,commandId:id,sourceHash:h,ledgerEntryHash:h},finding={kind:'OUTCOME_UNRESOLVED',entity:'command:'+id,commandId:id,expected:null,observed:{independentFillObserved:true}},evidence={evidenceId:h,reportId:h,scope:{tenantId:id,workspaceId:id,accountId:id},finding,binding,ledgerHash:h,booksHash:h,observedAt:'2026-10-29T00:00:00Z',status:'OPEN',executionAuthority:false};
+for(const[schema,value]of [['AssistedReconciliationBinding',binding],['AssistedReconciliationFinding',finding],['AssistedReconciliationAlertEvidence',evidence]] as const)it('X05 contract accepts '+schema,()=>expect(validateFixture(value,{schema})).toEqual([]));
+for(const[k,v]of [['status','CLOSED'],['executionAuthority',true],['booksHash','unchecked'],['binding',{...binding,ledgerEntryHash:undefined}],['scope',{tenantId:id,accountId:id}]] as const)it('X05 Alert evidence contract refuses '+k,()=>expect(validateFixture({...evidence,[k]:v},{schema:'AssistedReconciliationAlertEvidence'}).length).toBeGreaterThan(0));
