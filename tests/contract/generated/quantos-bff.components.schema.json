@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.22.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.23.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -88,6 +88,14 @@
         },
         "reconciliationReaderEnabled": {
           "type": "boolean"
+        },
+        "activationVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "activationExpiresAt": {
+          "$ref": "#/$defs/DateTime"
         }
       }
     },
@@ -7613,6 +7621,436 @@
         },
         "event": {
           "$ref": "#/$defs/AssistedKillEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedActivationScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "featureKey"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "featureKey": {
+          "type": "string",
+          "enum": [
+            "execution.assisted-testnet"
+          ]
+        }
+      }
+    },
+    "AssistedActivationEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "eventId",
+        "correlationId",
+        "version",
+        "enabled",
+        "validFrom",
+        "validUntil",
+        "source",
+        "actorId",
+        "reason",
+        "previous",
+        "recordHash",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "eventId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "validFrom": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "validUntil": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "owner_reference_bootstrap",
+            "public_c11"
+          ]
+        },
+        "actorId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "previous": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedActivationView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "resourceId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "featureKey",
+        "version",
+        "enabled",
+        "effective",
+        "targetPermitted",
+        "validFrom",
+        "validUntil",
+        "ceilingExpiresAt",
+        "source",
+        "head",
+        "canWrite",
+        "nativeActivationVersion",
+        "nativeActivationEffective",
+        "nativeStopped",
+        "runtimeWritable",
+        "killGeneration",
+        "unknownCommands",
+        "historyCount",
+        "checkedAt",
+        "expiresAt",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-c11-activation.v1"
+          ]
+        },
+        "resourceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "featureKey": {
+          "type": "string",
+          "enum": [
+            "execution.assisted-testnet"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "effective": {
+          "type": "boolean"
+        },
+        "targetPermitted": {
+          "type": "boolean"
+        },
+        "validFrom": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "validUntil": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "ceilingExpiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "owner_reference_bootstrap",
+            "public_c11"
+          ]
+        },
+        "head": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "canWrite": {
+          "type": "boolean"
+        },
+        "nativeActivationVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "nativeActivationEffective": {
+          "type": "boolean"
+        },
+        "nativeStopped": {
+          "type": "boolean"
+        },
+        "runtimeWritable": {
+          "type": "boolean"
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "unknownCommands": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "historyCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "checkedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedActivationAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "enabled",
+        "validUntil",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/AssistedActivationScope"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "validUntil": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string",
+          "enum": [
+            "ENABLE ASSISTED TESTNET",
+            "DISABLE ASSISTED TESTNET"
+          ]
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "AssistedActivationPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "configVersion",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/AssistedActivationView"
+          }
+        },
+        "configVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "nextCursor": {
+          "type": "null"
+        }
+      }
+    },
+    "AssistedActivationHistory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "version",
+        "totalCount",
+        "items",
+        "nextCursor",
+        "executionAuthority"
+      ],
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 20
+        },
+        "totalCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/AssistedActivationEvent"
+          }
+        },
+        "nextCursor": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedActivationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-c11-activation-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/AssistedActivationEvent"
         },
         "readCurrentState": {
           "type": "boolean",

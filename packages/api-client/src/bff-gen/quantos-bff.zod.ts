@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.22.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.23.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -19,6 +19,8 @@ export const AssistedNativeCapabilitiesSchema = z.object({
   "checkedAt": z.string().datetime({ offset: true }),
   "expiresAt": z.string().datetime({ offset: true }),
   "reconciliationReaderEnabled": z.boolean().optional(),
+  "activationVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20).optional(),
+  "activationExpiresAt": z.lazy(() => DateTimeSchema).optional(),
 }).strict();
 
 export const AssistedSubjectSchema = z.object({
@@ -1612,6 +1614,94 @@ export const AssistedKillReceiptSchema = z.object({
   "executionAuthority": z.literal(false),
 }).strict();
 
+export const AssistedActivationScopeSchema = z.object({
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "featureKey": z.literal("execution.assisted-testnet"),
+}).strict();
+
+export const AssistedActivationEventSchema = z.object({
+  "resourceId": z.lazy(() => UUIDSchema),
+  "eventId": z.lazy(() => UUIDSchema),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "version": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "enabled": z.boolean(),
+  "validFrom": z.lazy(() => DateTimeSchema),
+  "validUntil": z.lazy(() => DateTimeSchema),
+  "source": z.enum(["owner_reference_bootstrap","public_c11"]),
+  "actorId": z.union([z.lazy(() => UUIDSchema), z.null()]),
+  "reason": z.string().min(1).max(256),
+  "previous": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "recordHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "unknownPreserved": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedActivationViewSchema = z.object({
+  "schemaVersion": z.literal("quantos-current-c11-activation.v1"),
+  "resourceId": z.lazy(() => UUIDSchema),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "featureKey": z.literal("execution.assisted-testnet"),
+  "version": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "enabled": z.boolean(),
+  "effective": z.boolean(),
+  "targetPermitted": z.boolean(),
+  "validFrom": z.lazy(() => DateTimeSchema),
+  "validUntil": z.lazy(() => DateTimeSchema),
+  "ceilingExpiresAt": z.lazy(() => DateTimeSchema),
+  "source": z.enum(["owner_reference_bootstrap","public_c11"]),
+  "head": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "canWrite": z.boolean(),
+  "nativeActivationVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "nativeActivationEffective": z.boolean(),
+  "nativeStopped": z.boolean(),
+  "runtimeWritable": z.boolean(),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "unknownCommands": z.number().int().min(0).max(4096),
+  "historyCount": z.number().int().min(1).max(4096),
+  "checkedAt": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "unknownPreserved": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedActivationActionSchema = z.object({
+  "scope": z.lazy(() => AssistedActivationScopeSchema),
+  "enabled": z.boolean(),
+  "validUntil": z.lazy(() => DateTimeSchema),
+  "reason": z.string().min(1).max(256),
+  "confirmPhrase": z.enum(["ENABLE ASSISTED TESTNET","DISABLE ASSISTED TESTNET"]),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+}).strict();
+
+export const AssistedActivationPageSchema = z.object({
+  "items": z.array(z.lazy(() => AssistedActivationViewSchema)).min(1).max(1),
+  "configVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "nextCursor": z.null(),
+}).strict();
+
+export const AssistedActivationHistorySchema = z.object({
+  "resourceId": z.lazy(() => UUIDSchema),
+  "version": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")).max(20),
+  "totalCount": z.number().int().min(1).max(4096),
+  "items": z.array(z.lazy(() => AssistedActivationEventSchema)).max(100),
+  "nextCursor": z.union([z.string(), z.null()]),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedActivationReceiptSchema = z.object({
+  "schemaVersion": z.literal("quantos-current-c11-activation-receipt.v1"),
+  "event": z.lazy(() => AssistedActivationEventSchema),
+  "readCurrentState": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1759,6 +1849,13 @@ export const bffZodSchemas = {
   AssistedKillIntent: AssistedKillIntentSchema,
   AssistedKillView: AssistedKillViewSchema,
   AssistedKillReceipt: AssistedKillReceiptSchema,
+  AssistedActivationScope: AssistedActivationScopeSchema,
+  AssistedActivationEvent: AssistedActivationEventSchema,
+  AssistedActivationView: AssistedActivationViewSchema,
+  AssistedActivationAction: AssistedActivationActionSchema,
+  AssistedActivationPage: AssistedActivationPageSchema,
+  AssistedActivationHistory: AssistedActivationHistorySchema,
+  AssistedActivationReceipt: AssistedActivationReceiptSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2602,7 +2699,7 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "listFeatureFlags": {
-    "200": z.lazy(() => AdminResourcePageSchema),
+    "200": z.union([z.lazy(() => AdminResourcePageSchema), z.lazy(() => AssistedActivationPageSchema)]),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
@@ -2614,13 +2711,13 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "getFeatureFlag": {
-    "200": z.lazy(() => AdminResourceSchema),
+    "200": z.union([z.lazy(() => AdminResourceSchema), z.lazy(() => AssistedActivationViewSchema)]),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "saveFeatureFlag": {
-    "200": z.lazy(() => AdminResourceSchema),
+    "200": z.union([z.lazy(() => AdminResourceSchema), z.lazy(() => AssistedActivationReceiptSchema)]),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
@@ -2778,6 +2875,12 @@ export const bffResponseSchemas = {
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedActivationHistory": {
+    "200": z.lazy(() => AssistedActivationHistorySchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;

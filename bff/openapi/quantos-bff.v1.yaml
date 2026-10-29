@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.22.0
+  version: 1.23.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -3042,14 +3042,14 @@ paths:
               properties:
                 scope:
                   type: string
-                  enum: [global, account]
+                  enum: [ global, account ]
                 expectedGeneration:
                   type: string
                   pattern: ^(0|[1-9][0-9]*)$
                 approvalRef:
                   $ref: "#/components/schemas/UUID"
                 accountId:
-                  type: [string, "null"]
+                  type: [ string, "null" ]
                   format: uuid
                 reason:
                   type: string
@@ -3078,7 +3078,7 @@ paths:
                 oneOf:
                   - allOf:
                       - $ref: "#/components/schemas/RiskView"
-                      - required: [correlationId]
+                      - required: [ correlationId ]
                   - $ref: "#/components/schemas/AssistedKillReceipt"
               example:
                 accountId: 11111111-1111-4111-8111-111111111111
@@ -3150,14 +3150,14 @@ paths:
               properties:
                 scope:
                   type: string
-                  enum: [global, account]
+                  enum: [ global, account ]
                 expectedGeneration:
                   type: string
                   pattern: ^(0|[1-9][0-9]*)$
                 approvalRef:
                   $ref: "#/components/schemas/UUID"
                 accountId:
-                  type: [string, "null"]
+                  type: [ string, "null" ]
                   format: uuid
                 confirmPhrase:
                   type: string
@@ -3184,7 +3184,7 @@ paths:
                 oneOf:
                   - allOf:
                       - $ref: "#/components/schemas/RiskView"
-                      - required: [correlationId]
+                      - required: [ correlationId ]
                   - $ref: "#/components/schemas/AssistedKillReceipt"
               example:
                 accountId: 11111111-1111-4111-8111-111111111111
@@ -9593,7 +9593,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AdminResourcePage"
+                oneOf:
+                  - $ref: "#/components/schemas/AdminResourcePage"
+                  - $ref: "#/components/schemas/AssistedActivationPage"
               example:
                 items:
                   - id: 11111111-1111-4111-8111-111111111111
@@ -9625,8 +9627,8 @@ paths:
           $ref: "#/components/responses/ServerError"
       x-quantos-policy:
         owner: BFF-FE-010
-        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
-        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        auth: Paper/Shadow retain existing governance authority. Assisted uses current C01 registered identity and immutable tenant/workspace/account/mode/feature/owner ceiling; no Paper seed.
+        capability: Paper/Shadow admin.read/admin.write; Assisted execution.activation.read, and Owner plus security_change MFA/reauth for execution.activation.write; no arbitrary flags or role changes.
         pagination: Frozen scoped cursor; pageSize 1..200; query/session/source binding; expired or changed cursor refused
         sort:
           - id:asc
@@ -9635,9 +9637,9 @@ paths:
           - accountId
         expression: not applicable
         cache: no-store
-        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
-        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
-        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        freshness: Assisted C11 validFrom/validUntil plus pinned original owner/session limits; no automatic renewal. Version0 explicitly imports bounded owned reference configuration, not public or target acceptance.
+        idempotency: Assisted exact original actor/key/body/If-Match until minimum original proof/session deadline; current authority rechecked; immutable receipt followed by current-state read.
+        version: Existing governance If-Match remains. Assisted C11 canonical u64 If-Match and immutable versioned hash history; independent of kill generation and approval policy revision.
         audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
         limits:
           bodyBytes: 8192
@@ -9743,7 +9745,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AdminResource"
+                oneOf:
+                  - $ref: "#/components/schemas/AdminResource"
+                  - $ref: "#/components/schemas/AssistedActivationView"
               example:
                 id: 11111111-1111-4111-8111-111111111111
                 kind: feature-flags
@@ -9772,16 +9776,16 @@ paths:
           $ref: "#/components/responses/ServerError"
       x-quantos-policy:
         owner: BFF-FE-010
-        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
-        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        auth: Paper/Shadow retain existing governance authority. Assisted uses current C01 registered identity and immutable tenant/workspace/account/mode/feature/owner ceiling; no Paper seed.
+        capability: Paper/Shadow admin.read/admin.write; Assisted execution.activation.read, and Owner plus security_change MFA/reauth for execution.activation.write; no arbitrary flags or role changes.
         pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
         sort: []
         filter: []
         expression: not applicable
         cache: no-store
-        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
-        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
-        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        freshness: Assisted C11 validFrom/validUntil plus pinned original owner/session limits; no automatic renewal. Version0 explicitly imports bounded owned reference configuration, not public or target acceptance.
+        idempotency: Assisted exact original actor/key/body/If-Match until minimum original proof/session deadline; current authority rechecked; immutable receipt followed by current-state read.
+        version: Existing governance If-Match remains. Assisted C11 canonical u64 If-Match and immutable versioned hash history; independent of kill generation and approval policy revision.
         audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
         limits:
           bodyBytes: 8192
@@ -9810,7 +9814,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AdminResource"
+                oneOf:
+                  - $ref: "#/components/schemas/AdminResource"
+                  - $ref: "#/components/schemas/AssistedActivationReceipt"
               example:
                 id: 11111111-1111-4111-8111-111111111111
                 kind: feature-flags
@@ -9841,16 +9847,16 @@ paths:
           $ref: "#/components/responses/ServerError"
       x-quantos-policy:
         owner: BFF-FE-010
-        auth: F06 verified cookie caller plus matching scoped owner-supplied governance lease; stale/revoked identities refused
-        capability: ops.read/ops.operate/ops.approve/admin.read/admin.write/alerts.read by operation; never exceed F06; Owner for governance; Approver only for incident resolution
+        auth: Paper/Shadow retain existing governance authority. Assisted uses current C01 registered identity and immutable tenant/workspace/account/mode/feature/owner ceiling; no Paper seed.
+        capability: Paper/Shadow admin.read/admin.write; Assisted execution.activation.read, and Owner plus security_change MFA/reauth for execution.activation.write; no arbitrary flags or role changes.
         pagination: Scoped frozen cursor, bound to current identity/session/config/query; page1..200; 5minute expiry
         sort: []
         filter: []
         expression: not applicable
         cache: no-store
-        freshness: F09/X06 health30seconds, immutable incident/alert history; stale streams/actions refused; approved read-only runbooks only
-        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
-        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        freshness: Assisted C11 validFrom/validUntil plus pinned original owner/session limits; no automatic renewal. Version0 explicitly imports bounded owned reference configuration, not public or target acceptance.
+        idempotency: Assisted exact original actor/key/body/If-Match until minimum original proof/session deadline; current authority rechecked; immutable receipt followed by current-state read.
+        version: Existing governance If-Match remains. Assisted C11 canonical u64 If-Match and immutable versioned hash history; independent of kill generation and approval policy revision.
         audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
         limits:
           bodyBytes: 8192
@@ -9863,7 +9869,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GovernanceFeatureFlagAction"
+              oneOf:
+                - $ref: "#/components/schemas/GovernanceFeatureFlagAction"
+                - $ref: "#/components/schemas/AssistedActivationAction"
             example:
               reason: controlled administrative change
               mfaChallengeRef: 11111111-1111-4111-8111-111111111111
@@ -11483,7 +11491,7 @@ paths:
   /v1/risk/kill-switch/release-approvals:
     post:
       operationId: approveAssistedKillRelease
-      tags: [risk]
+      tags: [ risk ]
       summary: Independently review the current stopped generation; grants no execution authority
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -11516,7 +11524,7 @@ paths:
             Cache-Control:
               schema:
                 type: string
-                enum: [no-store]
+                enum: [ no-store ]
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -11544,6 +11552,60 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/admin/feature-flags/{resourceId}/history:
+    get:
+      operationId: getAssistedActivationHistory
+      tags:
+        - admin
+      summary: Read immutable scoped C11 activation history for current Assisted runtime
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current scoped immutable C11 history; no execution authority
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedActivationHistory"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-010
+        auth: Current C01 registered Assisted identity; static activation.read eligibility, immutable tenant/workspace/account/mode/feature; no Paper seed
+        capability: execution.activation.read; Owner MFA plus original proof and If-Match for runtime updates
+        pagination: Immutable version/hash cursor, page1..100; no history deletion
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C11 version; strict cursor binds immutable scoped record hash
+        idempotency: Mutation actor/session/path/method/key/intent replay; same key exact original receipt; current authorization checked again
+        version: If-Match required for all mutations; create uses configVersion, members use objectVersion; conflict currentVersion; tombstones prevent ABA
+        audit: Every accepted governance/operator intent has one F05 auditRef/correlation root; original core X06 facts retained
+        limits:
+          bodyBytes: 8192
+          pageSize: 200
+          rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
+        realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
+        sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
 components:
   securitySchemes:
     cookieAuth:
@@ -11842,6 +11904,12 @@ components:
           format: date-time
         reconciliationReaderEnabled:
           type: boolean
+        activationVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 20
+        activationExpiresAt:
+          $ref: "#/components/schemas/DateTime"
     AssistedSubject:
       type: object
       additionalProperties: false
@@ -15764,12 +15832,12 @@ components:
         - objectRef
         - correlationId
       if:
-        required: [mode]
+        required: [ mode ]
         properties:
           mode:
             const: assisted_live
       then:
-        required: [sourceEvidence, readOnly, auditRef]
+        required: [ sourceEvidence, readOnly, auditRef ]
         properties:
           readOnly:
             const: true
@@ -15790,7 +15858,7 @@ components:
           objectRef:
             const: /operations/health
         not:
-          required: [sourceEvidence]
+          required: [ sourceEvidence ]
       properties:
         readOnly:
           type: boolean
@@ -16998,3 +17066,286 @@ components:
           $ref: "#/components/schemas/AssistedKillEvent"
         readCurrentState: *a6
         executionAuthority: *a7
+    AssistedActivationScope:
+      type: object
+      additionalProperties: false
+      required:
+        - tenantId
+        - workspaceId
+        - accountId
+        - mode
+        - featureKey
+      properties:
+        tenantId: &a63
+          $ref: "#/components/schemas/UUID"
+        workspaceId: *a63
+        accountId: *a63
+        mode:
+          type: string
+          enum:
+            - assisted_live
+        featureKey:
+          type: string
+          enum:
+            - execution.assisted-testnet
+    AssistedActivationEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - resourceId
+        - eventId
+        - correlationId
+        - version
+        - enabled
+        - validFrom
+        - validUntil
+        - source
+        - actorId
+        - reason
+        - previous
+        - recordHash
+        - unknownPreserved
+        - executionAuthority
+      properties:
+        resourceId: &a63
+          $ref: "#/components/schemas/UUID"
+        eventId: *a63
+        correlationId: *a63
+        version:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 20
+        enabled:
+          type: boolean
+        validFrom: &a64
+          $ref: "#/components/schemas/DateTime"
+        validUntil: *a64
+        source:
+          type: string
+          enum:
+            - owner_reference_bootstrap
+            - public_c11
+        actorId:
+          oneOf:
+            - *a63
+            - type: "null"
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        previous:
+          oneOf:
+            - &a65
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            - type: "null"
+        recordHash: *a65
+        unknownPreserved:
+          type: boolean
+          enum:
+            - true
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    AssistedActivationView:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - resourceId
+        - tenantId
+        - workspaceId
+        - accountId
+        - mode
+        - featureKey
+        - version
+        - enabled
+        - effective
+        - targetPermitted
+        - validFrom
+        - validUntil
+        - ceilingExpiresAt
+        - source
+        - head
+        - canWrite
+        - nativeActivationVersion
+        - nativeActivationEffective
+        - nativeStopped
+        - runtimeWritable
+        - killGeneration
+        - unknownCommands
+        - historyCount
+        - checkedAt
+        - expiresAt
+        - unknownPreserved
+        - executionAuthority
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-current-c11-activation.v1
+        resourceId: &a63
+          $ref: "#/components/schemas/UUID"
+        tenantId: *a63
+        workspaceId: *a63
+        accountId: *a63
+        mode:
+          type: string
+          enum:
+            - assisted_live
+        featureKey:
+          type: string
+          enum:
+            - execution.assisted-testnet
+        version: &a66
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 20
+        enabled: &a64
+          type: boolean
+        effective: *a64
+        targetPermitted: *a64
+        validFrom: &a65
+          $ref: "#/components/schemas/DateTime"
+        validUntil: *a65
+        ceilingExpiresAt: *a65
+        source:
+          type: string
+          enum:
+            - owner_reference_bootstrap
+            - public_c11
+        head:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        canWrite: *a64
+        nativeActivationVersion: *a66
+        nativeActivationEffective: *a64
+        nativeStopped: *a64
+        runtimeWritable: *a64
+        killGeneration: *a66
+        unknownCommands:
+          type: integer
+          minimum: 0
+          maximum: 4096
+        historyCount:
+          type: integer
+          minimum: 1
+          maximum: 4096
+        checkedAt: *a65
+        expiresAt: *a65
+        unknownPreserved:
+          type: boolean
+          enum:
+            - true
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    AssistedActivationAction:
+      type: object
+      additionalProperties: false
+      required:
+        - scope
+        - enabled
+        - validUntil
+        - reason
+        - confirmPhrase
+        - mfaChallengeRef
+        - reauthTokenRef
+      properties:
+        scope:
+          $ref: "#/components/schemas/AssistedActivationScope"
+        enabled:
+          type: boolean
+        validUntil:
+          $ref: "#/components/schemas/DateTime"
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        confirmPhrase:
+          type: string
+          enum:
+            - ENABLE ASSISTED TESTNET
+            - DISABLE ASSISTED TESTNET
+        mfaChallengeRef: &a63
+          $ref: "#/components/schemas/UUID"
+        reauthTokenRef: *a63
+    AssistedActivationPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - configVersion
+        - nextCursor
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 1
+          items:
+            $ref: "#/components/schemas/AssistedActivationView"
+        configVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 20
+        nextCursor:
+          type: "null"
+    AssistedActivationHistory:
+      type: object
+      additionalProperties: false
+      required:
+        - resourceId
+        - version
+        - totalCount
+        - items
+        - nextCursor
+        - executionAuthority
+      properties:
+        resourceId:
+          $ref: "#/components/schemas/UUID"
+        version:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+          maxLength: 20
+        totalCount:
+          type: integer
+          minimum: 1
+          maximum: 4096
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AssistedActivationEvent"
+        nextCursor:
+          oneOf:
+            - type: string
+            - type: "null"
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
+    AssistedActivationReceipt:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - event
+        - readCurrentState
+        - executionAuthority
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-current-c11-activation-receipt.v1
+        event:
+          $ref: "#/components/schemas/AssistedActivationEvent"
+        readCurrentState:
+          type: boolean
+          enum:
+            - true
+        executionAuthority:
+          type: boolean
+          enum:
+            - false

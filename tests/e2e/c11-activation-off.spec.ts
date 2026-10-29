@@ -1,0 +1,5 @@
+import {test,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
+import {installReferenceHooks,useSession,authorized,networkRows,zoneSnapshot} from './fixtures/frontend-g8-reference';
+installReferenceHooks('assisted-mtls-local',false);
+test('C11 owner cannot override denied target with public or UI enablement',async({page},info)=>{useSession('session-owner');await page.goto('/admin/flags');await authorized(page);await expect(page.getByTestId('activation-effective')).toContainText('租约无效');await page.getByLabel('启用变更原因',{exact:true}).fill('off target probe');await expect(page.getByRole('button',{name:'启用或续期',exact:true})).toBeDisabled();expect(networkRows().filter(r=>!r.control&&r.method!=='GET')).toHaveLength(0);expect(zoneSnapshot()?.protocolCalls).toBe(0);await writeFile(info.outputPath('c11-off.json'),JSON.stringify({sourceCommit:process.env.GITHUB_SHA,targetPermitted:false,uiEnableDenied:true,protocolCalls:0,noBrowserWrites:true,actualTestnet:false},null,2));});

@@ -117,6 +117,8 @@ pub(crate) struct OwnedHost {
     ledger_store: Option<quantos_execution::durable::DurableStore>,
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
     controls: control::Controls,
+    activation: activation::Activation,
+    activation_origin: activation::Activation,
     native_anchor: Option<Value>,
     control_fixture_directory: Option<std::path::PathBuf>,
     alert_inbox: Option<alerts::Inbox>,
@@ -235,7 +237,11 @@ impl OwnedHost {
         )
         .unwrap();
         let (sources, subjects) = source_seed::current(&service, &scope, keys[2], at, expiry)?;
+        let activation = activation::Activation::new(scope, enabled, at, expiry)?;
+        service.apply_runtime_activation(activation.lease()?)?;
         Ok(Self {
+            activation: activation.clone(),
+            activation_origin: activation,
             service,
             sources,
             durable: None,
@@ -298,6 +304,7 @@ fn command(c: CommandReceipt) -> Value {
 pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
     Router::new()
         .merge(control::routes())
+        .merge(activation::routes())
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
         .route("/v1/assisted-testnet/ledger", get(handle))
@@ -349,13 +356,18 @@ async fn handle(
         .to_owned();
     let mut state = data.lock().await;
     let at = now(state.now());
+    if let Some(h) = state.assisted.as_ref()
+        && let Err(e) = h.sync_activation()
+    {
+        return fail(e).response();
+    }
     let capabilities = crate::session_payload(&headers, state.session_expires_at);
     let expiry = state.session_expires_at;
     if uri.path().ends_with("/capabilities") {
         let enabled = state
             .assisted
             .as_ref()
-            .is_some_and(|h| h.service.reachable().unwrap_or(false));
+            .is_some_and(|h| h.activation.effective(at));
         let permission = state
             .assisted
             .as_ref()
@@ -363,7 +375,7 @@ async fn handle(
             .unwrap_or(json!({"request":false,"approve":false}));
         return crate::response(
             StatusCode::OK,
-            json!({"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":enabled,"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
+            json!({"reconciliationReaderEnabled":state.assisted.is_some(),"schemaVersion":"quantos-assisted-testnet-capabilities.v1","actorId":capabilities["actorId"],"tenantId":capabilities["tenantId"],"workspaceId":capabilities["workspaceId"],"accountId":capabilities["accountId"],"mode":if state.assisted.is_some(){"assisted_live"}else if state.reference_shadow{"shadow"}else{"paper"},"serverFlagEnabled":enabled,"targetEnabled":state.assisted.as_ref().is_some_and(|h|h.enabled()),"activationVersion":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.version.to_string()),"activationExpiresAt":state.assisted.as_ref().and_then(|h|h.activation.lease().ok()).map(|a|a.valid_until),"canRequest":permission["request"],"canApprove":permission["approve"],"executionAuthority":false,"policyVersion":"core-l03-local.v1","policyRevision":permission["policyRevision"].as_u64().unwrap_or(1),"checkedAt":at,"expiresAt":expiry.min(at+Duration::seconds(8))}),
             &crate::correlation_id(),
         );
     }
@@ -423,8 +435,10 @@ async fn handle(
     let h = state.assisted.as_mut().unwrap();
     let result = (|| -> Result<Value, Error> {
         let caps = h.service.capabilities(&sid, &clock)?;
-        if caps["request"] != true && caps["approve"] != true {
-            return Err(Error::Unauthorized);
+        if method == Method::GET {
+            h.service.control_auth(&sid, at)?;
+        } else if caps["request"] != true && caps["approve"] != true {
+            return Err(Error::Disabled);
         }
         if method == Method::GET {
             if path == "/v1/assisted-testnet/reconciliation" {
@@ -548,3 +562,5 @@ pub(crate) mod control;
 mod ledger;
 mod reconciliation;
 mod source_seed;
+
+pub(crate) mod activation;

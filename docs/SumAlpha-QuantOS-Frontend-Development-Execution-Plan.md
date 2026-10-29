@@ -3787,3 +3787,6 @@ testnet/Live 准备的部署与正式运行范围另见[核心 RELEASE-GATE:LIVE
 
 
 2026-10-29 CORE:X06 DEVELOPMENT / L4-NATIVE-CONTROL-01 接续：P11 新增公共停止控制，按账户/当前工作区全局范围确认、原因、MFA、独立解除复核及 Owner 显式解除；当前状态读取及不可变回执分开核对，结果未知只允许原请求恢复，原 CSRF/身份/期限不得刷新。停止使旧风险审批失效，解除保留 UNKNOWN/隔离账本/OPEN Alert；C10 查询引用同源控制事件。仅当前 owned 单机配置域；真实身份、目标 DB/Vault/venue、跨主机全局传播和 C11 版本化启用未验收。完整 Gate NOT_READY_GAPS_OPEN / stage NOT_ASSESSED / formalAccepted=false / runtimeAdmission=DENIED，M5 PREPARED_NOT_READY；19 gap/8 义务仍 OPEN，既有阶段/历史证据不提升。见[规程](./operations/core-x06-native-control.md)和[证据](./audit/evidence/core-x06-native-control-local-20261029/README.md)。下一 CORE:X06 DEVELOPMENT / L4-C11-ACTIVATION-01。
+
+
+2026-10-29 CORE:X06 DEVELOPMENT / L4-C11-ACTIVATION-01：P14 /admin/flags 按 C01 选择当前 Assisted 固定域启用页面，Owner 以原 MFA/session 期限和 If-Match 执行显式租约变更；提供 version/source/有效期/native 条件/原 kill generation、不可变分页历史与共同 C10。原 key/body/If-Match/CSRF/期限手动恢复；错误身份/作用域/版本/历史/期限拒绝，无自动重试。P11 禁用期间保留只读申请/命令/不确定意图，写入仍受原生租约、原审批/风险、kill 多重边界约束；Paper/Shadow 原治理页面继续独立。version 0 是 bounded owner 参考配置导入，非公共或目标验收。见[规程](./operations/core-x06-c11-activation.md)、[证据](./audit/evidence/core-x06-c11-activation-local-20261029/README.md)。完整 Gate NOT_READY_GAPS_OPEN / stage NOT_ASSESSED / formalAccepted=false / runtimeAdmission=DENIED / M5 PREPARED_NOT_READY，19 gap/8 义务 OPEN。下一 CORE-GATE:L4 DEVELOPMENT 当前组合评估；目标/发布 NOT_RUN。

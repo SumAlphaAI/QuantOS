@@ -31,7 +31,7 @@ fn control_body(
     }
     b
 }
-fn mutate(
+pub(super) fn mutate(
     base: &str,
     who: &str,
     action: &str,

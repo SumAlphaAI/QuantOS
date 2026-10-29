@@ -291,6 +291,7 @@ struct Cached {
     receipt: Receipt,
 }
 struct State {
+    activation: Option<crate::assisted_activation::RuntimeActivation>,
     scope: Scope,
     policy: Policy,
     revision: u64,
@@ -325,6 +326,13 @@ impl State {
     }
     fn gate(&self) -> Result<(), Error> {
         if !self.policy.enabled {
+            return Err(Error::Disabled);
+        }
+        Ok(())
+    }
+    fn activation_gate(&self, at: DateTime<Utc>) -> Result<(), Error> {
+        self.gate()?;
+        if self.activation.as_ref().is_some_and(|a| !a.effective(at)) {
             return Err(Error::Disabled);
         }
         Ok(())
@@ -466,6 +474,7 @@ impl AssistedApprovalService {
             return Err(Error::Invalid);
         }
         Ok(Self(Arc::new(Mutex::new(State {
+            activation: None,
             scope,
             policy,
             revision: 1,
@@ -584,6 +593,16 @@ impl AssistedApprovalService {
         s.policy = policy;
         Ok(s.revision)
     }
+    /// Trusted C11 owner synchronization. No policy/request/risk generations change.
+    pub fn apply_runtime_activation(
+        &self,
+        next: crate::assisted_activation::RuntimeActivation,
+    ) -> Result<(), Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        next.advances(&s.activation)?;
+        s.activation = Some(next);
+        Ok(())
+    }
     pub fn reachable(&self) -> Result<bool, Error> {
         Ok(self
             .0
@@ -608,10 +627,11 @@ impl AssistedApprovalService {
     ) -> Result<serde_json::Value, Error> {
         let s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
-        let request = s.policy.enabled && s.auth(session, at, false).is_ok();
-        let approve = s.policy.enabled && s.auth(session, at, true).is_ok();
+        let enabled = s.policy.enabled && s.activation.as_ref().is_none_or(|a| a.effective(at));
+        let request = enabled && s.auth(session, at, false).is_ok();
+        let approve = enabled && s.auth(session, at, true).is_ok();
         Ok(
-            serde_json::json!({"enabled":s.policy.enabled,"policyRevision":s.revision,"request":request,"approve":approve,"executionAuthority":false,"venue":"binance-spot-testnet"}),
+            serde_json::json!({"enabled":enabled,"policyRevision":s.revision,"request":request,"approve":approve,"executionAuthority":false,"venue":"binance-spot-testnet"}),
         )
     }
     pub fn open(
@@ -623,7 +643,7 @@ impl AssistedApprovalService {
     ) -> Result<Outcome, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
-        s.gate()?;
+        s.activation_gate(at)?;
         s.tick(at)?;
         let requester_revision = s.auth(session, at, false)?.revision;
         let identity = s.auth(session, at, false)?.auth.clone();
@@ -699,7 +719,7 @@ impl AssistedApprovalService {
     ) -> Result<Challenge, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
-        s.gate()?;
+        s.activation_gate(at)?;
         s.tick(at)?;
         let a = s.auth(session, at, true)?.clone();
         let r = s.requests.get(&id).ok_or(Error::Invalid)?;
@@ -759,7 +779,7 @@ impl AssistedApprovalService {
     ) -> Result<Outcome, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
-        s.gate()?;
+        s.activation_gate(at)?;
         s.tick(at)?;
         let a = s.auth(session, at, true)?.auth.clone();
         let r = s.requests.get(&id).ok_or(Error::Invalid)?.clone();
@@ -840,7 +860,7 @@ impl AssistedApprovalService {
     ) -> Result<Receipt, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let at = clock.sample();
-        s.gate()?;
+        s.activation_gate(at)?;
         s.tick(at)?;
         if s.auth(session, at, false).is_err() {
             s.auth(session, at, true)?;
@@ -861,7 +881,7 @@ impl AssistedApprovalService {
     ) -> Result<T, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
         let now = clock.sample();
-        s.gate()?;
+        s.activation_gate(now)?;
         s.tick(now)?;
         let actor = s.auth(session, now, false)?;
         let r = s.requests.get(&id).ok_or(Error::Invalid)?;
@@ -880,8 +900,15 @@ impl AssistedApprovalService {
             .iter()
             .fold(r.receipt.expires_at.min(actor.expires_at), |d, a| {
                 d.min(a.proof.challenge.expires_at)
-            });
+            })
+            .min(
+                s.activation
+                    .as_ref()
+                    .map(|a| a.valid_until)
+                    .unwrap_or(r.receipt.expires_at),
+            );
         let run = |current| {
+            s.activation_gate(current)?;
             if current >= deadline {
                 return Err(Error::Expired);
             }

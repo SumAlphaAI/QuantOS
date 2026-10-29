@@ -1,0 +1,37 @@
+
+running 8 tests
+test core_l04_logout_survives_process_recovery_and_denies_c10_and_native ... ok
+test native_control::public_controls_preserve_actual_unknown_fill_ledger_and_open_alert_obligations ... ok
+test native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt ... ok
+test c11_activation::c11_actual_committed_process_death_recovers_original_lease_and_refuses_fork ... ok
+test c11_activation::c11_public_runtime_replicas_and_original_receipt_do_not_reset_kill_generation ... ok
+test native_control::public_kill_control_replicas_cas_proofs_and_layered_independent_release ... ok
+test core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit ... FAILED
+test core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills ... FAILED
+
+failures:
+
+---- core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit stdout ----
+
+thread 'core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit' (1694713) panicked at services/bff-gateway/tests/core_l04.rs:198:65:
+called `Result::unwrap()` on an `Err` value: Timeout
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills stdout ----
+
+thread 'core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills' (1694715) panicked at services/bff-gateway/tests/core_l04.rs:242:5:
+assertion `left == right` failed: /v1/session: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a1868e-8e93-7f30-add8-40e4ccd4a69c","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+
+
+failures:
+    core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit
+    core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.31s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+Error: service_l03_Unavailable
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

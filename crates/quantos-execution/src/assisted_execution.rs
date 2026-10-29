@@ -50,6 +50,7 @@ struct Inner<K: ExecutionKernel> {
     poisoned: bool,
     killed: bool,
     control: NativeControl,
+    activation: Option<crate::assisted_activation::RuntimeActivation>,
 }
 impl<K: ExecutionKernel> Drop for Inner<K> {
     fn drop(&mut self) {
@@ -84,6 +85,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
             poisoned: false,
             killed: false,
             control: NativeControl::default(),
+            activation: None,
         }))))
     }
     /// Owner-only wiring. The store must be shared by every local replica.
@@ -142,6 +144,32 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         s.durable = store;
         result
     }
+    /// Trusted durable C11 synchronization. Does not alter kill generation,
+    /// permanent stops, proposals, command identities, or UNKNOWN facts.
+    pub fn apply_runtime_activation(
+        &self,
+        next: crate::assisted_activation::RuntimeActivation,
+    ) -> Result<(), Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let store = s.durable.take();
+        let result = (|| {
+            let tx = store.as_ref().map(|v| v.lock()).transpose()?;
+            if let Some(t) = &tx {
+                load(&mut s, t.read()?)?;
+            }
+            next.advances(&s.activation)?;
+            if s.activation.as_ref() == Some(&next) {
+                return Ok(());
+            }
+            s.activation = Some(next);
+            if let Some(t) = &tx {
+                t.write(&checkpoint(&s)?)?;
+            }
+            Ok(())
+        })();
+        s.durable = store;
+        result
+    }
     /// Immutable reservation anchor lets the owner refuse missing/rolled-back
     /// commands on a cold restart before synchronizing any control state.
     pub fn control_status(&self) -> Result<serde_json::Value, Error> {
@@ -180,7 +208,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                 );
             }
             Ok(
-                json!({"reservations":reservations,"generation":s.control.generation,"active":s.control.active,"permanentStop":s.killed,"stopped":s.killed||s.control.active,"initialized":stored.is_some(),"reservationAnchor":anchor,"issuedCount":s.issued.len(),"unknownCount":s.issued.values().filter(|r|r.receipt.state=="unknown").count()}),
+                json!({"activation":s.activation,"reservations":reservations,"generation":s.control.generation,"active":s.control.active,"permanentStop":s.killed,"stopped":s.killed||s.control.active,"initialized":stored.is_some(),"reservationAnchor":anchor,"issuedCount":s.issued.len(),"unknownCount":s.issued.values().filter(|r|r.receipt.state=="unknown").count()}),
             )
         })();
         s.durable = store;
@@ -214,7 +242,10 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                 request,
                 clock,
                 |subject, approval, deadline, now| {
-                    if state.killed || state.control.active {
+                    if state.killed
+                        || state.control.active
+                        || state.activation.as_ref().is_some_and(|a| !a.effective(now))
+                    {
                         return Err(Error::Disabled);
                     }
                     if let Some(old) = state.issued.get(&request) {
@@ -233,7 +264,13 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                         return Err(Error::Unavailable);
                     }
                     let id = CommandId::new();
-                    let expires = (now + Duration::seconds(30)).min(deadline);
+                    let expires = (now + Duration::seconds(30)).min(deadline).min(
+                        state
+                            .activation
+                            .as_ref()
+                            .map(|a| a.valid_until)
+                            .unwrap_or(deadline),
+                    );
                     let bytes = canonical_json_bytes(&json!([
                         "core-l03-native-command/v1",
                         request,
@@ -433,7 +470,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
 
 fn checkpoint<K: ExecutionKernel>(state: &Inner<K>) -> Result<serde_json::Value, Error> {
     Ok(
-        json!({"issued":state.issued,"claims":state.proposal_claims,"killed":state.killed,"control":state.control}),
+        json!({"issued":state.issued,"claims":state.proposal_claims,"killed":state.killed,"control":state.control,"activation":state.activation}),
     )
 }
 fn load<K: ExecutionKernel>(
@@ -441,6 +478,17 @@ fn load<K: ExecutionKernel>(
     v: Option<serde_json::Value>,
 ) -> Result<(), Error> {
     if let Some(v) = v {
+        let activation: Option<crate::assisted_activation::RuntimeActivation> = v
+            .get("activation")
+            .map(|v| serde_json::from_value(v.clone()).map_err(|_| Error::Unavailable))
+            .transpose()?
+            .flatten();
+        match (&activation, &state.activation) {
+            (Some(a), _) => a.advances(&state.activation)?,
+            (None, Some(_)) => return Err(Error::Unavailable),
+            _ => (),
+        }
+        state.activation = activation;
         let control = v
             .get("control")
             .map(|v| {
@@ -495,7 +543,11 @@ fn load<K: ExecutionKernel>(
 
         state.proposal_claims =
             serde_json::from_value(v["claims"].clone()).map_err(|_| Error::Unavailable)?;
-    } else if !state.issued.is_empty() || state.control.generation > 0 || state.killed {
+    } else if !state.issued.is_empty()
+        || state.control.generation > 0
+        || state.killed
+        || state.activation.is_some()
+    {
         return Err(Error::Unavailable);
     }
     Ok(())

@@ -1,0 +1,31 @@
+
+running 4 tests
+test assisted::activation::tests::corrupt_journal_and_reused_expired_proof_fail_closed ... ok
+test assisted::activation::tests::versioned_public_c11_controls_runtime_without_changing_risk_or_approval_revisions ... FAILED
+test assisted::activation::tests::expiry_is_time_gate_without_automatic_history_generation_or_native_reset ... ok
+test assisted::activation::tests::owner_role_scope_ceiling_cas_and_mfa_are_required ... ok
+
+failures:
+
+---- assisted::activation::tests::versioned_public_c11_controls_runtime_without_changing_risk_or_approval_revisions stdout ----
+
+thread 'assisted::activation::tests::versioned_public_c11_controls_runtime_without_changing_risk_or_approval_revisions' (1605781) panicked at services/bff-gateway/src/assisted/activation/tests.rs:71:5:
+assertion `left == right` failed: {"code":"INVALID_REQUEST","correlationId":"01a18682-9cb4-7270-a925-89ece0eca9a4","message":"Research request could not be completed."}
+  left: 422
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    assisted::activation::tests::versioned_public_c11_controls_runtime_without_changing_risk_or_approval_revisions
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 281 filtered out; finished in 3.16s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.06s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-8300b3cbeca54799)
+error: test failed, to rerun pass `-p bff-gateway --lib`

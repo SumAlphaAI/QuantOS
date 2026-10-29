@@ -5,7 +5,8 @@ use super::*;
 use quantos_execution::durable::{DurableStore, LockedStore};
 impl OwnedHost {
     pub(crate) fn has_correlation(&self, id: &str) -> bool {
-        self.controls.has_correlation(id)
+        self.activation.id().to_string() == id
+            || self.controls.has_correlation(id)
             || self.requests.keys().any(|r| r.to_string() == id)
             || self
                 .alert_inbox
@@ -121,6 +122,7 @@ impl OwnedHost {
         }
         self.alert_audit(&mut all)?;
         self.control_audit(&mut all);
+        self.activation_audit(&mut all);
         Ok(all)
     }
 }
@@ -158,6 +160,11 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
             .map(decode)
             .transpose()?
             .unwrap_or_default();
+        h.activation = v
+            .get("activation")
+            .map(decode)
+            .transpose()?
+            .unwrap_or_else(|| h.activation_origin.clone());
         h.native_anchor = v.get("nativeAnchor").cloned();
         h.requests = decode(&v["requests"])?;
         h.opened_at = decode(&v["openedAt"])?;
@@ -197,6 +204,7 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         let h = state.assisted.as_ref().ok_or(Error::Unavailable)?;
         h.verify_native_anchor()?;
         h.sync_native_control()?;
+        h.sync_activation()?;
     }
     state
         .assisted
@@ -219,8 +227,9 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
         h.service.revoke_session("session-current")?;
     }
     h.verify_controls()?;
+    h.verify_activation()?;
     let anchor = h.native_anchor_now()?;
-    let mut value = json!({"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    let mut value = json!({"activation":h.activation,"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
     tx.write(&value)?;
     // Explicit owned-loopback drill only: owner file cannot be supplied via HTTP.
     if let Some(root) = &h.control_fixture_directory
@@ -236,7 +245,21 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }
+    if let Some(root) = &h.control_fixture_directory
+        && h.activation.lease()?.version > 0
+        && root.join("pause-activation-after-commit").is_file()
+    {
+        std::fs::write(
+            root.join("activation-after-commit.marker"),
+            b"COMMITTED_ACTIVATION_NOT_NATIVE_ACK",
+        )
+        .map_err(|_| Error::Unavailable)?;
+        while root.join("pause-activation-after-commit").is_file() {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
     h.sync_native_control()?;
+    h.sync_activation()?;
     let confirmed = h.native_anchor_now()?;
     if confirmed != anchor {
         value["nativeAnchor"] = confirmed;

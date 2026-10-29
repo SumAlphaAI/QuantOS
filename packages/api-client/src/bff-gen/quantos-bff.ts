@@ -2086,6 +2086,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/feature-flags/{resourceId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read immutable scoped C11 activation history for current Assisted runtime */
+        get: operations["getAssistedActivationHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2113,6 +2130,8 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
             reconciliationReaderEnabled?: boolean;
+            activationVersion?: string;
+            activationExpiresAt?: components["schemas"]["DateTime"];
         };
         AssistedSubject: {
             subjectId: components["schemas"]["UUID"];
@@ -3885,6 +3904,103 @@ export interface components {
             /** @enum {string} */
             schemaVersion: "quantos-current-kill-receipt.v1";
             event: components["schemas"]["AssistedKillEvent"];
+            /** @enum {boolean} */
+            readCurrentState: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedActivationScope: {
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            /** @enum {string} */
+            featureKey: "execution.assisted-testnet";
+        };
+        AssistedActivationEvent: {
+            resourceId: components["schemas"]["UUID"];
+            eventId: components["schemas"]["UUID"];
+            correlationId: components["schemas"]["UUID"];
+            version: string;
+            enabled: boolean;
+            validFrom: components["schemas"]["DateTime"];
+            validUntil: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            source: "owner_reference_bootstrap" | "public_c11";
+            actorId: components["schemas"]["UUID"] | null;
+            reason: string;
+            previous: string | null;
+            recordHash: string;
+            /** @enum {boolean} */
+            unknownPreserved: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedActivationView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-current-c11-activation.v1";
+            resourceId: components["schemas"]["UUID"];
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            /** @enum {string} */
+            featureKey: "execution.assisted-testnet";
+            version: string;
+            enabled: boolean;
+            effective: boolean;
+            targetPermitted: boolean;
+            validFrom: components["schemas"]["DateTime"];
+            validUntil: components["schemas"]["DateTime"];
+            ceilingExpiresAt: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            source: "owner_reference_bootstrap" | "public_c11";
+            head: string;
+            canWrite: boolean;
+            nativeActivationVersion: string;
+            nativeActivationEffective: boolean;
+            nativeStopped: boolean;
+            runtimeWritable: boolean;
+            killGeneration: string;
+            unknownCommands: number;
+            historyCount: number;
+            checkedAt: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            /** @enum {boolean} */
+            unknownPreserved: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedActivationAction: {
+            scope: components["schemas"]["AssistedActivationScope"];
+            enabled: boolean;
+            validUntil: components["schemas"]["DateTime"];
+            reason: string;
+            /** @enum {string} */
+            confirmPhrase: "ENABLE ASSISTED TESTNET" | "DISABLE ASSISTED TESTNET";
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+        };
+        AssistedActivationPage: {
+            items: components["schemas"]["AssistedActivationView"][];
+            configVersion: string;
+            nextCursor: null;
+        };
+        AssistedActivationHistory: {
+            resourceId: components["schemas"]["UUID"];
+            version: string;
+            totalCount: number;
+            items: components["schemas"]["AssistedActivationEvent"][];
+            nextCursor: string | null;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedActivationReceipt: {
+            /** @enum {string} */
+            schemaVersion: "quantos-current-c11-activation-receipt.v1";
+            event: components["schemas"]["AssistedActivationEvent"];
             /** @enum {boolean} */
             readCurrentState: true;
             /** @enum {boolean} */
@@ -10555,7 +10671,7 @@ export interface operations {
                      *       "configVersion": "0"
                      *     }
                      */
-                    "application/json": components["schemas"]["AdminResourcePage"];
+                    "application/json": components["schemas"]["AdminResourcePage"] | components["schemas"]["AssistedActivationPage"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -10667,7 +10783,7 @@ export interface operations {
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["AdminResource"];
+                    "application/json": components["schemas"]["AdminResource"] | components["schemas"]["AssistedActivationView"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -10708,7 +10824,7 @@ export interface operations {
                  *       }
                  *     }
                  */
-                "application/json": components["schemas"]["GovernanceFeatureFlagAction"];
+                "application/json": components["schemas"]["GovernanceFeatureFlagAction"] | components["schemas"]["AssistedActivationAction"];
             };
         };
         responses: {
@@ -10738,7 +10854,7 @@ export interface operations {
                      *       "correlationId": "11111111-1111-4111-8111-111111111111"
                      *     }
                      */
-                    "application/json": components["schemas"]["AdminResource"];
+                    "application/json": components["schemas"]["AdminResource"] | components["schemas"]["AssistedActivationReceipt"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -11978,6 +12094,34 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedActivationHistory: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                resourceId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current scoped immutable C11 history; no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistedActivationHistory"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             default: components["responses"]["ServerError"];
         };
     };

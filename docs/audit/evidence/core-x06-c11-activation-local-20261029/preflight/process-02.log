@@ -1,0 +1,31 @@
+
+running 2 tests
+test c11_activation::c11_public_runtime_replicas_and_original_receipt_do_not_reset_kill_generation ... FAILED
+test c11_activation::c11_actual_committed_process_death_recovers_original_lease_and_refuses_fork ... FAILED
+
+failures:
+
+---- c11_activation::c11_public_runtime_replicas_and_original_receipt_do_not_reset_kill_generation stdout ----
+
+thread 'c11_activation::c11_public_runtime_replicas_and_original_receipt_do_not_reset_kill_generation' (1678674) panicked at services/bff-gateway/tests/support/c11_activation.rs:101:9:
+assertion `left == right` failed: {"code":"INVALID_REQUEST","correlationId":"01a1868b-07dc-7131-8e9d-b005f92609ba","message":"Research request could not be completed."}
+  left: 422
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- c11_activation::c11_actual_committed_process_death_recovers_original_lease_and_refuses_fork stdout ----
+
+thread 'c11_activation::c11_actual_committed_process_death_recovers_original_lease_and_refuses_fork' (1678673) panicked at services/bff-gateway/tests/support/c11_activation.rs:236:9:
+assertion failed: std::time::Instant::now() < end
+
+
+failures:
+    c11_activation::c11_actual_committed_process_death_recovers_original_lease_and_refuses_fork
+    c11_activation::c11_public_runtime_replicas_and_original_receipt_do_not_reset_kill_generation
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 6 filtered out; finished in 13.39s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.22s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

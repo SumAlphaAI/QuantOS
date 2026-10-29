@@ -302,3 +302,149 @@ fn native_control_rejects_lower_generation_and_same_generation_fork() {
     a.apply_kill_control(2, true).unwrap();
     assert_eq!(fs::read(d.0.join("commands.json")).unwrap(), bytes);
 }
+
+fn activation(
+    version: u64,
+    enabled: bool,
+    seconds: i64,
+) -> quantos_execution::assisted_activation::RuntimeActivation {
+    quantos_execution::assisted_activation::RuntimeActivation {
+        version,
+        enabled,
+        valid_from: at(),
+        valid_until: at() + chrono::Duration::seconds(seconds),
+        head: quantos_core::ContentHash::sha256_bytes(
+            format!("owned C11 version {version} enabled {enabled}").as_bytes(),
+        ),
+    }
+}
+#[test]
+fn c11_native_and_approval_lease_gate_io_without_resetting_existing_unknown() {
+    let f = Fixture::new(true);
+    let r = f.pair();
+    let d = Directory::new();
+    let k = key();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, k, calls.clone());
+    let enabled = activation(0, true, 20);
+    f.service.apply_runtime_activation(enabled.clone()).unwrap();
+    a.apply_runtime_activation(enabled).unwrap();
+    let unknown = a.submit("operator", r.request, "original", at()).unwrap();
+    assert_eq!(unknown.state, "unknown");
+    let protected = a.control_status().unwrap()["reservationAnchor"].clone();
+    let disabled = activation(1, false, 20);
+    f.service
+        .apply_runtime_activation(disabled.clone())
+        .unwrap();
+    a.apply_runtime_activation(disabled).unwrap();
+    assert!(a.submit("operator", r.request, "original", at()).is_err());
+    assert_eq!(
+        a.inspect("operator", r.request, at()).unwrap(),
+        Some(unknown.clone())
+    );
+    assert_eq!(
+        f.service.capabilities("operator", at()).unwrap()["policyRevision"],
+        1
+    );
+    let enabled = activation(2, true, 20);
+    f.service.apply_runtime_activation(enabled.clone()).unwrap();
+    a.apply_runtime_activation(enabled).unwrap();
+    assert_eq!(
+        a.submit("operator", r.request, "original", at()).unwrap(),
+        unknown
+    );
+    assert_eq!(a.control_status().unwrap()["reservationAnchor"], protected);
+    assert_eq!(a.control_status().unwrap()["generation"], 0);
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    drop(a);
+    let b = native(&f, &d, k, calls.clone());
+    assert_eq!(b.control_status().unwrap()["activation"]["version"], 2);
+    assert_eq!(
+        b.inspect("operator", r.request, at()).unwrap(),
+        Some(unknown)
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+}
+#[test]
+fn c11_expiry_refuses_new_native_io_at_boundary_without_generation_change() {
+    let f = Fixture::new(true);
+    let r = f.pair();
+    let d = Directory::new();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, key(), calls.clone());
+    let lease = activation(0, true, 2);
+    f.service.apply_runtime_activation(lease.clone()).unwrap();
+    a.apply_runtime_activation(lease).unwrap();
+    assert!(
+        a.submit(
+            "operator",
+            r.request,
+            "expired",
+            at() + chrono::Duration::seconds(2)
+        )
+        .is_err()
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+    let status = a.control_status().unwrap();
+    assert_eq!(status["generation"], 0);
+    assert_eq!(status["issuedCount"], 0);
+    assert_eq!(status["activation"]["version"], 0);
+}
+#[test]
+fn c11_restart_rollback_and_same_version_fork_refuse_without_clearing_kill() {
+    let f = Fixture::new(true);
+    let d = Directory::new();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let k = key();
+    let a = native(&f, &d, k, calls.clone());
+    a.apply_kill_control(3, true).unwrap();
+    a.apply_runtime_activation(activation(2, true, 20)).unwrap();
+    let before = fs::read(d.0.join("commands.json")).unwrap();
+    assert!(
+        a.apply_runtime_activation(activation(1, false, 20))
+            .is_err()
+    );
+    assert!(
+        a.apply_runtime_activation(activation(2, false, 20))
+            .is_err()
+    );
+    assert_eq!(fs::read(d.0.join("commands.json")).unwrap(), before);
+    drop(a);
+    let b = native(&f, &d, k, calls.clone());
+    assert!(
+        b.apply_runtime_activation(activation(1, false, 20))
+            .is_err()
+    );
+    assert_eq!(b.control_status().unwrap()["generation"], 3);
+    assert_eq!(b.control_status().unwrap()["stopped"], true);
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+}
+
+#[test]
+fn c11_native_caps_command_deadline_even_when_service_has_no_runtime_lease() {
+    let f = Fixture::new(true);
+    let r = f.pair();
+    let d = Directory::new();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, key(), calls.clone());
+    a.apply_runtime_activation(activation(0, true, 2)).unwrap();
+    let c = a
+        .submit("operator", r.request, "native-only", at())
+        .unwrap();
+    assert_eq!(c.expires_at, at() + chrono::Duration::seconds(2));
+    assert!(
+        a.submit(
+            "operator",
+            r.request,
+            "native-only",
+            at() + chrono::Duration::seconds(2)
+        )
+        .is_err()
+    );
+    assert_eq!(
+        a.inspect("operator", r.request, at() + chrono::Duration::seconds(3))
+            .unwrap(),
+        Some(c)
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+}

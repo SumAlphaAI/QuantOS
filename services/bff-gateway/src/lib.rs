@@ -763,6 +763,21 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
                 Some("settings.read" | "execution.operate" | "strategy.approve" | "audit:read")
             )
         });
+        if matches!(
+            cookies(&headers).get("quantos_session").copied(),
+            Some(CURRENT_SESSION | "session-approver" | "session-owner")
+        ) {
+            payload["capabilities"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!("execution.activation.read"));
+            if cookies(&headers).get("quantos_session").copied() == Some("session-owner") {
+                payload["capabilities"]
+                    .as_array_mut()
+                    .unwrap()
+                    .push(json!("execution.activation.write"));
+            }
+        }
         if state.assisted.as_ref().is_some_and(|h| h.enabled())
             && matches!(
                 cookies(&headers).get("quantos_session").copied(),

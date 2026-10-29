@@ -1,0 +1,48 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m tests/contract/c11-activation.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/c11-activation.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 44[2mms[22m[39m
+   [32m✓[39m manual lost reply recovery keeps original key body version CSRF and no new MFA[32m 23[2mms[22m[39m
+   [32m✓[39m rejects scope mismatch[32m 2[2mms[22m[39m
+   [32m✓[39m rejects version mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m rejects generation mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m rejects effective mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m rejects runtime mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m rejects history head mismatch[32m 0[2mms[22m[39m
+   [32m✓[39m rejects authority mismatch[32m 1[2mms[22m[39m
+   [32m✓[39m history chain mismatch cannot publish current activation facts[32m 1[2mms[22m[39m
+   [32m✓[39m owner ceiling and role gate refuse before MFA or PUT[32m 1[2mms[22m[39m
+[31m   [31m×[31m changed configuration after MFA refuses without dispatch[39m[32m 4[2mms[22m[39m
+   [32m✓[39m identity change malformed authority and non-JSON revocation clear unknown intent[32m 5[2mms[22m[39m
+   [32m✓[39m rotated CSRF prevents another original-intent dispatch[32m 1[2mms[22m[39m
+   [32m✓[39m local narrow screen or offline policy preserves unknown intent without dispatch[32m 1[2mms[22m[39m
+   [32m✓[39m original proof deadline never renews during explicit recovery[32m 1[2mms[22m[39m
+   [32m✓[39m expiry is readonly and does not append a configuration or change kill generation[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 15:23:30
+[2m   Duration [22m 395ms[2m (transform 221ms, setup 0ms, import 361ms, tests 79ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/c11-activation.test.ts[2m > [22mchanged configuration after MFA refuses without dispatch
+[31m[1mAssertionError[22m: expected Error: HISTORY_MISMATCH { …(2) } to match object { code: 'VERSION_CHANGED' }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- {[39m
+[32m-   "code": "VERSION_CHANGED",[39m
+[31m+ ActivationError {[39m
+[31m+   "code": "HISTORY_MISMATCH",[39m
+[2m  }[22m
+
+[36m [2m❯[22m apps/terminal/tests/c11-activation.test.ts:[2m12:396[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

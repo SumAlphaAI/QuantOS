@@ -319,18 +319,11 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         "pure reads rewrote current authority ledger"
     );
 
-    // L4 assessment probes identify current public product gaps. A mode refusal
-    // is an OPEN gap, never successful kill/C11 activation acceptance.
+    // Remaining Ops mode refusal stays OPEN. Current native controls and C11
+    // have their own positive/recovery tests; this probe does not grant them.
     let mut gap_probes = vec![];
-    for (method, path, body) in [
-        ("GET", "/v1/admin/feature-flags", json!({})),
-        (
-            "POST",
-            "/v1/admin/feature-flags",
-            json!({"spec":{"kind":"flag","name":"assisted-live-testnet","enabled":true,"rolloutPercent":100}}),
-        ),
-        ("GET", "/v1/operations/health", json!({})),
-    ] {
+    {
+        let (method, path, body) = ("GET", "/v1/operations/health", json!({}));
         let (status, reply) = call(
             &url,
             "session-current",
@@ -345,7 +338,7 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     }
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     if let Ok(out) = std::env::var("QUANTOS_CORE_L4_GAP_RESULT") {
-        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"profile":"CURRENT_OWNED_ASSISTED_LIVE","probes":gap_probes,"noZoneTraceDuringProbes":true,"publicNativeKillJoin":"CURRENT_CONTROL_TESTED_SEPARATELY","c11ActivationJoin":"NOT_JOINED","globalKillApiRepresentation":"NOT_JOINED_OR_NOT_EXPOSED","closureGranted":false,"actualTestnet":false})).unwrap());
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"profile":"CURRENT_OWNED_ASSISTED_LIVE","probes":gap_probes,"noZoneTraceDuringProbes":true,"publicNativeKillJoin":"CURRENT_CONTROL_TESTED_SEPARATELY","c11ActivationJoin":"CURRENT_ACTIVATION_TESTED_SEPARATELY","globalKillApiRepresentation":"CURRENT_CONTROL_TESTED_SEPARATELY","closureGranted":false,"actualTestnet":false})).unwrap());
     }
     let id = open(&url, &subjects["items"][0]);
     assert_ne!(
@@ -520,24 +513,22 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         404
     );
     let (_off, off) = lab.bff(false);
-    assert!(
-        !get(&off, "/v1/session")["capabilities"]
-            .as_array()
-            .unwrap()
-            .contains(&json!("alerts.read"))
-    );
-    assert_eq!(
-        call(
-            &off,
-            "session-current",
-            "GET",
-            "/v1/alerts",
-            json!({}),
-            "off"
-        )
-        .0,
-        403
-    );
+    // A replica cannot rewrite the immutable C11 scope/target bootstrap by
+    // changing its private startup flag. Drift refuses the whole transaction.
+    for path in ["/v1/session", "/v1/alerts"] {
+        assert_eq!(
+            call(
+                &off,
+                "session-current",
+                "GET",
+                path,
+                json!({}),
+                "ceiling-drift"
+            )
+            .0,
+            503
+        );
+    }
     private_write(lab.directory.join("observer.json"), &observer);
     let restored = get(&other, "/v1/assisted-testnet/reconciliation");
     assert_eq!(restored["comparisonStatus"], "MATCHED_OBSERVATIONS");
@@ -814,7 +805,7 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         &Uuid::new_v4().to_string(),
     );
     assert_eq!(s, 409);
-    // Current permission off is a kill/refusal, not permission to replay.
+    // Private startup ceiling drift must not replace persisted C11 or permit replay.
     let (_off, off) = lab.bff(false);
     let (s, _) = call(
         &off,
@@ -824,7 +815,7 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         json!({"expectedRevision":2}),
         &key,
     );
-    assert_eq!(s, 403);
+    assert_eq!(s, 503);
     // A separate original ledger has no preceding trade/review fence. Exercise
     // actual engine death, then preserve its unknown command across restart.
     let lab = Lab::new();
@@ -1036,6 +1027,8 @@ fn core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit() {
     if let Ok(out) = std::env::var("QUANTOS_CORE_L04_CRASH_RESULT") {
         private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"zoneProtocolCallsBeforeKill":1,"callerObservedResponseLoss":true,"recoveredState":recovered["state"],"recoveredOrderAbsent":true,"commonC10ReservationNodes":4,"noReplayTrace":true,"actualTestnetConnected":false})).unwrap());
     }
+    // The single original completion trace was consumed above.
+    c11_activation::unknown_current_c11(&lab, &restarted, &recovered);
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
 }
 
@@ -1091,3 +1084,6 @@ fn core_l04_logout_survives_process_recovery_and_denies_c10_and_native() {
 
 #[path = "support/native_control.rs"]
 mod native_control;
+
+#[path = "support/c11_activation.rs"]
+mod c11_activation;

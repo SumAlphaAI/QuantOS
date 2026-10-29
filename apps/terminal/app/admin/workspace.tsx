@@ -11,8 +11,9 @@ import { adminLocation, labels, draft, type Collection, type Spec, type Resource
 import { AdminEditor } from './editor';
 import { resourceName, refusalText } from '../../src/admin/p14-presentation';
 import { GovernanceSummary, GovernanceTabs, ResourceCatalog, ResourceFacts, DraftDifference, GovernanceRecords } from './p14-components';
+import {ActivationEntry} from '../../src/activation/page';
 import './workspace.css';
-export function AdminEntry({ collection }: {
+function LegacyAdminEntry({ collection }: {
     collection: Collection;
 }) {
     const [cycle, setCycle] = useState(0), [context, setContext] = useState<RouteContext>(), [lost, setLost] = useState(''), [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -157,3 +158,5 @@ function Workspace({ context, runtime, collection, toggle }: {
             }}><label>操作原因<input disabled={locked} maxLength={256} value={reason} onChange={e => setReason(e.target.value)}/></label><label>MFA 验证码<input disabled={locked} type="password" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e => setCode(e.target.value)}/></label><label className="admin-check"><input type="checkbox" disabled={locked} checked={accepted} onChange={e => setAccepted(e.target.checked)}/>确认治理字段、影响与版本</label><button disabled={locked || !write || !accepted || !reason.trim() || !/^\d{6}$/.test(code)}>提交治理操作</button><button type="button" disabled={v.busy} onClick={close}>取消</button></form></dialog> : null}
  </div></TerminalFrame>;
 }
+
+export function AdminEntry({collection}:{collection:Collection}){return collection==='flags'?<ActivationEntry legacy={<LegacyAdminEntry collection={collection}/>}/>:<LegacyAdminEntry collection={collection}/>;}

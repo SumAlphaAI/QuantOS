@@ -1,0 +1,354 @@
+TAP version 13
+# Subtest: current C11 version expiry native and UNKNOWN obligations are jointly checked
+not ok 1 - current C11 version expiry native and UNKNOWN obligations are jointly checked
+  ---
+  duration_ms: 27.8855
+  type: 'test'
+  location: '/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x06-c11-activation-review.test.mjs:11:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+        actorId: '11111111-1111-4111-8111-111111111111',
+        correlationId: '11111111-1111-4111-8111-111111111111',
+    +   enabled: false,
+    -   enabled: true,
+        eventId: '22222222-2222-4222-8222-222222222222',
+        executionAuthority: false,
+    +   previous: 'sha256:1111111111111111111111111111111111111111111111111111111111111111',
+    -   previous: 'sha256:2222222222222222222222222222222222222222222222222222222222222222',
+        reason: 'Owned bounded configuration import',
+    +   recordHash: 'sha256:2222222222222222222222222222222222222222222222222222222222222222',
+    -   recordHash: 'sha256:3333333333333333333333333333333333333333333333333333333333333333',
+        resourceId: '11111111-1111-4111-8111-111111111111',
+        source: 'public_c11',
+        unknownPreserved: true,
+    +   validFrom: '2026-10-29T00:00:01.000Z',
+    -   validFrom: '2026-10-29T00:00:02.000Z',
+        validUntil: '2026-10-29T00:02:00.000Z',
+    +   version: '1'
+    -   version: '2'
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    resourceId: '11111111-1111-4111-8111-111111111111'
+    eventId: '22222222-2222-4222-8222-222222222222'
+    correlationId: '11111111-1111-4111-8111-111111111111'
+    version: '2'
+    enabled: true
+    validFrom: '2026-10-29T00:00:02.000Z'
+    validUntil: '2026-10-29T00:02:00.000Z'
+    source: 'public_c11'
+    actorId: '11111111-1111-4111-8111-111111111111'
+    reason: 'Owned bounded configuration import'
+    previous: 'sha256:2222222222222222222222222222222222222222222222222222222222222222'
+    recordHash: 'sha256:3333333333333333333333333333333333333333333333333333333333333333'
+    unknownPreserved: true
+    executionAuthority: false
+  actual:
+    resourceId: '11111111-1111-4111-8111-111111111111'
+    eventId: '22222222-2222-4222-8222-222222222222'
+    correlationId: '11111111-1111-4111-8111-111111111111'
+    version: '1'
+    enabled: false
+    validFrom: '2026-10-29T00:00:01.000Z'
+    validUntil: '2026-10-29T00:02:00.000Z'
+    source: 'public_c11'
+    actorId: '11111111-1111-4111-8111-111111111111'
+    reason: 'Owned bounded configuration import'
+    previous: 'sha256:1111111111111111111111111111111111111111111111111111111111111111'
+    recordHash: 'sha256:2222222222222222222222222222222222222222222222222222222222222222'
+    unknownPreserved: true
+    executionAuthority: false
+  operator: 'deepStrictEqual'
+  stack: |-
+    validateDrills (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x06-c11-activation-review.mjs:295:601)
+    TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/core-x06-c11-activation-review.test.mjs:11:103)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.start (node:internal/test_runner/test:1003:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+  ...
+# Subtest: refuses boundary inflation formalAccepted
+ok 2 - refuses boundary inflation formalAccepted
+  ---
+  duration_ms: 0.467458
+  type: 'test'
+  ...
+# Subtest: refuses boundary inflation runtimeAdmission
+ok 3 - refuses boundary inflation runtimeAdmission
+  ---
+  duration_ms: 0.22175
+  type: 'test'
+  ...
+# Subtest: refuses boundary inflation actualTestnetConnected
+ok 4 - refuses boundary inflation actualTestnetConnected
+  ---
+  duration_ms: 0.174208
+  type: 'test'
+  ...
+# Subtest: refuses boundary inflation gate
+ok 5 - refuses boundary inflation gate
+  ---
+  duration_ms: 0.162209
+  type: 'test'
+  ...
+# Subtest: refuses boundary inflation stageGate
+ok 6 - refuses boundary inflation stageGate
+  ---
+  duration_ms: 0.146584
+  type: 'test'
+  ...
+# Subtest: refuses boundary inflation bootstrap
+ok 7 - refuses boundary inflation bootstrap
+  ---
+  duration_ms: 0.149209
+  type: 'test'
+  ...
+# Subtest: inherited obligations remain open and draft unapproved
+ok 8 - inherited obligations remain open and draft unapproved
+  ---
+  duration_ms: 0.53375
+  type: 'test'
+  ...
+# Subtest: rejects detached runtime field nativeActivationVersion
+ok 9 - rejects detached runtime field nativeActivationVersion
+  ---
+  duration_ms: 0.314958
+  type: 'test'
+  ...
+# Subtest: rejects detached runtime field effective
+ok 10 - rejects detached runtime field effective
+  ---
+  duration_ms: 0.242
+  type: 'test'
+  ...
+# Subtest: rejects detached runtime field runtimeWritable
+ok 11 - rejects detached runtime field runtimeWritable
+  ---
+  duration_ms: 0.1765
+  type: 'test'
+  ...
+# Subtest: rejects detached runtime field unknownPreserved
+ok 12 - rejects detached runtime field unknownPreserved
+  ---
+  duration_ms: 0.180083
+  type: 'test'
+  ...
+# Subtest: rejects detached runtime field executionAuthority
+ok 13 - rejects detached runtime field executionAuthority
+  ---
+  duration_ms: 0.139917
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 14 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.562959
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 15 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.49575
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 16 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.414375
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 17 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.431
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 18 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.432
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 19 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.116917
+  type: 'test'
+  ...
+# Subtest: rejects changed source C10 expiry recovery or unknown evidence
+ok 20 - rejects changed source C10 expiry recovery or unknown evidence
+  ---
+  duration_ms: 0.392625
+  type: 'test'
+  ...
+# Subtest: no zero-command or modified-command acceptance
+ok 21 - no zero-command or modified-command acceptance
+  ---
+  duration_ms: 0.648334
+  type: 'test'
+  ...
+# Subtest: exact source-bound PUT digest is reviewed, arbitrary key/path/rule remains rejected
+ok 22 - exact source-bound PUT digest is reviewed, arbitrary key/path/rule remains rejected
+  ---
+  duration_ms: 0.304458
+  type: 'test'
+  ...
+# Subtest: FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups
+ok 23 - FEP-1 development starts with all existing stages NOT_ASSESSED and retained followups
+  ---
+  duration_ms: 24.541834
+  type: 'test'
+  ...
+# Subtest: next original I2 UI-507 can develop without claiming G1 readiness
+ok 24 - next original I2 UI-507 can develop without claiming G1 readiness
+  ---
+  duration_ms: 18.900541
+  type: 'test'
+  ...
+# Subtest: retained G1-DEP-01 never becomes a development prerequisite
+ok 25 - retained G1-DEP-01 never becomes a development prerequisite
+  ---
+  duration_ms: 15.883
+  type: 'test'
+  ...
+# Subtest: retained G1-CONF-01 never becomes a development prerequisite
+ok 26 - retained G1-CONF-01 never becomes a development prerequisite
+  ---
+  duration_ms: 15.798375
+  type: 'test'
+  ...
+# Subtest: retained G1-ENV-01 never becomes a development prerequisite
+ok 27 - retained G1-ENV-01 never becomes a development prerequisite
+  ---
+  duration_ms: 15.212209
+  type: 'test'
+  ...
+# Subtest: retained G1-TARGET-01 never becomes a development prerequisite
+ok 28 - retained G1-TARGET-01 never becomes a development prerequisite
+  ---
+  duration_ms: 14.262375
+  type: 'test'
+  ...
+# Subtest: unready dependency NOT_ASSESSED does not prohibit development or grant integration
+ok 29 - unready dependency NOT_ASSESSED does not prohibit development or grant integration
+  ---
+  duration_ms: 15.785458
+  type: 'test'
+  ...
+# Subtest: unready dependency BLOCKED does not prohibit development or grant integration
+ok 30 - unready dependency BLOCKED does not prohibit development or grant integration
+  ---
+  duration_ms: 14.543542
+  type: 'test'
+  ...
+# Subtest: known affected functional defect blocks its task even when all dependencies ready
+ok 31 - known affected functional defect blocks its task even when all dependencies ready
+  ---
+  duration_ms: 14.844792
+  type: 'test'
+  ...
+# Subtest: unknown defect status fails closed instead of claiming verification
+ok 32 - unknown defect status fails closed instead of claiming verification
+  ---
+  duration_ms: 14.973083
+  type: 'test'
+  ...
+# Subtest: caller cannot omit actual affected scope
+ok 33 - caller cannot omit actual affected scope
+  ---
+  duration_ms: 14.834042
+  type: 'test'
+  ...
+# Subtest: accounting cannot add independent auxiliary prerequisites
+ok 34 - accounting cannot add independent auxiliary prerequisites
+  ---
+  duration_ms: 14.09
+  type: 'test'
+  ...
+# Subtest: unknown finding kind rejects
+ok 35 - unknown finding kind rejects
+  ---
+  duration_ms: 14.697833
+  type: 'test'
+  ...
+# Subtest: finding evidence must exist
+ok 36 - finding evidence must exist
+  ---
+  duration_ms: 13.972417
+  type: 'test'
+  ...
+# Subtest: invented task IDs cannot replace original plan sequence
+ok 37 - invented task IDs cannot replace original plan sequence
+  ---
+  duration_ms: 14.242958
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite dependencyStageReadyRequiredToStart
+ok 38 - reject policy that restores development prerequisite dependencyStageReadyRequiredToStart
+  ---
+  duration_ms: 14.656708
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite historicalConfirmationRequiredToStart
+ok 39 - reject policy that restores development prerequisite historicalConfirmationRequiredToStart
+  ---
+  duration_ms: 13.818792
+  type: 'test'
+  ...
+# Subtest: reject policy that restores development prerequisite auxiliaryActionsArePrerequisites
+ok 40 - reject policy that restores development prerequisite auxiliaryActionsArePrerequisites
+  ---
+  duration_ms: 14.118583
+  type: 'test'
+  ...
+# Subtest: reject weakening knownAffectedFunctionalDefectsBlock
+ok 41 - reject weakening knownAffectedFunctionalDefectsBlock
+  ---
+  duration_ms: 13.777583
+  type: 'test'
+  ...
+# Subtest: reject weakening stageReadinessUnchanged
+ok 42 - reject weakening stageReadinessUnchanged
+  ---
+  duration_ms: 13.991166
+  type: 'test'
+  ...
+# Subtest: dependency READY alone cannot grant milestone READY
+ok 43 - dependency READY alone cannot grant milestone READY
+  ---
+  duration_ms: 13.482625
+  type: 'test'
+  ...
+# Subtest: milestone READY alone cannot bypass dependency stage
+ok 44 - milestone READY alone cannot bypass dependency stage
+  ---
+  duration_ms: 13.574334
+  type: 'test'
+  ...
+# Subtest: release remains denied even if every stage is marked ready
+ok 45 - release remains denied even if every stage is marked ready
+  ---
+  duration_ms: 13.696417
+  type: 'test'
+  ...
+# Subtest: known affected functional defect also refuses integration even with historical READY flags
+ok 46 - known affected functional defect also refuses integration even with historical READY flags
+  ---
+  duration_ms: 13.43275
+  type: 'test'
+  ...
+1..46
+# tests 46
+# suites 0
+# pass 45
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 559.659666

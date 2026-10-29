@@ -203,6 +203,9 @@ pub(super) async fn handle(
     }
     let assisted = data.lock().await.assisted.is_some();
     if assisted {
+        if uri.path().starts_with("/v1/admin/feature-flags") {
+            return crate::assisted::activation::handle(data, h, m, uri.path(), q, bytes).await;
+        }
         let sid = crate::cookies(&h)
             .get("quantos_session")
             .copied()

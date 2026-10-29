@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.22.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.23.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -41,6 +41,7 @@ export type BffOperationId =
   | "getApproval"
   | "getArtifact"
   | "getArtifactAttachment"
+  | "getAssistedActivationHistory"
   | "getAssistedApprovalAudit"
   | "getAssistedCurrentReconciliation"
   | "getAssistedKillControls"
@@ -319,6 +320,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getArtifactAttachment;
     if (resolver) return resolver({ request, params });
     return missingResolver("getArtifactAttachment");
+  }),
+  http.get(`${baseUrl}/v1/admin/feature-flags/:resourceId/history`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedActivationHistory;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedActivationHistory");
   }),
   http.get(`${baseUrl}/v1/assisted-testnet/requests/:requestId/audit`, async ({ request, params }) => {
     const resolver = resolvers.getAssistedApprovalAudit;

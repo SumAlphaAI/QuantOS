@@ -158,7 +158,9 @@ pub(crate) async fn guard(
 ) -> Response {
     let assisted_profile = data.lock().await.assisted.is_some();
     let path = request.uri().path();
-    let assisted_read_or_control = path.starts_with("/v1/assisted-testnet/")
+    let assisted_read_or_control = path == "/v1/admin/feature-flags"
+        || path.starts_with("/v1/admin/feature-flags/")
+        || path.starts_with("/v1/assisted-testnet/")
         || path.starts_with("/v1/auth/")
         || matches!(
             path,
