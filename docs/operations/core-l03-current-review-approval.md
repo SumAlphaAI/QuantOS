@@ -29,3 +29,5 @@ P10当前风险评估区域先由用户选择候选并点击“核对当前估�
 工程Gate目标PASS_CURRENT_RISK_ACTION_BRANCH_NEW_SUBJECT_INDEPENDENT_APPROVAL，以[冻结证据](../audit/evidence/core-l03-current-review-local-20261029/README.md)为准；[范围](../execution/core-l03-current-review-scope.json)继承19gap/8义务OPEN，IMPLEMENTED_PENDING_ACCEPTANCE、完整Gate NOT_READY_GAPS_OPEN、stage NOT_ASSESSED、formalAccepted=false、runtimeAdmission=DENIED、M5 PREPARED_NOT_READY，159阶段和原分母不提升。正式验收文稿待用户确认，不自批。
 
 下一 CORE:L04 DEVELOPMENT / L4-CURRENT-REVIEW-EXECUTION-01：显式评估新当前来源与独立审批到受限执行的接续，核对原Proposal使用/nonce/预算/kill/C11及IO前当前来源；已执行/UNKNOWN的原Proposal不可重复Command。没有生产凭据或外部发布授权。
+
+本轮首个冻结 b66fdedd 的23项命令均达到预期，但最终Gate验证器仅取5项覆盖配置，遗漏现有webEnvironment白名单的公开默认变量，导致Web sourceDigest比对FAIL。原attempt-01保持FAIL/ORIGINAL_SCOPE_ONLY。修正为构建与校验都采用同一完整白名单公开profile，未改产品/限额或放宽摘要；新源码须新attempt复验。
