@@ -1,0 +1,387 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X02"
+    ],
+    "startedAt": "2026-10-29T17:43:29.126Z",
+    "finishedAt": "2026-10-29T17:43:29.377Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/development.log",
+    "logSha256": "bcc468b54cdcb1e754431e8cfc28c4a6da755150680c44fef0832eeabc36c6c2"
+  },
+  {
+    "id": "domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "core_x02_source",
+      "--test",
+      "core_l04"
+    ],
+    "startedAt": "2026-10-29T17:43:29.380Z",
+    "finishedAt": "2026-10-29T17:43:43.165Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/domain.log",
+    "logSha256": "33ec3c1483b36d2873a0df4da7ede948128e290c79284011ad5902a3131cf9b4"
+  },
+  {
+    "id": "reconciliation",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "current_join"
+    ],
+    "startedAt": "2026-10-29T17:43:43.165Z",
+    "finishedAt": "2026-10-29T17:43:43.922Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/reconciliation.log",
+    "logSha256": "3c709f53d52ffdae4c16a8ce79fdd50863b9e6c8c1796ead39b3566743989da5"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-29T17:43:43.922Z",
+    "finishedAt": "2026-10-29T17:43:45.468Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/build.log",
+    "logSha256": "25416a3321144bf84ec91b6ee6cd68723d7bf701124c557b608f155b71164369"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "books_risk",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-29T17:43:45.524Z",
+    "finishedAt": "2026-10-29T17:44:47.417Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/composition.log",
+    "logSha256": "d342e37841b8878029d2f42553b2fa06fe9e66f6872cfeae91d7e4cebd1a8026"
+  },
+  {
+    "id": "direct-impact",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "--",
+      "--skip",
+      "books_risk",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-29T17:44:47.417Z",
+    "finishedAt": "2026-10-29T17:48:47.628Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/direct-impact.log",
+    "logSha256": "aa8d554301b3d7936dda1c475fbbbb973dba0d52dfe797ca627ee9b222c7d2ec"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/current-native-review.test.ts",
+      "apps/terminal/tests/current-native-execution.test.ts",
+      "tests/contract/books-risk-admission.test.ts",
+      "tests/contract/current-risk-approval.test.ts",
+      "tests/contract/native-risk-review.test.ts",
+      "tests/contract/current-native-execution.test.ts",
+      "tests/contract/core-x05-reconciliation.test.ts",
+      "tests/contract/core-x06-alerts.test.ts"
+    ],
+    "startedAt": "2026-10-29T17:48:47.628Z",
+    "finishedAt": "2026-10-29T17:48:49.476Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/consumer.log",
+    "logSha256": "d814dfdff707725f7075b93e7afdf2a750f96ed39f70c372a9830ca3810f73f9"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-29T17:48:49.477Z",
+    "finishedAt": "2026-10-29T17:48:50.720Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/types.log",
+    "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-x02-books-risk-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-29T17:48:50.721Z",
+    "finishedAt": "2026-10-29T17:48:51.426Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "ac4661634bff745628758b20a298c7f4a38e99ec9db859aae56d43dadbdf54eb"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-29T17:48:51.426Z",
+    "finishedAt": "2026-10-29T17:48:51.497Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-29T17:48:51.497Z",
+    "finishedAt": "2026-10-29T17:48:52.214Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/generated.log",
+    "logSha256": "c85f006b55d7334aa125fd59c8c21f861c54a0dc6fe5bfa686a24f0bf4914a45"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-29T17:48:52.214Z",
+    "finishedAt": "2026-10-29T17:48:52.447Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/inventory.log",
+    "logSha256": "15ded48f5c813abd83a142d90c4c80939920a699f83efba389ca65f463bacfd4"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-29T17:48:52.447Z",
+    "finishedAt": "2026-10-29T17:48:52.487Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "fe74cbcff3065da01a9fd16dadba8a790a4e62b9fd9eaf4561b2f02366ba5cbe"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-29T17:48:52.487Z",
+    "finishedAt": "2026-10-29T17:48:53.204Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-29T17:48:53.205Z",
+    "finishedAt": "2026-10-29T17:49:09.918Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/clippy.log",
+    "logSha256": "b73f5febad7c2df3f6db1c13c0a989f3f78094d2a4b1706105b2bca413ce8299"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-x02-books-risk-review.mjs",
+      "scripts/core-x02-books-risk-review.test.mjs",
+      "apps/terminal/src/assisted/risk-review.ts",
+      "apps/terminal/src/assisted/runtime.ts",
+      "apps/terminal/src/assisted/risk-review-panel.tsx",
+      "apps/terminal/tests/core-l03-fixture.ts",
+      "apps/terminal/tests/native-review-fixture.ts",
+      "apps/terminal/tests/current-native-review.test.ts",
+      "apps/terminal/tests/current-native-execution.test.ts",
+      "tests/contract/books-risk-admission.test.ts"
+    ],
+    "startedAt": "2026-10-29T17:49:09.922Z",
+    "finishedAt": "2026-10-29T17:49:10.679Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:X02"
+    ],
+    "startedAt": "2026-10-29T17:49:10.680Z",
+    "finishedAt": "2026-10-29T17:49:10.925Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "fc6b64223c7688506aa43472a461e708c14558d0622cd32d64583dfc3a13c0ad"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE:X02"
+    ],
+    "startedAt": "2026-10-29T17:49:10.925Z",
+    "finishedAt": "2026-10-29T17:49:11.175Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "bb5f79c2fe71097096c231488f853fe0b756d42030369f10eaa96f388e260b3a"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X06"
+    ],
+    "startedAt": "2026-10-29T17:49:11.176Z",
+    "finishedAt": "2026-10-29T17:49:11.419Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/next-development.log",
+    "logSha256": "7c99fcf71d15d113451e77137cc3f1c2066d67afc1e8ad094753a000024b4e55"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-x02-books-risk-review.mjs",
+      "--scan",
+      "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-29T17:49:11.419Z",
+    "finishedAt": "2026-10-29T17:49:12.770Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "be65b3f201fc38d900d6af865c9eaae76024745be7feeceeb4f44c35542842bc"
+  }
+]
