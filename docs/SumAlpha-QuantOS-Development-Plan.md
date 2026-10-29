@@ -2202,13 +2202,15 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Portfolio 读模型与风险输入快照
-- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema；X01_LOCAL 仅在新冻结候选完整40节点/131组重跑后放行本地功能，127依赖先于4组自身，不拼接历史READY。
+- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema。历史X01_LOCAL的40节点/131组只属原候选；当前DEVELOPMENT按AGENTS.md执行当前功能、必要编译/静态及直接影响回归，不递归重跑上游或改绑历史READY。当前接续X04不可变Fill到认证账本，持久去重、scope/来源绑定与UNKNOWN隔离；实际估值/风险输入及目标数据库另行验收。
 - 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration
 - 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms
 - 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F05、R01
 - 当前工程复核：历史2026-10-17冻结e2b85a80完整40节点131组PASS；1万合成成交黄金回放、10次冷重建、原子拒绝/重试、逐symbol时效与账户绑定、F05/R01组合及CLI验证通过。仅X01_LOCAL DEVELOPMENT READY，开发实现完成待正式验收；Supabase/性能及23组目标NOT_RUN。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)，首轮失败与中断保留。X02共享输入变化后本X01独立READY撤回，当前NOT_ASSESSED；原验收记录保留，X02需完整重跑。
+
+当前成交接续（2026-10-29，CORE:X01 DEVELOPMENT）：X04实际Fill经原native认证getter进入同一scope的持久append-only账本；同Command同来源只记一次，Fill/来源错绑拒绝，整批原子求值，恢复重算Decimal位置/费用/观察现金变化。UNKNOWN/非报价币/旧无journal命令保持隔离；不假定零成交或转换费用。公共只读ledger接口/P11收据关联同一sourceHash和C10原事件；缺失/损坏/anchor回退或原native来源消失拒绝。已有入账或隔离时，当前owned profile新Command需可信估值/新风险评估，原Command恢复不重发。见[规程](./operations/core-x01-current-ledger.md)、[范围](./execution/core-x01-current-scope.json)、[证据](./audit/evidence/core-x01-current-local-20261029/README.md)。工程Gate目标PASS_CURRENT_NATIVE_FILL_DURABLE_LEDGER_UNKNOWN_ISOLATION，实际结果以冻结证据为准；实现IMPLEMENTED_PENDING_ACCEPTANCE，完整Gate NOT_READY_GAPS_OPEN，stage NOT_ASSESSED，formalAccepted=false，runtimeAdmission=DENIED，M5 PREPARED_NOT_READY。19gap/8义务保持OPEN，当前仅完成L4-LEDGER-01的X04→X01本机部分；估值/新风险财务来源、X05独立books、Alert闭环、异步回报/费用换算、Supabase/跨主机/目标性能/发布NOT_RUN。下一CORE:X05 DEVELOPMENT；原量化与历史证据不改绑，无生产凭据或外部发布授权。
 
 <a id="task-x02"></a>
 ### X02：Pre/Post-trade Risk 与 kill switch

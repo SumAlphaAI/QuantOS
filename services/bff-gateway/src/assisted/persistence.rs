@@ -28,6 +28,7 @@ impl OwnedHost {
         h.native =
             h.native
                 .with_durable(DurableStore::new(&c.directory, "commands", c.keys[3])?)?;
+        h.ledger_store = Some(DurableStore::new(&c.directory, "portfolio", c.keys[3])?);
         h.durable = Some(Arc::new(DurableStore::new(
             &c.directory,
             "approvals",
@@ -135,6 +136,11 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         h.subjects = decode(&v["subjects"])?;
         h.requests = decode(&v["requests"])?;
         h.opened_at = decode(&v["openedAt"])?;
+        h.ledger_anchor = if let Some(anchor) = v.get("ledgerAnchor") {
+            decode(anchor)?
+        } else {
+            Default::default()
+        };
         state.audits = decode(&v["c10Access"])?;
         h.open_keys = decode::<Vec<((String, String), ProposalId)>>(&v["openKeys"])?
             .into_iter()
@@ -167,7 +173,7 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
     if !state.session_active {
         h.service.revoke_session("session-current")?;
     }
-    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
     tx.write(&value)?;
     state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(value);
     Ok(())

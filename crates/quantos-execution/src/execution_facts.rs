@@ -114,152 +114,98 @@ impl CommandFacts {
         Ok(())
     }
 }
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ObservedOrder {
-    pub order_id: String,
-    pub command_id: CommandId,
-    pub account_id: quantos_core::AccountId,
-    pub symbol: String,
-    pub side: String,
-    pub quantity: String,
-    pub filled_quantity: String,
-    pub average_fill_price: Option<String>,
-    pub status: String,
-    pub submitted_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ObservedFill {
-    pub fill_id: String,
-    pub order_id: String,
-    pub command_id: CommandId,
-    pub account_id: quantos_core::AccountId,
-    pub symbol: String,
-    pub side: String,
-    pub quantity: String,
-    pub price: String,
-    pub fee_currency: String,
-    pub fee_amount: String,
-    pub filled_at: DateTime<Utc>,
-    pub fact_hash: ContentHash,
-}
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ExecutionFacts {
-    pub schema_version: String,
-    pub request_id: ProposalId,
-    pub subject_hash: ContentHash,
-    pub tenant_id: quantos_core::TenantId,
-    pub workspace_id: quantos_core::WorkspaceId,
-    pub account_id: quantos_core::AccountId,
-    pub command_id: CommandId,
-    pub decision_id: quantos_core::DecisionId,
-    pub proposal_hash: ContentHash,
-    pub quote_currency: String,
-    pub outcome: String,
-    pub journal_available: bool,
-    pub consumer_ready: bool,
-    pub reason: String,
-    pub order: Option<ObservedOrder>,
-    pub fills: Vec<ObservedFill>,
-    pub fact_hashes: Vec<ContentHash>,
-    pub native_source_hashes: Vec<ContentHash>,
-    pub source_hash: ContentHash,
-    pub recorded_at: DateTime<Utc>,
-    pub execution_authority: bool,
-}
-impl ExecutionFacts {
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn project(
-        subject: &Subject,
-        request: ProposalId,
-        hash: ContentHash,
-        command: CommandId,
-        outcome: &str,
-        at: DateTime<Utc>,
-        e: Option<&CommandFacts>,
-    ) -> Result<Self, Error> {
-        let quote_fees = e.is_none_or(|e| {
-            e.fills
-                .iter()
-                .all(|f| f.fee_currency == subject.quote_currency)
-        });
-        let ready = outcome == "accepted" && e.is_some() && quote_fees;
-        let mut v = Self {
-            schema_version: "quantos-native-execution-facts.v1".into(),
-            request_id: request,
-            subject_hash: hash,
-            tenant_id: subject.scope.tenant,
-            workspace_id: subject.scope.workspace,
-            account_id: subject.scope.account,
+pub use quantos_portfolio::native_source::{
+    NativeExecutionFacts as ExecutionFacts, NativeFill as ObservedFill,
+    NativeOrder as ObservedOrder,
+};
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn project(
+    subject: &Subject,
+    request: ProposalId,
+    hash: ContentHash,
+    command: CommandId,
+    outcome: &str,
+    at: DateTime<Utc>,
+    e: Option<&CommandFacts>,
+) -> Result<ExecutionFacts, Error> {
+    let quote_fees = e.is_none_or(|e| {
+        e.fills
+            .iter()
+            .all(|f| f.fee_currency == subject.quote_currency)
+    });
+    let ready = outcome == "accepted" && e.is_some() && quote_fees;
+    let mut v = ExecutionFacts {
+        schema_version: "quantos-native-execution-facts.v1".into(),
+        request_id: request,
+        subject_hash: hash,
+        tenant_id: subject.scope.tenant,
+        workspace_id: subject.scope.workspace,
+        account_id: subject.scope.account,
+        command_id: command,
+        decision_id: subject.decision,
+        proposal_hash: subject.proposal_hash.clone(),
+        quote_currency: subject.quote_currency.clone(),
+        outcome: outcome.into(),
+        journal_available: e.is_some(),
+        consumer_ready: ready,
+        reason: if outcome == "unknown" {
+            "OUTCOME_UNRESOLVED"
+        } else if e.is_none() {
+            "JOURNAL_UNAVAILABLE"
+        } else if !quote_fees {
+            "FEE_CONVERSION_REQUIRED"
+        } else {
+            "OBSERVED_NATIVE_FACTS"
+        }
+        .into(),
+        order: e.map(|e| ObservedOrder {
+            order_id: e.order.order_id.clone(),
             command_id: command,
-            decision_id: subject.decision,
-            proposal_hash: subject.proposal_hash.clone(),
-            quote_currency: subject.quote_currency.clone(),
-            outcome: outcome.into(),
-            journal_available: e.is_some(),
-            consumer_ready: ready,
-            reason: if outcome == "unknown" {
-                "OUTCOME_UNRESOLVED"
-            } else if e.is_none() {
-                "JOURNAL_UNAVAILABLE"
-            } else if !quote_fees {
-                "FEE_CONVERSION_REQUIRED"
-            } else {
-                "OBSERVED_NATIVE_FACTS"
-            }
-            .into(),
-            order: e.map(|e| ObservedOrder {
-                order_id: e.order.order_id.clone(),
+            account_id: subject.scope.account,
+            symbol: e.order.symbol.clone(),
+            side: e.order.side.clone(),
+            quantity: e.order.quantity.clone(),
+            filled_quantity: e.order.filled_quantity.clone(),
+            average_fill_price: e.order.average_fill_price.clone(),
+            status: e.order.status.clone(),
+            submitted_at: e.order.submitted_at,
+            updated_at: e.order.updated_at,
+        }),
+        fills: vec![],
+        fact_hashes: e
+            .map(|e| e.facts.iter().map(|f| f.hash.clone()).collect())
+            .unwrap_or_default(),
+        native_source_hashes: e.map(|e| e.source_hashes.clone()).unwrap_or_default(),
+        source_hash: ContentHash::sha256_bytes(b"pending"),
+        recorded_at: e.map(|e| e.order.updated_at.max(at)).unwrap_or(at),
+        execution_authority: false,
+    };
+    if let Some(e) = e {
+        for f in &e.fills {
+            let fact=e.facts.iter().find(|fact|matches!(&fact.content,crate::oms::FactKind::Kernel {event:crate::gateway::KernelEvent::OrderFilled {venue_fill_id,..}} if f.venue_fill_id.as_ref()==Some(venue_fill_id))).ok_or(Error::Unavailable)?;
+            v.fills.push(ObservedFill {
+                fill_id: f.fill_id.clone(),
+                order_id: f.order_id.clone(),
                 command_id: command,
                 account_id: subject.scope.account,
-                symbol: e.order.symbol.clone(),
-                side: e.order.side.clone(),
-                quantity: e.order.quantity.clone(),
-                filled_quantity: e.order.filled_quantity.clone(),
-                average_fill_price: e.order.average_fill_price.clone(),
-                status: e.order.status.clone(),
-                submitted_at: e.order.submitted_at,
-                updated_at: e.order.updated_at,
-            }),
-            fills: vec![],
-            fact_hashes: e
-                .map(|e| e.facts.iter().map(|f| f.hash.clone()).collect())
-                .unwrap_or_default(),
-            native_source_hashes: e.map(|e| e.source_hashes.clone()).unwrap_or_default(),
-            source_hash: ContentHash::sha256_bytes(b"pending"),
-            recorded_at: e.map(|e| e.order.updated_at.max(at)).unwrap_or(at),
-            execution_authority: false,
-        };
-        if let Some(e) = e {
-            for f in &e.fills {
-                let fact=e.facts.iter().find(|fact|matches!(&fact.content,crate::oms::FactKind::Kernel {event:crate::gateway::KernelEvent::OrderFilled {venue_fill_id,..}} if f.venue_fill_id.as_ref()==Some(venue_fill_id))).ok_or(Error::Unavailable)?;
-                v.fills.push(ObservedFill {
-                    fill_id: f.fill_id.clone(),
-                    order_id: f.order_id.clone(),
-                    command_id: command,
-                    account_id: subject.scope.account,
-                    symbol: f.symbol.clone(),
-                    side: subject.side.as_str().into(),
-                    quantity: f.quantity.clone(),
-                    price: f.price.clone(),
-                    fee_currency: f.fee_currency.clone(),
-                    fee_amount: f.fee_amount.clone(),
-                    filled_at: f.filled_at,
-                    fact_hash: fact.hash.clone(),
-                });
-            }
+                symbol: f.symbol.clone(),
+                side: subject.side.as_str().into(),
+                quantity: f.quantity.clone(),
+                price: f.price.clone(),
+                fee_currency: f.fee_currency.clone(),
+                fee_amount: f.fee_amount.clone(),
+                filled_at: f.filled_at,
+                fact_hash: fact.hash.clone(),
+            });
         }
-        let mut body = serde_json::to_value(&v).map_err(|_| Error::Unavailable)?;
-        body.as_object_mut()
-            .ok_or(Error::Unavailable)?
-            .remove("sourceHash");
-        v.source_hash = ContentHash::sha256_bytes(
-            &canonical_json_bytes(&json!(["quantos-native-execution-source/v1", body]))
-                .map_err(|_| Error::Unavailable)?,
-        );
-        Ok(v)
     }
+    let mut body = serde_json::to_value(&v).map_err(|_| Error::Unavailable)?;
+    body.as_object_mut()
+        .ok_or(Error::Unavailable)?
+        .remove("sourceHash");
+    v.source_hash = ContentHash::sha256_bytes(
+        &canonical_json_bytes(&json!(["quantos-native-execution-source/v1", body]))
+            .map_err(|_| Error::Unavailable)?,
+    );
+    Ok(v)
 }

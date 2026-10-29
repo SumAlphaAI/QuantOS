@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.18.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.19.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -603,6 +603,9 @@
         },
         "facts": {
           "$ref": "#/$defs/AssistedExecutionFacts"
+        },
+        "ledger": {
+          "$ref": "#/$defs/AssistedLedgerReceipt"
         }
       }
     },
@@ -6674,6 +6677,243 @@
               "type": "boolean"
             }
           }
+        }
+      }
+    },
+    "AssistedLedgerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "commandId",
+        "subjectHash",
+        "sourceHash",
+        "entryHash",
+        "sequence",
+        "state",
+        "reason",
+        "observedFillIds",
+        "appliedFillIds"
+      ],
+      "properties": {
+        "requestId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entryHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000000
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "quarantined",
+            "no_fill_observed"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FACTS",
+            "OUTCOME_UNRESOLVED",
+            "JOURNAL_UNAVAILABLE",
+            "FEE_CONVERSION_REQUIRED"
+          ]
+        },
+        "observedFillIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 10000
+        },
+        "appliedFillIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 10000
+        }
+      }
+    },
+    "AssistedLedgerPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "quantity",
+        "averageEntryPrice",
+        "realizedPnl"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "averageEntryPrice": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "realizedPnl": {
+          "$ref": "#/$defs/DecimalValue"
+        }
+      }
+    },
+    "AssistedLedgerView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "quoteCurrency",
+        "ledgerHash",
+        "anchor",
+        "consumerReady",
+        "valuationReady",
+        "executionAuthority",
+        "scope",
+        "appliedFillCount",
+        "quarantinedCommandCount",
+        "quoteCashDelta",
+        "quoteFeesTotal",
+        "positions",
+        "entries"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-native-ledger.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "quoteCurrency": {
+          "type": "string",
+          "enum": [
+            "USDT"
+          ]
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "head"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "head": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "consumerReady": {
+          "type": "boolean",
+          "description": "Observed ledger usable for reconciliation; never valuation or permission. False when any command is quarantined."
+        },
+        "valuationReady": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FILLS_ONLY"
+          ]
+        },
+        "appliedFillCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "quarantinedCommandCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "quoteCashDelta": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "quoteFeesTotal": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedLedgerPosition"
+          },
+          "maxItems": 10000
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssistedLedgerReceipt"
+          },
+          "maxItems": 10000
         }
       }
     }

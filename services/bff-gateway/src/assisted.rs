@@ -112,6 +112,9 @@ pub(crate) struct OwnedHost {
     native: AssistedExecution<HostKernel>,
     durable: Option<Arc<quantos_execution::durable::DurableStore>>,
     persisted: Option<Value>,
+    ledger: Option<quantos_portfolio::native_ledger::NativeLedger>,
+    ledger_store: Option<quantos_execution::durable::DurableStore>,
+    ledger_anchor: quantos_portfolio::native_ledger::Anchor,
     subjects: BTreeMap<ProposalId, Subject>,
     requests: BTreeMap<ProposalId, ProposalId>,
     opened_at: BTreeMap<ProposalId, DateTime<Utc>>,
@@ -226,6 +229,9 @@ impl OwnedHost {
             sources,
             durable: None,
             persisted: None,
+            ledger: None,
+            ledger_store: None,
+            ledger_anchor: Default::default(),
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
             subjects,
@@ -244,13 +250,18 @@ impl OwnedHost {
     fn receipt(&self, r: &Receipt) -> Value {
         json!({"requestId":r.request,"requesterId":r.requester,"subjectId":self.requests.get(&r.request),"subjectHash":r.subject_hash,"policyVersion":r.policy_revision.to_string(),"revision":r.revision,"status":r.status,"approvers":r.approvers,"expiresAt":r.expires_at,"notional":r.notional,"executionAuthority":false})
     }
-    fn view(&self, session: &str, id: ProposalId, at: DateTime<Utc>) -> Result<Value, Error> {
+    fn view(&mut self, session: &str, id: ProposalId, at: DateTime<Utc>) -> Result<Value, Error> {
         let r = self.service.execution_view(session, id, at)?;
+        self.sync_ledger(session, at)?;
         let mut v = json!({"request":self.receipt(&r),"subject":self.subject(*self.requests.get(&id).ok_or(Error::Invalid)?)?});
         if let Some(c) = self.native.inspect(session, id, at)? {
+            let command_id = c.command_id;
             v["command"] = command(c);
             if let Some(f) = self.native.execution_facts(session, id, at)? {
                 v["facts"] = serde_json::to_value(f).map_err(|_| Error::Unavailable)?;
+            }
+            if let Some(receipt) = self.ledger.as_ref().and_then(|l| l.receipt(command_id)) {
+                v["ledger"] = serde_json::to_value(receipt).map_err(|_| Error::Unavailable)?;
             }
         }
         Ok(v)
@@ -267,6 +278,7 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
     Router::new()
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
+        .route("/v1/assisted-testnet/ledger", get(handle))
         .route("/v1/assisted-testnet/requests", get(handle).post(handle))
         .route("/v1/assisted-testnet/requests/:requestId", get(handle))
         .route(
@@ -392,6 +404,9 @@ async fn handle(
             return Err(Error::Unauthorized);
         }
         if method == Method::GET {
+            if path == "/v1/assisted-testnet/ledger" {
+                return h.sync_ledger(&sid, at);
+            }
             if path.ends_with("/subjects") {
                 return Ok(
                     json!({"items":h.subjects.iter().filter(|(_,s)|h.sources.with_current(s,at,||()).is_ok()).map(|(id,_)|h.subject(*id)).collect::<Result<Vec<_>,_>>()?}),
@@ -399,7 +414,7 @@ async fn handle(
             }
             if path == "/v1/assisted-testnet/requests" {
                 return Ok(
-                    json!({"items":h.requests.keys().map(|id|h.view(&sid,*id,at)).collect::<Result<Vec<_>,_>>()?}),
+                    json!({"items":h.requests.keys().copied().collect::<Vec<_>>().into_iter().map(|id|h.view(&sid,id,at)).collect::<Result<Vec<_>,_>>()?}),
                 );
             }
             let id = id.ok_or(Error::Invalid)?;
@@ -471,7 +486,19 @@ async fn handle(
             if r.revision != expected {
                 return Err(Error::Conflict);
             }
-            return h.native.submit(&sid, id, key, &clock).map(command);
+            let existing = h.native.inspect(&sid, id, clock())?;
+            let ledger = h.sync_ledger(&sid, clock())?;
+            // No trusted new valuation/review is registered for this profile after
+            // financial/quarantined ledger progress. Keep original command recovery, fence new IO.
+            if existing.is_none()
+                && (ledger["appliedFillCount"].as_u64().unwrap_or(0) > 0
+                    || ledger["consumerReady"] != true)
+            {
+                return Err(Error::PolicyChanged);
+            }
+            let receipt = h.native.submit(&sid, id, key, &clock)?;
+            h.sync_ledger(&sid, clock())?;
+            return Ok(command(receipt));
         }
         Err(Error::Invalid)
     })();
@@ -490,4 +517,5 @@ pub(crate) mod persistence;
 #[cfg(test)]
 mod tests;
 
+mod ledger;
 mod source_seed;

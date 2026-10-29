@@ -112,6 +112,23 @@ fn x04_actual_fills_fees_chain_and_command_persist_across_replica_restart_and_ex
     assert_eq!(facts.fills[1].fee_amount, "0.12");
     assert_eq!(facts.order.as_ref().unwrap().filled_quantity, "1");
     assert!(facts.consumer_ready);
+    let ledger_scope = quantos_portfolio::native_ledger::Scope {
+        tenant_id: f.scope.tenant,
+        workspace_id: f.scope.workspace,
+        account_id: f.scope.account,
+    };
+    let mut ledger =
+        quantos_portfolio::native_ledger::NativeLedger::new(ledger_scope.clone()).unwrap();
+    assert!(ledger.observe(&facts).unwrap());
+    assert!(!ledger.observe(&facts).unwrap());
+    let restored = quantos_portfolio::native_ledger::NativeLedger::restore(
+        ledger_scope,
+        &ledger.checkpoint().unwrap(),
+    )
+    .unwrap();
+    assert_eq!(restored.view().unwrap(), ledger.view().unwrap());
+    assert_eq!(restored.view().unwrap()["positions"][0]["quantity"], "1");
+    assert_eq!(restored.view().unwrap()["quoteFeesTotal"], "0.2");
     assert_eq!(facts.fact_hashes.len(), 4);
     for fill in &facts.fills {
         assert_eq!(fill.command_id, facts.command_id);

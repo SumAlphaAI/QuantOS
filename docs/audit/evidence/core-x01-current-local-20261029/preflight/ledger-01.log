@@ -1,0 +1,40 @@
+   Compiling openssl-sys v0.9.117
+   Compiling postgres-types v0.2.14
+   Compiling tokio-postgres v0.7.18
+   Compiling openssl v0.10.81
+   Compiling tokio-openssl v0.6.5
+   Compiling postgres v0.19.14
+   Compiling postgres-openssl v0.5.3
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.48s
+     Running tests/native_ledger.rs (target/debug/deps/native_ledger-a20adea57dd29801)
+
+running 10 tests
+test legacy_no_journal_command_is_query_only_and_cannot_be_upgraded_implicitly ... ok
+test exact_fees_post_once_restore_and_hash_binding ... FAILED
+test foreign_fee_remains_in_raw_checkpoint_without_zero_conversion ... ok
+test arithmetic_precision_loss_or_bad_late_fill_never_partly_posts ... ok
+test fill_identity_cannot_be_reused_by_another_command_even_when_quarantined ... ok
+test authenticated_checkpoint_still_requires_chain_source_and_anchor_consistency ... ok
+test persisted_anchor_detects_missing_history_and_forks ... ok
+test buys_sell_close_and_flip_have_exact_cash_and_realized_pnl ... ok
+test unknown_with_observed_fill_is_durable_quarantine_and_never_posts ... ok
+test malformed_or_rebound_sources_are_atomic_refusals ... ok
+
+failures:
+
+---- exact_fees_post_once_restore_and_hash_binding stdout ----
+
+thread 'exact_fees_post_once_restore_and_hash_binding' (526859) panicked at crates/quantos-portfolio/tests/native_ledger.rs:55:27:
+called `Result::unwrap()` on an `Err` value: Invalid
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    exact_fees_post_once_restore_and_hash_binding
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p quantos-portfolio --test native_ledger`

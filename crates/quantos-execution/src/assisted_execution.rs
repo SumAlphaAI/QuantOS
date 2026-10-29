@@ -308,7 +308,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
             let Some(subject) = i.subject.as_ref() else {
                 return Ok(None);
             }; // legacy evidence absent, never fabricate fills
-            crate::execution_facts::ExecutionFacts::project(
+            crate::execution_facts::project(
                 subject,
                 request,
                 i.receipt.subject_hash.clone(),
@@ -337,7 +337,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         loaded?;
         s.issued.values().map(|i| {
             if !s.approvals.matches_execution_binding(i.receipt.request_id,&i.receipt.subject_hash)? {return Err(Error::Unavailable);}
-            let facts=i.subject.as_ref().map(|subject| crate::execution_facts::ExecutionFacts::project(subject,i.receipt.request_id,i.receipt.subject_hash.clone(),i.receipt.command_id,&i.receipt.state,i.issued_at,i.evidence.as_ref())).transpose()?;
+            let facts=i.subject.as_ref().map(|subject| crate::execution_facts::project(subject,i.receipt.request_id,i.receipt.subject_hash.clone(),i.receipt.command_id,&i.receipt.state,i.issued_at,i.evidence.as_ref())).transpose()?;
             Ok(json!({"requestId":i.receipt.request_id,"commandId":i.receipt.command_id,"subjectHash":i.receipt.subject_hash,"issuedAt":i.issued_at,"completed":i.completed,"state":i.receipt.state,"orderId":i.receipt.order.as_ref().map(|o|&o.order_id),"executionFactsHash":facts.as_ref().map(|f|&f.source_hash),"fillIds":facts.as_ref().map(|f|f.fills.iter().map(|fill|&fill.fill_id).collect::<Vec<_>>()).unwrap_or_default()}))
         }).collect()
     }

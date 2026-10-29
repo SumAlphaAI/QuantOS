@@ -2018,6 +2018,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read current scoped native Fill ledger and quarantined obligations */
+        get: operations["getAssistedNativeLedger"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2160,6 +2177,7 @@ export interface components {
             subject: components["schemas"]["AssistedSubject"];
             command?: components["schemas"]["AssistedNativeCommand"];
             facts?: components["schemas"]["AssistedExecutionFacts"];
+            ledger?: components["schemas"]["AssistedLedgerReceipt"];
         };
         AssistedSubjectList: {
             items: components["schemas"]["AssistedSubject"][];
@@ -3632,6 +3650,54 @@ export interface components {
                 itemLimit: 50;
                 truncated: boolean;
             };
+        };
+        AssistedLedgerReceipt: {
+            requestId: components["schemas"]["UUID"];
+            commandId: components["schemas"]["UUID"];
+            subjectHash: string;
+            sourceHash: string | null;
+            entryHash: string;
+            sequence: number;
+            /** @enum {string} */
+            state: "applied" | "quarantined" | "no_fill_observed";
+            /** @enum {string} */
+            reason: "OBSERVED_NATIVE_FACTS" | "OUTCOME_UNRESOLVED" | "JOURNAL_UNAVAILABLE" | "FEE_CONVERSION_REQUIRED";
+            observedFillIds: string[];
+            appliedFillIds: string[];
+        };
+        AssistedLedgerPosition: {
+            symbol: string;
+            quantity: components["schemas"]["DecimalValue"];
+            averageEntryPrice: components["schemas"]["DecimalValue"];
+            realizedPnl: components["schemas"]["DecimalValue"];
+        };
+        AssistedLedgerView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-ledger.v1";
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            quoteCurrency: "USDT";
+            ledgerHash: string;
+            anchor: {
+                sequence: number;
+                head: string | null;
+            };
+            /** @description Observed ledger usable for reconciliation; never valuation or permission. False when any command is quarantined. */
+            consumerReady: boolean;
+            /** @enum {boolean} */
+            valuationReady: false;
+            /** @enum {boolean} */
+            executionAuthority: false;
+            /** @enum {string} */
+            scope: "OBSERVED_NATIVE_FILLS_ONLY";
+            appliedFillCount: number;
+            quarantinedCommandCount: number;
+            quoteCashDelta: components["schemas"]["DecimalValue"];
+            quoteFeesTotal: components["schemas"]["DecimalValue"];
+            positions: components["schemas"]["AssistedLedgerPosition"][];
+            entries: components["schemas"]["AssistedLedgerReceipt"][];
         };
     };
     responses: {
@@ -11493,6 +11559,58 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["AssistedApprovalAudit"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedNativeLedger: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-native-ledger.v1",
+                     *       "tenantId": "22222222-2222-4222-8222-222222222222",
+                     *       "workspaceId": "33333333-3333-4333-8333-333333333333",
+                     *       "accountId": "44444444-4444-4444-8444-444444444444",
+                     *       "quoteCurrency": "USDT",
+                     *       "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "anchor": {
+                     *         "sequence": 0,
+                     *         "head": null
+                     *       },
+                     *       "consumerReady": true,
+                     *       "valuationReady": false,
+                     *       "executionAuthority": false,
+                     *       "scope": "OBSERVED_NATIVE_FILLS_ONLY",
+                     *       "appliedFillCount": 0,
+                     *       "quarantinedCommandCount": 0,
+                     *       "quoteCashDelta": "0",
+                     *       "quoteFeesTotal": "0",
+                     *       "positions": [],
+                     *       "entries": []
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedLedgerView"];
                 };
             };
             401: components["responses"]["Unauthorized"];

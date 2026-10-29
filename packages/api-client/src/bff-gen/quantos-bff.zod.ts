@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.18.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.19.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -127,6 +127,7 @@ export const AssistedRequestViewSchema = z.object({
   "subject": z.lazy(() => AssistedSubjectSchema),
   "command": z.lazy(() => AssistedNativeCommandSchema).optional(),
   "facts": z.lazy(() => AssistedExecutionFactsSchema).optional(),
+  "ledger": z.lazy(() => AssistedLedgerReceiptSchema).optional(),
 }).strict();
 
 export const AssistedSubjectListSchema = z.object({
@@ -1442,6 +1443,49 @@ export const CommandSummarySchema = z.object({
 }).strict(),
 }).strict();
 
+export const AssistedLedgerReceiptSchema = z.object({
+  "requestId": z.lazy(() => UUIDSchema),
+  "commandId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "entryHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sequence": z.number().int().min(1).max(100000000),
+  "state": z.enum(["applied","quarantined","no_fill_observed"]),
+  "reason": z.enum(["OBSERVED_NATIVE_FACTS","OUTCOME_UNRESOLVED","JOURNAL_UNAVAILABLE","FEE_CONVERSION_REQUIRED"]),
+  "observedFillIds": z.array(z.string().min(1).max(128)).max(10000),
+  "appliedFillIds": z.array(z.string().min(1).max(128)).max(10000),
+}).strict();
+
+export const AssistedLedgerPositionSchema = z.object({
+  "symbol": z.string().min(1).max(20),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "averageEntryPrice": z.lazy(() => DecimalValueSchema),
+  "realizedPnl": z.lazy(() => DecimalValueSchema),
+}).strict();
+
+export const AssistedLedgerViewSchema = z.object({
+  "schemaVersion": z.literal("quantos-native-ledger.v1"),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "quoteCurrency": z.literal("USDT"),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "anchor": z.object({
+  "sequence": z.number().int().min(0).max(100000000),
+  "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+}).strict(),
+  "consumerReady": z.boolean().describe("Observed ledger usable for reconciliation; never valuation or permission. False when any command is quarantined."),
+  "valuationReady": z.literal(false),
+  "executionAuthority": z.literal(false),
+  "scope": z.literal("OBSERVED_NATIVE_FILLS_ONLY"),
+  "appliedFillCount": z.number().int().min(0).max(100000000),
+  "quarantinedCommandCount": z.number().int().min(0).max(100000000),
+  "quoteCashDelta": z.lazy(() => DecimalValueSchema),
+  "quoteFeesTotal": z.lazy(() => DecimalValueSchema),
+  "positions": z.array(z.lazy(() => AssistedLedgerPositionSchema)).max(10000),
+  "entries": z.array(z.lazy(() => AssistedLedgerReceiptSchema)).max(10000),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1578,6 +1622,9 @@ export const bffZodSchemas = {
   CommandItem: CommandItemSchema,
   CommandSource: CommandSourceSchema,
   CommandSummary: CommandSummarySchema,
+  AssistedLedgerReceipt: AssistedLedgerReceiptSchema,
+  AssistedLedgerPosition: AssistedLedgerPositionSchema,
+  AssistedLedgerView: AssistedLedgerViewSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2562,6 +2609,14 @@ export const bffResponseSchemas = {
   },
   "getAssistedApprovalAudit": {
     "200": z.lazy(() => AssistedApprovalAuditSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedNativeLedger": {
+    "200": z.lazy(() => AssistedLedgerViewSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),

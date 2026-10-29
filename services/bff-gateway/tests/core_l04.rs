@@ -42,6 +42,27 @@ fn private_write(p: impl AsRef<std::path::Path>, bytes: impl AsRef<[u8]>) {
         fs::set_permissions(p, fs::Permissions::from_mode(0o600)).unwrap();
     }
 }
+fn portfolio_store(lab: &Lab) -> quantos_execution::durable::DurableStore {
+    owner_store(lab, "portfolio")
+}
+fn owner_store(lab: &Lab, name: &str) -> quantos_execution::durable::DurableStore {
+    let owner: Value =
+        serde_json::from_slice(&fs::read(lab.directory.join("bff-owner.json")).unwrap()).unwrap();
+    quantos_execution::durable::DurableStore::new(
+        &lab.directory,
+        name,
+        serde_json::from_value(owner["keys"][3].clone()).unwrap(),
+    )
+    .unwrap()
+}
+fn portfolio_checkpoint(lab: &Lab) -> Value {
+    portfolio_store(lab)
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap()
+        .unwrap()
+}
 impl Lab {
     fn new() -> Self {
         Self::configured(false)
@@ -341,6 +362,110 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     assert_eq!(facts["fills"][0]["commandId"], facts["commandId"]);
     assert_eq!(facts["fills"][0]["orderId"], facts["order"]["orderId"]);
     assert_eq!(facts["fills"][0]["feeCurrency"], "USDT");
+    let ledger = get(&other, "/v1/assisted-testnet/ledger");
+    assert_eq!(ledger["appliedFillCount"], 1);
+    assert_eq!(ledger["quoteFeesTotal"], facts["fills"][0]["feeAmount"]);
+    assert_eq!(ledger["positions"][0]["quantity"], "1");
+    assert_eq!(ledger["consumerReady"], true);
+    assert_eq!(ledger["valuationReady"], false);
+    assert_eq!(ledger["entries"][0]["sourceHash"], facts["sourceHash"]);
+    assert_eq!(ledger["entries"][0], view["ledger"]);
+    let bytes = fs::read(lab.directory.join("portfolio.json")).unwrap();
+    assert_eq!(get(&url, "/v1/assisted-testnet/ledger"), ledger);
+    assert_eq!(
+        fs::read(lab.directory.join("portfolio.json")).unwrap(),
+        bytes,
+        "readonly replay rewrote ledger"
+    );
+    let (_ledger_restart, ledger_url) = lab.bff(true);
+    assert_eq!(get(&ledger_url, "/v1/assisted-testnet/ledger"), ledger);
+    // Anchor survives a new process, and current permissions/bytes are always checked.
+    fs::remove_file(lab.directory.join("portfolio.json")).unwrap();
+    assert_eq!(
+        call(
+            &ledger_url,
+            "session-current",
+            "GET",
+            "/v1/assisted-testnet/ledger",
+            json!({}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("portfolio.json"), &bytes);
+    let commands = fs::read(lab.directory.join("commands.json")).unwrap();
+    fs::remove_file(lab.directory.join("commands.json")).unwrap();
+    assert_eq!(
+        call(
+            &ledger_url,
+            "session-current",
+            "GET",
+            "/v1/assisted-testnet/ledger",
+            json!({}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("commands.json"), &commands);
+    // Even an owner-authenticated empty command checkpoint cannot orphan a
+    // previously posted ledger. The ledger's own anchor/source checks still run.
+    owner_store(&lab, "commands")
+        .lock()
+        .unwrap()
+        .write(&json!({"issued":{},"claims":{},"killed":false}))
+        .unwrap();
+    let (_source_missing, source_missing) = lab.bff(true);
+    assert_eq!(
+        call(
+            &source_missing,
+            "session-current",
+            "GET",
+            "/v1/assisted-testnet/ledger",
+            json!({}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        503,
+        "orphan ledger served without original native source"
+    );
+    private_write(lab.directory.join("commands.json"), commands);
+    assert_eq!(get(&ledger_url, "/v1/assisted-testnet/ledger"), ledger);
+    private_write(lab.directory.join("portfolio.json"), b"{broken");
+    assert_eq!(
+        call(
+            &ledger_url,
+            "session-current",
+            "GET",
+            "/v1/assisted-testnet/ledger",
+            json!({}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        503
+    );
+    private_write(lab.directory.join("portfolio.json"), &bytes);
+    let next = open(&url, &subjects["items"][1]);
+    approve(&url, &next, 0);
+    approve(&url, &next, 1);
+    assert_eq!(
+        call(
+            &url,
+            "session-current",
+            "POST",
+            &format!("/v1/assisted-testnet/requests/{next}/commands"),
+            json!({"expectedRevision":2}),
+            &Uuid::new_v4().to_string()
+        )
+        .0,
+        409,
+        "new IO used pre-fill risk review"
+    );
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X01_LEDGER_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"ledger":ledger,"checkpoint":portfolio_checkpoint(&lab),"view":view,"restartLedger":get(&ledger_url,"/v1/assisted-testnet/ledger"),"nativeProtocolCalls":1,"replicaRequests":12,"unchangedLedgerOnRead":true,"missingOrCorruptLedgerDenied":true,"staleReviewNewCommandDenied":true,"actualTestnet":false})).unwrap());
+    }
     assert_eq!(
         get(&url, &format!("/v1/assisted-testnet/requests/{id}"))["facts"],
         *facts
@@ -424,7 +549,11 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         &key,
     );
     assert_eq!(s, 403);
-    // Engine/zone death: keep the reservation unknown, never retry on restart.
+    // A separate original ledger has no preceding trade/review fence. Exercise
+    // actual engine death, then preserve its unknown command across restart.
+    let lab = Lab::new();
+    let (_isolated, url) = lab.bff(true);
+    let subjects = get(&url, "/v1/assisted-testnet/subjects");
     let unknown = open(&url, &subjects["items"][1]);
     approve(&url, &unknown, 0);
     approve(&url, &unknown, 1);
@@ -546,6 +675,16 @@ fn core_l04_crash_after_zone_commit_recovers_unknown_without_resubmit() {
     assert_eq!(s, 200, "{recovered}");
     assert_eq!(recovered["state"], "unknown");
     assert!(recovered.get("order").is_none());
+    let ledger = get(&restarted, "/v1/assisted-testnet/ledger");
+    assert_eq!(ledger["consumerReady"], false);
+    assert_eq!(ledger["quarantinedCommandCount"], 1);
+    assert_eq!(ledger["appliedFillCount"], 0);
+    assert_eq!(ledger["entries"][0]["reason"], "OUTCOME_UNRESOLVED");
+    let (_again, again) = lab.bff(true);
+    assert_eq!(get(&again, "/v1/assisted-testnet/ledger"), ledger);
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X01_UNKNOWN_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"ledger":ledger,"checkpoint":portfolio_checkpoint(&lab),"command":recovered,"nativeProtocolCalls":1,"restartPreserved":true,"noReplayTrace":true,"actualTestnet":false})).unwrap());
+    }
     assert_eq!(lab.trace()["protocolCalls"], 1);
     let chain = get(&restarted, &format!("/v1/audit/evidence-chains/{id}"));
     assert_eq!(chain["items"].as_array().unwrap().len(), 4);
@@ -580,6 +719,7 @@ fn core_l04_logout_survives_process_recovery_and_denies_c10_and_native() {
         format!("/v1/audit/evidence-chains/{id}"),
         "/v1/audit/events".into(),
         "/v1/session".into(),
+        "/v1/assisted-testnet/ledger".into(),
     ] {
         let (s, _) = call(
             &restarted,

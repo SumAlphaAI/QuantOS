@@ -1,5 +1,5 @@
 {
-  "version": "1.18.0",
+  "version": "1.19.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -601,6 +601,9 @@
         },
         "facts": {
           "$ref": "#/components/schemas/AssistedExecutionFacts"
+        },
+        "ledger": {
+          "$ref": "#/components/schemas/AssistedLedgerReceipt"
         }
       }
     },
@@ -6672,6 +6675,243 @@
               "type": "boolean"
             }
           }
+        }
+      }
+    },
+    "AssistedLedgerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "commandId",
+        "subjectHash",
+        "sourceHash",
+        "entryHash",
+        "sequence",
+        "state",
+        "reason",
+        "observedFillIds",
+        "appliedFillIds"
+      ],
+      "properties": {
+        "requestId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entryHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000000
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "quarantined",
+            "no_fill_observed"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FACTS",
+            "OUTCOME_UNRESOLVED",
+            "JOURNAL_UNAVAILABLE",
+            "FEE_CONVERSION_REQUIRED"
+          ]
+        },
+        "observedFillIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 10000
+        },
+        "appliedFillIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 10000
+        }
+      }
+    },
+    "AssistedLedgerPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "quantity",
+        "averageEntryPrice",
+        "realizedPnl"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "averageEntryPrice": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "realizedPnl": {
+          "$ref": "#/components/schemas/DecimalValue"
+        }
+      }
+    },
+    "AssistedLedgerView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "quoteCurrency",
+        "ledgerHash",
+        "anchor",
+        "consumerReady",
+        "valuationReady",
+        "executionAuthority",
+        "scope",
+        "appliedFillCount",
+        "quarantinedCommandCount",
+        "quoteCashDelta",
+        "quoteFeesTotal",
+        "positions",
+        "entries"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-native-ledger.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "quoteCurrency": {
+          "type": "string",
+          "enum": [
+            "USDT"
+          ]
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "anchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "head"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000000
+            },
+            "head": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^sha256:[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "consumerReady": {
+          "type": "boolean",
+          "description": "Observed ledger usable for reconciliation; never valuation or permission. False when any command is quarantined."
+        },
+        "valuationReady": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FILLS_ONLY"
+          ]
+        },
+        "appliedFillCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "quarantinedCommandCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000000
+        },
+        "quoteCashDelta": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "quoteFeesTotal": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AssistedLedgerPosition"
+          },
+          "maxItems": 10000
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AssistedLedgerReceipt"
+          },
+          "maxItems": 10000
         }
       }
     }
@@ -16195,6 +16435,36 @@
           }
         }
       ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/ledger",
+      "method": "GET",
+      "operationId": "getAssistedNativeLedger",
+      "parameters": [],
       "body": null,
       "bodyExample": null,
       "policy": {
