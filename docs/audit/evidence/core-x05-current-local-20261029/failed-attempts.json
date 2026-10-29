@@ -1,0 +1,53 @@
+{
+  "sourceCommit": "dffb2dd4d45bc89e4ac7d30dbe9d10106dad1a2b",
+  "preflight": {
+    "index": "preflight-index.json",
+    "files": 52,
+    "failedLogs": 5,
+    "scope": "ORIGINAL_UNFROZEN_SCOPE_ONLY",
+    "failures": [
+      {
+        "logs": [
+          "preflight/process-01.log",
+          "preflight/process-02.log"
+        ],
+        "reason": "Transport envelope captured instead of original response body/status; two of three process cases refused HTTP503. Fixed original observation capture, no check weakened."
+      },
+      {
+        "logs": [
+          "preflight/clippy-01.log"
+        ],
+        "reason": "collapsible_if; fixed let-chain"
+      },
+      {
+        "logs": [
+          "preflight/clippy-02.log"
+        ],
+        "reason": "manual_is_multiple_of; fixed"
+      },
+      {
+        "logs": [
+          "preflight/scope-01.log"
+        ],
+        "reason": "Copied X01 preflight schema tag; corrected and actual preflight regression added."
+      }
+    ]
+  },
+  "frozenFailedAttempt": {
+    "index": "failed-attempt-index.json",
+    "attempt": "attempt-01",
+    "sourceCommit": "bda60e4d266c3a3f16206138d53bb1fe3fa6095f",
+    "files": 70,
+    "status": "FAIL_FINAL_VERIFICATION_BINARY_PROFILE_CHANGED",
+    "reason": "All 28 commands reached expected exits, but standalone L02 test rebuilt execution binary after composition pin. Final verification refused hash drift.",
+    "repair": "Standalone L02 tested and pinned first; subsequent combined build pinned separately. Fresh attempt-02 only is current PASS."
+  },
+  "toolOnlyNotes": [
+    {
+      "status": "REFUSED",
+      "command": "Unfiltered pnpm exec eslint",
+      "reason": "npm registry signature could not be verified: fetch failed",
+      "evidence": "Tool-call output only; no raw log claimed. Required frozen lint used existing webEnvironment whitelist and passed. No signature verification bypass."
+    }
+  ]
+}

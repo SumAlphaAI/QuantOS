@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "dffb2dd4d45bc89e4ac7d30dbe9d10106dad1a2b",
+  "scope": "OWNED_LOCAL_LOOPBACK_MTLS_PROCESS_ONLY",
+  "evidence": [
+    "attempt-02/reconciliation.json",
+    "attempt-02/unknown-reconciliation.json",
+    "attempt-02/alert-evidence.json",
+    "attempt-02/public-process.log",
+    "attempt-02/current-model.log"
+  ],
+  "observed": [
+    "Separate owned execution process captures original HTTP status/body before native mapping, signs with ephemeral server certificate key; public reader verifies pinned certificate fingerprint and signature.",
+    "Native Order/Fill and X01 durable ledger bound to same command/account/source/receipt; known posted quote-fee deltas match independently parsed observations.",
+    "Tampering response without resigning yields UNAVAILABLE and persistent OPEN evidence; repeated read deduplicates. Restoring matched observations retains earlier OPEN evidence. Restart restores anchors; corrupt checkpoint refuses.",
+    "Real owned-zone commit followed by crash leaves native/X01 UNKNOWN unposted while independent raw observer records fill quantity 1. UNKNOWN obligation and quarantine remain; no resend.",
+    "Rollback/fork/prefix edits, scope/origin/request binding, stale captures, duplicate order/fill, non-200/bad response and unsupported fees refuse or retain findings."
+  ],
+  "prohibitions": [
+    "No mode downgrade to Shadow",
+    "No inferred zero fees or marks",
+    "No execution authority, day close, automatic evidence closure or resend"
+  ],
+  "targetDrills": "NOT_RUN"
+}
