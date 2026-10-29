@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.21.0
+  version: 1.22.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -3040,8 +3040,16 @@ paths:
                 - reauthTokenRef
                 - confirmPhrase
               properties:
-                accountId:
+                scope:
                   type: string
+                  enum: [global, account]
+                expectedGeneration:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                approvalRef:
+                  $ref: "#/components/schemas/UUID"
+                accountId:
+                  type: [string, "null"]
                   format: uuid
                 reason:
                   type: string
@@ -3067,10 +3075,11 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/RiskView"
-                  - required:
-                      - correlationId
+                oneOf:
+                  - allOf:
+                      - $ref: "#/components/schemas/RiskView"
+                      - required: [correlationId]
+                  - $ref: "#/components/schemas/AssistedKillReceipt"
               example:
                 accountId: 11111111-1111-4111-8111-111111111111
                 asOf: 2026-10-03T00:00:00Z
@@ -3139,9 +3148,19 @@ paths:
                 - mfaChallengeRef
                 - reauthTokenRef
               properties:
-                accountId:
+                scope:
                   type: string
+                  enum: [global, account]
+                expectedGeneration:
+                  type: string
+                  pattern: ^(0|[1-9][0-9]*)$
+                approvalRef:
+                  $ref: "#/components/schemas/UUID"
+                accountId:
+                  type: [string, "null"]
                   format: uuid
+                confirmPhrase:
+                  type: string
                 reason:
                   type: string
                 mfaChallengeRef:
@@ -3162,10 +3181,11 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/RiskView"
-                  - required:
-                      - correlationId
+                oneOf:
+                  - allOf:
+                      - $ref: "#/components/schemas/RiskView"
+                      - required: [correlationId]
+                  - $ref: "#/components/schemas/AssistedKillReceipt"
               example:
                 accountId: 11111111-1111-4111-8111-111111111111
                 asOf: 2026-10-03T00:00:00Z
@@ -11383,6 +11403,147 @@ paths:
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 
+  /v1/risk/kill-switch:
+    get:
+      operationId: getAssistedKillControls
+      tags:
+        - execution
+      summary: Read current global/account kill generation and native durable stop
+      parameters: []
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedKillView"
+              example:
+                schemaVersion: quantos-current-kill-controls.v1
+                tenantId: 22222222-2222-4222-8222-222222222222
+                workspaceId: 33333333-3333-4333-8333-333333333333
+                accountId: 44444444-4444-4444-8444-444444444444
+                mode: assisted_live
+                generation: "0"
+                globalActive: false
+                accountActive: false
+                nativeStopped: false
+                permanentNativeStop: false
+                nativeGeneration: "0"
+                protectedCommands: 0
+                unknownCommands: 0
+                canEngageAccount: true
+                canEngageGlobal: false
+                canApproveRelease: false
+                canRelease: false
+                history: []
+                historyTruncated: false
+                releaseApprovals: []
+                checkedAt: 2026-10-29T00:00:00Z
+                expiresAt: 2026-10-29T00:00:08Z
+                unknownPreserved: true
+                executionAuthority: false
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-006
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/risk/kill-switch/release-approvals:
+    post:
+      operationId: approveAssistedKillRelease
+      tags: [risk]
+      summary: Independently review the current stopped generation; grants no execution authority
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistedKillIntent"
+            example:
+              scope: account
+              accountId: 44444444-4444-4444-8444-444444444444
+              expectedGeneration: "1"
+              reason: independent review
+              confirmPhrase: APPROVE ACCOUNT RELEASE
+              mfaChallengeRef: 11111111-1111-4111-8111-111111111111
+              reauthTokenRef: 11111111-1111-4111-8111-111111111111
+      responses:
+        "200":
+          description: Current scoped independent review recorded; native remains stopped
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistedKillReceipt"
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum: [no-store]
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-004
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.
+        idempotency: Original actor/key/exact body and proof deadline; changed body conflicts
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.
+        limits:
+          pageSize: 200
+          bodyBytes: 32768
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 components:
   securitySchemes:
     cookieAuth:
@@ -16652,3 +16813,188 @@ components:
               anyOf:
                 - *a61
                 - type: "null"
+
+    AssistedKillEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - eventId
+        - correlationId
+        - sequence
+        - action
+        - scope
+        - actorId
+        - generation
+        - reason
+        - occurredAt
+        - expiresAt
+        - approvalRef
+        - riskReceiptHash
+        - recordHash
+        - unknownPreserved
+        - executionAuthority
+      properties:
+        eventId: &a1
+          $ref: "#/components/schemas/UUID"
+        correlationId: *a1
+        sequence: &a2
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        action:
+          type: string
+          enum:
+            - engage
+            - approve_release
+            - release
+        scope:
+          type: string
+          enum:
+            - global
+            - account
+        actorId: *a1
+        generation: *a2
+        reason:
+          type: string
+          maxLength: 256
+        occurredAt: &a3
+          $ref: "#/components/schemas/DateTime"
+        expiresAt: *a3
+        approvalRef:
+          anyOf:
+            - *a1
+            - type: "null"
+        riskReceiptHash:
+          anyOf:
+            - &a4
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            - type: "null"
+        recordHash: *a4
+        unknownPreserved: &a6
+          type: boolean
+          enum:
+            - true
+        executionAuthority: &a7
+          type: boolean
+          enum:
+            - false
+    AssistedKillIntent:
+      type: object
+      additionalProperties: false
+      required:
+        - scope
+        - accountId
+        - expectedGeneration
+        - reason
+        - confirmPhrase
+        - mfaChallengeRef
+        - reauthTokenRef
+      properties:
+        scope:
+          type: string
+          enum:
+            - global
+            - account
+        accountId:
+          anyOf:
+            - *a1
+            - type: "null"
+        expectedGeneration: *a2
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+        confirmPhrase:
+          type: string
+        mfaChallengeRef: *a1
+        reauthTokenRef: *a1
+        approvalRef: *a1
+    AssistedKillView:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - tenantId
+        - workspaceId
+        - accountId
+        - mode
+        - generation
+        - globalActive
+        - accountActive
+        - nativeStopped
+        - permanentNativeStop
+        - nativeGeneration
+        - protectedCommands
+        - unknownCommands
+        - canEngageAccount
+        - canEngageGlobal
+        - canApproveRelease
+        - canRelease
+        - history
+        - historyTruncated
+        - releaseApprovals
+        - checkedAt
+        - expiresAt
+        - unknownPreserved
+        - executionAuthority
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-current-kill-controls.v1
+        tenantId: *a1
+        workspaceId: *a1
+        accountId: *a1
+        mode:
+          type: string
+          enum:
+            - assisted_live
+        generation: *a2
+        globalActive: &a5
+          type: boolean
+        accountActive: *a5
+        nativeStopped: *a5
+        permanentNativeStop: *a5
+        nativeGeneration: *a2
+        protectedCommands:
+          type: integer
+          minimum: 0
+        unknownCommands:
+          type: integer
+          minimum: 0
+        canEngageAccount: *a5
+        canEngageGlobal: *a5
+        canApproveRelease: *a5
+        canRelease: *a5
+        history:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AssistedKillEvent"
+        historyTruncated: *a5
+        releaseApprovals:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AssistedKillEvent"
+        checkedAt: *a3
+        expiresAt: *a3
+        unknownPreserved: *a6
+        executionAuthority: *a7
+    AssistedKillReceipt:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - event
+        - readCurrentState
+        - executionAuthority
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-current-kill-receipt.v1
+        event:
+          $ref: "#/components/schemas/AssistedKillEvent"
+        readCurrentState: *a6
+        executionAuthority: *a7

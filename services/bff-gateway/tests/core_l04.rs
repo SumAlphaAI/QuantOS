@@ -149,6 +149,10 @@ impl Lab {
         }
     }
     fn bff(&self, enabled: bool) -> (Process, String) {
+        self.bff_or_startup_refusal(enabled)
+            .expect("owned BFF must start")
+    }
+    fn bff_or_startup_refusal(&self, enabled: bool) -> Option<(Process, String)> {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
         drop(listener);
@@ -178,10 +182,17 @@ impl Lab {
             BufReader::new(out).read_line(&mut line).unwrap();
             let _ = tx.send(line);
         });
-        let ready: Value =
-            serde_json::from_str(&rx.recv_timeout(Wait::from_secs(15)).unwrap()).unwrap();
+        let ready_line = rx.recv_timeout(Wait::from_secs(15)).unwrap();
+        if ready_line.is_empty() {
+            assert!(
+                !child.0.wait().unwrap().success(),
+                "startup refusal must exit nonzero"
+            );
+            return None;
+        }
+        let ready: Value = serde_json::from_str(&ready_line).expect("owned BFF readiness JSON");
         assert_eq!(ready["ready"], true);
-        (child, format!("http://{address}"))
+        Some((child, format!("http://{address}")))
     }
     fn trace(&self) -> Value {
         let line = self.trace.recv_timeout(Wait::from_secs(10)).unwrap();
@@ -312,16 +323,6 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     // is an OPEN gap, never successful kill/C11 activation acceptance.
     let mut gap_probes = vec![];
     for (method, path, body) in [
-        (
-            "POST",
-            "/v1/risk/kill-switch/engage",
-            json!({"accountId":"44444444-4444-4444-8444-444444444444","reason":"bounded L4 refusal probe","mfaChallengeRef":Uuid::new_v4(),"reauthTokenRef":Uuid::new_v4(),"confirmPhrase":"ENGAGE KILL"}),
-        ),
-        (
-            "POST",
-            "/v1/risk/kill-switch/release",
-            json!({"accountId":"44444444-4444-4444-8444-444444444444","reason":"bounded L4 refusal probe","mfaChallengeRef":Uuid::new_v4(),"reauthTokenRef":Uuid::new_v4(),"confirmPhrase":"RELEASE KILL"}),
-        ),
         ("GET", "/v1/admin/feature-flags", json!({})),
         (
             "POST",
@@ -344,7 +345,7 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     }
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     if let Ok(out) = std::env::var("QUANTOS_CORE_L4_GAP_RESULT") {
-        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"profile":"CURRENT_OWNED_ASSISTED_LIVE","probes":gap_probes,"noZoneTraceDuringProbes":true,"publicNativeKillJoin":"NOT_JOINED","c11ActivationJoin":"NOT_JOINED","globalKillApiRepresentation":"NOT_JOINED_OR_NOT_EXPOSED","closureGranted":false,"actualTestnet":false})).unwrap());
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"profile":"CURRENT_OWNED_ASSISTED_LIVE","probes":gap_probes,"noZoneTraceDuringProbes":true,"publicNativeKillJoin":"CURRENT_CONTROL_TESTED_SEPARATELY","c11ActivationJoin":"NOT_JOINED","globalKillApiRepresentation":"NOT_JOINED_OR_NOT_EXPOSED","closureGranted":false,"actualTestnet":false})).unwrap());
     }
     let id = open(&url, &subjects["items"][0]);
     assert_ne!(
@@ -1087,3 +1088,6 @@ fn core_l04_logout_survives_process_recovery_and_denies_c10_and_native() {
     assert_eq!(s, 401);
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
 }
+
+#[path = "support/native_control.rs"]
+mod native_control;

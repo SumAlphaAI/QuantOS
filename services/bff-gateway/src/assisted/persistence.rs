@@ -5,7 +5,8 @@ use super::*;
 use quantos_execution::durable::{DurableStore, LockedStore};
 impl OwnedHost {
     pub(crate) fn has_correlation(&self, id: &str) -> bool {
-        self.requests.keys().any(|r| r.to_string() == id)
+        self.controls.has_correlation(id)
+            || self.requests.keys().any(|r| r.to_string() == id)
             || self
                 .alert_inbox
                 .as_ref()
@@ -29,6 +30,7 @@ impl OwnedHost {
             [c.keys[0], c.keys[1], c.keys[2]],
             Some(HostKernel::Restricted(Box::new(c.kernel))),
         )?;
+        h.control_fixture_directory = Some(c.directory.clone());
         h.native =
             h.native
                 .with_durable(DurableStore::new(&c.directory, "commands", c.keys[3])?)?;
@@ -118,6 +120,7 @@ impl OwnedHost {
             all.extend(chain);
         }
         self.alert_audit(&mut all)?;
+        self.control_audit(&mut all);
         Ok(all)
     }
 }
@@ -150,6 +153,12 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
         h.service.restore_checkpoint(&v["service"])?;
         h.subjects = decode(&v["subjects"])?;
+        h.controls = v
+            .get("controls")
+            .map(decode)
+            .transpose()?
+            .unwrap_or_default();
+        h.native_anchor = v.get("nativeAnchor").cloned();
         h.requests = decode(&v["requests"])?;
         h.opened_at = decode(&v["openedAt"])?;
         h.ledger_anchor = if let Some(anchor) = v.get("ledgerAnchor") {
@@ -184,6 +193,11 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
         state.consumed_step_proofs = decode(&v["consumedStepProofs"])?;
         state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(v);
     }
+    {
+        let h = state.assisted.as_ref().ok_or(Error::Unavailable)?;
+        h.verify_native_anchor()?;
+        h.sync_native_control()?;
+    }
     state
         .assisted
         .as_mut()
@@ -204,9 +218,33 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
     if !state.session_active {
         h.service.revoke_session("session-current")?;
     }
-    let value = json!({"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    h.verify_controls()?;
+    let anchor = h.native_anchor_now()?;
+    let mut value = json!({"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
     tx.write(&value)?;
-    state.assisted.as_mut().ok_or(Error::Unavailable)?.persisted = Some(value);
+    // Explicit owned-loopback drill only: owner file cannot be supplied via HTTP.
+    if let Some(root) = &h.control_fixture_directory
+        && h.controls.has_transition()
+        && root.join("pause-control-after-commit").is_file()
+    {
+        std::fs::write(
+            root.join("control-after-commit.marker"),
+            b"COMMITTED_CONTROL_NOT_NATIVE_ACK",
+        )
+        .map_err(|_| Error::Unavailable)?;
+        while root.join("pause-control-after-commit").is_file() {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
+    h.sync_native_control()?;
+    let confirmed = h.native_anchor_now()?;
+    if confirmed != anchor {
+        value["nativeAnchor"] = confirmed;
+        tx.write(&value)?;
+    }
+    let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
+    h.native_anchor = Some(value["nativeAnchor"].clone());
+    h.persisted = Some(value);
     Ok(())
 }
 /// Called by the existing public C10 reader, with current C01 authorization.

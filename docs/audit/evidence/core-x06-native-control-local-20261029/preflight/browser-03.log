@@ -1,0 +1,40 @@
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/core-l4-off.spec.ts:5:5 › CORE L4 default off refuses public command and exposes no high risk actions (4.6s)
+  ✘  2 [chromium] › tests/e2e/native-kill-control.spec.ts:7:5 › public native kill UI preserves original intent and joins independent release C10 (16.5s)
+
+
+  1) [chromium] › tests/e2e/native-kill-control.spec.ts:7:5 › public native kill UI preserves original intent and joins independent release C10 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/frontend-g8-reference.ts:151
+
+      149 |     return new Promise((resolve, reject) => { const req = secureRequest(origin + path, { rejectUnauthorized: false, method, headers: { "x-frontend-g8-control": "1", "x-frontend-g8-session": options.session ?? "session-owner", ...(write ? { "content-type": "application/json", ...(version ? { "if-match": version } : {}), "idempotency-key": crypto.randomUUID(), "x-request-id": crypto.randomUUID(), "x-csrf-token": csrf } : {}) } }, res => { const parts: Buffer[] = []; res.on("data", b => parts.push(Buffer.from(b))); res.on("end", () => resolve({ status: res.statusCode!, body: Buffer.concat(parts).length ? JSON.parse(Buffer.concat(parts).toString()) : {} })); }); req.on("error", reject); req.end(body ? JSON.stringify(body) : undefined); });
+      150 | }
+    > 151 | export async function authorized(page: Page) { await expect(page.locator('[data-route-access="authorized"]')).toBeVisible(); }
+          |                                                                                                               ^
+      152 | export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local" | "assisted-mtls-local" = "paper", assistedEnabled = true) {
+      153 |     test.beforeAll(async () => {
+      154 |         expect(process.env.DATABASE_URL).toBeUndefined();
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g8-reference.ts:151:111)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/native-kill-control.spec.ts:16:91
+
+    Error Context: docs/audit/evidence/core-x06-native-control-local-20261029/preflight/browser-03/native-kill-control-public-5f7db-ins-independent-release-C10-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-x06-native-control-local-20261029/preflight/browser-03/native-kill-control-public-5f7db-ins-independent-release-C10-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/native-kill-control.spec.ts:7:5 › public native kill UI preserves original intent and joins independent release C10 
+  1 passed (22.2s)

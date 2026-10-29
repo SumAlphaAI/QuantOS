@@ -1,0 +1,43 @@
+
+running 4 tests
+test assisted::control::tests::global_requires_owner_and_release_requires_independent_review ... FAILED
+test assisted::control::tests::layered_global_account_release_does_not_clear_other_stop ... FAILED
+test assisted::control::tests::account_engage_review_owner_release_keeps_old_decision_generation_invalid ... FAILED
+test assisted::control::tests::stale_cas_wrong_role_and_disabled_refuse_without_generation_change ... ok
+
+failures:
+
+---- assisted::control::tests::global_requires_owner_and_release_requires_independent_review stdout ----
+
+thread 'assisted::control::tests::global_requires_owner_and_release_requires_independent_review' (1358753) panicked at services/bff-gateway/src/assisted/control/tests.rs:161:5:
+assertion `left == right` failed
+  left: 403
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- assisted::control::tests::layered_global_account_release_does_not_clear_other_stop stdout ----
+
+thread 'assisted::control::tests::layered_global_account_release_does_not_clear_other_stop' (1358754) panicked at services/bff-gateway/src/assisted/control/tests.rs:252:5:
+assertion `left == right` failed
+  left: 403
+ right: 200
+
+---- assisted::control::tests::account_engage_review_owner_release_keeps_old_decision_generation_invalid stdout ----
+
+thread 'assisted::control::tests::account_engage_review_owner_release_keeps_old_decision_generation_invalid' (1358752) panicked at services/bff-gateway/src/assisted/control/tests.rs:103:5:
+assertion `left == right` failed: {"code":"FORBIDDEN","correlationId":"01a18637-8ba5-7791-aad6-12772193c76e","message":"Research request could not be completed."}
+  left: 403
+ right: 200
+
+
+failures:
+    assisted::control::tests::account_engage_review_owner_release_keeps_old_decision_generation_invalid
+    assisted::control::tests::global_requires_owner_and_release_requires_independent_review
+    assisted::control::tests::layered_global_account_release_does_not_clear_other_stop
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 274 filtered out; finished in 3.16s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.41s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-8300b3cbeca54799)
+error: test failed, to rerun pass `-p bff-gateway --lib`

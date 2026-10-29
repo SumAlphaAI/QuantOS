@@ -158,18 +158,23 @@ pub(crate) async fn guard(
 ) -> Response {
     let assisted_profile = data.lock().await.assisted.is_some();
     let path = request.uri().path();
-    if assisted_profile
-        && path.starts_with("/v1/")
-        && !path.starts_with("/v1/assisted-testnet/")
-        && !path.starts_with("/v1/auth/")
-        && !(path == "/v1/alerts" || path.starts_with("/v1/alerts/"))
-        && !(request.method() == axum::http::Method::GET
-            && (path == "/v1/audit/events" || path.starts_with("/v1/audit/evidence-chains/")))
-        && !matches!(
+    let assisted_read_or_control = path.starts_with("/v1/assisted-testnet/")
+        || path.starts_with("/v1/auth/")
+        || matches!(
             path,
-            "/v1/session" | "/v1/context" | "/v1/settings/sessions/stream"
+            "/v1/risk/kill-switch"
+                | "/v1/risk/kill-switch/engage"
+                | "/v1/risk/kill-switch/release"
+                | "/v1/risk/kill-switch/release-approvals"
+                | "/v1/session"
+                | "/v1/context"
+                | "/v1/settings/sessions/stream"
+                | "/v1/alerts"
         )
-    {
+        || path.starts_with("/v1/alerts/")
+        || request.method() == axum::http::Method::GET
+            && (path == "/v1/audit/events" || path.starts_with("/v1/audit/evidence-chains/"));
+    if assisted_profile && path.starts_with("/v1/") && !assisted_read_or_control {
         return crate::research::Fault(axum::http::StatusCode::FORBIDDEN, "CONTEXT_MODE_REQUIRED")
             .response();
     }

@@ -2052,6 +2052,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/risk/kill-switch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read current global/account kill generation and native durable stop */
+        get: operations["getAssistedKillControls"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/risk/kill-switch/release-approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Independently review the current stopped generation; grants no execution authority */
+        post: operations["approveAssistedKillRelease"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3784,6 +3818,77 @@ export interface components {
                 sequence: number;
                 head: string | null;
             };
+        };
+        AssistedKillEvent: {
+            eventId: components["schemas"]["UUID"];
+            correlationId: components["schemas"]["UUID"];
+            sequence: string;
+            /** @enum {string} */
+            action: "engage" | "approve_release" | "release";
+            /** @enum {string} */
+            scope: "global" | "account";
+            actorId: components["schemas"]["UUID"];
+            generation: string;
+            reason: string;
+            occurredAt: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            approvalRef: components["schemas"]["UUID"] | null;
+            riskReceiptHash: string | null;
+            recordHash: string;
+            /** @enum {boolean} */
+            unknownPreserved: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedKillIntent: {
+            /** @enum {string} */
+            scope: "global" | "account";
+            accountId: components["schemas"]["UUID"] | null;
+            expectedGeneration: string;
+            reason: string;
+            confirmPhrase: string;
+            mfaChallengeRef: components["schemas"]["UUID"];
+            reauthTokenRef: components["schemas"]["UUID"];
+            approvalRef?: components["schemas"]["UUID"];
+        };
+        AssistedKillView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-current-kill-controls.v1";
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "assisted_live";
+            generation: string;
+            globalActive: boolean;
+            accountActive: boolean;
+            nativeStopped: boolean;
+            permanentNativeStop: boolean;
+            nativeGeneration: string;
+            protectedCommands: number;
+            unknownCommands: number;
+            canEngageAccount: boolean;
+            canEngageGlobal: boolean;
+            canApproveRelease: boolean;
+            canRelease: boolean;
+            history: components["schemas"]["AssistedKillEvent"][];
+            historyTruncated: boolean;
+            releaseApprovals: components["schemas"]["AssistedKillEvent"][];
+            checkedAt: components["schemas"]["DateTime"];
+            expiresAt: components["schemas"]["DateTime"];
+            /** @enum {boolean} */
+            unknownPreserved: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        AssistedKillReceipt: {
+            /** @enum {string} */
+            schemaVersion: "quantos-current-kill-receipt.v1";
+            event: components["schemas"]["AssistedKillEvent"];
+            /** @enum {boolean} */
+            readCurrentState: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
         };
     };
     responses: {
@@ -5901,8 +6006,12 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /** @enum {string} */
+                    scope?: "global" | "account";
+                    expectedGeneration?: string;
+                    approvalRef?: components["schemas"]["UUID"];
                     /** Format: uuid */
-                    accountId: string;
+                    accountId: string | null;
                     reason: string;
                     /** Format: uuid */
                     mfaChallengeRef: string;
@@ -5935,7 +6044,7 @@ export interface operations {
                      *       "correlationId": "11111111-1111-4111-8111-111111111111"
                      *     }
                      */
-                    "application/json": components["schemas"]["RiskView"] & unknown;
+                    "application/json": (components["schemas"]["RiskView"] & unknown) | components["schemas"]["AssistedKillReceipt"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -5970,8 +6079,13 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /** @enum {string} */
+                    scope?: "global" | "account";
+                    expectedGeneration?: string;
+                    approvalRef?: components["schemas"]["UUID"];
                     /** Format: uuid */
-                    accountId: string;
+                    accountId: string | null;
+                    confirmPhrase?: string;
                     reason: string;
                     /** Format: uuid */
                     mfaChallengeRef: string;
@@ -6002,7 +6116,7 @@ export interface operations {
                      *       "correlationId": "11111111-1111-4111-8111-111111111111"
                      *     }
                      */
-                    "application/json": components["schemas"]["RiskView"] & unknown;
+                    "application/json": (components["schemas"]["RiskView"] & unknown) | components["schemas"]["AssistedKillReceipt"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -11759,6 +11873,110 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedKillControls: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 组合视图 */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-current-kill-controls.v1",
+                     *       "tenantId": "22222222-2222-4222-8222-222222222222",
+                     *       "workspaceId": "33333333-3333-4333-8333-333333333333",
+                     *       "accountId": "44444444-4444-4444-8444-444444444444",
+                     *       "mode": "assisted_live",
+                     *       "generation": "0",
+                     *       "globalActive": false,
+                     *       "accountActive": false,
+                     *       "nativeStopped": false,
+                     *       "permanentNativeStop": false,
+                     *       "nativeGeneration": "0",
+                     *       "protectedCommands": 0,
+                     *       "unknownCommands": 0,
+                     *       "canEngageAccount": true,
+                     *       "canEngageGlobal": false,
+                     *       "canApproveRelease": false,
+                     *       "canRelease": false,
+                     *       "history": [],
+                     *       "historyTruncated": false,
+                     *       "releaseApprovals": [],
+                     *       "checkedAt": "2026-10-29T00:00:00Z",
+                     *       "expiresAt": "2026-10-29T00:00:08Z",
+                     *       "unknownPreserved": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AssistedKillView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    approveAssistedKillRelease: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "scope": "account",
+                 *       "accountId": "44444444-4444-4444-8444-444444444444",
+                 *       "expectedGeneration": "1",
+                 *       "reason": "independent review",
+                 *       "confirmPhrase": "APPROVE ACCOUNT RELEASE",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": components["schemas"]["AssistedKillIntent"];
+            };
+        };
+        responses: {
+            /** @description Current scoped independent review recorded; native remains stopped */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistedKillReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             default: components["responses"]["ServerError"];
         };

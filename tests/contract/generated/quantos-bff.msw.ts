@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.21.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.22.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -13,6 +13,7 @@ export type BffMockResolvers = Partial<Record<BffOperationId, BffMockResolver>>;
 export type BffOperationId =
   | "ackAlert"
   | "ackIncident"
+  | "approveAssistedKillRelease"
   | "approveAssistedRequest"
   | "cancelExport"
   | "cancelResearchRun"
@@ -42,6 +43,7 @@ export type BffOperationId =
   | "getArtifactAttachment"
   | "getAssistedApprovalAudit"
   | "getAssistedCurrentReconciliation"
+  | "getAssistedKillControls"
   | "getAssistedNativeCapabilities"
   | "getAssistedNativeLedger"
   | "getAssistedRequest"
@@ -177,6 +179,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.ackIncident;
     if (resolver) return resolver({ request, params });
     return missingResolver("ackIncident");
+  }),
+  http.post(`${baseUrl}/v1/risk/kill-switch/release-approvals`, async ({ request, params }) => {
+    const resolver = resolvers.approveAssistedKillRelease;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("approveAssistedKillRelease");
   }),
   http.post(`${baseUrl}/v1/assisted-testnet/requests/:requestId/approvals`, async ({ request, params }) => {
     const resolver = resolvers.approveAssistedRequest;
@@ -322,6 +329,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getAssistedCurrentReconciliation;
     if (resolver) return resolver({ request, params });
     return missingResolver("getAssistedCurrentReconciliation");
+  }),
+  http.get(`${baseUrl}/v1/risk/kill-switch`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedKillControls;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedKillControls");
   }),
   http.get(`${baseUrl}/v1/assisted-testnet/capabilities`, async ({ request, params }) => {
     const resolver = resolvers.getAssistedNativeCapabilities;

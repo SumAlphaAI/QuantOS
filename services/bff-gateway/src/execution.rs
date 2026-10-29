@@ -1262,6 +1262,13 @@ async fn reference(
     headers: HeaderMap,
     input: Bytes,
 ) -> Response {
+    let current_control = matches!(
+        uri.path(),
+        "/v1/risk/kill-switch/engage" | "/v1/risk/kill-switch/release"
+    ) && data.lock().await.assisted.is_some();
+    if current_control {
+        return crate::assisted::control::handle(data, headers, method, uri.path(), q, input).await;
+    }
     if let Err(r) = crate::authenticate(&headers, &data).await {
         return r;
     }
@@ -1293,6 +1300,13 @@ async fn reference(
             Err(_) => return Fault::invalid().response(),
         }
     };
+    if uri.path().contains("kill-switch")
+        && ["scope", "expectedGeneration", "approvalRef"]
+            .iter()
+            .any(|k| body.get(k).is_some())
+    {
+        return Fault(StatusCode::FORBIDDEN, "CONTEXT_MODE_REQUIRED").response();
+    }
     let privileged = uri.path().contains("kill-switch") || uri.path().ends_with("/decisions");
     let proof = if privileged {
         let c = body["mfaChallengeRef"]

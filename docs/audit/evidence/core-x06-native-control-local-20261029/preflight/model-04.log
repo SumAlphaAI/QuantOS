@@ -1,0 +1,25 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0599]: no method named `advance_clock` found for struct `BffProvider` in the current scope
+   --> services/bff-gateway/src/assisted/control/tests.rs:395:7
+    |
+395 |     p.advance_clock(Duration::seconds(121)).await;
+    |       ^^^^^^^^^^^^^ method not found in `BffProvider`
+    |
+   ::: services/bff-gateway/src/lib.rs:197:1
+    |
+197 | pub struct BffProvider {
+    | ---------------------- method `advance_clock` not found for this struct
+
+error[E0599]: no method named `advance_clock` found for struct `BffProvider` in the current scope
+   --> services/bff-gateway/src/assisted/control/tests.rs:433:7
+    |
+433 |     p.advance_clock(Duration::seconds(121)).await;
+    |       ^^^^^^^^^^^^^ method not found in `BffProvider`
+    |
+   ::: services/bff-gateway/src/lib.rs:197:1
+    |
+197 | pub struct BffProvider {
+    | ---------------------- method `advance_clock` not found for this struct
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors

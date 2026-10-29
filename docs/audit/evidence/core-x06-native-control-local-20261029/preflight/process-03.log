@@ -1,0 +1,42 @@
+
+running 1 test
+test native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt ... FAILED
+
+failures:
+
+---- native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt stdout ----
+
+thread 'native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt' (1439468) panicked at services/bff-gateway/tests/core_l04.rs:182:62:
+owned BFF readiness JSON: Error("EOF while parsing a value", line: 1, column: 0)
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/std/src/panicking.rs:698:5
+   1: core::panicking::panic_fmt
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/panicking.rs:75:14
+   2: core::result::unwrap_failed
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/result.rs:1855:5
+   3: core::result::Result<T,E>::expect
+             at /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs:1178:23
+   4: core_l04::Lab::bff
+             at ./tests/core_l04.rs:182:62
+   5: core_l04::native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt
+             at ./tests/support/native_control.rs:360:35
+   6: core_l04::native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt::{{closure}}
+             at ./tests/support/native_control.rs:265:95
+   7: core::ops::function::FnOnce::call_once
+             at /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+   8: core::ops::function::FnOnce::call_once
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 12.97s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.83s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+Error: service_l03_Unavailable
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

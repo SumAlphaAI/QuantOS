@@ -241,6 +241,13 @@ impl RiskGuard {
     pub fn policy(&self) -> &RiskPolicy {
         &self.0.policy
     }
+    /// Owner adapter projection of this exact guard; no mutation or credential.
+    pub fn kill_status(&self, account: AccountId) -> Result<serde_json::Value, GuardError> {
+        let s = self.lock()?;
+        Ok(
+            json!({"revision":s.revision,"global":s.global,"account":s.accounts.contains(&account),"receipts":s.receipts}),
+        )
+    }
     pub fn revision(&self) -> Result<u64, GuardError> {
         Ok(self.lock()?.revision)
     }

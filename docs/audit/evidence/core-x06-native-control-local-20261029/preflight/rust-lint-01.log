@@ -1,0 +1,62 @@
+    Checking quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+    Checking quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Checking quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error: called `Iterator::last` on a `DoubleEndedIterator`; this will needlessly iterate the entire iterator
+  --> services/bff-gateway/src/assisted/control.rs:45:9
+   |
+45 | /         self.records
+46 | |             .iter()
+47 | |             .filter_map(|r| r.risk.as_ref().map(|r| r.revision))
+48 | |             .last()
+   | |______________-----^
+   |                |
+   |                help: try: `next_back()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#double_ended_iterator_last
+   = note: `-D clippy::double-ended-iterator-last` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::double_ended_iterator_last)]`
+
+error: this boolean expression can be simplified
+   --> services/bff-gateway/src/input_contract.rs:161:8
+    |
+161 |       if assisted_profile
+    |  ________^
+162 | |         && path.starts_with("/v1/")
+163 | |         && !path.starts_with("/v1/assisted-testnet/")
+164 | |         && !path.starts_with("/v1/auth/")
+...   |
+172 | |         && !(path == "/v1/alerts" || path.starts_with("/v1/alerts/"))
+    | |_____________________________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+    = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+help: try
+    |
+161 ~     if !(!assisted_profile || !path.starts_with("/v1/") || path.starts_with("/v1/assisted-testnet/") || path.starts_with("/v1/auth/") || matches!(
+162 +             path,
+163 +             "/v1/risk/kill-switch"
+164 +                 | "/v1/risk/kill-switch/engage"
+165 +                 | "/v1/risk/kill-switch/release"
+166 +                 | "/v1/risk/kill-switch/release-approvals"
+167 +         ) || path == "/v1/alerts" || path.starts_with("/v1/alerts/"))
+    |
+
+error: could not compile `bff-gateway` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors

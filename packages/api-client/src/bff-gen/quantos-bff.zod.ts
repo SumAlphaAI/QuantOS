@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.21.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.22.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1549,6 +1549,69 @@ export const AssistedReconciliationViewSchema = z.object({
 }).strict(),
 }).strict();
 
+export const AssistedKillEventSchema = z.object({
+  "eventId": z.lazy(() => UUIDSchema),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "sequence": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "action": z.enum(["engage","approve_release","release"]),
+  "scope": z.enum(["global","account"]),
+  "actorId": z.lazy(() => UUIDSchema),
+  "generation": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "reason": z.string().max(256),
+  "occurredAt": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "approvalRef": z.union([z.lazy(() => UUIDSchema), z.null()]),
+  "riskReceiptHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "recordHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "unknownPreserved": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedKillIntentSchema = z.object({
+  "scope": z.enum(["global","account"]),
+  "accountId": z.union([z.lazy(() => UUIDSchema), z.null()]),
+  "expectedGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "reason": z.string().min(1).max(256),
+  "confirmPhrase": z.string(),
+  "mfaChallengeRef": z.lazy(() => UUIDSchema),
+  "reauthTokenRef": z.lazy(() => UUIDSchema),
+  "approvalRef": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
+export const AssistedKillViewSchema = z.object({
+  "schemaVersion": z.literal("quantos-current-kill-controls.v1"),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("assisted_live"),
+  "generation": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "globalActive": z.boolean(),
+  "accountActive": z.boolean(),
+  "nativeStopped": z.boolean(),
+  "permanentNativeStop": z.boolean(),
+  "nativeGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "protectedCommands": z.number().int().min(0),
+  "unknownCommands": z.number().int().min(0),
+  "canEngageAccount": z.boolean(),
+  "canEngageGlobal": z.boolean(),
+  "canApproveRelease": z.boolean(),
+  "canRelease": z.boolean(),
+  "history": z.array(z.lazy(() => AssistedKillEventSchema)).max(100),
+  "historyTruncated": z.boolean(),
+  "releaseApprovals": z.array(z.lazy(() => AssistedKillEventSchema)).max(100),
+  "checkedAt": z.lazy(() => DateTimeSchema),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "unknownPreserved": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const AssistedKillReceiptSchema = z.object({
+  "schemaVersion": z.literal("quantos-current-kill-receipt.v1"),
+  "event": z.lazy(() => AssistedKillEventSchema),
+  "readCurrentState": z.literal(true),
+  "executionAuthority": z.literal(false),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -1692,6 +1755,10 @@ export const bffZodSchemas = {
   AssistedReconciliationFinding: AssistedReconciliationFindingSchema,
   AssistedReconciliationAlertEvidence: AssistedReconciliationAlertEvidenceSchema,
   AssistedReconciliationView: AssistedReconciliationViewSchema,
+  AssistedKillEvent: AssistedKillEventSchema,
+  AssistedKillIntent: AssistedKillIntentSchema,
+  AssistedKillView: AssistedKillViewSchema,
+  AssistedKillReceipt: AssistedKillReceiptSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -2000,7 +2067,7 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "engageKillSwitch": {
-    "200": z.intersection(z.lazy(() => RiskViewSchema), z.unknown()),
+    "200": z.union([z.intersection(z.lazy(() => RiskViewSchema), z.unknown()), z.lazy(() => AssistedKillReceiptSchema)]),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
@@ -2008,7 +2075,7 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "releaseKillSwitch": {
-    "200": z.intersection(z.lazy(() => RiskViewSchema), z.unknown()),
+    "200": z.union([z.intersection(z.lazy(() => RiskViewSchema), z.unknown()), z.lazy(() => AssistedKillReceiptSchema)]),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "422": z.lazy(() => ErrorEnvelopeSchema),
@@ -2695,6 +2762,21 @@ export const bffResponseSchemas = {
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedKillControls": {
+    "200": z.lazy(() => AssistedKillViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "approveAssistedKillRelease": {
+    "200": z.lazy(() => AssistedKillReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },

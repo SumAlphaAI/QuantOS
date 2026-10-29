@@ -4,7 +4,7 @@ use axum::{
     http::Request,
 };
 use tower::ServiceExt;
-async fn call(
+pub(super) async fn call(
     app: &Router,
     who: &str,
     method: &str,
@@ -45,7 +45,7 @@ async fn call(
     let raw = to_bytes(r.into_body(), 1_000_000).await.unwrap();
     (status, serde_json::from_slice(&raw).unwrap())
 }
-async fn proof(app: &Router, who: &str) -> Value {
+pub(super) async fn proof(app: &Router, who: &str) -> Value {
     let (status, c) = call(
         app,
         who,

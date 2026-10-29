@@ -272,8 +272,8 @@ impl CurrentSubjectSource {
         state.revoked.insert(id);
         Ok(())
     }
-    /// Trusted owner control only; the BFF does not expose a mutation route.
-    /// Deployment-wide durability/control remains a separate L4 obligation.
+    /// Trusted owner control. The public owner adapter must enforce current identity,
+    /// MFA/review and atomic durable control/audit persistence before acknowledgment.
     pub fn set_kill_switch(
         &self,
         auth: &AuthContext,
@@ -285,6 +285,12 @@ impl CurrentSubjectSource {
     ) -> Result<KillReceipt, GuardError> {
         self.guard
             .set_kill_switch(auth, scope, engaged, expected, reason, at)
+    }
+    pub fn kill_status(&self, account: quantos_core::AccountId) -> Result<Value, Error> {
+        self.guard.kill_status(account).map_err(invalid)
+    }
+    pub fn verify_kill_receipt(&self, receipt: &KillReceipt) -> Result<(), Error> {
+        self.guard.verify_kill_receipt(receipt).map_err(invalid)
     }
     /// Safe C10 provenance: no keys, raw financials, source payload or executable token.
     pub fn provenance(&self, id: ProposalId) -> Result<Value, Error> {

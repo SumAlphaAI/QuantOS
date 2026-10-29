@@ -240,3 +240,65 @@ fn core_l04_verified_byte_cache_observes_other_writers_and_never_masks_corruptio
         );
     }
 }
+
+#[test]
+fn controlled_native_stop_is_monotonic_durable_and_preserves_unknown_reservations() {
+    let f = Fixture::new(true);
+    let r = f.pair();
+    let d = Directory::new();
+    let store_key = key();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, store_key, calls.clone());
+    a.apply_kill_control(1, true).unwrap();
+    assert!(a.submit("operator", r.request, "original", at()).is_err());
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+    drop(a);
+    let b = native(&f, &d, store_key, calls.clone());
+    assert_eq!(b.control_status().unwrap()["generation"], 1);
+    assert_eq!(b.control_status().unwrap()["stopped"], true);
+    b.apply_kill_control(2, false).unwrap();
+    let first = b.submit("operator", r.request, "original", at()).unwrap();
+    assert_eq!(first.state, "unknown");
+    let anchor = b.control_status().unwrap()["reservationAnchor"].clone();
+    b.apply_kill_control(3, true).unwrap();
+    b.apply_kill_control(4, false).unwrap();
+    assert_eq!(b.control_status().unwrap()["reservationAnchor"], anchor);
+    assert_eq!(
+        b.submit("operator", r.request, "original", at()).unwrap(),
+        first
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    assert_eq!(b.control_status().unwrap()["unknownCount"], 1);
+}
+#[test]
+fn controlled_release_does_not_reset_permanent_emergency_stop() {
+    let f = Fixture::new(true);
+    let r = f.pair();
+    let d = Directory::new();
+    let store_key = key();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, store_key, calls.clone());
+    a.engage_kill_switch().unwrap();
+    a.apply_kill_control(1, true).unwrap();
+    a.apply_kill_control(2, false).unwrap();
+    assert_eq!(a.control_status().unwrap()["stopped"], true);
+    assert_eq!(a.control_status().unwrap()["permanentStop"], true);
+    drop(a);
+    let b = native(&f, &d, store_key, calls.clone());
+    assert!(b.submit("operator", r.request, "no-reset", at()).is_err());
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+}
+#[test]
+fn native_control_rejects_lower_generation_and_same_generation_fork() {
+    let f = Fixture::new(true);
+    let d = Directory::new();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let a = native(&f, &d, key(), calls);
+    a.apply_kill_control(2, true).unwrap();
+    let bytes = fs::read(d.0.join("commands.json")).unwrap();
+    assert!(a.apply_kill_control(1, false).is_err());
+    assert!(a.apply_kill_control(2, false).is_err());
+    assert_eq!(fs::read(d.0.join("commands.json")).unwrap(), bytes);
+    a.apply_kill_control(2, true).unwrap();
+    assert_eq!(fs::read(d.0.join("commands.json")).unwrap(), bytes);
+}

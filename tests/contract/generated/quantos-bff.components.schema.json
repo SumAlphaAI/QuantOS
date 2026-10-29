@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.21.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.22.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -7309,6 +7309,322 @@
               ]
             }
           }
+        }
+      }
+    },
+    "AssistedKillEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "correlationId",
+        "sequence",
+        "action",
+        "scope",
+        "actorId",
+        "generation",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "approvalRef",
+        "riskReceiptHash",
+        "recordHash",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "eventId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "engage",
+            "approve_release",
+            "release"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "account"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "approvalRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskReceiptHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedKillIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "accountId",
+        "expectedGeneration",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "account"
+          ]
+        },
+        "accountId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expectedGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string"
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "approvalRef": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "AssistedKillView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "generation",
+        "globalActive",
+        "accountActive",
+        "nativeStopped",
+        "permanentNativeStop",
+        "nativeGeneration",
+        "protectedCommands",
+        "unknownCommands",
+        "canEngageAccount",
+        "canEngageGlobal",
+        "canApproveRelease",
+        "canRelease",
+        "history",
+        "historyTruncated",
+        "releaseApprovals",
+        "checkedAt",
+        "expiresAt",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-kill-controls.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "globalActive": {
+          "type": "boolean"
+        },
+        "accountActive": {
+          "type": "boolean"
+        },
+        "nativeStopped": {
+          "type": "boolean"
+        },
+        "permanentNativeStop": {
+          "type": "boolean"
+        },
+        "nativeGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "protectedCommands": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknownCommands": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canEngageAccount": {
+          "type": "boolean"
+        },
+        "canEngageGlobal": {
+          "type": "boolean"
+        },
+        "canApproveRelease": {
+          "type": "boolean"
+        },
+        "canRelease": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/AssistedKillEvent"
+          }
+        },
+        "historyTruncated": {
+          "type": "boolean"
+        },
+        "releaseApprovals": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/AssistedKillEvent"
+          }
+        },
+        "checkedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedKillReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-kill-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/AssistedKillEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
         }
       }
     }

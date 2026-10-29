@@ -1,5 +1,5 @@
 {
-  "version": "1.21.0",
+  "version": "1.22.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -7309,6 +7309,322 @@
           }
         }
       }
+    },
+    "AssistedKillEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "correlationId",
+        "sequence",
+        "action",
+        "scope",
+        "actorId",
+        "generation",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "approvalRef",
+        "riskReceiptHash",
+        "recordHash",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "engage",
+            "approve_release",
+            "release"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "account"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "approvalRef": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskReceiptHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedKillIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "accountId",
+        "expectedGeneration",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "account"
+          ]
+        },
+        "accountId": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/UUID"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expectedGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string"
+        },
+        "mfaChallengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "reauthTokenRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "approvalRef": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "AssistedKillView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "generation",
+        "globalActive",
+        "accountActive",
+        "nativeStopped",
+        "permanentNativeStop",
+        "nativeGeneration",
+        "protectedCommands",
+        "unknownCommands",
+        "canEngageAccount",
+        "canEngageGlobal",
+        "canApproveRelease",
+        "canRelease",
+        "history",
+        "historyTruncated",
+        "releaseApprovals",
+        "checkedAt",
+        "expiresAt",
+        "unknownPreserved",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-kill-controls.v1"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "globalActive": {
+          "type": "boolean"
+        },
+        "accountActive": {
+          "type": "boolean"
+        },
+        "nativeStopped": {
+          "type": "boolean"
+        },
+        "permanentNativeStop": {
+          "type": "boolean"
+        },
+        "nativeGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "protectedCommands": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknownCommands": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canEngageAccount": {
+          "type": "boolean"
+        },
+        "canEngageGlobal": {
+          "type": "boolean"
+        },
+        "canApproveRelease": {
+          "type": "boolean"
+        },
+        "canRelease": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/components/schemas/AssistedKillEvent"
+          }
+        },
+        "historyTruncated": {
+          "type": "boolean"
+        },
+        "releaseApprovals": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/components/schemas/AssistedKillEvent"
+          }
+        },
+        "checkedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "unknownPreserved": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "AssistedKillReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-current-kill-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/components/schemas/AssistedKillEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
     }
   },
   "operations": [
@@ -9935,8 +10251,25 @@
           "confirmPhrase"
         ],
         "properties": {
-          "accountId": {
+          "scope": {
             "type": "string",
+            "enum": [
+              "global",
+              "account"
+            ]
+          },
+          "expectedGeneration": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "approvalRef": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "accountId": {
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid"
           },
           "reason": {
@@ -10032,9 +10365,29 @@
           "reauthTokenRef"
         ],
         "properties": {
-          "accountId": {
+          "scope": {
             "type": "string",
+            "enum": [
+              "global",
+              "account"
+            ]
+          },
+          "expectedGeneration": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "approvalRef": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "accountId": {
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid"
+          },
+          "confirmPhrase": {
+            "type": "string"
           },
           "reason": {
             "type": "string"
@@ -16903,6 +17256,107 @@
         "cache": "no-store",
         "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
         "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/risk/kill-switch",
+      "method": "GET",
+      "operationId": "getAssistedKillControls",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/risk/kill-switch/release-approvals",
+      "method": "POST",
+      "operationId": "approveAssistedKillRelease",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/AssistedKillIntent"
+      },
+      "bodyExample": {
+        "scope": "account",
+        "accountId": "44444444-4444-4444-8444-444444444444",
+        "expectedGeneration": "1",
+        "reason": "independent review",
+        "confirmPhrase": "APPROVE ACCOUNT RELEASE",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Current C01 scope, server-owned versioned policy, immutable subject/risk projection and half-open proof/request/command deadlines; never Paper impersonation.",
+        "idempotency": "Original actor/key/exact body and proof deadline; changed body conflicts",
         "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
         "audit": "Two independent actors/users; keyed service approval audit and same-source native command; no serialized receipt grants authority.",
         "limits": {

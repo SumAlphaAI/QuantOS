@@ -1,0 +1,38 @@
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0603]: function `call` is private
+  --> services/bff-gateway/src/assisted/control/tests.rs:1:27
+   |
+ 1 | use super::super::tests::{call, proof};
+   |                           ^^^^ private function
+   |
+note: the function `call` is defined here
+  --> services/bff-gateway/src/assisted/tests.rs:7:1
+   |
+ 7 | / async fn call(
+ 8 | |     app: &Router,
+ 9 | |     who: &str,
+10 | |     method: &str,
+...  |
+46 | |     (status, serde_json::from_slice(&raw).unwrap())
+47 | | }
+   | |_^
+
+error[E0603]: function `proof` is private
+  --> services/bff-gateway/src/assisted/control/tests.rs:1:33
+   |
+ 1 | use super::super::tests::{call, proof};
+   |                                 ^^^^^ private function
+   |
+note: the function `proof` is defined here
+  --> services/bff-gateway/src/assisted/tests.rs:48:1
+   |
+48 | async fn proof(app: &Router, who: &str) -> Value {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors

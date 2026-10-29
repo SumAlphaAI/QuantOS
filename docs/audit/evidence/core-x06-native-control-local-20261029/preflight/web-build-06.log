@@ -1,0 +1,25 @@
+
+> @sumalpha/terminal@0.1.0 build /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+> next build && node ../../scripts/pre03-build-receipt.mjs terminal && node ../../scripts/check-client-secrets.mjs out
+
+   ▲ Next.js 15.5.28
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 1797ms
+   Linting and checking validity of types ...
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/terminal@0.1.0 build: `next build && node ../../scripts/pre03-build-receipt.mjs terminal && node ../../scripts/check-client-secrets.mjs out`
+Exit status 1
+Failed to compile.
+
+./src/kill/runtime.ts:83:35
+Type error: 'original' is possibly 'undefined'.
+
+[0m [90m 81 |[39m         [36mif[39m ([33m![39mreason[33m.[39mtrim() [33m||[39m reason[33m.[39mlength [33m>[39m [35m256[39m [33m||[39m [[33m...[39mreason][33m.[39msome(c [33m=>[39m c[33m.[39mcharCodeAt([35m0[39m) [33m<[39m [35m32[39m [33m||[39m c[33m.[39mcharCodeAt([35m0[39m) [33m===[39m [35m127[39m)) fail([35m422[39m[33m,[39m[32m'REASON_REQUIRED'[39m)[33m;[39m
+ [90m 82 |[39m         [36mawait[39m load()[33m;[39m allowed(action[33m,[39mscope)[33m;[39m csrf(token)[33m;[39m
+[31m[1m>[22m[39m[90m 83 |[39m         [36mif[39m (state[33m![39m[33m.[39mgeneration [33m!==[39m original[33m.[39mgeneration) fail([35m409[39m[33m,[39m[32m'CONTROL_CHANGED'[39m)[33m;[39m
+ [90m    |[39m                                   [31m[1m^[22m[39m
+ [90m 84 |[39m         [36mif[39m (action [33m===[39m [32m'release'[39m [33m&&[39m [33m![39mstate[33m![39m[33m.[39mreleaseApprovals[33m.[39msome(p [33m=>[39m p[33m.[39meventId [33m===[39m approvalRef [33m&&[39m p[33m.[39mscope [33m===[39m scope [33m&&[39m p[33m.[39mactorId [33m!==[39m context[33m![39m[33m.[39mactorId)) fail([35m409[39m[33m,[39m[32m'INDEPENDENT_REVIEW_REQUIRED'[39m)[33m;[39m
+ [90m 85 |[39m         [36mconst[39m challenge [33m=[39m [36mawait[39m completeSecurityMfa(config[33m.[39morigin[33m,[39mcode[33m,[39mtoken[33m,[39mwire[33m,[39m{signal[33m:[39mlife[33m.[39msignal})[33m;[39m guard()[33m;[39m csrf(token)[33m;[39m
+ [90m 86 |[39m         [36mif[39m (challenge[33m.[39mstatus [33m!==[39m [32m'verified'[39m) fail([35m403[39m[33m,[39m[32m'MFA_NOT_VERIFIED'[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

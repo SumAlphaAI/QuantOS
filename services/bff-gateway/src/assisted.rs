@@ -116,6 +116,9 @@ pub(crate) struct OwnedHost {
     ledger: Option<quantos_portfolio::native_ledger::NativeLedger>,
     ledger_store: Option<quantos_execution::durable::DurableStore>,
     ledger_anchor: quantos_portfolio::native_ledger::Anchor,
+    controls: control::Controls,
+    native_anchor: Option<Value>,
+    control_fixture_directory: Option<std::path::PathBuf>,
     alert_inbox: Option<alerts::Inbox>,
     alert_store: Option<quantos_execution::durable::DurableStore>,
     alert_anchor: quantos_portfolio::native_ledger::Anchor,
@@ -240,6 +243,9 @@ impl OwnedHost {
             ledger: None,
             ledger_store: None,
             ledger_anchor: Default::default(),
+            controls: Default::default(),
+            native_anchor: None,
+            control_fixture_directory: None,
             alert_inbox: None,
             alert_store: None,
             alert_anchor: Default::default(),
@@ -291,6 +297,7 @@ fn command(c: CommandReceipt) -> Value {
 }
 pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
     Router::new()
+        .merge(control::routes())
         .route("/v1/assisted-testnet/capabilities", get(handle))
         .route("/v1/assisted-testnet/subjects", get(handle))
         .route("/v1/assisted-testnet/ledger", get(handle))
@@ -537,6 +544,7 @@ pub(crate) mod persistence;
 mod tests;
 
 pub(crate) mod alerts;
+pub(crate) mod control;
 mod ledger;
 mod reconciliation;
 mod source_seed;

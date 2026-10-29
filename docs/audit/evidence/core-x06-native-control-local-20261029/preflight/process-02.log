@@ -1,0 +1,35 @@
+
+running 3 tests
+test native_control::public_controls_preserve_actual_unknown_fill_ledger_and_open_alert_obligations ... FAILED
+test native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt ... FAILED
+test native_control::public_kill_control_replicas_cas_proofs_and_layered_independent_release ... ok
+
+failures:
+
+---- native_control::public_controls_preserve_actual_unknown_fill_ledger_and_open_alert_obligations stdout ----
+
+thread 'native_control::public_controls_preserve_actual_unknown_fill_ledger_and_open_alert_obligations' (1410247) panicked at services/bff-gateway/tests/support/native_control.rs:502:5:
+assertion failed: lab.trace.recv_timeout(Wait::from_millis(100)).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt stdout ----
+
+thread 'native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt' (1410246) panicked at services/bff-gateway/tests/core_l04.rs:182:82:
+called `Result::unwrap()` on an `Err` value: Error("EOF while parsing a value", line: 1, column: 0)
+
+
+failures:
+    native_control::public_control_commit_before_native_ack_recovers_and_refuses_rollback_missing_and_corrupt
+    native_control::public_controls_preserve_actual_unknown_fill_ledger_and_open_alert_obligations
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 3 filtered out; finished in 21.47s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.81s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+Error: service_l03_Unavailable
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

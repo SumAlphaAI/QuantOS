@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -21,6 +21,16 @@
         "operations"
       ],
       "responseSchema": "OpsIncident",
+      "sse": false
+    },
+    {
+      "operationId": "approveAssistedKillRelease",
+      "method": "POST",
+      "path": "/v1/risk/kill-switch/release-approvals",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": "AssistedKillReceipt",
       "sse": false
     },
     {
@@ -311,6 +321,16 @@
         "execution"
       ],
       "responseSchema": "AssistedReconciliationView",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedKillControls",
+      "method": "GET",
+      "path": "/v1/risk/kill-switch",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AssistedKillView",
       "sse": false
     },
     {
