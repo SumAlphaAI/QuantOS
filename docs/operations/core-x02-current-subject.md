@@ -8,7 +8,7 @@
 
 审批发起、MFA后审批、原key恢复和命令提交都查同一原始来源。锁顺序 native → approval service → current source → RiskGuard；最后一次时钟读取在风险锁内，检查和原生有界IO间不释放kill CAS锁。命令截止取原Subject/决策/审批/会话/证明及30秒命令窗口的最小值；等待锁不会用旧时间绕过截止。任何来源更新造成变化即单向撤销该Subject，保留原事实用于只读溯因；恢复旧checkpoint不能清除本进程已知撤销。kill的global/account engage及owner release均增加generation，旧决策在停止解除后仍无效，需新的研究/评估/审批。
 
-原Proposal、决策、原期限、来源与风险generation通过原L04认证checkpoint恢复；release只在外层MAC及独立domain的owner HMAC均验证之后从owner storage重建，重新检查私有验证证明/审批完整性，不提供HTTP导入或公开Deserialize。release按hash去重存储。风险checkpoint独立签名，仅恢复review命名空间，不恢复Allow、issuer消费者或审批token，拒绝旧revision/时间回退。本机稳定文件锁和fsync保护仍仅为同主机机制；有权回滚整目录/密钥、跨主机与真实DB事务仍是未完成义务。旧无来源checkpoint拒绝写入迁移，不重新生成可执行权限；历史文件不改写。
+原Proposal、决策、原期限、来源与风险generation通过原L04认证checkpoint恢复；release只在外层MAC及独立domain的owner HMAC均验证之后从owner storage重建，重新检查私有验证证明/审批完整性，不提供HTTP导入或公开Deserialize。release按hash去重存储，并缓存认证后未变化的不可变entries/releases；每次仍核验外层MAC、risk checkpoint、当前generation/时钟与撤销，不缓存这些当前权限。8d1df5bf首轮浏览器正向旅程超30秒的FAIL原件保留，新候选修复重复重建开销，未扩大浏览器超时或风险TTL。风险checkpoint独立签名，仅恢复review命名空间，不恢复Allow、issuer消费者或审批token，拒绝旧revision/时间回退。本机稳定文件锁和fsync保护仍仅为同主机机制；有权回滚整目录/密钥、跨主机与真实DB事务仍是未完成义务。旧无来源checkpoint拒绝写入迁移，不重新生成可执行权限；历史文件不改写。
 
 公共C10的同一request_opened负载现在含Proposal原文hash、签名review决策ID、facts/snapshot hash、policy和kill generation；原审批、Command、Order继续使用同一Subject fingerprint及causation链。公开内容不含密钥、原资金明细或可执行token；Assisted Audit继续只读。来源过期/撤销不抹掉历史命令和unknown，原key不能自动补发；只有当前会话授权的事实读取继续可用。
 

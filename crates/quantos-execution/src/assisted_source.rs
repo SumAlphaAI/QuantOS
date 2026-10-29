@@ -39,6 +39,7 @@ struct Entry {
 struct State {
     entries: BTreeMap<ProposalId, Entry>,
     revoked: BTreeSet<ProposalId>,
+    immutable_checkpoint: Option<Value>,
 }
 /// Same guard instance must serve evaluation, kill CAS and dispatch validation.
 #[derive(Clone)]
@@ -181,6 +182,7 @@ impl CurrentSubjectSource {
             return Err(Error::Conflict);
         }
         self.check(&e, at, |_| ())?;
+        state.immutable_checkpoint = None;
         state.entries.insert(subject.id, e);
         Ok(subject)
     }
@@ -298,16 +300,28 @@ impl CurrentSubjectSource {
         )
     }
     pub(crate) fn checkpoint(&self) -> Result<Value, Error> {
-        let s = self.state.lock().map_err(|_| Error::Unavailable)?;
-        let mut releases = BTreeMap::new();
-        let entries=s.entries.values().map(|e| {
-            if let std::collections::btree_map::Entry::Vacant(slot) = releases.entry(e.current.release.content_hash.to_string()) { slot.insert(e.current.release.owner_checkpoint(&self.storage_key.0).map_err(invalid)?); }
-            Ok::<_,Error>(json!({"subject":e.subject,"record":e.record,"auth":e.auth,"intent":e.intent,"decision":e.decision,
-                "snapshot":e.current.snapshot,"financials":e.current.financials,"venue":e.current.venue,"releaseHash":e.current.release.content_hash}))
-        }).collect::<Result<Vec<_>,_>>()?;
-        Ok(
-            json!({"risk":self.guard.assisted_checkpoint().map_err(invalid)?,"revoked":s.revoked,"entries":entries,"releases":releases}),
-        )
+        let mut s = self.state.lock().map_err(|_| Error::Unavailable)?;
+        if s.immutable_checkpoint.is_none() {
+            let mut releases = BTreeMap::new();
+            let entries=s.entries.values().map(|e| {
+                if let std::collections::btree_map::Entry::Vacant(slot)=releases.entry(e.current.release.content_hash.to_string()) {
+                    slot.insert(e.current.release.owner_checkpoint(&self.storage_key.0).map_err(invalid)?);
+                }
+                Ok::<_,Error>(json!({"subject":e.subject,"record":e.record,"auth":e.auth,"intent":e.intent,"decision":e.decision,
+                    "snapshot":e.current.snapshot,"financials":e.current.financials,"venue":e.current.venue,"releaseHash":e.current.release.content_hash}))
+            }).collect::<Result<Vec<_>,_>>()?;
+            s.immutable_checkpoint = Some(json!({"entries":entries,"releases":releases}));
+        }
+        // Only immutable, already verified bytes are cached. Every checkpoint
+        // still samples the actual risk generation/clock and current revocations.
+        let mut v = s
+            .immutable_checkpoint
+            .as_ref()
+            .ok_or(Error::Unavailable)?
+            .clone();
+        v["risk"] = self.guard.assisted_checkpoint().map_err(invalid)?;
+        v["revoked"] = json!(s.revoked);
+        Ok(v)
     }
 
     /// Called only AFTER the service checkpoint MAC has been verified. No
@@ -327,9 +341,23 @@ impl CurrentSubjectSource {
             #[serde(rename = "releaseHash")]
             release_hash: ContentHash,
         }
-        let rows: Vec<Saved> = serde_json::from_value(v["entries"].clone()).map_err(invalid)?;
+        let immutable = json!({"entries":v["entries"],"releases":v["releases"]});
         let revoked: BTreeSet<ProposalId> =
             serde_json::from_value(v["revoked"].clone()).map_err(invalid)?;
+        {
+            let mut s = self.state.lock().map_err(|_| Error::Unavailable)?;
+            if s.immutable_checkpoint.as_ref() == Some(&immutable) {
+                // Outer approval MAC has already passed; the risk checkpoint is
+                // still authenticated and checked for rollback on every read.
+                self.guard
+                    .restore_assisted_checkpoint(&v["risk"])
+                    .map_err(invalid)?;
+                s.revoked.extend(revoked);
+                return Ok(());
+            }
+        }
+        let rows: Vec<Saved> = serde_json::from_value(v["entries"].clone()).map_err(invalid)?;
+
         if rows.len() > 4096 {
             return Err(Error::Invalid);
         }
@@ -379,6 +407,7 @@ impl CurrentSubjectSource {
             .restore_assisted_checkpoint(&v["risk"])
             .map_err(invalid)?;
         s.entries = entries;
+        s.immutable_checkpoint = Some(immutable);
         s.revoked.extend(revoked);
         Ok(())
     }

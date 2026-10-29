@@ -2,7 +2,7 @@ import {Buffer} from 'node:buffer';
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFileSync} from 'node:fs';
-import {checks,directory,hash,boundary,validateBoundary,validateScope,validatePlans,validateExecutions,validateProvenance,reviewedDigest,safe} from './core-x02-current-review.mjs';
+import {checks,directory,hash,boundary,validateBoundary,validateScope,validatePlans,validateExecutions,validateProvenance,reviewedDigest,safe,failedAttempt} from './core-x02-current-review.mjs';
 const json=p=>JSON.parse(readFileSync(p)),source='1'.repeat(40),attempt=directory+'/attempt-01';
 test('function evidence remains bounded and campaigns absent',()=>{validateBoundary(boundary());assert.equal(checks.length,27);assert(!checks.some(([,c])=>c.includes('--workspace')||c.includes('install')||c.includes('coverage:critical')));});
 for(const k of Object.keys(boundary()))test('boundary refuses changed '+k,()=>{const b=boundary();b[k]=null;assert.throws(()=>validateBoundary(b));});
@@ -25,3 +25,6 @@ test('secret finding classification is exact current owned digest only',()=>asse
 for(const[name,edit]of [['path',v=>{v.File='/tmp/scan/positive/private.json';}],['rule',v=>{v.RuleID='private-key';}],['range',v=>{v.EndLine++;}],['line',v=>{v.StartLine=1;v.EndLine=1;}]])test('secret classification rejects '+name,()=>{const v=finding();edit(v);assert.equal(reviewedDigest(v,attempt,source,()=>text),null);});
 test('secret-looking credential or unbound source never uses digest exception',()=>{assert.equal(reviewedDigest(finding(),attempt,source,()=>text.replace('keyHash','accessToken')),null);assert.equal(reviewedDigest(finding(),attempt,'2'.repeat(40),()=>text),null);});
 for(const path of ['', '../escape','/absolute','x/../escape','x\\escape','.env','apps/terminal/.env.local'])test('artifact path rejects '+JSON.stringify(path),()=>assert.throws(()=>safe(path)));
+
+test('failed attempt digest stays bound to original failed source, never current PASS',()=>{const f=finding();const old=text.replace(source,failedAttempt.sourceCommit);const result=reviewedDigest(f,directory+'/attempt-02',source,()=>old);assert.equal(result.scope,'ORIGINAL_FAILED_SCOPE_ONLY');assert.equal(result.sourceCommit,failedAttempt.sourceCommit);assert.equal(reviewedDigest(f,directory+'/attempt-02',source,()=>text),null);});
+test('unregistered attempt cannot use historical digest classification',()=>{const f=finding();f.File=f.File.replace('attempt-01','attempt-99');assert.equal(reviewedDigest(f,directory+'/attempt-02',source,()=>text),null);});

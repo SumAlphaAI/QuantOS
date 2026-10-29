@@ -699,3 +699,41 @@ fn owner_release_restore_rechecks_integrity_and_rejects_mutated_private_proof() 
         assert!(StrategyRelease::from_owner_checkpoint(v, &[74; 32]).is_err());
     }
 }
+#[test]
+fn immutable_source_cache_never_caches_kill_clock_or_current_revocation() {
+    let f = F::new();
+    let r = f.pair();
+    let saved = f.service.checkpoint().unwrap();
+    f.service.restore_checkpoint(&saved).unwrap(); // exact immutable cache hit
+    let (native, calls) = f.native();
+    f.guard
+        .set_kill_switch(
+            &f.f.owner(),
+            KillScope::Account(f.f.intent.account_id),
+            true,
+            0,
+            "current cached stop",
+            f.f.now,
+        )
+        .unwrap();
+    assert!(f.service.restore_checkpoint(&saved).is_err()); // cache cannot reset generation
+    let stopped = f.service.checkpoint().unwrap();
+    assert_eq!(
+        stopped["value"]["currentSources"]["entries"],
+        saved["value"]["currentSources"]["entries"]
+    );
+    assert_eq!(
+        stopped["value"]["currentSources"]["risk"]["value"]["revision"],
+        1
+    );
+    f.service.restore_checkpoint(&stopped).unwrap();
+    assert!(
+        native
+            .submit("requester", r.request, "original", f.f.now)
+            .is_err()
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+    let mut tampered = stopped.clone();
+    tampered["value"]["currentSources"]["entries"][0]["subject"]["quantity"] = json!("2");
+    assert!(f.service.restore_checkpoint(&tampered).is_err());
+}
