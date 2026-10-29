@@ -20,6 +20,9 @@ pub enum Rule {
     Concentration,
     DailyLoss,
     Approval,
+    /// Appended only to the exact native review namespace; legacy Rule::ALL is
+    /// kept byte-compatible for historical signed records.
+    AccountBooks,
 }
 impl Rule {
     pub const ALL: [Self; 15] = [

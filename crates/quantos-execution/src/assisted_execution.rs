@@ -17,6 +17,8 @@ use std::{
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CurrentExecutionBinding {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub books: Option<quantos_portfolio::books_risk::BooksRiskInput>,
     pub snapshot_hash: ContentHash,
     pub ledger_hash: ContentHash,
     pub source_hash: ContentHash,
@@ -259,8 +261,9 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
     ) -> Result<CommandReceipt, Error> {
         self.submit_checked(session, request, key, None, clock)
     }
-    /// Owner-only exact current snapshot. Caller holds its authenticated input and
-    /// ledger serialization locks through this call. Public clients cannot supply it.
+    /// Owner-only exact current snapshot. Caller holds authenticated valuation,
+    /// account-books publisher and ledger locks through reservation/IO. Public
+    /// clients cannot supply this context.
     pub fn submit_current(
         &self,
         session: &str,
@@ -347,6 +350,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                                 )
                                 .ok_or(Error::Invalid)?;
                             Some(CurrentExecutionBinding {
+                                books: current.books.clone(),
                                 snapshot_hash: current.snapshot.snapshot_hash.clone(),
                                 ledger_hash: current.snapshot.ledger_hash.clone(),
                                 source_hash: current.snapshot.source_hash.clone(),
@@ -671,6 +675,17 @@ fn load<K: ExecutionKernel>(
                     return Err(Error::Unavailable);
                 }
                 if let Some(binding) = &i.receipt.current_risk {
+                    if let Some(b) = &binding.books
+                        && (b.scope.tenant_id != subject.scope.tenant
+                            || b.scope.workspace_id != subject.scope.workspace
+                            || b.scope.account_id != subject.scope.account
+                            || b.ledger_hash != binding.ledger_hash
+                            || !b.eligible(i.issued_at)
+                            || b.deadline()
+                                .is_none_or(|until| i.receipt.expires_at > until))
+                    {
+                        return Err(Error::Unavailable);
+                    }
                     let approval = i.approval.as_ref().ok_or(Error::Unavailable)?;
                     if binding.proposal_hash != subject.proposal_hash
                         || binding.decision_id != subject.decision

@@ -8,11 +8,34 @@ impl OwnedHost {
         &mut self,
         session: &str,
         id: ProposalId,
-        at: DateTime<Utc>,
+        clock: impl ClockInput,
+    ) -> Result<(), Error> {
+        let store = self.book_input_fence.clone();
+        let _lock = store.as_ref().map(|s| s.lock()).transpose()?;
+        self.require_native_snapshot_locked(session, id, clock)
+    }
+    pub(super) fn require_native_snapshot_locked(
+        &mut self,
+        session: &str,
+        id: ProposalId,
+        clock: impl ClockInput,
     ) -> Result<(), Error> {
         if let Some(expected) = self.sources.native_snapshot(id)? {
+            let at = clock.sample();
             let v = self.sync_valuation(session, at)?;
             if v["riskInputReady"] != true || v["snapshot"]["snapshotHash"] != json!(expected) {
+                return Err(Error::PolicyChanged);
+            }
+            self.sync_reconciliation_locked(session, at)?;
+            let current = self
+                .reconciliation
+                .as_ref()
+                .ok_or(Error::Unavailable)?
+                .risk_input()
+                .map_err(|_| Error::Unavailable)?;
+            if !current.eligible(clock.sample())
+                || self.sources.native_books(id)?.as_ref() != Some(&current)
+            {
                 return Err(Error::PolicyChanged);
             }
         }
@@ -24,8 +47,9 @@ impl OwnedHost {
         id: ProposalId,
         key: &str,
         body: &Value,
-        at: DateTime<Utc>,
+        clock: impl ClockInput,
     ) -> Result<Value, Error> {
+        let at = clock.sample();
         let caps = self.service.capabilities(session, at)?;
         if caps["request"] != true {
             return Err(Error::Unauthorized);
@@ -36,6 +60,9 @@ impl OwnedHost {
         {
             return Err(Error::Invalid);
         }
+        let store = self.book_input_fence.clone().ok_or(Error::Unavailable)?;
+        let _books_lock = store.lock()?;
+        let at = clock.sample();
         let current = self.sync_valuation(session, at)?;
         if current["riskInputReady"] != true
             || current["snapshot"]["snapshotHash"] != body["snapshotHash"]
@@ -43,16 +70,28 @@ impl OwnedHost {
         {
             return Err(Error::PolicyChanged);
         }
+        self.sync_reconciliation_locked(session, at)?;
+        let books = self
+            .reconciliation
+            .as_ref()
+            .ok_or(Error::Unavailable)?
+            .risk_input()
+            .map_err(|_| Error::Unavailable)?;
         let binding = json!([id, body]);
         let cache_key = (session.to_owned(), key.to_owned());
         if let Some(previous) = self.risk_refreshes.get(&cache_key) {
             if previous["binding"] != binding {
                 return Err(Error::Conflict);
             }
+            if previous["response"]["booksAdmission"]["inputHash"]
+                != json!(books.content_hash().map_err(|_| Error::Unavailable)?)
+            {
+                return Err(Error::PolicyChanged);
+            }
             let until: DateTime<Utc> =
                 serde_json::from_value(previous["response"]["decision"]["expiresAt"].clone())
                     .map_err(|_| Error::Unavailable)?;
-            if at >= until {
+            if clock.sample() >= until {
                 return Err(Error::Expired);
             }
             return Ok(previous["response"].clone());
@@ -63,6 +102,7 @@ impl OwnedHost {
         let snapshot: Snapshot =
             serde_json::from_value(current["snapshot"].clone()).map_err(|_| Error::Unavailable)?;
         let context = NativeRiskContext {
+            books: Some(books),
             input: self
                 .valuation
                 .input_for(&snapshot)
@@ -75,7 +115,7 @@ impl OwnedHost {
                 .checkpoint()
                 .map_err(|_| Error::Unavailable)?,
         };
-        let review = self.sources.refresh_native(id, context, at)?;
+        let review = self.sources.refresh_native(id, context, clock.sample())?;
         if let Some(subject) = &review.subject {
             self.service.register_subject(subject.clone())?;
             self.subjects.insert(subject.id, subject.clone());

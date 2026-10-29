@@ -48,7 +48,7 @@ pub(super) fn roundtrip(url: &str) -> Value {
     c11::current(url)
 }
 #[test]
-fn current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_repeat_proposal() {
+fn current_gate_accepted_public_controls_open_evidence_denies_fresh_native_review() {
     let lab = Lab::new();
     current::enabled(&lab);
     let (_p, url) = lab.bff(true);
@@ -73,6 +73,16 @@ fn current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_re
     let original = inspect(&url, &id);
     let ledger = get(&url, "/v1/assisted-testnet/ledger");
     assert_eq!(ledger["appliedFillCount"], 2);
+    let payload: Value =
+        serde_json::from_slice(&fs::read(lab.directory.join("account-books.json")).unwrap())
+            .unwrap();
+    let mut book: quantos_reconcile::account_books::Books =
+        serde_json::from_value(payload["payload"].clone()).unwrap();
+    super::account_books::advance(&mut book);
+    book.positions[1].amount = "1".into();
+    book.cash[0].amount = "7999.98".into();
+    book.fees[0].amount = "0.02".into();
+    super::account_books::publish(&lab, &book);
     let stale = get(&url, "/v1/assisted-testnet/valuation");
     assert_eq!(stale["riskInputReady"], false);
     // Independent signed protocol observation fault creates OPEN evidence; restoring
@@ -112,6 +122,8 @@ fn current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_re
     let released = get(&cold, "/v1/risk/kill-switch");
     assert_eq!(released["nativeStopped"], false);
     assert_eq!(released["generation"], "4");
+    super::account_books::advance(&mut book);
+    super::account_books::publish(&lab, &book);
     assert_eq!(get(&cold, "/v1/alerts"), alerts);
     assert_eq!(inspect(&cold, &id), original);
     assert_eq!(immutable(&native(&lab)), reservations);
@@ -140,23 +152,19 @@ fn current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_re
         &Uuid::new_v4().to_string(),
     );
     assert_eq!(s, 200, "{new_review}");
-    assert_eq!(new_review["decision"]["verdict"], "approval_required");
+    assert_eq!(new_review["decision"]["verdict"], "deny");
+    assert_eq!(
+        new_review["booksAdmission"]["reason"],
+        "OPEN_FINANCIAL_OBLIGATIONS"
+    );
+    assert!(new_review.get("subject").is_none());
     assert_eq!(new_review["proposalHash"], review["proposalHash"]);
     assert_ne!(
         new_review["decision"]["decisionId"],
         review["decision"]["decisionId"]
     );
-    let newer = open(&cold, &new_review["subject"]);
-    let new_opened = inspect(&cold, &newer);
-    assert_eq!(new_opened["request"]["approvers"], json!([]));
-    approve(&cold, &newer, 0);
-    approve(&cold, &newer, 1);
-    let repeat = current::submit(&cold, &newer, "never-repeat");
-    assert_eq!(repeat.0, 409, "{repeat:?}");
-    assert_eq!(repeat.1["code"], "STATE_CONFLICT");
     assert_eq!(immutable(&native(&lab)), reservations);
     assert_eq!(audit(&cold, &id), request_audit);
-    assert_eq!(get(&cold, "/v1/assisted-testnet/ledger"), ledger);
     assert_eq!(get(&cold, "/v1/alerts"), alerts);
     let current_c11 = c11::current(&cold);
     let history = get(
@@ -195,7 +203,7 @@ fn current_gate_accepted_exact_review_public_controls_fresh_generation_cannot_re
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     valuation::evidence(
         "QUANTOS_L4_CURRENT_ACCEPTED_RESULT",
-        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"scope":"CURRENT_NATIVE_REVIEW_ACCEPTED_PUBLIC_CONTROLS_REREVIEW_SAME_PROPOSAL","firstValuation":first_valuation,"review":review,"approval":approval,"command":command,"original":original,"ledger":ledger,"staleValuation":stale,"observerUnavailable":unavailable,"reconciliation":books,"alerts":alerts,"requestAudit":request_audit,"initialC11":initial,"on":on,"stopped":stopped,"layered":layered,"released":released,"currentC11":current_c11,"c11History":history,"valuation":valuation,"newReview":new_review,"newOpened":new_opened,"newApproved":inspect(&cold,&newer),"activationAudit":activation_audit,"controlAudits":control_audits,"gapRefusals":refusals,"repeatRefusal":{"status":repeat.0,"body":repeat.1},"reservationsBefore":reservations,"reservationsAfter":immutable(&native(&lab)),"protocolCalls":2,"actualTestnet":false,"limitsRelaxed":false,"automaticClosure":false,"noResend":true}),
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"scope":"CURRENT_NATIVE_REVIEW_ACCEPTED_PUBLIC_CONTROLS_REREVIEW_SAME_PROPOSAL","firstValuation":first_valuation,"review":review,"approval":approval,"command":command,"original":original,"ledger":ledger,"staleValuation":stale,"observerUnavailable":unavailable,"reconciliation":books,"alerts":alerts,"requestAudit":request_audit,"initialC11":initial,"on":on,"stopped":stopped,"layered":layered,"released":released,"currentC11":current_c11,"c11History":history,"valuation":valuation,"newReview":new_review,"activationAudit":activation_audit,"controlAudits":control_audits,"gapRefusals":refusals,"reservationsBefore":reservations,"reservationsAfter":immutable(&native(&lab)),"protocolCalls":2,"actualTestnet":false,"limitsRelaxed":false,"automaticClosure":false,"noResend":true}),
     );
 }
 #[test]
@@ -242,7 +250,7 @@ fn current_gate_unknown_remains_open_across_public_c11_kill_release_and_restart(
     let reservations = immutable(&native(&lab));
     assert_eq!(ledger["appliedFillCount"], 1);
     assert_eq!(ledger["quarantinedCommandCount"], 1);
-    assert_eq!(alerts["items"].as_array().unwrap().len(), 2);
+    assert_eq!(alerts["items"].as_array().unwrap().len(), 3);
     roundtrip(&cold);
     kill::mutate(&cold, "session-current", "engage", "account", 0, None);
     let stopped = roundtrip(&cold);

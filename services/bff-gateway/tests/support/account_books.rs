@@ -47,6 +47,8 @@ pub(super) fn statement(lab: &Lab) -> Books {
     }
 }
 fn write(lab: &Lab, b: &Books, domain: &str) {
+    let fence = owner_store(lab, "account-books-fence");
+    let _guard = fence.lock().unwrap();
     let key = PKey::private_key_from_pem(&fs::read(lab.directory.join("server-key.pem")).unwrap())
         .unwrap();
     let mut signer = Signer::new(MessageDigest::sha256(), &key).unwrap();
@@ -359,7 +361,11 @@ fn account_books_cannot_clear_actual_current_unknown_or_original_generation() {
         .read()
         .unwrap()
         .unwrap();
-    let mut book = statement(&lab);
+    let payload: Value =
+        serde_json::from_slice(&fs::read(lab.directory.join("account-books.json")).unwrap())
+            .unwrap();
+    let mut book: Books = serde_json::from_value(payload["payload"].clone()).unwrap();
+    advance(&mut book);
     // Authored independent account export claims both known scenario fills. It
     // still cannot resolve the local command whose actual reply was lost.
     book.positions[1].amount = "1".into();

@@ -72,6 +72,27 @@ pub(super) fn context(f: &F, diverse: bool, generation: u64) -> NativeRiskContex
             .collect(),
     };
     NativeRiskContext {
+        books: Some(quantos_portfolio::books_risk::BooksRiskInput {
+            scope: input.scope.clone(),
+            ledger_hash: input.ledger_hash.clone(),
+            reconciliation_hash: ContentHash::sha256_bytes(b"owned reconciliation model"),
+            account_report_hash: ContentHash::sha256_bytes(b"owned account report model"),
+            source_id: "owned-independent-source-model".into(),
+            source_hash: Some(ContentHash::sha256_bytes(b"owned independent model input")),
+            source_version: Some(1),
+            basis_hash: Some(input.content_hash().unwrap()),
+            coverage: "SPOT_EMPTY_ORIGIN_NO_EXTERNAL_FLOWS_QUOTE_FEES".into(),
+            source_trust: "PINNED_INDEPENDENT_OWNER_REFERENCE_NOT_VENUE_ACCOUNT".into(),
+            period_start: Some(input.opening_at),
+            coverage_through: Some(f.f.now),
+            captured_at: Some(f.f.now),
+            valid_until: Some(f.f.now + Duration::seconds(30)),
+            account_state: "MATCHED_DECLARED_ACCOUNT_BOOKS".into(),
+            protocol_state: "MATCHED_OBSERVATIONS".into(),
+            open_obligations: 0,
+            obligations_hash: ContentHash::sha256_bytes(b"owned empty obligations model"),
+            unknown_obligations: 0,
+        }),
         snapshot: native_valuation::evaluate(&ledger, &input, generation, f.f.now)
             .unwrap()
             .snapshot
@@ -145,7 +166,7 @@ fn current_single_symbol_concentration_yields_signed_deny_without_subject() {
     assert_eq!(r.decision.verdict, RiskVerdict::Deny);
     assert!(r.subject.is_none());
     assert!(f.source.with_current(&f.subject, f.f.now, || ()).is_err());
-    assert_eq!(r.decision.checks.len(), 15);
+    assert_eq!(r.decision.checks.len(), 16);
     assert!(
         r.decision
             .checks

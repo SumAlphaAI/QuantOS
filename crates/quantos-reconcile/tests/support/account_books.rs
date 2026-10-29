@@ -60,6 +60,38 @@ fn account_input() -> Input {
     i.account_books_checked = true;
     i
 }
+#[test]
+fn risk_projection_binds_current_book_and_keeps_corrected_open_obligations_blocking() {
+    let mut i = account_input();
+    let mut s = state(&i);
+    s.observe(i.clone()).unwrap();
+    let first = s.risk_input().unwrap();
+    assert!(first.eligible(i.checked_at));
+    assert_eq!(first.source_version, Some(1));
+    assert_eq!(
+        first.ledger_hash.to_string(),
+        s.view().unwrap()["ledgerHash"].as_str().unwrap()
+    );
+    advance(&mut i);
+    i.account_books.as_mut().unwrap().cash[0].amount = "9000".into();
+    s.observe(i.clone()).unwrap();
+    let different = s.risk_input().unwrap();
+    assert_eq!(different.reason(i.checked_at), "BOOKS_NOT_MATCHED");
+    assert_eq!(different.open_obligations, 1);
+    advance(&mut i);
+    i.account_books.as_mut().unwrap().cash[0].amount = "8999.99".into();
+    s.observe(i.clone()).unwrap();
+    let restored = s.risk_input().unwrap();
+    assert_eq!(restored.reason(i.checked_at), "OPEN_FINANCIAL_OBLIGATIONS");
+    assert_eq!(restored.obligations_hash, different.obligations_hash);
+    assert_ne!(
+        restored.content_hash().unwrap(),
+        first.content_hash().unwrap()
+    );
+    let cold =
+        CurrentReconciliation::restore(i.scope, i.origin_id, &s.checkpoint().unwrap()).unwrap();
+    assert_eq!(cold.risk_input().unwrap(), restored);
+}
 fn advance(i: &mut Input) {
     let b = i.account_books.as_mut().unwrap();
     b.previous_hash = Some(b.content_hash().unwrap());

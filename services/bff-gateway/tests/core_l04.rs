@@ -1113,3 +1113,7 @@ mod risk_refresh;
 
 #[path = "support/account_books_gate.rs"]
 mod account_books_gate;
+#[path = "support/books_risk.rs"]
+mod books_risk;
+#[path = "support/books_risk_legacy.rs"]
+mod books_risk_legacy;

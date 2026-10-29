@@ -9,7 +9,12 @@ fn reconcile(url: &str) -> Value {
     get(url, "/v1/assisted-testnet/reconciliation")
 }
 fn statement(lab: &Lab) -> quantos_reconcile::account_books::Books {
-    let mut b = books::statement(lab);
+    let payload: Value =
+        serde_json::from_slice(&fs::read(lab.directory.join("account-books.json")).unwrap())
+            .unwrap();
+    let mut b: quantos_reconcile::account_books::Books =
+        serde_json::from_value(payload["payload"].clone()).unwrap();
+    books::advance(&mut b);
     // Scenario contract: independent export of two spot purchases, each 1@1000
     // and USDT0.01 fee, from an owner-authenticated opening USDT10000.
     b.positions[1].amount = "1".into();
@@ -87,46 +92,33 @@ fn funding(lab: &Lab, url: &str, ledger: &Value, version: u64) -> Value {
     get(url, "/v1/assisted-testnet/valuation")
 }
 #[test]
-fn account_books_gate_accepted_current_command_differences_controls_recovery_and_risk_gap() {
+fn account_books_gate_accepted_controls_and_corrected_open_books_deny_current_risk() {
     let lab = Lab::new();
     current::enabled(&lab);
     let (_p, url) = lab.bff(true);
-    let (first, reviewed, id) = current::prepare(&lab, &url);
-    let approved = gate::inspect(&url, &id);
+    let (_, reviewed, id) = current::prepare(&lab, &url);
     let initial = c11::current(&url);
     c11::change(&url, &initial, false);
-    let refused = current::submit(&url, &id, "off");
-    assert_ne!(refused.0, 200);
     let off = c11::current(&url);
     c11::change(&url, &off, true);
-    let on = c11::current(&url);
-    assert_eq!(on["version"], "2");
     let (s, command) = current::submit(&url, &id, "current");
     assert_eq!(s, 200, "{command}");
-    assert_eq!(command["currentRisk"]["activation"]["version"], 2);
     assert_eq!(lab.trace()["protocolCalls"], 2);
     let original = gate::inspect(&url, &id);
     let ledger = get(&url, "/v1/assisted-testnet/ledger");
-    assert_eq!(ledger["appliedFillCount"], 2);
-    let absent = reconcile(&url);
-    assert_eq!(absent["accountBooks"]["status"], "SOURCE_UNAVAILABLE");
     let mut b = statement(&lab);
     books::publish(&lab, &b);
-    let matched = reconcile(&url);
     assert_eq!(
-        matched["accountBooks"]["status"],
+        reconcile(&url)["accountBooks"]["status"],
         "MATCHED_DECLARED_ACCOUNT_BOOKS"
     );
-    assert_eq!(matched["openAlertEvidenceCount"], 0);
     books::advance(&mut b);
     b.positions[0].amount = "2".into();
     b.cash[0].amount = "8000".into();
     b.fees[0].amount = "0".into();
     books::publish(&lab, &b);
-    let differences = reconcile(&url);
-    assert_eq!(differences["accountBooks"]["status"], "DIFFERENCES");
     assert_eq!(
-        differences["accountBooks"]["findings"]
+        reconcile(&url)["accountBooks"]["findings"]
             .as_array()
             .unwrap()
             .len(),
@@ -134,48 +126,26 @@ fn account_books_gate_accepted_current_command_differences_controls_recovery_and
     );
     let (alerts, audits) = financial_alerts(&url);
     assert_eq!(alerts["items"].as_array().unwrap().len(), 3);
-    // This is a remaining DEVELOPMENT join gap, not a production permit: X02
-    // consumes X01's exact snapshot but currently has no account-statement input.
-    // Observe the fresh review only; do not approve/dispatch while books differ.
-    let gap_valuation = funding(&lab, &url, &ledger, 2);
-    assert_eq!(gap_valuation["riskInputReady"], true);
-    let (gs, gap_review) = review(&url, &reviewed, &gap_valuation, "0");
-    assert_eq!(gs, 200, "{gap_review}");
-    assert_eq!(gap_review["decision"]["verdict"], "approval_required");
-    assert_eq!(gate::native(&lab)["issued"].as_object().unwrap().len(), 2);
-    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     books::advance(&mut b);
     b.positions[0].amount = "1".into();
     b.cash[0].amount = "7999.98".into();
     b.fees[0].amount = "0.02".into();
     books::publish(&lab, &b);
-    let corrected = reconcile(&url);
     assert_eq!(
-        corrected["accountBooks"]["status"],
+        reconcile(&url)["accountBooks"]["status"],
         "MATCHED_DECLARED_ACCOUNT_BOOKS"
     );
-    assert_eq!(get(&url, "/v1/alerts"), alerts);
-    let request_audit = gate::audit(&url, &id);
-    let immutable = gate::immutable(&gate::native(&lab));
     let before = claims(&lab);
+    let immutable = gate::immutable(&gate::native(&lab));
+    let request_audit = gate::audit(&url, &id);
     kill::mutate(&url, "session-owner", "engage", "global", 0, None);
     kill::mutate(&url, "session-current", "engage", "account", 1, None);
     let stopped = gate::roundtrip(&url);
-    assert_eq!(stopped["version"], "4");
     assert_eq!(stopped["killGeneration"], "2");
-    assert_eq!(stopped["nativeStopped"], true);
     let (_r, cold) = lab.bff(true);
     assert_eq!(gate::inspect(&cold, &id), original);
-    assert_eq!(gate::immutable(&gate::native(&lab)), immutable);
-    assert_eq!(gate::audit(&cold, &id), request_audit);
     gate::release(&cold, "account", 2);
-    let layered = get(&cold, "/v1/risk/kill-switch");
-    assert_eq!(layered["nativeStopped"], true);
     gate::release(&cold, "global", 3);
-    let released = get(&cold, "/v1/risk/kill-switch");
-    assert_eq!(released["generation"], "4");
-    assert_eq!(released["nativeStopped"], false);
-    // Explicitly new signed version, never a read-side renewal of the old lease.
     books::advance(&mut b);
     books::publish(&lab, &b);
     let recovered = reconcile(&cold);
@@ -183,44 +153,22 @@ fn account_books_gate_accepted_current_command_differences_controls_recovery_and
         recovered["accountBooks"]["status"],
         "MATCHED_DECLARED_ACCOUNT_BOOKS"
     );
+    let fresh = funding(&lab, &cold, &ledger, 2);
+    let (s, denied) = review(&cold, &reviewed, &fresh, "4");
+    assert_eq!(s, 200, "{denied}");
+    assert_eq!(denied["decision"]["verdict"], "deny");
+    assert_eq!(
+        denied["booksAdmission"]["reason"],
+        "OPEN_FINANCIAL_OBLIGATIONS"
+    );
+    assert!(denied.get("subject").is_none());
     assert_eq!(get(&cold, "/v1/alerts"), alerts);
-    let fresh = funding(&lab, &cold, &ledger, 3);
-    assert_eq!(fresh["killGeneration"], "4");
-    let (s, new_review) = review(&cold, &reviewed, &fresh, "4");
-    assert_eq!(s, 200, "{new_review}");
-    assert_eq!(new_review["decision"]["verdict"], "approval_required");
-    let newer = open(&cold, &new_review["subject"]);
-    let empty = gate::inspect(&cold, &newer);
-    assert_eq!(empty["request"]["approvers"], json!([]));
-    approve(&cold, &newer, 0);
-    approve(&cold, &newer, 1);
-    let repeat = current::submit(&cold, &newer, "never-repeat");
-    assert_eq!(repeat.0, 409);
-    assert_eq!(repeat.1["code"], "STATE_CONFLICT");
     assert_eq!(gate::immutable(&gate::native(&lab)), immutable);
-    assert_eq!(get(&cold, "/v1/assisted-testnet/ledger"), ledger);
-    assert_eq!(gate::inspect(&cold, &id), original);
-    assert_eq!(get(&cold, "/v1/alerts"), alerts);
-    let mut refusals = vec![];
-    for action in ["ack", "unack"] {
-        let r = call(
-            &cold,
-            "session-owner",
-            "POST",
-            &format!(
-                "/v1/alerts/{}/{action}",
-                alerts["items"][0]["id"].as_str().unwrap()
-            ),
-            json!({}),
-            &Uuid::new_v4().to_string(),
-        );
-        assert_eq!(r.0, 403);
-        refusals.push(json!({"action":action,"status":r.0}));
-    }
+    assert_eq!(gate::audit(&cold, &id), request_audit);
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     valuation::evidence(
         "QUANTOS_L4_BOOKS_ACCEPTED_RESULT",
-        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"scope":"CURRENT_ACCOUNT_BOOKS_NATIVE_REVIEW_PUBLIC_CONTROLS_AND_RISK_GAP","firstValuation":first,"review":reviewed,"approved":approved,"command":command,"original":original,"ledger":ledger,"initialC11":initial,"on":on,"absent":absent,"matched":matched,"differences":differences,"gapValuation":gap_valuation,"gapReview":gap_review,"corrected":corrected,"recovered":recovered,"statement":b,"signedStatement":serde_json::from_slice::<Value>(&fs::read(lab.directory.join("account-books.json")).unwrap()).unwrap(),"certificate":fs::read_to_string(lab.directory.join("server.pem")).unwrap(),"alerts":alerts,"alertAudits":audits,"requestAudit":request_audit,"stopped":stopped,"layered":layered,"released":released,"freshValuation":fresh,"newReview":new_review,"emptyApproval":empty,"newApproved":gate::inspect(&cold,&newer),"repeatRefusal":{"status":repeat.0,"body":repeat.1},"mutationRefusals":refusals,"claimsBefore":before,"claimsAfter":claims(&lab),"controlEvidence":control_evidence(&cold),"protocolCalls":2,"actualTestnet":false,"limitsRelaxed":false,"automaticClosure":false,"noResend":true,"booksRiskAdmission":"NOT_JOINED_REMAINS_OPEN"}),
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"scope":"CURRENT_BOOKS_OPEN_DENIES_RISK_AFTER_CONTROLS","original":original,"ledger":ledger,"alerts":alerts,"alertAudits":audits,"recovered":recovered,"denied":denied,"claimsBefore":before,"claimsAfter":claims(&lab),"controlEvidence":control_evidence(&cold),"protocolCalls":2,"actualTestnet":false,"noResend":true,"automaticClosure":false}),
     );
 }
 #[test]

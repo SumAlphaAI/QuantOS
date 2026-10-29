@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.28.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.29.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -353,6 +353,9 @@
         "notional"
       ],
       "properties": {
+        "books": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
         "snapshotHash": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$"
@@ -9010,6 +9013,9 @@
             "executionAuthority"
           ],
           "properties": {
+            "booksAdmission": {
+              "$ref": "#/$defs/BooksRiskAdmission"
+            },
             "schemaVersion": {
               "type": "string",
               "enum": [
@@ -9116,7 +9122,7 @@
                 "checks": {
                   "type": "array",
                   "minItems": 15,
-                  "maxItems": 15,
+                  "maxItems": 16,
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
@@ -9143,7 +9149,8 @@
                           "leverage",
                           "concentration",
                           "daily_loss",
-                          "approval"
+                          "approval",
+                          "account_books"
                         ]
                       },
                       "breached": {
@@ -9207,6 +9214,9 @@
             "subject"
           ],
           "properties": {
+            "booksAdmission": {
+              "$ref": "#/$defs/BooksRiskAdmission"
+            },
             "schemaVersion": {
               "type": "string",
               "enum": [
@@ -9313,7 +9323,7 @@
                 "checks": {
                   "type": "array",
                   "minItems": 15,
-                  "maxItems": 15,
+                  "maxItems": 16,
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
@@ -9340,7 +9350,8 @@
                           "leverage",
                           "concentration",
                           "daily_loss",
-                          "approval"
+                          "approval",
+                          "account_books"
                         ]
                       },
                       "breached": {
@@ -9403,6 +9414,9 @@
         "executionAuthority"
       ],
       "properties": {
+        "books": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
         "snapshotHash": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$"
@@ -9508,6 +9522,216 @@
           "items": {
             "$ref": "#/$defs/NativeRiskCandidate"
           }
+        }
+      }
+    },
+    "BooksRiskInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "ledgerHash",
+        "reconciliationHash",
+        "accountReportHash",
+        "sourceId",
+        "sourceHash",
+        "sourceVersion",
+        "basisHash",
+        "coverage",
+        "sourceTrust",
+        "periodStart",
+        "coverageThrough",
+        "capturedAt",
+        "validUntil",
+        "accountState",
+        "protocolState",
+        "openObligations",
+        "obligationsHash",
+        "unknownObligations"
+      ],
+      "properties": {
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        "ledgerHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reconciliationHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "accountReportHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sourceHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceVersion": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basisHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sourceTrust": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "periodStart": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverageThrough": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capturedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validUntil": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accountState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "protocolState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "openObligations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "unknownObligations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        }
+      }
+    },
+    "BooksRiskAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputHash",
+        "reason",
+        "input",
+        "executionAuthority"
+      ],
+      "properties": {
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "UNKNOWN_OR_QUARANTINED_OBLIGATIONS",
+            "BOOKS_SOURCE_UNAVAILABLE",
+            "BOOKS_SOURCE_INVALID",
+            "BOOKS_SOURCE_STALE",
+            "BOOKS_COVERAGE_UNSUPPORTED",
+            "BOOKS_NOT_MATCHED",
+            "PROTOCOL_NOT_MATCHED",
+            "OPEN_FINANCIAL_OBLIGATIONS",
+            "ELIGIBLE_REFERENCE_BOOKS"
+          ]
+        },
+        "input": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
         }
       }
     }

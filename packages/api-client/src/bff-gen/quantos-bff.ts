@@ -2253,6 +2253,7 @@ export interface components {
             order?: components["schemas"]["AssistedNativeOrder"];
         };
         AssistedCurrentExecutionBinding: {
+            books?: components["schemas"]["BooksRiskInput"];
             snapshotHash: string;
             ledgerHash: string;
             sourceHash: string;
@@ -4268,6 +4269,7 @@ export interface components {
             expectedGeneration: string;
         };
         NativeRiskReviewView: {
+            booksAdmission?: components["schemas"]["BooksRiskAdmission"];
             /** @enum {string} */
             schemaVersion: "quantos-native-risk-review.v1";
             previousSubjectId: components["schemas"]["UUID"];
@@ -4294,7 +4296,7 @@ export interface components {
                 killGeneration: string;
                 checks: {
                     /** @enum {string} */
-                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval";
+                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval" | "account_books";
                     breached: boolean;
                     limit_id: string;
                 }[];
@@ -4310,6 +4312,7 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
         } | {
+            booksAdmission?: components["schemas"]["BooksRiskAdmission"];
             /** @enum {string} */
             schemaVersion: "quantos-native-risk-review.v1";
             previousSubjectId: components["schemas"]["UUID"];
@@ -4336,7 +4339,7 @@ export interface components {
                 killGeneration: string;
                 checks: {
                     /** @enum {string} */
-                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval";
+                    rule: "identity" | "numbers" | "precision" | "global_kill" | "account_kill" | "release" | "snapshot" | "financials" | "venue" | "duplicate" | "order_notional" | "leverage" | "concentration" | "daily_loss" | "approval" | "account_books";
                     breached: boolean;
                     limit_id: string;
                 }[];
@@ -4354,6 +4357,7 @@ export interface components {
             subject: components["schemas"]["AssistedSubject"];
         };
         NativeSubjectRiskBinding: {
+            books?: components["schemas"]["BooksRiskInput"];
             snapshotHash: string;
             ledgerHash: string;
             sourceHash: string;
@@ -4381,6 +4385,39 @@ export interface components {
         };
         NativeRiskCandidateList: {
             items: components["schemas"]["NativeRiskCandidate"][];
+        };
+        BooksRiskInput: {
+            scope: {
+                tenantId: components["schemas"]["UUID"];
+                workspaceId: components["schemas"]["UUID"];
+                accountId: components["schemas"]["UUID"];
+            };
+            ledgerHash: string;
+            reconciliationHash: string;
+            accountReportHash: string;
+            sourceId: string;
+            sourceHash: string | null;
+            sourceVersion: number | null;
+            basisHash: string | null;
+            coverage: string;
+            sourceTrust: string;
+            periodStart: components["schemas"]["DateTime"] | null;
+            coverageThrough: components["schemas"]["DateTime"] | null;
+            capturedAt: components["schemas"]["DateTime"] | null;
+            validUntil: components["schemas"]["DateTime"] | null;
+            accountState: string;
+            protocolState: string;
+            openObligations: number;
+            obligationsHash: string;
+            unknownObligations: number;
+        };
+        BooksRiskAdmission: {
+            inputHash: string;
+            /** @enum {string} */
+            reason: "UNKNOWN_OR_QUARANTINED_OBLIGATIONS" | "BOOKS_SOURCE_UNAVAILABLE" | "BOOKS_SOURCE_INVALID" | "BOOKS_SOURCE_STALE" | "BOOKS_COVERAGE_UNSUPPORTED" | "BOOKS_NOT_MATCHED" | "PROTOCOL_NOT_MATCHED" | "OPEN_FINANCIAL_OBLIGATIONS" | "ELIGIBLE_REFERENCE_BOOKS";
+            input: components["schemas"]["BooksRiskInput"];
+            /** @enum {boolean} */
+            executionAuthority: false;
         };
     };
     responses: {

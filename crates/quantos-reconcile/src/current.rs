@@ -539,6 +539,42 @@ pub struct CurrentReconciliation {
     account_history: crate::account_books::History,
 }
 impl CurrentReconciliation {
+    /// Only the authenticated owner adapter may supply this read-only result to
+    /// risk. Keep ALL unresolved X05 evidence, including pre-account-source facts.
+    pub fn risk_input(&self) -> Result<quantos_portfolio::books_risk::BooksRiskInput> {
+        let r = self.last.as_ref().ok_or(Error::Unavailable)?;
+        let a = r.account_books.as_ref().ok_or(Error::Unavailable)?;
+        Ok(quantos_portfolio::books_risk::BooksRiskInput {
+            scope: self.scope.clone(),
+            ledger_hash: r.ledger_hash.clone(),
+            reconciliation_hash: r.report_id.clone(),
+            account_report_hash: a.report_id.clone(),
+            source_id: a.source_id.clone(),
+            source_hash: a.source_hash.clone(),
+            source_version: a
+                .source_version
+                .as_ref()
+                .map(|v| v.parse())
+                .transpose()
+                .map_err(|_| invalid())?,
+            basis_hash: a.basis_hash.clone(),
+            coverage: a.coverage.clone(),
+            source_trust: a.source_trust.clone(),
+            period_start: a.period_start,
+            coverage_through: a.coverage_through,
+            captured_at: a.captured_at,
+            valid_until: a.valid_until,
+            account_state: a.status.clone(),
+            protocol_state: r.comparison_status.clone(),
+            open_obligations: self.outbox.len() as u64,
+            obligations_hash: digest(&json!([
+                "quantos-x05-open-risk-obligations/v1",
+                self.scope,
+                self.outbox
+            ]))?,
+            unknown_obligations: r.unknown_obligations_open as u64,
+        })
+    }
     pub fn new(scope: Scope, origin_id: String) -> Result<Self> {
         NativeLedger::new(scope.clone()).map_err(|_| invalid())?;
         Ok(Self {

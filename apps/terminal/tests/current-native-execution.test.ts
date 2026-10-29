@@ -1,5 +1,6 @@
 import {expect,it} from 'vitest';
 import {nativeReviewModel} from './native-review-fixture';
+it('current Command must retain the Subject account-books binding',async()=>{const m=nativeReviewModel(true);try{m.adoptNativeReview();m.enableCurrentExecution();await m.init();m.corruptBooksBinding();await expect(m.runtime.submit()).rejects.toThrow('INVALID_NATIVE_REVIEW');expect(m.runtime.view.selected?.command).toBeUndefined();}finally{m.close();}});
 const commands=(m:ReturnType<typeof nativeReviewModel>)=>m.requests.filter(r=>r.method==='POST'&&r.url.endsWith('/commands'));
 it('explicit current execution requires owner admission and validates immutable current binding',async()=>{
  const m=nativeReviewModel(true);try{m.adoptNativeReview();m.enableCurrentExecution();await m.init();expect(m.runtime.view.canSubmit).toBe(true);expect(commands(m)).toHaveLength(0);await m.runtime.submit();expect(m.runtime.view.selected?.command?.currentRisk?.snapshotHash).toBe(m.review.snapshotHash);expect(commands(m)).toHaveLength(1);expect(m.runtime.view.canSubmit).toBe(false);}finally{m.close();}

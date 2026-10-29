@@ -134,6 +134,7 @@ pub(crate) struct OwnedHost {
     reconciliation: Option<quantos_reconcile::current::CurrentReconciliation>,
     reconciliation_store: Option<quantos_execution::durable::DurableStore>,
     reconciliation_anchor: quantos_portfolio::native_ledger::Anchor,
+    book_input_fence: Option<quantos_execution::durable::DurableStore>,
     subjects: BTreeMap<ProposalId, Subject>,
     requests: BTreeMap<ProposalId, ProposalId>,
     opened_at: BTreeMap<ProposalId, DateTime<Utc>>,
@@ -270,6 +271,7 @@ impl OwnedHost {
             reconciliation: None,
             reconciliation_store: None,
             reconciliation_anchor: Default::default(),
+            book_input_fence: None,
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
             subjects,
@@ -489,7 +491,7 @@ async fn handle(
                 let ids = h.subjects.keys().copied().collect::<Vec<_>>();
                 let mut items = vec![];
                 for id in ids {
-                    if h.require_native_snapshot(&sid, id, at).is_ok()
+                    if h.require_native_snapshot(&sid, id, &clock).is_ok()
                         && h.sources
                             .with_current(h.subjects.get(&id).ok_or(Error::Invalid)?, at, || ())
                             .is_ok()
@@ -524,7 +526,7 @@ async fn handle(
             if uri.query().is_some() {
                 return Err(Error::Invalid);
             }
-            return h.refresh_risk(&sid, id.ok_or(Error::Invalid)?, key, &body, at);
+            return h.refresh_risk(&sid, id.ok_or(Error::Invalid)?, key, &body, &clock);
         }
         if path == "/v1/assisted-testnet/requests" {
             if h.requests.len() >= 200 && !h.open_keys.contains_key(&(sid.clone(), key.to_owned()))
@@ -535,7 +537,9 @@ async fn handle(
                 .as_str()
                 .and_then(|s| ProposalId::parse_str(s).ok())
                 .ok_or(Error::Invalid)?;
-            h.require_native_snapshot(&sid, subject, at)?;
+            let store = h.book_input_fence.clone();
+            let _books_lock = store.as_ref().map(|s| s.lock()).transpose()?;
+            h.require_native_snapshot_locked(&sid, subject, &clock)?;
             let r = h.service.open(&sid, subject, key, &clock)?.receipt;
             h.requests.insert(r.request, subject);
             h.opened_at.entry(r.request).or_insert(at);
@@ -545,7 +549,13 @@ async fn handle(
         let id = id.ok_or(Error::Invalid)?;
         let expected = body["expectedRevision"].as_u64().ok_or(Error::Invalid)?;
         if path.ends_with("/approvals") {
-            h.require_native_snapshot(&sid, *h.requests.get(&id).ok_or(Error::Invalid)?, at)?;
+            let store = h.book_input_fence.clone();
+            let _books_lock = store.as_ref().map(|s| s.lock()).transpose()?;
+            h.require_native_snapshot_locked(
+                &sid,
+                *h.requests.get(&id).ok_or(Error::Invalid)?,
+                &clock,
+            )?;
             if !verified {
                 return Err(Error::MfaInvalid);
             }
@@ -561,8 +571,9 @@ async fn handle(
                     return Err(Error::MfaConsumed);
                 }
                 let proof = h.mfa.attest_provider_completed(
-                    h.service.challenge_until(&sid, id, original_deadline, at)?,
-                    at,
+                    h.service
+                        .challenge_until(&sid, id, original_deadline, clock())?,
+                    clock(),
                 )?;
                 h.proofs.insert(
                     k,
@@ -573,7 +584,11 @@ async fn handle(
                 );
                 proof
             };
-            h.require_native_snapshot(&sid, *h.requests.get(&id).ok_or(Error::Invalid)?, clock())?;
+            h.require_native_snapshot_locked(
+                &sid,
+                *h.requests.get(&id).ok_or(Error::Invalid)?,
+                &clock,
+            )?;
             h.service.approve(&sid, id, expected, key, proof, &clock)?;
             return h.view(&sid, id, clock());
         }
@@ -601,13 +616,26 @@ async fn handle(
                 let store = h.valuation_input.clone().ok_or(Error::Unavailable)?;
                 let tx = store.lock()?;
                 let input = tx.read()?.ok_or(Error::PolicyChanged)?;
+                let books_store = h.book_input_fence.clone().ok_or(Error::Unavailable)?;
+                let _books_lock = books_store.lock()?;
                 let view = h.sync_valuation_input(&sid, clock(), Some(input))?;
                 if view["riskInputReady"] != true {
                     return Err(Error::PolicyChanged);
                 }
                 let snapshot = serde_json::from_value(view["snapshot"].clone())
                     .map_err(|_| Error::Unavailable)?;
+                h.sync_reconciliation_locked(&sid, clock())?;
+                let books = h
+                    .reconciliation
+                    .as_ref()
+                    .ok_or(Error::Unavailable)?
+                    .risk_input()
+                    .map_err(|_| Error::Unavailable)?;
+                if !books.eligible(clock()) {
+                    return Err(Error::PolicyChanged);
+                }
                 let current = quantos_risk::guard::NativeRiskContext {
+                    books: Some(books),
                     input: h
                         .valuation
                         .input_for(&snapshot)
@@ -628,6 +656,31 @@ async fn handle(
                     || ledger["consumerReady"] != true
                 {
                     return Err(Error::PolicyChanged);
+                }
+                // The original empty-ledger reference seed is not current-risk
+                // authority. Once X05 has observed financial state, it cannot
+                // bypass unresolved books by falling back to that seed.
+                let book_store = h.book_input_fence.clone();
+                let _book_lock = book_store.as_ref().map(|s| s.lock()).transpose()?;
+                if h.reconciliation.is_some()
+                    || h.reconciliation_anchor.sequence > 0
+                    || h.observer
+                        .as_ref()
+                        .map(|r| r.has_account_input())
+                        .transpose()?
+                        .unwrap_or(false)
+                {
+                    h.sync_reconciliation_locked(&sid, clock())?;
+                    if !h
+                        .reconciliation
+                        .as_ref()
+                        .ok_or(Error::Unavailable)?
+                        .risk_input()
+                        .map_err(|_| Error::Unavailable)?
+                        .eligible(clock())
+                    {
+                        return Err(Error::PolicyChanged);
+                    }
                 }
                 h.native.submit(&sid, id, key, &clock)?
             };

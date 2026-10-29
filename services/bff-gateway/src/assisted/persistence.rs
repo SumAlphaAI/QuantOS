@@ -44,6 +44,11 @@ impl OwnedHost {
             "valuation-input",
             c.keys[3],
         )?);
+        h.book_input_fence = Some(DurableStore::new(
+            &c.directory,
+            "account-books-fence",
+            c.keys[3],
+        )?);
         h.alert_store = Some(DurableStore::new(&c.directory, "alerts", c.keys[3])?);
         h.ledger_store = Some(DurableStore::new(&c.directory, "portfolio", c.keys[3])?);
         h.reconciliation_store = Some(DurableStore::new(

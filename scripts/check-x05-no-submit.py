@@ -19,6 +19,7 @@ paths = [
         "bin/quantos-reconcile.rs",
     ]
 ]
+paths.append("crates/quantos-portfolio/src/books_risk.rs")
 rows = []
 for path in paths:
     raw = (root / path).read_bytes()

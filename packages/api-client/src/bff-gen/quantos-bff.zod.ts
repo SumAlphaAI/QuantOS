@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.28.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.29.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -78,6 +78,7 @@ export const AssistedNativeCommandSchema = z.object({
 }).strict();
 
 export const AssistedCurrentExecutionBindingSchema = z.object({
+  "books": z.lazy(() => BooksRiskInputSchema).optional(),
   "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
@@ -1871,6 +1872,7 @@ export const NativeRiskReviewRequestSchema = z.object({
 }).strict();
 
 export const NativeRiskReviewViewSchema = z.union([z.object({
+  "booksAdmission": z.lazy(() => BooksRiskAdmissionSchema).optional(),
   "schemaVersion": z.literal("quantos-native-risk-review.v1"),
   "previousSubjectId": z.lazy(() => UUIDSchema),
   "proposalId": z.string().min(1),
@@ -1892,10 +1894,10 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
   "policyVersion": z.string().min(1),
   "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "checks": z.array(z.object({
-  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval"]),
+  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval","account_books"]),
   "breached": z.boolean(),
   "limit_id": z.string().min(1),
-}).strict()).min(15).max(15),
+}).strict()).min(15).max(16),
   "decidedAt": z.string().datetime({ offset: true }),
   "expiresAt": z.string().datetime({ offset: true }),
   "signer": z.string().min(1),
@@ -1904,6 +1906,7 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
 }).strict(),
   "executionAuthority": z.literal(false),
 }).strict(), z.object({
+  "booksAdmission": z.lazy(() => BooksRiskAdmissionSchema).optional(),
   "schemaVersion": z.literal("quantos-native-risk-review.v1"),
   "previousSubjectId": z.lazy(() => UUIDSchema),
   "proposalId": z.string().min(1),
@@ -1925,10 +1928,10 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
   "policyVersion": z.string().min(1),
   "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "checks": z.array(z.object({
-  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval"]),
+  "rule": z.enum(["identity","numbers","precision","global_kill","account_kill","release","snapshot","financials","venue","duplicate","order_notional","leverage","concentration","daily_loss","approval","account_books"]),
   "breached": z.boolean(),
   "limit_id": z.string().min(1),
-}).strict()).min(15).max(15),
+}).strict()).min(15).max(16),
   "decidedAt": z.string().datetime({ offset: true }),
   "expiresAt": z.string().datetime({ offset: true }),
   "signer": z.string().min(1),
@@ -1940,6 +1943,7 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
 }).strict()]);
 
 export const NativeSubjectRiskBindingSchema = z.object({
+  "books": z.lazy(() => BooksRiskInputSchema).optional(),
   "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
@@ -1964,6 +1968,39 @@ export const NativeRiskCandidateSchema = z.object({
 
 export const NativeRiskCandidateListSchema = z.object({
   "items": z.array(z.lazy(() => NativeRiskCandidateSchema)).max(4096),
+}).strict();
+
+export const BooksRiskInputSchema = z.object({
+  "scope": z.object({
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+}).strict(),
+  "ledgerHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "reconciliationHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "accountReportHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceId": z.string().min(1).max(512),
+  "sourceHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "sourceVersion": z.union([z.number().int().min(1), z.null()]),
+  "basisHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "coverage": z.string().min(1).max(512),
+  "sourceTrust": z.string().min(1).max(512),
+  "periodStart": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "coverageThrough": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "capturedAt": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "validUntil": z.union([z.lazy(() => DateTimeSchema), z.null()]),
+  "accountState": z.string().min(1).max(512),
+  "protocolState": z.string().min(1).max(512),
+  "openObligations": z.number().int().min(0).max(20000),
+  "obligationsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "unknownObligations": z.number().int().min(0).max(20000),
+}).strict();
+
+export const BooksRiskAdmissionSchema = z.object({
+  "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "reason": z.enum(["UNKNOWN_OR_QUARANTINED_OBLIGATIONS","BOOKS_SOURCE_UNAVAILABLE","BOOKS_SOURCE_INVALID","BOOKS_SOURCE_STALE","BOOKS_COVERAGE_UNSUPPORTED","BOOKS_NOT_MATCHED","PROTOCOL_NOT_MATCHED","OPEN_FINANCIAL_OBLIGATIONS","ELIGIBLE_REFERENCE_BOOKS"]),
+  "input": z.lazy(() => BooksRiskInputSchema),
+  "executionAuthority": z.literal(false),
 }).strict();
 
 export const bffZodSchemas = {
@@ -2132,6 +2169,8 @@ export const bffZodSchemas = {
   NativeSubjectRiskBinding: NativeSubjectRiskBindingSchema,
   NativeRiskCandidate: NativeRiskCandidateSchema,
   NativeRiskCandidateList: NativeRiskCandidateListSchema,
+  BooksRiskInput: BooksRiskInputSchema,
+  BooksRiskAdmission: BooksRiskAdmissionSchema,
 } as const;
 
 export const bffResponseSchemas = {

@@ -15,6 +15,13 @@ pub(super) struct ObserverReader {
     pub(super) identity: String,
 }
 impl ObserverReader {
+    pub(super) fn has_account_input(&self) -> Result<bool, Error> {
+        match std::fs::symlink_metadata(self.path.with_file_name("account-books.json")) {
+            Ok(_) => Ok(true),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
+            Err(_) => Err(Error::Unavailable),
+        }
+    }
     pub(super) fn new(directory: &std::path::Path, pem: &[u8], pin: &str) -> Result<Self, Error> {
         let cert = X509::from_pem(pem).map_err(|_| Error::Unavailable)?;
         if execution_gateway::restricted_zone::fingerprint(&cert).map_err(|_| Error::Unavailable)?
@@ -98,6 +105,17 @@ impl ObserverReader {
 }
 impl OwnedHost {
     pub(super) fn sync_reconciliation(
+        &mut self,
+        session: &str,
+        at: DateTime<Utc>,
+    ) -> Result<Value, Error> {
+        let store = self.book_input_fence.clone();
+        let _guard = store.as_ref().map(|s| s.lock()).transpose()?;
+        self.sync_reconciliation_locked(session, at)
+    }
+    /// Caller holds the stable account-books publisher fence (and, for IO, the
+    /// valuation/approval locks) so all readers see complete source publication.
+    pub(super) fn sync_reconciliation_locked(
         &mut self,
         session: &str,
         at: DateTime<Utc>,

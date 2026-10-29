@@ -132,6 +132,19 @@ impl CurrentSubjectSource {
             .as_ref()
             .map(|c| c.snapshot.snapshot_hash.clone()))
     }
+    pub fn native_books(
+        &self,
+        id: ProposalId,
+    ) -> Result<Option<quantos_portfolio::books_risk::BooksRiskInput>, Error> {
+        let state = self.state.lock().map_err(|_| Error::Unavailable)?;
+        Ok(state
+            .entries
+            .get(&id)
+            .ok_or(Error::Invalid)?
+            .native
+            .as_ref()
+            .and_then(|c| c.books.clone()))
+    }
 }
 impl NativeReview {
     /// Safe provenance projection, not an independently verifiable public-key token.
@@ -144,6 +157,9 @@ impl NativeReview {
         }
         if let Some(subject) = response.get_mut("subject") {
             subject["nativeRiskBinding"] = native_binding(&self.context);
+        }
+        if let Some(books) = &self.context.books {
+            response["booksAdmission"] = json!({"inputHash":books.content_hash().map_err(invalid)?,"reason":books.reason(d.decided_at),"input":books,"executionAuthority":false});
         }
         Ok(response)
     }
@@ -167,7 +183,12 @@ impl CurrentSubjectSource {
 }
 fn native_binding(c: &NativeRiskContext) -> Value {
     let s = &c.snapshot;
-    json!({"snapshotHash":s.snapshot_hash,"ledgerHash":s.ledger_hash,"sourceHash":s.source_hash,"sourceVersion":s.source_version.to_string(),"killGeneration":s.kill_generation,"expiresAt":s.expires_at,"executionAuthority":false})
+    let mut v = json!({"snapshotHash":s.snapshot_hash,"ledgerHash":s.ledger_hash,"sourceHash":s.source_hash,"sourceVersion":s.source_version.to_string(),"killGeneration":s.kill_generation,"expiresAt":s.expires_at,"executionAuthority":false});
+    if let Some(b) = &c.books {
+        v["books"] = json!(b);
+        v["expiresAt"] = json!(s.expires_at.min(b.deadline().unwrap_or(s.generated_at)));
+    }
+    v
 }
 impl CurrentSubjectSource {
     /// Immutable R04 catalog for explicit re-evaluation. A stale old risk review

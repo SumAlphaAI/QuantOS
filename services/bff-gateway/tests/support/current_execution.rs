@@ -34,6 +34,8 @@ pub(super) fn prepare(lab: &Lab, url: &str) -> (Value, Value, String) {
     write(lab, &input(lab, &ledger, 1));
     let view = get(url, "/v1/assisted-testnet/valuation");
     assert_eq!(view["riskInputReady"], true, "{view}");
+    let book = super::account_books::statement(lab);
+    super::account_books::publish(lab, &book);
     let catalog = get(url, "/v1/assisted-testnet/risk-review-candidates");
     let eth = catalog["items"]
         .as_array()

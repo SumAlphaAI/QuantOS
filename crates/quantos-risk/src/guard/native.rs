@@ -13,6 +13,8 @@ pub struct NativeRiskContext {
     pub snapshot: Snapshot,
     pub input: Inputs,
     pub ledger_checkpoint: Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub books: Option<quantos_portfolio::books_risk::BooksRiskInput>,
 }
 impl NativeRiskContext {
     pub fn validate(&self, generation: u64, at: DateTime<Utc>) -> Result<(), GuardError> {
@@ -20,7 +22,13 @@ impl NativeRiskContext {
             .map_err(|_| GuardError::DecisionInvalid)?;
         self.snapshot
             .validate_for(&ledger, &self.input, generation, at)
-            .map_err(|_| GuardError::DecisionInvalid)
+            .map_err(|_| GuardError::DecisionInvalid)?;
+        if self.books.as_ref().is_some_and(|b| {
+            b.scope != self.snapshot.scope || b.ledger_hash != self.snapshot.ledger_hash
+        }) {
+            return Err(GuardError::DecisionInvalid);
+        }
+        Ok(())
     }
 }
 fn number(s: &str) -> Result<Decimal, GuardError> {
@@ -77,6 +85,12 @@ impl RiskGuard {
     ) -> Result<(), GuardError> {
         self.verify_decision(d)?;
         c.validate(d.kill_revision, d.decided_at)?;
+        if let Some(b) = &c.books
+            && d.verdict == RiskVerdict::ApprovalRequired
+            && (!b.eligible(d.decided_at) || b.deadline().is_none_or(|until| d.expires_at > until))
+        {
+            return Err(GuardError::DecisionInvalid);
+        }
         if d.facts_hash != facts(c, venue, release)?
             || d.snapshot_hash != c.snapshot.snapshot_hash
             || d.tenant_id != c.snapshot.scope.tenant_id
@@ -175,7 +189,7 @@ impl RiskGuard {
             // including orders below the legacy optional approval threshold.
             true,
         ];
-        let checks = rules::Rule::ALL
+        let mut checks = rules::Rule::ALL
             .into_iter()
             .zip(breaches)
             .map(|(rule, breached)| RuleCheck {
@@ -184,6 +198,17 @@ impl RiskGuard {
                 limit_id: format!("x02.{rule:?}"),
             })
             .collect::<Vec<_>>();
+        let books_reason = context
+            .books
+            .as_ref()
+            .map(|b| b.reason(at))
+            .unwrap_or("BOOKS_SOURCE_UNAVAILABLE");
+        let books_eligible = context.books.as_ref().is_some_and(|b| b.eligible(at));
+        checks.push(RuleCheck {
+            rule: rules::Rule::AccountBooks,
+            breached: !books_eligible,
+            limit_id: format!("x02.accountBooks.{books_reason}"),
+        });
         let verdict = if checks
             .iter()
             .any(|c| c.breached && c.rule != rules::Rule::Approval)
@@ -221,6 +246,15 @@ impl RiskGuard {
         }
         if let Some(until) = release.authorization_expires_at() {
             expires = expires.min(until);
+        }
+        if books_eligible {
+            expires = expires.min(
+                context
+                    .books
+                    .as_ref()
+                    .and_then(|b| b.deadline())
+                    .ok_or(GuardError::DecisionInvalid)?,
+            );
         }
         if at >= expires {
             return Err(GuardError::DecisionInvalid);
