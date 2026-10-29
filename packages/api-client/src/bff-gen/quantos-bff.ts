@@ -2098,10 +2098,68 @@ export interface components {
             signature: string;
             order?: components["schemas"]["AssistedNativeOrder"];
         };
+        AssistedObservedOrder: {
+            orderId: string;
+            commandId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            symbol: string;
+            /** @enum {string} */
+            side: "buy" | "sell";
+            quantity: components["schemas"]["DecimalValue"];
+            filledQuantity: components["schemas"]["DecimalValue"];
+            averageFillPrice: components["schemas"]["DecimalValue"] | null;
+            status: string;
+            submittedAt: components["schemas"]["DateTime"];
+            updatedAt: components["schemas"]["DateTime"];
+        };
+        AssistedObservedFill: {
+            fillId: string;
+            orderId: string;
+            commandId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            symbol: string;
+            /** @enum {string} */
+            side: "buy" | "sell";
+            quantity: components["schemas"]["DecimalValue"];
+            price: components["schemas"]["DecimalValue"];
+            feeCurrency: string;
+            feeAmount: components["schemas"]["DecimalValue"];
+            filledAt: components["schemas"]["DateTime"];
+            factHash: string;
+        };
+        AssistedExecutionFacts: {
+            /** @enum {string} */
+            schemaVersion: "quantos-native-execution-facts.v1";
+            requestId: components["schemas"]["UUID"];
+            subjectHash: string;
+            tenantId: components["schemas"]["UUID"];
+            workspaceId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            commandId: components["schemas"]["UUID"];
+            decisionId: components["schemas"]["UUID"];
+            proposalHash: string;
+            /** @enum {string} */
+            quoteCurrency: "USDT";
+            /** @enum {string} */
+            outcome: "accepted" | "unknown";
+            journalAvailable: boolean;
+            consumerReady: boolean;
+            /** @enum {string} */
+            reason: "OBSERVED_NATIVE_FACTS" | "OUTCOME_UNRESOLVED" | "JOURNAL_UNAVAILABLE" | "FEE_CONVERSION_REQUIRED";
+            order: components["schemas"]["AssistedObservedOrder"] | null;
+            fills: components["schemas"]["AssistedObservedFill"][];
+            factHashes: string[];
+            nativeSourceHashes: string[];
+            sourceHash: string;
+            recordedAt: components["schemas"]["DateTime"];
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
         AssistedRequestView: {
             request: components["schemas"]["AssistedApprovalRequest"];
             subject: components["schemas"]["AssistedSubject"];
             command?: components["schemas"]["AssistedNativeCommand"];
+            facts?: components["schemas"]["AssistedExecutionFacts"];
         };
         AssistedSubjectList: {
             items: components["schemas"]["AssistedSubject"][];

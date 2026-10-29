@@ -82,6 +82,11 @@ impl OwnedHost {
                     json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"]}),
                 );
                 if fact["completed"] == true {
+                    let mut payload = json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"],"orderId":fact["orderId"],"state":fact["state"]});
+                    if !fact["executionFactsHash"].is_null() {
+                        payload["executionFactsHash"] = fact["executionFactsHash"].clone();
+                        payload["fillIds"] = fact["fillIds"].clone();
+                    }
                     add(
                         if fact["state"] == "accepted" {
                             "assisted.command_accepted"
@@ -90,7 +95,7 @@ impl OwnedHost {
                         },
                         at,
                         actor.clone(),
-                        json!({"requestId":id,"subjectHash":fact["subjectHash"],"commandId":fact["commandId"],"orderId":fact["orderId"],"state":fact["state"]}),
+                        payload,
                     );
                 }
             }

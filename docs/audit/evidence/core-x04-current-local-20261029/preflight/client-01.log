@@ -1,0 +1,197 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m apps/terminal/tests/core-l03-hardening.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/core-x04-facts.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[32m 57[2mms[22m[39m
+   [32m✓[39m X04 client reads actual-source shape without assigning another submit permission[32m 25[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact requestId and clears selected facts[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact subjectHash and clears selected facts[39m[32m 3[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact proposalHash and clears selected facts[39m[32m 3[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact decisionId and clears selected facts[39m[32m 4[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact commandId and clears selected facts[39m[32m 2[2mms[22m[39m
+   [32m✓[39m X04 refuses mismatched fact consumerReady and clears selected facts[32m 2[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact executionAuthority and clears selected facts[39m[32m 2[2mms[22m[39m
+[31m   [31m×[31m X04 refuses mismatched fact reason and clears selected facts[39m[32m 2[2mms[22m[39m
+   [32m✓[39m X04 foreign tenantId revokes private fact state[32m 2[2mms[22m[39m
+   [32m✓[39m X04 foreign workspaceId revokes private fact state[32m 2[2mms[22m[39m
+   [32m✓[39m X04 foreign accountId revokes private fact state[32m 1[2mms[22m[39m
+   [32m✓[39m X04 unknown result cannot expose consumer readiness or fake observed zero[32m 2[2mms[22m[39m
+[31m   [31m×[31m X04 malformed facts are cleared rather than leaving an admitted old snapshot[39m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m29 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 09:36:16
+[2m   Duration [22m 368ms[2m (transform 279ms, setup 0ms, import 475ms, tests 107ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact requestId and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact subjectHash and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact proposalHash and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact decisionId and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact commandId and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact executionAuthority and clears selected facts
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 refuses mismatched fact reason and clears selected facts
+[31m[1mAssertionError[22m: expected { request: { …(11) }, …(2) } to be undefined[39m
+
+[32m- Expected:[39m
+undefined
+
+[31m+ Received:[39m
+{
+  "command": {
+    "commandId": "00000000-0000-4000-8000-000000000012",
+    "expiresAt": "2026-10-27T00:00:30.000Z",
+    "order": {
+      "accountId": "00000000-0000-4000-8000-000000000005",
+      "commandId": "00000000-0000-4000-8000-000000000012",
+      "filledQuantity": "0",
+      "orderId": "order-model",
+      "quantity": "1",
+      "side": "buy",
+      "status": "accepted",
+      "symbol": "BTCUSDT",
+    },
+    "requestId": "00000000-0000-4000-8000-000000000008",
+    "signature": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "state": "accepted",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  },
+  "request": {
+    "approvers": [
+      "00000000-0000-4000-8000-000000000002",
+      "00000000-0000-4000-8000-000000000009",
+    ],
+    "executionAuthority": false,
+    "expiresAt": "2026-10-27T00:02:00.000Z",
+    "notional": "1000",
+    "policyVersion": "1",
+    "requestId": "00000000-0000-4000-8000-000000000008",
+    "requesterId": "00000000-0000-4000-8000-000000000001",
+    "revision": 2,
+    "status": "approved",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "subjectId": "00000000-0000-4000-8000-000000000006",
+  },
+  "subject": {
+    "accountId": "00000000-0000-4000-8000-000000000005",
+    "decisionId": "00000000-0000-4000-8000-000000000007",
+    "expiresAt": "2026-10-27T00:03:00.000Z",
+    "limitPrice": "1000",
+    "originator": "00000000-0000-4000-8000-000000000001",
+    "proposalHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "quantity": "1",
+    "side": "buy",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "subjectId": "00000000-0000-4000-8000-000000000006",
+    "symbol": "BTCUSDT",
+  },
+}
+
+[36m [2m❯[22m apps/terminal/tests/core-x04-facts.test.ts:[2m7:415[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/core-x04-facts.test.ts[2m > [22mX04 malformed facts are cleared rather than leaving an admitted old snapshot
+[31m[1mAssertionError[22m: expected { request: { …(11) }, …(3) } to be undefined[39m
+
+[32m- Expected:[39m
+undefined
+
+[31m+ Received:[39m
+{
+  "command": {
+    "commandId": "00000000-0000-4000-8000-000000000012",
+    "expiresAt": "2026-10-27T00:00:30.000Z",
+    "order": {
+      "accountId": "00000000-0000-4000-8000-000000000005",
+      "commandId": "00000000-0000-4000-8000-000000000012",
+      "filledQuantity": "0",
+      "orderId": "order-model",
+      "quantity": "1",
+      "side": "buy",
+      "status": "accepted",
+      "symbol": "BTCUSDT",
+    },
+    "requestId": "00000000-0000-4000-8000-000000000008",
+    "signature": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "state": "accepted",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  },
+  "facts": {
+    "accountId": "00000000-0000-4000-8000-000000000005",
+    "commandId": "00000000-0000-4000-8000-000000000012",
+    "consumerReady": true,
+    "decisionId": "00000000-0000-4000-8000-000000000007",
+    "executionAuthority": false,
+    "factHashes": [
+      "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    ],
+    "fills": [],
+    "journalAvailable": true,
+    "nativeSourceHashes": [
+      "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    ],
+    "order": {
+      "accountId": "00000000-0000-4000-8000-000000000005",
+      "averageFillPrice": null,
+      "commandId": "00000000-0000-4000-8000-000000000012",
+      "filledQuantity": "0",
+      "orderId": "order-model",
+      "quantity": "1",
+      "side": "buy",
+      "status": "accepted",
+      "submittedAt": "2026-10-27T00:00:00Z",
+      "symbol": "BTCUSDT",
+      "updatedAt": "2026-10-27T00:00:00Z",
+    },
+    "outcome": "accepted",
+    "proposalHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "quoteCurrency": "USDT",
+    "reason": "OBSERVED_NATIVE_FACTS",
+    "recordedAt": "2026-10-27T00:00:00Z",
+    "requestId": "00000000-0000-4000-8000-000000000008",
+    "schemaVersion": "quantos-native-execution-facts.v1",
+    "sourceHash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tenantId": "00000000-0000-4000-8000-000000000003",
+    "workspaceId": "00000000-0000-4000-8000-000000000004",
+  },
+  "request": {
+    "approvers": [
+      "00000000-0000-4000-8000-000000000002",
+      "00000000-0000-4000-8000-000000000009",
+    ],
+    "executionAuthority": false,
+    "expiresAt": "2026-10-27T00:02:00.000Z",
+    "notional": "1000",
+    "policyVersion": "1",
+    "requestId": "00000000-0000-4000-8000-000000000008",
+    "requesterId": "00000000-0000-4000-8000-000000000001",
+    "revision": 2,
+    "status": "approved",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "subjectId": "00000000-0000-4000-8000-000000000006",
+  },
+  "subject": {
+    "accountId": "00000000-0000-4000-8000-000000000005",
+    "decisionId": "00000000-0000-4000-8000-000000000007",
+    "expiresAt": "2026-10-27T00:03:00.000Z",
+    "limitPrice": "1000",
+    "originator": "00000000-0000-4000-8000-000000000001",
+    "proposalHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "quantity": "1",
+    "side": "buy",
+    "subjectHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "subjectId": "00000000-0000-4000-8000-000000000006",
+    "symbol": "BTCUSDT",
+  },
+}
+
+[36m [2m❯[22m apps/terminal/tests/core-x04-facts.test.ts:[2m10:287[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯[22m[39m
+

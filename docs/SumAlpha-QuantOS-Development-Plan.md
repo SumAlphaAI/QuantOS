@@ -2336,6 +2336,8 @@ SERVICE:X06更新：共享Cargo图、RiskGuard/issuer身份查询及SignedExecut
 
 X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契约输入变化，当前独立READY撤回；原源码/原始证据不变。本轮仅验证X05只读消费，不重新跑X04的10万事件或上游全闭包。
 
+当前原生事实接续（2026-10-29，CORE:X04 DEVELOPMENT）：承接当前X02移交，原生gateway实际Order/Fill及原始费用字符串随原Command持久化到同一认证checkpoint；恢复重放验证后经已有公共请求查询、P11与C10暴露同一sourceHash/fillId。UNKNOWN只读、不补发、不推断零费用；非USDT费用保留原币且consumerReady=false；旧无journal回执不伪造Fill。工程Gate目标PASS_NATIVE_ORDER_FILL_PUBLIC_SOURCE，实际命令/结果以[当前证据](./audit/evidence/core-x04-current-local-20261029/README.md)为准；[范围](./execution/core-x04-current-scope.json)、[规程](./operations/core-x04-current-facts.md)。仅完成L4-LEDGER-01的X04来源部分，19gap/8义务继续OPEN，development_status=IMPLEMENTED_PENDING_ACCEPTANCE、stage NOT_ASSESSED、完整Gate NOT_READY_GAPS_OPEN、formalAccepted=false、runtimeAdmission=DENIED、M5 PREPARED_NOT_READY。历史0e93b885及旧READY不改绑；当前直接OMS回归保留10万事件标准，目标数据库/真实venue/跨主机/异步回报/实际X01账本、X05独立对账、Alert持久闭环与发布NOT_RUN。下一CORE:X01 DEVELOPMENT消费当前不可变Fill并补齐持久去重/来源绑定和unknown边界，再接X05/Alert。无生产凭据或外部发布授权。
+
 <a id="task-x05"></a>
 ### X05：Shadow 运行、对账与异常队列
 

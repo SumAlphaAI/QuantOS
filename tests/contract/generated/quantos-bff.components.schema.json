@@ -311,6 +311,279 @@
         }
       }
     },
+    "AssistedObservedOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId",
+        "commandId",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "filledQuantity",
+        "averageFillPrice",
+        "status",
+        "submittedAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "filledQuantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "averageFillPrice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecimalValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "submittedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "AssistedObservedFill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fillId",
+        "orderId",
+        "commandId",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "price",
+        "feeCurrency",
+        "feeAmount",
+        "filledAt",
+        "factHash"
+      ],
+      "properties": {
+        "fillId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "orderId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "price": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "feeCurrency": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "feeAmount": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "filledAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "factHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "AssistedExecutionFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "subjectHash",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "commandId",
+        "decisionId",
+        "proposalHash",
+        "quoteCurrency",
+        "outcome",
+        "journalAvailable",
+        "consumerReady",
+        "reason",
+        "order",
+        "fills",
+        "factHashes",
+        "nativeSourceHashes",
+        "sourceHash",
+        "recordedAt",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-native-execution-facts.v1"
+          ]
+        },
+        "requestId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "quoteCurrency": {
+          "type": "string",
+          "enum": [
+            "USDT"
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "unknown"
+          ]
+        },
+        "journalAvailable": {
+          "type": "boolean"
+        },
+        "consumerReady": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FACTS",
+            "OUTCOME_UNRESOLVED",
+            "JOURNAL_UNAVAILABLE",
+            "FEE_CONVERSION_REQUIRED"
+          ]
+        },
+        "order": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssistedObservedOrder"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fills": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/AssistedObservedFill"
+          }
+        },
+        "factHashes": {
+          "type": "array",
+          "maxItems": 20002,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "nativeSourceHashes": {
+          "type": "array",
+          "maxItems": 20002,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "recordedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
     "AssistedRequestView": {
       "type": "object",
       "additionalProperties": false,
@@ -327,6 +600,9 @@
         },
         "command": {
           "$ref": "#/$defs/AssistedNativeCommand"
+        },
+        "facts": {
+          "$ref": "#/$defs/AssistedExecutionFacts"
         }
       }
     },

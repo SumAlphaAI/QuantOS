@@ -69,10 +69,64 @@ export const AssistedNativeCommandSchema = z.object({
   "order": z.lazy(() => AssistedNativeOrderSchema).optional(),
 }).strict();
 
+export const AssistedObservedOrderSchema = z.object({
+  "orderId": z.string().min(1).max(128),
+  "commandId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "symbol": z.string().min(1).max(20),
+  "side": z.enum(["buy","sell"]),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "filledQuantity": z.lazy(() => DecimalValueSchema),
+  "averageFillPrice": z.union([z.lazy(() => DecimalValueSchema), z.null()]),
+  "status": z.string().min(1).max(32),
+  "submittedAt": z.lazy(() => DateTimeSchema),
+  "updatedAt": z.lazy(() => DateTimeSchema),
+}).strict();
+
+export const AssistedObservedFillSchema = z.object({
+  "fillId": z.string().min(1).max(128),
+  "orderId": z.string().min(1).max(128),
+  "commandId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "symbol": z.string().min(1).max(20),
+  "side": z.enum(["buy","sell"]),
+  "quantity": z.lazy(() => DecimalValueSchema),
+  "price": z.lazy(() => DecimalValueSchema),
+  "feeCurrency": z.string().min(1).max(20),
+  "feeAmount": z.lazy(() => DecimalValueSchema),
+  "filledAt": z.lazy(() => DateTimeSchema),
+  "factHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+}).strict();
+
+export const AssistedExecutionFactsSchema = z.object({
+  "schemaVersion": z.literal("quantos-native-execution-facts.v1"),
+  "requestId": z.lazy(() => UUIDSchema),
+  "subjectHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "commandId": z.lazy(() => UUIDSchema),
+  "decisionId": z.lazy(() => UUIDSchema),
+  "proposalHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "quoteCurrency": z.literal("USDT"),
+  "outcome": z.enum(["accepted","unknown"]),
+  "journalAvailable": z.boolean(),
+  "consumerReady": z.boolean(),
+  "reason": z.enum(["OBSERVED_NATIVE_FACTS","OUTCOME_UNRESOLVED","JOURNAL_UNAVAILABLE","FEE_CONVERSION_REQUIRED"]),
+  "order": z.union([z.lazy(() => AssistedObservedOrderSchema), z.null()]),
+  "fills": z.array(z.lazy(() => AssistedObservedFillSchema)).max(10000),
+  "factHashes": z.array(z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$"))).max(20002),
+  "nativeSourceHashes": z.array(z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$"))).max(20002),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "recordedAt": z.lazy(() => DateTimeSchema),
+  "executionAuthority": z.literal(false),
+}).strict();
+
 export const AssistedRequestViewSchema = z.object({
   "request": z.lazy(() => AssistedApprovalRequestSchema),
   "subject": z.lazy(() => AssistedSubjectSchema),
   "command": z.lazy(() => AssistedNativeCommandSchema).optional(),
+  "facts": z.lazy(() => AssistedExecutionFactsSchema).optional(),
 }).strict();
 
 export const AssistedSubjectListSchema = z.object({
@@ -1394,6 +1448,9 @@ export const bffZodSchemas = {
   AssistedApprovalRequest: AssistedApprovalRequestSchema,
   AssistedNativeOrder: AssistedNativeOrderSchema,
   AssistedNativeCommand: AssistedNativeCommandSchema,
+  AssistedObservedOrder: AssistedObservedOrderSchema,
+  AssistedObservedFill: AssistedObservedFillSchema,
+  AssistedExecutionFacts: AssistedExecutionFactsSchema,
   AssistedRequestView: AssistedRequestViewSchema,
   AssistedSubjectList: AssistedSubjectListSchema,
   AssistedRequestList: AssistedRequestListSchema,

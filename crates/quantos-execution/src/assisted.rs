@@ -885,6 +885,16 @@ impl AssistedApprovalService {
         }
     }
 
+    /// Immutable linkage for the trusted C10/native reader; grants no session
+    /// or execution authority and never reopens an expired approval.
+    pub(crate) fn matches_execution_binding(
+        &self,
+        id: ProposalId,
+        hash: &ContentHash,
+    ) -> Result<bool, Error> {
+        let s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        Ok(s.requests.get(&id).is_some_and(|r| &r.hash == hash))
+    }
     /// Read facts after an approval deadline without restoring write authority.
     pub fn execution_view(
         &self,

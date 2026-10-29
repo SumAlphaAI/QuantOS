@@ -1,0 +1,149 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m packages/api-client/tests/bff-transport.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/contract/core-x04-facts.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m tests/contract/ui402-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/market-recovery.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/sse-safety.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/proto-metadata.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/api-client.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/bff-domain.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-remediation.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 272[2mms[22m[39m
+ [31m❯[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 20015[2mms[22m[39m
+       [32m✓[39m 重复与乱序事件被去重，序号严格递增应用[32m 2[2mms[22m[39m
+       [32m✓[39m 序号空洞触发 gap 而非应用[32m 0[2mms[22m[39m
+       [32m✓[39m 权限撤销为终态，后续事件不再应用[32m 0[2mms[22m[39m
+[31m       [31m×[31m 断流后按 afterSequence 回补：无丢失、无重复副作用[39m[33m 5005[2mms[22m[39m
+[31m       [31m×[31m 序号空洞触发 gap 重连回补[39m[33m 5001[2mms[22m[39m
+[31m       [31m×[31m 权限撤销（permission_revoked 事件）终态关闭且不再重连[39m[33m 5002[2mms[22m[39m
+[31m       [31m×[31m HTTP 403 视为权限撤销终态[39m[33m 5002[2mms[22m[39m
+     [32m✓[39m closes the caller's reducer and cancels HTTP 401 without reconnecting[32m 2[2mms[22m[39m
+     [32m✓[39m closes the caller's reducer and cancels HTTP 403 without reconnecting[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m109 passed[39m[22m[90m (113)[39m
+[2m     Errors [22m [1m[31m4 errors[39m[22m
+[2m   Start at [22m 09:40:51
+[2m   Duration [22m 20.27s[2m (transform 945ms, setup 0ms, import 2.39s, tests 20.63s, environment 1ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/sse-poc.test.ts[2m > [22mSSE 断线续传 PoC（G0 #5）[2m > [22mconsumeSse（真实 HTTP SSE）[2m > [22m断流后按 afterSequence 回补：无丢失、无重复副作用
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m packages/api-client/tests/sse-poc.test.ts:[2m99:5[22m[39m
+    [90m 97|[39m
+    [90m 98|[39m   [34mdescribe[39m([32m"consumeSse（真实 HTTP SSE）"[39m[33m,[39m () [33m=>[39m {
+    [90m 99|[39m     [34mit[39m([32m"断流后按 afterSequence 回补：无丢失、无重复副作用"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   |[39m     [31m^[39m
+    [90m100|[39m       seq [33m=[39m [34m0[39m[33m;[39m
+    [90m101|[39m       [35mconst[39m e1 [33m=[39m [34menv[39m({ type[33m:[39m [32m"a"[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/sse-poc.test.ts[2m > [22mSSE 断线续传 PoC（G0 #5）[2m > [22mconsumeSse（真实 HTTP SSE）[2m > [22m序号空洞触发 gap 重连回补
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m packages/api-client/tests/sse-poc.test.ts:[2m124:5[22m[39m
+    [90m122|[39m     })[33m;[39m
+    [90m123|[39m
+    [90m124|[39m     [34mit[39m([32m"序号空洞触发 gap 重连回补"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   |[39m     [31m^[39m
+    [90m125|[39m       seq [33m=[39m [34m0[39m[33m;[39m
+    [90m126|[39m       [35mconst[39m e1 [33m=[39m [34menv[39m({ type[33m:[39m [32m"a"[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/sse-poc.test.ts[2m > [22mSSE 断线续传 PoC（G0 #5）[2m > [22mconsumeSse（真实 HTTP SSE）[2m > [22m权限撤销（permission_revoked 事件）终态关闭且不再重连
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m packages/api-client/tests/sse-poc.test.ts:[2m148:5[22m[39m
+    [90m146|[39m     })[33m;[39m
+    [90m147|[39m
+    [90m148|[39m     [34mit[39m([32m"权限撤销（permission_revoked 事件）终态关闭且不再重连"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   |[39m     [31m^[39m
+    [90m149|[39m       seq [33m=[39m [34m0[39m[33m;[39m
+    [90m150|[39m       [35mconst[39m e1 [33m=[39m [34menv[39m({ type[33m:[39m [32m"a"[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/api-client/tests/sse-poc.test.ts[2m > [22mSSE 断线续传 PoC（G0 #5）[2m > [22mconsumeSse（真实 HTTP SSE）[2m > [22mHTTP 403 视为权限撤销终态
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m packages/api-client/tests/sse-poc.test.ts:[2m165:5[22m[39m
+    [90m163|[39m     })[33m;[39m
+    [90m164|[39m
+    [90m165|[39m     [34mit[39m([32m"HTTP 403 视为权限撤销终态"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   |[39m     [31m^[39m
+    [90m166|[39m       [35mconst[39m server [33m=[39m [34mmakeServer[39m(() [33m=>[39m [])[33m;[39m
+    [90m167|[39m       [35mawait[39m server[33m.[39m[34mstart[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: listen EPERM: operation not permitted 127.0.0.1[39m
+[90m [2m❯[22m Server.setupListenHandle [as _listen2] node:net:[2m1918:21[22m[39m
+[90m [2m❯[22m listenInCluster node:net:[2m1997:12[22m[39m
+[90m [2m❯[22m node:net:[2m2206:7[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m89:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }[39m
+[31mThis error originated in "[1mpackages/api-client/tests/sse-poc.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1m断流后按 afterSequence 回补：无丢失、无重复副作用[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: listen EPERM: operation not permitted 127.0.0.1[39m
+[90m [2m❯[22m Server.setupListenHandle [as _listen2] node:net:[2m1918:21[22m[39m
+[90m [2m❯[22m listenInCluster node:net:[2m1997:12[22m[39m
+[90m [2m❯[22m node:net:[2m2206:7[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m89:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }[39m
+[31mThis error originated in "[1mpackages/api-client/tests/sse-poc.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1m序号空洞触发 gap 重连回补[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: listen EPERM: operation not permitted 127.0.0.1[39m
+[90m [2m❯[22m Server.setupListenHandle [as _listen2] node:net:[2m1918:21[22m[39m
+[90m [2m❯[22m listenInCluster node:net:[2m1997:12[22m[39m
+[90m [2m❯[22m node:net:[2m2206:7[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m89:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }[39m
+[31mThis error originated in "[1mpackages/api-client/tests/sse-poc.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1m权限撤销（permission_revoked 事件）终态关闭且不再重连[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: listen EPERM: operation not permitted 127.0.0.1[39m
+[90m [2m❯[22m Server.setupListenHandle [as _listen2] node:net:[2m1918:21[22m[39m
+[90m [2m❯[22m listenInCluster node:net:[2m1997:12[22m[39m
+[90m [2m❯[22m node:net:[2m2206:7[22m[39m
+[90m [2m❯[22m processTicksAndRejections node:internal/process/task_queues:[2m89:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }[39m
+[31mThis error originated in "[1mpackages/api-client/tests/sse-poc.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mHTTP 403 视为权限撤销终态[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+

@@ -29,6 +29,10 @@ struct Issued {
     completed: bool,
     issued_at: DateTime<Utc>,
     receipt: CommandReceipt,
+    #[serde(default)]
+    subject: Option<Subject>,
+    #[serde(default)]
+    evidence: Option<crate::execution_facts::CommandFacts>,
 }
 struct Inner<K: ExecutionKernel> {
     approvals: AssistedApprovalService,
@@ -207,6 +211,8 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                             completed: false,
                             issued_at: command.issued_at,
                             receipt,
+                            subject: Some(subject.clone()),
+                            evidence: None,
                         },
                     );
                     if let Some(tx) = &transaction {
@@ -221,6 +227,8 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                         .find(|f| f.command_id == id.to_string())
                         .and_then(|f| state.gateway.order(&f.order_id))
                         .cloned();
+                    let evidence =
+                        crate::execution_facts::CommandFacts::capture(&state.gateway, id)?;
                     let receipt = &mut state
                         .issued
                         .get_mut(&request)
@@ -231,6 +239,12 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                         receipt.state = "accepted".into();
                     }
                     let result = receipt.clone();
+                    state
+                        .issued
+                        .get_mut(&request)
+                        .ok_or(Error::Unavailable)?
+                        .evidence = evidence;
+
                     state
                         .issued
                         .get_mut(&request)
@@ -269,6 +283,45 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         s.approvals.execution_view(session, request, clock)?;
         Ok(s.issued.get(&request).map(|i| i.receipt.clone()))
     }
+    /// Current authenticated read of original durable observations. No IO,
+    /// reservation, expiry renewal or venue query can occur through this path.
+    pub fn execution_facts(
+        &self,
+        session: &str,
+        request: ProposalId,
+        clock: impl ClockInput,
+    ) -> Result<Option<crate::execution_facts::ExecutionFacts>, Error> {
+        let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
+        let durable = s.durable.take();
+        let result = (|| {
+            if let Some(store) = &durable {
+                let tx = store.lock()?;
+                load(&mut s, tx.read()?)?;
+            }
+            let approval = s.approvals.execution_view(session, request, clock)?;
+            let Some(i) = s.issued.get(&request) else {
+                return Ok(None);
+            };
+            if approval.subject_hash != i.receipt.subject_hash {
+                return Err(Error::Unavailable);
+            }
+            let Some(subject) = i.subject.as_ref() else {
+                return Ok(None);
+            }; // legacy evidence absent, never fabricate fills
+            crate::execution_facts::ExecutionFacts::project(
+                subject,
+                request,
+                i.receipt.subject_hash.clone(),
+                i.receipt.command_id,
+                &i.receipt.state,
+                i.issued_at,
+                i.evidence.as_ref(),
+            )
+            .map(Some)
+        })();
+        s.durable = durable;
+        result
+    }
     /// Trusted C10 projection. Never exposes the private executable command.
     pub fn audit_facts(&self) -> Result<Vec<serde_json::Value>, Error> {
         let mut s = self.0.lock().map_err(|_| Error::Unavailable)?;
@@ -282,7 +335,11 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
         })();
         s.durable = durable;
         loaded?;
-        Ok(s.issued.values().map(|i|json!({"requestId":i.receipt.request_id,"commandId":i.receipt.command_id,"subjectHash":i.receipt.subject_hash,"issuedAt":i.issued_at,"completed":i.completed,"state":i.receipt.state,"orderId":i.receipt.order.as_ref().map(|o|&o.order_id)})).collect())
+        s.issued.values().map(|i| {
+            if !s.approvals.matches_execution_binding(i.receipt.request_id,&i.receipt.subject_hash)? {return Err(Error::Unavailable);}
+            let facts=i.subject.as_ref().map(|subject| crate::execution_facts::ExecutionFacts::project(subject,i.receipt.request_id,i.receipt.subject_hash.clone(),i.receipt.command_id,&i.receipt.state,i.issued_at,i.evidence.as_ref())).transpose()?;
+            Ok(json!({"requestId":i.receipt.request_id,"commandId":i.receipt.command_id,"subjectHash":i.receipt.subject_hash,"issuedAt":i.issued_at,"completed":i.completed,"state":i.receipt.state,"orderId":i.receipt.order.as_ref().map(|o|&o.order_id),"executionFactsHash":facts.as_ref().map(|f|&f.source_hash),"fillIds":facts.as_ref().map(|f|f.fills.iter().map(|fill|&fill.fill_id).collect::<Vec<_>>()).unwrap_or_default()}))
+        }).collect()
     }
     pub fn submission_count(&self) -> Result<usize, Error> {
         Ok(self
@@ -308,6 +365,34 @@ fn load<K: ExecutionKernel>(
         }
         state.issued =
             serde_json::from_value(v["issued"].clone()).map_err(|_| Error::Unavailable)?;
+        for (id, i) in &state.issued {
+            if !matches!(i.receipt.state.as_str(), "accepted" | "unknown")
+                || i.receipt.state == "accepted"
+                    && (!i.completed || i.subject.is_some() && i.evidence.is_none())
+            {
+                return Err(Error::Unavailable);
+            }
+            if i.receipt.request_id != *id {
+                return Err(Error::Unavailable);
+            }
+            if let Some(subject) = &i.subject {
+                let hash = ContentHash::sha256_bytes(
+                    &canonical_json_bytes(
+                        &serde_json::to_value(subject).map_err(|_| Error::Unavailable)?,
+                    )
+                    .map_err(|_| Error::Unavailable)?,
+                );
+                if hash != i.receipt.subject_hash {
+                    return Err(Error::Unavailable);
+                }
+                if let Some(e) = &i.evidence {
+                    e.validate(subject, i.receipt.command_id, i.receipt.order.as_ref())?;
+                }
+            } else if i.evidence.is_some() {
+                return Err(Error::Unavailable);
+            }
+        }
+
         state.proposal_claims =
             serde_json::from_value(v["claims"].clone()).map_err(|_| Error::Unavailable)?;
     } else if !state.issued.is_empty() {

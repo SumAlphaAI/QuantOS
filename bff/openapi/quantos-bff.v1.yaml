@@ -11760,6 +11760,178 @@ components:
           pattern: ^[a-f0-9]{64}$
         order:
           $ref: "#/components/schemas/AssistedNativeOrder"
+    AssistedObservedOrder:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - commandId
+        - accountId
+        - symbol
+        - side
+        - quantity
+        - filledQuantity
+        - averageFillPrice
+        - status
+        - submittedAt
+        - updatedAt
+      properties:
+        orderId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        commandId: &a1
+          $ref: "#/components/schemas/UUID"
+        accountId: *a1
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        quantity: &a2
+          $ref: "#/components/schemas/DecimalValue"
+        filledQuantity: *a2
+        averageFillPrice:
+          anyOf:
+            - $ref: "#/components/schemas/DecimalValue"
+            - type: "null"
+        status:
+          type: string
+          minLength: 1
+          maxLength: 32
+        submittedAt: &a3
+          $ref: "#/components/schemas/DateTime"
+        updatedAt: *a3
+    AssistedObservedFill:
+      type: object
+      additionalProperties: false
+      required:
+        - fillId
+        - orderId
+        - commandId
+        - accountId
+        - symbol
+        - side
+        - quantity
+        - price
+        - feeCurrency
+        - feeAmount
+        - filledAt
+        - factHash
+      properties:
+        fillId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        orderId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        commandId: *a1
+        accountId: *a1
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+        quantity: *a2
+        price: *a2
+        feeCurrency:
+          type: string
+          minLength: 1
+          maxLength: 20
+        feeAmount: *a2
+        filledAt: *a3
+        factHash: &a4
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+    AssistedExecutionFacts:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - requestId
+        - subjectHash
+        - tenantId
+        - workspaceId
+        - accountId
+        - commandId
+        - decisionId
+        - proposalHash
+        - quoteCurrency
+        - outcome
+        - journalAvailable
+        - consumerReady
+        - reason
+        - order
+        - fills
+        - factHashes
+        - nativeSourceHashes
+        - sourceHash
+        - recordedAt
+        - executionAuthority
+      properties:
+        schemaVersion:
+          type: string
+          enum:
+            - quantos-native-execution-facts.v1
+        requestId: *a1
+        subjectHash: *a4
+        tenantId: *a1
+        workspaceId: *a1
+        accountId: *a1
+        commandId: *a1
+        decisionId: *a1
+        proposalHash: *a4
+        quoteCurrency:
+          type: string
+          enum: [USDT]
+        outcome:
+          type: string
+          enum:
+            - accepted
+            - unknown
+        journalAvailable: &a5
+          type: boolean
+        consumerReady: *a5
+        reason:
+          type: string
+          enum:
+            - OBSERVED_NATIVE_FACTS
+            - OUTCOME_UNRESOLVED
+            - JOURNAL_UNAVAILABLE
+            - FEE_CONVERSION_REQUIRED
+        order:
+          anyOf:
+            - $ref: "#/components/schemas/AssistedObservedOrder"
+            - type: "null"
+        fills:
+          type: array
+          maxItems: 10000
+          items:
+            $ref: "#/components/schemas/AssistedObservedFill"
+        factHashes:
+          type: array
+          maxItems: 20002
+          items: *a4
+        nativeSourceHashes:
+          type: array
+          maxItems: 20002
+          items: *a4
+        sourceHash: *a4
+        recordedAt: *a3
+        executionAuthority:
+          type: boolean
+          enum:
+            - false
     AssistedRequestView:
       type: object
       additionalProperties: false
@@ -11773,6 +11945,8 @@ components:
           $ref: "#/components/schemas/AssistedSubject"
         command:
           $ref: "#/components/schemas/AssistedNativeCommand"
+        facts:
+          $ref: "#/components/schemas/AssistedExecutionFacts"
     AssistedSubjectList:
       type: object
       additionalProperties: false

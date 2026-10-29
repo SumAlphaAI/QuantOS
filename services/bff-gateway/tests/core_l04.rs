@@ -332,6 +332,19 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
     }
     assert!(receipts.iter().all(|r| r == &receipts[0]));
     assert_eq!(lab.trace()["protocolCalls"], 1);
+    let view = get(&other, &format!("/v1/assisted-testnet/requests/{id}"));
+    let facts = &view["facts"];
+    assert_eq!(facts["commandId"], receipts[0]["commandId"]);
+    assert_eq!(facts["subjectHash"], receipts[0]["subjectHash"]);
+    assert_eq!(facts["consumerReady"], true);
+    assert_eq!(facts["fills"].as_array().unwrap().len(), 1);
+    assert_eq!(facts["fills"][0]["commandId"], facts["commandId"]);
+    assert_eq!(facts["fills"][0]["orderId"], facts["order"]["orderId"]);
+    assert_eq!(facts["fills"][0]["feeCurrency"], "USDT");
+    assert_eq!(
+        get(&url, &format!("/v1/assisted-testnet/requests/{id}"))["facts"],
+        *facts
+    );
     let chain = get(&other, &format!("/v1/audit/evidence-chains/{id}"));
     let nodes = chain["items"].as_array().unwrap();
     assert_eq!(nodes.len(), 5, "{chain}");
@@ -371,6 +384,23 @@ fn core_l04_public_mtls_restart_replica_c10_and_four_controlled_drills() {
         events["items"][4]["redactedPayload"]["commandId"],
         receipts[0]["commandId"]
     );
+    let completion = events["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|event| event["kind"] == "assisted.command_accepted")
+        .unwrap();
+    assert_eq!(
+        completion["redactedPayload"]["executionFactsHash"],
+        facts["sourceHash"]
+    );
+    assert_eq!(
+        completion["redactedPayload"]["fillIds"][0],
+        facts["fills"][0]["fillId"]
+    );
+    if let Ok(out) = std::env::var("QUANTOS_CORE_X04_FACTS_RESULT") {
+        private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"view":view,"context":get(&other,"/v1/context"),"events":events,"chain":chain,"nativeProtocolCalls":1,"replicaRequests":12,"actualTestnet":false})).unwrap());
+    }
     if let Ok(out) = std::env::var("QUANTOS_CORE_L04_C10_RESULT") {
         private_write(out,serde_json::to_vec_pretty(&json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"events":events,"chain":chain})).unwrap());
     }

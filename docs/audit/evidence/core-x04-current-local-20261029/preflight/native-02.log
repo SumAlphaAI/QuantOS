@@ -1,0 +1,54 @@
+
+running 9 tests
+test core_l03_original_f06_deadline_cannot_be_extended_by_native_challenge ... ok
+test core_l03_receipt_is_not_a_grant_and_requester_cannot_skip_second_approval ... ok
+test core_l03_approver_viewer_and_wrong_session_never_submit ... ok
+test core_l03_subject_side_and_bytes_are_bound_by_approval_hash ... ok
+test core_l03_original_command_deadline_is_half_open_but_read_facts_survive_approval_expiry ... ok
+test core_l03_unknown_kernel_result_never_resubmits_or_changes_identity ... ok
+test core_l03_new_approval_request_cannot_trade_same_immutable_proposal_twice ... ok
+test core_l03_two_approvals_and_same_subject_issue_one_native_command_under_concurrency ... ok
+test core_l03_rechecks_policy_subject_and_each_current_session_on_cache_hit ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 6 tests
+test core_l04_checkpoint_tamper_wrong_authority_and_current_sessions_not_restored ... ok
+test core_l04_kill_switch_persists_and_blocks_other_instances_before_io ... ok
+test core_l04_original_half_open_deadline_is_not_extended_by_recovery ... ok
+test core_l04_store_hmac_wrong_key_corruption_deletion_permissions_and_link_refuse ... ok
+test core_l04_verified_byte_cache_observes_other_writers_and_never_masks_corruption_or_permissions ... ok
+test core_l04_durable_independent_instances_fence_proposal_and_current_revocation ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+
+running 7 tests
+test x04_invalid_kernel_batch_remains_unknown_and_does_not_publish_partial_fills ... ok
+test x04_unknown_is_read_only_no_fake_zero_fee_or_fill_and_never_resubmits ... ok
+test x04_non_quote_fees_preserved_and_conversion_remains_pending ... ok
+test x04_actual_fills_fees_chain_and_command_persist_across_replica_restart_and_expiry ... ok
+test x04_authenticated_reads_reject_revoked_foreign_sessions_and_current_corruption ... ok
+test x04_signed_but_inconsistent_fact_snapshot_is_rejected_not_silently_rebuilt ... ok
+test x04_legacy_receipt_retains_original_view_without_invented_fill_evidence ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+warning: method `matches_execution_binding` is never used
+   --> crates/quantos-execution/src/assisted.rs:890:19
+    |
+450 | impl AssistedApprovalService {
+    | ---------------------------- method in this implementation
+...
+890 |     pub(crate) fn matches_execution_binding(
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `quantos-execution` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.95s
+     Running tests/core_l03.rs (target/debug/deps/core_l03-b42d2c6e1d30c1f7)
+     Running tests/core_l04.rs (target/debug/deps/core_l04-a0215256f616ab1c)
+     Running tests/core_x04_facts.rs (target/debug/deps/core_x04_facts-797982d17b653d1c)

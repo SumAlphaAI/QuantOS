@@ -249,6 +249,9 @@ impl OwnedHost {
         let mut v = json!({"request":self.receipt(&r),"subject":self.subject(*self.requests.get(&id).ok_or(Error::Invalid)?)?});
         if let Some(c) = self.native.inspect(session, id, at)? {
             v["command"] = command(c);
+            if let Some(f) = self.native.execution_facts(session, id, at)? {
+                v["facts"] = serde_json::to_value(f).map_err(|_| Error::Unavailable)?;
+            }
         }
         Ok(v)
     }

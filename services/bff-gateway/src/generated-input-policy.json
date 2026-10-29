@@ -309,6 +309,279 @@
         }
       }
     },
+    "AssistedObservedOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId",
+        "commandId",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "filledQuantity",
+        "averageFillPrice",
+        "status",
+        "submittedAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "filledQuantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "averageFillPrice": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/DecimalValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "submittedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "updatedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "AssistedObservedFill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fillId",
+        "orderId",
+        "commandId",
+        "accountId",
+        "symbol",
+        "side",
+        "quantity",
+        "price",
+        "feeCurrency",
+        "feeAmount",
+        "filledAt",
+        "factHash"
+      ],
+      "properties": {
+        "fillId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "orderId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "price": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "feeCurrency": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "feeAmount": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "filledAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "factHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "AssistedExecutionFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "subjectHash",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "commandId",
+        "decisionId",
+        "proposalHash",
+        "quoteCurrency",
+        "outcome",
+        "journalAvailable",
+        "consumerReady",
+        "reason",
+        "order",
+        "fills",
+        "factHashes",
+        "nativeSourceHashes",
+        "sourceHash",
+        "recordedAt",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-native-execution-facts.v1"
+          ]
+        },
+        "requestId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "subjectHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "decisionId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "proposalHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "quoteCurrency": {
+          "type": "string",
+          "enum": [
+            "USDT"
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "unknown"
+          ]
+        },
+        "journalAvailable": {
+          "type": "boolean"
+        },
+        "consumerReady": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "OBSERVED_NATIVE_FACTS",
+            "OUTCOME_UNRESOLVED",
+            "JOURNAL_UNAVAILABLE",
+            "FEE_CONVERSION_REQUIRED"
+          ]
+        },
+        "order": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/AssistedObservedOrder"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fills": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/components/schemas/AssistedObservedFill"
+          }
+        },
+        "factHashes": {
+          "type": "array",
+          "maxItems": 20002,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "nativeSourceHashes": {
+          "type": "array",
+          "maxItems": 20002,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "recordedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
     "AssistedRequestView": {
       "type": "object",
       "additionalProperties": false,
@@ -325,6 +598,9 @@
         },
         "command": {
           "$ref": "#/components/schemas/AssistedNativeCommand"
+        },
+        "facts": {
+          "$ref": "#/components/schemas/AssistedExecutionFacts"
         }
       }
     },

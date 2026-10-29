@@ -8,6 +8,7 @@ pub mod authority;
 pub mod dispatch;
 pub mod dual;
 pub mod durable;
+pub mod execution_facts;
 pub mod gateway;
 pub mod oms;
 pub mod paper;
