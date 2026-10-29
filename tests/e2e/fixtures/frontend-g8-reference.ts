@@ -2,7 +2,7 @@
 import {ownedZone} from "./core-l4-zone";
 import { test, expect, type Page } from "@playwright/test";
 import { spawn, execFileSync, type ChildProcess } from "node:child_process";
-import { createServer as reserveServer } from "node:net";
+import { isIP } from "node:net";
 import { createServer, request as secureRequest } from "node:https";
 import { request, type ServerResponse } from "node:http";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
@@ -22,6 +22,7 @@ type Row = {
     bodyHash: string;
     version?: string;
     responseHash?: string;
+    errorCode?: string;
 };
 type Session = 'session-current' | 'session-owner' | 'session-approver' | 'session-viewer';
 let activeSession: Session = 'session-current';
@@ -106,6 +107,10 @@ const proxy = createServer({}, async (req, res) => {
         response.on('data', b => output.push(Buffer.from(b)));
         response.on('end', () => {
             let bytes = Buffer.concat(output);
+            if (row.status >= 400) {
+                try { const code = JSON.parse(bytes.toString()).code; row.errorCode = typeof code === "string" && /^[A-Z_]{1,80}$/.test(code) ? code : "UNSTRUCTURED_REFUSAL"; }
+                catch { row.errorCode = "UNSTRUCTURED_REFUSAL"; }
+            }
             if (row.status === 200 && !row.control && flags.foreign && path === '/v1/alerts') {
                 const v = JSON.parse(bytes.toString());
                 v.items[0].accountId = 'aaaaaaaa-1111-4111-8111-111111111111';
@@ -168,19 +173,18 @@ export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local
         fault({});
         await context.addCookies([{ name: "quantos_csrf", value: csrf, url: terminal }]);
         await context.route("**/*", route => ["localhost", "127.0.0.1"].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort());
-        const reserve = reserveServer();
-        await new Promise<void>(r => reserve.listen(0, "127.0.0.1", r));
-        port = (reserve.address() as {
-            port: number;
-        }).port;
-        await new Promise<void>(r => reserve.close(() => r()));
         zone=mode==="assisted-mtls-local"?await ownedZone():undefined;
-        child = spawn(resolve("target/debug/bff-gateway"), [], { env: { PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: process.env.TMPDIR, ...(zone?{QUANTOS_BFF_OWNED_MTLS_DIRECTORY:zone.directory}:{}), GITHUB_SHA: process.env.GITHUB_SHA, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_REFERENCE_CONTEXT: mode, QUANTOS_BFF_OWNED_ASSISTED: (mode === "assisted-local" || mode === "assisted-mtls-local") && assistedEnabled ? "enabled" : "off", QUANTOS_BFF_BIND: `127.0.0.1:${port}`, QUANTOS_BFF_PUBLIC_ORIGIN: origin }, stdio: ["ignore", "pipe", "pipe"] });
+        child = spawn(resolve("target/debug/bff-gateway"), [], { env: { PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: process.env.TMPDIR, ...(zone?{QUANTOS_BFF_OWNED_MTLS_DIRECTORY:zone.directory}:{}), GITHUB_SHA: process.env.GITHUB_SHA, QUANTOS_SKIP_ENV: "1", QUANTOS_BFF_MODE: "reference", QUANTOS_BFF_REFERENCE_CONTEXT: mode, QUANTOS_BFF_OWNED_ASSISTED: (mode === "assisted-local" || mode === "assisted-mtls-local") && assistedEnabled ? "enabled" : "off", QUANTOS_BFF_BIND: "127.0.0.1:0", QUANTOS_BFF_PUBLIC_ORIGIN: origin }, stdio: ["ignore", "pipe", "pipe"] });
         await new Promise<void>((done, reject) => {
             const timer = setTimeout(() => reject(Error("reference startup timeout")), 15000);
             child.once("error", e => { clearTimeout(timer); reject(e); });
+            let output = "";
             child.stdout!.on("data", b => {
-                if (String(b).includes('"ready":true')) {
+                output += String(b);
+                if (output.includes("\n")) {
+                    const ready = JSON.parse(output.split("\n")[0]), address = new URL("http://" + ready.address);
+                    expect(ready.ready).toBe(true); expect(address.hostname).toBe("127.0.0.1"); expect(isIP(address.hostname)).toBe(4);
+                    port = Number(address.port); expect(port).toBeGreaterThan(0);
                     clearTimeout(timer);
                     done();
                 }

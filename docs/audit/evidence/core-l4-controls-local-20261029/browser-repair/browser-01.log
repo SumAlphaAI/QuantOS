@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery (12.8s)
+
+
+  1) [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-route-access="authorized"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-route-access="authorized"]')
+
+
+       at fixtures/frontend-g8-reference.ts:156
+
+      154 |     return new Promise((resolve, reject) => { const req = secureRequest(origin + path, { rejectUnauthorized: false, method, headers: { "x-frontend-g8-control": "1", "x-frontend-g8-session": options.session ?? "session-owner", ...(write ? { "content-type": "application/json", ...(version ? { "if-match": version } : {}), "idempotency-key": crypto.randomUUID(), "x-request-id": crypto.randomUUID(), "x-csrf-token": csrf } : {}) } }, res => { const parts: Buffer[] = []; res.on("data", b => parts.push(Buffer.from(b))); res.on("end", () => resolve({ status: res.statusCode!, body: Buffer.concat(parts).length ? JSON.parse(Buffer.concat(parts).toString()) : {} })); }); req.on("error", reject); req.end(body ? JSON.stringify(body) : undefined); });
+      155 | }
+    > 156 | export async function authorized(page: Page) { await expect(page.locator('[data-route-access="authorized"]')).toBeVisible(); }
+          |                                                                                                               ^
+      157 | export function installReferenceHooks(mode: "paper" | "shadow" | "assisted-local" | "assisted-mtls-local" = "paper", assistedEnabled = true) {
+      158 |     test.beforeAll(async () => {
+      159 |         expect(process.env.DATABASE_URL).toBeUndefined();
+        at authorized (/Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/fixtures/frontend-g8-reference.ts:156:111)
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/core-l4.spec.ts:11:65
+
+    Error Context: docs/audit/evidence/core-l4-controls-local-20261029/browser-repair/browser-01/core-l4-CORE-L4-current-P1-9f407-ommon-C10-read-and-recovery-chromium/error-context.md
+
+    Error Context: docs/audit/evidence/core-l4-controls-local-20261029/browser-repair/browser-01/core-l4-CORE-L4-current-P1-9f407-ommon-C10-read-and-recovery-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/core-l4.spec.ts:7:5 › CORE L4 current P10 P11 mTLS common C10 read and recovery 

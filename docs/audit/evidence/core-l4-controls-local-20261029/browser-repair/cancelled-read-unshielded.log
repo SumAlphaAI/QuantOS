@@ -1,0 +1,24 @@
+
+running 1 test
+test l4_controls::cancelled_subject_read_finishes_original_checkpoint_without_reissuing ... FAILED
+
+failures:
+
+---- l4_controls::cancelled_subject_read_finishes_original_checkpoint_without_reissuing stdout ----
+
+thread 'l4_controls::cancelled_subject_read_finishes_original_checkpoint_without_reissuing' (2003972) panicked at services/bff-gateway/tests/core_l04.rs:245:5:
+assertion `left == right` failed: /v1/context: {"code":"INVALID_REQUEST","correlationId":"01a186d7-b72b-7c23-81fa-367548f5acef","message":"Research request could not be completed."}
+  left: 422
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    l4_controls::cancelled_subject_read_finishes_original_checkpoint_without_reissuing
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 5.43s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.33s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-d0abd527f20d3c20)
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

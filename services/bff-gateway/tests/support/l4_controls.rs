@@ -8,6 +8,65 @@ fn evidence(name: &str, value: Value) {
 fn c10(url: &str, id: &str) -> Value {
     get(url, &format!("/v1/audit/events?correlationId={id}"))
 }
+#[test]
+fn cancelled_subject_read_finishes_original_checkpoint_without_reissuing() {
+    let lab = Lab::new();
+    let (_p, url) = lab.bff(true);
+    let rows = get(&url, "/v1/assisted-testnet/subjects");
+    let id = open(&url, &rows["items"][0]);
+    approve(&url, &id, 0);
+    let before = get(&url, &format!("/v1/assisted-testnet/requests/{id}"));
+    private_write(lab.directory.join("pause-subjects-before-save"), b"owned");
+    let base = url.clone();
+    let caller = std::thread::spawn(move || {
+        reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(Wait::from_millis(500))
+            .build()
+            .unwrap()
+            .get(format!("{base}/v1/assisted-testnet/subjects"))
+            .header(
+                "cookie",
+                "quantos_session=session-approver; quantos_csrf=csrf-token-0000000000000001",
+            )
+            .send()
+    });
+    let until = std::time::Instant::now() + Wait::from_secs(5);
+    while !lab.directory.join("subjects-before-save.marker").is_file() {
+        assert!(
+            std::time::Instant::now() < until,
+            "source read marker missing"
+        );
+        std::thread::sleep(Wait::from_millis(10));
+    }
+    assert!(
+        caller.join().unwrap().is_err(),
+        "caller must actually disconnect"
+    );
+    fs::remove_file(lab.directory.join("pause-subjects-before-save")).unwrap();
+    let context = get(&url, "/v1/context");
+    assert_eq!(context["mode"], "assisted_live");
+    let after = get(&url, &format!("/v1/assisted-testnet/requests/{id}"));
+    assert_eq!(after, before);
+    approve(&url, &id, 1);
+    let approved = get(&url, &format!("/v1/assisted-testnet/requests/{id}"));
+    assert_eq!(approved["request"]["revision"], 2);
+    assert_eq!(approved["request"]["status"], "approved");
+    assert!(approved.get("command").is_none_or(Value::is_null));
+    let activation = super::c11_activation::current(&url);
+    assert_eq!(activation["killGeneration"], "0");
+    assert_eq!(activation["version"], "0");
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    evidence(
+        "QUANTOS_L4_CANCELLED_READ_RESULT",
+        json!({
+            "sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,
+            "actualClientDisconnect":true,"sameOriginalCheckpointFinished":true,
+            "context":context,"before":before,"after":after,"approved":approved,
+            "activation":activation,"protocolCalls":0,"noResend":true
+        }),
+    );
+}
 pub(super) fn accepted_join(
     lab: &Lab,
     url: &str,

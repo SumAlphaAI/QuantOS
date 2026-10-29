@@ -1,0 +1,15 @@
+{
+  "scope": "UNFROZEN_CANCELLED_READ_REPAIR_ONLY",
+  "sourceCommit": "53f296e1b0a5469d3b15a90aad595d2a13ea1aae",
+  "dirtyWorkingTree": true,
+  "originalAttempt": "attempt-02",
+  "browserBefore": "browser-01.log",
+  "browserAfter": "browser-02.log",
+  "actualCounterexample": "cancelled-read-unshielded.log",
+  "counterexampleScope": "New deterministic owner-side fixture with only cancellation shield disabled, not a full original source checkout",
+  "fixedCase": "cancelled-read-fixed.log",
+  "finding": "HTTP cancellation drops handler/save future after trusted source time advances; authenticated old checkpoint then rejects rollback with INVALID_REQUEST 422",
+  "fix": "Only durable profile completes original handler/checkpoint in owned task; no handler replay, no replacement command, no weakening of monotonicity or expiry",
+  "browserFixture": "Use held OS ephemeral address and log canonical refusal code only",
+  "targetAcceptance": "NOT_RUN"
+}

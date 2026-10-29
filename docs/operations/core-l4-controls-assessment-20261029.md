@@ -28,6 +28,8 @@ node docs/audit/evidence/core-l4-controls-local-20261029/verify.mjs
 
 首轮冻结0b6aede8的进程检查8/9，原fixture预占/释放端口后由BFF再次绑定发生EADDRINUSE；后续14项NOT_RUN。原attempt-01与日志按hash保留FAIL。修复只使BFF直接绑定OS分配的端口0、readiness报告listener.local_addr，fixture消费已持有的真实loopback地址；不添加启动自动重试、不修改业务授权。修复后的候选独立新attempt验收。
 
+第二轮冻结53f296e1的浏览器6/7，P10/P11切换第二审批人前的导航取消了有状态subjects读取；可信risk/source时钟已推进而检查点尚未保存，后续重载因回退拒绝422。实际断连用例在无保护逻辑下复现同一422；修复后断连/第二人审批及原浏览器旅程通过诊断。持久profile将同一次已派发handler与checkpoint保存放入独立owned task，在客户端丢弃响应后仍只完成原事务；不重试handler、不签发替代Command、不放宽签名/时间单调性。无durable store的profile沿用原请求生命周期。私有临时owner目录的pause-subjects-before-save只用于实际取消窗口注入，没有HTTP入口。浏览器fixture也改用已持有端口并仅记录规范错误码。原attempt-02与剩余4项NOT_RUN保留，最终新冻结源码独立验收。
+
 当前参考C01/F06/自有签名端口/临时mTLS和认证fsync文件+配合OS锁，不能抵抗全目录/密钥/宿主同时回滚，不证明Supabase/Vault/RLS、分布式原子提交或真实testnet。实际身份/目标DB/Vault/venue、完整财务和books、跨主机、外部通知/明确关闭、目标安全/容量/性能/长稳/同SHA CI/发布、完整浏览器/人工无障碍均NOT_RUN。无生产凭据、推送或外部发布。
 
 下一原任务 `CORE:X01 DEVELOPMENT / L4-VALUATION-RISK-INPUT-01`（属于既有L4-LEDGER-01与L4-CURRENT-SOURCE-01，不新增分母）：接当前不可变账本的资金/mark来源、valuation/P&L/exposure与风险输入快照，验证账户/来源/时效/UNKNOWN保留；没有可信mark或已有UNKNOWN时保持风险拒绝。随后由X02消费新快照生成显式新风险决定，X05补齐独立books与通知/审查关闭。目标准入仍独立办理。

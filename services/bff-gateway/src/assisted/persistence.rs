@@ -302,6 +302,30 @@ pub(crate) async fn transaction(
     request: axum::extract::Request,
     next: axum::middleware::Next,
 ) -> Response {
+    let durable = data
+        .lock()
+        .await
+        .assisted
+        .as_ref()
+        .is_some_and(|h| h.durable.is_some());
+    if !durable {
+        return next.run(request).await;
+    }
+    // Once dispatched, finish the same owner transaction even if its HTTP
+    // response is abandoned. Stateful reads advance trusted source clocks;
+    // cancellation between handler and save must not strand an uncommitted
+    // high-water mark which makes the next authenticated reload look rolled back.
+    // This neither retries a handler nor issues a replacement command.
+    match tokio::spawn(transaction_owned(data, request, next)).await {
+        Ok(response) => response,
+        Err(_) => fail(Error::Unavailable).response(),
+    }
+}
+async fn transaction_owned(
+    data: Arc<Mutex<ProviderData>>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> Response {
     let store = data
         .lock()
         .await
@@ -334,7 +358,34 @@ pub(crate) async fn transaction(
     {
         h.persisted = None;
     }
+    let subject_read =
+        request.method() == Method::GET && request.uri().path() == "/v1/assisted-testnet/subjects";
     let response = next.run(request).await;
+    // Private owned fixture only: deterministically disconnect after a trusted
+    // source read but before its checkpoint. No HTTP fault injection surface.
+    if subject_read {
+        let root = data
+            .lock()
+            .await
+            .assisted
+            .as_ref()
+            .and_then(|h| h.control_fixture_directory.clone());
+        if let Some(root) = root
+            && root.join("pause-subjects-before-save").is_file()
+        {
+            if std::fs::write(
+                root.join("subjects-before-save.marker"),
+                b"SOURCE_READ_NOT_CHECKPOINTED",
+            )
+            .is_err()
+            {
+                return fail(Error::Unavailable).response();
+            }
+            while root.join("pause-subjects-before-save").is_file() {
+                tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+            }
+        }
+    }
     // These exact handlers are pure identity/capability reads. Keep their OS
     // lock/current authenticated reload, but avoid rewriting the entire ledger.
     // First read still initializes shared state; all other paths persist even
