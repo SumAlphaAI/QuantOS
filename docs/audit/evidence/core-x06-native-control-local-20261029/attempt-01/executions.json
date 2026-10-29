@@ -1,0 +1,422 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X06"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:36.717Z",
+    "finishedAt": "2026-10-29T06:23:36.906Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/development.log",
+    "logSha256": "7c99fcf71d15d113451e77137cc3f1c2066d67afc1e8ad094753a000024b4e55"
+  },
+  {
+    "id": "scope",
+    "command": [
+      "node",
+      "scripts/core-x06-native-control-review.mjs",
+      "--audit"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:36.906Z",
+    "finishedAt": "2026-10-29T06:23:37.083Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/scope.log",
+    "logSha256": "bbed62ce15e8792fdd436546dbe6aede162a66f0f3543a82959ab68daca8f63e"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:37.083Z",
+    "finishedAt": "2026-10-29T06:23:37.449Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/build.log",
+    "logSha256": "32d47f791eadf1ea833d9f8c84fbfea5cab1f438e113e93be05bd5b908e1c2ac"
+  },
+  {
+    "id": "native",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "core_l04"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:37.493Z",
+    "finishedAt": "2026-10-29T06:23:43.064Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/native.log",
+    "logSha256": "20b8d6868afe28107d7dff58d461311cae88ee12be96c2d17a2e9e98b37b1152"
+  },
+  {
+    "id": "control",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "assisted::control::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:43.064Z",
+    "finishedAt": "2026-10-29T06:23:51.874Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/control.log",
+    "logSha256": "bed79e860aa5150f1008ad452f3c40780792fa264ff122e8127439c1d3189a5c"
+  },
+  {
+    "id": "current-source",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "assisted::tests::"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:23:51.874Z",
+    "finishedAt": "2026-10-29T06:24:00.165Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/current-source.log",
+    "logSha256": "4ff9ab5eb96bdd156c3b1ffc873430dda304718a12095d3a2ae13a2be3043c17"
+  },
+  {
+    "id": "process",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:00.165Z",
+    "finishedAt": "2026-10-29T06:24:53.524Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/process.log",
+    "logSha256": "2b57b8fdea9cac3940e6b67176a0dcb4cfbcc6da7ac55b1b6e3bc791de650296"
+  },
+  {
+    "id": "consumers",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/native-kill-control.test.ts",
+      "apps/terminal/tests/core-l03-hardening.test.ts",
+      "apps/terminal/tests/core-l4-audit.test.ts",
+      "apps/terminal/tests/core-x06-alerts.test.ts",
+      "apps/terminal/tests/core-x05-reconciliation.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/consumers.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:53.524Z",
+    "finishedAt": "2026-10-29T06:24:54.559Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/consumers.log",
+    "logSha256": "500ad2415a6386b6fd27d7bbeebe88cbfe4fdac2c69cc6d4a9dcc2eb0a9ce7ea"
+  },
+  {
+    "id": "contracts",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/contract/native-kill-control.test.ts",
+      "tests/contract/core-x05-reconciliation.test.ts",
+      "tests/contract/core-x06-alerts.test.ts",
+      "--reporter=json",
+      "--outputFile=docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/contracts.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:54.559Z",
+    "finishedAt": "2026-10-29T06:24:55.421Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/contracts.log",
+    "logSha256": "fe7520724626a568cab15a32c9cc0bf19c3581ba892589acdb1e59bb35056e7a"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/core-x06-native-control-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:55.421Z",
+    "finishedAt": "2026-10-29T06:24:56.000Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/gate-tests.log",
+    "logSha256": "e99018bf16db6326184037c120dfe5caee2fa03c0b57892d7efb2d24e8824114"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "node",
+      "scripts/check-bff-openapi.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:56.000Z",
+    "finishedAt": "2026-10-29T06:24:56.151Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/openapi.log",
+    "logSha256": "622fea0820dea3a0289a311288fea302ab16d60ee99e030a0fd16128754e0f14"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:56.151Z",
+    "finishedAt": "2026-10-29T06:24:56.675Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/generated.log",
+    "logSha256": "9d30fbcd46f03c488c34b72502caca4c96fa89b72525160305d8053e6d79dbfa"
+  },
+  {
+    "id": "typecheck",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:56.676Z",
+    "finishedAt": "2026-10-29T06:24:57.543Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/typecheck.log",
+    "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "apps/terminal/src/kill",
+      "apps/terminal/src/assisted",
+      "apps/terminal/tests/native-kill-control.test.ts",
+      "apps/terminal/tests/fixtures/native-kill-control.ts",
+      "tests/contract/native-kill-control.test.ts",
+      "tests/e2e/native-kill-control.spec.ts",
+      "playwright.native-kill.config.ts",
+      "scripts/core-x06-native-control-review.mjs",
+      "scripts/core-x06-native-control-review.test.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:57.543Z",
+    "finishedAt": "2026-10-29T06:24:58.091Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "rust-lint",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "quantos-execution",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:24:58.091Z",
+    "finishedAt": "2026-10-29T06:25:07.603Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/rust-lint.log",
+    "logSha256": "bff39e436f17abb6d830789379b69835dfd286c4f178e7473a338e699b28048f"
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "quantos-risk"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:07.604Z",
+    "finishedAt": "2026-10-29T06:25:08.032Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/rust-format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:08.032Z",
+    "finishedAt": "2026-10-29T06:25:08.094Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:08.094Z",
+    "finishedAt": "2026-10-29T06:25:08.123Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/no-submit.log",
+    "logSha256": "640708dc2970acdcc00a01bec2f964e44c823d9e23af00471d5d4839503722c4"
+  },
+  {
+    "id": "web-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:08.123Z",
+    "finishedAt": "2026-10-29T06:25:21.065Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/web-build.log",
+    "logSha256": "67c2f0dcf5b470d8c8b275012707344bffc4171c6f435dc67c4355bb2421fff6"
+  },
+  {
+    "id": "browser",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=playwright.native-kill.config.ts",
+      "--project=chromium",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json",
+      "--output=docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/browser/cases"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:21.065Z",
+    "finishedAt": "2026-10-29T06:25:40.101Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/browser.log",
+    "logSha256": "ded1df223ebd44c64b74b1e0e14e5e067370dd85b921498bcf3dfe0f86278f24"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:X06"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:40.101Z",
+    "finishedAt": "2026-10-29T06:25:40.301Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/integration-refusal.log",
+    "logSha256": "3fe7f067aa0974ca04ab60d909b1efb8d7abb2f9f92b59760e54d810b708242f"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE:X06"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:40.301Z",
+    "finishedAt": "2026-10-29T06:25:40.501Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/release-refusal.log",
+    "logSha256": "73c3938ab8546f643234b8f9a92b725489f98d6e7ba04892875450fed70b34ab"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-x06-native-control-review.mjs",
+      "--scan",
+      "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "startedAt": "2026-10-29T06:25:40.501Z",
+    "finishedAt": "2026-10-29T06:25:41.301Z",
+    "log": "docs/audit/evidence/core-x06-native-control-local-20261029/attempt-01/secret-scan.log",
+    "logSha256": "8b5eb5e046e41796f7fe985425878ef1cbbbd01d0f5dd574f5a12a03625e5910"
+  }
+]
