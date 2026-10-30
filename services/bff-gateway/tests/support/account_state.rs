@@ -11,13 +11,13 @@ use openssl::{
     sign::Signer,
 };
 use quantos_portfolio::{account_provenance::*, native_valuation::Inputs};
-fn enabled(lab: &Lab, value: bool) {
+pub(super) fn enabled(lab: &Lab, value: bool) {
     let path = lab.directory.join("bff-owner.json");
     let mut c: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
     c["accountValuationEnabled"] = json!(value);
     private_write(path, serde_json::to_vec(&c).unwrap());
 }
-fn signed(lab: &Lab, a: Artifact) -> SignedArtifact {
+pub(super) fn signed(lab: &Lab, a: Artifact) -> SignedArtifact {
     let key = PKey::private_key_from_pem(&fs::read(lab.directory.join("account-key.pem")).unwrap())
         .unwrap();
     seal(a, &key, DOMAIN)
@@ -36,7 +36,7 @@ fn seal(a: Artifact, key: &PKey<Private>, domain: &str) -> SignedArtifact {
             .collect(),
     }
 }
-fn policy(lab: &Lab, i: &Inputs) -> Policy {
+pub(super) fn policy(lab: &Lab, i: &Inputs) -> Policy {
     let (c, k) = tls::certificate("independent-account.invalid", None, false, false);
     private_write(
         lab.directory.join("account-key.pem"),
@@ -597,7 +597,7 @@ fn authored_opening(lab: &Lab, i: &Inputs) -> Opening {
         quote_currency: "USDT".into(),
     }
 }
-fn produce(
+pub(super) fn produce(
     p: &Policy,
     i: &Inputs,
     version: u64,

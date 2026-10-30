@@ -1136,3 +1136,6 @@ mod r01_gate;
 
 #[path = "support/account_state.rs"]
 mod account_state;
+
+#[path = "support/dual_source_gate.rs"]
+mod dual_source_gate;

@@ -1,0 +1,551 @@
+//! Current dual-source/mixed review/control composition. Runtime unchanged.
+use super::account_state as account;
+use super::financial_review_gate::{alerts, capture, controls};
+use super::r01_provenance as market;
+use super::*;
+use super::{
+    account_books as books, books_risk as risk, c11_activation as c11,
+    current_execution as current, current_gate as gate, financial_review as fin,
+    native_control as kill, source_review as source, valuation,
+};
+use quantos_portfolio::account_provenance as account_domain;
+use quantos_portfolio::native_valuation::Inputs;
+const PATH: &str = "/v1/assisted-testnet/source-reviews";
+const FIN: &str = "/v1/assisted-testnet/financial-reviews";
+use super::source_review_gate::setup;
+fn authorize(url: &str) -> Vec<Value> {
+    let (a, b, c) = source::authorize(url);
+    let (d, e, f) = fin::authorize(url);
+    vec![a, b, c, d, e, f]
+}
+#[test]
+fn dual_source_gate_current_success_controls_new_review_and_repeat_proposal_refusal() {
+    let lab = Lab::new();
+    current::enabled(&lab);
+    let (_p, url) = lab.bff(true);
+    let (_, candidate, ledger, mut b) = setup(&lab, &url);
+    market::configure(&lab, true);
+    account::enabled(&lab, true);
+    let (_market, url) = lab.bff(true);
+    let (open_before, _) = alerts(&url);
+    let source_receipts = source::authorize(&url);
+    let source_only = get(&url, PATH);
+    let (source_only_valuation, source_only_risk) =
+        risk_current(&lab, &url, &candidate, &ledger, 2);
+    assert_eq!(source_only_risk["decision"]["verdict"], "deny");
+    assert_eq!(
+        source_only_risk["booksAdmission"]["reason"],
+        "OPEN_FINANCIAL_OBLIGATIONS"
+    );
+    let (fa, fe, fp) = fin::authorize(&url);
+    let first_receipts = vec![
+        source_receipts.0,
+        source_receipts.1,
+        source_receipts.2,
+        fa,
+        fe,
+        fp,
+    ];
+    let admitted = get(&url, PATH);
+    let signed_admitted = capture(&lab);
+    let first_valuation = source_only_valuation.clone();
+    let (status, review) = risk::request(
+        &url,
+        &candidate,
+        &first_valuation,
+        &Uuid::new_v4().to_string(),
+    );
+    assert_eq!(status, 200, "{review}");
+    assert_eq!(review["decision"]["verdict"], "approval_required");
+    let id = open(&url, &review["subject"]);
+    approve(&url, &id, 0);
+    approve(&url, &id, 1);
+    let approved = gate::inspect(&url, &id);
+    let initial = c11::current(&url);
+    c11::change(&url, &initial, false);
+    let before_off = risk::immutable(&risk::native(&lab));
+    let off = current::submit(&url, &id, "off");
+    assert_ne!(off.0, 200);
+    assert_eq!(risk::immutable(&risk::native(&lab)), before_off);
+    let disabled = c11::current(&url);
+    c11::change(&url, &disabled, true);
+    let on = c11::current(&url);
+    assert_eq!(on["version"], "2");
+    let (s, command) = current::submit(&url, &id, "current");
+    assert_eq!(s, 200, "{command}");
+    assert_eq!(command["currentRisk"]["activation"]["version"], 2);
+    assert_eq!(command["currentRisk"]["books"], admitted["riskBooks"]);
+    assert_eq!(lab.trace()["protocolCalls"], 2);
+    let original = gate::inspect(&url, &id);
+    let immutable = gate::immutable(&gate::native(&lab));
+    let claims_before = risk::immutable(&risk::native(&lab));
+    let request_audit = gate::audit(&url, &id);
+    books::advance(&mut b);
+    b.positions[1].amount = "1".into();
+    b.cash[0].amount = "7999.98".into();
+    b.fees[0].amount = "0.02".into();
+    books::publish(&lab, &b);
+    let matched = get(&url, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(
+        matched["accountBooks"]["status"],
+        "MATCHED_DECLARED_ACCOUNT_BOOKS"
+    );
+    assert_eq!(matched["openAlertEvidenceCount"], 4);
+    let ledger = get(&url, "/v1/assisted-testnet/ledger");
+    assert_eq!(ledger["appliedFillCount"], 2);
+    kill::mutate(&url, "session-owner", "engage", "global", 0, None);
+    kill::mutate(&url, "session-current", "engage", "account", 1, None);
+    let stopped = gate::roundtrip(&url);
+    assert_eq!(stopped["killGeneration"], "2");
+    let (_cold, cold) = lab.bff(true);
+    assert_eq!(gate::inspect(&cold, &id), original);
+    gate::release(&cold, "account", 2);
+    gate::release(&cold, "global", 3);
+    books::advance(&mut b);
+    books::publish(&lab, &b);
+    let before_new = get(&cold, PATH);
+    assert!(before_new["riskBooks"].get("financialReview").is_none());
+    assert!(before_new["riskBooks"].get("sourceReview").is_none());
+    assert_eq!(before_new["history"].as_array().unwrap().len(), 6);
+    let next_receipts = authorize(&cold);
+    let renewed = get(&cold, PATH);
+    assert_eq!(
+        renewed["riskBooks"]["financialReview"]["killGeneration"],
+        "4"
+    );
+    let signed_renewed = capture(&lab);
+    let (fresh_valuation, new_review) = risk_current(&lab, &cold, &candidate, &ledger, 3);
+    assert_eq!(new_review["decision"]["verdict"], "deny", "{new_review}");
+    assert!(new_review.get("subject").is_none());
+    assert_eq!(new_review["proposalHash"], review["proposalHash"]);
+    assert!(
+        new_review["decision"]["checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["rule"] == "concentration" && c["breached"] == true)
+    );
+    let deny_audit = gate::audit(
+        &cold,
+        new_review["decision"]["decisionId"].as_str().unwrap(),
+    );
+    let repeat = current::submit(&cold, &id, "no-resend-after-current-deny");
+    assert_ne!(repeat.0, 200, "{}", repeat.1);
+    assert_eq!(gate::immutable(&gate::native(&lab)), immutable);
+    assert_eq!(risk::immutable(&risk::native(&lab)), claims_before);
+    assert_eq!(gate::inspect(&cold, &id), original);
+    assert_eq!(gate::audit(&cold, &id), request_audit);
+    let (open_after, alert_audits) = alerts(&cold);
+    assert_eq!(open_after, open_before);
+    let review_audits = [
+        &first_receipts[0],
+        &first_receipts[3],
+        &next_receipts[0],
+        &next_receipts[3],
+    ]
+    .iter()
+    .map(|r| gate::audit(&cold, r["event"]["caseId"].as_str().unwrap()))
+    .collect::<Vec<_>>();
+    let journal = fin::journal(&lab);
+    let control_evidence = controls(&cold);
+    assert_eq!(control_evidence["currentC11"]["version"], "4");
+    assert_eq!(control_evidence["controls"]["generation"], "4");
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    emit(
+        &lab,
+        "QUANTOS_L4_DUAL_ACCEPTED_RESULT",
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"limitsRelaxed":false,"noResend":true,"automaticClosure":false,"protocolCalls":2,"reviewReceipts":([first_receipts.clone(),next_receipts.clone()].concat()),"sourceOnly":source_only,"sourceOnlyValuation":source_only_valuation,"sourceOnlyRisk":source_only_risk,"admitted":admitted,"signedAdmitted":signed_admitted,"firstValuation":first_valuation,"review":review,"approved":approved,"initialC11":initial,"offRefusal":{"status":off.0,"body":off.1},"on":on,"command":command,"original":original,"ledger":ledger,"matched":matched,"stopped":stopped,"beforeNewReview":before_new,"renewed":renewed,"signedRenewed":signed_renewed,"freshValuation":fresh_valuation,"newReview":new_review,"denyAudit":deny_audit,"repeatRefusal":{"status":repeat.0,"body":repeat.1},"openBefore":open_before,"alerts":open_after,"alertAudits":alert_audits,"reviewAudits":review_audits,"requestAudit":request_audit,"authorizationJournal":journal,"claimsBefore":claims_before,"claimsAfter":risk::immutable(&risk::native(&lab)),"controlEvidence":control_evidence}),
+    );
+}
+#[test]
+fn dual_source_gate_unknown_through_public_controls_and_cold_recovery() {
+    let lab = Lab::pause_at(2);
+    current::enabled(&lab);
+    let (_boot, url) = lab.bff(true);
+    let (_, candidate, ledger, mut b) = setup(&lab, &url);
+    market::configure(&lab, true);
+    account::enabled(&lab, true);
+    let (mut process, url) = lab.bff(true);
+    let (open_before, _) = alerts(&url);
+    let receipts = authorize(&url);
+    let admitted = get(&url, PATH);
+    let signed_admitted = capture(&lab);
+    let (first_valuation, review) = risk_current(&lab, &url, &candidate, &ledger, 2);
+    let id = open(&url, &review["subject"]);
+    approve(&url, &id, 0);
+    approve(&url, &id, 1);
+    let base = url.clone();
+    let request = id.clone();
+    let caller = std::thread::spawn(move || {
+        reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(Wait::from_secs(10))
+            .build()
+            .unwrap()
+            .post(format!(
+                "{base}/v1/assisted-testnet/requests/{request}/commands"
+            ))
+            .header(
+                "cookie",
+                "quantos_session=session-current; quantos_csrf=csrf-token-0000000000000001",
+            )
+            .header("origin", "http://localhost:3190")
+            .header("x-csrf-token", "csrf-token-0000000000000001")
+            .header("idempotency-key", Uuid::new_v4().to_string())
+            .header("x-request-id", Uuid::new_v4().to_string())
+            .json(&json!({"expectedRevision":2}))
+            .send()
+    });
+    let line = lab.trace.recv_timeout(Wait::from_secs(10)).unwrap();
+    let pending: Value = serde_json::from_str(line.strip_prefix("L02_PENDING=").unwrap()).unwrap();
+    assert_eq!(pending["protocolCalls"], 2);
+    process.0.kill().unwrap();
+    process.0.wait().unwrap();
+    assert!(caller.join().unwrap().is_err());
+    books::advance(&mut b);
+    b.positions[1].amount = "1".into();
+    b.cash[0].amount = "7999.98".into();
+    b.fees[0].amount = "0.02".into();
+    books::publish(&lab, &b);
+    let (_r, cold) = lab.bff(true);
+    let original = gate::inspect(&cold, &id);
+    assert_eq!(original["command"]["state"], "unknown");
+    assert_eq!(
+        original["command"]["currentRisk"]["books"],
+        admitted["riskBooks"]
+    );
+    let immutable = gate::immutable(&gate::native(&lab));
+    let before = risk::immutable(&risk::native(&lab));
+    let ledger = get(&cold, "/v1/assisted-testnet/ledger");
+    assert_eq!(ledger["appliedFillCount"], 1);
+    assert_eq!(ledger["quarantinedCommandCount"], 1);
+    let (view_before, _) = alerts(&cold);
+    assert_eq!(view_before["items"].as_array().unwrap().len(), 7);
+    gate::roundtrip(&cold);
+    kill::mutate(&cold, "session-current", "engage", "account", 0, None);
+    let stopped = gate::roundtrip(&cold);
+    let (_again, latest) = lab.bff(true);
+    assert_eq!(gate::inspect(&latest, &id), original);
+    gate::release(&latest, "account", 1);
+    let released = c11::current(&latest);
+    assert_eq!(released["killGeneration"], "2");
+    assert_eq!(released["nativeStopped"], false);
+    let view = get(&latest, PATH);
+    assert_eq!(view["reviewable"], false);
+    assert_eq!(view["currentBooks"]["unknownObligations"], 1);
+    assert!(view["riskBooks"].get("financialReview").is_none());
+    let body = source::body(&latest, "session-current", &view, "request");
+    let refusal = source::post(
+        &latest,
+        "session-current",
+        PATH,
+        &body,
+        &Uuid::new_v4().to_string(),
+    );
+    assert_eq!(refusal.0, 409);
+    let fv = get(&latest, FIN);
+    let fb = fin::body(&latest, "session-current", &fv, "request");
+    let financial_refusal = fin::post(
+        &latest,
+        "session-current",
+        FIN,
+        &fb,
+        &Uuid::new_v4().to_string(),
+    );
+    assert_eq!(financial_refusal.0, 409);
+    let valuation = get(&latest, "/v1/assisted-testnet/valuation");
+    assert_eq!(valuation["riskInputReady"], false);
+    assert!(valuation.get("snapshot").is_none());
+    let after = get(&latest, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(
+        after["accountBooks"]["status"],
+        "UNKNOWN_OR_QUARANTINED_OBLIGATIONS"
+    );
+    let (open_after, alert_audits) = alerts(&latest);
+    assert_eq!(view_before, open_after);
+    for old in open_before["items"].as_array().unwrap() {
+        assert!(open_after["items"].as_array().unwrap().contains(old));
+    }
+    assert_eq!(gate::inspect(&latest, &id), original);
+    assert_eq!(gate::immutable(&gate::native(&lab)), immutable);
+    assert_eq!(risk::immutable(&risk::native(&lab)), before);
+    let request_audit = gate::audit(&latest, &id);
+    let review_audits = [&receipts[0], &receipts[3]]
+        .iter()
+        .map(|r| gate::audit(&latest, r["event"]["caseId"].as_str().unwrap()))
+        .collect::<Vec<_>>();
+    assert_eq!(lab.trace()["protocolCalls"], 2);
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    emit_unknown(
+        &lab,
+        "QUANTOS_L4_DUAL_UNKNOWN_RESULT",
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"limitsRelaxed":false,"noResend":true,"automaticClosure":false,"protocolCalls":2,"marketProof":proof(&lab, 2),"firstValuation":first_valuation,"admitted":admitted,"signedAdmitted":signed_admitted,"review":review,"original":original,"ledger":ledger,"priorFinancialAlerts":open_before,"alerts":open_after,"alertAudits":alert_audits,"view":view,"reviewRefusal":{"status":refusal.0,"body":refusal.1},"financialRefusal":{"status":financial_refusal.0,"body":financial_refusal.1},"reconciliation":after,"valuation":valuation,"stopped":stopped,"released":released,"requestAudit":request_audit,"reviewAudits":review_audits,"authorizationJournal":fin::journal(&lab),"claimsBefore":before,"claimsAfter":risk::immutable(&risk::native(&lab)),"controlEvidence":controls(&latest)}),
+    );
+}
+fn risk_current(
+    lab: &Lab,
+    url: &str,
+    candidate: &Value,
+    ledger: &Value,
+    version: u64,
+) -> (Value, Value) {
+    let mut input = valuation::input(lab, ledger, version);
+    let symbols: Vec<String> = input.marks.iter().map(|m| m.symbol.clone()).collect();
+    input.marks.clear();
+    publish_input(lab, &input, &symbols);
+    let v = get(url, "/v1/assisted-testnet/valuation");
+    assert_eq!(
+        v["reason"], "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01",
+        "{v}"
+    );
+    let (s, r) = risk::request(url, candidate, &v, &Uuid::new_v4().to_string());
+    assert_eq!(s, 200, "{r}");
+    assert_eq!(r["marketProvenance"], v["marketProvenance"]);
+    assert_eq!(r["accountProvenance"], v["accountProvenance"]);
+    (v, r)
+}
+fn publish_input(lab: &Lab, i: &Inputs, symbols: &[String]) {
+    let state = market::state(lab);
+    let store = owner_store(lab, "account-valuation-policy");
+    let prior = store.lock().unwrap().read().unwrap();
+    let p: account_domain::Policy = prior
+        .map(|v| serde_json::from_value(v).unwrap())
+        .unwrap_or_else(|| account::policy(lab, i));
+    let (av, ah) = state["accountHistory"]["artifacts"]
+        .as_array()
+        .and_then(|a| a.last())
+        .map(|v| {
+            let a: account_domain::SignedArtifact = serde_json::from_value(v.clone()).unwrap();
+            (
+                a.payload.version + 1,
+                Some(a.payload.content_hash().unwrap()),
+            )
+        })
+        .unwrap_or((1, None));
+    let a = account::signed(lab, account::produce(&p, i, av, ah, "active").unwrap());
+    let mp = market::policy(lab, i);
+    let (mv, mh) = state["marketHistory"]["artifacts"]
+        .as_array()
+        .and_then(|a| a.last())
+        .map(|v| {
+            let a: quantos_portfolio::market_provenance::SignedArtifact =
+                serde_json::from_value(v.clone()).unwrap();
+            (
+                a.payload.version + 1,
+                Some(a.payload.content_hash().unwrap()),
+            )
+        })
+        .unwrap_or((1, None));
+    let refs = symbols.iter().map(String::as_str).collect::<Vec<_>>();
+    let ma = market::produce(lab, &mp, i, mv, mh, &refs);
+    publish_sources(lab, i, &p, &a, &mp, &ma);
+}
+fn publish_sources(
+    lab: &Lab,
+    i: &Inputs,
+    p: &account_domain::Policy,
+    a: &account_domain::SignedArtifact,
+    mp: &quantos_portfolio::market_provenance::Policy,
+    ma: &quantos_portfolio::market_provenance::SignedArtifact,
+) {
+    valuation::write(lab, i);
+    let fence = owner_store(lab, "account-books-fence");
+    let _guard = fence.lock().unwrap();
+    owner_store(lab, "account-valuation-policy")
+        .lock()
+        .unwrap()
+        .write(&json!(p))
+        .unwrap();
+    owner_store(lab, "market-valuation-policy")
+        .lock()
+        .unwrap()
+        .write(&json!(mp))
+        .unwrap();
+    private_write(
+        lab.directory.join("account-valuation-artifact.json"),
+        serde_json::to_vec(a).unwrap(),
+    );
+    private_write(
+        lab.directory.join("r01-valuation-artifact.json"),
+        serde_json::to_vec(ma).unwrap(),
+    );
+}
+fn proof(lab: &Lab, version: u64) -> Value {
+    let state = market::state(lab);
+    let mut raw = state["sources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["version"] == version)
+        .unwrap()
+        .clone();
+    let binding = raw["marketProvenance"].clone();
+    raw.as_object_mut().unwrap().remove("marketProvenance");
+    raw.as_object_mut().unwrap().remove("accountProvenance");
+    raw["marks"] = json!([]);
+    json!({"input":raw,"policy":binding["policy"],"artifact":binding["artifact"],"certificate":binding["certificate"]})
+}
+fn account_proof(lab: &Lab, version: u64) -> Value {
+    market::state(lab)["sources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["version"] == version)
+        .unwrap()["accountProvenance"]
+        .clone()
+}
+fn emit(lab: &Lab, name: &str, mut p: Value) {
+    p["marketProof"] = proof(lab, 2);
+    p["freshMarketProof"] = proof(lab, 3);
+    p["accountProof"] = account_proof(lab, 2);
+    p["freshAccountProof"] = account_proof(lab, 3);
+    valuation::evidence(name, p);
+}
+fn emit_unknown(lab: &Lab, name: &str, mut p: Value) {
+    p["accountProof"] = account_proof(lab, 2);
+    valuation::evidence(name, p);
+}
+#[test]
+fn dual_source_gate_cash_only_fresh_account_has_valid_sources_but_no_current_risk_snapshot() {
+    let lab = Lab::new();
+    current::enabled(&lab);
+    let (_boot, url) = lab.bff(true);
+    let ledger = get(&url, "/v1/assisted-testnet/ledger");
+    assert_eq!(ledger["appliedFillCount"], 0);
+    assert_eq!(ledger["quarantinedCommandCount"], 0);
+    assert_eq!(ledger["consumerReady"], true);
+    let mut books = books::statement(&lab);
+    for row in &mut books.positions {
+        row.amount = "0".into();
+    }
+    books.cash[0].amount = "10000".into();
+    books.fees[0].amount = "0".into();
+    books::publish(&lab, &books);
+    let matched = get(&url, "/v1/assisted-testnet/reconciliation");
+    let initial_alerts = get(&url, "/v1/alerts");
+    let independent_books = capture(&lab);
+    let mut input = valuation::input(&lab, &ledger, 1);
+    input.marks.clear();
+    let p = account::policy(&lab, &input);
+    let a = account::signed(
+        &lab,
+        account::produce(&p, &input, 1, None, "active").unwrap(),
+    );
+    let account_binding = account_domain::Binding {
+        policy: p.clone(),
+        artifact: a.clone(),
+    };
+    let account_summary = account_binding.summary(&input, input.as_of).unwrap();
+    let mp = market::policy(&lab, &input);
+    let ma = market::produce(&lab, &mp, &input, 1, None, &["BTCUSDT"]);
+    let market_binding = quantos_portfolio::market_provenance::Binding {
+        policy: mp.clone(),
+        artifact: ma.clone(),
+        certificate: fs::read_to_string(lab.directory.join("server.pem")).unwrap(),
+    };
+    let (marks, market_summary) = market_binding
+        .marks(&input.scope, &input.raw_market_hash().unwrap(), input.as_of)
+        .unwrap();
+    let empty_market_rejected = quantos_portfolio::market_provenance::Artifact::produce(
+        &mp,
+        input.raw_market_hash().unwrap(),
+        1,
+        None,
+        vec![],
+        input.as_of,
+    )
+    .is_err();
+    assert!(empty_market_rejected);
+    publish_sources(&lab, &input, &p, &a, &mp, &ma);
+    market::configure(&lab, true);
+    account::enabled(&lab, true);
+    let (_live, live) = lab.bff(true);
+    let before = owner_store(&lab, "commands")
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap();
+    let response = call(
+        &live,
+        "session-current",
+        "GET",
+        "/v1/assisted-testnet/valuation",
+        json!({}),
+        "cash-only-sources",
+    );
+    assert_eq!(response.0, 503, "{}", response.1);
+    let candidates = get(&live, "/v1/assisted-testnet/risk-review-candidates");
+    let candidate = candidates["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["symbol"] == "ETHUSDT")
+        .unwrap();
+    let risk_reply = call(
+        &live,
+        "session-current",
+        "POST",
+        &format!(
+            "/v1/assisted-testnet/subjects/{}/risk-reviews",
+            candidate["subjectId"].as_str().unwrap()
+        ),
+        json!({"snapshotHash":quantos_core::ContentHash::sha256_bytes(b"no-current-cash-only-snapshot"),"expectedGeneration":"0"}),
+        &Uuid::new_v4().to_string(),
+    );
+    assert_eq!(risk_reply.0, 503, "{}", risk_reply.1);
+    assert!(risk_reply.1.get("subject").is_none());
+    let state = market::state(&lab);
+    assert!(state["sources"].as_array().unwrap().is_empty());
+    let (_cold, cold) = lab.bff(true);
+    let cold_reply = call(
+        &cold,
+        "session-current",
+        "GET",
+        "/v1/assisted-testnet/valuation",
+        json!({}),
+        "cash-only-cold",
+    );
+    assert_eq!(cold_reply.0, 503);
+    let after = owner_store(&lab, "commands")
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap();
+    assert_eq!(before, after);
+    assert_eq!(get(&cold, "/v1/assisted-testnet/ledger"), ledger);
+    let alerts = get(&cold, "/v1/alerts");
+    assert!(!alerts["items"].as_array().unwrap().is_empty());
+    assert!(
+        alerts["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|a| a["sourceEvidence"]["status"] == "OPEN" && a["resolved"] == false)
+    );
+    for old in initial_alerts["items"].as_array().unwrap() {
+        assert!(alerts["items"].as_array().unwrap().contains(old));
+    }
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    emit_gap(
+        &lab,
+        &cold,
+        "QUANTOS_L4_DUAL_GAP_RESULT",
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"noResend":true,"automaticClosure":false,"limitsRelaxed":false,"protocolCalls":0,"freshAccount":true,"ledger":ledger,"matched":matched,"initialAlerts":initial_alerts,"independentBooks":independent_books,"input":input,"accountProof":{"policy":p,"artifact":a},"marketProof":{"policy":mp,"artifact":ma,"certificate":market_binding.certificate},"accountSummary":account_summary,"marketSummary":market_summary,"unneededMarks":marks,"emptyMarketRejected":empty_market_rejected,"valuationResponse":{"status":response.0,"body":response.1},"riskResponse":{"status":risk_reply.0,"body":risk_reply.1},"coldStatus":cold_reply.0,"nativeBefore":before,"nativeAfter":after,"valuationState":state,"alerts":alerts,"remainingGap":"AUTHENTICATED_CASH_ONLY_EMPTY_LEDGER_BOOTSTRAP_NOT_JOINED_NO_FAKE_MARK_OR_REFERENCE_SEED"}),
+    );
+}
+
+fn emit_gap(lab: &Lab, url: &str, name: &str, mut p: Value) {
+    p["sourceReview"] = get(url, "/v1/assisted-testnet/source-reviews");
+    p["financialReview"] = get(url, "/v1/assisted-testnet/financial-reviews");
+    assert_eq!(p["sourceReview"]["reviewable"], false);
+    let evidence: Vec<quantos_reconcile::current::AlertEvidence> =
+        serde_json::from_value(p["matched"]["alertEvidence"].clone()).unwrap();
+    let counts = quantos_reconcile::financial_review::coverage(evidence.iter());
+    assert_eq!(counts.blocked, 1);
+    assert_eq!(counts.source_health, 0);
+    assert_eq!(counts.financial, 0);
+    p["blockedCoverage"] = json!(counts);
+    assert_eq!(p["financialReview"]["reviewable"], false);
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    valuation::evidence(name, p);
+}

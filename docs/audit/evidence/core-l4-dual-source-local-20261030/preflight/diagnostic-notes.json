@@ -1,0 +1,44 @@
+{
+  "scope": "UNFROZEN_DIAGNOSTICS_NOT_CURRENT_ACCEPTANCE",
+  "baseline": "2ead32de186d85e443856453572efc002d24a2f8",
+  "retained": [
+    {
+      "file": "composition-01.log",
+      "result": "2 passed /1 failed",
+      "reason": "Known and UNKNOWN dual-source flows passed. Cash-only POST used a non-UUID idempotency key and returned422; this did not establish the desired source refusal."
+    },
+    {
+      "file": "cash-only-02.log",
+      "result": "0 passed /1 failed",
+      "reason": "Legal UUID key reached actual503/no Subject, then zero-alert expectation failed. Preserve actual1 BASIS_UNAVAILABLE OPEN, do not clear it."
+    },
+    {
+      "file": "composition-03.log",
+      "result": "3 passed /0 failed",
+      "reason": "Actual known/UNKNOWN/cash-only refusal with original OPEN retained; unfrozen diagnostic only."
+    },
+    {
+      "file": "composition-04.log",
+      "result": "2 passed /1 failed",
+      "reason": "Incorrectly assumed optional obligationCoverage always serialized in public view. API omits it when sourceHealth=0. Directly classify real X05 evidence via domain coverage instead, no API/runtime change."
+    },
+    {
+      "file": "cash-only-05.log",
+      "result": "1 passed /72 filtered",
+      "reason": "Real domain classifier confirms blocked1/financial0/sourceHealth0, both review views refuse,1 OPEN survives.72 filtered are not executed by this diagnostic."
+    },
+    {
+      "file": "gates-01.log",
+      "result": "133 passed /0 skipped"
+    },
+    {
+      "file": "lint-01.log",
+      "result": "PASS"
+    },
+    {
+      "file": "clippy-01.log",
+      "result": "PASS"
+    }
+  ],
+  "other": "A Node validation probe attempted gap-04 after its test had failed and the file did not exist; stopped without inventing receipt. All preflight sourceCommit values are baseline context only, not a binding of changed source to old SHA. Current acceptance requires a later frozen named execution of all3 cases."
+}
