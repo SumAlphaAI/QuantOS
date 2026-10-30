@@ -12830,6 +12830,8 @@ export interface operations {
             /** @description New immutable signed review, or original idempotent response; never execution permission */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -13205,6 +13207,8 @@ export interface operations {
             /** @description Current scoped immutable C11 history; no execution authority */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -13252,12 +13256,87 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-financial-review-view.v1",
+                     *       "scope": {
+                     *         "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *         "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *         "accountId": "11111111-1111-4111-8111-111111111111"
+                     *       },
+                     *       "mode": "assisted_live",
+                     *       "revision": "0",
+                     *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "currentBooks": {
+                     *         "scope": {
+                     *           "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *           "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111"
+                     *         },
+                     *         "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "reconciliationHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "accountReportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceId": "owned-reference:unavailable",
+                     *         "sourceHash": null,
+                     *         "sourceVersion": null,
+                     *         "basisHash": null,
+                     *         "coverage": "UNAVAILABLE",
+                     *         "sourceTrust": "UNAVAILABLE",
+                     *         "periodStart": null,
+                     *         "coverageThrough": null,
+                     *         "capturedAt": null,
+                     *         "validUntil": null,
+                     *         "accountState": "UNAVAILABLE",
+                     *         "protocolState": "UNAVAILABLE",
+                     *         "openObligations": 0,
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "unknownObligations": 0
+                     *       },
+                     *       "riskBooks": {
+                     *         "scope": {
+                     *           "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *           "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111"
+                     *         },
+                     *         "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "reconciliationHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "accountReportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceId": "owned-reference:unavailable",
+                     *         "sourceHash": null,
+                     *         "sourceVersion": null,
+                     *         "basisHash": null,
+                     *         "coverage": "UNAVAILABLE",
+                     *         "sourceTrust": "UNAVAILABLE",
+                     *         "periodStart": null,
+                     *         "coverageThrough": null,
+                     *         "capturedAt": null,
+                     *         "validUntil": null,
+                     *         "accountState": "UNAVAILABLE",
+                     *         "protocolState": "UNAVAILABLE",
+                     *         "openObligations": 0,
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "unknownObligations": 0
+                     *       },
+                     *       "reviewable": false,
+                     *       "canRequest": false,
+                     *       "canEndorse": false,
+                     *       "canAuthorize": false,
+                     *       "canRetainBlock": false,
+                     *       "history": [],
+                     *       "checkedAt": "2026-10-30T12:00:00Z",
+                     *       "expiresAt": "2026-10-30T12:00:08Z",
+                     *       "sourceStatus": "OPEN",
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["FinancialReviewView"];
                 };
             };
@@ -13286,16 +13365,58 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "0",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "REQUEST FINANCIAL REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["FinancialReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-financial-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "1",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "request",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "operator",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["FinancialReviewReceipt"];
                 };
             };
@@ -13326,16 +13447,58 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "1",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "ENDORSE FINANCIAL REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["FinancialReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-financial-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "2",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "endorse",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "approver",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["FinancialReviewReceipt"];
                 };
             };
@@ -13366,16 +13529,58 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "2",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "AUTHORIZE CURRENT RISK REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["FinancialReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-financial-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "3",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "authorize",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "owner",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["FinancialReviewReceipt"];
                 };
             };
@@ -13406,16 +13611,58 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "3",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "RETAIN FINANCIAL BLOCK",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["FinancialReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference financial review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-financial-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "4",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "retain_block",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "owner",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["FinancialReviewReceipt"];
                 };
             };
@@ -13435,12 +13682,91 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-source-health-review-view.v1",
+                     *       "scope": {
+                     *         "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *         "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *         "accountId": "11111111-1111-4111-8111-111111111111"
+                     *       },
+                     *       "mode": "assisted_live",
+                     *       "revision": "0",
+                     *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "currentBooks": {
+                     *         "scope": {
+                     *           "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *           "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111"
+                     *         },
+                     *         "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "reconciliationHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "accountReportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceId": "owned-reference:unavailable",
+                     *         "sourceHash": null,
+                     *         "sourceVersion": null,
+                     *         "basisHash": null,
+                     *         "coverage": "UNAVAILABLE",
+                     *         "sourceTrust": "UNAVAILABLE",
+                     *         "periodStart": null,
+                     *         "coverageThrough": null,
+                     *         "capturedAt": null,
+                     *         "validUntil": null,
+                     *         "accountState": "UNAVAILABLE",
+                     *         "protocolState": "UNAVAILABLE",
+                     *         "openObligations": 0,
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "unknownObligations": 0
+                     *       },
+                     *       "riskBooks": {
+                     *         "scope": {
+                     *           "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *           "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111"
+                     *         },
+                     *         "ledgerHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "reconciliationHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "accountReportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceId": "owned-reference:unavailable",
+                     *         "sourceHash": null,
+                     *         "sourceVersion": null,
+                     *         "basisHash": null,
+                     *         "coverage": "UNAVAILABLE",
+                     *         "sourceTrust": "UNAVAILABLE",
+                     *         "periodStart": null,
+                     *         "coverageThrough": null,
+                     *         "capturedAt": null,
+                     *         "validUntil": null,
+                     *         "accountState": "UNAVAILABLE",
+                     *         "protocolState": "UNAVAILABLE",
+                     *         "openObligations": 0,
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "unknownObligations": 0
+                     *       },
+                     *       "reviewable": false,
+                     *       "canRequest": false,
+                     *       "canEndorse": false,
+                     *       "canAuthorize": false,
+                     *       "canRetainBlock": false,
+                     *       "history": [],
+                     *       "checkedAt": "2026-10-30T12:00:00Z",
+                     *       "expiresAt": "2026-10-30T12:00:08Z",
+                     *       "sourceStatus": "OPEN",
+                     *       "executionAuthority": false,
+                     *       "contextHashes": {
+                     *         "financial": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceHealth": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["SourceReviewView"];
                 };
             };
@@ -13469,16 +13795,60 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "0",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "REQUEST SOURCE HEALTH REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["SourceReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-source-health-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "1",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "request",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "operator",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false,
+                     *         "reviewKind": "source_health",
+                     *         "coveredObligations": 1
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["SourceReviewReceipt"];
                 };
             };
@@ -13509,16 +13879,60 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "1",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "ENDORSE SOURCE HEALTH REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["SourceReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-source-health-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "2",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "endorse",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "approver",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false,
+                     *         "reviewKind": "source_health",
+                     *         "coveredObligations": 1
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["SourceReviewReceipt"];
                 };
             };
@@ -13549,16 +13963,60 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "2",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "AUTHORIZE CURRENT SOURCE REVIEW",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["SourceReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-source-health-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "3",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "authorize",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "owner",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false,
+                     *         "reviewKind": "source_health",
+                     *         "coveredObligations": 1
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["SourceReviewReceipt"];
                 };
             };
@@ -13589,16 +14047,60 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "expectedRevision": "3",
+                 *       "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                 *       "reason": "Review owned reference evidence; retain original OPEN history.",
+                 *       "confirmPhrase": "RETAIN SOURCE HEALTH BLOCK",
+                 *       "mfaChallengeRef": "owned-reference",
+                 *       "reauthTokenRef": "owned-reference"
+                 *     }
+                 */
                 "application/json": components["schemas"]["SourceReviewRequest"];
             };
         };
         responses: {
-            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority; example is an illustrative reference shape, not signed live evidence */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "schemaVersion": "quantos-source-health-review-receipt.v1",
+                     *       "event": {
+                     *         "sequence": "4",
+                     *         "eventId": "11111111-1111-4111-8111-111111111111",
+                     *         "caseId": "11111111-1111-4111-8111-111111111111",
+                     *         "action": "retain_block",
+                     *         "actorId": "11111111-1111-4111-8111-111111111111",
+                     *         "userId": "11111111-1111-4111-8111-111111111111",
+                     *         "role": "owner",
+                     *         "contextHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "obligationsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "evidenceIds": [
+                     *           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     *         ],
+                     *         "openObligations": 1,
+                     *         "killGeneration": "0",
+                     *         "reason": "Review owned reference evidence; retain original OPEN history.",
+                     *         "occurredAt": "2026-10-30T12:00:00Z",
+                     *         "expiresAt": "2026-10-30T12:05:00Z",
+                     *         "recordHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "sourceStatus": "OPEN",
+                     *         "executionAuthority": false,
+                     *         "reviewKind": "source_health",
+                     *         "coveredObligations": 1
+                     *       },
+                     *       "readCurrentState": true,
+                     *       "executionAuthority": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["SourceReviewReceipt"];
                 };
             };

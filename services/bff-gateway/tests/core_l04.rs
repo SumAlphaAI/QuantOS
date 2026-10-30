@@ -200,24 +200,27 @@ impl Lab {
     }
     fn bff_or_startup_refusal(&self, enabled: bool) -> Option<(Process, String)> {
         let mut child = Process(
-            Command::new(env!("CARGO_BIN_EXE_bff-gateway"))
-                .env_clear()
-                .env("PATH", std::env::var("PATH").unwrap())
-                .env("TMPDIR", std::env::temp_dir())
-                .env("TOKIO_WORKER_THREADS", "2")
-                .env("QUANTOS_BFF_BIND", "127.0.0.1:0")
-                .env("QUANTOS_BFF_REFERENCE_CONTEXT", "assisted-mtls-local")
-                .env("QUANTOS_BFF_OWNED_MTLS_DIRECTORY", &self.directory)
-                .env(
-                    "QUANTOS_BFF_OWNED_ASSISTED",
-                    if enabled { "enabled" } else { "disabled" },
-                )
-                .env("GITHUB_SHA", std::env::var("GITHUB_SHA").unwrap())
-                .stdin(Stdio::null())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::inherit())
-                .spawn()
-                .unwrap(),
+            Command::new(
+                std::env::var_os("QUANTOS_L04_BFF_EXECUTABLE")
+                    .unwrap_or_else(|| env!("CARGO_BIN_EXE_bff-gateway").into()),
+            )
+            .env_clear()
+            .env("PATH", std::env::var("PATH").unwrap())
+            .env("TMPDIR", std::env::temp_dir())
+            .env("TOKIO_WORKER_THREADS", "2")
+            .env("QUANTOS_BFF_BIND", "127.0.0.1:0")
+            .env("QUANTOS_BFF_REFERENCE_CONTEXT", "assisted-mtls-local")
+            .env("QUANTOS_BFF_OWNED_MTLS_DIRECTORY", &self.directory)
+            .env(
+                "QUANTOS_BFF_OWNED_ASSISTED",
+                if enabled { "enabled" } else { "disabled" },
+            )
+            .env("GITHUB_SHA", std::env::var("GITHUB_SHA").unwrap())
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .unwrap(),
         );
         let out = child.0.stdout.take().unwrap();
         let (tx, rx) = mpsc::channel();

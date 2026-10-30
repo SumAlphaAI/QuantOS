@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { operationNames } from "./bff-operation-names.mjs";
 import assert from "node:assert/strict";
 import process from "node:process";
 import { readFileSync } from "node:fs";
@@ -143,15 +144,14 @@ export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs
   // Shared authentication is owned by the GS trace. Domain operations must be
   // traceable on their consumer page even if they also appear on another page.
   const sharedAuth = new Set(["getSession", "getContext", "reauth", "mfaChallenge", "logout"]);
-  const operationToken = /\b(?:get|list|search|create|save|run|submit|request|engage|release|decide|approve|cancel|subscribe|revoke|setup|clear|check|update|ack|unack)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
   for (const row of registered) {
     assert.equal(row.length, 11, `${row[0]}: incomplete API register row`);
-    const operations = row.slice(2,5).join(" ").match(operationToken) ?? [];
+    const operations = operationNames(row.slice(2,5).join(" "));
     if (operations.some(op => published.has(op))) {
       assert((row[7].match(/\b\d+\.\d+\.\d+\b/g) ?? []).includes(openapiVersion), `${row[0]}: published API version missing`);
       assert((row[8].match(/\b\d+\.\d+\.\d+\b/g) ?? []).includes(mockVersion), `${row[0]}: generated mock version missing`);
     } else assert(row[7].includes("planned") && row[8]==="未生成", `${row[0]}: planned operations cannot claim generated delivery`);
-    for (const operation of row.slice(2, 5).join(" ").match(operationToken) ?? []) {
+    for (const operation of operationNames(row.slice(2, 5).join(" "))) {
       const contract = operationContracts.get(operation);
       assert(contract, `${row[0]}: unknown operation ${operation}`);
       const consumer = sharedAuth.has(operation) ? "GS" : row[0] === "官网" ? "WEB-06" : row[0];

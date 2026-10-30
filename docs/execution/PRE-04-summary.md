@@ -58,3 +58,7 @@ API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注�
 受控基线 v1.13 仅更新 C01/C17/C10 共用 lib.rs 的三处当前摘要，并重新生成字段字典的版本/日期头。已对照原绑定源码 10d13870 核对 41344ffc 引入的持久化 mTLS 构造、会话/MFA 状态持久化及共同 C10 审计读取变化。API 1.18.0、142 operations、132 schemas、792 字段行及历史验收文件字节/摘要均不变。
 
 当前 auth/settings、audit/export、live settings policy 分别 17、14、8 项通过；直接相关的 L04 回环 mTLS、重启/副本、C10 与 logout/崩溃恢复 3 项通过。reviewedSourceSha 仍为 null，historicalReviewedSourceSha 与目标 NOT_RUN / NO_RECEIPT 保留；这次源身份维护不授予历史 READY、目标环境或发布验收。原远程失败与当前验证见[CI 修复记录](../audit/ci-remediation-036a78a3-2026-10-29.md)。
+
+## 2026-10-30 A1 契约元数据维护
+
+受控基线 v1.15 更新当前 OpenAPI 的解析摘要，并同步字典版本头。补齐来源/财务评审的请求与响应示例、12 个操作的 correlation/no-store 响应头，以及 C11 不可变历史禁止 sort/filter 的明确策略；示例仅是参考形状，不代表有效签名或真实授权。API 1.34.0、160 operations、180 schemas、1100 字段行和全部 wire schema、provider/历史验收摘要保持不变，reviewedSourceSha 仍为 null，目标/发布验收未授予。当前检查和 Firefox 原提交远端通过结果见[本轮 CI 修复记录](../audit/ci-remediation-2a1fd3b1-2026-10-30.md)。

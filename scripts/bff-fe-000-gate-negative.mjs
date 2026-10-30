@@ -1,9 +1,78 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import Ajv from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 
 import { loadBffFe000Inputs, validateBffFe000 } from "./check-bff-fe-000.mjs";
+import { loadBffCoverageInputs, validateBffCoverage } from "./check-bff-contract-coverage.mjs";
 
 const current = loadBffFe000Inputs();
+const pageCoverage = loadBffCoverageInputs();
+const { structuredClone } = globalThis;
+
+test('controlled review examples validate and cannot claim execution authority or accept injected fields', () => {
+  const ajv = addFormats(new Ajv({ strict: false, allErrors: true }));
+  for (const item of Object.values(current.openapi.paths)) for (const operation of Object.values(item)) {
+    if (!/Assisted(Financial|Source)|createAssistedNativeRiskReview|getAssistedActivationHistory/.test(operation.operationId ?? '')) continue;
+    const response = operation.responses['200'].content['application/json'];
+    const validateResponse = ajv.compile({ ...response.schema, components: current.openapi.components });
+    assert(validateResponse(response.example), `${operation.operationId}: ${JSON.stringify(validateResponse.errors)}`);
+    assert.equal(validateResponse({ ...response.example, executionAuthority: true }), false);
+    const request = operation.requestBody?.content['application/json'];
+    if (request) {
+      const validateRequest = ajv.compile({ ...request.schema, components: current.openapi.components });
+      assert(validateRequest(request.example), `${operation.operationId}: ${JSON.stringify(validateRequest.errors)}`);
+      assert.equal(validateRequest({ ...request.example, injectedAuthority: true }), false);
+    }
+  }
+});
+
+test('all review action verbs participate in page coverage and unknown-operation refusal', () => {
+  assert.deepEqual(validateBffCoverage(pageCoverage).failures, []);
+  for (const verb of ['endorse', 'authorize', 'retain']) for (const domain of ['Financial', 'Source']) {
+    const operation = verb === 'retain' ? `${verb}Assisted${domain}Block` : `${verb}Assisted${domain}Review`;
+    assert(pageCoverage.coverage.includes(operation));
+    const missing = validateBffCoverage({ ...pageCoverage, coverage: pageCoverage.coverage.replaceAll(operation, '') });
+    assert(missing.failures.includes(`frozen operation has no page coverage reference: ${operation}`));
+    const unknown = `${verb}Unknown${domain}Review`;
+    const renamed = validateBffCoverage({ ...pageCoverage, coverage: pageCoverage.coverage.replaceAll(operation, unknown) });
+    assert(renamed.failures.includes(`page coverage references unknown operationId: ${unknown}`));
+  }
+});
+
+test('every feature-flag union branch must close untrusted request properties', () => {
+  for (const name of ['GovernanceFeatureFlagAction', 'AssistedActivationAction']) {
+    const openapi = structuredClone(current.openapi);
+    delete openapi.components.schemas[name].additionalProperties;
+    assert(validateBffFe000({ ...current, openapi }).failures.includes('saveFeatureFlag closes untrusted request fields'));
+  }
+});
+
+test('immutable activation history cannot gain unbounded sorting or filtering', () => {
+  for (const mutate of [
+    op => { delete op['x-quantos-policy'].sortFilterNotApplicable; },
+    op => { op.parameters.push({ in: 'query', name: 'filter', schema: { type: 'string' } }); },
+    op => { op.parameters.find(p => p.name === 'pageSize').schema.maximum = 1000; },
+  ]) {
+    const openapi = structuredClone(current.openapi);
+    mutate(openapi.paths['/v1/admin/feature-flags/{resourceId}/history'].get);
+    assert(validateBffFe000({ ...current, openapi }).failures.includes('getAssistedActivationHistory bounded sort/filter policy'));
+  }
+});
+
+test('review and activation operations retain required examples and safe response headers', () => {
+  for (const [path, item] of Object.entries(current.openapi.paths)) for (const [method, operation] of Object.entries(item)) {
+    if (!/Assisted(Financial|Source)|createAssistedNativeRiskReview|getAssistedActivationHistory/.test(operation.operationId ?? '')) continue;
+    for (const header of ['X-Correlation-Id', 'Cache-Control']) {
+      const openapi = structuredClone(current.openapi);
+      delete openapi.paths[path][method].responses['200'].headers[header];
+      assert(validateBffFe000({ ...current, openapi }).failures.includes(`${operation.operationId}/200 correlation/cache headers`));
+    }
+    const openapi = structuredClone(current.openapi);
+    delete openapi.paths[path][method].responses['200'].content['application/json'].example;
+    assert(validateBffFe000({ ...current, openapi }).failures.includes(`${operation.operationId} success example`));
+  }
+});
 
 test("current BFF-FE-000 repository Gate passes", () => {
   const report = validateBffFe000(current);

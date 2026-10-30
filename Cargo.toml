@@ -68,3 +68,12 @@ tonic = { version = "0.12.3", default-features = false, features = ["codegen", "
 tower = "0.5.2"
 url = "2.5.7"
 uuid = { version = "1.18.1", features = ["serde", "v4", "v7"] }
+
+# Real-process functional fixtures exercise wall-clock validity. Keep debug
+# assertions/overflow checks while avoiding debug serialization/hash overhead.
+# Production release and normal unit-test profiles remain unchanged.
+[profile.owned-fixture]
+inherits = "dev"
+opt-level = 1
+debug-assertions = true
+overflow-checks = true

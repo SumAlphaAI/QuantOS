@@ -2,6 +2,15 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
  const failures=[];const check=(ok,message)=>{if(!ok)failures.push(message);};
  const schemas=openapi.components?.schemas??{};
  const resolve=value=>value?.$ref?value.$ref.split('/').slice(1).reduce((o,k)=>o?.[k],openapi):value;
+ const closedRequest=(schema,seen=new Set())=>{
+  if(!schema||seen.has(schema))return false;
+  const next=new Set(seen);next.add(schema);
+  const body=resolve(schema);
+  if(body!==schema)return closedRequest(body,next);
+  const alternatives=body.oneOf??body.anyOf;
+  if(alternatives)return alternatives.length>0&&alternatives.every(branch=>closedRequest(branch,next));
+  return body.type==='object'&&body.additionalProperties===false;
+ };
  check(JSON.stringify(openapi.security)===JSON.stringify([{cookieAuth:[]}]),'A1 cookie authentication is mandatory');
  check(openapi.components?.securitySchemes?.cookieAuth?.in==='cookie','A1 session is a cookie');
  for(const [name,type,required]of [['IdempotencyKey','string',true],['IfMatch','string',true],['CsrfToken','string',true],['ClientRequestId','string',true],['Sort','string',false],['Filter','string',false],['AfterSequence','integer',false]]) {
@@ -15,7 +24,7 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
   check(JSON.stringify(entry.pages)===JSON.stringify(policy.contracts[id]?.pages),`${id} exact page ownership`);
   check(entry.ownerTask===policy.contracts[id]?.ownerTask,`${id} exact task ownership`);
  }
- for(const [path,item]of Object.entries(openapi.paths??{}))for(const [method,op]of Object.entries(item)) {
+ for(const item of Object.values(openapi.paths??{}))for(const [method,op]of Object.entries(item)) {
   if(!op.operationId)continue;
   const parameters=(op.parameters??[]).map(resolve).filter(Boolean);
   const has=name=>parameters.some(p=>p.name===name&&p.required===true);
@@ -27,7 +36,7 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
   }
   if(op.requestBody) {
     const body=resolve(op.requestBody.content?.['application/json']?.schema);
-    check(body?.additionalProperties===false,`${op.operationId} closes untrusted request fields`);
+    check(closedRequest(body),`${op.operationId} closes untrusted request fields`);
     check(op.requestBody.content?.['application/json']?.example!==undefined,`${op.operationId} request example`);
   }
   if(op.operationId==='decideApproval')check(op.requestBody.content['application/json'].schema.required.includes('reauthTokenRef'), 'approval requires recent authentication');
@@ -36,7 +45,15 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
   check(p&&policy.requiredOperationPolicy.every(k=>p[k]!==undefined),`${op.operationId} complete policy`);
   if(parameters.some(p=>p.name==='cursor')) {
    if(op.operationId==='getEvidenceChain')check(!parameters.some(p=>['sort','filter'].includes(p.name))&&p?.sortFilterNotApplicable==='Evidence chain preserves causation order; filtering would remove required nodes', 'evidence chain explicitly preserves causation order');
-   else if(p?.filterSyntax==='named-query-parameters') {
+   else if(op.operationId==='getAssistedActivationHistory') {
+    const query=parameters.filter(parameter=>parameter.in==='query');
+    const size=query.find(parameter=>parameter.name==='pageSize')?.schema;
+    check(p?.sortFilterNotApplicable==='Activation history preserves immutable version/hash order; filtering would remove required versions'&&
+      JSON.stringify(query.map(parameter=>parameter.name).sort())===JSON.stringify(['cursor','pageSize'])&&
+      query.find(parameter=>parameter.name==='cursor')?.schema?.type==='string'&&
+      size?.type==='integer'&&size.minimum===1&&size.maximum===100&&p.sort?.length===0&&p.filter?.length===0,
+      `${op.operationId} bounded sort/filter policy`);
+   } else if(p?.filterSyntax==='named-query-parameters') {
     const sort=parameters.find(p=>p.in==='query'&&p.name==='sort');
     const filters=parameters.filter(p=>p.in==='query'&&!['cursor','pageSize','sort'].includes(p.name));
     const bounded=parameter=>{const schema=resolve(parameter.schema);return schema?.type==='string'&&(schema.enum?.length>0||['uuid','date'].includes(schema.format));};

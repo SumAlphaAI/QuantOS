@@ -1,0 +1,85 @@
+{
+  "scope": "Local scoped checks; not hosted, database, performance or release acceptance",
+  "commands": [
+    {
+      "command": "QUANTOS_BFF_BASE=2a1fd3b14719b173212904bcf8fab4d7432551ce node scripts/check-bff-compatibility.mjs",
+      "result": "PASS changes=0 corrections=0",
+      "log": "exact-base-compatibility.log.gz"
+    },
+    {
+      "command": "node scripts/test-rust-with-l02.mjs -p bff-gateway --test core_l04 --offline --locked -- --test-threads=4",
+      "result": "PASS 77; 367.13 seconds",
+      "log": "l04-final.log.gz"
+    },
+    {
+      "command": "node --test scripts/bff-fe-000-gate-negative.mjs scripts/bff-remediation-negative.mjs scripts/test-rust-with-l02.test.mjs scripts/tests/check-pre01.test.mjs scripts/pre04-gate-negative.mjs scripts/manual-database-policy.test.cjs",
+      "result": "PASS 145; zero skip",
+      "log": "scoped-tests-final.log.gz"
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run tests/contract packages/api-client/tests",
+      "result": "PASS 28 files / 311 tests",
+      "log": "client-contract-tests.log.gz"
+    },
+    {
+      "command": "node scripts/check-bff-a1-acceptance.mjs --stage development",
+      "result": "PASS engineering only",
+      "log": "a1-final.log.gz"
+    },
+    {
+      "command": "node scripts/check-bff-generated.mjs",
+      "result": "PASS",
+      "log": "generated-final.log.gz"
+    },
+    {
+      "command": "node scripts/check-bff-contract-coverage.mjs",
+      "result": "PASS 160/180/160",
+      "log": "coverage-after.log.gz"
+    },
+    {
+      "command": "node scripts/check-pre01.mjs",
+      "result": "PASS",
+      "log": "pre01-after.log.gz"
+    },
+    {
+      "command": "node scripts/pre04-inventory.mjs",
+      "result": "PASS",
+      "log": "pre04-after.log.gz"
+    },
+    {
+      "command": "node scripts/check-pre06.mjs",
+      "result": "PASS",
+      "log": "pre06.log.gz"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "result": "PASS",
+      "log": "development-plans.log.gz"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --project packages/api-client/tsconfig.build.json",
+      "result": "PASS",
+      "log": "client-build.log.gz"
+    },
+    {
+      "command": "cargo clippy --offline --locked --profile owned-fixture -p bff-gateway --test core_l04 -- -D warnings",
+      "result": "PASS",
+      "log": "clippy.log.gz"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "PASS",
+      "log": "fmt.log.gz"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/bff-a1-semantics.mjs scripts/bff-fe-000-gate-negative.mjs scripts/bff-operation-names.mjs scripts/check-bff-contract-coverage.mjs scripts/check-pre01.mjs scripts/test-rust-with-l02.mjs scripts/test-rust-with-l02.test.mjs",
+      "result": "PASS",
+      "log": "eslint-final.log.gz"
+    },
+    {
+      "command": "node /tmp/quantos-2a1fd3b1-preservation-review.mjs",
+      "result": "PASS (review script archived)",
+      "log": "scope-review.log.gz"
+    }
+  ]
+}
