@@ -308,3 +308,83 @@ fn cash_only_original_account_deadline_never_renews_on_query_or_cold_restore() {
         json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"protocolCalls":0,"valid":valid,"warmStatus":warm.0,"coldStatus":after.0,"stateBefore":before,"stateAfter":market::state(&lab)}),
     );
 }
+
+#[test]
+fn cash_only_gate_no_prior_basis_open_still_has_signed_concentration_deny() {
+    let lab = Lab::new();
+    let (_boot, _url, ledger, input, p, a) = setup(&lab);
+    let mut b = books::statement(&lab);
+    for row in &mut b.positions {
+        row.amount = "0".into();
+    }
+    b.cash[0].amount = "10000".into();
+    b.fees[0].amount = "0".into();
+    // A separate never-traded account, not deletion/reset of the blocked case.
+    // Publish the approved original basis before its first reconciliation.
+    publish(&lab, &input, &p, &a);
+    books::publish(&lab, &b);
+    account::enabled(&lab, true);
+    let (_live, url) = lab.bff(true);
+    let v = get(&url, "/v1/assisted-testnet/valuation");
+    assert_eq!(v["reason"], "READY_OWNED_AUTHENTICATED_ACCOUNT_CASH_ONLY");
+    let before = owner_store(&lab, "commands")
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap();
+    let matched = get(&url, "/v1/assisted-testnet/reconciliation");
+    assert_eq!(
+        matched["accountBooks"]["status"],
+        "MATCHED_DECLARED_ACCOUNT_BOOKS"
+    );
+    let alerts = get(&url, "/v1/alerts");
+    assert_eq!(alerts["items"], json!([]));
+    let candidates = get(&url, "/v1/assisted-testnet/risk-review-candidates");
+    let candidate = candidates["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["symbol"] == "ETHUSDT")
+        .unwrap();
+    let path = format!(
+        "/v1/assisted-testnet/subjects/{}/risk-reviews",
+        candidate["subjectId"].as_str().unwrap()
+    );
+    let key = Uuid::new_v4().to_string();
+    let body = json!({"snapshotHash":v["snapshot"]["snapshotHash"],"expectedGeneration":"0"});
+    let reply = call(&url, "session-current", "POST", &path, body.clone(), &key);
+    assert_eq!(reply.0, 200, "{}", reply.1);
+    let r = reply.1;
+    assert_eq!(r["decision"]["verdict"], "deny");
+    assert!(r.get("subject").is_none());
+    assert_eq!(r["booksAdmission"]["reason"], "ELIGIBLE_REFERENCE_BOOKS");
+    assert_eq!(r["booksAdmission"]["input"]["openObligations"], 0);
+    let breached: Vec<_> = r["decision"]["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|c| c["breached"] == true)
+        .map(|c| c["rule"].clone())
+        .collect();
+    assert_eq!(breached, vec![json!("concentration"), json!("approval")]);
+    let (_cold, cold) = lab.bff(true);
+    let cv = get(&cold, "/v1/assisted-testnet/valuation");
+    assert_eq!(cv["snapshot"], v["snapshot"]);
+    let replay = call(&cold, "session-current", "POST", &path, body, &key);
+    assert_eq!(replay.0, 200, "{}", replay.1);
+    assert_eq!(replay.1, r);
+    assert_eq!(get(&cold, "/v1/alerts"), alerts);
+    let after = owner_store(&lab, "commands")
+        .lock()
+        .unwrap()
+        .read()
+        .unwrap();
+    assert_eq!(before, after);
+    assert_eq!(get(&cold, "/v1/assisted-testnet/ledger"), ledger);
+    let audit = get(&cold, "/v1/audit/events");
+    assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
+    valuation::evidence(
+        "QUANTOS_L4_CASH_CLEAN_RESULT",
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"protocolCalls":0,"freshAccount":true,"ledger":ledger,"input":input,"accountProof":{"policy":p,"artifact":a},"valuation":v,"risk":r,"candidate":candidate,"matched":matched,"alerts":alerts,"coldValuation":cv,"replay":replay.1,"nativeBefore":before,"nativeAfter":after,"state":market::state(&lab),"independentBooks":capture(&lab),"audit":audit}),
+    );
+}
