@@ -1,0 +1,379 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T08:21:40.044Z",
+    "finishedAt": "2026-10-30T08:21:40.282Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/development.log",
+    "logSha256": "34ad77365ce19281079ea9b59b7dd5a2dd07730e8483bf3e71a9b5ef540aabb4"
+  },
+  {
+    "id": "scope",
+    "command": [
+      "node",
+      "scripts/core-x01-cash-only.mjs",
+      "--audit"
+    ],
+    "startedAt": "2026-10-30T08:21:40.282Z",
+    "finishedAt": "2026-10-30T08:21:40.562Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/scope.log",
+    "logSha256": "b196201f474dc9a5d867ee4f1be665189df66dd7f23f0ca50799933438cd8981"
+  },
+  {
+    "id": "domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "--test",
+      "account_provenance",
+      "--test",
+      "native_valuation",
+      "--test",
+      "market_provenance"
+    ],
+    "startedAt": "2026-10-30T08:21:40.563Z",
+    "finishedAt": "2026-10-30T08:21:41.121Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/domain.log",
+    "logSha256": "5aa0c3647122a2a2fc5a83995424cf730b0fbde53605cdd10e96dd84e54fbdfd"
+  },
+  {
+    "id": "native-domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "core_x02_source",
+      "--test",
+      "core_l04"
+    ],
+    "startedAt": "2026-10-30T08:21:41.122Z",
+    "finishedAt": "2026-10-30T08:22:00.617Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/native-domain.log",
+    "logSha256": "9e2830211cdc74bcb9b698cc8dc0a65367d142d3475e946e1e4a55d11c0e349b"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-30T08:22:00.617Z",
+    "finishedAt": "2026-10-30T08:22:00.805Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/build.log",
+    "logSha256": "87587b4d8ce52aeff30f04c594d0f89e48a12a66d39f59383118dbabc4628726"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T08:22:00.860Z",
+    "finishedAt": "2026-10-30T08:37:31.866Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/composition.log",
+    "logSha256": "4515f3febf186588c50d0500706ae1ad9627883803b7547203897433883748dd"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/cash-only-valuation.test.ts",
+      "apps/terminal/tests/account-state-provenance.test.ts",
+      "tests/contract/account-state-provenance.test.ts",
+      "apps/terminal/tests/r01-provenance.test.ts",
+      "tests/contract/r01-valuation-provenance.test.ts",
+      "apps/terminal/tests/current-native-review.test.ts",
+      "apps/terminal/tests/current-native-execution.test.ts",
+      "tests/contract/native-risk-review.test.ts",
+      "tests/contract/current-risk-approval.test.ts",
+      "tests/contract/current-native-execution.test.ts",
+      "tests/contract/books-risk-admission.test.ts",
+      "apps/terminal/tests/financial-review.test.ts",
+      "apps/terminal/tests/source-review.test.ts",
+      "apps/terminal/tests/core-x06-alerts.test.ts",
+      "apps/terminal/tests/ui-p23.test.ts",
+      "tests/contract/financial-review.test.ts",
+      "tests/contract/source-review.test.ts",
+      "tests/contract/source-review-binding.test.ts",
+      "tests/contract/core-x05-reconciliation.test.ts",
+      "tests/contract/core-x06-alerts.test.ts"
+    ],
+    "startedAt": "2026-10-30T08:37:31.866Z",
+    "finishedAt": "2026-10-30T08:37:35.049Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/consumer.log",
+    "logSha256": "16a86710fff6c32e7e4cbe6a5470ab87a9d7efcd125de8c4d07c8e56faea4f9e"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-30T08:37:35.049Z",
+    "finishedAt": "2026-10-30T08:37:36.562Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/types.log",
+    "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-x01-cash-only.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-30T08:37:36.562Z",
+    "finishedAt": "2026-10-30T08:37:38.312Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "06a4d1e621a9f5ef47fa9f37fa67c73bd1cda4752e7df3b44a611b4453e1edc8"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-30T08:37:38.312Z",
+    "finishedAt": "2026-10-30T08:37:38.379Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-30T08:37:38.379Z",
+    "finishedAt": "2026-10-30T08:37:39.033Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/generated.log",
+    "logSha256": "dd296915a0eb7492e4a68bf3d7ce03d05d8bfba5cf718fcac9d21f38f62d9256"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-30T08:37:39.033Z",
+    "finishedAt": "2026-10-30T08:37:39.257Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/inventory.log",
+    "logSha256": "e2afc2271221be5344c74032c1aeb2f772451668a4542800bff60a54f68b7ce5"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-30T08:37:39.257Z",
+    "finishedAt": "2026-10-30T08:37:39.290Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "c7ba5762ed0dcd3d81d1598c9a2aa4f91e4182faa2ee02750336de16243d82de"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-30T08:37:39.291Z",
+    "finishedAt": "2026-10-30T08:37:39.742Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-30T08:37:39.742Z",
+    "finishedAt": "2026-10-30T08:38:12.796Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/clippy.log",
+    "logSha256": "bac77027f5a600e16d7d7b970901440c6b8c2a7ede6ebdbd10a201b26b6e4cd5"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-x01-cash-only.mjs",
+      "scripts/core-x01-cash-only.test.mjs",
+      "apps/terminal/src/assisted/risk-review.ts",
+      "apps/terminal/src/assisted/runtime.ts",
+      "apps/terminal/src/assisted/risk-review-panel.tsx",
+      "apps/terminal/tests/cash-only-valuation.test.ts"
+    ],
+    "startedAt": "2026-10-30T08:38:12.796Z",
+    "finishedAt": "2026-10-30T08:38:13.679Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T08:38:13.680Z",
+    "finishedAt": "2026-10-30T08:38:13.901Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "3455acf0b954e029b40c2a51af2224740d016ebfd2772dd786096e6c683c0ba0"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T08:38:13.901Z",
+    "finishedAt": "2026-10-30T08:38:14.128Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "396e9b07b263f7481edfa0e4a44854a0650d1cd0a0b1b150bdd470c19cca3faa"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T08:38:14.128Z",
+    "finishedAt": "2026-10-30T08:38:14.354Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/next-development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-x01-cash-only.mjs",
+      "--scan",
+      "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-30T08:38:14.355Z",
+    "finishedAt": "2026-10-30T08:38:15.601Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-cash-only-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "13893970bce11fc54b0641794d4dcc7db4e993852bad7a7ba0f06ff69bef9d5a"
+  }
+]
