@@ -26,9 +26,10 @@ impl NativeRiskContext {
         if self.books.as_ref().is_some_and(|b| {
             b.scope != self.snapshot.scope
                 || b.ledger_hash != self.snapshot.ledger_hash
-                || b.financial_review
-                    .as_ref()
-                    .is_some_and(|r| r.kill_generation != generation.to_string())
+                || [&b.financial_review, &b.source_review]
+                    .into_iter()
+                    .flatten()
+                    .any(|r| r.kill_generation != generation.to_string())
         }) {
             return Err(GuardError::DecisionInvalid);
         }

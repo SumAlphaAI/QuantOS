@@ -516,7 +516,13 @@
         "FinancialReviewEvent",
         "FinancialReviewView",
         "FinancialReviewRequest",
-        "FinancialReviewReceipt"
+        "FinancialReviewReceipt",
+        "ObligationCoverage",
+        "SourceReviewAdmission",
+        "SourceReviewEvent",
+        "SourceReviewView",
+        "SourceReviewRequest",
+        "SourceReviewReceipt"
       ],
       "plannedFields": [],
       "priority": "P1",
@@ -524,8 +530,8 @@
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "alert list/get、subscriptions get、current financial review/history get",
-        "ack/unack（不改变 resolved）、save subscriptions、独立财务 request/endorse/authorize/retain-block（保留 OPEN，无交易授权）",
+        "alert list/get、subscriptions get、current financial/source health review/history get",
+        "ack/unack（不改变 resolved）、save subscriptions、独立财务/来源健康 request/endorse/authorize/retain-block（保留 OPEN，无交易授权）",
         "subscribeAlerts（授权事实/去重/恢复）"
       ]
     },
@@ -1308,21 +1314,22 @@
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
   "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
   "openapiInventory": {
-    "version": "1.30.0",
-    "operations": 155,
-    "schemas": 172
+    "version": "1.31.0",
+    "operations": 160,
+    "schemas": 178
   },
   "sourceDigests": [
     {
       "path": "bff/openapi/quantos-bff.v1.yaml",
       "representation": "parsed-json",
-      "sha256": "2ef0cb2e555638d0ae3f65fa0875145a2e97f975c3f7c56d6a3aee0396174d77"
+      "sha256": "5755e6dd2ead3b765066331414ad8f0586c5b95975e1cd574cbc41bfa5723fc7"
     },
     {
       "path": "bff/page-operation-catalog.yaml",
       "representation": "parsed-json",
-      "sha256": "a9b7486ef25e3fccac9c6ef420e27dc8c6af137f07e42b268d4f3cf19799c469"
+      "sha256": "1e28b7f49be782f7cfe9d11c1770c41137a3ccba185f6e63b0c7ef11441c64bd"
     }
   ],
-  "currentFinancialReviewScope": "CORE:X06 DEVELOPMENT / L4-FINANCIAL-OBLIGATION-REVIEW-01; current owned reference only, historical OPEN retained; API 1.30.0, 155 operations, 172 schemas. No target or release acceptance."
+  "currentFinancialReviewScope": "CORE:X06 DEVELOPMENT / L4-FINANCIAL-OBLIGATION-REVIEW-01; current owned reference only, historical OPEN retained; API 1.30.0, 155 operations, 172 schemas. No target or release acceptance.",
+  "currentSourceReviewScope": "CORE:X06 DEVELOPMENT / L4-SOURCE-OBLIGATION-REVIEW-01; independently authorized domains bind complete OPEN set; API 1.31.0, 160 operations, 178 schemas. Owned reference only; target/release NOT_RUN."
 }

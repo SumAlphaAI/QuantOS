@@ -7,7 +7,9 @@ use crate::{
 use chrono::{DateTime, Utc};
 use quantos_core::{ActorId, ContentHash, ProposalId};
 use quantos_policy::Role;
-use quantos_portfolio::books_risk::{BooksRiskInput, FinancialReviewAdmission};
+use quantos_portfolio::books_risk::{
+    BooksRiskInput, FinancialReviewAdmission, ObligationCoverage, ReviewKind,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
@@ -16,17 +18,56 @@ type Result<T> = std::result::Result<T, Error>;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Context {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub review_kind: Option<ReviewKind>,
     pub input: BooksRiskInput,
     pub evidence: Vec<AlertEvidence>,
     pub kill_generation: u64,
 }
+pub fn coverage<'a>(e: impl Iterator<Item = &'a AlertEvidence>) -> ObligationCoverage {
+    let mut c = ObligationCoverage {
+        financial: 0,
+        source_health: 0,
+        blocked: 0,
+    };
+    for e in e {
+        match e.finding.kind.as_str() {
+            "ACCOUNT_BOOKS_POSITION_DIFFERENCE"
+            | "ACCOUNT_BOOKS_CASH_DIFFERENCE"
+            | "ACCOUNT_BOOKS_FEE_DIFFERENCE" => c.financial += 1,
+            "ACCOUNT_BOOKS_STALE" | "ACCOUNT_BOOKS_UNAVAILABLE" => c.source_health += 1,
+            _ => c.blocked += 1,
+        }
+    }
+    c
+}
 impl Context {
+    pub fn is_source(&self) -> bool {
+        self.review_kind == Some(ReviewKind::SourceHealth)
+    }
+    pub fn covered_obligations(&self) -> u64 {
+        let c = coverage(self.evidence.iter());
+        if self.is_source() {
+            c.source_health
+        } else {
+            c.financial
+        }
+    }
     pub fn content_hash(&self) -> Result<ContentHash> {
-        digest(&json!(["quantos-financial-review-context/v1", self]))
+        digest(&json!([
+            if self.is_source() {
+                "quantos-source-health-review-context/v1"
+            } else {
+                "quantos-financial-review-context/v1"
+            },
+            self
+        ]))
     }
     pub fn validate(&self, at: DateTime<Utc>) -> Result<()> {
         if self.input.financial_review.is_some()
+            || self.input.source_review.is_some()
             || self.input.open_obligations == 0
+            || self.covered_obligations() == 0
             || self.evidence.len() > 128
             || self.input.open_obligations != self.evidence.len() as u64
         {
@@ -34,24 +75,41 @@ impl Context {
         }
         let mut clean = self.input.clone();
         clean.open_obligations = 0;
+        clean.obligation_coverage = None;
         if !clean.eligible(at) {
+            return Err(Error::Transition);
+        }
+        let counts = coverage(self.evidence.iter());
+        if counts.blocked > 0
+            || self.input.obligation_coverage
+                != (if counts.source_health > 0 {
+                    Some(counts)
+                } else {
+                    None
+                })
+        {
             return Err(Error::Transition);
         }
         let mut source = BTreeMap::new();
         for e in &self.evidence {
+            let health = matches!(
+                e.finding.kind.as_str(),
+                "ACCOUNT_BOOKS_STALE" | "ACCOUNT_BOOKS_UNAVAILABLE"
+            );
             if e.scope != self.input.scope
                 || e.status != "OPEN"
                 || e.execution_authority
                 || e.binding.is_some()
                 || e.finding.command_id.is_some()
                 || e.observed_at > at
-                || e.books_hash.is_none()
-                || !matches!(
-                    e.finding.kind.as_str(),
-                    "ACCOUNT_BOOKS_POSITION_DIFFERENCE"
-                        | "ACCOUNT_BOOKS_CASH_DIFFERENCE"
-                        | "ACCOUNT_BOOKS_FEE_DIFFERENCE"
-                )
+                || (!health || e.finding.kind == "ACCOUNT_BOOKS_STALE") && e.books_hash.is_none()
+                || health
+                    && (e.finding.entity != "account"
+                        || self.input.captured_at.is_none_or(|t| t < e.observed_at)
+                        || self
+                            .input
+                            .coverage_through
+                            .is_none_or(|t| t < e.observed_at))
                 || e.evidence_id
                     != digest(&json!([
                         "quantos-x05-alert-evidence/v1",
@@ -111,14 +169,26 @@ pub struct Record {
 }
 impl Record {
     pub fn event(&self) -> Result<Value> {
-        Ok(
-            json!({"sequence":self.sequence.to_string(),"eventId":self.event_id,"caseId":self.case_id,"action":self.action,"actorId":self.actor,"userId":self.user,"role":self.role,"contextHash":self.context.content_hash()?,"inputHash":self.context.input.content_hash().map_err(|_|Error::Unavailable)?,"obligationsHash":self.context.input.obligations_hash,"evidenceIds":self.context.evidence.iter().map(|e|&e.evidence_id).collect::<Vec<_>>(),"openObligations":self.context.input.open_obligations,"killGeneration":self.context.kill_generation.to_string(),"reason":self.reason,"occurredAt":self.at,"expiresAt":self.expires_at,"recordHash":self.hash,"sourceStatus":"OPEN","executionAuthority":false}),
-        )
+        let mut v = json!({"sequence":self.sequence.to_string(),"eventId":self.event_id,"caseId":self.case_id,"action":self.action,"actorId":self.actor,"userId":self.user,"role":self.role,"contextHash":self.context.content_hash()?,"inputHash":self.context.input.content_hash().map_err(|_|Error::Unavailable)?,"obligationsHash":self.context.input.obligations_hash,"evidenceIds":self.context.evidence.iter().map(|e|&e.evidence_id).collect::<Vec<_>>(),"openObligations":self.context.input.open_obligations,"killGeneration":self.context.kill_generation.to_string(),"reason":self.reason,"occurredAt":self.at,"expiresAt":self.expires_at,"recordHash":self.hash,"sourceStatus":"OPEN","executionAuthority":false});
+        if self.context.is_source() {
+            v["reviewKind"] = json!("source_health");
+        }
+        if self.context.input.obligation_coverage.is_some() {
+            v["coveredObligations"] = json!(self.context.covered_obligations());
+        }
+        Ok(v)
     }
     fn content_hash(&self) -> Result<ContentHash> {
         let mut v = serde_json::to_value(self).map_err(|_| Error::Unavailable)?;
         v.as_object_mut().ok_or(Error::Unavailable)?.remove("hash");
-        digest(&json!(["quantos-financial-review-record/v1", v]))
+        digest(&json!([
+            if self.context.is_source() {
+                "quantos-source-health-review-record/v1"
+            } else {
+                "quantos-financial-review-record/v1"
+            },
+            v
+        ]))
     }
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -267,6 +337,7 @@ impl Journal {
             return Ok(None);
         }
         Ok(Some(FinancialReviewAdmission {
+            review_kind: current.review_kind,
             case_id: r.case_id,
             record_hash: r.hash.clone(),
             raw_input_hash: current
@@ -274,7 +345,7 @@ impl Journal {
                 .content_hash()
                 .map_err(|_| Error::Unavailable)?,
             obligations_hash: current.input.obligations_hash.clone(),
-            covered_obligations: current.input.open_obligations,
+            covered_obligations: current.covered_obligations(),
             kill_generation: current.kill_generation.to_string(),
             decided_at: r.at,
             valid_until: r.expires_at,

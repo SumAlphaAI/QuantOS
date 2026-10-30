@@ -270,7 +270,7 @@ fn financial_review_gate_unknown_through_public_controls_and_cold_recovery() {
     );
 }
 #[test]
-fn financial_review_gate_recovered_source_still_has_an_unreviewable_open_obligation() {
+fn financial_review_gate_recovered_source_still_has_an_separate_unapplied_source_obligation() {
     let lab = Lab::new();
     current::enabled(&lab);
     let (_p, url) = lab.bff(true);
@@ -305,7 +305,10 @@ fn financial_review_gate_recovered_source_still_has_an_unreviewable_open_obligat
     let before = risk::immutable(&risk::native(&lab));
     let (v, r) = risk_current(&lab, &url, &candidate, &ledger, 2);
     assert_eq!(r["decision"]["verdict"], "deny");
-    assert_eq!(r["booksAdmission"]["reason"], "OPEN_FINANCIAL_OBLIGATIONS");
+    assert_eq!(
+        r["booksAdmission"]["reason"],
+        "OPEN_SOURCE_HEALTH_OBLIGATIONS"
+    );
     assert!(r.get("subject").is_none());
     let (open, alert_audits) = alerts(&url);
     assert_eq!(open["items"].as_array().unwrap().len(), 1);
@@ -317,6 +320,6 @@ fn financial_review_gate_recovered_source_still_has_an_unreviewable_open_obligat
     assert!(lab.trace.recv_timeout(Wait::from_millis(100)).is_err());
     valuation::evidence(
         "QUANTOS_L4_FINANCIAL_GAP_RESULT",
-        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"limitsRelaxed":false,"noResend":true,"automaticClosure":false,"protocolCalls":1,"initial":initial,"stale":stale,"recovered":recovered,"signedRecovered":capture(&lab),"reviewRefusal":{"status":rejected.0,"body":rejected.1},"valuation":v,"risk":r,"alerts":open,"alertAudits":alert_audits,"claimsBefore":before,"claimsAfter":risk::immutable(&risk::native(&lab)),"remainingGap":"EXPLICIT_SOURCE_HEALTH_OBLIGATION_DISPOSITION_NOT_IMPLEMENTED"}),
+        json!({"sourceCommit":std::env::var("GITHUB_SHA").unwrap(),"actualTestnet":false,"limitsRelaxed":false,"noResend":true,"automaticClosure":false,"protocolCalls":1,"initial":initial,"stale":stale,"recovered":recovered,"signedRecovered":capture(&lab),"reviewRefusal":{"status":rejected.0,"body":rejected.1},"valuation":v,"risk":r,"alerts":open,"alertAudits":alert_audits,"claimsBefore":before,"claimsAfter":risk::immutable(&risk::native(&lab)),"remainingGap":"EXPLICIT_SOURCE_HEALTH_AUTHORIZATION_NOT_APPLIED"}),
     );
 }

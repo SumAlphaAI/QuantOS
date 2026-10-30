@@ -111,6 +111,7 @@ fn reviewed_open_is_a_new_signed_context_not_a_rewrite_or_limit_override() {
     b.open_obligations = 3;
     let raw = b.clone();
     b.financial_review = Some(quantos_portfolio::books_risk::FinancialReviewAdmission {
+        review_kind: None,
         case_id: ProposalId::new(),
         record_hash: ContentHash::sha256_bytes(b"owner verified review journal model"),
         raw_input_hash: raw.content_hash().unwrap(),
@@ -160,6 +161,7 @@ fn stale_review_or_wrong_generation_cannot_authorize_new_risk() {
         b.open_obligations = 3;
         let raw = b.clone();
         b.financial_review = Some(quantos_portfolio::books_risk::FinancialReviewAdmission {
+            review_kind: None,
             case_id: ProposalId::new(),
             record_hash: ContentHash::sha256_bytes(b"review"),
             raw_input_hash: raw.content_hash().unwrap(),
@@ -173,6 +175,99 @@ fn stale_review_or_wrong_generation_cannot_authorize_new_risk() {
             1 => b.source_version = Some(2),
             2 => b.financial_review.as_mut().unwrap().covered_obligations = 2,
             3 => b.financial_review.as_mut().unwrap().valid_until = f.f.now,
+            _ => {}
+        }
+        let r = f.source.refresh_native(f.subject.id, c, f.f.now);
+        if case == 0 {
+            assert!(r.is_err());
+        } else {
+            assert_eq!(r.unwrap().decision.verdict, RiskVerdict::Deny);
+        }
+    }
+}
+
+#[test]
+fn source_health_reviewed_open_is_a_new_signed_context_not_a_rewrite_or_limit_override() {
+    let f = F::new();
+    let mut c = context(&f, true, 0);
+    let b = c.books.as_mut().unwrap();
+    b.open_obligations = 1;
+    b.obligation_coverage = Some(quantos_portfolio::books_risk::ObligationCoverage {
+        financial: 0,
+        source_health: 1,
+        blocked: 0,
+    });
+    let raw = b.clone();
+    b.source_review = Some(quantos_portfolio::books_risk::FinancialReviewAdmission {
+        review_kind: Some(quantos_portfolio::books_risk::ReviewKind::SourceHealth),
+        case_id: ProposalId::new(),
+        record_hash: ContentHash::sha256_bytes(b"owner verified review journal model"),
+        raw_input_hash: raw.content_hash().unwrap(),
+        obligations_hash: raw.obligations_hash.clone(),
+        covered_obligations: 1,
+        kill_generation: "0".into(),
+        decided_at: f.f.now,
+        valid_until: f.f.now + Duration::seconds(2),
+    });
+    let r = f
+        .source
+        .refresh_native(f.subject.id, c.clone(), f.f.now)
+        .unwrap();
+    assert_eq!(r.decision.verdict, RiskVerdict::ApprovalRequired);
+    assert_eq!(r.decision.expires_at, f.f.now + Duration::seconds(2));
+    assert_eq!(
+        r.public_view().unwrap()["booksAdmission"]["reason"],
+        "ELIGIBLE_REVIEWED_REFERENCE_BOOKS"
+    );
+    assert_eq!(c.books.as_ref().unwrap().open_obligations, 1);
+    let mut changed = c.clone();
+    changed
+        .books
+        .as_mut()
+        .unwrap()
+        .source_review
+        .as_mut()
+        .unwrap()
+        .record_hash = ContentHash::sha256_bytes(b"another review");
+    assert!(
+        f.guard
+            .verify_native_binding(
+                &r.decision,
+                &changed,
+                &F::current(&f.f).venue,
+                &F::current(&f.f).release
+            )
+            .is_err()
+    );
+}
+#[test]
+fn source_health_stale_review_or_wrong_generation_cannot_authorize_new_risk() {
+    for case in 0..4 {
+        let f = F::new();
+        let mut c = context(&f, true, 0);
+        let b = c.books.as_mut().unwrap();
+        b.open_obligations = 1;
+        b.obligation_coverage = Some(quantos_portfolio::books_risk::ObligationCoverage {
+            financial: 0,
+            source_health: 1,
+            blocked: 0,
+        });
+        let raw = b.clone();
+        b.source_review = Some(quantos_portfolio::books_risk::FinancialReviewAdmission {
+            review_kind: Some(quantos_portfolio::books_risk::ReviewKind::SourceHealth),
+            case_id: ProposalId::new(),
+            record_hash: ContentHash::sha256_bytes(b"review"),
+            raw_input_hash: raw.content_hash().unwrap(),
+            obligations_hash: raw.obligations_hash.clone(),
+            covered_obligations: 1,
+            kill_generation: if case == 0 { "1" } else { "0" }.into(),
+            decided_at: f.f.now,
+            valid_until: f.f.now + Duration::seconds(2),
+        });
+        match case {
+            1 => b.source_version = Some(2),
+            2 => b.source_review.as_mut().unwrap().covered_obligations = 2,
+            3 => b.source_review.as_mut().unwrap().valid_until = f.f.now,
             _ => {}
         }
         let r = f.source.refresh_native(f.subject.id, c, f.f.now);

@@ -2,6 +2,7 @@
 //! the existing authenticated approval transaction. Never acknowledges an Alert.
 use super::*;
 use axum::extract::Query;
+use quantos_portfolio::books_risk::ReviewKind;
 use quantos_reconcile::financial_review::{Action, Context, Record};
 fn mapped(e: quantos_reconcile::model::Error) -> Error {
     match e {
@@ -28,12 +29,18 @@ impl OwnedHost {
         &self,
         at: DateTime<Utc>,
     ) -> Result<quantos_portfolio::books_risk::BooksRiskInput, Error> {
-        let c = self.financial_context()?;
+        let mut c = self.financial_context()?;
         let mut input = c.input.clone();
-        if let Some(admission) = self.financial_reviews.admission(&c, at).map_err(mapped)? {
-            let valid = self.financial_authorities_current(admission.case_id, at);
-            if valid {
-                input.financial_review = Some(admission);
+        for kind in [None, Some(ReviewKind::SourceHealth)] {
+            c.review_kind = kind;
+            if let Some(admission) = self.financial_reviews.admission(&c, at).map_err(mapped)?
+                && self.financial_authorities_current(admission.case_id, at)
+            {
+                if kind.is_some() {
+                    input.source_review = Some(admission);
+                } else {
+                    input.financial_review = Some(admission);
+                }
             }
         }
         Ok(input)
@@ -66,7 +73,7 @@ impl OwnedHost {
                 .iter()
                 .filter(|v| v["correlationId"] == corr)
                 .collect::<Vec<_>>();
-            all.push(json!({"auditRef":r.event_id,"eventId":r.event_id,"correlationId":r.case_id,"causationId":prior.last().map(|v|v["eventId"].clone()).unwrap_or(json!(r.event_id)),"sequence":prior.len()+1,"kind":format!("assisted.financial_review_{}",serde_json::to_value(r.action).map_err(|_|Error::Unavailable)?.as_str().ok_or(Error::Unavailable)?),"actor":r.actor,"objectRef":format!("financial-review:{}",r.case_id),"occurredAt":r.at,"route":"/alerts","redactionApplied":true,"redactedPayload":payload,"payloadHash":crate::audit_core::payload_hash(&payload),"retentionUntil":r.at+Duration::days(90)}));
+            all.push(json!({"auditRef":r.event_id,"eventId":r.event_id,"correlationId":r.case_id,"causationId":prior.last().map(|v|v["eventId"].clone()).unwrap_or(json!(r.event_id)),"sequence":prior.len()+1,"kind":format!("assisted.{}_{}",if r.context.is_source(){"source_health_review"}else{"financial_review"},serde_json::to_value(r.action).map_err(|_|Error::Unavailable)?.as_str().ok_or(Error::Unavailable)?),"actor":r.actor,"objectRef":format!("{}:{}",if r.context.is_source(){"source-health-review"}else{"financial-review"},r.case_id),"occurredAt":r.at,"route":"/alerts","redactionApplied":true,"redactedPayload":payload,"payloadHash":crate::audit_core::payload_hash(&payload),"retentionUntil":r.at+Duration::days(90)}));
         }
         Ok(())
     }
@@ -75,13 +82,20 @@ impl OwnedHost {
         sid: &str,
         at: DateTime<Utc>,
         session_end: DateTime<Utc>,
+        source: bool,
     ) -> Result<Value, Error> {
         let a = self.service.control_auth(sid, at)?;
-        let c = self.financial_context()?;
+        let mut c = self.financial_context()?;
+        let financial_hash = c.content_hash().map_err(mapped)?;
+        c.review_kind = Some(ReviewKind::SourceHealth);
+        let source_hash = c.content_hash().map_err(mapped)?;
+        if !source {
+            c.review_kind = None;
+        }
         let reviewable = c.validate(at).is_ok();
         let input = self.reviewed_books(at)?;
         Ok(
-            json!({"schemaVersion":"quantos-financial-review-view.v1","scope":c.input.scope,"mode":"assisted_live","revision":self.financial_reviews.revision().to_string(),"contextHash":c.content_hash().map_err(mapped)?,"currentBooks":c.input,"riskBooks":input,"reviewable":reviewable,"canRequest":reviewable&&matches!(a.role,Role::Owner|Role::Operator),"canEndorse":reviewable&&matches!(a.role,Role::Owner|Role::Approver),"canAuthorize":reviewable&&a.role==Role::Owner,"canRetainBlock":reviewable&&matches!(a.role,Role::Owner|Role::Approver),"history":self.financial_reviews.records.iter().map(Record::event).collect::<std::result::Result<Vec<_>,_>>().map_err(mapped)?,"checkedAt":at,"expiresAt":(at+Duration::seconds(8)).min(session_end),"sourceStatus":"OPEN","executionAuthority":false}),
+            json!({"schemaVersion":if source{"quantos-source-health-review-view.v1"}else{"quantos-financial-review-view.v1"},"contextHashes":{"financial":financial_hash,"sourceHealth":source_hash},"scope":c.input.scope,"mode":"assisted_live","revision":self.financial_reviews.revision().to_string(),"contextHash":c.content_hash().map_err(mapped)?,"currentBooks":c.input,"riskBooks":input,"reviewable":reviewable,"canRequest":reviewable&&matches!(a.role,Role::Owner|Role::Operator),"canEndorse":reviewable&&matches!(a.role,Role::Owner|Role::Approver),"canAuthorize":reviewable&&a.role==Role::Owner,"canRetainBlock":reviewable&&matches!(a.role,Role::Owner|Role::Approver),"history":self.financial_reviews.records.iter().map(Record::event).collect::<std::result::Result<Vec<_>,_>>().map_err(mapped)?,"checkedAt":at,"expiresAt":(at+Duration::seconds(8)).min(session_end),"sourceStatus":"OPEN","executionAuthority":false}),
         )
     }
 }
@@ -104,6 +118,14 @@ pub(super) async fn handle(
         .copied()
         .unwrap_or("")
         .to_owned();
+    let source = uri
+        .path()
+        .starts_with("/v1/assisted-testnet/source-reviews");
+    let receipt_schema = if source {
+        "quantos-source-health-review-receipt.v1"
+    } else {
+        "quantos-financial-review-receipt.v1"
+    };
     let mut state = data.lock().await;
     let offset = state.clock_offset;
     let clock = || now(Utc::now() + offset);
@@ -131,11 +153,12 @@ pub(super) async fn handle(
             if !bytes.is_empty() {
                 return Err(Error::Invalid);
             }
-            return state
-                .assisted
-                .as_ref()
-                .unwrap()
-                .financial_view(&sid, clock(), session_end);
+            return state.assisted.as_ref().unwrap().financial_view(
+                &sid,
+                clock(),
+                session_end,
+                source,
+            );
         }
         if method != Method::POST
             || crate::cookies(&headers).get("quantos_csrf").copied() != Some(crate::CSRF_TOKEN)
@@ -161,17 +184,26 @@ pub(super) async fn handle(
             return Err(Error::Invalid);
         }
         let action = match uri.path().rsplit('/').next().unwrap_or("") {
-            "financial-reviews" => Action::Request,
+            "financial-reviews" | "source-reviews" => Action::Request,
             "endorse" => Action::Endorse,
             "authorize" => Action::Authorize,
             "retain-block" => Action::RetainBlock,
             _ => return Err(Error::Invalid),
         };
-        let phrase = match action {
-            Action::Request => "REQUEST FINANCIAL REVIEW",
-            Action::Endorse => "ENDORSE FINANCIAL REVIEW",
-            Action::Authorize => "AUTHORIZE CURRENT RISK REVIEW",
-            Action::RetainBlock => "RETAIN FINANCIAL BLOCK",
+        let phrase = if source {
+            match action {
+                Action::Request => "REQUEST SOURCE HEALTH REVIEW",
+                Action::Endorse => "ENDORSE SOURCE HEALTH REVIEW",
+                Action::Authorize => "AUTHORIZE CURRENT SOURCE REVIEW",
+                Action::RetainBlock => "RETAIN SOURCE HEALTH BLOCK",
+            }
+        } else {
+            match action {
+                Action::Request => "REQUEST FINANCIAL REVIEW",
+                Action::Endorse => "ENDORSE FINANCIAL REVIEW",
+                Action::Authorize => "AUTHORIZE CURRENT RISK REVIEW",
+                Action::RetainBlock => "RETAIN FINANCIAL BLOCK",
+            }
         };
         if text(&b, "confirmPhrase")? != phrase {
             return Err(Error::Invalid);
@@ -193,7 +225,11 @@ pub(super) async fn handle(
             .filter(|v| !v.is_empty() && v.len() <= 128)
             .ok_or(Error::Invalid)?;
         let intent = hash(&json!([
-            "quantos-financial-review-intent/v1",
+            if source {
+                "quantos-source-health-review-intent/v1"
+            } else {
+                "quantos-financial-review-intent/v1"
+            },
             uri.path(),
             b
         ]))?;
@@ -229,7 +265,8 @@ pub(super) async fn handle(
         let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
         let (auth, authority_revision, authority_expires_at) =
             h.service.control_session(&sid, at)?;
-        let c = h.financial_context()?;
+        let mut c = h.financial_context()?;
+        c.review_kind = source.then_some(ReviewKind::SourceHealth);
         if let Some(old) = h
             .financial_reviews
             .records
@@ -244,7 +281,7 @@ pub(super) async fn handle(
             }
             // Original receipt only: do not reapply or bind it to newer sources.
             return Ok(
-                json!({"schemaVersion":"quantos-financial-review-receipt.v1","event":old.event().map_err(mapped)?,"readCurrentState":true,"executionAuthority":false}),
+                json!({"schemaVersion":receipt_schema,"event":old.event().map_err(mapped)?,"readCurrentState":true,"executionAuthority":false}),
             );
         }
         if consumed {
@@ -302,7 +339,7 @@ pub(super) async fn handle(
             .map_err(mapped)?;
         state.consumed_step_proofs.insert(proof);
         Ok(
-            json!({"schemaVersion":"quantos-financial-review-receipt.v1","event":r.event().map_err(mapped)?,"readCurrentState":true,"executionAuthority":false}),
+            json!({"schemaVersion":receipt_schema,"event":r.event().map_err(mapped)?,"readCurrentState":true,"executionAuthority":false}),
         )
     })();
     match result {
@@ -335,6 +372,7 @@ mod tests {
                 .collect();
             evidence.sort_by_key(|e| e.evidence_id.clone());
             let context = Context {
+                review_kind: None,
                 input: serde_json::from_value(
                     p["correctedDeny"]["booksAdmission"]["input"].clone(),
                 )

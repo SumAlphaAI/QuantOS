@@ -19,6 +19,7 @@ fn fixture() -> (Context, DateTime<Utc>) {
     evidence.sort_by_key(|e| e.evidence_id.clone());
     (
         Context {
+            review_kind: None,
             input: serde_json::from_value(p["correctedDeny"]["booksAdmission"]["input"].clone())
                 .unwrap(),
             evidence,
@@ -217,4 +218,197 @@ fn revision_cas_failure_is_atomic() {
             .is_err()
     );
     assert_eq!(j.revision(), 0);
+}
+
+fn health(mixed: bool, unavailable: bool) -> (Context, DateTime<Utc>) {
+    use quantos_portfolio::books_risk::ReviewKind;
+    let (mut c, at) = fixture();
+    let mut e = c.evidence[0].clone();
+    e.finding.kind = if unavailable {
+        "ACCOUNT_BOOKS_UNAVAILABLE"
+    } else {
+        "ACCOUNT_BOOKS_STALE"
+    }
+    .into();
+    e.finding.entity = "account".into();
+    e.finding.command_id = None;
+    e.binding = None;
+    if unavailable {
+        e.books_hash = None;
+    }
+    e.observed_at = c.input.coverage_through.unwrap() - Duration::milliseconds(1);
+    e.evidence_id = quantos_reconcile::current::digest(&json!([
+        "quantos-x05-alert-evidence/v1",
+        e.scope,
+        e.finding,
+        e.binding,
+        e.ledger_hash,
+        e.books_hash
+    ]))
+    .unwrap();
+    if !mixed {
+        c.evidence.clear();
+    }
+    c.evidence.push(e);
+    c.review_kind = Some(ReviewKind::SourceHealth);
+    rebind(&mut c);
+    (c, at)
+}
+fn rebind(c: &mut Context) {
+    c.evidence.sort_by_key(|e| e.evidence_id.clone());
+    let m: std::collections::BTreeMap<_, _> = c
+        .evidence
+        .iter()
+        .map(|e| (e.evidence_id.clone(), e))
+        .collect();
+    c.input.open_obligations = c.evidence.len() as u64;
+    c.input.obligations_hash = quantos_reconcile::current::digest(&json!([
+        "quantos-x05-open-risk-obligations/v1",
+        c.input.scope,
+        m
+    ]))
+    .unwrap();
+    c.input.obligation_coverage = Some(coverage(c.evidence.iter()));
+}
+fn authorize_context(j: &mut Journal, c: &Context, at: DateTime<Utc>) -> ProposalId {
+    let id = ProposalId::new();
+    for (a, w) in [
+        (Action::Request, 1),
+        (Action::Endorse, 2),
+        (Action::Authorize, 3),
+    ] {
+        j.append(record(c, at, id, a, w), j.revision()).unwrap();
+    }
+    id
+}
+#[test]
+fn source_health_recovery_requires_distinct_authorization_preserves_open_and_legacy_shape() {
+    for unavailable in [false, true] {
+        let (c, at) = health(false, unavailable);
+        c.validate(at).unwrap();
+        let mut j = Journal::default();
+        authorize_context(&mut j, &c, at);
+        let a = j.admission(&c, at).unwrap().unwrap();
+        assert_eq!(a.covered_obligations, 1);
+        let mut input = c.input.clone();
+        input.source_review = Some(a);
+        assert!(input.eligible(at));
+        assert_eq!(input.open_obligations, 1);
+        assert_eq!(j.records[2].event().unwrap()["reviewKind"], "source_health");
+        let mut finance = c.clone();
+        finance.review_kind = None;
+        assert!(finance.validate(at).is_err());
+        assert!(j.admission(&finance, at).unwrap().is_none());
+        j.verify().unwrap();
+    }
+    let (old, _) = fixture();
+    let v = serde_json::to_value(&old).unwrap();
+    assert!(v.get("reviewKind").is_none());
+    for k in ["sourceReview", "obligationCoverage"] {
+        assert!(v["input"].get(k).is_none());
+    }
+}
+#[test]
+fn mixed_source_and_financial_require_both_independent_cases_bound_to_full_open_set() {
+    let (c, at) = health(true, false);
+    let mut j = Journal::default();
+    authorize_context(&mut j, &c, at);
+    let mut input = c.input.clone();
+    input.source_review = j.admission(&c, at).unwrap();
+    assert_eq!(input.reason(at), "OPEN_FINANCIAL_OBLIGATIONS");
+    let mut finance = c.clone();
+    finance.review_kind = None;
+    authorize_context(&mut j, &finance, at);
+    input.financial_review = j.admission(&finance, at).unwrap();
+    assert!(input.eligible(at));
+    assert_eq!(input.open_obligations, 4);
+    assert_eq!(j.records.len(), 6);
+    assert_eq!(
+        input.financial_review.as_ref().unwrap().covered_obligations,
+        3
+    );
+    assert_eq!(input.source_review.as_ref().unwrap().covered_obligations, 1);
+    let mut swapped = input.clone();
+    std::mem::swap(&mut swapped.financial_review, &mut swapped.source_review);
+    assert!(!swapped.eligible(at));
+    let id = j.records[0].case_id;
+    j.append(record(&c, at, id, Action::RetainBlock, 3), 6)
+        .unwrap();
+    assert!(j.admission(&c, at).unwrap().is_none());
+    assert!(j.admission(&finance, at).unwrap().is_some());
+    let mut changed = c.clone();
+    changed.evidence.pop();
+    rebind(&mut changed);
+    assert!(j.admission(&changed, at).unwrap().is_none());
+    assert!(
+        j.records[..3]
+            .iter()
+            .all(|r| r.context.input.open_obligations == 4)
+    );
+}
+#[test]
+fn source_health_never_covers_unknown_protocol_or_unrecovered_untrusted_inputs() {
+    for case in 0..13 {
+        let (mut c, at) = health(false, false);
+        match case {
+            0 => c.input.unknown_obligations = 1,
+            1 => c.input.protocol_state = "UNKNOWN".into(),
+            2 => c.input.account_state = "DIFFERENCES".into(),
+            3 => c.input.source_hash = None,
+            4 => c.input.source_trust = "UNTRUSTED".into(),
+            5 => c.input.coverage = "PARTIAL".into(),
+            6 => {
+                c.evidence[0].observed_at = c.input.captured_at.unwrap() + Duration::milliseconds(1)
+            }
+            7 => c.evidence[0].finding.kind = "ACCOUNT_BOOKS_BASIS_UNAVAILABLE".into(),
+            8 => c.evidence[0].finding.kind = "ACCOUNT_BOOKS_COVERAGE_UNSUPPORTED".into(),
+            9 => c.evidence[0].finding.entity = "other-account".into(),
+            10 => c.evidence[0].books_hash = None,
+            11 => c.evidence[0].scope.account_id = quantos_core::AccountId::new(),
+            _ => c.evidence[0].status = "CLOSED".into(),
+        };
+        assert!(c.validate(at).is_err(), "case {case}");
+    }
+}
+#[test]
+fn source_review_cannot_cross_case_domain_or_change_current_generation_lease_or_source() {
+    let (c, at) = health(true, false);
+    let mut j = Journal::default();
+    let id = authorize_context(&mut j, &c, at);
+    for case in 0..6 {
+        let mut changed = c.clone();
+        match case {
+            0 => changed.review_kind = None,
+            1 => changed.kill_generation = 1,
+            2 => changed.input.source_version = Some(3),
+            3 => changed.input.ledger_hash = ContentHash::sha256_bytes(b"new ledger"),
+            4 => {
+                changed
+                    .input
+                    .obligation_coverage
+                    .as_mut()
+                    .unwrap()
+                    .source_health = 2
+            }
+            _ => changed.input.source_id = "other".into(),
+        };
+        assert!(j.admission(&changed, at).unwrap().is_none());
+    }
+    let mut finance = c.clone();
+    finance.review_kind = None;
+    assert!(
+        j.append(
+            record(&finance, at, id, Action::RetainBlock, 3),
+            j.revision()
+        )
+        .is_err()
+    );
+    assert!(
+        j.admission(&c, c.input.deadline().unwrap())
+            .unwrap()
+            .is_none()
+    );
+    let mut tamper = j.clone();
+    tamper.records[2].context.review_kind = None;
+    assert!(tamper.verify().is_err());
 }

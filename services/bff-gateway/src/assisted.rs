@@ -352,6 +352,22 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
             "/v1/assisted-testnet/financial-reviews/:caseId/retain-block",
             post(financial_review::handle),
         )
+        .route(
+            "/v1/assisted-testnet/source-reviews",
+            get(financial_review::handle).post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/source-reviews/:caseId/endorse",
+            post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/source-reviews/:caseId/authorize",
+            post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/source-reviews/:caseId/retain-block",
+            post(financial_review::handle),
+        )
         .route("/v1/assisted-testnet/requests", get(handle).post(handle))
         .route("/v1/assisted-testnet/requests/:requestId", get(handle))
         .route(

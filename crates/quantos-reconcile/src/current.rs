@@ -574,6 +574,11 @@ impl CurrentReconciliation {
             ]))?,
             unknown_obligations: r.unknown_obligations_open as u64,
             financial_review: None,
+            source_review: None,
+            obligation_coverage: {
+                let c = crate::financial_review::coverage(self.outbox.values());
+                if c.source_health > 0 { Some(c) } else { None }
+            },
         })
     }
     pub fn financial_review_context(
@@ -581,6 +586,7 @@ impl CurrentReconciliation {
         generation: u64,
     ) -> Result<crate::financial_review::Context> {
         Ok(crate::financial_review::Context {
+            review_kind: None,
             input: self.risk_input()?,
             evidence: self.outbox.values().cloned().collect(),
             kill_generation: generation,

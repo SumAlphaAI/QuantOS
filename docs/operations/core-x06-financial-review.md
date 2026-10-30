@@ -44,3 +44,6 @@ P23 在 Assisted 模式新增独立财务审查面板：展示当前版本、原
 工程 Gate 目标 PASS_CURRENT_INDEPENDENT_APPEND_ONLY_FINANCIAL_REVIEW_RISK_RECHECK_C10，以冻结实际结果为准；IMPLEMENTED_PENDING_ACCEPTANCE。完整 L4 NOT_READY_GAPS_OPEN / stage NOT_ASSESSED / formalAccepted=false / runtimeAdmission=DENIED / M5 PREPARED_NOT_READY；19gap/8义务仍OPEN，159阶段与原200venue/50授权旅程/目标演练分母不变。fullBooksReady/dayCloseAllowed/executionAuthority仍false。真实金融/身份/MFA/DB/Vault/RLS/跨主机/通知/目标安全容量长稳同SHA CI/发布和当前浏览器/人工无障碍 NOT_RUN。
 
 下一 CORE-GATE:L4 DEVELOPMENT：评估当前独立财务审查加入后的 X02/X04/X01/X05/X06、公共 kill/C11 与新风险/新审批/IO 组合及剩余缺口。保留 UNKNOWN、原 generation、OPEN 历史及所有未验收义务。
+
+
+2026-10-30 接续：[来源健康独立审查](./core-x06-source-review.md)增加单独来源域及混合OPEN分域覆盖。旧财务None序列化/hash与原证据保留原范围；当前财务域只覆盖财务子集，每份授权仍绑定完整原OPEN。来源健康授权不能替代财务授权，两个域都不关闭原事实或授权交易。

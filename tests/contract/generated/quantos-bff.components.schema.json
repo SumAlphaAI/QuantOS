@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.30.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.31.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -9696,6 +9696,12 @@
         },
         "financialReview": {
           "$ref": "#/$defs/FinancialReviewAdmission"
+        },
+        "sourceReview": {
+          "$ref": "#/$defs/SourceReviewAdmission"
+        },
+        "obligationCoverage": {
+          "$ref": "#/$defs/ObligationCoverage"
         }
       }
     },
@@ -9726,7 +9732,10 @@
             "OPEN_FINANCIAL_OBLIGATIONS",
             "ELIGIBLE_REFERENCE_BOOKS",
             "ELIGIBLE_REVIEWED_REFERENCE_BOOKS",
-            "FINANCIAL_REVIEW_INVALID"
+            "FINANCIAL_REVIEW_INVALID",
+            "OPEN_SOURCE_HEALTH_OBLIGATIONS",
+            "SOURCE_REVIEW_INVALID",
+            "OPEN_NON_REVIEWABLE_OBLIGATIONS"
           ]
         },
         "input": {
@@ -9905,6 +9914,17 @@
           "enum": [
             false
           ]
+        },
+        "reviewKind": {
+          "type": "string",
+          "enum": [
+            "source_health"
+          ]
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
         }
       }
     },
@@ -10018,6 +10038,24 @@
           "enum": [
             false
           ]
+        },
+        "contextHashes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "financial",
+            "sourceHealth"
+          ],
+          "properties": {
+            "financial": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceHealth": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
         }
       }
     },
@@ -10085,6 +10123,431 @@
         },
         "event": {
           "$ref": "#/$defs/FinancialReviewEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "ObligationCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "financial",
+        "sourceHealth",
+        "blocked"
+      ],
+      "properties": {
+        "financial": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "sourceHealth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "blocked": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        }
+      }
+    },
+    "SourceReviewAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "recordHash",
+        "rawInputHash",
+        "obligationsHash",
+        "coveredObligations",
+        "killGeneration",
+        "decidedAt",
+        "validUntil",
+        "reviewKind"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rawInputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewKind": {
+          "type": "string",
+          "enum": [
+            "source_health"
+          ]
+        }
+      }
+    },
+    "SourceReviewEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "eventId",
+        "caseId",
+        "action",
+        "actorId",
+        "userId",
+        "role",
+        "contextHash",
+        "inputHash",
+        "obligationsHash",
+        "evidenceIds",
+        "openObligations",
+        "killGeneration",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "recordHash",
+        "sourceStatus",
+        "executionAuthority",
+        "reviewKind",
+        "coveredObligations"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "eventId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "caseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "request",
+            "endorse",
+            "authorize",
+            "retain_block"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "userId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "openObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "reviewKind": {
+          "type": "string",
+          "enum": [
+            "source_health"
+          ]
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        }
+      }
+    },
+    "SourceReviewView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "mode",
+        "revision",
+        "contextHash",
+        "currentBooks",
+        "riskBooks",
+        "reviewable",
+        "canRequest",
+        "canEndorse",
+        "canAuthorize",
+        "canRetainBlock",
+        "history",
+        "checkedAt",
+        "expiresAt",
+        "sourceStatus",
+        "executionAuthority",
+        "contextHashes"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-source-health-review-view.v1"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "currentBooks": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
+        "riskBooks": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
+        "reviewable": {
+          "type": "boolean"
+        },
+        "canRequest": {
+          "type": "boolean"
+        },
+        "canEndorse": {
+          "type": "boolean"
+        },
+        "canAuthorize": {
+          "type": "boolean"
+        },
+        "canRetainBlock": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/FinancialReviewEvent"
+          }
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "contextHashes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "financial",
+            "sourceHealth"
+          ],
+          "properties": {
+            "financial": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "sourceHealth": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "SourceReviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision",
+        "contextHash",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string",
+          "enum": [
+            "REQUEST SOURCE HEALTH REVIEW",
+            "ENDORSE SOURCE HEALTH REVIEW",
+            "AUTHORIZE CURRENT SOURCE REVIEW",
+            "RETAIN SOURCE HEALTH BLOCK"
+          ]
+        },
+        "mfaChallengeRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reauthTokenRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "SourceReviewReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-source-health-review-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/SourceReviewEvent"
         },
         "readCurrentState": {
           "type": "boolean",

@@ -15,7 +15,7 @@
 | `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 50 个 JSON Schema（F03 新增 DeploymentTarget、StrategyRelease） | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 9 方法、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| `bff/openapi/quantos-bff.v1.yaml` | 1.30.0，155 个 operation、172 个 schema；C01–C17 全部已发布 | 同源生成 client/schema/155-operation manifest/MSW；本表登记当前源文件，本地与目标实现验收、历史回执仍各自独立，不由清单更新授予 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.31.0，160 个 operation、178 个 schema；C01–C17 全部已发布 | 同源生成 client/schema/160-operation manifest/MSW；本表登记当前源文件，本地与目标实现验收、历史回执仍各自独立，不由清单更新授予 |
 
 ## 2. 契约台账（C01–C17）
 
@@ -38,7 +38,7 @@
 | C13 Trade Preflight | order capabilities、preflight/risk refresh | 无（preflight 为查询；提交走 C07/C08/C09，决策） | quote/preflight refresh push | X01、X02、X03、L01 | 部分（复用 trading.v1 对象；缺 preflight 模型） | GAP-13 | BFF TL + Execution owner（X03） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C14 Performance/Report | summary/series/attribution、report get/status/grant/content | report create（冻结版本）、本进程 job 轮询 | 无（报表完成通知经 C16，未作目标联调验收） | X01、X05 | 部分（MoneyValue/DecimalValue 可复用；PerformanceView/Report/Document/Download 以 OpenAPI 为准） | GAP-14 | BFF TL + Portfolio owner（X01） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C15 Reconciliation | recon list/get、break list/get、ledger entries | request rerun（幂等；无 edit-ledger operation） | recon status stream | X05 | 无（缺 ReconRun/Break/LedgerEntry 消息） | GAP-15 | BFF TL + Recon owner（X05） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
-| C16 Alert/Notification | alert list/get、subscriptions get、current financial review/history get | ack/unack（不改变 resolved）、save subscriptions、独立财务 request/endorse/authorize/retain-block（保留 OPEN，无交易授权） | subscribeAlerts（授权事实/去重/恢复） | F09、X05、X06 | 部分（EventKind 可参考；OpsAlert/AlertSubscriptions/StreamEvent 以 OpenAPI 为准） | GAP-16 | BFF TL + Ops owner（F09/X05/X06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
+| C16 Alert/Notification | alert list/get、subscriptions get、current financial/source health review/history get | ack/unack（不改变 resolved）、save subscriptions、独立财务/来源健康 request/endorse/authorize/retain-block（保留 OPEN，无交易授权） | subscribeAlerts（授权事实/去重/恢复） | F09、X05、X06 | 部分（EventKind 可参考；OpsAlert/AlertSubscriptions/StreamEvent 以 OpenAPI 为准） | GAP-16 | BFF TL + Ops owner（F09/X05/X06） | Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；本清单不授予实现或目标验收） |
 | C17 Settings/Browser Platform | profile/session/device/notification/download query、browser policy | profile save、session/device revoke、MFA setup/revoke、notification prefs save | session 撤销实时失效推送 | F06、F09、L03 | 部分（会话元数据复用 common.v1；Web 页面模型以 OpenAPI 为准） | GAP-17 | BFF TL + Auth owner（F06/L03） | Implemented（本地参考 provider；目标环境 NOT RUN / NO RECEIPT） |
 
 ## 3. P0 页面 Query/Command/Realtime 依赖完备性矩阵

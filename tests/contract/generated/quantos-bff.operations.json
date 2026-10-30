@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -51,6 +51,16 @@
         "alerts"
       ],
       "responseSchema": "FinancialReviewReceipt",
+      "sse": false
+    },
+    {
+      "operationId": "authorizeAssistedSourceReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/source-reviews/{caseId}/authorize",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "SourceReviewReceipt",
       "sse": false
     },
     {
@@ -274,6 +284,16 @@
       "sse": false
     },
     {
+      "operationId": "endorseAssistedSourceReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/source-reviews/{caseId}/endorse",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "SourceReviewReceipt",
+      "sse": false
+    },
+    {
       "operationId": "engageKillSwitch",
       "method": "POST",
       "path": "/v1/risk/kill-switch/engage",
@@ -421,6 +441,16 @@
         "execution"
       ],
       "responseSchema": "AssistedRequestView",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedSourceReviews",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/source-reviews",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "SourceReviewView",
       "sse": false
     },
     {
@@ -1154,6 +1184,16 @@
       "sse": false
     },
     {
+      "operationId": "requestAssistedSourceReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/source-reviews",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "SourceReviewReceipt",
+      "sse": false
+    },
+    {
       "operationId": "requestOrderCancel",
       "method": "POST",
       "path": "/v1/orders/{orderId}/cancel-requests",
@@ -1211,6 +1251,16 @@
         "alerts"
       ],
       "responseSchema": "FinancialReviewReceipt",
+      "sse": false
+    },
+    {
+      "operationId": "retainAssistedSourceBlock",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/source-reviews/{caseId}/retain-block",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "SourceReviewReceipt",
       "sse": false
     },
     {

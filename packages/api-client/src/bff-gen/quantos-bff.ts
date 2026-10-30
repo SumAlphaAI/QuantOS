@@ -2244,6 +2244,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/assisted-testnet/source-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read current account books and immutable source health review history */
+        get: operations["getAssistedSourceReviews"];
+        put?: never;
+        /**
+         * Request independent current source health review with explicit MFA
+         * @description Independent recovered source-health disposition only, bound to complete OPEN set and exact current owned books, scope, ledger, generation and original expiry. Financial obligations require separate financial review. New risk and order approvals remain explicit separate actions. UNKNOWN is never reviewable; no command IO or automatic closure. Exact original request recovery only.
+         */
+        post: operations["requestAssistedSourceReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/source-reviews/{caseId}/endorse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Append explicit independent financial disposition: endorse
+         * @description Independent recovered source-health disposition only, bound to complete OPEN set and exact current owned books, scope, ledger, generation and original expiry. Financial obligations require separate financial review. New risk and order approvals remain explicit separate actions. UNKNOWN is never reviewable; no command IO or automatic closure. Exact original request recovery only.
+         */
+        post: operations["endorseAssistedSourceReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/source-reviews/{caseId}/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Append explicit independent financial disposition: authorize
+         * @description Independent recovered source-health disposition only, bound to complete OPEN set and exact current owned books, scope, ledger, generation and original expiry. Financial obligations require separate financial review. New risk and order approvals remain explicit separate actions. UNKNOWN is never reviewable; no command IO or automatic closure. Exact original request recovery only.
+         */
+        post: operations["authorizeAssistedSourceReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/assisted-testnet/source-reviews/{caseId}/retain-block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Append explicit independent financial disposition: retain-block
+         * @description Independent recovered source-health disposition only, bound to complete OPEN set and exact current owned books, scope, ledger, generation and original expiry. Financial obligations require separate financial review. New risk and order approvals remain explicit separate actions. UNKNOWN is never reviewable; no command IO or automatic closure. Exact original request recovery only.
+         */
+        post: operations["retainAssistedSourceBlock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4492,11 +4573,13 @@ export interface components {
             obligationsHash: string;
             unknownObligations: number;
             financialReview?: components["schemas"]["FinancialReviewAdmission"];
+            sourceReview?: components["schemas"]["SourceReviewAdmission"];
+            obligationCoverage?: components["schemas"]["ObligationCoverage"];
         };
         BooksRiskAdmission: {
             inputHash: string;
             /** @enum {string} */
-            reason: "UNKNOWN_OR_QUARANTINED_OBLIGATIONS" | "BOOKS_SOURCE_UNAVAILABLE" | "BOOKS_SOURCE_INVALID" | "BOOKS_SOURCE_STALE" | "BOOKS_COVERAGE_UNSUPPORTED" | "BOOKS_NOT_MATCHED" | "PROTOCOL_NOT_MATCHED" | "OPEN_FINANCIAL_OBLIGATIONS" | "ELIGIBLE_REFERENCE_BOOKS" | "ELIGIBLE_REVIEWED_REFERENCE_BOOKS" | "FINANCIAL_REVIEW_INVALID";
+            reason: "UNKNOWN_OR_QUARANTINED_OBLIGATIONS" | "BOOKS_SOURCE_UNAVAILABLE" | "BOOKS_SOURCE_INVALID" | "BOOKS_SOURCE_STALE" | "BOOKS_COVERAGE_UNSUPPORTED" | "BOOKS_NOT_MATCHED" | "PROTOCOL_NOT_MATCHED" | "OPEN_FINANCIAL_OBLIGATIONS" | "ELIGIBLE_REFERENCE_BOOKS" | "ELIGIBLE_REVIEWED_REFERENCE_BOOKS" | "FINANCIAL_REVIEW_INVALID" | "OPEN_SOURCE_HEALTH_OBLIGATIONS" | "SOURCE_REVIEW_INVALID" | "OPEN_NON_REVIEWABLE_OBLIGATIONS";
             input: components["schemas"]["BooksRiskInput"];
             /** @enum {boolean} */
             executionAuthority: false;
@@ -4539,6 +4622,9 @@ export interface components {
             sourceStatus: "OPEN";
             /** @enum {boolean} */
             executionAuthority: false;
+            /** @enum {string} */
+            reviewKind?: "source_health";
+            coveredObligations?: number;
         };
         FinancialReviewView: {
             /** @enum {string} */
@@ -4568,6 +4654,10 @@ export interface components {
             sourceStatus: "OPEN";
             /** @enum {boolean} */
             executionAuthority: false;
+            contextHashes?: {
+                financial: string;
+                sourceHealth: string;
+            };
         };
         FinancialReviewRequest: {
             expectedRevision: string;
@@ -4582,6 +4672,106 @@ export interface components {
             /** @enum {string} */
             schemaVersion: "quantos-financial-review-receipt.v1";
             event: components["schemas"]["FinancialReviewEvent"];
+            /** @enum {boolean} */
+            readCurrentState: true;
+            /** @enum {boolean} */
+            executionAuthority: false;
+        };
+        ObligationCoverage: {
+            financial: number;
+            sourceHealth: number;
+            blocked: number;
+        };
+        SourceReviewAdmission: {
+            caseId: components["schemas"]["UUID"];
+            recordHash: string;
+            rawInputHash: string;
+            obligationsHash: string;
+            coveredObligations: number;
+            killGeneration: string;
+            /** Format: date-time */
+            decidedAt: string;
+            /** Format: date-time */
+            validUntil: string;
+            /** @enum {string} */
+            reviewKind: "source_health";
+        };
+        SourceReviewEvent: {
+            sequence: string;
+            eventId: components["schemas"]["UUID"];
+            caseId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            action: "request" | "endorse" | "authorize" | "retain_block";
+            actorId: components["schemas"]["UUID"];
+            userId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            role: "owner" | "operator" | "approver";
+            contextHash: string;
+            inputHash: string;
+            obligationsHash: string;
+            evidenceIds: string[];
+            openObligations: number;
+            killGeneration: string;
+            reason: string;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            recordHash: string;
+            /** @enum {string} */
+            sourceStatus: "OPEN";
+            /** @enum {boolean} */
+            executionAuthority: false;
+            /** @enum {string} */
+            reviewKind: "source_health";
+            coveredObligations: number;
+        };
+        SourceReviewView: {
+            /** @enum {string} */
+            schemaVersion: "quantos-source-health-review-view.v1";
+            scope: {
+                tenantId: components["schemas"]["UUID"];
+                workspaceId: components["schemas"]["UUID"];
+                accountId: components["schemas"]["UUID"];
+            };
+            /** @enum {string} */
+            mode: "assisted_live";
+            revision: string;
+            contextHash: string;
+            currentBooks: components["schemas"]["BooksRiskInput"];
+            riskBooks: components["schemas"]["BooksRiskInput"];
+            reviewable: boolean;
+            canRequest: boolean;
+            canEndorse: boolean;
+            canAuthorize: boolean;
+            canRetainBlock: boolean;
+            history: components["schemas"]["FinancialReviewEvent"][];
+            /** Format: date-time */
+            checkedAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @enum {string} */
+            sourceStatus: "OPEN";
+            /** @enum {boolean} */
+            executionAuthority: false;
+            contextHashes: {
+                financial: string;
+                sourceHealth: string;
+            };
+        };
+        SourceReviewRequest: {
+            expectedRevision: string;
+            contextHash: string;
+            reason: string;
+            /** @enum {string} */
+            confirmPhrase: "REQUEST SOURCE HEALTH REVIEW" | "ENDORSE SOURCE HEALTH REVIEW" | "AUTHORIZE CURRENT SOURCE REVIEW" | "RETAIN SOURCE HEALTH BLOCK";
+            mfaChallengeRef: string;
+            reauthTokenRef: string;
+        };
+        SourceReviewReceipt: {
+            /** @enum {string} */
+            schemaVersion: "quantos-source-health-review-receipt.v1";
+            event: components["schemas"]["SourceReviewEvent"];
             /** @enum {boolean} */
             readCurrentState: true;
             /** @enum {boolean} */
@@ -13168,6 +13358,189 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FinancialReviewReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getAssistedSourceReviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceReviewView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    requestAssistedSourceReview: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceReviewReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    endorseAssistedSourceReview: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                caseId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceReviewReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    authorizeAssistedSourceReview: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                caseId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceReviewReceipt"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    retainAssistedSourceBlock: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                caseId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Current authenticated reference source health review; original OPEN history retained, no execution authority */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceReviewReceipt"];
                 };
             };
             401: components["responses"]["Unauthorized"];
