@@ -1,0 +1,273 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T06:11:26.807Z",
+    "finishedAt": "2026-10-30T06:11:27.046Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "assessment",
+    "command": [
+      "node",
+      "scripts/core-l4-dual-source.mjs",
+      "--audit"
+    ],
+    "startedAt": "2026-10-30T06:11:27.047Z",
+    "finishedAt": "2026-10-30T06:11:27.984Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/assessment.log",
+    "logSha256": "ace0c7f9666106f337e86a83e322217c205b3eb660146f46c48627ea670dee3a"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-30T06:11:27.985Z",
+    "finishedAt": "2026-10-30T06:11:28.189Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/build.log",
+    "logSha256": "1cd3537d5a68b75a67f88785c2dc6a40eefa71cdd39e6f39f9c93b20ee43e642"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "dual_source_gate::",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T06:11:28.251Z",
+    "finishedAt": "2026-10-30T06:12:34.651Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/composition.log",
+    "logSha256": "0256103d35a7e12d324629011bbdc2c584eaf524a77d5472dcb5a0259ea1363e"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-l4-dual-source-assessment.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-30T06:12:34.651Z",
+    "finishedAt": "2026-10-30T06:12:36.755Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "f9438c80e96c549eee43406bc385d654cc449c54b9c9afa201461fbff266fbdb"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-30T06:12:36.755Z",
+    "finishedAt": "2026-10-30T06:12:36.836Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-30T06:12:36.836Z",
+    "finishedAt": "2026-10-30T06:12:37.523Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/generated.log",
+    "logSha256": "f7d9223126343722633d02af55c18efec380030426e3364e5c18a4f7f7c3810d"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-30T06:12:37.523Z",
+    "finishedAt": "2026-10-30T06:12:37.746Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/inventory.log",
+    "logSha256": "e2afc2271221be5344c74032c1aeb2f772451668a4542800bff60a54f68b7ce5"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-30T06:12:37.746Z",
+    "finishedAt": "2026-10-30T06:12:37.776Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "c7ba5762ed0dcd3d81d1598c9a2aa4f91e4182faa2ee02750336de16243d82de"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-30T06:12:37.776Z",
+    "finishedAt": "2026-10-30T06:12:38.172Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-30T06:12:38.172Z",
+    "finishedAt": "2026-10-30T06:12:47.818Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/clippy.log",
+    "logSha256": "d69193d28df81ed1a4b35cb565b47fa9902cc3275ec478470c2211b13b229bd8"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-l4-dual-source-assessment.mjs",
+      "scripts/core-l4-dual-source.mjs",
+      "scripts/core-l4-dual-source-assessment.test.mjs"
+    ],
+    "startedAt": "2026-10-30T06:12:47.819Z",
+    "finishedAt": "2026-10-30T06:12:48.396Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T06:12:48.396Z",
+    "finishedAt": "2026-10-30T06:12:48.643Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "ea180342535ecc19e5fa695b7a42eef29793de422926747dcd902cf74fae13dd"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T06:12:48.643Z",
+    "finishedAt": "2026-10-30T06:12:48.879Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "90318a27ca784a7470c1eed7a72e6c2e16a81ee0f6e4d4143871f4265baccd49"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T06:12:48.879Z",
+    "finishedAt": "2026-10-30T06:12:49.114Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/next-development.log",
+    "logSha256": "34ad77365ce19281079ea9b59b7dd5a2dd07730e8483bf3e71a9b5ef540aabb4"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-l4-dual-source.mjs",
+      "--scan",
+      "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-30T06:12:49.114Z",
+    "finishedAt": "2026-10-30T06:12:50.278Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-dual-source-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "30ec29bed426a7f30c65db2659e9b86b87c467e3da832622f78f6d48181e9161"
+  }
+]
