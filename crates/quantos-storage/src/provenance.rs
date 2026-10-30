@@ -7,7 +7,7 @@ use thiserror::Error;
 
 use crate::{DataSnapshotRecord, SnapshotQuality, SnapshotUsage};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SourceApproval {
     pub provider: String,

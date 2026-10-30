@@ -152,6 +152,9 @@ impl NativeReview {
         let d = &self.decision;
         let s = &self.context.snapshot;
         let mut response = json!({"schemaVersion":"quantos-native-risk-review.v1","previousSubjectId":self.previous_subject_id,"proposalId":self.proposal_id,"proposalHash":self.proposal_hash,"snapshotHash":d.snapshot_hash,"ledgerHash":s.ledger_hash,"sourceHash":s.source_hash,"sourceVersion":s.source_version.to_string(),"sourceTrust":s.source_trust,"killGeneration":d.kill_revision.to_string(),"decision":{"decisionId":d.decision_id,"verdict":d.verdict,"purpose":d.purpose,"proposalHash":d.proposal_hash,"snapshotHash":d.snapshot_hash,"intentHash":d.intent_hash,"factsHash":d.facts_hash,"policyVersion":d.policy.version,"killGeneration":d.kill_revision.to_string(),"checks":d.checks,"decidedAt":d.decided_at,"expiresAt":d.expires_at,"signer":d.signer,"signature":d.signature,"executionAuthority":false},"executionAuthority":false});
+        if let Some(p) = &s.market_provenance {
+            response["marketProvenance"] = json!(p);
+        }
         if let Some(s) = &self.subject {
             response["subject"] = json!({"subjectId":s.id,"subjectHash":digest(s)?,"proposalHash":s.proposal_hash,"decisionId":s.decision,"originator":s.originator,"accountId":s.scope.account,"symbol":s.symbol,"side":s.side,"quantity":s.quantity,"limitPrice":s.limit_price,"expiresAt":s.expires_at});
         }
@@ -184,6 +187,9 @@ impl CurrentSubjectSource {
 fn native_binding(c: &NativeRiskContext) -> Value {
     let s = &c.snapshot;
     let mut v = json!({"snapshotHash":s.snapshot_hash,"ledgerHash":s.ledger_hash,"sourceHash":s.source_hash,"sourceVersion":s.source_version.to_string(),"killGeneration":s.kill_generation,"expiresAt":s.expires_at,"executionAuthority":false});
+    if let Some(p) = &s.market_provenance {
+        v["marketProvenance"] = json!(p);
+    }
     if let Some(b) = &c.books {
         v["books"] = json!(b);
         v["expiresAt"] = json!(s.expires_at.min(b.deadline().unwrap_or(s.generated_at)));

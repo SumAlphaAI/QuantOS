@@ -2433,7 +2433,9 @@ export interface components {
                 /** Format: date-time */
                 validUntil: string;
                 head: string;
+                marketProvenance?: components["schemas"]["R01ValuationProvenance"];
             };
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         };
         AssistedObservedOrder: {
             orderId: string;
@@ -4308,6 +4310,7 @@ export interface components {
             ledgerAnchor: {
                 sequence: number;
                 head: string | null;
+                marketProvenance?: components["schemas"]["R01ValuationProvenance"];
             };
             sourceHash: string;
             sourceVersion: number;
@@ -4333,6 +4336,7 @@ export interface components {
             snapshotHash: string;
             /** @enum {boolean} */
             executionAuthority: false;
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         };
         NativeValuationView: {
             /** @enum {string} */
@@ -4357,7 +4361,7 @@ export interface components {
             /** @enum {boolean} */
             riskInputReady: true;
             /** @enum {string} */
-            reason: "READY_OWNED_REFERENCE_INPUT";
+            reason: "READY_OWNED_REFERENCE_INPUT" | "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS";
             /** @enum {string} */
             sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
             /** @enum {boolean} */
@@ -4367,6 +4371,7 @@ export interface components {
             sourceHash: string;
             sourceVersion: string;
             snapshot: components["schemas"]["NativeRiskInputSnapshot"];
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         } | {
             /** @enum {string} */
             schemaVersion: "quantos-native-valuation-view.v1";
@@ -4473,6 +4478,7 @@ export interface components {
             };
             /** @enum {boolean} */
             executionAuthority: false;
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         } | {
             booksAdmission?: components["schemas"]["BooksRiskAdmission"];
             /** @enum {string} */
@@ -4517,6 +4523,7 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
             subject: components["schemas"]["AssistedSubject"];
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         };
         NativeSubjectRiskBinding: {
             books?: components["schemas"]["BooksRiskInput"];
@@ -4529,6 +4536,7 @@ export interface components {
             expiresAt: string;
             /** @enum {boolean} */
             executionAuthority: false;
+            marketProvenance?: components["schemas"]["R01ValuationProvenance"];
         };
         NativeRiskCandidate: {
             subjectId: components["schemas"]["UUID"];
@@ -4776,6 +4784,27 @@ export interface components {
             readCurrentState: true;
             /** @enum {boolean} */
             executionAuthority: false;
+        };
+        R01ValuationProvenance: {
+            artifactHash: string;
+            snapshotHash: string;
+            policyHash: string;
+            approvalDocumentHash: string;
+            scopeHash: string;
+            artifactVersion: number;
+            policyRevision: number;
+            provider: string;
+            dataset: string;
+            approvalReference: string;
+            approvalVersion: string;
+            signer: string;
+            priceScale: number;
+            /** @enum {string} */
+            purpose: "assisted_testnet_valuation";
+            /** Format: date-time */
+            validUntil: string;
+            /** @enum {string} */
+            trust: "AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE";
         };
     };
     responses: {

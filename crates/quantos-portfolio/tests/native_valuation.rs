@@ -16,6 +16,7 @@ fn inputs(l: &NativeLedger) -> Inputs {
     let at = f.recorded_at + Duration::seconds(2);
     let v = l.view().unwrap();
     Inputs {
+        market_provenance: None,
         schema_version: "quantos-native-valuation-input.v1".into(),
         source_id: SOURCE.into(),
         version: 1,

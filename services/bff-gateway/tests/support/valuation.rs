@@ -13,6 +13,7 @@ pub(super) fn input(lab: &Lab, ledger: &Value, version: u64) -> Inputs {
     };
     let at = chrono::DateTime::<Utc>::from_timestamp_millis(Utc::now().timestamp_millis()).unwrap();
     Inputs {
+        market_provenance: None,
         schema_version: "quantos-native-valuation-input.v1".into(),
         source_id: SOURCE.into(),
         version,

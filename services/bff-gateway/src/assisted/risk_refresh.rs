@@ -22,7 +22,7 @@ impl OwnedHost {
     ) -> Result<(), Error> {
         if let Some(expected) = self.sources.native_snapshot(id)? {
             let at = clock.sample();
-            let v = self.sync_valuation(session, at)?;
+            let v = self.sync_valuation_locked(session, at)?;
             if v["riskInputReady"] != true || v["snapshot"]["snapshotHash"] != json!(expected) {
                 return Err(Error::PolicyChanged);
             }
@@ -58,7 +58,7 @@ impl OwnedHost {
         let store = self.book_input_fence.clone().ok_or(Error::Unavailable)?;
         let _books_lock = store.lock()?;
         let at = clock.sample();
-        let current = self.sync_valuation(session, at)?;
+        let current = self.sync_valuation_locked(session, at)?;
         if current["riskInputReady"] != true
             || current["snapshot"]["snapshotHash"] != body["snapshotHash"]
             || current["killGeneration"] != body["expectedGeneration"]

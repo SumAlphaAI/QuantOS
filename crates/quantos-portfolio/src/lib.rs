@@ -1,5 +1,6 @@
 pub mod books_risk;
 mod ledger;
+pub mod market_provenance;
 pub mod native_ledger;
 pub mod native_source;
 pub mod native_valuation;

@@ -1,5 +1,5 @@
 {
-  "version": "1.31.0",
+  "version": "1.32.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -416,8 +416,14 @@
             "head": {
               "type": "string",
               "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "marketProvenance": {
+              "$ref": "#/components/schemas/R01ValuationProvenance"
             }
           }
+        },
+        "marketProvenance": {
+          "$ref": "#/components/schemas/R01ValuationProvenance"
         }
       }
     },
@@ -8476,6 +8482,9 @@
                 "null"
               ],
               "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "marketProvenance": {
+              "$ref": "#/components/schemas/R01ValuationProvenance"
             }
           }
         },
@@ -8562,6 +8571,9 @@
           "enum": [
             false
           ]
+        },
+        "marketProvenance": {
+          "$ref": "#/components/schemas/R01ValuationProvenance"
         }
       }
     },
@@ -8666,7 +8678,8 @@
             "reason": {
               "type": "string",
               "enum": [
-                "READY_OWNED_REFERENCE_INPUT"
+                "READY_OWNED_REFERENCE_INPUT",
+                "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
               ]
             },
             "sourceTrust": {
@@ -8701,6 +8714,9 @@
             },
             "snapshot": {
               "$ref": "#/components/schemas/NativeRiskInputSnapshot"
+            },
+            "marketProvenance": {
+              "$ref": "#/components/schemas/R01ValuationProvenance"
             }
           }
         },
@@ -9190,6 +9206,9 @@
               "enum": [
                 false
               ]
+            },
+            "marketProvenance": {
+              "$ref": "#/components/schemas/R01ValuationProvenance"
             }
           }
         },
@@ -9394,6 +9413,9 @@
             },
             "subject": {
               "$ref": "#/components/schemas/AssistedSubject"
+            },
+            "marketProvenance": {
+              "$ref": "#/components/schemas/R01ValuationProvenance"
             }
           }
         }
@@ -9444,6 +9466,9 @@
           "enum": [
             false
           ]
+        },
+        "marketProvenance": {
+          "$ref": "#/components/schemas/R01ValuationProvenance"
         }
       }
     },
@@ -10557,6 +10582,105 @@
           "type": "boolean",
           "enum": [
             false
+          ]
+        }
+      }
+    },
+    "R01ValuationProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactHash",
+        "snapshotHash",
+        "policyHash",
+        "approvalDocumentHash",
+        "scopeHash",
+        "artifactVersion",
+        "policyRevision",
+        "provider",
+        "dataset",
+        "approvalReference",
+        "approvalVersion",
+        "signer",
+        "priceScale",
+        "purpose",
+        "validUntil",
+        "trust"
+      ],
+      "properties": {
+        "artifactHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "snapshotHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "policyHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "approvalDocumentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "scopeHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "artifactVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "policyRevision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dataset": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "approvalReference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "approvalVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "signer": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "priceScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "assisted_testnet_valuation"
+          ]
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trust": {
+          "type": "string",
+          "enum": [
+            "AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE"
           ]
         }
       }

@@ -40,6 +40,17 @@ impl OwnedHost {
             Some(HostKernel::Restricted(Box::new(c.kernel))),
         )?;
         h.current_review_execution_enabled = c.current_review_execution_enabled;
+        h.r01_valuation_enabled = c.r01_valuation_enabled;
+        h.r01_policy_store = Some(DurableStore::new(
+            &c.directory,
+            "market-valuation-policy",
+            c.keys[3],
+        )?);
+        h.r01_certificate = c
+            .observer_certificate
+            .as_ref()
+            .map(|(pem, _)| String::from_utf8(pem.clone()).map_err(|_| Error::Unavailable))
+            .transpose()?;
         h.control_fixture_directory = Some(c.directory.clone());
         h.native =
             h.native
@@ -531,6 +542,8 @@ pub(crate) fn load_owned(
     #[serde(rename_all = "camelCase", deny_unknown_fields)]
     struct Owner {
         #[serde(default)]
+        r01_valuation_enabled: bool,
+        #[serde(default)]
         current_review_execution_enabled: bool,
         address: SocketAddr,
         server_fingerprint: String,
@@ -559,6 +572,7 @@ pub(crate) fn load_owned(
         c.server_fingerprint.clone(),
     )?;
     Ok(RestrictedReference {
+        r01_valuation_enabled: c.r01_valuation_enabled,
         current_review_execution_enabled: c.current_review_execution_enabled,
         observer_certificate: Some((read("server.pem")?, c.server_fingerprint.clone())),
         directory: root,

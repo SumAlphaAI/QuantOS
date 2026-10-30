@@ -78,9 +78,16 @@ impl ApprovedProviderRegistry {
         Ok(Self { providers: entries })
     }
     pub fn approved_provider(&self, provider: &str) -> Result<&ApprovedProvider, MarketError> {
+        self.approved_provider_at(provider, Utc::now())
+    }
+    pub fn approved_provider_at(
+        &self,
+        provider: &str,
+        at: DateTime<Utc>,
+    ) -> Result<&ApprovedProvider, MarketError> {
         self.providers
             .get(provider)
-            .filter(|p| p.enabled && p.expires_at > Utc::now())
+            .filter(|p| p.enabled && p.expires_at > at)
             .ok_or_else(|| MarketError::provider_not_approved(provider))
     }
     pub fn require_live(&self) -> Result<(), MarketError> {
@@ -295,7 +302,10 @@ impl MarketIngestor {
         {
             return Err(MarketError::InvalidIdentity);
         }
-        let provider = self.approvals.approved_provider(&tick.provider)?.clone();
+        let provider = self
+            .approvals
+            .approved_provider_at(&tick.provider, observed_at)?
+            .clone();
         let normalized_symbol = provider
             .instruments
             .get(&tick.provider_symbol.trim().to_ascii_uppercase())

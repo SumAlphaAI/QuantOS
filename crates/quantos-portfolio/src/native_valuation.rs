@@ -66,10 +66,18 @@ pub struct Inputs {
     pub account_status_at: DateTime<Utc>,
     pub status_source_ref: String,
     pub marks: Vec<Mark>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub market_provenance: Option<crate::market_provenance::Binding>,
 }
 impl Inputs {
     pub fn content_hash(&self) -> Result<ContentHash> {
         hash(&json!(["quantos-native-valuation-input/v1", self]))
+    }
+    pub fn raw_market_hash(&self) -> Result<ContentHash> {
+        let mut raw = self.clone();
+        raw.marks.clear();
+        raw.market_provenance = None;
+        raw.content_hash()
     }
     fn origin(&self) -> Result<ContentHash> {
         hash(&json!([
@@ -119,6 +127,14 @@ impl Inputs {
             return Err(Error);
         }
         dec(&self.realized_pnl_before_origin_today)?;
+        if let Some(b) = &self.market_provenance {
+            let (marks, _) = b
+                .marks(scope, &self.raw_market_hash()?, self.as_of)
+                .map_err(|_| Error)?;
+            if marks != self.marks {
+                return Err(Error);
+            }
+        }
         let mut seen = BTreeSet::new();
         for m in &self.marks {
             if m.symbol.is_empty()
@@ -177,6 +193,8 @@ pub struct Snapshot {
     pub expires_at: DateTime<Utc>,
     pub snapshot_hash: ContentHash,
     pub execution_authority: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub market_provenance: Option<crate::market_provenance::Summary>,
 }
 impl Snapshot {
     fn hash(&self) -> Result<ContentHash> {
@@ -290,6 +308,15 @@ pub fn evaluate(
     if input.marks.len() != needed.len() {
         return Ok(blocked("MISSING_MARK"));
     }
+    let market_provenance = if let Some(b) = &input.market_provenance {
+        let (_, summary) = b
+            .marks(ledger.scope(), &input.raw_market_hash()?, at)
+            .map_err(|_| Error)?;
+        expires = expires.min(summary.valid_until);
+        Some(summary)
+    } else {
+        None
+    };
     let mut result = vec![];
     let mut gross = Decimal::ZERO;
     let mut net = Decimal::ZERO;
@@ -364,10 +391,15 @@ pub fn evaluate(
         expires_at: expires,
         snapshot_hash: hash(&"pending")?,
         execution_authority: false,
+        market_provenance,
     };
     s.snapshot_hash = s.hash()?;
     Ok(Evaluation {
-        reason: "READY_OWNED_REFERENCE_INPUT",
+        reason: if input.market_provenance.is_some() {
+            "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
+        } else {
+            "READY_OWNED_REFERENCE_INPUT"
+        },
         snapshot: Some(s),
     })
 }
@@ -379,11 +411,55 @@ pub fn evaluate(
 pub struct State {
     sources: Vec<Inputs>,
     snapshots: BTreeMap<ContentHash, Snapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    market_history: Option<crate::market_provenance::History>,
 }
 impl State {
+    pub fn market_required(&self) -> bool {
+        self.market_history.is_some()
+    }
+    pub fn observe_market_policy(
+        &mut self,
+        p: &crate::market_provenance::Policy,
+        scope: &Scope,
+    ) -> Result<()> {
+        self.market_history
+            .get_or_insert_with(Default::default)
+            .policy(p, scope)
+            .map_err(|_| Error)
+    }
+    pub fn observe_market_artifact(
+        &mut self,
+        a: &crate::market_provenance::SignedArtifact,
+        p: &crate::market_provenance::Policy,
+        pem: &str,
+    ) -> Result<()> {
+        self.market_history
+            .as_mut()
+            .ok_or(Error)?
+            .artifact(a, p, pem)
+            .map_err(|_| Error)
+    }
     pub fn validate(&self, ledger: &NativeLedger) -> Result<()> {
+        if let Some(h) = &self.market_history {
+            h.verify(ledger.scope()).map_err(|_| Error)?;
+        }
         let mut check = State::default();
         for s in &self.sources {
+            if let Some(b) = &s.market_provenance {
+                let h = self.market_history.as_ref().ok_or(Error)?;
+                if !h
+                    .policies
+                    .iter()
+                    .any(|p| p.content_hash().ok() == b.policy.content_hash().ok())
+                    || !h.artifacts.iter().any(|a| {
+                        a.payload.content_hash().ok() == b.artifact.payload.content_hash().ok()
+                    })
+                    || h.certificate != b.certificate
+                {
+                    return Err(Error);
+                }
+            }
             check.register(s, ledger.scope())?;
         }
         if check.sources.len() != self.sources.len() {
@@ -418,6 +494,11 @@ impl State {
     }
     fn register(&mut self, input: &Inputs, scope: &Scope) -> Result<()> {
         input.validate(scope)?;
+        if self.sources.iter().any(|i| i.market_provenance.is_some())
+            && input.market_provenance.is_none()
+        {
+            return Err(Error);
+        }
         if let Some(old) = self.sources.last() {
             if input.version == old.version {
                 if input != old {
@@ -459,6 +540,25 @@ impl State {
         at: DateTime<Utc>,
     ) -> Result<Evaluation> {
         let mut next = self.clone();
+        if let Some(b) = &input.market_provenance {
+            let h = next.market_history.as_ref().ok_or(Error)?;
+            if h.policies
+                .last()
+                .ok_or(Error)?
+                .content_hash()
+                .map_err(|_| Error)?
+                != b.policy.content_hash().map_err(|_| Error)?
+                || h.artifacts
+                    .last()
+                    .ok_or(Error)?
+                    .payload
+                    .content_hash()
+                    .map_err(|_| Error)?
+                    != b.artifact.payload.content_hash().map_err(|_| Error)?
+            {
+                return Err(Error);
+            }
+        }
         next.register(input, ledger.scope())?;
         let evaluated = evaluate(ledger, input, generation, at)?;
         if let Some(s) = &evaluated.snapshot {
@@ -477,6 +577,13 @@ impl State {
         Ok(evaluated)
     }
     pub fn verify_extension(&self, previous: &State) -> Result<()> {
+        if let Some(old) = &previous.market_history {
+            self.market_history
+                .as_ref()
+                .ok_or(Error)?
+                .extension(old)
+                .map_err(|_| Error)?;
+        }
         if self.sources.len() < previous.sources.len()
             || self.sources[..previous.sources.len()] != previous.sources
             || previous

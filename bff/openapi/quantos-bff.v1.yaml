@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.31.0
+  version: 1.32.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -13115,54 +13115,97 @@ components:
         order:
           $ref: "#/components/schemas/AssistedNativeOrder"
     AssistedCurrentExecutionBinding:
-      type: object
-      additionalProperties: false
-      required: [snapshotHash, ledgerHash, sourceHash, sourceVersion, killGeneration, decisionId, proposalHash, activation, notional]
-      properties:
-        books:
-          $ref: "#/components/schemas/BooksRiskInput"
-        snapshotHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        ledgerHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        sourceHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        proposalHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        sourceVersion:
-          type: integer
-          minimum: 1
-        killGeneration:
-          type: string
-          pattern: ^(0|[1-9][0-9]*)$
-        decisionId:
-          $ref: "#/components/schemas/UUID"
-        notional:
-          $ref: "#/components/schemas/DecimalValue"
-        activation:
-          type: object
-          additionalProperties: false
-          required: [version, enabled, validFrom, validUntil, head]
-          properties:
-            version:
-              type: integer
-              minimum: 0
-            enabled:
-              type: boolean
-              enum: [true]
-            validFrom:
-              type: string
-              format: date-time
-            validUntil:
-              type: string
-              format: date-time
-            head:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "snapshotHash",
+          "ledgerHash",
+          "sourceHash",
+          "sourceVersion",
+          "killGeneration",
+          "decisionId",
+          "proposalHash",
+          "activation",
+          "notional"
+        ],
+        "properties": {
+          "books": {
+            "$ref": "#/components/schemas/BooksRiskInput"
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "ledgerHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "proposalHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "sourceVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "killGeneration": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "decisionId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "notional": {
+            "$ref": "#/components/schemas/DecimalValue"
+          },
+          "activation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "version",
+              "enabled",
+              "validFrom",
+              "validUntil",
+              "head"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "enabled": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "validFrom": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "validUntil": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "head": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "marketProvenance": {
+                "$ref": "#/components/schemas/R01ValuationProvenance"
+              }
+            }
+          },
+          "marketProvenance": {
+            "$ref": "#/components/schemas/R01ValuationProvenance"
+          }
+        }
+      }
     AssistedObservedOrder:
       type: object
       additionalProperties: false
@@ -18669,325 +18712,445 @@ components:
           type: string
           format: date-time
     NativeRiskInputSnapshot:
-      type: object
-      additionalProperties: false
-      required:
-        - schemaVersion
-        - scope
-        - ledgerHash
-        - ledgerAnchor
-        - sourceHash
-        - sourceVersion
-        - sourceTrust
-        - basis
-        - killGeneration
-        - quoteCurrency
-        - positions
-        - quoteCash
-        - equity
-        - realizedPnlToday
-        - unrealizedPnl
-        - totalPnlToday
-        - exposureGross
-        - exposureNet
-        - generatedAt
-        - expiresAt
-        - snapshotHash
-        - executionAuthority
-      properties:
-        schemaVersion:
-          type: string
-          enum:
-            - quantos-native-risk-input-snapshot.v1
-        scope:
-          $ref: "#/components/schemas/NativeValuationScope"
-        ledgerHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        ledgerAnchor:
-          type: object
-          additionalProperties: false
-          required:
-            - sequence
-            - head
-          properties:
-            sequence:
-              type: integer
-              minimum: 0
-            head:
-              type:
-                - string
-                - "null"
-              pattern: ^sha256:[a-f0-9]{64}$
-        sourceHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        sourceVersion:
-          type: integer
-          minimum: 1
-          maximum: 512
-        sourceTrust:
-          type: string
-          enum:
-            - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
-        basis:
-          type: string
-          enum:
-            - EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS
-        killGeneration:
-          type: string
-          pattern: ^(0|[1-9][0-9]*)$
-        quoteCurrency:
-          type: string
-          enum:
-            - USDT
-        positions:
-          type: array
-          items:
-            $ref: "#/components/schemas/NativeValuationPosition"
-          maxItems: 256
-        quoteCash:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        equity:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        realizedPnlToday:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        unrealizedPnl:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        totalPnlToday:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        exposureGross:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        exposureNet:
-          type: string
-          pattern: ^-?[0-9]+(?:\.[0-9]+)?$
-        generatedAt:
-          type: string
-          format: date-time
-        expiresAt:
-          type: string
-          format: date-time
-        snapshotHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        executionAuthority:
-          type: boolean
-          enum:
-            - false
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schemaVersion",
+          "scope",
+          "ledgerHash",
+          "ledgerAnchor",
+          "sourceHash",
+          "sourceVersion",
+          "sourceTrust",
+          "basis",
+          "killGeneration",
+          "quoteCurrency",
+          "positions",
+          "quoteCash",
+          "equity",
+          "realizedPnlToday",
+          "unrealizedPnl",
+          "totalPnlToday",
+          "exposureGross",
+          "exposureNet",
+          "generatedAt",
+          "expiresAt",
+          "snapshotHash",
+          "executionAuthority"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "enum": [
+              "quantos-native-risk-input-snapshot.v1"
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/NativeValuationScope"
+          },
+          "ledgerHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "ledgerAnchor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence",
+              "head"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "head": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "marketProvenance": {
+                "$ref": "#/components/schemas/R01ValuationProvenance"
+              }
+            }
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "sourceVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 512
+          },
+          "sourceTrust": {
+            "type": "string",
+            "enum": [
+              "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "EMPTY_ORIGIN_PLUS_NATIVE_FILLS_NO_EXTERNAL_FLOWS"
+            ]
+          },
+          "killGeneration": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "quoteCurrency": {
+            "type": "string",
+            "enum": [
+              "USDT"
+            ]
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NativeValuationPosition"
+            },
+            "maxItems": 256
+          },
+          "quoteCash": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "equity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "realizedPnlToday": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "unrealizedPnl": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "totalPnlToday": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "exposureGross": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "exposureNet": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "executionAuthority": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "marketProvenance": {
+            "$ref": "#/components/schemas/R01ValuationProvenance"
+          }
+        }
+      }
     NativeValuationView:
-      oneOf:
-        - type: object
-          additionalProperties: false
-          required:
-            - schemaVersion
-            - tenantId
-            - workspaceId
-            - accountId
-            - mode
-            - checkedAt
-            - expiresAt
-            - ledgerHash
-            - ledgerAnchor
-            - killGeneration
-            - quarantinedCommandCount
-            - riskInputReady
-            - reason
-            - sourceTrust
-            - executionAuthority
-            - sourceVersions
-            - snapshotCount
-            - sourceHash
-            - sourceVersion
-            - snapshot
-          properties:
-            schemaVersion:
-              type: string
-              enum:
-                - quantos-native-valuation-view.v1
-            tenantId:
-              $ref: "#/components/schemas/UUID"
-            workspaceId:
-              $ref: "#/components/schemas/UUID"
-            accountId:
-              $ref: "#/components/schemas/UUID"
-            mode:
-              type: string
-              enum:
-                - assisted_live
-            checkedAt:
-              type: string
-              format: date-time
-            expiresAt:
-              type: string
-              format: date-time
-            ledgerHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            ledgerAnchor:
-              type: object
-              additionalProperties: false
-              required:
-                - sequence
-                - head
-              properties:
-                sequence:
-                  type: integer
-                  minimum: 0
-                head:
-                  type:
-                    - string
-                    - "null"
-                  pattern: ^sha256:[a-f0-9]{64}$
-            killGeneration:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
-            quarantinedCommandCount:
-              type: integer
-              enum:
-                - 0
-            riskInputReady:
-              type: boolean
-              enum:
-                - true
-            reason:
-              type: string
-              enum:
-                - READY_OWNED_REFERENCE_INPUT
-            sourceTrust:
-              type: string
-              enum:
-                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
-            executionAuthority:
-              type: boolean
-              enum:
-                - false
-            sourceVersions:
-              type: integer
-              minimum: 1
-              maximum: 512
-            snapshotCount:
-              type: integer
-              minimum: 1
-              maximum: 512
-            sourceHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceVersion:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
-            snapshot:
-              $ref: "#/components/schemas/NativeRiskInputSnapshot"
-        - type: object
-          additionalProperties: false
-          required:
-            - schemaVersion
-            - tenantId
-            - workspaceId
-            - accountId
-            - mode
-            - checkedAt
-            - expiresAt
-            - ledgerHash
-            - ledgerAnchor
-            - killGeneration
-            - quarantinedCommandCount
-            - riskInputReady
-            - reason
-            - sourceTrust
-            - executionAuthority
-            - sourceVersions
-            - snapshotCount
-          properties:
-            schemaVersion:
-              type: string
-              enum:
-                - quantos-native-valuation-view.v1
-            tenantId:
-              $ref: "#/components/schemas/UUID"
-            workspaceId:
-              $ref: "#/components/schemas/UUID"
-            accountId:
-              $ref: "#/components/schemas/UUID"
-            mode:
-              type: string
-              enum:
-                - assisted_live
-            checkedAt:
-              type: string
-              format: date-time
-            expiresAt:
-              type: string
-              format: date-time
-            ledgerHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            ledgerAnchor:
-              type: object
-              additionalProperties: false
-              required:
-                - sequence
-                - head
-              properties:
-                sequence:
-                  type: integer
-                  minimum: 0
-                head:
-                  type:
-                    - string
-                    - "null"
-                  pattern: ^sha256:[a-f0-9]{64}$
-            killGeneration:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
-            quarantinedCommandCount:
-              type: integer
-              minimum: 0
-            riskInputReady:
-              type: boolean
-              enum:
-                - false
-            reason:
-              type: string
-              enum:
-                - SOURCE_UNAVAILABLE
-                - OPEN_ORDER_RESERVATIONS_UNMODELED
-                - UNKNOWN_OR_QUARANTINED_OBLIGATIONS
-                - LEDGER_MISMATCH
-                - LEDGER_TIME_MISMATCH
-                - DAY_ROLLOVER
-                - STALE_SOURCE
-                - INACTIVE_ACCOUNT
-                - MISSING_MARK
-                - STALE_OR_UNTRUSTED_MARK
-                - INVALID_ACCOUNT_CASH_OR_EQUITY
-            sourceTrust:
-              type: string
-              enum:
-                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
-            executionAuthority:
-              type: boolean
-              enum:
-                - false
-            sourceVersions:
-              type: integer
-              minimum: 0
-              maximum: 512
-            snapshotCount:
-              type: integer
-              minimum: 0
-              maximum: 512
-            sourceHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceVersion:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "tenantId",
+              "workspaceId",
+              "accountId",
+              "mode",
+              "checkedAt",
+              "expiresAt",
+              "ledgerHash",
+              "ledgerAnchor",
+              "killGeneration",
+              "quarantinedCommandCount",
+              "riskInputReady",
+              "reason",
+              "sourceTrust",
+              "executionAuthority",
+              "sourceVersions",
+              "snapshotCount",
+              "sourceHash",
+              "sourceVersion",
+              "snapshot"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "type": "string",
+                "enum": [
+                  "quantos-native-valuation-view.v1"
+                ]
+              },
+              "tenantId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "workspaceId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "accountId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "assisted_live"
+                ]
+              },
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "ledgerHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "ledgerAnchor": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sequence",
+                  "head"
+                ],
+                "properties": {
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "head": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "killGeneration": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "quarantinedCommandCount": {
+                "type": "integer",
+                "enum": [
+                  0
+                ]
+              },
+              "riskInputReady": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "READY_OWNED_REFERENCE_INPUT",
+                  "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
+                ]
+              },
+              "sourceTrust": {
+                "type": "string",
+                "enum": [
+                  "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+                ]
+              },
+              "executionAuthority": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "sourceVersions": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 512
+              },
+              "snapshotCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 512
+              },
+              "sourceHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceVersion": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "snapshot": {
+                "$ref": "#/components/schemas/NativeRiskInputSnapshot"
+              },
+              "marketProvenance": {
+                "$ref": "#/components/schemas/R01ValuationProvenance"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "tenantId",
+              "workspaceId",
+              "accountId",
+              "mode",
+              "checkedAt",
+              "expiresAt",
+              "ledgerHash",
+              "ledgerAnchor",
+              "killGeneration",
+              "quarantinedCommandCount",
+              "riskInputReady",
+              "reason",
+              "sourceTrust",
+              "executionAuthority",
+              "sourceVersions",
+              "snapshotCount"
+            ],
+            "properties": {
+              "schemaVersion": {
+                "type": "string",
+                "enum": [
+                  "quantos-native-valuation-view.v1"
+                ]
+              },
+              "tenantId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "workspaceId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "accountId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "assisted_live"
+                ]
+              },
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "ledgerHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "ledgerAnchor": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sequence",
+                  "head"
+                ],
+                "properties": {
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "head": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "killGeneration": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "quarantinedCommandCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "riskInputReady": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "SOURCE_UNAVAILABLE",
+                  "OPEN_ORDER_RESERVATIONS_UNMODELED",
+                  "UNKNOWN_OR_QUARANTINED_OBLIGATIONS",
+                  "LEDGER_MISMATCH",
+                  "LEDGER_TIME_MISMATCH",
+                  "DAY_ROLLOVER",
+                  "STALE_SOURCE",
+                  "INACTIVE_ACCOUNT",
+                  "MISSING_MARK",
+                  "STALE_OR_UNTRUSTED_MARK",
+                  "INVALID_ACCOUNT_CASH_OR_EQUITY"
+                ]
+              },
+              "sourceTrust": {
+                "type": "string",
+                "enum": [
+                  "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+                ]
+              },
+              "executionAuthority": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "sourceVersions": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 512
+              },
+              "snapshotCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 512
+              },
+              "sourceHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceVersion": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              }
+            }
+          }
+        ]
+      }
     NativeCurrentRiskDecision:
       type: object
       additionalProperties: false
@@ -19102,352 +19265,472 @@ components:
           type: string
           pattern: ^(0|[1-9][0-9]*)$
     NativeRiskReviewView:
-      oneOf:
-        - type: object
-          additionalProperties: false
-          required:
-            - schemaVersion
-            - previousSubjectId
-            - proposalId
-            - proposalHash
-            - snapshotHash
-            - ledgerHash
-            - sourceHash
-            - sourceVersion
-            - sourceTrust
-            - killGeneration
-            - decision
-            - executionAuthority
-          properties:
-            booksAdmission:
-              $ref: "#/components/schemas/BooksRiskAdmission"
-            schemaVersion:
-              type: string
-              enum:
-                - quantos-native-risk-review.v1
-            previousSubjectId:
-              $ref: "#/components/schemas/UUID"
-            proposalId:
-              type: string
-              minLength: 1
-            proposalHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            snapshotHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            ledgerHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceVersion:
-              type: string
-              pattern: ^[1-9][0-9]*$
-            sourceTrust:
-              type: string
-              enum:
-                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
-            killGeneration:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
-            decision:
-              type: object
-              additionalProperties: false
-              required:
-                - decisionId
-                - verdict
-                - purpose
-                - proposalHash
-                - snapshotHash
-                - intentHash
-                - factsHash
-                - policyVersion
-                - killGeneration
-                - checks
-                - decidedAt
-                - expiresAt
-                - signer
-                - signature
-                - executionAuthority
-              properties:
-                decisionId:
-                  $ref: "#/components/schemas/UUID"
-                verdict:
-                  type: string
-                  enum:
-                    - deny
-                purpose:
-                  type: string
-                  enum:
-                    - assisted_testnet_review
-                proposalHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                snapshotHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                intentHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                factsHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                policyVersion:
-                  type: string
-                  minLength: 1
-                killGeneration:
-                  type: string
-                  pattern: ^(0|[1-9][0-9]*)$
-                checks:
-                  type: array
-                  minItems: 15
-                  maxItems: 16
-                  items:
-                    type: object
-                    additionalProperties: false
-                    required:
-                      - rule
-                      - breached
-                      - limit_id
-                    properties:
-                      rule:
-                        type: string
-                        enum:
-                          - identity
-                          - numbers
-                          - precision
-                          - global_kill
-                          - account_kill
-                          - release
-                          - snapshot
-                          - financials
-                          - venue
-                          - duplicate
-                          - order_notional
-                          - leverage
-                          - concentration
-                          - daily_loss
-                          - approval
-                          - account_books
-                      breached:
-                        type: boolean
-                      limit_id:
-                        type: string
-                        minLength: 1
-                decidedAt:
-                  type: string
-                  format: date-time
-                expiresAt:
-                  type: string
-                  format: date-time
-                signer:
-                  type: string
-                  minLength: 1
-                signature:
-                  type: string
-                  pattern: ^[a-f0-9]{64}$
-                executionAuthority:
-                  type: boolean
-                  enum:
-                    - false
-            executionAuthority:
-              type: boolean
-              enum:
-                - false
-        - type: object
-          additionalProperties: false
-          required:
-            - schemaVersion
-            - previousSubjectId
-            - proposalId
-            - proposalHash
-            - snapshotHash
-            - ledgerHash
-            - sourceHash
-            - sourceVersion
-            - sourceTrust
-            - killGeneration
-            - decision
-            - executionAuthority
-            - subject
-          properties:
-            booksAdmission:
-              $ref: "#/components/schemas/BooksRiskAdmission"
-            schemaVersion:
-              type: string
-              enum:
-                - quantos-native-risk-review.v1
-            previousSubjectId:
-              $ref: "#/components/schemas/UUID"
-            proposalId:
-              type: string
-              minLength: 1
-            proposalHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            snapshotHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            ledgerHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceHash:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
-            sourceVersion:
-              type: string
-              pattern: ^[1-9][0-9]*$
-            sourceTrust:
-              type: string
-              enum:
-                - OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET
-            killGeneration:
-              type: string
-              pattern: ^(0|[1-9][0-9]*)$
-            decision:
-              type: object
-              additionalProperties: false
-              required:
-                - decisionId
-                - verdict
-                - purpose
-                - proposalHash
-                - snapshotHash
-                - intentHash
-                - factsHash
-                - policyVersion
-                - killGeneration
-                - checks
-                - decidedAt
-                - expiresAt
-                - signer
-                - signature
-                - executionAuthority
-              properties:
-                decisionId:
-                  $ref: "#/components/schemas/UUID"
-                verdict:
-                  type: string
-                  enum:
-                    - approval_required
-                purpose:
-                  type: string
-                  enum:
-                    - assisted_testnet_review
-                proposalHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                snapshotHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                intentHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                factsHash:
-                  type: string
-                  pattern: ^sha256:[a-f0-9]{64}$
-                policyVersion:
-                  type: string
-                  minLength: 1
-                killGeneration:
-                  type: string
-                  pattern: ^(0|[1-9][0-9]*)$
-                checks:
-                  type: array
-                  minItems: 15
-                  maxItems: 16
-                  items:
-                    type: object
-                    additionalProperties: false
-                    required:
-                      - rule
-                      - breached
-                      - limit_id
-                    properties:
-                      rule:
-                        type: string
-                        enum:
-                          - identity
-                          - numbers
-                          - precision
-                          - global_kill
-                          - account_kill
-                          - release
-                          - snapshot
-                          - financials
-                          - venue
-                          - duplicate
-                          - order_notional
-                          - leverage
-                          - concentration
-                          - daily_loss
-                          - approval
-                          - account_books
-                      breached:
-                        type: boolean
-                      limit_id:
-                        type: string
-                        minLength: 1
-                decidedAt:
-                  type: string
-                  format: date-time
-                expiresAt:
-                  type: string
-                  format: date-time
-                signer:
-                  type: string
-                  minLength: 1
-                signature:
-                  type: string
-                  pattern: ^[a-f0-9]{64}$
-                executionAuthority:
-                  type: boolean
-                  enum:
-                    - false
-            executionAuthority:
-              type: boolean
-              enum:
-                - false
-            subject:
-              $ref: "#/components/schemas/AssistedSubject"
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "previousSubjectId",
+              "proposalId",
+              "proposalHash",
+              "snapshotHash",
+              "ledgerHash",
+              "sourceHash",
+              "sourceVersion",
+              "sourceTrust",
+              "killGeneration",
+              "decision",
+              "executionAuthority"
+            ],
+            "properties": {
+              "booksAdmission": {
+                "$ref": "#/components/schemas/BooksRiskAdmission"
+              },
+              "schemaVersion": {
+                "type": "string",
+                "enum": [
+                  "quantos-native-risk-review.v1"
+                ]
+              },
+              "previousSubjectId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "proposalId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "proposalHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "snapshotHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "ledgerHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceVersion": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$"
+              },
+              "sourceTrust": {
+                "type": "string",
+                "enum": [
+                  "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+                ]
+              },
+              "killGeneration": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "decision": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "decisionId",
+                  "verdict",
+                  "purpose",
+                  "proposalHash",
+                  "snapshotHash",
+                  "intentHash",
+                  "factsHash",
+                  "policyVersion",
+                  "killGeneration",
+                  "checks",
+                  "decidedAt",
+                  "expiresAt",
+                  "signer",
+                  "signature",
+                  "executionAuthority"
+                ],
+                "properties": {
+                  "decisionId": {
+                    "$ref": "#/components/schemas/UUID"
+                  },
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "deny"
+                    ]
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "assisted_testnet_review"
+                    ]
+                  },
+                  "proposalHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "snapshotHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "intentHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "factsHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "policyVersion": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "killGeneration": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "checks": {
+                    "type": "array",
+                    "minItems": 15,
+                    "maxItems": 16,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "rule",
+                        "breached",
+                        "limit_id"
+                      ],
+                      "properties": {
+                        "rule": {
+                          "type": "string",
+                          "enum": [
+                            "identity",
+                            "numbers",
+                            "precision",
+                            "global_kill",
+                            "account_kill",
+                            "release",
+                            "snapshot",
+                            "financials",
+                            "venue",
+                            "duplicate",
+                            "order_notional",
+                            "leverage",
+                            "concentration",
+                            "daily_loss",
+                            "approval",
+                            "account_books"
+                          ]
+                        },
+                        "breached": {
+                          "type": "boolean"
+                        },
+                        "limit_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "decidedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "signer": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "signature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "executionAuthority": {
+                    "type": "boolean",
+                    "enum": [
+                      false
+                    ]
+                  }
+                }
+              },
+              "executionAuthority": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "marketProvenance": {
+                "$ref": "#/components/schemas/R01ValuationProvenance"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "schemaVersion",
+              "previousSubjectId",
+              "proposalId",
+              "proposalHash",
+              "snapshotHash",
+              "ledgerHash",
+              "sourceHash",
+              "sourceVersion",
+              "sourceTrust",
+              "killGeneration",
+              "decision",
+              "executionAuthority",
+              "subject"
+            ],
+            "properties": {
+              "booksAdmission": {
+                "$ref": "#/components/schemas/BooksRiskAdmission"
+              },
+              "schemaVersion": {
+                "type": "string",
+                "enum": [
+                  "quantos-native-risk-review.v1"
+                ]
+              },
+              "previousSubjectId": {
+                "$ref": "#/components/schemas/UUID"
+              },
+              "proposalId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "proposalHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "snapshotHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "ledgerHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceHash": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "sourceVersion": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$"
+              },
+              "sourceTrust": {
+                "type": "string",
+                "enum": [
+                  "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"
+                ]
+              },
+              "killGeneration": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "decision": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "decisionId",
+                  "verdict",
+                  "purpose",
+                  "proposalHash",
+                  "snapshotHash",
+                  "intentHash",
+                  "factsHash",
+                  "policyVersion",
+                  "killGeneration",
+                  "checks",
+                  "decidedAt",
+                  "expiresAt",
+                  "signer",
+                  "signature",
+                  "executionAuthority"
+                ],
+                "properties": {
+                  "decisionId": {
+                    "$ref": "#/components/schemas/UUID"
+                  },
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "approval_required"
+                    ]
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "assisted_testnet_review"
+                    ]
+                  },
+                  "proposalHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "snapshotHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "intentHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "factsHash": {
+                    "type": "string",
+                    "pattern": "^sha256:[a-f0-9]{64}$"
+                  },
+                  "policyVersion": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "killGeneration": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "checks": {
+                    "type": "array",
+                    "minItems": 15,
+                    "maxItems": 16,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "rule",
+                        "breached",
+                        "limit_id"
+                      ],
+                      "properties": {
+                        "rule": {
+                          "type": "string",
+                          "enum": [
+                            "identity",
+                            "numbers",
+                            "precision",
+                            "global_kill",
+                            "account_kill",
+                            "release",
+                            "snapshot",
+                            "financials",
+                            "venue",
+                            "duplicate",
+                            "order_notional",
+                            "leverage",
+                            "concentration",
+                            "daily_loss",
+                            "approval",
+                            "account_books"
+                          ]
+                        },
+                        "breached": {
+                          "type": "boolean"
+                        },
+                        "limit_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "decidedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "signer": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "signature": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "executionAuthority": {
+                    "type": "boolean",
+                    "enum": [
+                      false
+                    ]
+                  }
+                }
+              },
+              "executionAuthority": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "subject": {
+                "$ref": "#/components/schemas/AssistedSubject"
+              },
+              "marketProvenance": {
+                "$ref": "#/components/schemas/R01ValuationProvenance"
+              }
+            }
+          }
+        ]
+      }
     NativeSubjectRiskBinding:
-      type: object
-      additionalProperties: false
-      required:
-        - snapshotHash
-        - ledgerHash
-        - sourceHash
-        - sourceVersion
-        - killGeneration
-        - expiresAt
-        - executionAuthority
-      properties:
-        books:
-          $ref: "#/components/schemas/BooksRiskInput"
-        snapshotHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        ledgerHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        sourceHash:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
-        sourceVersion:
-          type: string
-          pattern: ^[1-9][0-9]*$
-        killGeneration:
-          type: string
-          pattern: ^(0|[1-9][0-9]*)$
-        expiresAt:
-          type: string
-          format: date-time
-        executionAuthority:
-          type: boolean
-          enum:
-            - false
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "snapshotHash",
+          "ledgerHash",
+          "sourceHash",
+          "sourceVersion",
+          "killGeneration",
+          "expiresAt",
+          "executionAuthority"
+        ],
+        "properties": {
+          "books": {
+            "$ref": "#/components/schemas/BooksRiskInput"
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "ledgerHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "sourceVersion": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "killGeneration": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "executionAuthority": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "marketProvenance": {
+            "$ref": "#/components/schemas/R01ValuationProvenance"
+          }
+        }
+      }
     NativeRiskCandidate:
       type: object
       additionalProperties: false
@@ -20549,6 +20832,106 @@ components:
             "type": "boolean",
             "enum": [
               false
+            ]
+          }
+        }
+      }
+    R01ValuationProvenance:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactHash",
+          "snapshotHash",
+          "policyHash",
+          "approvalDocumentHash",
+          "scopeHash",
+          "artifactVersion",
+          "policyRevision",
+          "provider",
+          "dataset",
+          "approvalReference",
+          "approvalVersion",
+          "signer",
+          "priceScale",
+          "purpose",
+          "validUntil",
+          "trust"
+        ],
+        "properties": {
+          "artifactHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "policyHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "approvalDocumentHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "scopeHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "artifactVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "dataset": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "approvalReference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "approvalVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "signer": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "priceScale": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "assisted_testnet_valuation"
+            ]
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trust": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE"
             ]
           }
         }

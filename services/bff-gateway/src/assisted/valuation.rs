@@ -9,6 +9,15 @@ impl OwnedHost {
         session: &str,
         at: DateTime<Utc>,
     ) -> Result<Value, Error> {
+        let store = self.book_input_fence.clone();
+        let _guard = store.as_ref().map(|s| s.lock()).transpose()?;
+        self.sync_valuation_locked(session, at)
+    }
+    pub(super) fn sync_valuation_locked(
+        &mut self,
+        session: &str,
+        at: DateTime<Utc>,
+    ) -> Result<Value, Error> {
         let input = self
             .valuation_input
             .as_ref()
@@ -38,9 +47,13 @@ impl OwnedHost {
         let mut view = json!({"schemaVersion":"quantos-native-valuation-view.v1","tenantId":ledger.scope().tenant_id,"workspaceId":ledger.scope().workspace_id,"accountId":ledger.scope().account_id,"mode":"assisted_live","checkedAt":at,"expiresAt":at+Duration::seconds(8),"ledgerHash":ledger_view["ledgerHash"],"ledgerAnchor":ledger.anchor(),"killGeneration":generation.to_string(),"quarantinedCommandCount":ledger_view["quarantinedCommandCount"],"riskInputReady":false,"reason":"SOURCE_UNAVAILABLE","sourceTrust":TRUST,"executionAuthority":false});
         if ledger_view["consumerReady"] != true {
             view["reason"] = json!("UNKNOWN_OR_QUARANTINED_OBLIGATIONS");
+            return Ok(view);
         }
         if let Some(input) = input {
-            let input: Inputs = serde_json::from_value(input).map_err(|_| Error::Unavailable)?;
+            let mut input: Inputs =
+                serde_json::from_value(input).map_err(|_| Error::Unavailable)?;
+            self.bind_market_input(&mut input, at)?;
+            let ledger = self.ledger.as_ref().ok_or(Error::Unavailable)?;
             let evaluated = self
                 .valuation
                 .observe(ledger, &input, generation, at)
@@ -52,6 +65,9 @@ impl OwnedHost {
                 snapshot
                     .validate_for(ledger, &input, generation, at)
                     .map_err(|_| Error::Unavailable)?;
+                if let Some(summary) = &snapshot.market_provenance {
+                    view["marketProvenance"] = json!(summary);
+                }
                 view["riskInputReady"] = json!(true);
                 view["expiresAt"] = json!((at + Duration::seconds(8)).min(snapshot.expires_at));
                 view["snapshot"] = json!(snapshot);

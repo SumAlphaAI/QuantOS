@@ -500,3 +500,23 @@ fn error_codes_and_io_failures_are_deterministic() -> Result<()> {
     ));
     Ok(())
 }
+
+#[test]
+fn historical_approval_clock_does_not_reauthorize_an_expired_live_provider() {
+    let now = Utc::now();
+    let mut p = default_approved_providers()
+        .approved_provider("approved.binance.spot")
+        .unwrap()
+        .clone();
+    p.expires_at = now - ChronoDuration::seconds(1);
+    let name = p.provider.clone();
+    let expiry = p.expires_at;
+    let registry = ApprovedProviderRegistry::new([p]).unwrap();
+    assert!(registry.approved_provider(&name).is_err());
+    assert!(registry.approved_provider_at(&name, expiry).is_err());
+    assert!(
+        registry
+            .approved_provider_at(&name, expiry - ChronoDuration::milliseconds(1))
+            .is_ok()
+    );
+}

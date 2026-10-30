@@ -1,0 +1,54 @@
+{
+  "scope": "UNFROZEN_DIAGNOSTICS_NOT_CURRENT_ACCEPTANCE",
+  "baseline": "f494a59fdcca25063abdb2156cb6afc02f5ec240",
+  "retainedFailures": [
+    {
+      "scope": "conversation compiler diagnostics",
+      "result": "FAIL before functional test",
+      "reason": "Initial Rust digest argument/from_rules signature/PartialEq and immutable self borrow were corrected; compiler outputs remain in conversation, no raw logs invented."
+    },
+    {
+      "file": "composition-01.log",
+      "result": "FAIL compilation",
+      "reason": "New BFF fixture lacked ContentHash/AccountId imports; corrected."
+    },
+    {
+      "file": "composition-02.log",
+      "result": "0 passed / 5 failed",
+      "reason": "New durable store name included digits which existing safe-name rule rejects; renamed market-valuation-policy without relaxing the rule."
+    },
+    {
+      "file": "composition-03.log",
+      "result": "4 passed / 1 failed",
+      "reason": "Repeated execution after original expiry returned422 rather than asserted409; assert rejection plus unchanged claims/no IO, no TTL/limit changes."
+    },
+    {
+      "file": "lint-02.log",
+      "result": "FAIL",
+      "reason": "Use globalThis.structuredClone for repository ESLint globals."
+    }
+  ],
+  "subsequentDiagnostics": [
+    {
+      "file": "composition-04.log",
+      "result": "6 passed / 0 failed"
+    },
+    {
+      "file": "composition-05.log",
+      "result": "1 newly added cold tamper case passed / 57 filtered; no claim those 57 ran"
+    },
+    {
+      "file": "gates-final.log",
+      "result": "90 passed / 0 skipped"
+    },
+    {
+      "file": "consumer-final.log",
+      "result": "243 passed / 17 files"
+    },
+    {
+      "file": "market-final.log",
+      "result": "15 passed / 1 pre-existing release-performance ignored; ignored remains NOT_RUN"
+    }
+  ],
+  "otherScaffolding": "YAML range replacement initially omitted trailing newline and optional scope inspection assumed inline properties; both stopped before writes. Reparsed/generated current schema verified. Two early model mutations invalidated F03 integrity/previous hash before intended assertion; fixed model construction. Current acceptance only from a later frozen named attempt."
+}

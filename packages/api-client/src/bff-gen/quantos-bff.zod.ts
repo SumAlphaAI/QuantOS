@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.31.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.32.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -93,7 +93,9 @@ export const AssistedCurrentExecutionBindingSchema = z.object({
   "validFrom": z.string().datetime({ offset: true }),
   "validUntil": z.string().datetime({ offset: true }),
   "head": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict(),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict();
 
 export const AssistedObservedOrderSchema = z.object({
@@ -1774,6 +1776,7 @@ export const NativeRiskInputSnapshotSchema = z.object({
   "ledgerAnchor": z.object({
   "sequence": z.number().int().min(0),
   "head": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict(),
   "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "sourceVersion": z.number().int().min(1).max(512),
@@ -1793,6 +1796,7 @@ export const NativeRiskInputSnapshotSchema = z.object({
   "expiresAt": z.string().datetime({ offset: true }),
   "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "executionAuthority": z.literal(false),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict();
 
 export const NativeValuationViewSchema = z.union([z.object({
@@ -1811,7 +1815,7 @@ export const NativeValuationViewSchema = z.union([z.object({
   "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "quarantinedCommandCount": z.literal(0),
   "riskInputReady": z.literal(true),
-  "reason": z.literal("READY_OWNED_REFERENCE_INPUT"),
+  "reason": z.enum(["READY_OWNED_REFERENCE_INPUT","READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"]),
   "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
   "executionAuthority": z.literal(false),
   "sourceVersions": z.number().int().min(1).max(512),
@@ -1819,6 +1823,7 @@ export const NativeValuationViewSchema = z.union([z.object({
   "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "sourceVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "snapshot": z.lazy(() => NativeRiskInputSnapshotSchema),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict(), z.object({
   "schemaVersion": z.literal("quantos-native-valuation-view.v1"),
   "tenantId": z.lazy(() => UUIDSchema),
@@ -1905,6 +1910,7 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
   "executionAuthority": z.literal(false),
 }).strict(),
   "executionAuthority": z.literal(false),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict(), z.object({
   "booksAdmission": z.lazy(() => BooksRiskAdmissionSchema).optional(),
   "schemaVersion": z.literal("quantos-native-risk-review.v1"),
@@ -1940,6 +1946,7 @@ export const NativeRiskReviewViewSchema = z.union([z.object({
 }).strict(),
   "executionAuthority": z.literal(false),
   "subject": z.lazy(() => AssistedSubjectSchema),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict()]);
 
 export const NativeSubjectRiskBindingSchema = z.object({
@@ -1951,6 +1958,7 @@ export const NativeSubjectRiskBindingSchema = z.object({
   "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "expiresAt": z.string().datetime({ offset: true }),
   "executionAuthority": z.literal(false),
+  "marketProvenance": z.lazy(() => R01ValuationProvenanceSchema).optional(),
 }).strict();
 
 export const NativeRiskCandidateSchema = z.object({
@@ -2171,6 +2179,25 @@ export const SourceReviewReceiptSchema = z.object({
   "executionAuthority": z.literal(false),
 }).strict();
 
+export const R01ValuationProvenanceSchema = z.object({
+  "artifactHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "snapshotHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "policyHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "approvalDocumentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "scopeHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "artifactVersion": z.number().int().min(1).max(64),
+  "policyRevision": z.number().int().min(1).max(64),
+  "provider": z.string().min(1).max(256),
+  "dataset": z.string().min(1).max(256),
+  "approvalReference": z.string().min(1).max(256),
+  "approvalVersion": z.string().min(1).max(256),
+  "signer": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "priceScale": z.number().int().min(0).max(18),
+  "purpose": z.literal("assisted_testnet_valuation"),
+  "validUntil": z.string().datetime({ offset: true }),
+  "trust": z.literal("AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE"),
+}).strict();
+
 export const bffZodSchemas = {
   AssistedNativeCapabilities: AssistedNativeCapabilitiesSchema,
   AssistedSubject: AssistedSubjectSchema,
@@ -2350,6 +2377,7 @@ export const bffZodSchemas = {
   SourceReviewView: SourceReviewViewSchema,
   SourceReviewRequest: SourceReviewRequestSchema,
   SourceReviewReceipt: SourceReviewReceiptSchema,
+  R01ValuationProvenance: R01ValuationProvenanceSchema,
 } as const;
 
 export const bffResponseSchemas = {

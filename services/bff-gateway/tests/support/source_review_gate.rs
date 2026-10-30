@@ -8,7 +8,10 @@ use super::{
 };
 const PATH: &str = "/v1/assisted-testnet/source-reviews";
 const FIN: &str = "/v1/assisted-testnet/financial-reviews";
-fn setup(lab: &Lab, url: &str) -> (Value, Value, Value, quantos_reconcile::account_books::Books) {
+pub(super) fn setup(
+    lab: &Lab,
+    url: &str,
+) -> (Value, Value, Value, quantos_reconcile::account_books::Books) {
     let (v, c, l, mut b) = fin::setup(lab, url);
     books::advance(&mut b);
     b.valid_until = b.captured_at + Duration::seconds(2);

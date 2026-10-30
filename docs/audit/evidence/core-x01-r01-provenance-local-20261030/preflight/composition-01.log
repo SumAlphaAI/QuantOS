@@ -1,0 +1,48 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0433]: failed to resolve: use of undeclared type `ContentHash`
+  --> services/bff-gateway/tests/support/r01_provenance.rs:41:37
+   |
+41 |             approval_document_hash: ContentHash::sha256_bytes(
+   |                                     ^^^^^^^^^^^ use of undeclared type `ContentHash`
+   |
+help: consider importing this struct
+   |
+ 2 + use quantos_core::ContentHash;
+   |
+
+error[E0412]: cannot find type `ContentHash` in this scope
+  --> services/bff-gateway/tests/support/r01_provenance.rs:75:22
+   |
+75 |     previous: Option<ContentHash>,
+   |                      ^^^^^^^^^^^ not found in this scope
+   |
+help: consider importing this struct
+   |
+ 2 + use quantos_core::ContentHash;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `AccountId`
+   --> services/bff-gateway/tests/support/r01_provenance.rs:277:48
+    |
+277 |                 bad.payload.scope.account_id = AccountId::new();
+    |                                                ^^^^^^^^^ use of undeclared type `AccountId`
+    |
+help: consider importing this struct
+    |
+  2 + use quantos_core::AccountId;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ContentHash`
+   --> services/bff-gateway/tests/support/r01_provenance.rs:282:21
+    |
+282 |                     ContentHash::sha256_bytes(b"other ledger/source");
+    |                     ^^^^^^^^^^^ use of undeclared type `ContentHash`
+    |
+help: consider importing this struct
+    |
+  2 + use quantos_core::ContentHash;
+    |
+
+Some errors have detailed explanations: E0412, E0433.
+For more information about an error, try `rustc --explain E0412`.
+error: could not compile `bff-gateway` (test "core_l04") due to 4 previous errors
