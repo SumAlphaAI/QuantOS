@@ -1,0 +1,36 @@
+
+running 4 tests
+test financial_review::financial_review_independent_pair_new_risk_subject_actual_io_and_open_history ... ok
+test financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal ... FAILED
+test financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery ... FAILED
+test financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io ... FAILED
+
+failures:
+
+failures:
+    financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal
+    financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery
+    financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 31 filtered out; finished in 47.08s
+
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.18s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-5577ebae39fdd5f4)
+
+thread 'financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal' (2007934) panicked at services/bff-gateway/tests/core_l04.rs:204:65:
+called `Result::unwrap()` on an `Err` value: Timeout
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery' (2009505) panicked at services/bff-gateway/tests/core_l04.rs:204:65:
+called `Result::unwrap()` on an `Err` value: Timeout
+
+thread 'financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io' (2009660) panicked at services/bff-gateway/tests/core_l04.rs:204:65:
+called `Result::unwrap()` on an `Err` value: Timeout
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

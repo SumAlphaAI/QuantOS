@@ -3,7 +3,7 @@ use super::{account_books as books, current_execution as current, valuation};
 fn evidence(name: &str, v: Value) {
     valuation::evidence(name, v);
 }
-fn read_book(lab: &Lab) -> quantos_reconcile::account_books::Books {
+pub(super) fn read_book(lab: &Lab) -> quantos_reconcile::account_books::Books {
     serde_json::from_value(
         serde_json::from_slice::<Value>(
             &fs::read(lab.directory.join("account-books.json")).unwrap(),
@@ -13,7 +13,7 @@ fn read_book(lab: &Lab) -> quantos_reconcile::account_books::Books {
     )
     .unwrap()
 }
-fn native(lab: &Lab) -> Value {
+pub(super) fn native(lab: &Lab) -> Value {
     owner_store(lab, "commands")
         .lock()
         .unwrap()
@@ -21,10 +21,10 @@ fn native(lab: &Lab) -> Value {
         .unwrap()
         .unwrap()
 }
-fn immutable(n: &Value) -> Value {
+pub(super) fn immutable(n: &Value) -> Value {
     json!({"issuedHash":quantos_reconcile::current::digest(&n["issued"]).unwrap(),"claims":n["claims"],"snapshotClaims":n["snapshotClaims"]})
 }
-fn request(url: &str, c: &Value, v: &Value, key: &str) -> (u16, Value) {
+pub(super) fn request(url: &str, c: &Value, v: &Value, key: &str) -> (u16, Value) {
     call(
         url,
         "session-current",
@@ -37,7 +37,7 @@ fn request(url: &str, c: &Value, v: &Value, key: &str) -> (u16, Value) {
         key,
     )
 }
-fn seed(lab: &Lab, url: &str) -> (Value, Value, Value) {
+pub(super) fn seed(lab: &Lab, url: &str) -> (Value, Value, Value) {
     let rows = get(url, "/v1/assisted-testnet/subjects");
     let id = open(url, &rows["items"][0]);
     approve(url, &id, 0);

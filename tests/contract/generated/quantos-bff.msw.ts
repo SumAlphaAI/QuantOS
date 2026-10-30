@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.29.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.30.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -15,6 +15,7 @@ export type BffOperationId =
   | "ackIncident"
   | "approveAssistedKillRelease"
   | "approveAssistedRequest"
+  | "authorizeAssistedFinancialReview"
   | "cancelExport"
   | "cancelResearchRun"
   | "checkRunbookPreconditions"
@@ -36,6 +37,7 @@ export type BffOperationId =
   | "deletePolicy"
   | "deleteRole"
   | "downloadPerformanceReport"
+  | "endorseAssistedFinancialReview"
   | "engageKillSwitch"
   | "getAlert"
   | "getAlertSubscriptions"
@@ -45,6 +47,7 @@ export type BffOperationId =
   | "getAssistedActivationHistory"
   | "getAssistedApprovalAudit"
   | "getAssistedCurrentReconciliation"
+  | "getAssistedFinancialReviews"
   | "getAssistedKillControls"
   | "getAssistedNativeCapabilities"
   | "getAssistedNativeLedger"
@@ -122,11 +125,13 @@ export type BffOperationId =
   | "openIncident"
   | "reauth"
   | "releaseKillSwitch"
+  | "requestAssistedFinancialReview"
   | "requestOrderCancel"
   | "requestReconciliationRerun"
   | "requestReleaseRollback"
   | "requestRiskEvaluation"
   | "resolveIncident"
+  | "retainAssistedFinancialBlock"
   | "revokeDevice"
   | "revokeMfaFactor"
   | "revokeSession"
@@ -193,6 +198,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.approveAssistedRequest;
     if (resolver) return resolver({ request, params });
     return missingResolver("approveAssistedRequest");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/financial-reviews/:caseId/authorize`, async ({ request, params }) => {
+    const resolver = resolvers.authorizeAssistedFinancialReview;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("authorizeAssistedFinancialReview");
   }),
   http.post(`${baseUrl}/v1/exports/:exportId/cancel`, async ({ request, params }) => {
     const resolver = resolvers.cancelExport;
@@ -299,6 +309,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("downloadPerformanceReport");
   }),
+  http.post(`${baseUrl}/v1/assisted-testnet/financial-reviews/:caseId/endorse`, async ({ request, params }) => {
+    const resolver = resolvers.endorseAssistedFinancialReview;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("endorseAssistedFinancialReview");
+  }),
   http.post(`${baseUrl}/v1/risk/kill-switch/engage`, async ({ request, params }) => {
     const resolver = resolvers.engageKillSwitch;
     if (resolver) return resolver({ request, params });
@@ -343,6 +358,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getAssistedCurrentReconciliation;
     if (resolver) return resolver({ request, params });
     return missingResolver("getAssistedCurrentReconciliation");
+  }),
+  http.get(`${baseUrl}/v1/assisted-testnet/financial-reviews`, async ({ request, params }) => {
+    const resolver = resolvers.getAssistedFinancialReviews;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getAssistedFinancialReviews");
   }),
   http.get(`${baseUrl}/v1/risk/kill-switch`, async ({ request, params }) => {
     const resolver = resolvers.getAssistedKillControls;
@@ -729,6 +749,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("releaseKillSwitch");
   }),
+  http.post(`${baseUrl}/v1/assisted-testnet/financial-reviews`, async ({ request, params }) => {
+    const resolver = resolvers.requestAssistedFinancialReview;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("requestAssistedFinancialReview");
+  }),
   http.post(`${baseUrl}/v1/orders/:orderId/cancel-requests`, async ({ request, params }) => {
     const resolver = resolvers.requestOrderCancel;
     if (resolver) return resolver({ request, params });
@@ -753,6 +778,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.resolveIncident;
     if (resolver) return resolver({ request, params });
     return missingResolver("resolveIncident");
+  }),
+  http.post(`${baseUrl}/v1/assisted-testnet/financial-reviews/:caseId/retain-block`, async ({ request, params }) => {
+    const resolver = resolvers.retainAssistedFinancialBlock;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("retainAssistedFinancialBlock");
   }),
   http.delete(`${baseUrl}/v1/settings/trusted-devices/:deviceId`, async ({ request, params }) => {
     const resolver = resolvers.revokeDevice;

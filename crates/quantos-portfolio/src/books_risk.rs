@@ -5,6 +5,20 @@ use chrono::{DateTime, Duration, Utc};
 use quantos_core::{ContentHash, canonical_json_bytes};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+/// An authenticated X06 disposition for this exact historical OPEN set. This
+/// is neither an execution permit nor a rewrite of the source obligations.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct FinancialReviewAdmission {
+    pub case_id: quantos_core::ProposalId,
+    pub record_hash: ContentHash,
+    pub raw_input_hash: ContentHash,
+    pub obligations_hash: ContentHash,
+    pub covered_obligations: u64,
+    pub kill_generation: String,
+    pub decided_at: DateTime<Utc>,
+    pub valid_until: DateTime<Utc>,
+}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BooksRiskInput {
@@ -27,6 +41,8 @@ pub struct BooksRiskInput {
     pub open_obligations: u64,
     pub obligations_hash: ContentHash,
     pub unknown_obligations: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub financial_review: Option<FinancialReviewAdmission>,
 }
 impl BooksRiskInput {
     pub fn content_hash(&self) -> Result<ContentHash, quantos_core::CoreError> {
@@ -36,11 +52,14 @@ impl BooksRiskInput {
         ]))?))
     }
     pub fn deadline(&self) -> Option<DateTime<Utc>> {
+        let end = self.valid_until?.min(
+            self.coverage_through?
+                .checked_add_signed(Duration::seconds(30))?,
+        );
         Some(
-            self.valid_until?.min(
-                self.coverage_through?
-                    .checked_add_signed(Duration::seconds(30))?,
-            ),
+            self.financial_review
+                .as_ref()
+                .map_or(end, |r| end.min(r.valid_until)),
         )
     }
     pub fn reason(&self, at: DateTime<Utc>) -> &str {
@@ -87,11 +106,31 @@ impl BooksRiskInput {
             return "PROTOCOL_NOT_MATCHED";
         }
         if self.open_obligations > 0 {
+            if let Some(r) = &self.financial_review {
+                let mut raw = self.clone();
+                raw.financial_review = None;
+                if r.covered_obligations == self.open_obligations
+                    && r.obligations_hash == self.obligations_hash
+                    && raw.content_hash().ok().as_ref() == Some(&r.raw_input_hash)
+                    && r.decided_at <= at
+                    && at < r.valid_until
+                    && raw.deadline().is_some_and(|end| r.valid_until <= end)
+                {
+                    return "ELIGIBLE_REVIEWED_REFERENCE_BOOKS";
+                }
+                return "FINANCIAL_REVIEW_INVALID";
+            }
             return "OPEN_FINANCIAL_OBLIGATIONS";
+        }
+        if self.financial_review.is_some() {
+            return "FINANCIAL_REVIEW_INVALID";
         }
         "ELIGIBLE_REFERENCE_BOOKS"
     }
     pub fn eligible(&self, at: DateTime<Utc>) -> bool {
-        self.reason(at) == "ELIGIBLE_REFERENCE_BOOKS"
+        matches!(
+            self.reason(at),
+            "ELIGIBLE_REFERENCE_BOOKS" | "ELIGIBLE_REVIEWED_REFERENCE_BOOKS"
+        )
     }
 }

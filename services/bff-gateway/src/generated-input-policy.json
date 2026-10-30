@@ -1,5 +1,5 @@
 {
-  "version": "1.29.0",
+  "version": "1.30.0",
   "schemas": {
     "AssistedNativeCapabilities": {
       "type": "object",
@@ -9691,6 +9691,9 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 20000
+        },
+        "financialReview": {
+          "$ref": "#/components/schemas/FinancialReviewAdmission"
         }
       }
     },
@@ -9719,11 +9722,373 @@
             "BOOKS_NOT_MATCHED",
             "PROTOCOL_NOT_MATCHED",
             "OPEN_FINANCIAL_OBLIGATIONS",
-            "ELIGIBLE_REFERENCE_BOOKS"
+            "ELIGIBLE_REFERENCE_BOOKS",
+            "ELIGIBLE_REVIEWED_REFERENCE_BOOKS",
+            "FINANCIAL_REVIEW_INVALID"
           ]
         },
         "input": {
           "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "recordHash",
+        "rawInputHash",
+        "obligationsHash",
+        "coveredObligations",
+        "killGeneration",
+        "decidedAt",
+        "validUntil"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rawInputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "FinancialReviewEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "eventId",
+        "caseId",
+        "action",
+        "actorId",
+        "userId",
+        "role",
+        "contextHash",
+        "inputHash",
+        "obligationsHash",
+        "evidenceIds",
+        "openObligations",
+        "killGeneration",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "recordHash",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "caseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "request",
+            "endorse",
+            "authorize",
+            "retain_block"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "userId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "openObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "mode",
+        "revision",
+        "contextHash",
+        "currentBooks",
+        "riskBooks",
+        "reviewable",
+        "canRequest",
+        "canEndorse",
+        "canAuthorize",
+        "canRetainBlock",
+        "history",
+        "checkedAt",
+        "expiresAt",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-view.v1"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "accountId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "currentBooks": {
+          "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "riskBooks": {
+          "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "reviewable": {
+          "type": "boolean"
+        },
+        "canRequest": {
+          "type": "boolean"
+        },
+        "canEndorse": {
+          "type": "boolean"
+        },
+        "canAuthorize": {
+          "type": "boolean"
+        },
+        "canRetainBlock": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/components/schemas/FinancialReviewEvent"
+          }
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision",
+        "contextHash",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string",
+          "enum": [
+            "REQUEST FINANCIAL REVIEW",
+            "ENDORSE FINANCIAL REVIEW",
+            "AUTHORIZE CURRENT RISK REVIEW",
+            "RETAIN FINANCIAL BLOCK"
+          ]
+        },
+        "mfaChallengeRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reauthTokenRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "FinancialReviewReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/components/schemas/FinancialReviewEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
         },
         "executionAuthority": {
           "type": "boolean",
@@ -19669,6 +20034,348 @@
         },
         "realtime": "SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success",
         "sensitive": "No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/financial-reviews",
+      "method": "GET",
+      "operationId": "getAssistedFinancialReviews",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/financial-reviews",
+      "method": "POST",
+      "operationId": "requestAssistedFinancialReview",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/FinancialReviewRequest"
+      },
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/endorse",
+      "method": "POST",
+      "operationId": "endorseAssistedFinancialReview",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/FinancialReviewRequest"
+      },
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/authorize",
+      "method": "POST",
+      "operationId": "authorizeAssistedFinancialReview",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/FinancialReviewRequest"
+      },
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/retain-block",
+      "method": "POST",
+      "operationId": "retainAssistedFinancialBlock",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/FinancialReviewRequest"
+      },
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
       },
       "authenticated": true
     }

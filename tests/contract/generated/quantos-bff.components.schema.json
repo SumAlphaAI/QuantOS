@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.29.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.30.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "AssistedNativeCapabilities": {
@@ -9693,6 +9693,9 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 20000
+        },
+        "financialReview": {
+          "$ref": "#/$defs/FinancialReviewAdmission"
         }
       }
     },
@@ -9721,11 +9724,373 @@
             "BOOKS_NOT_MATCHED",
             "PROTOCOL_NOT_MATCHED",
             "OPEN_FINANCIAL_OBLIGATIONS",
-            "ELIGIBLE_REFERENCE_BOOKS"
+            "ELIGIBLE_REFERENCE_BOOKS",
+            "ELIGIBLE_REVIEWED_REFERENCE_BOOKS",
+            "FINANCIAL_REVIEW_INVALID"
           ]
         },
         "input": {
           "$ref": "#/$defs/BooksRiskInput"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "recordHash",
+        "rawInputHash",
+        "obligationsHash",
+        "coveredObligations",
+        "killGeneration",
+        "decidedAt",
+        "validUntil"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rawInputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "FinancialReviewEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "eventId",
+        "caseId",
+        "action",
+        "actorId",
+        "userId",
+        "role",
+        "contextHash",
+        "inputHash",
+        "obligationsHash",
+        "evidenceIds",
+        "openObligations",
+        "killGeneration",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "recordHash",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "eventId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "caseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "request",
+            "endorse",
+            "authorize",
+            "retain_block"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "userId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "openObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "mode",
+        "revision",
+        "contextHash",
+        "currentBooks",
+        "riskBooks",
+        "reviewable",
+        "canRequest",
+        "canEndorse",
+        "canAuthorize",
+        "canRetainBlock",
+        "history",
+        "checkedAt",
+        "expiresAt",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-view.v1"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/$defs/UUID"
+            },
+            "accountId": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "currentBooks": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
+        "riskBooks": {
+          "$ref": "#/$defs/BooksRiskInput"
+        },
+        "reviewable": {
+          "type": "boolean"
+        },
+        "canRequest": {
+          "type": "boolean"
+        },
+        "canEndorse": {
+          "type": "boolean"
+        },
+        "canAuthorize": {
+          "type": "boolean"
+        },
+        "canRetainBlock": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/FinancialReviewEvent"
+          }
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "FinancialReviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision",
+        "contextHash",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string",
+          "enum": [
+            "REQUEST FINANCIAL REVIEW",
+            "ENDORSE FINANCIAL REVIEW",
+            "AUTHORIZE CURRENT RISK REVIEW",
+            "RETAIN FINANCIAL BLOCK"
+          ]
+        },
+        "mfaChallengeRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reauthTokenRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "FinancialReviewReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/FinancialReviewEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
         },
         "executionAuthority": {
           "type": "boolean",

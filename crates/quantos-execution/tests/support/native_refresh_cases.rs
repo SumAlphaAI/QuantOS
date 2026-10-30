@@ -92,6 +92,7 @@ pub(super) fn context(f: &F, diverse: bool, generation: u64) -> NativeRiskContex
             open_obligations: 0,
             obligations_hash: ContentHash::sha256_bytes(b"owned empty obligations model"),
             unknown_obligations: 0,
+            financial_review: None,
         }),
         snapshot: native_valuation::evaluate(&ledger, &input, generation, f.f.now)
             .unwrap()

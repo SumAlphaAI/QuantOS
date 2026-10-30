@@ -1,0 +1,37 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [31m❯[39m apps/terminal/tests/financial-review.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m apps/terminal/tests/core-x06-alerts.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m apps/terminal/tests/current-native-review.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m36 passed[39m[22m[90m (36)[39m
+[2m   Start at [22m 08:51:13
+[2m   Duration [22m 857ms[2m (transform 904ms, setup 0ms, import 1.19s, tests 152ms, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/financial-review.test.ts[2m [ apps/terminal/tests/financial-review.test.ts ][22m
+[31m[1mError[22m: Transform failed with 1 error:
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/alerts/financial-review.ts:18:884: ERROR: The symbol "raw" has already been declared[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36m/Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal/src/alerts/financial-review.ts[39m:18:884
+[33m  
+  The symbol "raw" has already been declared
+  16 |   async function authority(){guard();try{const next=await c.revalidate();if(identity(next)!==identity(context)){clear();fail(403,'AUTHORITY_CHANGED');}context={...next,expiresAt:new Date(Math.min(Date.parse(next.expiresAt),Date.parse(context.expiresAt))).toISOString()};guard();}catch(e){clear();throw e;}}
+  17 |   function data<T>(r:{response:Response;data?:T}){guard();if([401,403].includes(r.response.status)){clear();fail(r.response.status,'FORBIDDEN');}if(r.response.status!==200||r.data===undefined)fail(r.response.status,'UNAVAILABLE');return r.data!;}
+  18 |   function bind(raw:unknown):View{const v=bffZodSchemas.FinancialReviewView.parse(raw);for(const k of ['tenantId','workspaceId','accountId']as const)if(v.scope[k]!==context[k]||v.currentBooks.scope[k]!==context[k]||v.riskBooks.scope[k]!==context[k]){clear();fail(403,'SCOPE_CHANGED');}if(Date.parse(v.checkedAt)>now()||Date.parse(v.expiresAt)<=now()||Date.parse(v.expiresAt)>Date.parse(context.expiresAt)||Date.parse(v.expiresAt)-Date.parse(v.checkedAt)>8000||BigInt(v.revision)!==BigInt(v.history.length))fail(502,'INVALID_VIEW');const ids=new Set(),hashes=new Set();for(const [i,e]of v.history.entries()){if(e.sequence!==String(i+1)||ids.has(e.eventId)||hashes.has(e.recordHash)||Date.parse(e.occurredAt)>now()||Date.parse(e.expiresAt)<=Date.parse(e.occurredAt)||e.evidenceIds.length!==e.openObligations)fail(502,'INVALID_HISTORY');ids.add(e.eventId);hashes.add(e.recordHash);}const raw=v.currentBooks,projected={...v.riskBooks};delete projected.financialReview;if(raw.financialReview||!same(raw,projected))fail(502,'BOOKS_CHANGED');const a=v.riskBooks.financialReview;if(a){const rows=v.history.filter(e=>e.contextHash===v.contextHash),last=rows.at(-1);if(!last||last.action!=='authorize'||last.recordHash!==a.recordHash||last.caseId!==a.caseId||last.inputHash!==a.rawInputHash||last.obligationsHash!==a.obligationsHash||a.obligationsHash!==raw.obligationsHash||a.coveredObligations!==raw.openObligations||a.killGeneration!==last.killGeneration||Date.parse(a.decidedAt)!==Date.parse(last.occurredAt)||Date.parse(a.validUntil)!==Date.parse(last.expiresAt)||Date.parse(a.validUntil)>Math.min(Date.parse(raw.validUntil??''),Date.parse(raw.coverageThrough??'')+30000))fail(502,'REVIEW_BINDING_CHANGED');}
+     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+  19 |   const cases=new Map<string,Event[]>();for(const e of v.history){const prior=cases.get(e.caseId)??[],first=prior[0],last=prior.at(-1);if(!first){if(e.action!=='request'||!['owner','operator'].includes(e.role))fail(502,'INVALID_INDEPENDENCE');}else if(e.contextHash!==first.contextHash||Date.parse(e.expiresAt)>Date.parse(last!.expiresAt)||e.action==='endorse'&&(last!.action!=='request'||!['owner','approver'].includes(e.role)||e.actorId===first.actorId||e.userId===first.userId)||e.action==='authorize'&&(last!.action!=='endorse'||e.role!=='owner'||[first.actorId,last!.actorId].includes(e.actorId)||[first.userId,last!.userId].includes(e.userId))||e.action==='request'||e.action==='retain_block'&&(!['owner','approver'].includes(e.role)||last!.action==='retain_block'))fail(502,'INVALID_INDEPENDENCE');prior.push(e);cases.set(e.caseId,prior);}return v;}
+  20 |   async function read(){return bind(data(await client.GET('/v1/assisted-testnet/financial-reviews',{cache:'no-store'})));}
+  [39m
+[90m [2m❯[22m failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m1467:15[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m736:50[22m[39m
+[90m [2m❯[22m responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m603:9[22m[39m
+[90m [2m❯[22m handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m658:12[22m[39m
+[90m [2m❯[22m Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m581:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

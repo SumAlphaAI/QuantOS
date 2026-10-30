@@ -573,6 +573,17 @@ impl CurrentReconciliation {
                 self.outbox
             ]))?,
             unknown_obligations: r.unknown_obligations_open as u64,
+            financial_review: None,
+        })
+    }
+    pub fn financial_review_context(
+        &self,
+        generation: u64,
+    ) -> Result<crate::financial_review::Context> {
+        Ok(crate::financial_review::Context {
+            input: self.risk_input()?,
+            evidence: self.outbox.values().cloned().collect(),
+            kill_generation: generation,
         })
     }
     pub fn new(scope: Scope, origin_id: String) -> Result<Self> {

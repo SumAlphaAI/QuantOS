@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.29.0
+  version: 1.30.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -11811,6 +11811,414 @@ paths:
           rate: Process lease1000 admin rows/replays/cursors/streams;10000 event journal. Deployment quotas remain target configuration
         realtime: SSE per-subscriber dense sequence; current binding and subscription/version checked on resume; gap/refusal never success
         sensitive: No raw metric labels/details, secrets, SQL, shell, arbitrary runbook/command or ledger-write fields; typed safe catalog only
+  /v1/assisted-testnet/financial-reviews: {
+    "get": {
+      "operationId": "getAssistedFinancialReviews",
+      "tags": [
+        "alerts"
+      ],
+      "summary": "Read current account books and immutable financial review history",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "Current authenticated reference financial review; original OPEN history retained, no execution authority",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialReviewView"
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "409": {
+          "$ref": "#/components/responses/Conflict"
+        },
+        "default": {
+          "$ref": "#/components/responses/ServerError"
+        }
+      },
+      "x-quantos-policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    },
+    "post": {
+      "operationId": "requestAssistedFinancialReview",
+      "tags": [
+        "alerts"
+      ],
+      "summary": "Request independent current financial review with explicit MFA",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Current authenticated reference financial review; original OPEN history retained, no execution authority",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialReviewReceipt"
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "409": {
+          "$ref": "#/components/responses/Conflict"
+        },
+        "default": {
+          "$ref": "#/components/responses/ServerError"
+        }
+      },
+      "x-quantos-policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FinancialReviewRequest"
+            }
+          }
+        }
+      },
+      "description": "Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current response."
+    }
+  }
+  /v1/assisted-testnet/financial-reviews/{caseId}/endorse: {
+    "post": {
+      "operationId": "endorseAssistedFinancialReview",
+      "tags": [
+        "alerts"
+      ],
+      "summary": "Append explicit independent financial disposition: endorse",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Current authenticated reference financial review; original OPEN history retained, no execution authority",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialReviewReceipt"
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "409": {
+          "$ref": "#/components/responses/Conflict"
+        },
+        "default": {
+          "$ref": "#/components/responses/ServerError"
+        }
+      },
+      "x-quantos-policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FinancialReviewRequest"
+            }
+          }
+        }
+      },
+      "description": "Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current response."
+    }
+  }
+  /v1/assisted-testnet/financial-reviews/{caseId}/authorize: {
+    "post": {
+      "operationId": "authorizeAssistedFinancialReview",
+      "tags": [
+        "alerts"
+      ],
+      "summary": "Append explicit independent financial disposition: authorize",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Current authenticated reference financial review; original OPEN history retained, no execution authority",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialReviewReceipt"
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "409": {
+          "$ref": "#/components/responses/Conflict"
+        },
+        "default": {
+          "$ref": "#/components/responses/ServerError"
+        }
+      },
+      "x-quantos-policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FinancialReviewRequest"
+            }
+          }
+        }
+      },
+      "description": "Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current response."
+    }
+  }
+  /v1/assisted-testnet/financial-reviews/{caseId}/retain-block: {
+    "post": {
+      "operationId": "retainAssistedFinancialBlock",
+      "tags": [
+        "alerts"
+      ],
+      "summary": "Append explicit independent financial disposition: retain-block",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        },
+        {
+          "name": "caseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Current authenticated reference financial review; original OPEN history retained, no execution authority",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialReviewReceipt"
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "409": {
+          "$ref": "#/components/responses/Conflict"
+        },
+        "default": {
+          "$ref": "#/components/responses/ServerError"
+        }
+      },
+      "x-quantos-policy": {
+        "owner": "BFF-FE-010",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Exact current owned books, all OPEN evidence, generation and original half-open deadline at every new action; UNKNOWN never reviewable.",
+        "idempotency": "Exact actor/key/path/body/If-Match/MFA; original receipt only within original deadline. No reapply or source rebinding.",
+        "version": "If-Match equals expectedRevision; CAS of append-only review journal.",
+        "audit": "Append-only independent request, endorsement, Owner authorization or retain-block plus common C10; never edit source OPEN, generation, claims or signed Commands.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 32768,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FinancialReviewRequest"
+            }
+          }
+        }
+      },
+      "description": "Owner authenticated reference snapshot only; current scope, source, ledger, generation and original expiry required. Creates a new signed Deny or ApprovalRequired decision, retaining original Proposal, decision, approvals and UNKNOWN. Refreshed subjects do not grant command IO. Same key/body returns only the original still-current response."
+    }
+  }
 components:
   securitySchemes:
     cookieAuth:
@@ -18853,6 +19261,9 @@ components:
           "type": "integer",
           "minimum": 0,
           "maximum": 20000
+        },
+        "financialReview": {
+          "$ref": "#/components/schemas/FinancialReviewAdmission"
         }
       }
     }
@@ -18882,11 +19293,374 @@ components:
             "BOOKS_NOT_MATCHED",
             "PROTOCOL_NOT_MATCHED",
             "OPEN_FINANCIAL_OBLIGATIONS",
-            "ELIGIBLE_REFERENCE_BOOKS"
+            "ELIGIBLE_REFERENCE_BOOKS",
+            "ELIGIBLE_REVIEWED_REFERENCE_BOOKS",
+            "FINANCIAL_REVIEW_INVALID"
           ]
         },
         "input": {
           "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    }
+
+    FinancialReviewAdmission: {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "recordHash",
+        "rawInputHash",
+        "obligationsHash",
+        "coveredObligations",
+        "killGeneration",
+        "decidedAt",
+        "validUntil"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "rawInputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coveredObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+    FinancialReviewEvent: {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "eventId",
+        "caseId",
+        "action",
+        "actorId",
+        "userId",
+        "role",
+        "contextHash",
+        "inputHash",
+        "obligationsHash",
+        "evidenceIds",
+        "openObligations",
+        "killGeneration",
+        "reason",
+        "occurredAt",
+        "expiresAt",
+        "recordHash",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "caseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "request",
+            "endorse",
+            "authorize",
+            "retain_block"
+          ]
+        },
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "userId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "operator",
+            "approver"
+          ]
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "obligationsHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "openObligations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "killGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recordHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    }
+    FinancialReviewView: {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "mode",
+        "revision",
+        "contextHash",
+        "currentBooks",
+        "riskBooks",
+        "reviewable",
+        "canRequest",
+        "canEndorse",
+        "canAuthorize",
+        "canRetainBlock",
+        "history",
+        "checkedAt",
+        "expiresAt",
+        "sourceStatus",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-view.v1"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "workspaceId",
+            "accountId"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "workspaceId": {
+              "$ref": "#/components/schemas/UUID"
+            },
+            "accountId": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "assisted_live"
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "currentBooks": {
+          "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "riskBooks": {
+          "$ref": "#/components/schemas/BooksRiskInput"
+        },
+        "reviewable": {
+          "type": "boolean"
+        },
+        "canRequest": {
+          "type": "boolean"
+        },
+        "canEndorse": {
+          "type": "boolean"
+        },
+        "canAuthorize": {
+          "type": "boolean"
+        },
+        "canRetainBlock": {
+          "type": "boolean"
+        },
+        "history": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/components/schemas/FinancialReviewEvent"
+          }
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceStatus": {
+          "type": "string",
+          "enum": [
+            "OPEN"
+          ]
+        },
+        "executionAuthority": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    }
+    FinancialReviewRequest: {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expectedRevision",
+        "contextHash",
+        "reason",
+        "confirmPhrase",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ],
+      "properties": {
+        "expectedRevision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "contextHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "confirmPhrase": {
+          "type": "string",
+          "enum": [
+            "REQUEST FINANCIAL REVIEW",
+            "ENDORSE FINANCIAL REVIEW",
+            "AUTHORIZE CURRENT RISK REVIEW",
+            "RETAIN FINANCIAL BLOCK"
+          ]
+        },
+        "mfaChallengeRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reauthTokenRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+    FinancialReviewReceipt: {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "event",
+        "readCurrentState",
+        "executionAuthority"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "enum": [
+            "quantos-financial-review-receipt.v1"
+          ]
+        },
+        "event": {
+          "$ref": "#/components/schemas/FinancialReviewEvent"
+        },
+        "readCurrentState": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
         },
         "executionAuthority": {
           "type": "boolean",

@@ -22,7 +22,7 @@
 | GAP-13 | C13 | 已发布：getOrderCapabilities、getTradePreflight、subscribeTradePreflight；未发布：无 | P20 | X01、X02、X03、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
 | GAP-14 | C14 | 已发布：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getPerformanceReport、getReportDownload、downloadPerformanceReport；未发布：无 | P21 | X01、X05 | P1 | FEP-4/G4 | BFF-FE-008 | Closed |
 | GAP-15 | C15 | 已发布：listReconciliationRuns、getReconciliationRun、listReconciliationBreaks、getReconciliationBreak、listLedgerEntries、requestReconciliationRerun、subscribeReconciliationRun；未发布：无 | P11、P21、P22 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Closed |
-| GAP-16 | C16 | 已发布：listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAlertSubscriptions、subscribeAlerts；未发布：无 | P02、P13、P23 | F09、X05、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Closed |
+| GAP-16 | C16 | 已发布：listAlerts、getAlert、ackAlert、unackAlert、getAlertSubscriptions、saveAlertSubscriptions、subscribeAlerts、getAssistedFinancialReviews、requestAssistedFinancialReview、endorseAssistedFinancialReview、authorizeAssistedFinancialReview、retainAssistedFinancialBlock；未发布：无 | P02、P13、P23 | F09、X05、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Closed |
 | GAP-17 | C17 | 已发布：getProfile、saveProfile、getNotificationPrefs、saveNotificationPrefs、getSecuritySettings、listSessions、revokeSession、subscribeSessionRevocations、listDevices、revokeDevice、setupMfa、revokeMfaFactor、listDownloads、getPlatformCapabilities；未发布：无 | P15、P17 | F06、F09、L03 | P0 | FEP-1/G1（一期 Web P15/P17） | BFF-FE-001/011 | Closed |
 
 ## 统一基线（GAP-00，BFF-FE-000 本体）

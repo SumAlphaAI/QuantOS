@@ -27,12 +27,7 @@ impl OwnedHost {
                 return Err(Error::PolicyChanged);
             }
             self.sync_reconciliation_locked(session, at)?;
-            let current = self
-                .reconciliation
-                .as_ref()
-                .ok_or(Error::Unavailable)?
-                .risk_input()
-                .map_err(|_| Error::Unavailable)?;
+            let current = self.reviewed_books(clock.sample())?;
             if !current.eligible(clock.sample())
                 || self.sources.native_books(id)?.as_ref() != Some(&current)
             {
@@ -71,12 +66,7 @@ impl OwnedHost {
             return Err(Error::PolicyChanged);
         }
         self.sync_reconciliation_locked(session, at)?;
-        let books = self
-            .reconciliation
-            .as_ref()
-            .ok_or(Error::Unavailable)?
-            .risk_input()
-            .map_err(|_| Error::Unavailable)?;
+        let books = self.reviewed_books(clock.sample())?;
         let binding = json!([id, body]);
         let cache_key = (session.to_owned(), key.to_owned());
         if let Some(previous) = self.risk_refreshes.get(&cache_key) {

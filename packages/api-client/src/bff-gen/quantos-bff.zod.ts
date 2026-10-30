@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.29.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.30.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1994,12 +1994,86 @@ export const BooksRiskInputSchema = z.object({
   "openObligations": z.number().int().min(0).max(20000),
   "obligationsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "unknownObligations": z.number().int().min(0).max(20000),
+  "financialReview": z.lazy(() => FinancialReviewAdmissionSchema).optional(),
 }).strict();
 
 export const BooksRiskAdmissionSchema = z.object({
   "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
-  "reason": z.enum(["UNKNOWN_OR_QUARANTINED_OBLIGATIONS","BOOKS_SOURCE_UNAVAILABLE","BOOKS_SOURCE_INVALID","BOOKS_SOURCE_STALE","BOOKS_COVERAGE_UNSUPPORTED","BOOKS_NOT_MATCHED","PROTOCOL_NOT_MATCHED","OPEN_FINANCIAL_OBLIGATIONS","ELIGIBLE_REFERENCE_BOOKS"]),
+  "reason": z.enum(["UNKNOWN_OR_QUARANTINED_OBLIGATIONS","BOOKS_SOURCE_UNAVAILABLE","BOOKS_SOURCE_INVALID","BOOKS_SOURCE_STALE","BOOKS_COVERAGE_UNSUPPORTED","BOOKS_NOT_MATCHED","PROTOCOL_NOT_MATCHED","OPEN_FINANCIAL_OBLIGATIONS","ELIGIBLE_REFERENCE_BOOKS","ELIGIBLE_REVIEWED_REFERENCE_BOOKS","FINANCIAL_REVIEW_INVALID"]),
   "input": z.lazy(() => BooksRiskInputSchema),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const FinancialReviewAdmissionSchema = z.object({
+  "caseId": z.lazy(() => UUIDSchema),
+  "recordHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "rawInputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "obligationsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "coveredObligations": z.number().int().min(1).max(128),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "decidedAt": z.string().datetime({ offset: true }),
+  "validUntil": z.string().datetime({ offset: true }),
+}).strict();
+
+export const FinancialReviewEventSchema = z.object({
+  "sequence": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "eventId": z.lazy(() => UUIDSchema),
+  "caseId": z.lazy(() => UUIDSchema),
+  "action": z.enum(["request","endorse","authorize","retain_block"]),
+  "actorId": z.lazy(() => UUIDSchema),
+  "userId": z.lazy(() => UUIDSchema),
+  "role": z.enum(["owner","operator","approver"]),
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "obligationsHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "evidenceIds": z.array(z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$"))).min(1).max(128),
+  "openObligations": z.number().int().min(1).max(128),
+  "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "reason": z.string().min(1).max(256),
+  "occurredAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "recordHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sourceStatus": z.literal("OPEN"),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const FinancialReviewViewSchema = z.object({
+  "schemaVersion": z.literal("quantos-financial-review-view.v1"),
+  "scope": z.object({
+  "tenantId": z.lazy(() => UUIDSchema),
+  "workspaceId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+}).strict(),
+  "mode": z.literal("assisted_live"),
+  "revision": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "currentBooks": z.lazy(() => BooksRiskInputSchema),
+  "riskBooks": z.lazy(() => BooksRiskInputSchema),
+  "reviewable": z.boolean(),
+  "canRequest": z.boolean(),
+  "canEndorse": z.boolean(),
+  "canAuthorize": z.boolean(),
+  "canRetainBlock": z.boolean(),
+  "history": z.array(z.lazy(() => FinancialReviewEventSchema)).max(256),
+  "checkedAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "sourceStatus": z.literal("OPEN"),
+  "executionAuthority": z.literal(false),
+}).strict();
+
+export const FinancialReviewRequestSchema = z.object({
+  "expectedRevision": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "contextHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "reason": z.string().min(1).max(256),
+  "confirmPhrase": z.enum(["REQUEST FINANCIAL REVIEW","ENDORSE FINANCIAL REVIEW","AUTHORIZE CURRENT RISK REVIEW","RETAIN FINANCIAL BLOCK"]),
+  "mfaChallengeRef": z.string().min(1).max(256),
+  "reauthTokenRef": z.string().min(1).max(256),
+}).strict();
+
+export const FinancialReviewReceiptSchema = z.object({
+  "schemaVersion": z.literal("quantos-financial-review-receipt.v1"),
+  "event": z.lazy(() => FinancialReviewEventSchema),
+  "readCurrentState": z.literal(true),
   "executionAuthority": z.literal(false),
 }).strict();
 
@@ -2171,6 +2245,11 @@ export const bffZodSchemas = {
   NativeRiskCandidateList: NativeRiskCandidateListSchema,
   BooksRiskInput: BooksRiskInputSchema,
   BooksRiskAdmission: BooksRiskAdmissionSchema,
+  FinancialReviewAdmission: FinancialReviewAdmissionSchema,
+  FinancialReviewEvent: FinancialReviewEventSchema,
+  FinancialReviewView: FinancialReviewViewSchema,
+  FinancialReviewRequest: FinancialReviewRequestSchema,
+  FinancialReviewReceipt: FinancialReviewReceiptSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -3220,6 +3299,46 @@ export const bffResponseSchemas = {
     "200": z.lazy(() => AssistedActivationHistorySchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getAssistedFinancialReviews": {
+    "200": z.lazy(() => FinancialReviewViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "requestAssistedFinancialReview": {
+    "200": z.lazy(() => FinancialReviewReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "endorseAssistedFinancialReview": {
+    "200": z.lazy(() => FinancialReviewReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "authorizeAssistedFinancialReview": {
+    "200": z.lazy(() => FinancialReviewReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "retainAssistedFinancialBlock": {
+    "200": z.lazy(() => FinancialReviewReceiptSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;

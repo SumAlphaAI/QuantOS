@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "operations": [
     {
       "operationId": "ackAlert",
@@ -41,6 +41,16 @@
         "execution"
       ],
       "responseSchema": "AssistedRequestView",
+      "sse": false
+    },
+    {
+      "operationId": "authorizeAssistedFinancialReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/authorize",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "FinancialReviewReceipt",
       "sse": false
     },
     {
@@ -254,6 +264,16 @@
       "sse": false
     },
     {
+      "operationId": "endorseAssistedFinancialReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/endorse",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "FinancialReviewReceipt",
+      "sse": false
+    },
+    {
       "operationId": "engageKillSwitch",
       "method": "POST",
       "path": "/v1/risk/kill-switch/engage",
@@ -341,6 +361,16 @@
         "execution"
       ],
       "responseSchema": "AssistedReconciliationView",
+      "sse": false
+    },
+    {
+      "operationId": "getAssistedFinancialReviews",
+      "method": "GET",
+      "path": "/v1/assisted-testnet/financial-reviews",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "FinancialReviewView",
       "sse": false
     },
     {
@@ -1114,6 +1144,16 @@
       "sse": false
     },
     {
+      "operationId": "requestAssistedFinancialReview",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/financial-reviews",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "FinancialReviewReceipt",
+      "sse": false
+    },
+    {
       "operationId": "requestOrderCancel",
       "method": "POST",
       "path": "/v1/orders/{orderId}/cancel-requests",
@@ -1161,6 +1201,16 @@
         "operations"
       ],
       "responseSchema": "OpsIncident",
+      "sse": false
+    },
+    {
+      "operationId": "retainAssistedFinancialBlock",
+      "method": "POST",
+      "path": "/v1/assisted-testnet/financial-reviews/{caseId}/retain-block",
+      "tags": [
+        "alerts"
+      ],
+      "responseSchema": "FinancialReviewReceipt",
       "sse": false
     },
     {

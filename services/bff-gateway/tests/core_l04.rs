@@ -1117,3 +1117,5 @@ mod account_books_gate;
 mod books_risk;
 #[path = "support/books_risk_legacy.rs"]
 mod books_risk_legacy;
+#[path = "support/financial_review.rs"]
+mod financial_review;

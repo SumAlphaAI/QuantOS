@@ -511,7 +511,12 @@
         "OpsAction",
         "OpsAlert",
         "OpsAlertPage",
-        "SaveAlertSubscriptions"
+        "SaveAlertSubscriptions",
+        "FinancialReviewAdmission",
+        "FinancialReviewEvent",
+        "FinancialReviewView",
+        "FinancialReviewRequest",
+        "FinancialReviewReceipt"
       ],
       "plannedFields": [],
       "priority": "P1",
@@ -519,8 +524,8 @@
       "inventoryFixtures": [],
       "fixtures": [],
       "surface": [
-        "alert list/get、subscriptions get",
-        "ack/unack（不改变 resolved）、save subscriptions",
+        "alert list/get、subscriptions get、current financial review/history get",
+        "ack/unack（不改变 resolved）、save subscriptions、独立财务 request/endorse/authorize/retain-block（保留 OPEN，无交易授权）",
         "subscribeAlerts（授权事实/去重/恢复）"
       ]
     },
@@ -1303,20 +1308,21 @@
   "historicalReviewedSourceSha": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1",
   "sourceBinding": "Current inventory digests plus enclosing Git commit; no reassessment or rebinding of historical READY, user confirmation, target or release acceptance",
   "openapiInventory": {
-    "version": "1.29.0",
-    "operations": 150,
-    "schemas": 167
+    "version": "1.30.0",
+    "operations": 155,
+    "schemas": 172
   },
   "sourceDigests": [
     {
       "path": "bff/openapi/quantos-bff.v1.yaml",
       "representation": "parsed-json",
-      "sha256": "dbecea8e2785d1d068a8492eadabec6c14407532409fc2ffdbc5db400bc16251"
+      "sha256": "2ef0cb2e555638d0ae3f65fa0875145a2e97f975c3f7c56d6a3aee0396174d77"
     },
     {
       "path": "bff/page-operation-catalog.yaml",
       "representation": "parsed-json",
-      "sha256": "74256fa7f974b0d4836555ac19ae0eda91a76fc98202161a1ab32a23268bd4bb"
+      "sha256": "a9b7486ef25e3fccac9c6ef420e27dc8c6af137f07e42b268d4f3cf19799c469"
     }
-  ]
+  ],
+  "currentFinancialReviewScope": "CORE:X06 DEVELOPMENT / L4-FINANCIAL-OBLIGATION-REVIEW-01; current owned reference only, historical OPEN retained; API 1.30.0, 155 operations, 172 schemas. No target or release acceptance."
 }

@@ -135,6 +135,7 @@ pub(crate) struct OwnedHost {
     reconciliation_store: Option<quantos_execution::durable::DurableStore>,
     reconciliation_anchor: quantos_portfolio::native_ledger::Anchor,
     book_input_fence: Option<quantos_execution::durable::DurableStore>,
+    financial_reviews: quantos_reconcile::financial_review::Journal,
     subjects: BTreeMap<ProposalId, Subject>,
     requests: BTreeMap<ProposalId, ProposalId>,
     opened_at: BTreeMap<ProposalId, DateTime<Utc>>,
@@ -272,6 +273,7 @@ impl OwnedHost {
             reconciliation_store: None,
             reconciliation_anchor: Default::default(),
             book_input_fence: None,
+            financial_reviews: Default::default(),
             mfa: MfaAttestor::new(mfa_key).unwrap(),
             native,
             subjects,
@@ -334,6 +336,22 @@ pub(crate) fn routes() -> Router<Arc<Mutex<ProviderData>>> {
         .route("/v1/assisted-testnet/ledger", get(handle))
         .route("/v1/assisted-testnet/valuation", get(handle))
         .route("/v1/assisted-testnet/reconciliation", get(handle))
+        .route(
+            "/v1/assisted-testnet/financial-reviews",
+            get(financial_review::handle).post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/financial-reviews/:caseId/endorse",
+            post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/financial-reviews/:caseId/authorize",
+            post(financial_review::handle),
+        )
+        .route(
+            "/v1/assisted-testnet/financial-reviews/:caseId/retain-block",
+            post(financial_review::handle),
+        )
         .route("/v1/assisted-testnet/requests", get(handle).post(handle))
         .route("/v1/assisted-testnet/requests/:requestId", get(handle))
         .route(
@@ -625,12 +643,7 @@ async fn handle(
                 let snapshot = serde_json::from_value(view["snapshot"].clone())
                     .map_err(|_| Error::Unavailable)?;
                 h.sync_reconciliation_locked(&sid, clock())?;
-                let books = h
-                    .reconciliation
-                    .as_ref()
-                    .ok_or(Error::Unavailable)?
-                    .risk_input()
-                    .map_err(|_| Error::Unavailable)?;
+                let books = h.reviewed_books(clock())?;
                 if !books.eligible(clock()) {
                     return Err(Error::PolicyChanged);
                 }
@@ -652,6 +665,7 @@ async fn handle(
             } else {
                 let ledger = h.sync_ledger(&sid, clock())?;
                 if !h.risk_refreshes.is_empty()
+                    || !h.financial_reviews.records.is_empty()
                     || ledger["appliedFillCount"].as_u64().unwrap_or(0) > 0
                     || ledger["consumerReady"] != true
                 {
@@ -714,4 +728,5 @@ pub(crate) mod activation;
 
 mod valuation;
 
+mod financial_review;
 mod risk_refresh;

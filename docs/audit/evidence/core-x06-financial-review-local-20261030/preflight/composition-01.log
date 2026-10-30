@@ -1,0 +1,42 @@
+
+running 4 tests
+test financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal ... FAILED
+test financial_review::financial_review_independent_pair_new_risk_subject_actual_io_and_open_history ... FAILED
+test financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io ... FAILED
+test financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery ... FAILED
+
+failures:
+
+failures:
+    financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal
+    financial_review::financial_review_independent_pair_new_risk_subject_actual_io_and_open_history
+    financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery
+    financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 31 filtered out; finished in 21.41s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.44s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-5577ebae39fdd5f4)
+
+thread 'financial_review::financial_review_committed_lost_response_cold_original_receipt_and_tamper_refusal' (1996175) panicked at services/bff-gateway/tests/support/financial_review.rs:14:188:
+assertion `left == right` failed: endorse: {"code":"FORBIDDEN","correlationId":"01a18a43-e086-7a82-b92d-8813a34bb2cb","message":"资源不存在或无权访问。"}
+  left: 403
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'financial_review::financial_review_independent_pair_new_risk_subject_actual_io_and_open_history' (1996176) panicked at services/bff-gateway/tests/support/financial_review.rs:14:188:
+assertion `left == right` failed: endorse: {"code":"FORBIDDEN","correlationId":"01a18a43-e166-7631-855c-46670f75b28e","message":"资源不存在或无权访问。"}
+  left: 403
+ right: 200
+
+thread 'financial_review::financial_review_source_change_or_retain_block_revokes_old_subject_before_io' (1996778) panicked at services/bff-gateway/tests/support/financial_review.rs:14:188:
+assertion `left == right` failed: endorse: {"code":"FORBIDDEN","correlationId":"01a18a43-fef9-73c3-b34b-004f68536035","message":"资源不存在或无权访问。"}
+  left: 403
+ right: 200
+
+thread 'financial_review::financial_review_roles_mfa_independence_replica_cas_and_original_recovery' (1996739) panicked at services/bff-gateway/tests/support/financial_review.rs:41:353:
+assertion `left == right` failed
+  left: 0
+ right: 1
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

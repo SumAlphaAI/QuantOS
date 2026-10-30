@@ -8,6 +8,11 @@ impl OwnedHost {
         self.risk_refreshes
             .values()
             .any(|v| v["response"]["decision"]["decisionId"] == id)
+            || self
+                .financial_reviews
+                .records
+                .iter()
+                .any(|r| r.case_id.to_string() == id)
             || self.activation.id().to_string() == id
             || self.controls.has_correlation(id)
             || self.requests.keys().any(|r| r.to_string() == id)
@@ -140,6 +145,7 @@ impl OwnedHost {
         self.control_audit(&mut all);
         self.activation_audit(&mut all);
         self.risk_refresh_audit(&mut all)?;
+        self.financial_audit(&mut all)?;
         Ok(all)
     }
 }
@@ -170,6 +176,15 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
             != Some(&v)
     {
         let h = state.assisted.as_mut().ok_or(Error::Unavailable)?;
+        let financial_reviews: quantos_reconcile::financial_review::Journal = v
+            .get("financialReviews")
+            .map(decode)
+            .transpose()?
+            .unwrap_or_default();
+        financial_reviews
+            .verify_extension(&h.financial_reviews)
+            .map_err(|_| Error::Unavailable)?;
+        h.financial_reviews = financial_reviews;
         h.service.restore_checkpoint(&v["service"])?;
         h.subjects = decode(&v["subjects"])?;
         h.controls = v
@@ -252,6 +267,17 @@ pub(super) fn restore(state: &mut ProviderData, tx: &LockedStore) -> Result<bool
     }
     {
         let h = state.assisted.as_ref().ok_or(Error::Unavailable)?;
+        h.financial_reviews
+            .verify()
+            .map_err(|_| Error::Unavailable)?;
+        for r in &h.financial_reviews.records {
+            if !state.consumed_step_proofs.iter().any(|p| {
+                p.starts_with(&format!("{}:", r.session))
+                    && ContentHash::sha256_bytes(p.as_bytes()) == r.proof_hash
+            }) {
+                return Err(Error::Unavailable);
+            }
+        }
         h.verify_native_anchor()?;
         h.sync_native_control()?;
         h.sync_activation()?;
@@ -278,9 +304,27 @@ pub(super) fn save(state: &mut ProviderData, tx: &LockedStore) -> Result<(), Err
     }
     h.verify_controls()?;
     h.verify_activation()?;
+    h.financial_reviews
+        .verify()
+        .map_err(|_| Error::Unavailable)?;
     let anchor = h.native_anchor_now()?;
     let mut value = json!({"riskRefreshes":h.risk_refreshes.iter().collect::<Vec<_>>(),"valuation":h.valuation,"activation":h.activation,"controls":h.controls,"nativeAnchor":anchor,"service":h.service.checkpoint()?,"subjects":h.subjects,"requests":h.requests,"openedAt":h.opened_at,"ledgerAnchor":h.ledger_anchor,"reconciliationAnchor":h.reconciliation_anchor,"alertAnchor":h.alert_anchor,"c10Access":state.audits.iter().filter(|e|e["kind"].as_str().is_some_and(|k|k.starts_with("audit."))).collect::<Vec<_>>(),"openKeys":h.open_keys.iter().collect::<Vec<_>>(),"proofs":h.proofs.iter().collect::<Vec<_>>(),"sessionActive":state.session_active,"sessionExpiresAt":state.session_expires_at,"challenges":state.challenges,"reauthGrants":state.reauth_grants,"consumedStepProofs":state.consumed_step_proofs});
+    value["financialReviews"] =
+        serde_json::to_value(&h.financial_reviews).map_err(|_| Error::Unavailable)?;
     tx.write(&value)?;
+    if let Some(root) = &h.control_fixture_directory
+        && !h.financial_reviews.records.is_empty()
+        && root.join("pause-financial-after-commit").is_file()
+    {
+        std::fs::write(
+            root.join("financial-after-commit.marker"),
+            b"COMMITTED_FINANCIAL_REVIEW_NOT_HTTP_ACK",
+        )
+        .map_err(|_| Error::Unavailable)?;
+        while root.join("pause-financial-after-commit").is_file() {
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
     // Explicit owned-loopback drill only: owner file cannot be supplied via HTTP.
     if let Some(root) = &h.control_fixture_directory
         && h.controls.has_transition()

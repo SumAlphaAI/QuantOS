@@ -11,6 +11,7 @@ paths = [
     for n in [
         "lib.rs",
         "current.rs",
+        "financial_review.rs",
         "account_books.rs",
         "model.rs",
         "shadow.rs",

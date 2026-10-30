@@ -1,5 +1,7 @@
 # CORE:X02 / L4-BOOKS-RISK-ADMISSION-01
 
+后续接续：[CORE:X06 独立财务审查](core-x06-financial-review.md) 增加同源、独立双人 MFA 与原期限内的 financialReview 投影，供显式新风险引用；原 OPEN count/hash 不归零，旧风险/审批/Command 不重签。下述为 X02 原交付范围；历史冻结结果与零未审查义务边界保留原 SHA，不改绑为新审查通过。
+
 本轮接 [L4 当前移交](core-l4-account-books-assessment-20261030.md)，基线 547a36ba4a015b56e6d047c1758a6d1853ad6c6a；实现当前账户 books/OPEN 义务到新风险、新 Subject、审批与 IO 前核对。[机器范围](../execution/core-x02-books-risk-scope.json)及[验收证据](../audit/evidence/core-x02-books-risk-local-20261030/README.md)记录实际冻结源码、输入和结果。历史 L4 的缺口反例只属原源码/范围，不改写为本轮通过。
 
 ## 新风险与来源

@@ -614,11 +614,20 @@ impl AssistedApprovalService {
     /// Current registered identity for owner-wired stop/read/review controls.
     /// This does not grant command issuance or bypass the enabled policy.
     pub fn control_auth(&self, session: &str, at: DateTime<Utc>) -> Result<AuthContext, Error> {
+        self.control_session(session, at).map(|(a, _, _)| a)
+    }
+    /// Pin the registered session revision and original window for independent
+    /// controls. Re-registering an identity cannot revive an old disposition.
+    pub fn control_session(
+        &self,
+        session: &str,
+        at: DateTime<Utc>,
+    ) -> Result<(AuthContext, u64, DateTime<Utc>), Error> {
         let s = self.0.lock().map_err(|_| Error::Unavailable)?;
-        Ok(s.auth(session, at, false)
-            .or_else(|_| s.auth(session, at, true))?
-            .auth
-            .clone())
+        let session = s
+            .auth(session, at, false)
+            .or_else(|_| s.auth(session, at, true))?;
+        Ok((session.auth.clone(), session.revision, session.expires_at))
     }
     pub fn capabilities(
         &self,
