@@ -17,6 +17,7 @@ fn inputs(l: &NativeLedger) -> Inputs {
     let v = l.view().unwrap();
     Inputs {
         market_provenance: None,
+        account_provenance: None,
         schema_version: "quantos-native-valuation-input.v1".into(),
         source_id: SOURCE.into(),
         version: 1,

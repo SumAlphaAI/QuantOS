@@ -821,3 +821,5 @@ mod tests {
 
     const GOLDEN_SNAPSHOT_JSON: &str = include_str!("../tests/golden/portfolio_snapshot.json");
 }
+
+pub mod account_provenance;

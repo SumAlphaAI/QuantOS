@@ -18,6 +18,8 @@ use std::{
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CurrentExecutionBinding {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_provenance: Option<quantos_portfolio::account_provenance::Summary>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub market_provenance: Option<quantos_portfolio::market_provenance::Summary>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub books: Option<quantos_portfolio::books_risk::BooksRiskInput>,
@@ -352,6 +354,7 @@ impl<K: ExecutionKernel> AssistedExecution<K> {
                                 )
                                 .ok_or(Error::Invalid)?;
                             Some(CurrentExecutionBinding {
+                                account_provenance: current.snapshot.account_provenance.clone(),
                                 market_provenance: current.snapshot.market_provenance.clone(),
                                 books: current.books.clone(),
                                 snapshot_hash: current.snapshot.snapshot_hash.clone(),

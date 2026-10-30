@@ -93,6 +93,7 @@ impl ExecutionKernel for HostKernel {
 }
 /// Explicit local owner configuration, never deserialized from an HTTP request.
 pub struct RestrictedReference {
+    pub account_valuation_enabled: bool,
     pub r01_valuation_enabled: bool,
     pub current_review_execution_enabled: bool,
     pub observer_certificate: Option<(Vec<u8>, String)>,
@@ -122,6 +123,8 @@ pub(crate) struct OwnedHost {
     valuation_committed: quantos_portfolio::native_valuation::State,
     current_review_execution_enabled: bool,
     risk_refreshes: BTreeMap<(String, String), Value>,
+    account_valuation_enabled: bool,
+    account_policy_store: Option<quantos_execution::durable::DurableStore>,
     r01_valuation_enabled: bool,
     r01_policy_store: Option<quantos_execution::durable::DurableStore>,
     r01_certificate: Option<String>,
@@ -263,6 +266,8 @@ impl OwnedHost {
             ledger_anchor: Default::default(),
             valuation: Default::default(),
             valuation_committed: Default::default(),
+            account_valuation_enabled: false,
+            account_policy_store: None,
             r01_valuation_enabled: false,
             r01_policy_store: None,
             r01_certificate: None,
@@ -755,3 +760,5 @@ mod financial_review;
 mod risk_refresh;
 
 mod market_provenance;
+
+mod account_provenance;

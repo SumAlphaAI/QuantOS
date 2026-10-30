@@ -115,7 +115,7 @@ pub(super) fn publish(lab: &Lab, p: &Policy, a: &SignedArtifact) {
         serde_json::to_vec(a).unwrap(),
     );
 }
-fn setup(
+pub(super) fn setup(
     lab: &Lab,
 ) -> (
     Process,
@@ -148,14 +148,14 @@ fn setup(
     fin::authorize(&url);
     (cold, url, c, l, b, input, p, a)
 }
-fn review(url: &str, c: &Value) -> Value {
+pub(super) fn review(url: &str, c: &Value) -> Value {
     let v = get(url, "/v1/assisted-testnet/valuation");
     let (s, r) = risk::request(url, c, &v, &Uuid::new_v4().to_string());
     assert_eq!(s, 200, "{r}");
     assert_eq!(r["decision"]["verdict"], "approval_required", "{r}");
     r
 }
-fn approved(url: &str, r: &Value) -> String {
+pub(super) fn approved(url: &str, r: &Value) -> String {
     let id = open(url, &r["subject"]);
     approve(url, &id, 0);
     approve(url, &id, 1);

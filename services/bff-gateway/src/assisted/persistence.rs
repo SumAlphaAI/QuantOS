@@ -40,6 +40,12 @@ impl OwnedHost {
             Some(HostKernel::Restricted(Box::new(c.kernel))),
         )?;
         h.current_review_execution_enabled = c.current_review_execution_enabled;
+        h.account_valuation_enabled = c.account_valuation_enabled;
+        h.account_policy_store = Some(DurableStore::new(
+            &c.directory,
+            "account-valuation-policy",
+            c.keys[3],
+        )?);
         h.r01_valuation_enabled = c.r01_valuation_enabled;
         h.r01_policy_store = Some(DurableStore::new(
             &c.directory,
@@ -542,6 +548,8 @@ pub(crate) fn load_owned(
     #[serde(rename_all = "camelCase", deny_unknown_fields)]
     struct Owner {
         #[serde(default)]
+        account_valuation_enabled: bool,
+        #[serde(default)]
         r01_valuation_enabled: bool,
         #[serde(default)]
         current_review_execution_enabled: bool,
@@ -572,6 +580,7 @@ pub(crate) fn load_owned(
         c.server_fingerprint.clone(),
     )?;
     Ok(RestrictedReference {
+        account_valuation_enabled: c.account_valuation_enabled,
         r01_valuation_enabled: c.r01_valuation_enabled,
         current_review_execution_enabled: c.current_review_execution_enabled,
         observer_certificate: Some((read("server.pem")?, c.server_fingerprint.clone())),

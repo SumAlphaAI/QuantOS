@@ -46,6 +46,8 @@ pub struct Mark {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Inputs {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_provenance: Option<crate::account_provenance::Binding>,
     pub schema_version: String,
     pub source_id: String,
     pub version: u64,
@@ -77,6 +79,7 @@ impl Inputs {
         let mut raw = self.clone();
         raw.marks.clear();
         raw.market_provenance = None;
+        raw.account_provenance = None;
         raw.content_hash()
     }
     fn origin(&self) -> Result<ContentHash> {
@@ -135,6 +138,12 @@ impl Inputs {
                 return Err(Error);
             }
         }
+        if let Some(b) = &self.account_provenance {
+            if self.market_provenance.is_none() {
+                return Err(Error);
+            }
+            b.summary(self, self.as_of).map_err(|_| Error)?;
+        }
         let mut seen = BTreeSet::new();
         for m in &self.marks {
             if m.symbol.is_empty()
@@ -171,6 +180,8 @@ pub struct Position {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Snapshot {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_provenance: Option<crate::account_provenance::Summary>,
     pub schema_version: String,
     pub scope: Scope,
     pub ledger_hash: ContentHash,
@@ -317,6 +328,13 @@ pub fn evaluate(
     } else {
         None
     };
+    let account_provenance = if let Some(b) = &input.account_provenance {
+        let summary = b.summary(input, at).map_err(|_| Error)?;
+        expires = expires.min(summary.valid_until);
+        Some(summary)
+    } else {
+        None
+    };
     let mut result = vec![];
     let mut gross = Decimal::ZERO;
     let mut net = Decimal::ZERO;
@@ -392,10 +410,13 @@ pub fn evaluate(
         snapshot_hash: hash(&"pending")?,
         execution_authority: false,
         market_provenance,
+        account_provenance,
     };
     s.snapshot_hash = s.hash()?;
     Ok(Evaluation {
-        reason: if input.market_provenance.is_some() {
+        reason: if input.account_provenance.is_some() {
+            "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01"
+        } else if input.market_provenance.is_some() {
             "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
         } else {
             "READY_OWNED_REFERENCE_INPUT"
@@ -409,12 +430,38 @@ pub fn evaluate(
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct State {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    account_history: Option<crate::account_provenance::History>,
     sources: Vec<Inputs>,
     snapshots: BTreeMap<ContentHash, Snapshot>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     market_history: Option<crate::market_provenance::History>,
 }
 impl State {
+    pub fn account_required(&self) -> bool {
+        self.account_history.is_some()
+    }
+    pub fn observe_account_policy(
+        &mut self,
+        p: &crate::account_provenance::Policy,
+        scope: &Scope,
+    ) -> Result<()> {
+        self.account_history
+            .get_or_insert_with(Default::default)
+            .policy(p, scope)
+            .map_err(|_| Error)
+    }
+    pub fn observe_account_artifact(
+        &mut self,
+        a: &crate::account_provenance::SignedArtifact,
+        p: &crate::account_provenance::Policy,
+    ) -> Result<()> {
+        self.account_history
+            .as_mut()
+            .ok_or(Error)?
+            .artifact(a, p)
+            .map_err(|_| Error)
+    }
     pub fn market_required(&self) -> bool {
         self.market_history.is_some()
     }
@@ -444,8 +491,17 @@ impl State {
         if let Some(h) = &self.market_history {
             h.verify(ledger.scope()).map_err(|_| Error)?;
         }
+        if let Some(h) = &self.account_history {
+            h.verify(ledger.scope()).map_err(|_| Error)?;
+        }
         let mut check = State::default();
         for s in &self.sources {
+            if let Some(b) = &s.account_provenance {
+                let h = self.account_history.as_ref().ok_or(Error)?;
+                if !h.policies.contains(&b.policy) || !h.artifacts.contains(&b.artifact) {
+                    return Err(Error);
+                }
+            }
             if let Some(b) = &s.market_provenance {
                 let h = self.market_history.as_ref().ok_or(Error)?;
                 if !h
@@ -494,6 +550,11 @@ impl State {
     }
     fn register(&mut self, input: &Inputs, scope: &Scope) -> Result<()> {
         input.validate(scope)?;
+        if self.sources.iter().any(|i| i.account_provenance.is_some())
+            && input.account_provenance.is_none()
+        {
+            return Err(Error);
+        }
         if self.sources.iter().any(|i| i.market_provenance.is_some())
             && input.market_provenance.is_none()
         {
@@ -540,6 +601,12 @@ impl State {
         at: DateTime<Utc>,
     ) -> Result<Evaluation> {
         let mut next = self.clone();
+        if let Some(b) = &input.account_provenance {
+            let h = next.account_history.as_ref().ok_or(Error)?;
+            if h.policies.last() != Some(&b.policy) || h.artifacts.last() != Some(&b.artifact) {
+                return Err(Error);
+            }
+        }
         if let Some(b) = &input.market_provenance {
             let h = next.market_history.as_ref().ok_or(Error)?;
             if h.policies
@@ -577,6 +644,13 @@ impl State {
         Ok(evaluated)
     }
     pub fn verify_extension(&self, previous: &State) -> Result<()> {
+        if let Some(old) = &previous.account_history {
+            self.account_history
+                .as_ref()
+                .ok_or(Error)?
+                .extension(old)
+                .map_err(|_| Error)?;
+        }
         if let Some(old) = &previous.market_history {
             self.market_history
                 .as_ref()

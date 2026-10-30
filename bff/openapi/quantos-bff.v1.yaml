@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.32.0
+  version: 1.33.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -13198,11 +13198,17 @@ components:
               },
               "marketProvenance": {
                 "$ref": "#/components/schemas/R01ValuationProvenance"
+              },
+              "accountProvenance": {
+                "$ref": "#/components/schemas/AccountValuationProvenance"
               }
             }
           },
           "marketProvenance": {
             "$ref": "#/components/schemas/R01ValuationProvenance"
+          },
+          "accountProvenance": {
+            "$ref": "#/components/schemas/AccountValuationProvenance"
           }
         }
       }
@@ -18774,6 +18780,9 @@ components:
               },
               "marketProvenance": {
                 "$ref": "#/components/schemas/R01ValuationProvenance"
+              },
+              "accountProvenance": {
+                "$ref": "#/components/schemas/AccountValuationProvenance"
               }
             }
           },
@@ -18863,6 +18872,9 @@ components:
           },
           "marketProvenance": {
             "$ref": "#/components/schemas/R01ValuationProvenance"
+          },
+          "accountProvenance": {
+            "$ref": "#/components/schemas/AccountValuationProvenance"
           }
         }
       }
@@ -18969,7 +18981,8 @@ components:
                 "type": "string",
                 "enum": [
                   "READY_OWNED_REFERENCE_INPUT",
-                  "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
+                  "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS",
+                  "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01"
                 ]
               },
               "sourceTrust": {
@@ -19007,6 +19020,9 @@ components:
               },
               "marketProvenance": {
                 "$ref": "#/components/schemas/R01ValuationProvenance"
+              },
+              "accountProvenance": {
+                "$ref": "#/components/schemas/AccountValuationProvenance"
               }
             }
           },
@@ -19467,6 +19483,9 @@ components:
               },
               "marketProvenance": {
                 "$ref": "#/components/schemas/R01ValuationProvenance"
+              },
+              "accountProvenance": {
+                "$ref": "#/components/schemas/AccountValuationProvenance"
               }
             }
           },
@@ -19674,6 +19693,9 @@ components:
               },
               "marketProvenance": {
                 "$ref": "#/components/schemas/R01ValuationProvenance"
+              },
+              "accountProvenance": {
+                "$ref": "#/components/schemas/AccountValuationProvenance"
               }
             }
           }
@@ -19728,6 +19750,9 @@ components:
           },
           "marketProvenance": {
             "$ref": "#/components/schemas/R01ValuationProvenance"
+          },
+          "accountProvenance": {
+            "$ref": "#/components/schemas/AccountValuationProvenance"
           }
         }
       }
@@ -20932,6 +20957,106 @@ components:
             "type": "string",
             "enum": [
               "AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE"
+            ]
+          }
+        }
+      }
+
+    AccountValuationProvenance:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactHash",
+          "artifactVersion",
+          "policyHash",
+          "policyRevision",
+          "openingHash",
+          "provider",
+          "dataset",
+          "approvalReference",
+          "approvalVersion",
+          "approvalDocumentHash",
+          "scopeHash",
+          "signer",
+          "purpose",
+          "observedAt",
+          "validUntil",
+          "trust"
+        ],
+        "properties": {
+          "artifactHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "artifactVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "policyHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "openingHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "dataset": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "approvalReference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "approvalVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "approvalDocumentHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "scopeHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "signer": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "assisted_testnet_account_valuation"
+            ]
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trust": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATED_OWNER_APPROVED_ACCOUNT_OPENING_STATUS_ARTIFACT_NOT_VENUE_FUNDS"
             ]
           }
         }

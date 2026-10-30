@@ -2434,8 +2434,10 @@ export interface components {
                 validUntil: string;
                 head: string;
                 marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+                accountProvenance?: components["schemas"]["AccountValuationProvenance"];
             };
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         };
         AssistedObservedOrder: {
             orderId: string;
@@ -4311,6 +4313,7 @@ export interface components {
                 sequence: number;
                 head: string | null;
                 marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+                accountProvenance?: components["schemas"]["AccountValuationProvenance"];
             };
             sourceHash: string;
             sourceVersion: number;
@@ -4337,6 +4340,7 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         };
         NativeValuationView: {
             /** @enum {string} */
@@ -4361,7 +4365,7 @@ export interface components {
             /** @enum {boolean} */
             riskInputReady: true;
             /** @enum {string} */
-            reason: "READY_OWNED_REFERENCE_INPUT" | "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS";
+            reason: "READY_OWNED_REFERENCE_INPUT" | "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS" | "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01";
             /** @enum {string} */
             sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
             /** @enum {boolean} */
@@ -4372,6 +4376,7 @@ export interface components {
             sourceVersion: string;
             snapshot: components["schemas"]["NativeRiskInputSnapshot"];
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         } | {
             /** @enum {string} */
             schemaVersion: "quantos-native-valuation-view.v1";
@@ -4479,6 +4484,7 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         } | {
             booksAdmission?: components["schemas"]["BooksRiskAdmission"];
             /** @enum {string} */
@@ -4524,6 +4530,7 @@ export interface components {
             executionAuthority: false;
             subject: components["schemas"]["AssistedSubject"];
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         };
         NativeSubjectRiskBinding: {
             books?: components["schemas"]["BooksRiskInput"];
@@ -4537,6 +4544,7 @@ export interface components {
             /** @enum {boolean} */
             executionAuthority: false;
             marketProvenance?: components["schemas"]["R01ValuationProvenance"];
+            accountProvenance?: components["schemas"]["AccountValuationProvenance"];
         };
         NativeRiskCandidate: {
             subjectId: components["schemas"]["UUID"];
@@ -4805,6 +4813,28 @@ export interface components {
             validUntil: string;
             /** @enum {string} */
             trust: "AUTHENTICATED_R01_F03_TRADING_ARTIFACT_OWNER_PINNED_NOT_LIVE_VENUE";
+        };
+        AccountValuationProvenance: {
+            artifactHash: string;
+            artifactVersion: number;
+            policyHash: string;
+            policyRevision: number;
+            openingHash: string;
+            provider: string;
+            dataset: string;
+            approvalReference: string;
+            approvalVersion: string;
+            approvalDocumentHash: string;
+            scopeHash: string;
+            signer: string;
+            /** @enum {string} */
+            purpose: "assisted_testnet_account_valuation";
+            /** Format: date-time */
+            observedAt: string;
+            /** Format: date-time */
+            validUntil: string;
+            /** @enum {string} */
+            trust: "AUTHENTICATED_OWNER_APPROVED_ACCOUNT_OPENING_STATUS_ARTIFACT_NOT_VENUE_FUNDS";
         };
     };
     responses: {

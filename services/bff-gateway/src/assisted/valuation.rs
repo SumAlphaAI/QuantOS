@@ -55,6 +55,7 @@ impl OwnedHost {
         if let Some(input) = input {
             let mut input: Inputs =
                 serde_json::from_value(input).map_err(|_| Error::Unavailable)?;
+            self.bind_account_input(&mut input, at)?;
             self.bind_market_input(&mut input, at)?;
             let ledger = self.ledger.as_ref().ok_or(Error::Unavailable)?;
             let evaluated = self
@@ -68,6 +69,9 @@ impl OwnedHost {
                 snapshot
                     .validate_for(ledger, &input, generation, at)
                     .map_err(|_| Error::Unavailable)?;
+                if let Some(summary) = &snapshot.account_provenance {
+                    view["accountProvenance"] = json!(summary);
+                }
                 if let Some(summary) = &snapshot.market_provenance {
                     view["marketProvenance"] = json!(summary);
                 }

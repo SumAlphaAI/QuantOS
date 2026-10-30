@@ -40,6 +40,7 @@ pub(super) fn context(f: &F, diverse: bool, generation: u64) -> NativeRiskContex
     let view = ledger.view().unwrap();
     let input = Inputs {
         market_provenance: None,
+        account_provenance: None,
         schema_version: "quantos-native-valuation-input.v1".into(),
         source_id: SOURCE.into(),
         version: 1,
