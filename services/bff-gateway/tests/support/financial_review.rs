@@ -4,7 +4,7 @@ const PATH: &str = "/v1/assisted-testnet/financial-reviews";
 fn emit(name: &str, v: Value) {
     valuation::evidence(name, v);
 }
-fn journal(lab: &Lab) -> Value {
+pub(super) fn journal(lab: &Lab) -> Value {
     let s = owner_store(lab, "approvals")
         .lock()
         .unwrap()
@@ -14,7 +14,7 @@ fn journal(lab: &Lab) -> Value {
     json!({"journal":s["financialReviews"],"consumedProofHashes":s["consumedStepProofs"].as_array().unwrap().iter().map(|v|quantos_core::ContentHash::sha256_bytes(v.as_str().unwrap().as_bytes())).collect::<Vec<_>>()})
 }
 
-fn body(url: &str, who: &str, v: &Value, action: &str) -> Value {
+pub(super) fn body(url: &str, who: &str, v: &Value, action: &str) -> Value {
     let (s, c) = call(
         url,
         who,
@@ -35,7 +35,7 @@ fn body(url: &str, who: &str, v: &Value, action: &str) -> Value {
     assert_eq!(s, 200, "{g}");
     json!({"expectedRevision":v["revision"],"contextHash":v["contextHash"],"reason":"Explicit independent current financial evidence review","confirmPhrase":match action{"request"=>"REQUEST FINANCIAL REVIEW","endorse"=>"ENDORSE FINANCIAL REVIEW","authorize"=>"AUTHORIZE CURRENT RISK REVIEW",_=>"RETAIN FINANCIAL BLOCK"},"mfaChallengeRef":c["challengeRef"],"reauthTokenRef":g["reauthTokenRef"]})
 }
-fn post(url: &str, who: &str, path: &str, b: &Value, key: &str) -> (u16, Value) {
+pub(super) fn post(url: &str, who: &str, path: &str, b: &Value, key: &str) -> (u16, Value) {
     let r = reqwest::blocking::Client::builder()
         .no_proxy()
         .timeout(Wait::from_secs(15))
@@ -56,7 +56,7 @@ fn post(url: &str, who: &str, path: &str, b: &Value, key: &str) -> (u16, Value) 
         .unwrap();
     (r.status().as_u16(), r.json().unwrap())
 }
-fn action(url: &str, who: &str, id: Option<&str>, action: &str) -> Value {
+pub(super) fn action(url: &str, who: &str, id: Option<&str>, action: &str) -> Value {
     let v = get(url, PATH);
     let b = body(url, who, &v, action);
     let path = id
@@ -66,7 +66,10 @@ fn action(url: &str, who: &str, id: Option<&str>, action: &str) -> Value {
     assert_eq!(s, 200, "{action}: {r}");
     r
 }
-fn setup(lab: &Lab, url: &str) -> (Value, Value, Value, quantos_reconcile::account_books::Books) {
+pub(super) fn setup(
+    lab: &Lab,
+    url: &str,
+) -> (Value, Value, Value, quantos_reconcile::account_books::Books) {
     let (v, c, ledger) = risk::seed(lab, url);
     let mut b = books::statement(lab);
     b.positions[0].amount = "2".into();
@@ -87,7 +90,7 @@ fn setup(lab: &Lab, url: &str) -> (Value, Value, Value, quantos_reconcile::accou
     assert!(ready["riskBooks"].get("financialReview").is_none());
     (v, c, ledger, b)
 }
-fn authorize(url: &str) -> (Value, Value, Value) {
+pub(super) fn authorize(url: &str) -> (Value, Value, Value) {
     let request = action(url, "session-current", None, "request");
     let id = request["event"]["caseId"].as_str().unwrap();
     let endorsement = action(url, "session-approver", Some(id), "endorse");
