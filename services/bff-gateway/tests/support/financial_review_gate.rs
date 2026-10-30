@@ -6,13 +6,13 @@ use super::{
     native_control as kill, valuation,
 };
 const PATH: &str = "/v1/assisted-testnet/financial-reviews";
-fn capture(lab: &Lab) -> Value {
+pub(super) fn capture(lab: &Lab) -> Value {
     let v: Value =
         serde_json::from_slice(&fs::read(lab.directory.join("account-books.json")).unwrap())
             .unwrap();
     json!({"signedStatement":v,"certificate":fs::read_to_string(lab.directory.join("server.pem")).unwrap()})
 }
-fn controls(url: &str) -> Value {
+pub(super) fn controls(url: &str) -> Value {
     let f = c11::current(url);
     let id = f["resourceId"].as_str().unwrap();
     let c = get(url, "/v1/risk/kill-switch");
@@ -24,7 +24,7 @@ fn controls(url: &str) -> Value {
         .collect::<Vec<_>>();
     json!({"currentC11":f,"c11History":get(url,&format!("/v1/admin/feature-flags/{id}/history")),"activationAudit":gate::audit(url,id),"controls":c,"controlAudits":audits})
 }
-fn risk_current(
+pub(super) fn risk_current(
     lab: &Lab,
     url: &str,
     candidate: &Value,
@@ -44,7 +44,7 @@ fn risk_current(
     assert_eq!(s, 200, "{r}");
     (v, r)
 }
-fn alerts(url: &str) -> (Value, Vec<Value>) {
+pub(super) fn alerts(url: &str) -> (Value, Vec<Value>) {
     let v = get(url, "/v1/alerts");
     let audits = v["items"]
         .as_array()

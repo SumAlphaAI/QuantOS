@@ -1,0 +1,22 @@
+
+running 3 tests
+test source_review_gate::source_review_gate_current_success_controls_new_review_and_repeat_proposal_refusal ... FAILED
+test source_review_gate::source_review_gate_reference_valuation_cannot_claim_authenticated_r01_provenance ... ok
+test source_review_gate::source_review_gate_unknown_through_public_controls_and_cold_recovery ... ok
+
+failures:
+
+failures:
+    source_review_gate::source_review_gate_current_success_controls_new_review_and_repeat_proposal_refusal
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 48 filtered out; finished in 65.21s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-5577ebae39fdd5f4)
+
+thread 'source_review_gate::source_review_gate_current_success_controls_new_review_and_repeat_proposal_refusal' (2475730) panicked at services/bff-gateway/tests/core_l04.rs:248:5:
+assertion `left == right` failed: /v1/assisted-testnet/valuation: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a18abf-0fca-7100-809e-e27dc2ec1a5b","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`
