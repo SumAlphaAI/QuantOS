@@ -20,7 +20,7 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 946]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 1100]);
 });
 test('controlled Assisted approval operations and wire models cannot disappear from inventory', () => {
   rejected(i => { i.catalog.contracts.C08.publishedOperations = i.catalog.contracts.C08.publishedOperations.filter(id => id !== 'submitAssistedRequest'); }, 'catalog publishes every OpenAPI operation');

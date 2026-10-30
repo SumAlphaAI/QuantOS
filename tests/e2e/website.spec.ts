@@ -86,10 +86,12 @@ test.describe("WEB-101 website", () => {
     const content = details.getByText("浏览器只访问 Gateway/BFF", { exact: false });
     await expect(details).not.toHaveAttribute("open");
     await expect(content).toBeHidden();
-    await summary.click();
+    // Distinct hit points keep these two gestures from becoming a native
+    // text-selection double click when the browser executes them rapidly.
+    await summary.click({ position: { x: 8, y: 8 } });
     await expect(details).toHaveAttribute("open", "");
     await expect(content).toBeVisible();
-    await summary.click();
+    await summary.click({ position: { x: 80, y: 8 } });
     await expect(details).not.toHaveAttribute("open");
     await expect(content).toBeHidden();
   });

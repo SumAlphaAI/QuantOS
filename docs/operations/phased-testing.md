@@ -16,6 +16,8 @@
 
 2026-10-27 浏览器入口同步：默认 `playwright.config.ts` 执行公开 mock profile 的常规比较。U01、TP01、R1 业务链分别保留在 `playwright.u01.config.ts`、`playwright.tp01.config.ts`、`playwright.r1.config.ts`，由对应功能 runner 准备宿主回执、worker 输入和串行端口后运行；默认无宿主的并行任务不采集这三个套件。`node --test scripts/playwright-git-history.test.mjs` 核对实际发现结果：常规用例仍在，三个专用配置非空、串行，业务用例的预期状态仍为 passed。仅发现配置不算执行业务链，未执行的专用联调仍记 NOT_RUN，适用联调及发布义务保留。
 
+2026-10-30 L04 自有进程测试调度：`services/bff-gateway/tests/core_l04.rs` 的每个 Lab 持有用例槽，多个重启/副本与 fsync 场景按用例串行；等待槽在签名输入和进程创建之前。同一测试线程内多个 Lab 可重入计数，最后一个 Lab 释放后才放行其他用例。每个自有 BFF 子进程固定两个 Tokio worker，避免按主机核数放大进程资源需求。用例内部的并发副本、发布者 fence、崩溃及竞争实验保持原样；不改变生产启动配置、30 秒来源新鲜度、会话/签名有效期、超时拒绝或重试规则。这是功能测试资源调度，不是性能、并行容量或长稳验收；后者仍按 P/RELEASE 的适用矩阵执行。
+
 机器策略为 `scripts/development-testing-policy.json`。`provider-a1-receipts.mjs::assess` 是旧聚合执行器，现要求显式 `campaign={phase:'INTEGRATION'|'RELEASE', reason:'具体业务链及扩大范围理由'}`，默认调用在调度和创建证据目录前拒绝；旧 recorder 不再能自动发起开发全闭包。现有聚合回执仍可按原范围审计；执行器参数不会把结果自动升级为对应阶段验收。后续任务应像 X03 一样建立当前功能/影响范围清单，再进入记录器，不应复制旧全闭包入口作为默认开发 Gate。
 
 X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-scope.mjs`：12 组当前功能与直接影响检查，逐组 reason。`record-x03-local.mjs` 不调用聚合 assess、不读取历史 READY、不修改上游 canonical 产物；在新目录记录真实结果，只有全部必要检查正常退出、输入未漂移及覆盖率满足后才事务写入 X03 manifest 和两份计划。SIGTERM/SIGINT 中断会停止当前子进程组、保存 INTERRUPTED 并拒绝发布。

@@ -10,7 +10,7 @@ use std::{
     io::{BufRead, BufReader},
     path::PathBuf,
     process::{Child, Command, Stdio},
-    sync::mpsc,
+    sync::{Condvar, Mutex, mpsc},
     time::Duration as Wait,
 };
 use uuid::Uuid;
@@ -22,9 +22,51 @@ impl Drop for Process {
     }
 }
 struct Lab {
+    _case_slot: CaseSlot,
     directory: PathBuf,
     zone: Process,
     trace: mpsc::Receiver<String>,
+}
+// Each case owns several fsync-backed processes and short-lived signed inputs.
+// Bound inter-case contention without serializing the replica/race drills inside
+// a case or changing any production freshness, expiry or refusal boundary.
+static LAB_CASE: (Mutex<(Option<std::thread::ThreadId>, usize)>, Condvar) =
+    (Mutex::new((None, 0)), Condvar::new());
+struct CaseSlot(std::thread::ThreadId);
+impl CaseSlot {
+    fn acquire() -> Self {
+        let thread = std::thread::current().id();
+        let mut state = LAB_CASE.0.lock().unwrap_or_else(|p| p.into_inner());
+        while state.0.is_some_and(|owner| owner != thread) {
+            state = LAB_CASE.1.wait(state).unwrap_or_else(|p| p.into_inner());
+        }
+        state.0 = Some(thread);
+        state.1 += 1; // A case may keep one Lab alive while starting another.
+        Self(thread)
+    }
+}
+impl Drop for CaseSlot {
+    fn drop(&mut self) {
+        let mut state = LAB_CASE.0.lock().unwrap_or_else(|p| p.into_inner());
+        assert_eq!(state.0, Some(self.0));
+        state.1 -= 1;
+        if state.1 == 0 {
+            state.0 = None;
+            LAB_CASE.1.notify_one();
+        }
+    }
+}
+#[test]
+fn case_slot_reenters_and_retains_the_outer_lab() {
+    let outer = CaseSlot::acquire();
+    let inner = CaseSlot::acquire();
+    let thread = std::thread::current().id();
+    assert_eq!(*LAB_CASE.0.lock().unwrap(), (Some(thread), 2));
+    drop(inner);
+    // Inspect while the outer lease is held; once it drops another real case
+    // may acquire the slot immediately, with no fairness or 5-second guarantee.
+    assert_eq!(*LAB_CASE.0.lock().unwrap(), (Some(thread), 1));
+    drop(outer);
 }
 impl Drop for Lab {
     fn drop(&mut self) {
@@ -70,6 +112,7 @@ impl Lab {
         Self::pause_at(if pause { 1 } else { 0 })
     }
     fn pause_at(pause: usize) -> Self {
+        let case_slot = CaseSlot::acquire();
         assert!(!std::env::vars().any(|(k, _)| {
             [
                 "DATABASE_URL",
@@ -145,6 +188,7 @@ impl Lab {
         }
         private_write(directory.join("bff-owner.json"),serde_json::to_vec(&json!({"address":ready["address"],"serverFingerprint":fingerprint(&server).unwrap(),"sessionHash":format!("sha256:{}","1".repeat(64)),"keys":keys,"createdAt":at,"expiresAt":at+Duration::minutes(5)})).unwrap());
         Self {
+            _case_slot: case_slot,
             directory,
             zone,
             trace,
@@ -160,6 +204,7 @@ impl Lab {
                 .env_clear()
                 .env("PATH", std::env::var("PATH").unwrap())
                 .env("TMPDIR", std::env::temp_dir())
+                .env("TOKIO_WORKER_THREADS", "2")
                 .env("QUANTOS_BFF_BIND", "127.0.0.1:0")
                 .env("QUANTOS_BFF_REFERENCE_CONTEXT", "assisted-mtls-local")
                 .env("QUANTOS_BFF_OWNED_MTLS_DIRECTORY", &self.directory)
