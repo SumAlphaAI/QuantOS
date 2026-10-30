@@ -1,0 +1,273 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T03:06:17.127Z",
+    "finishedAt": "2026-10-30T03:06:17.362Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "assessment",
+    "command": [
+      "node",
+      "scripts/core-l4-source-review.mjs",
+      "--audit"
+    ],
+    "startedAt": "2026-10-30T03:06:17.363Z",
+    "finishedAt": "2026-10-30T03:06:18.304Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/assessment.log",
+    "logSha256": "520135623652e3b3428108a402a84aad62d22aeae26d254237f96eb603bb9997"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-30T03:06:18.304Z",
+    "finishedAt": "2026-10-30T03:06:18.467Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/build.log",
+    "logSha256": "e8dcca5c88eecbdb1f7009064b723eaaa40d7cf630ce603ef46b86c9c3d3cc21"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "source_review_gate::",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T03:06:18.519Z",
+    "finishedAt": "2026-10-30T03:07:31.032Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/composition.log",
+    "logSha256": "ad4bf52b953fe47f6baf09cabbf327712776d30e9e08c197c0bff6f910fa6afd"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-l4-source-review-assessment.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-30T03:07:31.032Z",
+    "finishedAt": "2026-10-30T03:07:32.801Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "7c47400d01d6c01fc6124801829945ce5749baace2d763c15583a8c18213b21a"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-30T03:07:32.801Z",
+    "finishedAt": "2026-10-30T03:07:32.862Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-30T03:07:32.863Z",
+    "finishedAt": "2026-10-30T03:07:33.489Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/generated.log",
+    "logSha256": "5356eb46b79e7c0355d8a2cab2c95281b3f2f4b14f1158fd7102952c7e7e5839"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-30T03:07:33.490Z",
+    "finishedAt": "2026-10-30T03:07:33.701Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/inventory.log",
+    "logSha256": "d5cf10625934fa80c863189ffbe60cd0c4600291ad225d1f0bffdb0c75f767dc"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-30T03:07:33.701Z",
+    "finishedAt": "2026-10-30T03:07:33.731Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "c7ba5762ed0dcd3d81d1598c9a2aa4f91e4182faa2ee02750336de16243d82de"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-30T03:07:33.731Z",
+    "finishedAt": "2026-10-30T03:07:34.093Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-30T03:07:34.094Z",
+    "finishedAt": "2026-10-30T03:07:42.269Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/clippy.log",
+    "logSha256": "aa8fce57034fb0565006e401f3ef31d94dadae2bcbf05f5c67fbed8e2af77f0a"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-l4-source-review-assessment.mjs",
+      "scripts/core-l4-source-review.mjs",
+      "scripts/core-l4-source-review-assessment.test.mjs"
+    ],
+    "startedAt": "2026-10-30T03:07:42.269Z",
+    "finishedAt": "2026-10-30T03:07:42.754Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T03:07:42.755Z",
+    "finishedAt": "2026-10-30T03:07:42.989Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "ea180342535ecc19e5fa695b7a42eef29793de422926747dcd902cf74fae13dd"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T03:07:42.989Z",
+    "finishedAt": "2026-10-30T03:07:43.206Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "90318a27ca784a7470c1eed7a72e6c2e16a81ee0f6e4d4143871f4265baccd49"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T03:07:43.207Z",
+    "finishedAt": "2026-10-30T03:07:43.421Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/next-development.log",
+    "logSha256": "34ad77365ce19281079ea9b59b7dd5a2dd07730e8483bf3e71a9b5ef540aabb4"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-l4-source-review.mjs",
+      "--scan",
+      "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-30T03:07:43.422Z",
+    "finishedAt": "2026-10-30T03:07:44.486Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-l4-source-review-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "cef9f159d6fc7d68c845426008c8b1129a7ae7e3248a0724093077edd8af88b8"
+  }
+]
