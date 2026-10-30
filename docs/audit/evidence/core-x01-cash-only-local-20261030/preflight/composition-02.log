@@ -1,0 +1,35 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `account_domain`
+   --> services/bff-gateway/tests/support/dual_source_gate.rs:310:12
+    |
+310 |     let p: account_domain::Policy = prior
+    |            ^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `account_domain`
+    |
+    = help: if you wanted to use a crate named `account_domain`, use `cargo add account_domain` to add it to your `Cargo.toml`
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `account_domain`
+   --> services/bff-gateway/tests/support/dual_source_gate.rs:317:20
+    |
+317 |             let a: account_domain::SignedArtifact = serde_json::from_value(v.clone()).unwrap();
+    |                    ^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `account_domain`
+    |
+    = help: if you wanted to use a crate named `account_domain`, use `cargo add account_domain` to add it to your `Cargo.toml`
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `account_domain`
+   --> services/bff-gateway/tests/support/dual_source_gate.rs:345:9
+    |
+345 |     p: &account_domain::Policy,
+    |         ^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `account_domain`
+    |
+    = help: if you wanted to use a crate named `account_domain`, use `cargo add account_domain` to add it to your `Cargo.toml`
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `account_domain`
+   --> services/bff-gateway/tests/support/dual_source_gate.rs:346:9
+    |
+346 |     a: &account_domain::SignedArtifact,
+    |         ^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `account_domain`
+    |
+    = help: if you wanted to use a crate named `account_domain`, use `cargo add account_domain` to add it to your `Cargo.toml`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `bff-gateway` (test "core_l04") due to 4 previous errors

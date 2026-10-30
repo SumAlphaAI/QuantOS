@@ -1,0 +1,23 @@
+
+running 3 tests
+test cash_only::cash_only_missing_invalid_expired_and_revoked_account_never_uses_cached_snapshot ... ok
+test cash_only::cash_only_current_snapshot_signed_deny_preserves_original_blocked_open_and_cold_claims ... ok
+test cash_only::cash_only_original_account_deadline_never_renews_on_query_or_cold_restore ... FAILED
+
+failures:
+
+failures:
+    cash_only::cash_only_original_account_deadline_never_renews_on_query_or_cold_restore
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 72 filtered out; finished in 18.93s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.61s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-ed8aad98d07beb03)
+
+thread 'cash_only::cash_only_original_account_deadline_never_renews_on_query_or_cold_restore' (3536126) panicked at services/bff-gateway/tests/core_l04.rs:248:5:
+assertion `left == right` failed: /v1/assisted-testnet/valuation: {"code":"STATE_CONFLICT","correlationId":"01a18be1-edcc-7b20-bbd8-d7429a4a42b5","message":"Research request could not be completed."}
+  left: 409
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

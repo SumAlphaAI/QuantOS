@@ -4365,7 +4365,7 @@ export interface components {
             /** @enum {boolean} */
             riskInputReady: true;
             /** @enum {string} */
-            reason: "READY_OWNED_REFERENCE_INPUT" | "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS" | "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01";
+            reason: "READY_OWNED_REFERENCE_INPUT" | "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS" | "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01" | "READY_OWNED_AUTHENTICATED_ACCOUNT_CASH_ONLY";
             /** @enum {string} */
             sourceTrust: "OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET";
             /** @enum {boolean} */

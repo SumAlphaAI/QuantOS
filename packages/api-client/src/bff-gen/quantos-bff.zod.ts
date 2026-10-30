@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.33.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.34.0). Do not edit.
 import { z } from "zod";
 
 export const AssistedNativeCapabilitiesSchema = z.object({
@@ -1819,7 +1819,7 @@ export const NativeValuationViewSchema = z.union([z.object({
   "killGeneration": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
   "quarantinedCommandCount": z.literal(0),
   "riskInputReady": z.literal(true),
-  "reason": z.enum(["READY_OWNED_REFERENCE_INPUT","READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS","READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01"]),
+  "reason": z.enum(["READY_OWNED_REFERENCE_INPUT","READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS","READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01","READY_OWNED_AUTHENTICATED_ACCOUNT_CASH_ONLY"]),
   "sourceTrust": z.literal("OWNER_AUTHENTICATED_REFERENCE_INPUT_NOT_REAL_MARKET"),
   "executionAuthority": z.literal(false),
   "sourceVersions": z.number().int().min(1).max(512),

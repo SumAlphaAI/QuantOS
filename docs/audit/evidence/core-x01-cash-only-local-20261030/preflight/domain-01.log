@@ -1,0 +1,31 @@
+
+running 8 tests
+test original_half_open_expiry_inactive_account_and_market_signature_domain_remain_denials ... ok
+test cold_tamper_and_extension_cannot_drop_provenance_history_or_reference_fallback ... ok
+test cash_only_exact_ledger_empty_marks_account_deadline_and_cold_reconstruction ... ok
+test authentic_bad_quality_and_current_revocation_advance_heads_without_rollback_or_cash_rebase ... ok
+test cash_only_to_held_to_flat_preserves_original_cash_market_heads_and_requires_fresh_r01 ... FAILED
+test independently_approved_opening_and_status_bind_current_r01_risk_and_exact_deadline ... ok
+test separate_account_key_and_bounded_continuous_history_cannot_be_bypassed ... ok
+test current_approval_signature_scope_purpose_source_clock_and_raw_cash_cannot_be_relabelled ... ok
+
+failures:
+
+---- cash_only_to_held_to_flat_preserves_original_cash_market_heads_and_requires_fresh_r01 stdout ----
+
+thread 'cash_only_to_held_to_flat_preserves_original_cash_market_heads_and_requires_fresh_r01' (3502219) panicked at crates/quantos-portfolio/tests/account_provenance.rs:593:5:
+assertion `left == right` failed
+  left: "194.98"
+ right: "195"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cash_only_to_held_to_flat_preserves_original_cash_market_heads_and_requires_fresh_r01
+
+test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.82s
+     Running tests/account_provenance.rs (target/debug/deps/account_provenance-4ac04dc4452de925)
+error: test failed, to rerun pass `-p quantos-portfolio --test account_provenance`

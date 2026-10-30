@@ -398,10 +398,13 @@ pub(crate) fn refresh_common(state: &mut ProviderData) -> Result<(), Error> {
         .as_ref()
         .ok_or(Error::Unavailable)?
         .common_audit()?;
+    // Both namespaces below are rebuilt from retained owned journals. Replace
+    // their read projection; otherwise repeated C10 reads duplicate one stable
+    // native review event. No persisted business/audit fact is removed.
     state.audits.retain(|e| {
         !e["kind"]
             .as_str()
-            .is_some_and(|k| k.starts_with("assisted."))
+            .is_some_and(|k| k.starts_with("assisted.") || k == "risk.native_review_created")
     });
     state.audits.extend(facts);
     Ok(())

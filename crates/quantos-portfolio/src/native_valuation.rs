@@ -82,6 +82,24 @@ impl Inputs {
         raw.account_provenance = None;
         raw.content_hash()
     }
+    /// Only exact current, usable ledger facts can make marks unnecessary. This
+    /// never derives cash authority, clears quarantine, or changes R01 heads.
+    pub fn authenticated_cash_only(&self, ledger: &NativeLedger) -> Result<bool> {
+        let v = ledger.view().map_err(|_| Error)?;
+        Ok(self.account_provenance.is_some()
+            && self.marks.is_empty()
+            && self.market_provenance.is_none()
+            && self.scope == *ledger.scope()
+            && v["consumerReady"] == true
+            && !ledger.has_open_orders()
+            && v["ledgerHash"].as_str() == Some(self.ledger_hash.to_string().as_str())
+            && self.ledger_anchor == ledger.anchor()
+            && v["positions"]
+                .as_array()
+                .ok_or(Error)?
+                .iter()
+                .all(|p| p["quantity"].as_str().and_then(|s| dec(s).ok()) == Some(Decimal::ZERO)))
+    }
     fn origin(&self) -> Result<ContentHash> {
         hash(&json!([
             self.scope,
@@ -139,9 +157,6 @@ impl Inputs {
             }
         }
         if let Some(b) = &self.account_provenance {
-            if self.market_provenance.is_none() {
-                return Err(Error);
-            }
             b.summary(self, self.as_of).map_err(|_| Error)?;
         }
         let mut seen = BTreeSet::new();
@@ -247,6 +262,12 @@ pub fn evaluate(
     let v = ledger.view().map_err(|_| Error)?;
     if v["consumerReady"] != true {
         return Ok(blocked("UNKNOWN_OR_QUARANTINED_OBLIGATIONS"));
+    }
+    if input.account_provenance.is_some()
+        && input.market_provenance.is_none()
+        && !input.authenticated_cash_only(ledger)?
+    {
+        return Err(Error);
     }
     if ledger.has_open_orders() {
         return Ok(blocked("OPEN_ORDER_RESERVATIONS_UNMODELED"));
@@ -414,7 +435,9 @@ pub fn evaluate(
     };
     s.snapshot_hash = s.hash()?;
     Ok(Evaluation {
-        reason: if input.account_provenance.is_some() {
+        reason: if input.account_provenance.is_some() && input.market_provenance.is_none() {
+            "READY_OWNED_AUTHENTICATED_ACCOUNT_CASH_ONLY"
+        } else if input.account_provenance.is_some() {
             "READY_OWNED_AUTHENTICATED_ACCOUNT_AND_R01"
         } else if input.market_provenance.is_some() {
             "READY_OWNED_ACCOUNT_AUTHENTICATED_R01_MARKS"
@@ -516,6 +539,12 @@ impl State {
                     return Err(Error);
                 }
             }
+            if s.account_provenance.is_some() && s.market_provenance.is_none() {
+                let prefix = ledger_prefix(ledger, &s.ledger_anchor)?;
+                if !s.authenticated_cash_only(&prefix)? {
+                    return Err(Error);
+                }
+            }
             check.register(s, ledger.scope())?;
         }
         if check.sources.len() != self.sources.len() {
@@ -557,6 +586,7 @@ impl State {
         }
         if self.sources.iter().any(|i| i.market_provenance.is_some())
             && input.market_provenance.is_none()
+            && !(input.account_provenance.is_some() && input.marks.is_empty())
         {
             return Err(Error);
         }
@@ -600,6 +630,12 @@ impl State {
         generation: u64,
         at: DateTime<Utc>,
     ) -> Result<Evaluation> {
+        if input.account_provenance.is_some()
+            && input.market_provenance.is_none()
+            && !input.authenticated_cash_only(ledger)?
+        {
+            return Err(Error);
+        }
         let mut next = self.clone();
         if let Some(b) = &input.account_provenance {
             let h = next.account_history.as_ref().ok_or(Error)?;
@@ -626,8 +662,8 @@ impl State {
                 return Err(Error);
             }
         }
-        next.register(input, ledger.scope())?;
         let evaluated = evaluate(ledger, input, generation, at)?;
+        next.register(input, ledger.scope())?;
         if let Some(s) = &evaluated.snapshot {
             if let Some(old) = next.snapshots.get(&s.snapshot_hash) {
                 if old != s {
@@ -697,4 +733,15 @@ impl State {
         s.validate(ledger)?;
         Ok(s)
     }
+}
+
+fn ledger_prefix(ledger: &NativeLedger, anchor: &Anchor) -> Result<NativeLedger> {
+    let mut checkpoint = ledger.checkpoint().map_err(|_| Error)?;
+    let entries = checkpoint["entries"].as_array_mut().ok_or(Error)?;
+    if anchor.sequence > entries.len() as u64 {
+        return Err(Error);
+    }
+    entries.truncate(anchor.sequence as usize);
+    checkpoint["anchor"] = json!(anchor);
+    NativeLedger::restore(ledger.scope().clone(), &checkpoint).map_err(|_| Error)
 }

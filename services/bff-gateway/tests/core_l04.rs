@@ -1139,3 +1139,6 @@ mod account_state;
 
 #[path = "support/dual_source_gate.rs"]
 mod dual_source_gate;
+
+#[path = "support/cash_only.rs"]
+mod cash_only;

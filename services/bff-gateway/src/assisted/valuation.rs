@@ -56,7 +56,14 @@ impl OwnedHost {
             let mut input: Inputs =
                 serde_json::from_value(input).map_err(|_| Error::Unavailable)?;
             self.bind_account_input(&mut input, at)?;
-            self.bind_market_input(&mut input, at)?;
+            // Account-only mode is derived from the exact current ledger, never
+            // from a browser flag or an absent/broken market artifact.
+            if !input
+                .authenticated_cash_only(self.ledger.as_ref().ok_or(Error::Unavailable)?)
+                .map_err(|_| Error::Unavailable)?
+            {
+                self.bind_market_input(&mut input, at)?;
+            }
             let ledger = self.ledger.as_ref().ok_or(Error::Unavailable)?;
             let evaluated = self
                 .valuation

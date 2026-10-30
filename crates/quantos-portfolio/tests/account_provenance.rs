@@ -426,3 +426,237 @@ fn observed(i: &Inputs) -> account::Observation {
         quality: "normal".into(),
     }
 }
+
+fn account_input(
+    i: &mut Inputs,
+    p: &account::Policy,
+    key: &PKey<Private>,
+    version: u64,
+    previous: Option<ContentHash>,
+) {
+    let a = account::Artifact::from_observation(
+        p,
+        i.raw_market_hash().unwrap(),
+        version,
+        previous,
+        observed(i),
+    )
+    .unwrap();
+    i.account_provenance = Some(account::Binding {
+        policy: p.clone(),
+        artifact: account::SignedArtifact {
+            signature: seal(account::DOMAIN, &a, key),
+            payload: a,
+        },
+    });
+}
+#[test]
+fn cash_only_exact_ledger_empty_marks_account_deadline_and_cold_reconstruction() {
+    let (_, original, p, _, key) = fixture();
+    let l = NativeLedger::new(scope()).unwrap();
+    let mut i = inputs(&l);
+    i.marks.clear();
+    account_input(&mut i, &p, &key, 1, None);
+    let mut s = State::default();
+    let b = i.account_provenance.as_ref().unwrap();
+    s.observe_account_policy(&p, l.scope()).unwrap();
+    s.observe_account_artifact(&b.artifact, &p).unwrap();
+    let v = s.observe(&l, &i, 7, i.as_of).unwrap();
+    assert_eq!(v.reason, "READY_OWNED_AUTHENTICATED_ACCOUNT_CASH_ONLY");
+    let v = v.snapshot.unwrap();
+    assert_eq!(v.quote_cash, "10000");
+    assert_eq!(v.equity, "10000");
+    assert_eq!(v.exposure_gross, "0");
+    assert_eq!(v.exposure_net, "0");
+    assert!(v.positions.is_empty());
+    assert!(v.market_provenance.is_none());
+    assert_eq!(v.kill_generation, "7");
+    assert_eq!(v.expires_at, i.as_of + Duration::seconds(20));
+    let cold = State::restore(&s.checkpoint().unwrap(), &l).unwrap();
+    cold.verify_extension(&s).unwrap();
+    assert_eq!(
+        cold.verified_opening(&l)
+            .unwrap()
+            .unwrap()
+            .quote_cash_at_opening,
+        "10000"
+    );
+    assert!(evaluate(&l, &i, 7, v.expires_at).is_err());
+    let mut forged = i.clone();
+    forged.ledger_hash = original.ledger_hash;
+    assert!(evaluate(&l, &forged, 7, i.as_of).is_err());
+    let mut mark = i.clone();
+    mark.marks = original.marks;
+    assert!(evaluate(&l, &mark, 7, i.as_of).is_err());
+    assert!(
+        evaluate(&ledger(), &i, 7, i.as_of).is_err(),
+        "empty declaration cannot hide held positions"
+    );
+    let mut input = i.clone();
+    input.account_provenance = None;
+    assert!(
+        s.observe(&l, &input, 7, i.as_of).is_err(),
+        "authenticated account cannot downgrade"
+    );
+}
+#[test]
+fn cash_only_to_held_to_flat_preserves_original_cash_market_heads_and_requires_fresh_r01() {
+    let (mut l, mut held, p, _, key) = fixture();
+    let empty = NativeLedger::new(scope()).unwrap();
+    let mut cash = inputs(&empty);
+    account_input(&mut cash, &p, &key, 1, None);
+    let mut s = State::default();
+    let a = cash.account_provenance.as_ref().unwrap().artifact.clone();
+    s.observe_account_policy(&p, empty.scope()).unwrap();
+    s.observe_account_artifact(&a, &p).unwrap();
+    s.observe(&empty, &cash, 0, cash.as_of).unwrap();
+    held.version = 2;
+    held.market_provenance = None;
+    held.marks.clear();
+    account_input(
+        &mut held,
+        &p,
+        &key,
+        2,
+        Some(a.payload.content_hash().unwrap()),
+    );
+    let a2 = held.account_provenance.as_ref().unwrap().artifact.clone();
+    s.observe_account_artifact(&a2, &p).unwrap();
+    assert!(s.observe(&l, &held, 0, held.as_of).is_err());
+    // A new independently pinned R01 producer signs this exact held-ledger raw input.
+    let (_, template, _, _, _) = fixture();
+    let mut m = template.market_provenance.unwrap();
+    let (pem, pin, mk) = identity("fresh-market.invalid");
+    m.certificate = pem;
+    m.policy.signer = pin;
+    let a = quantos_portfolio::market_provenance::Artifact::produce(
+        &m.policy,
+        held.raw_market_hash().unwrap(),
+        1,
+        None,
+        m.artifact
+            .payload
+            .events
+            .iter()
+            .map(|_| quantos_market::RawMarketTick {
+                provider: m.policy.provider.provider.clone(),
+                source_tick_id: "held-mark".into(),
+                provider_symbol: "BTCUSDT".into(),
+                event_time: held.as_of,
+                received_at: held.as_of,
+                price: "1100".into(),
+                volume: "1".into(),
+            })
+            .collect(),
+        held.as_of,
+    )
+    .unwrap();
+    m.artifact = quantos_portfolio::market_provenance::SignedArtifact {
+        signature: seal(quantos_portfolio::market_provenance::DOMAIN, &a, &mk),
+        payload: a,
+    };
+    held.marks = m
+        .marks(&held.scope, &held.raw_market_hash().unwrap(), held.as_of)
+        .unwrap()
+        .0;
+    held.market_provenance = Some(m.clone());
+    s.observe_market_policy(&m.policy, l.scope()).unwrap();
+    s.observe_market_artifact(&m.artifact, &m.policy, &m.certificate)
+        .unwrap();
+    assert!(
+        s.observe(&l, &held, 0, held.as_of)
+            .unwrap()
+            .snapshot
+            .is_some()
+    );
+    let before = s.clone();
+    l.observe(&source(2, "sell", "1", "1200", "0.01")).unwrap();
+    let mut flat = inputs(&l);
+    flat.version = 3;
+    flat.marks.clear();
+    account_input(
+        &mut flat,
+        &p,
+        &key,
+        3,
+        Some(a2.payload.content_hash().unwrap()),
+    );
+    let a3 = flat.account_provenance.as_ref().unwrap().artifact.clone();
+    s.observe_account_artifact(&a3, &p).unwrap();
+    let v = s
+        .observe(&l, &flat, 4, flat.as_of)
+        .unwrap()
+        .snapshot
+        .unwrap();
+    assert_eq!(v.quote_cash, "10199.98");
+    assert_eq!(v.equity, "10199.98");
+    assert_eq!(v.realized_pnl_today, "194.98");
+    assert!(v.positions.is_empty());
+    assert!(v.market_provenance.is_none());
+    assert_eq!(
+        s.checkpoint().unwrap()["marketHistory"],
+        before.checkpoint().unwrap()["marketHistory"]
+    );
+    s.verify_extension(&before).unwrap();
+    State::restore(&s.checkpoint().unwrap(), &l).unwrap();
+    // Market revocation high-water remains sticky even while no mark is consumed.
+    let mut revoked = m.policy.clone();
+    revoked.revision = 2;
+    revoked.previous_hash = Some(m.policy.content_hash().unwrap());
+    revoked.enabled = false;
+    s.observe_market_policy(&revoked, l.scope()).unwrap();
+    assert!(s.observe_market_policy(&m.policy, l.scope()).is_err());
+    s.observe(&l, &flat, 4, flat.as_of).unwrap();
+    l.observe(&source(3, "buy", "1", "1000", "0.01")).unwrap();
+    let mut reopened = inputs(&l);
+    reopened.version = 4;
+    reopened.marks.clear();
+    account_input(
+        &mut reopened,
+        &p,
+        &key,
+        4,
+        Some(a3.payload.content_hash().unwrap()),
+    );
+    let a4 = reopened
+        .account_provenance
+        .as_ref()
+        .unwrap()
+        .artifact
+        .clone();
+    s.observe_account_artifact(&a4, &p).unwrap();
+    assert!(s.observe(&l, &reopened, 4, reopened.as_of).is_err());
+    reopened.market_provenance = Some(m);
+    assert!(
+        s.observe(&l, &reopened, 4, reopened.as_of).is_err(),
+        "old R01 proof/head cannot authorize reopened holdings"
+    );
+}
+
+#[test]
+fn cash_only_unknown_zero_positions_is_not_cash_capacity_or_new_source() {
+    let (_, _, p, _, key) = fixture();
+    let mut l = NativeLedger::new(scope()).unwrap();
+    let f = fixture::edit(&source(1, "buy", "1", "1000", "0.01"), |v| {
+        v["outcome"] = json!("unknown");
+        v["consumerReady"] = json!(false);
+        v["reason"] = json!("OUTCOME_UNRESOLVED");
+    });
+    l.observe(&f).unwrap();
+    let before = l.checkpoint().unwrap();
+    let mut i = inputs(&l);
+    i.marks.clear();
+    account_input(&mut i, &p, &key, 1, None);
+    let v = evaluate(&l, &i, 0, i.as_of).unwrap();
+    assert_eq!(v.reason, "UNKNOWN_OR_QUARANTINED_OBLIGATIONS");
+    assert!(v.snapshot.is_none());
+    assert!(!i.authenticated_cash_only(&l).unwrap());
+    let mut s = State::default();
+    let a = i.account_provenance.as_ref().unwrap();
+    s.observe_account_policy(&p, l.scope()).unwrap();
+    s.observe_account_artifact(&a.artifact, &p).unwrap();
+    let old = s.checkpoint().unwrap();
+    assert!(s.observe(&l, &i, 0, i.as_of).is_err());
+    assert_eq!(s.checkpoint().unwrap(), old);
+    assert_eq!(l.checkpoint().unwrap(), before);
+}

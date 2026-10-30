@@ -16,9 +16,6 @@ impl OwnedHost {
         if !self.account_valuation_enabled && !self.valuation.account_required() {
             return Ok(());
         }
-        if !self.r01_valuation_enabled && !self.valuation.market_required() {
-            return Err(Error::Unavailable);
-        }
         let p: Policy = serde_json::from_value(
             self.account_policy_store
                 .as_ref()

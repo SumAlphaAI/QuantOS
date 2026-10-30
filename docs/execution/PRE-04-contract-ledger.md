@@ -15,7 +15,7 @@
 | `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 50 个 JSON Schema（F03 新增 DeploymentTarget、StrategyRelease） | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 9 方法、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| `bff/openapi/quantos-bff.v1.yaml` | 1.33.0，160 个 operation、180 个 schema；C01–C17 全部已发布 | 同源生成 client/schema/160-operation manifest/MSW；本表登记当前源文件，本地与目标实现验收、历史回执仍各自独立，不由清单更新授予 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.34.0，160 个 operation、180 个 schema；C01–C17 全部已发布 | 同源生成 client/schema/160-operation manifest/MSW；本表登记当前源文件，本地与目标实现验收、历史回执仍各自独立，不由清单更新授予 |
 
 ## 2. 契约台账（C01–C17）
 
