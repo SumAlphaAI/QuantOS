@@ -1,0 +1,59 @@
+
+running 3 tests
+test r01_gate::r01_gate_mark_authentication_does_not_promote_account_authority_or_cached_risk ... ok
+test r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal ... FAILED
+test r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery ... FAILED
+
+failures:
+
+failures:
+    r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal
+    r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 58 filtered out; finished in 56.28s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.34s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-ed8aad98d07beb03)
+
+thread 'r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal' (2897036) panicked at services/bff-gateway/tests/support/r01_gate.rs:115:5:
+assertion `left == right` failed
+  left: String("deny")
+ right: "approval_required"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/std/src/panicking.rs:698:5
+   1: core::panicking::panic_fmt
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/panicking.rs:75:14
+   2: core::panicking::assert_failed_inner
+   3: core::panicking::assert_failed
+             at /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/panicking.rs:394:5
+   4: core_l04::r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal
+             at ./tests/support/r01_gate.rs:115:5
+   5: core_l04::r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal::{{closure}}
+             at ./tests/support/r01_gate.rs:20:78
+   6: core::ops::function::FnOnce::call_once
+             at /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery' (2897785) panicked at services/bff-gateway/tests/support/r01_gate.rs:198:5:
+assertion failed: caller.join().unwrap().is_err()
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/std/src/panicking.rs:698:5
+   1: core::panicking::panic_fmt
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/panicking.rs:75:14
+   2: core::panicking::panic
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/panicking.rs:145:5
+   3: core_l04::r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery
+             at ./tests/support/r01_gate.rs:198:5
+   4: core_l04::r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery::{{closure}}
+             at ./tests/support/r01_gate.rs:156:64
+   5: core::ops::function::FnOnce::call_once
+             at /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/f8297e351a40c1439a467bbbb6879088047f50b3/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`

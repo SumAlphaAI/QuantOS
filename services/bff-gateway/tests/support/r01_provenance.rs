@@ -8,13 +8,13 @@ use openssl::{hash::MessageDigest, pkey::PKey, sign::Signer, x509::X509};
 use quantos_core::{AccountId, ContentHash};
 use quantos_portfolio::{market_provenance::*, native_valuation::Inputs};
 use quantos_storage::{SnapshotUsage, provenance::SourceApproval};
-fn configure(lab: &Lab, enabled: bool) {
+pub(super) fn configure(lab: &Lab, enabled: bool) {
     let p = lab.directory.join("bff-owner.json");
     let mut o: Value = serde_json::from_slice(&fs::read(&p).unwrap()).unwrap();
     o["r01ValuationEnabled"] = json!(enabled);
     private_write(p, serde_json::to_vec(&o).unwrap());
 }
-fn policy(lab: &Lab, input: &Inputs) -> Policy {
+pub(super) fn policy(lab: &Lab, input: &Inputs) -> Policy {
     let cert = X509::from_pem(&fs::read(lab.directory.join("server.pem")).unwrap()).unwrap();
     let mut provider = quantos_market::default_approved_providers()
         .approved_provider("approved.binance.spot")
@@ -68,7 +68,7 @@ fn signed(lab: &Lab, a: Artifact) -> SignedArtifact {
             .collect(),
     }
 }
-fn produce(
+pub(super) fn produce(
     lab: &Lab,
     p: &Policy,
     input: &Inputs,
@@ -102,7 +102,7 @@ fn produce(
         .unwrap(),
     )
 }
-fn publish(lab: &Lab, p: &Policy, a: &SignedArtifact) {
+pub(super) fn publish(lab: &Lab, p: &Policy, a: &SignedArtifact) {
     let fence = owner_store(lab, "account-books-fence");
     let _guard = fence.lock().unwrap();
     owner_store(lab, "market-valuation-policy")
@@ -161,7 +161,7 @@ fn approved(url: &str, r: &Value) -> String {
     approve(url, &id, 1);
     id
 }
-fn state(lab: &Lab) -> Value {
+pub(super) fn state(lab: &Lab) -> Value {
     owner_store(lab, "approvals")
         .lock()
         .unwrap()

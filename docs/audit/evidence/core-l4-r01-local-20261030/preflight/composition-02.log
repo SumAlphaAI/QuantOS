@@ -1,0 +1,35 @@
+
+running 3 tests
+test r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal ... FAILED
+test r01_gate::r01_gate_mark_authentication_does_not_promote_account_authority_or_cached_risk ... FAILED
+test r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery ... FAILED
+
+failures:
+
+failures:
+    r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal
+    r01_gate::r01_gate_mark_authentication_does_not_promote_account_authority_or_cached_risk
+    r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 58 filtered out; finished in 39.51s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
+     Running tests/core_l04.rs (target/debug/deps/core_l04-ed8aad98d07beb03)
+
+thread 'r01_gate::r01_gate_current_success_controls_new_review_and_repeat_proposal_refusal' (2891737) panicked at services/bff-gateway/tests/core_l04.rs:248:5:
+assertion `left == right` failed: /v1/assisted-testnet/valuation: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a18b14-2fe1-7350-89f0-70bb1c4a48fc","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'r01_gate::r01_gate_mark_authentication_does_not_promote_account_authority_or_cached_risk' (2891738) panicked at services/bff-gateway/tests/core_l04.rs:248:5:
+assertion `left == right` failed: /v1/assisted-testnet/valuation: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a18b14-3741-79f2-8cdf-9d67149413d1","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+
+thread 'r01_gate::r01_gate_unknown_through_public_controls_and_cold_recovery' (2892238) panicked at services/bff-gateway/tests/core_l04.rs:248:5:
+assertion `left == right` failed: /v1/assisted-testnet/valuation: {"code":"SERVICE_UNAVAILABLE","correlationId":"01a18b14-8128-7550-8fae-8be12c760623","message":"Research request could not be completed."}
+  left: 503
+ right: 200
+error: test failed, to rerun pass `-p bff-gateway --test core_l04`
