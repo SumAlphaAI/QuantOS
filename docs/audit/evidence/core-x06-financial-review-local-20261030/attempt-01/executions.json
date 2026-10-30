@@ -1,0 +1,418 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X06"
+    ],
+    "startedAt": "2026-10-30T01:10:23.110Z",
+    "finishedAt": "2026-10-30T01:10:23.343Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/development.log",
+    "logSha256": "7c99fcf71d15d113451e77137cc3f1c2066d67afc1e8ad094753a000024b4e55"
+  },
+  {
+    "id": "domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "core_x02_source",
+      "--test",
+      "core_l04"
+    ],
+    "startedAt": "2026-10-30T01:10:23.344Z",
+    "finishedAt": "2026-10-30T01:10:36.406Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/domain.log",
+    "logSha256": "fdbbcb9eddc082be822556df4c90899cece8844ece4baf2fd06dfbfb4dc455bf"
+  },
+  {
+    "id": "reconciliation",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "current_join",
+      "--test",
+      "financial_review"
+    ],
+    "startedAt": "2026-10-30T01:10:36.406Z",
+    "finishedAt": "2026-10-30T01:10:42.793Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/reconciliation.log",
+    "logSha256": "7fc6c56d4d02330e164902968bb374996050ab72f0eb03237771ca2b96f26c98"
+  },
+  {
+    "id": "authority",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "financial_review"
+    ],
+    "startedAt": "2026-10-30T01:10:42.794Z",
+    "finishedAt": "2026-10-30T01:10:51.056Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/authority.log",
+    "logSha256": "f3a5842db44e09d2379b022c940f61ed9866a4ab5701ee0d306fee908e299508"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-30T01:10:51.056Z",
+    "finishedAt": "2026-10-30T01:10:53.967Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/build.log",
+    "logSha256": "b73aa6256e203e46c7194fd3bbb95e0566cc8d0270fcdc4a6817554dba8e8956"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "financial_review",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T01:10:54.021Z",
+    "finishedAt": "2026-10-30T01:11:58.632Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/composition.log",
+    "logSha256": "2ed1569a5ae52647cce8f3089e42679cd8fb3957476cfe7fb00070f01077f545"
+  },
+  {
+    "id": "direct-impact",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "--",
+      "--skip",
+      "financial_review",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T01:11:58.632Z",
+    "finishedAt": "2026-10-30T01:17:02.711Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/direct-impact.log",
+    "logSha256": "2905512c6376002e3ec11094e976ab24691ce4a4f8b688fb11aab36c071e3e00"
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/financial-review.test.ts",
+      "apps/terminal/tests/core-x06-alerts.test.ts",
+      "apps/terminal/tests/ui-p23.test.ts",
+      "tests/contract/financial-review.test.ts",
+      "apps/terminal/tests/current-native-review.test.ts",
+      "apps/terminal/tests/current-native-execution.test.ts",
+      "tests/contract/books-risk-admission.test.ts",
+      "tests/contract/current-risk-approval.test.ts",
+      "tests/contract/native-risk-review.test.ts",
+      "tests/contract/current-native-execution.test.ts",
+      "tests/contract/core-x05-reconciliation.test.ts",
+      "tests/contract/core-x06-alerts.test.ts"
+    ],
+    "startedAt": "2026-10-30T01:17:02.711Z",
+    "finishedAt": "2026-10-30T01:17:05.585Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/consumer.log",
+    "logSha256": "d538aa402a227afa2a2311e80bbfb49e156a84a03fa9b0301ff28fb123cd6cc7"
+  },
+  {
+    "id": "types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "typecheck"
+    ],
+    "startedAt": "2026-10-30T01:17:05.586Z",
+    "finishedAt": "2026-10-30T01:17:08.660Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/types.log",
+    "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/core-x06-financial-review.test.mjs",
+      "scripts/development-execution.test.mjs"
+    ],
+    "startedAt": "2026-10-30T01:17:08.660Z",
+    "finishedAt": "2026-10-30T01:17:10.122Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/gate-tests.log",
+    "logSha256": "732244163713f9c5686fe7b75a23a24c7b6c3a5a105c30ce759dd85d27c7d867"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "startedAt": "2026-10-30T01:17:10.122Z",
+    "finishedAt": "2026-10-30T01:17:10.238Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/plans.log",
+    "logSha256": "6f9c0477279b3eb4619448d1d8921a6ea40cb3fd6fcf3d82253adcb8dcf34d24"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "startedAt": "2026-10-30T01:17:10.239Z",
+    "finishedAt": "2026-10-30T01:17:12.078Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/generated.log",
+    "logSha256": "50fff58889f662bd9b8bf45a28d9473c5a16a5867bc92f7eb055e58ad8c74c39"
+  },
+  {
+    "id": "inventory",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "startedAt": "2026-10-30T01:17:12.079Z",
+    "finishedAt": "2026-10-30T01:17:12.615Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/inventory.log",
+    "logSha256": "8a828b46a831fad1033b6488022e87f951ffc4acf5ed3e7724169c5d013c1bf0"
+  },
+  {
+    "id": "no-submit",
+    "command": [
+      "python3",
+      "scripts/check-x05-no-submit.py"
+    ],
+    "startedAt": "2026-10-30T01:17:12.615Z",
+    "finishedAt": "2026-10-30T01:17:12.681Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/no-submit.log",
+    "logSha256": "e86221e06bbb9f74ef46409266753d5c0a60672813e35e8b225f3e9f042882ae"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "startedAt": "2026-10-30T01:17:12.682Z",
+    "finishedAt": "2026-10-30T01:17:13.721Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/format.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--no-deps",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "startedAt": "2026-10-30T01:17:13.722Z",
+    "finishedAt": "2026-10-30T01:17:51.963Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/clippy.log",
+    "logSha256": "1c4c89b475e1e6e5deed44871a69d510d7dbb0996a8a6718d2d59f7ff93e3d5d"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "pnpm",
+      "exec",
+      "eslint",
+      "scripts/core-x06-financial-review.mjs",
+      "scripts/core-x06-financial-review.test.mjs",
+      "apps/terminal/src/alerts/financial-review.ts",
+      "apps/terminal/src/alerts/financial-review-panel.tsx",
+      "apps/terminal/app/alerts/workspace.tsx",
+      "apps/terminal/tests/financial-review.test.ts",
+      "tests/contract/financial-review.test.ts",
+      "apps/terminal/src/assisted/risk-review.ts",
+      "apps/terminal/src/assisted/runtime.ts",
+      "apps/terminal/src/assisted/risk-review-panel.tsx",
+      "apps/terminal/tests/core-l03-fixture.ts",
+      "apps/terminal/tests/native-review-fixture.ts",
+      "apps/terminal/tests/current-native-review.test.ts",
+      "apps/terminal/tests/current-native-execution.test.ts",
+      "tests/contract/books-risk-admission.test.ts"
+    ],
+    "startedAt": "2026-10-30T01:17:51.963Z",
+    "finishedAt": "2026-10-30T01:17:52.928Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/lint.log",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "integration-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--integration",
+      "CORE:X06"
+    ],
+    "startedAt": "2026-10-30T01:17:52.929Z",
+    "finishedAt": "2026-10-30T01:17:53.163Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/integration-refusal.log",
+    "logSha256": "3fe7f067aa0974ca04ab60d909b1efb8d7abb2f9f92b59760e54d810b708242f"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--release",
+      "CORE:X06"
+    ],
+    "startedAt": "2026-10-30T01:17:53.163Z",
+    "finishedAt": "2026-10-30T01:17:53.397Z",
+    "exitCode": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/release-refusal.log",
+    "logSha256": "73c3938ab8546f643234b8f9a92b725489f98d6e7ba04892875450fed70b34ab"
+  },
+  {
+    "id": "next-development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE-GATE:L4"
+    ],
+    "startedAt": "2026-10-30T01:17:53.397Z",
+    "finishedAt": "2026-10-30T01:17:53.632Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/next-development.log",
+    "logSha256": "559e4e35b1de278f253d6217c5d53f62c2c47afa371a1c400c4f6d6a7f2372a5"
+  },
+  {
+    "id": "secret-scan",
+    "command": [
+      "node",
+      "scripts/core-x06-financial-review.mjs",
+      "--scan",
+      "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01"
+    ],
+    "startedAt": "2026-10-30T01:17:53.633Z",
+    "finishedAt": "2026-10-30T01:17:54.888Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x06-financial-review-local-20261030/attempt-01/secret-scan.log",
+    "logSha256": "49cf4a5b2d7de61e17790a803fb2fd6ac955cde7ea3276acc4097c569835f3cc"
+  }
+]
