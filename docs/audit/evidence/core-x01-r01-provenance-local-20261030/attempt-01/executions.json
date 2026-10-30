@@ -1,0 +1,170 @@
+[
+  {
+    "id": "development",
+    "command": [
+      "node",
+      "scripts/development-execution.mjs",
+      "--development",
+      "CORE:X01"
+    ],
+    "startedAt": "2026-10-30T03:47:46.997Z",
+    "finishedAt": "2026-10-30T03:47:47.236Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/development.log",
+    "logSha256": "34ad77365ce19281079ea9b59b7dd5a2dd07730e8483bf3e71a9b5ef540aabb4"
+  },
+  {
+    "id": "domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "--test",
+      "market_provenance",
+      "--test",
+      "native_valuation"
+    ],
+    "startedAt": "2026-10-30T03:47:47.236Z",
+    "finishedAt": "2026-10-30T03:47:47.459Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/domain.log",
+    "logSha256": "bf58944e0a341043d58c091a14b485658cda7d48645ebe600e505eb3ace72ba1"
+  },
+  {
+    "id": "market",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-market",
+      "--lib"
+    ],
+    "startedAt": "2026-10-30T03:47:47.459Z",
+    "finishedAt": "2026-10-30T03:47:56.992Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/market.log",
+    "logSha256": "91ac3ea59c331d41f1aff8b53b8427564ed662898843db1e81cfc6f2090615f0"
+  },
+  {
+    "id": "storage",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--lib",
+      "provenance::"
+    ],
+    "startedAt": "2026-10-30T03:47:56.993Z",
+    "finishedAt": "2026-10-30T03:47:57.160Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/storage.log",
+    "logSha256": "bd07d65a716eb28b1187b1d456c5657e6e09024fd44380d9e9d3d6205b2d9697"
+  },
+  {
+    "id": "native-domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "core_x02_source",
+      "--test",
+      "core_l04"
+    ],
+    "startedAt": "2026-10-30T03:47:57.160Z",
+    "finishedAt": "2026-10-30T03:48:04.353Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/native-domain.log",
+    "logSha256": "22d3051352ac98b5d9400f6dbca7ea5f67a871446c88836c71a619a5623c2922"
+  },
+  {
+    "id": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "-p",
+      "execution-gateway",
+      "--message-format=json"
+    ],
+    "startedAt": "2026-10-30T03:48:04.354Z",
+    "finishedAt": "2026-10-30T03:48:04.524Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/build.log",
+    "logSha256": "6545db3117d93b0e8e72086c12e911fe7f9d5356e81cccd0789a7bb61fbe2eb5"
+  },
+  {
+    "id": "composition",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "r01_provenance::",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T03:48:04.586Z",
+    "finishedAt": "2026-10-30T03:49:53.781Z",
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/composition.log",
+    "logSha256": "e9b223b0b39877981b2ed2f0781987ecaf636952de59fa8a134782a4f6abb9d3"
+  },
+  {
+    "id": "direct-impact",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "core_l04",
+      "--",
+      "--skip",
+      "r01_provenance::",
+      "--test-threads=2"
+    ],
+    "startedAt": "2026-10-30T03:49:53.781Z",
+    "finishedAt": "2026-10-30T03:59:00.539Z",
+    "exitCode": 101,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/core-x01-r01-provenance-local-20261030/attempt-01/direct-impact.log",
+    "logSha256": "35724d4fefb63a33a62e547e4cb3d28dc5d2daa1bf786a1a2ab5da8a7524c4d9"
+  }
+]

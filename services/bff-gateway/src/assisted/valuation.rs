@@ -47,6 +47,9 @@ impl OwnedHost {
         let mut view = json!({"schemaVersion":"quantos-native-valuation-view.v1","tenantId":ledger.scope().tenant_id,"workspaceId":ledger.scope().workspace_id,"accountId":ledger.scope().account_id,"mode":"assisted_live","checkedAt":at,"expiresAt":at+Duration::seconds(8),"ledgerHash":ledger_view["ledgerHash"],"ledgerAnchor":ledger.anchor(),"killGeneration":generation.to_string(),"quarantinedCommandCount":ledger_view["quarantinedCommandCount"],"riskInputReady":false,"reason":"SOURCE_UNAVAILABLE","sourceTrust":TRUST,"executionAuthority":false});
         if ledger_view["consumerReady"] != true {
             view["reason"] = json!("UNKNOWN_OR_QUARANTINED_OBLIGATIONS");
+            let (sources, snapshots) = self.valuation.counts();
+            view["sourceVersions"] = json!(sources);
+            view["snapshotCount"] = json!(snapshots);
             return Ok(view);
         }
         if let Some(input) = input {
