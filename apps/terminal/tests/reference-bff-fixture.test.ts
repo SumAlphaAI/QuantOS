@@ -31,6 +31,13 @@ it("forwards only explicit archive provenance and never invents a source SHA", (
     .toEqual({ GITHUB_SHA: sha });
 });
 
+it("uses the Cargo-emitted explicit fixture without falling back to a stale debug binary", () => {
+  const executable = resolve(referenceBffRoot, "custom output/owned-fixture/bff-gateway");
+  expect(referenceBffExecutable({ QUANTOS_REFERENCE_BFF_EXECUTABLE: executable, CARGO_TARGET_DIR: "stale" })).toBe(executable);
+  expect(referenceBffExecutable({ QUANTOS_REFERENCE_BFF_EXECUTABLE: "/missing/bff-gateway" })).toBe("/missing/bff-gateway");
+  expect(() => referenceBffExecutable({ QUANTOS_REFERENCE_BFF_EXECUTABLE: "" })).toThrow("Empty explicit");
+});
+
 it("serves cold reference domains within the existing ten-second request deadline after readiness", async () => {
   const { createServer } = await import("node:net");
   const reserve = createServer();

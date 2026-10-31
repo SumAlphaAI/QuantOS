@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "mode": "clean-room",
+  "status": "FAIL",
+  "passed": false,
+  "reproducible": false,
+  "startedAt": "2026-10-30T12:48:03.493Z",
+  "environment": {
+    "os": "linux",
+    "release": "7.0.0-1017-azure",
+    "arch": "x64",
+    "ciRunId": "41057928531",
+    "ciRunUrl": "https://github.com/SumAlphaAI/QuantOS/actions/runs/41057928531"
+  },
+  "runs": [
+    {
+      "run": 1,
+      "startedAt": "2026-10-30T12:48:18.385Z",
+      "commands": [
+        {
+          "binary": "make",
+          "args": [
+            "bootstrap"
+          ],
+          "exitCode": 0,
+          "seconds": 11.85
+        },
+        {
+          "binary": "make",
+          "args": [
+            "lockfile-check",
+            "f01-check",
+            "lint",
+            "test"
+          ],
+          "exitCode": 2,
+          "seconds": 2025.489
+        }
+      ]
+    }
+  ],
+  "source": {
+    "commit": "ad011968281d1b71c8ec876548665ada493bfb0d",
+    "tree": "c1cece335970ed973bf3a4de176d2d677a273ec3",
+    "dirty": false
+  },
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "sourceDateEpoch": 1793364015,
+  "directoryPolicy": "fixed physical build prefix; source/install/output directory removed and recreated for every run",
+  "cachePolicy": "empty package download caches; empty install and build directories; preinstalled pinned toolchains",
+  "error": "Command failed: make lockfile-check f01-check lint test",
+  "completedAt": "2026-10-30T13:22:15.809Z"
+}

@@ -5,7 +5,11 @@
 > 历史仓库 Gate：**PASS（本地参考 provider）**
 > 历史目标环境：**NOT RUN / NO RECEIPT**
 
-## 当前契约引用（2026-10-27）
+## 当前契约引用（2026-10-31）
+
+API 1.34.0：160 operations / 180 schemas；C01/C17 本任务仍为20项。[当前 inventory](./BFF-FE-001-current-inventory.json) 同步实际 OpenAPI/生成物，新增原生/来源/财务控制仍按各自 catalog 归属追踪，不扩大 A2 验收。原 [2026-10-03 整改](../audit/BFF-FE-001-remediation-2026-10-03.md) 与下文各轮记录保留原范围；本轮执行见 [ad011968 CI 修复记录](../audit/ci-remediation-ad011968-2026-10-31.md)。当前 Gate 必须重新执行三组 provider/consumer 语义回归并核对源码摘要，缺失、失败或旧缓存仍拒绝；这不是刷新历史回执或真实数据库/目标验收。formalAccepted=false，stagingStatus=DEFERRED_TO_FINAL_REVIEW。
+
+## 历史契约引用（2026-10-27）
 
 API 1.18.0：142 operations / 132 schemas；C01/C17 本任务仍为20项。当前 [inventory](./BFF-FE-001-current-inventory.json) 与已发布 OpenAPI/生成物同步；新增受控 Assisted 接口由 C08/BFF-FE-006 追踪，不扩大本任务验收范围。本轮 [CI 修复记录](../audit/ci-remediation-19f09fb5-2026-10-27.md) 留存实际 provider/client 语义回归与拒绝控制。`check:bff-fe-001` 必须执行当前源码三组回归并核对来源摘要，不能用台账更新或历史缓存替代。Supabase/staging、完整联调、正式确认及发布保持独立门禁；formalAccepted=false，stagingStatus=DEFERRED_TO_FINAL_REVIEW。历史整改、回执及其原始范围保留。
 

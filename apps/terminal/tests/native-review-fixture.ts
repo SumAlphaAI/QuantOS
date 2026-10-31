@@ -4,7 +4,7 @@ import type {BffComponents} from '@sumalpha/api-client';
 import {assistedModel} from './core-l03-fixture';
 type S=BffComponents['schemas'];
 export function nativeReviewModel(eligible=false,role:'operator'|'approver'='operator'){
- const m=assistedModel(role),raw=JSON.parse(readFileSync('docs/audit/evidence/core-x02-native-review-local-20261029/attempt-01/review.json','utf8'));
+ const m=assistedModel(role),raw=JSON.parse(readFileSync(new URL('../../../docs/audit/evidence/core-x02-native-review-local-20261029/attempt-01/review.json',import.meta.url),'utf8'));
  const v=structuredClone(raw.valuation);Object.assign(v,{tenantId:m.context.tenantId,workspaceId:m.context.workspaceId,accountId:m.context.accountId});Object.assign(v.snapshot.scope,{tenantId:m.context.tenantId,workspaceId:m.context.workspaceId,accountId:m.context.accountId});
  const at=Date.parse('2026-10-27T00:00:00Z');v.checkedAt=new Date(at).toISOString();v.expiresAt=new Date(at+8000).toISOString();v.snapshot.generatedAt=v.checkedAt;v.snapshot.expiresAt=new Date(at+30000).toISOString();
  const candidate:S['NativeRiskCandidate']={subjectId:m.subject.subjectId,proposalId:'ui-model:immutable-proposal',proposalHash:m.subject.proposalHash,proposalExpiresAt:new Date(at+60000).toISOString(),accountId:m.context.accountId,symbol:m.subject.symbol,side:m.subject.side,quantity:m.subject.quantity,limitPrice:m.subject.limitPrice,executionAuthority:false};

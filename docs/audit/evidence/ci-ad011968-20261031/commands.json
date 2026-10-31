@@ -1,0 +1,86 @@
+{
+  "scope": "Local scoped repair; no new hosted/target/release acceptance",
+  "toolOverride": "Temporary pnpm shim executes existing /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/bin/pnpm.cjs with Node 24.12.0; no repo config, package bytes or signature checks changed.",
+  "commands": [
+    {
+      "command": "PATH=/tmp/quantos-ad011968-bin:$PATH node scripts/check-bff-fe-001.mjs",
+      "result": "PASS 8 policy + 17 provider + 29 client; 18 exact source hashes",
+      "log": "a2-semantic.log.gz"
+    },
+    {
+      "command": "node --test scripts/test-web-with-bff.test.mjs scripts/bff-fe-001-gate-negative.mjs",
+      "result": "PASS 33, zero skip",
+      "log": "gate-negative.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-ad011968-bin:$PATH QUANTOS_SKIP_ENV=1 node scripts/test-web-with-bff.mjs",
+      "result": "PASS 166 files / 2098 tests; 3 preexisting domain-ui skips",
+      "log": "test-web.log.gz"
+    },
+    {
+      "command": "QUANTOS_REFERENCE_BFF_EXECUTABLE=$PWD/target/owned-fixture/bff-gateway node node_modules/vitest/vitest.mjs run apps/terminal/tests/account-state-provenance.test.ts apps/terminal/tests/r01-provenance.test.ts apps/terminal/tests/cash-only-valuation.test.ts apps/terminal/tests/current-native-execution.test.ts apps/terminal/tests/current-native-review.test.ts apps/terminal/tests/financial-review.test.ts apps/terminal/tests/source-review.test.ts",
+      "result": "PASS 7 files / 107 tests from root cwd",
+      "log": "fixture-root.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-ad011968-bin:$PATH UV_OFFLINE=1 node --test scripts/f01-gate-negative.mjs scripts/ci-stage-disposition.test.mjs",
+      "result": "PASS 58, zero skip",
+      "log": "wiring-negative-final.log.gz"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --project apps/terminal/tsconfig.json --noEmit",
+      "result": "PASS",
+      "log": "terminal-types.log.gz"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/test-web-with-bff.mjs scripts/test-web-with-bff.test.mjs apps/terminal/tests/helpers/reference-bff.ts apps/terminal/tests/reference-bff-fixture.test.ts apps/terminal/tests/native-review-fixture.ts apps/terminal/tests/account-state-provenance.test.ts apps/terminal/tests/r01-provenance.test.ts apps/terminal/tests/cash-only-valuation.test.ts",
+      "result": "PASS",
+      "log": "eslint.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-ad011968-bin:$PATH UV_OFFLINE=1 node scripts/check-f01.mjs",
+      "result": "PASS static inventory/toolchains only",
+      "log": "f01-static-final.log.gz"
+    },
+    {
+      "command": "node scripts/check-pre06.mjs",
+      "result": "PASS static",
+      "log": "pre06.log.gz"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "result": "PASS static",
+      "log": "plans.log.gz"
+    },
+    {
+      "command": "node scripts/check-bff-fe-007.mjs",
+      "result": "PASS C10 contract",
+      "log": "bff007.log.gz"
+    },
+    {
+      "command": "node scripts/ci-stage-disposition.mjs FE:BFF-FE-001",
+      "result": "recordValidation PASS / NOT_ASSESSED / admitted false",
+      "log": "a2-disposition.log.gz"
+    },
+    {
+      "command": "node scripts/ci-stage-disposition.mjs FE:BFF-FE-007",
+      "result": "recordValidation PASS / NOT_ASSESSED / admitted false",
+      "log": "audit-disposition.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-ad011968-bin:$PATH node scripts/check-f01.mjs (sandbox)",
+      "result": "FAILED_ENVIRONMENT uv cache permission; final offline permitted rerun passed",
+      "log": "f01-static-pinned.log.gz"
+    },
+    {
+      "command": "node scripts/check-f01.mjs (default pnpm wrapper)",
+      "result": "INTERRUPTED exit143; NOT_PASS",
+      "log": "f01-static.log.gz"
+    },
+    {
+      "command": "node --test scripts/f01-gate-negative.mjs scripts/ci-stage-disposition.test.mjs (default pnpm wrapper)",
+      "result": "INTERRUPTED while lint child waited; exit1, NOT_PASS; final pinned rerun passed",
+      "log": "wiring-negative.log.gz"
+    }
+  ]
+}

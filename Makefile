@@ -434,8 +434,8 @@ test-python:
 	uv run --locked --project engines --all-packages pytest engines/tests
 
 test-web:
-	cargo build -p bff-gateway --bin bff-gateway --locked
-	pnpm test
+	node --test scripts/test-web-with-bff.test.mjs
+	node scripts/test-web-with-bff.mjs
 
 test-browser:
 	pnpm test:browser
