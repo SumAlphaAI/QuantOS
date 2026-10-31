@@ -7,7 +7,10 @@ import { sourceDigest } from "./pre03-build-receipt.mjs";
 import { createServer } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL, URL } from "node:url";
+import process from "node:process";
+import console from "node:console";
+const { fetch } = globalThis;
 import { parse as parseYaml } from "yaml";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,7 +32,7 @@ export const expectedLockedVersions = {
   },
   "packages/ui": {
     dependencies: { "@radix-ui/react-dialog": "1.1.23", "@radix-ui/react-tabs": "1.1.21" },
-    devDependencies: { "@testing-library/react": "16.3.0", jsdom: "26.1.0", storybook: "8.6.19", vite: "6.4.4", react: "19.2.8", "react-dom": "19.2.8" },
+    devDependencies: { "@testing-library/react": "16.3.0", jsdom: "26.1.0", storybook: "8.6.19", vite: "6.4.5", react: "19.2.8", "react-dom": "19.2.8" },
   },
 };
 
@@ -253,7 +256,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       for (const failure of report.failures) console.error(`FAIL  ${failure}`);
       process.exitCode = 1;
     } else {
-      const { checks: _checks, failures: _failures, ...summary } = report;
+      const summary = { ...report };
+      delete summary.checks;
+      delete summary.failures;
       process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
     }
   } catch (error) {

@@ -27,7 +27,7 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "coverage:web": "vitest run --config vitest.coverage.config.ts --coverage && pnpm coverage:critical",
+    "coverage:web": "node scripts/test-web-with-bff.mjs coverage:web:run",
     "test:browser": "node scripts/check-pre06.mjs && playwright test --config playwright.config.ts",
     "test:browser:website": "node scripts/check-pre06.mjs && playwright test --config playwright.website.config.ts",
     "build": "pnpm -r build",
@@ -53,7 +53,7 @@
     "check:pre03:desktop": "node scripts/pre03-smoke.mjs --desktop",
     "test:pre03:desktop": "node --test scripts/pre03-desktop-negative.mjs",
     "check:client-secrets": "node scripts/check-client-secrets.mjs apps/website/out apps/terminal/out",
-    "coverage:critical": "vitest run --config vitest.critical.config.ts --coverage",
+    "coverage:critical": "node scripts/test-web-with-bff.mjs coverage:critical:run",
     "check:p0": "node scripts/check-p0-acceptance.mjs",
     "test:p0": "node --test scripts/p0-acceptance-negative.mjs",
     "check:bff-compatibility": "node scripts/check-bff-compatibility.mjs",
@@ -344,7 +344,9 @@
     "accept:core-x01-cash:local": "node scripts/core-x01-cash-only.mjs --run",
     "check:core-x01-cash:local": "node scripts/core-x01-cash-only.mjs --verify",
     "assess:core-l4-cash:local": "node scripts/core-l4-cash.mjs --run",
-    "check:core-l4-cash:local": "node scripts/core-l4-cash.mjs --verify"
+    "check:core-l4-cash:local": "node scripts/core-l4-cash.mjs --verify",
+    "coverage:critical:run": "vitest run --config vitest.critical.config.ts --coverage",
+    "coverage:web:run": "vitest run --config vitest.coverage.config.ts --coverage && pnpm coverage:critical:run"
   },
   "dependencies": {
     "pg": "8.16.3"
@@ -387,10 +389,14 @@
       "fast-uri@3": "3.1.9",
       "uuid@9": "11.1.1",
       "brace-expansion@5": "5.0.12",
-      "source-map-js": "1.2.2"
+      "source-map-js": "1.2.2",
+      "vite@6": "6.4.5",
+      "glob": "14.0.2",
+      "minimatch": "11.0.1"
     },
     "patchedDependencies": {
-      "braces@3.0.3": "patches/braces@3.0.3.patch"
+      "braces@3.0.3": "patches/braces@3.0.3.patch",
+      "minimatch@11.0.1": "patches/minimatch@11.0.1.patch"
     }
   }
 }

@@ -7,6 +7,8 @@ import { resolve, join } from 'node:path';
 import { sourceDigest } from './pre03-build-receipt.mjs';
 import { chromium } from '@playwright/test';
 import { loadRuntimeInputs, loadEffectiveConfig, validateRuntimeContract, validateBuildReceipts, checkPage } from './pre03-smoke.mjs';
+import process from 'node:process';
+const { structuredClone } = globalThis;
 
 const root = resolve('.');
 const current = await loadRuntimeInputs(root);
@@ -31,13 +33,13 @@ test('Storybook security rollback is rejected even when manifest and ADR agree w
   const report=validate({pnpmLock,manifests,runtimeAdr});
   assert(report.failures.includes('packages/ui storybook locked at 8.6.19'));
 });
-for (const version of ['6.4.2','6.4.3','7.0.0']) {
+for (const version of ['6.4.2','6.4.3','6.4.4','7.0.0']) {
   test(`packages/ui rejects unreviewed Vite ${version}`, () => {
     const pnpmLock=structuredClone(current.pnpmLock);
     pnpmLock.importers['packages/ui'].devDependencies.vite.version=version;
     const report=validate({pnpmLock});
     assert.equal(report.status,'FAIL');
-    assert(report.failures.includes('packages/ui vite locked at 6.4.4'));
+    assert(report.failures.includes('packages/ui vite locked at 6.4.5'));
   });
 }
 for (const [name,change] of [

@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
+import process from "node:process";
+import console from "node:console";
 
 import { validateFixtureInventory } from "../tests/contract/fixture-inventory.mjs";
 import { validateTestStructure, configValue, projectNames, budgetValue, hasCall } from "./pre06-test-structure.mjs";
@@ -47,6 +49,12 @@ export function validatePre06(inputs) {
   check(scripts["test:pre06"] === "node --test scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs", "PRE-06 negative Gate is registered");
   check(scripts["check:visual-baselines"] === "node scripts/check-visual-baselines.mjs", "visual integrity Gate is registered");
   check(scripts["check:pre03:web"] === "node scripts/pre03-smoke.mjs --web-only", "Web-only build smoke is registered");
+  check(scripts["coverage:critical"] === "node scripts/test-web-with-bff.mjs coverage:critical:run" &&
+    scripts["coverage:critical:run"] === "vitest run --config vitest.critical.config.ts --coverage",
+    "critical coverage prepares the current owned BFF before instrumented tests");
+  check(scripts["coverage:web"] === "node scripts/test-web-with-bff.mjs coverage:web:run" &&
+    scripts["coverage:web:run"] === "vitest run --config vitest.coverage.config.ts --coverage && pnpm coverage:critical:run",
+    "Web coverage and its critical follow-up share the prepared owned BFF");
 
   check(!/terminal-desktop|tauri|dual-end/i.test(inputs.frontendWorkflowText), "Frontend Baseline has no Desktop/Tauri Gate");
   check(!/terminal-desktop|tauri|desktop contract/i.test(inputs.compatibilityWorkflowText), "Web compatibility has no Desktop/Tauri Gate");
@@ -69,6 +77,7 @@ export function validatePre06(inputs) {
     ["node scripts/check-perf-budget.mjs apps/terminal/out --diagnostic", "Frontend Baseline runs Terminal performance diagnostic"],
     ["node scripts/check-perf-budget.mjs apps/website/out --diagnostic", "Frontend Baseline runs website performance diagnostic"],
     ["pnpm coverage:critical", "Frontend Baseline runs critical branch coverage"],
+    ["node scripts/test-web-with-bff.mjs --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test", "Frontend Baseline unit tests prepare the current owned BFF"],
   ];
   for (const [command, message] of required) check(active(frontend, command), message);
   check(JSON.stringify(compatibility.jobs?.["browser-regression"]?.strategy?.matrix?.browser) === JSON.stringify(["chromium", "firefox", "webkit"]), "Web compatibility freezes the three-browser matrix");

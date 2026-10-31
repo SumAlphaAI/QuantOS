@@ -34,7 +34,7 @@ Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-
 | @radix-ui/react-dialog | 1.1.23 |
 | @radix-ui/react-tabs | 1.1.21 |
 | storybook | 8.6.19 |
-| vite | 6.4.4 |
+| vite | 6.4.5 |
 | @testing-library/react | 16.3.0 |
 | jsdom | 26.1.0 |
 
@@ -57,3 +57,5 @@ Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-
 目标为新 Web workspace ≤30分钟完成 bootstrap/build/test。重放必须记录源码与输入摘要、工具链、profile、缓存条件、命令退出码与耗时；缓存可用的干净安装不能外推为完全空下载缓存的网络时长。历史 2026-09-16 双端记录保留历史身份；当前整改证据另存 `docs/audit`。
 
 仓库 Gate、local-mock 浏览器验证与实际 GitHub CI、正式 G0、provider/staging 验收分别记录。不得以本地通过代替外部验收。
+
+2026-10-31：按 [GHSA-8g5g-mxqh-grgj](https://github.com/advisories/GHSA-8g5g-mxqh-grgj) 升级至 Vite 6.4.5，更新当前 PRE-03 受控版本与拒绝回归。Node、pnpm、Vitest、Storybook 及运行时选型不变；minimatch/glob 开发工具依赖同步采用官方修复版，minimatch 仅补旧默认导出接口。历史段落保留原日期和范围，本次工程验证不代表目标/发布验收。

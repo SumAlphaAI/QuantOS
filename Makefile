@@ -473,6 +473,7 @@ license-check:
 
 sca-check:
 	node --test scripts/tests/glib-backport.test.mjs scripts/braces-backport.test.mjs
+	node --test scripts/dependency-compat.test.mjs
 	node scripts/check-sca.mjs
 
 waiver-check:

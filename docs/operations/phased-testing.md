@@ -24,6 +24,8 @@
 
 同日 A2 变异入口复核：`scripts/test-bff-fe-001-mutations.mjs` 的独立源码副本必须保留 Rust 编译时引用的两份受控 JSON 输入（X05 unknown-reconciliation、X02 books-risk open），只复制确切文件并核对字节摘要，记录为 fixtureInputs。`cargo test --lib <name>` 在名称筛选前仍会编译全部测试模块；缺文件或编译失败不能当作安全变异被拒绝。原九个变异、240 秒单次期限及“指定业务测试实际 FAILED、exit 101、无信号/工具错误”判据保持，不执行这些历史业务 campaign 或改绑其验收。
 
+同日覆盖率入口补齐：公开 `coverage:web`、`coverage:critical` 及 Frontend 后续单测均先通过既有 Web fixture 准备入口选择当前优化 BFF；Web coverage 的 critical 后续使用同一产物环境。原总体 80% 和 critical 六文件逐文件四项 100% 阈值、范围和断言保持。PRE-06 拒绝绕过准备、去掉 instrumentation 或丢失 critical 后续的接线。Vite/minimatch/glob 采用本轮核对的官方修复版本，minimatch 的补丁只恢复旧默认导出，SCA 前执行旧消费者及实际 Vite 文件拒绝/glob 取消回归；不新增漏洞豁免或放宽扫描规则。
+
 机器策略为 `scripts/development-testing-policy.json`。`provider-a1-receipts.mjs::assess` 是旧聚合执行器，现要求显式 `campaign={phase:'INTEGRATION'|'RELEASE', reason:'具体业务链及扩大范围理由'}`，默认调用在调度和创建证据目录前拒绝；旧 recorder 不再能自动发起开发全闭包。现有聚合回执仍可按原范围审计；执行器参数不会把结果自动升级为对应阶段验收。后续任务应像 X03 一样建立当前功能/影响范围清单，再进入记录器，不应复制旧全闭包入口作为默认开发 Gate。
 
 X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-scope.mjs`：12 组当前功能与直接影响检查，逐组 reason。`record-x03-local.mjs` 不调用聚合 assess、不读取历史 READY、不修改上游 canonical 产物；在新目录记录真实结果，只有全部必要检查正常退出、输入未漂移及覆盖率满足后才事务写入 X03 manifest 和两份计划。SIGTERM/SIGINT 中断会停止当前子进程组、保存 INTERRUPTED 并拒绝发布。

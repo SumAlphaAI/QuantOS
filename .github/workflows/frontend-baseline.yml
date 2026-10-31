@@ -182,7 +182,7 @@ jobs:
         run: pnpm test:research-local
 
       - name: Unit tests
-        run: pnpm --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test
+        run: node scripts/test-web-with-bff.mjs --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test
 
       - name: Build website & terminal
         run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build

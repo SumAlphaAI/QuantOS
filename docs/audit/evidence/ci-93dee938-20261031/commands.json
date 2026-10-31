@@ -1,0 +1,107 @@
+{
+  "tools": "Node24.12.0; cached official pnpm10.20.0 through temporary shim; no manager/signature bypass",
+  "checks": [
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH QUANTOS_SKIP_ENV=1 make sca-check",
+      "result": "PASS: 9 existing backport probes, 6 compatibility probes, npm/pypi/cargo/cargo-desktop scans",
+      "log": "sca-final.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH QUANTOS_SKIP_ENV=1 pnpm coverage:critical",
+      "result": "PASS: 1983 tests / 3 existing skips; all six files four metrics 100%",
+      "log": "critical-coverage.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH QUANTOS_SKIP_ENV=1 pnpm coverage:web",
+      "result": "PASS: 2337 tests / 3 skips, lines98.14; critical follow-up1983/3 and100%",
+      "log": "web-coverage.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH QUANTOS_SKIP_ENV=1 node scripts/test-web-with-bff.mjs --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test",
+      "result": "PASS: 1990 tests in original four packages",
+      "log": "frontend-unit.log.gz"
+    },
+    {
+      "command": "node --test scripts/test-web-with-bff.test.mjs scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs",
+      "result": "PASS 33, zero skip",
+      "log": "entry-negative-final.log.gz"
+    },
+    {
+      "command": "Public local-mock environment; node --test --test-concurrency=1 scripts/pre03-gate-negative.mjs scripts/pre03-desktop-negative.mjs; pnpm --filter @sumalpha/website --filter @sumalpha/terminal build; node scripts/pre03-smoke.mjs --web-only",
+      "result": "PASS40; both final builds; web-only2294 checks / 2 actual Chromium routes",
+      "log": "frontend-final.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH node scripts/check-node-licenses.mjs",
+      "result": "PASS733 locked packages including registry identity/integrity",
+      "log": "node-licenses.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH node scripts/check-node-lock.mjs",
+      "result": "PASS final frozen root lock",
+      "log": "node-lock-final.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH pnpm --dir /tmp/quantos-93dee938-desktop-lock install --lockfile-only --frozen-lockfile --ignore-scripts --offline",
+      "result": "PASS manifest/patch-only companion, no Desktop build/runtime",
+      "log": "desktop-lock-frozen.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website lint",
+      "result": "PASS actual old ESLint consumers",
+      "log": "frontend-lint.log.gz"
+    },
+    {
+      "command": "PATH=/tmp/quantos-93dee938-bin:$PATH pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website typecheck",
+      "result": "PASS",
+      "log": "frontend-types.log.gz"
+    },
+    {
+      "command": "node scripts/check-bff-generated.mjs",
+      "result": "PASS no generated drift after Redocly/minimatch upgrade",
+      "log": "generated.log.gz"
+    },
+    {
+      "command": "node scripts/check-pre06.mjs",
+      "result": "PASS160 operations / 180 schemas /142 visual baselines",
+      "log": "pre06.log.gz"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "result": "PASS static; formalAccepted false",
+      "log": "plans.log.gz"
+    },
+    {
+      "command": "node --test scripts/manual-database-policy.test.cjs scripts/ci-stage-disposition.test.mjs",
+      "result": "PASS45",
+      "log": "policy-negative.log.gz"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/dependency-compat.test.mjs scripts/test-web-with-bff.test.mjs scripts/check-pre06.mjs scripts/pre06-gate-negative.mjs scripts/pre03-smoke.mjs scripts/pre03-gate-negative.mjs",
+      "result": "PASS final; earlier globals/unused errors retained",
+      "log": "eslint-final.log.gz"
+    }
+  ],
+  "intermediateAttempts": [
+    {
+      "log": "pre03-negative.log.gz",
+      "status": "FAILED_ENVIRONMENT before tests: public mock variables absent"
+    },
+    {
+      "log": "frontend-companion-before.log.gz",
+      "status": "FAIL1: old shared Desktop lock; remaining39 tests passed; not complete PASS"
+    },
+    {
+      "log": "frontend-build.log.gz",
+      "status": "EARLIER_BUILD_SCOPE_ONLY: succeeded before final metadata/script changes; final source rebuilt separately"
+    },
+    {
+      "log": "eslint-initial.log.gz",
+      "status": "FAIL9 preexisting globals"
+    },
+    {
+      "log": "eslint-expanded.log.gz",
+      "status": "FAIL28 preexisting globals/unused in PRE03; fixed with explicit builtins/equivalent summary"
+    }
+  ]
+}

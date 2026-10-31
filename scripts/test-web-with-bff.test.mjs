@@ -19,11 +19,12 @@ test('builds current functional host and overrides stale executable while preser
   assert.equal(calls[1].options.cwd, '/archive');
 });
 
-test('explicit scope and failing test result are propagated', () => {
+for (const selection of [['--filter', '@sumalpha/terminal', 'test'], ['coverage:critical:run'], ['coverage:web:run']]) test(`scope ${selection.join(' ')} and failing test result are propagated`, () => {
   let count = 0;
-  const result = runWebTests(['--filter', '@sumalpha/terminal', 'test'], { exists: () => true, run: (_command, args) => {
+  const result = runWebTests(selection, { exists: () => true, run: (_command, args, options) => {
     if (++count === 1) return { ...ok, stdout: artifact };
-    assert.deepEqual(args, ['--filter', '@sumalpha/terminal', 'test']);
+    assert.deepEqual(args, selection);
+    assert.equal(options.env.QUANTOS_REFERENCE_BFF_EXECUTABLE, '/custom target/owned-fixture/bff-gateway');
     return { status: 1, signal: null };
   } });
   assert.equal(result.status, 1);

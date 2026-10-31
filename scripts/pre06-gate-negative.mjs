@@ -5,11 +5,42 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import process from "node:process";
+const { structuredClone } = globalThis;
 import { candidateVisualPaths, requiredVisualPaths } from "./check-visual-baselines.mjs";
 
 import { loadPre06Inputs, validatePre06 } from "./check-pre06.mjs";
 
 const current = loadPre06Inputs();
+
+test("critical coverage cannot bypass the owned fixture or omit instrumentation", () => {
+  for (const [name, value] of [
+    ["coverage:critical", "vitest run --config vitest.critical.config.ts --coverage"],
+    ["coverage:critical:run", "vitest run --config vitest.critical.config.ts"],
+  ]) {
+    const packageJson = { ...current.packageJson, scripts: { ...current.packageJson.scripts, [name]: value } };
+    const report = validatePre06({ ...current, packageJson });
+    assert(report.failures.includes("critical coverage prepares the current owned BFF before instrumented tests"));
+  }
+});
+
+test("Frontend unit tests cannot silently restore an unprepared debug host", () => {
+  const frontendWorkflowText = current.frontendWorkflowText.replace(
+    "node scripts/test-web-with-bff.mjs --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test",
+    "pnpm --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test");
+  const report = validatePre06({ ...current, frontendWorkflowText });
+  assert(report.failures.includes("Frontend Baseline unit tests prepare the current owned BFF"));
+});
+
+test("Web coverage cannot bypass fixture preparation or omit the critical follow-up", () => {
+  for (const [name, value] of [
+    ["coverage:web", "vitest run --config vitest.coverage.config.ts --coverage && pnpm coverage:critical"],
+    ["coverage:web:run", "vitest run --config vitest.coverage.config.ts --coverage"],
+  ]) {
+    const packageJson = { ...current.packageJson, scripts: { ...current.packageJson.scripts, [name]: value } };
+    assert(validatePre06({ ...current, packageJson }).failures.includes("Web coverage and its critical follow-up share the prepared owned BFF"));
+  }
+});
 
 test("Linux candidate artifacts include all P01 themes and browsers and refuse an old twelve-image receipt", () => {
   const paths = candidateVisualPaths("linux");
