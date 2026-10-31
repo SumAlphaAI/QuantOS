@@ -22,6 +22,8 @@
 
 2026-10-31 Web fixture 复核：`make test-web` 经 `scripts/test-web-with-bff.mjs` 使用同一 assertion-enabled `owned-fixture` BFF；将 Cargo 实际 executable 通过 `QUANTOS_REFERENCE_BFF_EXECUTABLE` 交给 Terminal 测试，构建失败或产物缺失即失败，不重建并误选未优化的 debug 宿主。手工入口仍可使用默认 debug 路径，显式空路径/无效路径不得回退。保留原 `pnpm test` 范围、15 秒启动期限、请求 deadline、业务断言及 F01 的 1800 秒 clean-room 限额；测试读取历史 JSON 时按测试文件的 URL 定位，只作为 UI 模型输入，不形成当前授权或验收回执。
 
+同日 A2 变异入口复核：`scripts/test-bff-fe-001-mutations.mjs` 的独立源码副本必须保留 Rust 编译时引用的两份受控 JSON 输入（X05 unknown-reconciliation、X02 books-risk open），只复制确切文件并核对字节摘要，记录为 fixtureInputs。`cargo test --lib <name>` 在名称筛选前仍会编译全部测试模块；缺文件或编译失败不能当作安全变异被拒绝。原九个变异、240 秒单次期限及“指定业务测试实际 FAILED、exit 101、无信号/工具错误”判据保持，不执行这些历史业务 campaign 或改绑其验收。
+
 机器策略为 `scripts/development-testing-policy.json`。`provider-a1-receipts.mjs::assess` 是旧聚合执行器，现要求显式 `campaign={phase:'INTEGRATION'|'RELEASE', reason:'具体业务链及扩大范围理由'}`，默认调用在调度和创建证据目录前拒绝；旧 recorder 不再能自动发起开发全闭包。现有聚合回执仍可按原范围审计；执行器参数不会把结果自动升级为对应阶段验收。后续任务应像 X03 一样建立当前功能/影响范围清单，再进入记录器，不应复制旧全闭包入口作为默认开发 Gate。
 
 X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-scope.mjs`：12 组当前功能与直接影响检查，逐组 reason。`record-x03-local.mjs` 不调用聚合 assess、不读取历史 READY、不修改上游 canonical 产物；在新目录记录真实结果，只有全部必要检查正常退出、输入未漂移及覆盖率满足后才事务写入 X03 manifest 和两份计划。SIGTERM/SIGINT 中断会停止当前子进程组、保存 INTERRUPTED 并拒绝发布。

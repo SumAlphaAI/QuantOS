@@ -1,0 +1,32 @@
+{
+  "toolchain": "Existing cached pnpm 10.20.0 via temporary /tmp/quantos-ad011968-bin/pnpm; Node 24.12.0; no repo package manager configuration changed",
+  "checks": [
+    {
+      "command": "make bff-contract-check (explicit base SHA and QUANTOS_SKIP_ENV=1; see contract-commands.json)",
+      "exitCode": 0,
+      "log": "contract-gate.log.gz",
+      "scope": "all 27 BFF engineering recipes; no target/release admission"
+    },
+    {
+      "command": "node scripts/check-bff-a1-acceptance.mjs --stage development",
+      "exitCode": 0,
+      "log": "a1-final.log.gz",
+      "scope": "final documentation inputs; formalAccepted false"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/test-bff-fe-001-mutations.mjs (initial)",
+      "exitCode": 1,
+      "log": "eslint.log.gz",
+      "scope": "two existing globals errors; fixed with explicit Node imports"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/test-bff-fe-001-mutations.mjs (final)",
+      "exitCode": 0,
+      "log": "eslint-final.log.gz"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ]
+}

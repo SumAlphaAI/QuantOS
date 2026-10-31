@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { cpSync, readFileSync, writeFileSync, mkdtempSync, rmSync, mkdirSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { resolve, join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync, execFileSync } from "node:child_process";
 import { digest } from "./bff-fe-001-execution.mjs";
+import process from "node:process";
+import console from "node:console";
 
 const root = resolve(import.meta.dirname, "..");
 const scratch = mkdtempSync(join(tmpdir(), "quantos-a2-mutants-"));
@@ -12,6 +14,13 @@ mkdirSync(evidence, { recursive: true });
 const original = readFileSync(resolve(root, "services/bff-gateway/src/lib.rs"), "utf8");
 const livePolicyPath="services/bff-gateway/src/live/settings_policy.rs";
 const originalPolicy=readFileSync(resolve(root,livePolicyPath),"utf8");
+// Rust compiles every #[cfg(test)] module before applying a test-name filter.
+// Preserve these exact include_str! inputs without copying the audit tree.
+const fixtureFiles = [
+  "docs/audit/evidence/core-x05-current-local-20261029/attempt-02/unknown-reconciliation.json",
+  "docs/audit/evidence/core-x02-books-risk-local-20261030/attempt-01/open.json",
+];
+const fixtureInputs = [];
 const records = [];
 let lockProof;
 const mutations = [
@@ -24,6 +33,14 @@ try {
   // Preserve the direct execution-gateway path dependency, its X3 test fixture
   // referenced by #[path], and SQL include_str! inputs. No migrations run here.
   for (const folder of ["crates", "services/bff-gateway", "services/execution-gateway", "supabase/migrations"]) cpSync(resolve(root, folder), resolve(scratch, folder), { recursive: true });
+  for (const file of fixtureFiles) {
+    const destination = resolve(scratch, file);
+    mkdirSync(dirname(destination), { recursive: true });
+    cpSync(resolve(root, file), destination);
+    const sha256 = digest(readFileSync(resolve(root, file)));
+    assert.equal(digest(readFileSync(destination)), sha256, `scratch fixture differs: ${file}`);
+    fixtureInputs.push({ path: file, sha256 });
+  }
   const manifest = readFileSync(resolve(root, "Cargo.toml"), "utf8").replace(/members = \[[\s\S]*?\]/, 'members = ["services/bff-gateway"]');
   writeFileSync(join(scratch, "Cargo.toml"), manifest);
   cpSync(resolve(root, "Cargo.lock"), join(scratch, "Cargo.lock"));
@@ -64,6 +81,6 @@ try {
     console.log(`PASS actual semantic mutation rejected: ${name}`);
   }
 } finally {
-  writeFileSync(join(evidence, "mutations.json"), JSON.stringify({ schema: "quantos-bff-a2-semantic-mutations/v1", sourceSha256: digest(original), livePolicySha256:digest(originalPolicy), lockProof, records }, null, 2) + "\n");
+  writeFileSync(join(evidence, "mutations.json"), JSON.stringify({ schema: "quantos-bff-a2-semantic-mutations/v1", sourceSha256: digest(original), livePolicySha256:digest(originalPolicy), fixtureInputs, lockProof, records }, null, 2) + "\n");
   rmSync(scratch, { recursive: true, force: true });
 }
